@@ -10,6 +10,7 @@
     import Close from "carbon-icons-svelte/lib/Close.svelte";
     import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import Add from "carbon-icons-svelte/lib/Add.svelte";
+	import Projects from "$lib/components/map-cesium/MapToolProjects/Projects.svelte";
 
     const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
@@ -264,6 +265,8 @@
             />
         </div>
     </div>
+
+    <Projects />
 {/if}
 
 <style>

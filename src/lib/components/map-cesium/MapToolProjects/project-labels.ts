@@ -1,8 +1,9 @@
 
 import * as Cesium from "cesium";
+import * as turf from "@turf/turf";
 
-import type { Map } from "$lib";
-import { getCartesian2, getPolygonCenter, turfPolygonToCartesians } from "../MapToolSubsurface/subsurface-helpers";
+import type { Map } from "$lib/components/map-cesium/module/map";
+import { getCartesian2, getPolygonCenter, turfPolygonToCartesians } from "./project-helpers";
 import type { CesiumProject } from "./project";
 import { writable, type Unsubscriber, type Writable, get } from "svelte/store";
 

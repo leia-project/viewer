@@ -7,6 +7,7 @@
 	import MapWidgetLoading from "./MapWidgetLoading/MapWidgetLoading.svelte";
 	import MapWidgetCameraPosition from "./MapWidgetCameraPosition/MapWidgetCameraPosition.svelte";
 	import MapWidgetAnimation from "./MapWidgetAnimation/MapWidgetAnimation.svelte";
+	import MapWidgetProject from "./MapToolProjects/MapWidgetProject.svelte";
 	import { dragDropEvents } from "./module/drag-n-drop";
 
 	export let map: Map = new Map();
@@ -61,6 +62,10 @@
 
 		{#if showAnimationWidget}
 			<MapWidgetAnimation {map} />
+		{/if}
+
+		{#if showProjectWidget}
+			<MapWidgetProject {map} />
 		{/if}
 	</div>
 
