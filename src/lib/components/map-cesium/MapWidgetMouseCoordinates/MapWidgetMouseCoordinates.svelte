@@ -4,9 +4,10 @@
 
 	export let map: Map;
 
-	let lonLat: Location = new Location(0, 0);
-	$: lon = lonLat.x.toFixed(5);
-	$: lat = lonLat.y.toFixed(5);
+	let loc: Location = new Location(0, 0, 0);
+	$: lon = loc.x.toFixed(5);
+	$: lat = loc.y.toFixed(5);
+	$: z = loc.z.toFixed(5);
 
 	map.ready.subscribe((r) => {
 		if (r) {
@@ -18,14 +19,14 @@
 		map.on("mouseMove", (m: any) => {
 			try {
 				const location = map.screenToLonLat(m);
-				lonLat = location;
+				loc = location;
 			} catch (e) {}
 		});
 	}
 </script>
 
 <div class="wrapper">
-	{lon}, {lat}
+	x: {lon}, y: {lat}, z: {z}
 </div>
 
 <style>
