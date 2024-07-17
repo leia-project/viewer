@@ -50,6 +50,12 @@ export abstract class MapCore extends Dispatcher {
 		this.layerLibrary.on("layerRemoved", (l: LayerConfig) => {
 			this.removeLayerInternal(l);
 		});
+
+		this.ready.subscribe(r => {
+			if(r) {
+				this.subscribeToEvents();
+			}
+		})
 	}
 
 	public setLayerConfig(layers: Array<LayerConfig>, groups: Array<LayerConfigGroup>): void {		
