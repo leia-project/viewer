@@ -1,0 +1,229 @@
+{
+    "general": {
+        "notifications": {
+            "error": "Error",
+            "warning": "Waarschuwing",
+            "info": "Informatie",
+            "success": "Gelukt",
+            "noConfigText": "Geen configuratie gevonden"
+        }
+    },
+    "tools": {
+        "menu": {
+            "expand": "Uitklappen",
+            "collapse": "Inklappen"
+        },
+        "geocoder": {
+            "search": "Zoek Locatie"
+        },
+        "info": {
+            "info": "Informatie",
+            "close": "Sluiten",
+            "general": "Open 3D viewer, een product door Geodan en Provincie Zeeland.",
+            "attribution": "Naamsvermelding"
+        },
+        "help": {
+            "help": "Help",
+            "title": "Digital-Twin Viewer",
+            "close": "Sluiten",
+            "closeDontShowOnStart": "Sluit en geef niet meer weer bij opstarten",
+            "intro": "<div class='body-02'>A digital twin is a digital representation of an intended or actual real-world physical product, system, or process (a physical twin) that serves as the effectively indistinguishable digital counterpart of it for practical purposes, such as simulation, integration, testing, monitoring, and maintenance.<br><br>For more information on how to use the viewer see the different topics</div><br><div style='display:flex; justify-content: center;'></div>",
+            "tabs": {
+              "intro": "Introductie",
+              "movement": "Beweging",
+              "library": "Bibliotheek",
+              "search": "Zoeken"
+            },
+            "movement": {
+              "headingZoom": "Zoom in/uit",
+              "zoomDescription": "In en uit zoomen kan op 3 verschillende manieren gedaan worden:",
+              "zoomOption1": "1) Scroll omhoog of omlaag met je muis scroll wheel om in of uit te zoomen.",
+              "zoomOption2": "2) Houd uw rechtermuisknop ingedrukt en beweeg de muis omhoog of omlaag om naadloos te zoomen.",
+              "zoomOption3": "3) Gebruik de in- en uitzoomknoppen rechtsonder.",
+              "headingRotatePitch": "Roteren & Pitchen",
+              "rotatePitchDescription": "U kunt de camera roteren en pitchen, het is ook mogelijk om de camera onder de oppervlakte te richten om zo in de bodem te kijken. Dit kan op 2 verschillende manieren.",
+              "rotatePitchOption1": "1) Druk het scrollwieltje van je muis in en beweeg de muis rond.",
+              "rotatePitchOption2": "2) Houd de <help-key>ctrl</help-key> toets op uw toetsenbord en uw linkermuisknop en beweeg de muis rond.",
+              "headingButtons": "Kaart Knoppen",
+              "buttonsDescription": "Rechtsonder zijn enkele knoppen te vinden.",
+              "buttonsHome": "Reset het aanzicht naar de startpositie",
+              "buttonsCompass": "Reset de camera naar het noorden",
+              "buttonsZoomIn": "Zoom in",
+              "buttonsZoomOut": "Zoom out"
+            },
+            "library": {
+              "headingLibraryOpen": "Open de bibliotheek",
+              "headingUsingLibrary": "Gebruik van de bibliotheek",
+              "description": "Als u meer lagen wilt toevoegen bovenop de geconfigureerde lagen in de viewer, kunt u dit doen met behulp van de bibliotheek",
+              "openLibrary": "Om de lagenbibliotheek te openen, klikt u op de knop 'map' aan de linkerkant",
+              "libraryDescription": "Gebruik de zoekbalk onderaan om de gewenste lagen te zoeken of klik door de getoonde groepen. Klik op de laag om meer informatie over de laag weer te geven, schakel het selectievakje in om de laag aan de kaart toe te voegen of druk op de knop 'Toevoegen aan kaart' in de laagbeschrijvingsweergave"
+            }
+        },
+        "config_switcher": {
+            "label": "Kies Viewerconfiguratie",
+            "title": "Kies een viewerconfiguratie",
+            "intro": "Kies een viewerconfiguratie uit de lijst om de viewer te starten met de geselecteerde configuratie.",
+            "close": "Sluiten",
+            "no_configs": "Kan geen configuratie vinden."
+        },
+        "layerLibrary": {
+            "label": "Bibliotheek",
+            "baseLayers": "Achtergrondlagen",
+            "noCategory": "Geen categorie",
+            "close": "Sluiten",
+            "notImplemented": "Nog niet geïmplementeerd",
+            "catalogue": "Catalogus",
+            "myData": "Mijn Data",
+            "myDataTitle": "Mijn Data Laag Configuratie",
+            "btnAddToMap": "Voeg toe aan kaart",
+            "btnRemoveFromMap": "Verwijder van kaart",
+            "btnAddAllToMap": "Alle lagen toevoegen",
+            "btnRemoveAllFromMap": "Alle lagen verwijderen",
+            "btnCopyToClipboard": "Kopieer naar klembord",
+            "description": "Beschrijving",
+            "noDescription": "Geen beschrijving gevonden",
+            "attribution": "Naamsvermelding",
+            "noAttribution": "Geen naamsvermelding gevonden",
+            "layerType": "Type laag",
+            "layerName": "Naam",
+            "metadata": "Metadata",
+            "noMetadata": "Geen metadata gevonden",
+            "info": "Informatie",
+            "infoLibrary": "Voeg data aan de kaart toe door aan de linkerkant een groep te openen en de checkbox voor de data aan te vinken, om meer informatie over de data te zien klik de titel aan om gedetailleerde informatie aan de rechterkant te tonen wanneer beschikbaar.",
+            "infoMyDataLibrary": "Maak een eigen datalaag aan door op de knop Toevoegen te klikken. Na het invullen van de gegevens kan de datalaag aan de kaart worden toegevoegd.",
+            "searchPlaceholder": "Zoek Data",
+            "searchResults": "Zoekresultaten",
+            "for": "voor",
+            "searchNoResults": "Geen resultaten voor",
+            "layerNamePlaceholder": "Naam van de laag...",
+            "contentTypePlaceholder": "bijv. image/png of image/jpeg",
+            "geojsonStylePlaceholder": "Parameter voor standaardstijl",
+            "timeKeyPlaceholder": "Tijdparameter in de GeoJSON-properties",
+            "orientationKeyPlaceholder": "Optioneel: Orientatieparameter in de GeoJSON-properties",
+            "invalidTypeText": "Selecteer een ondersteund datatype uit de lijst",
+            "invalidUrlText": "Voer een geldige URL in",
+            "urlNotFoundText": "Opgegeven URL niet gevonden",
+            "addCustomLayer": "Voeg eigen laag toe",
+            "deleteLayer": "Laag verwijderen",
+            "selectedThemes": "Geselecteerde thema's",
+            "filterByTheme": "Filter op thema",
+            "enableClipping": "Clip-optie inschakelen",
+            "clampToTerrain": "Vastzetten op terrein",
+            "styling": "Stijl"
+        },
+        "layerManager": {
+            "label": "Lagenbeheer",
+            "baseLayers": "Achtergrondlagen",
+            "thematicLayer": "Thematische lagen",
+            "opacity": "Transparantie",
+            "legend": "Legenda",
+            "legendNotFoundText": "Geen legenda gevonden",
+            "styling": "Stijl",
+            "extrusion": "Extrusie",
+            "metersNAP": " meter (NAP)",
+            "gradient": "Kleurverloop",
+            "applyGradient": "Kleurverloop instellen",
+            "btnShowAll": "Alles tonen",
+            "btnHideAll": "Alles verbergen"
+        },
+        "layerTools": {
+            "theme": {
+                "label": "Themas",
+                "default": "Geen",
+                "legend": "Legenda",
+                "reset": "Reset legenda"
+            }
+        },
+        "backgroundControls": {
+            "opacity": "Wereld Transparantie",
+            "terrain": "Terrein"
+        },
+        "bookmarks": {
+            "label": "Bladwijzers",
+            "title": "Titel",
+            "save": "Opslaan",
+            "cancel": "Annuleren",
+            "delete": "Verwijderen",
+            "add": "Nieuwe Bladwijzer Toevoegen",
+            "description": "Beschrijving",
+            "cameraPosition": "Camera",
+            "cameraPositionSubtitle": "De huidige camera positie zal opgeslagen worden bij deze bladwijzer",
+            "noBookmarks": "Geen bladwijzers",
+            "noBookmarksSubtitle": "Druk op toevoegen om een nieuwe bladwijzer aan te maken"
+        },
+        "featureInfo": {
+            "label": "Object Informatie",
+            "noData": "Geen data, Klik op een object voor meer informatie"
+        },
+        "measure": {
+            "label": "Meten",
+            "noMeasurement": "Geen metingen",
+            "noMeasurementSubtitle": "Druk op toevoegen om een nieuwe meting aan te maken",
+            "add": "Voeg nieuwe meting toe",
+            "edit": "Meting aanpassen",
+            "title": "Titel",
+            "defaultTitle": "Meting",
+            "save": "Opslaan",
+            "record": "Sla camera positie op",
+            "delete": "Verwijderen",
+            "cameraPosition": "Camera positie",
+            "totalLength": "Totale lengte",
+            "points": "Punten"
+        },
+        "controls": {
+            "label": "Kaart Instellingen",
+            "sunPosition": "Zon Positie",
+            "sunPositionDate": "Datum",
+            "sunPositionHour": "Uur UTC",
+            "quality": "Kwaliteit",
+            "rendering": "Rendering",
+            "environment": "Omgeving",
+            "debug": "Debug",
+            "low": "Laag",
+            "medium": "Middel",
+            "high": "Hoog",
+            "custom": "Aangepast",
+            "animate": "Animeer",
+            "fxaa": "FXAA",
+            "fog": "Mist",
+            "groundAtmosphere": "Grond Atmosfeer",
+            "dynamicRange": "HDR",
+            "lighting": "Belichting",
+            "msaa": "MSAA",
+            "maximumScreenspaceError": "Level of Detail",
+            "resolutionScale": "Resolutie Schaal",
+            "shadows": "Schaduwen",
+            "skyAtmosphere": "Lucht Atmosfeer",
+            "FPSCounter": "FPS Teller",
+            "inspector": "Tegel Inspecteur",
+            "coordinates": "Coördinaten",
+            "pointCloud": "Puntenwolken",
+            "pointCloudAttenuation": "Attenuation",
+            "pointCloudAttenuationBaseResolution": "Attenuation Basis Resolutie",
+            "pointCloudAttenuationErrorScale": "Attenuation Geometric Error Schaal",
+            "pointCloudAttenuationMaximum": "Attenuation Maximum",
+            "pointCloudEDL": "Eye Dome Lighting",
+            "pointCloudEDLRadius": "Eye Dome Lighting Radius",
+            "pointCloudEDLStrength": "Eye Dome Lighting Sterkte",
+            "logo": "Logo's"
+        },
+        "stories": {
+            "label": "Verhalen",
+            "back": "Terug naar overzicht",
+            "stepBack": "Stap terug",
+            "stepForward": "Stap vooruit                                                                                                                                       "
+        },
+        "animation": {
+            "speed": "Snelheid",
+            "play": "Play",
+            "pause": "Pauze",
+            "currentTime": "Huidige tijd",
+            "animationControls": "Animatie-widget",
+            "showWayPoints": "Toon waypoints",
+            "hideWayPoints": "Verberg waypoints",
+            "trackModel": "Model volgen",
+            "stopTracking": "Stop met volgen",
+            "zoomToModel": "Zoom naar model"
+        }
+    }
+}
