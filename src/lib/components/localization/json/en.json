@@ -6,6 +6,10 @@
             "info": "Information",
             "success": "Success",
             "noConfigText": "No configuration found"
+        },
+        "buttons": {
+            "show": "Show",
+            "hide": "Hide"
         }
     },
     "tools": {

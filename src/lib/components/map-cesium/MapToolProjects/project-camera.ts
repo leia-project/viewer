@@ -151,7 +151,6 @@ export class ProjectCamera {
 			position: Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1]),
 			ellipsoid: {
 				radii: radii,
-				material: Cesium.Color.GAINSBORO.withAlpha(0.99)
 			}
 		});
 		this.map.viewer.entities.add(this.boundingDome);

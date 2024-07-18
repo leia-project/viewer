@@ -6,6 +6,10 @@
             "info": "Informatie",
             "success": "Gelukt",
             "noConfigText": "Geen configuratie gevonden"
+        },
+        "buttons": {
+            "show": "Tonen",
+            "hide": "Verbergen"
         }
     },
     "tools": {

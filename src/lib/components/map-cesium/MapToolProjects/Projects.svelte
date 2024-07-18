@@ -92,7 +92,7 @@
 			{#if !$selectedProject}
 				<Button
 					icon={$showLabels ? ViewOffFilled : ViewFilled}
-					iconDescription={`${$showLabels ? $_('buttons.hide') :  $_('buttons.show')} projects`}
+					iconDescription={`${$showLabels ? $_('general.buttons.hide') :  $_('general.buttons.show')}`}
 					tooltipPosition="left"
 					size="small"
 					kind="ghost"

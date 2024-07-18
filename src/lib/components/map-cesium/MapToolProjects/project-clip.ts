@@ -31,6 +31,9 @@ export class ProjectClippingPlanes {
 	public remove(): void {
 		this.remove3DTilesetClippingPlanes();
 		this.map.viewer.scene.globe.clippingPlanes.removeAll();
+		this.map.viewer.scene.globe.backFaceCulling = true;
+		this.map.viewer.scene.globe.showSkirts = true;
+		this.map.viewer.scene.skyAtmosphere.show = true;
 		this.mapLayersUnsubscriber();
 	}
 
@@ -87,7 +90,9 @@ export class ProjectClippingPlanes {
 				planes: clippingPlanes,	
 				enabled: true,
 				modelMatrix: transformMatrix,
-				unionClippingRegions: true
+				unionClippingRegions: true,
+				edgeColor: Cesium.Color.WHITE,
+				edgeWidth: 3
 			});
 			
 			this.clippingPlanes = clippingPlaneCollection;
@@ -107,8 +112,12 @@ export class ProjectClippingPlanes {
 			globeClippingPlanes.modelMatrix = this.clippingPlanes.modelMatrix;
 			globeClippingPlanes.edgeColor = this.clippingPlanes.edgeColor;
 			globeClippingPlanes.edgeWidth = this.clippingPlanes.edgeWidth;
+			globeClippingPlanes.enabled = this.clippingPlanes.enabled;
 		}
 		this.map.viewer.scene.globe.clippingPlanes = globeClippingPlanes;
+		this.map.viewer.scene.globe.backFaceCulling = false;
+		this.map.viewer.scene.globe.showSkirts = false;
+		this.map.viewer.scene.skyAtmosphere.show = false;
 	}
 
 
