@@ -6,6 +6,7 @@
 
     import type { MapCore } from "$lib/components/map-core/map-core";
     import { CkanConnector } from "$lib/components/map-core/library-connectors/ckan/ckan-connector";
+    import { GeoNetworkConnector } from "$lib/components/map-core/library-connectors/geonetwork/geonetwork-connector";
     import type { LibraryConnector } from "$lib/components/map-core/library-connectors/library-connector";
     import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
     import { LayerConfig } from "$lib/components/map-core/layer-config";
@@ -108,15 +109,17 @@
 
             if(settings.type && settings.type === "ckan") {
                 connector = new CkanConnector(settings);
+            } else if (settings.type && settings.type === "geonetwork"){
+                connector = new GeoNetworkConnector(settings);
             }
 
             if(!connector) continue;
 
             const data = await connector.getData();
-                const mapCore = map as MapCore;
-                mapCore.layerLibrary.addLayerConfigGroups(data.groups);
-                mapCore.layerLibrary.addLayerConfigs(data.layerConfigs);
-                mapCore.dispatch("Connector fetched", {connector});
+            const mapCore = map as MapCore;
+            mapCore.layerLibrary.addLayerConfigGroups(data.groups);
+            mapCore.layerLibrary.addLayerConfigs(data.layerConfigs);
+            mapCore.dispatch("Connector fetched", {connector});
         }
     }
 
