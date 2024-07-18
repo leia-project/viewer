@@ -266,8 +266,8 @@
         </div>
     </div>
 
-    <Projects />
 {/if}
+<Projects />
 
 <style>
     .wrapper {

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getContext } from "svelte";
 	import { _ } from "svelte-i18n";
-	import { writable, type Writable } from 'svelte/store';
+	import { get, writable, type Writable } from 'svelte/store';
 	import { Button } from 'carbon-components-svelte';
 	import { Add, ViewOffFilled, ViewFilled } from "carbon-icons-svelte";
 
@@ -45,7 +45,7 @@
     function loadProjectsFromSettings(configProjects: any): Array<CesiumProject> {
 		const newProjects = new Array();
 		let projectActivated = false;
-		for (let i=0; i<configProjects.length; i++) {
+		for (let i = 0; i < configProjects.length; i++) {
 			const project = new CesiumProject(map, configProjects[i], selectedProject, animationTime);
 			newProjects.push(project);
 			projectLabels.addProject(project);
@@ -54,11 +54,6 @@
 		projects.set([...$projects, ...newProjects]);
 		return newProjects;
     }
-
-
-	function loadFromLocalStorage(): void {
-
-	}
 
 	function setSubscribers(): void {
 		selectedProject.subscribe((project) => {

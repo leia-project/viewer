@@ -4,7 +4,7 @@ import * as turf from "@turf/turf";
 
 import type { Map } from "$lib/components/map-cesium/module/map";
 import type { Unsubscriber } from "svelte/store";
-import { getPolygonCenter } from "./project-helpers";
+import { getPolygonCenter, polygonToCartesians } from "./project-helpers";
 
 
 export class ProjectClippingPlanes {
@@ -40,23 +40,22 @@ export class ProjectClippingPlanes {
 		if (!convexGeom) return;
 
 		const polygon = convexGeom.coordinates[0].map((point): [lon: number, lat: number] => [point[0], point[1]]);
-		const polygonC3 = this.polygonToCartesians(polygon);
+		const polygonC3 = polygonToCartesians(polygon);
 		const center = getPolygonCenter(polygon);
 		const centerC3 = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
 
-		/* Debugging:
-		for (let x=0; x<coords.length; x++) {
-			this.map.viewer.entities.add({
-				position: coords[x],
-				point: {
-					pixelSize: 10,
-					color: Cesium.Color.RED,
-					outlineColor: Cesium.Color.WHITE,
-					outlineWidth: 2
-				}
-			});
-		}
-		*/
+		// for (let x = 0; x < polygonC3.length; x++) {
+		// 	this.map.viewer.entities.add({
+		// 		position: polygonC3[x],
+		// 		point: {
+		// 			pixelSize: 10,
+		// 			color: Cesium.Color.RED,
+		// 			outlineColor: Cesium.Color.WHITE,
+		// 			outlineWidth: 2
+		// 		}
+		// 	});
+		// }
+		
 
 		if (polygonC3.length > 2) {
 			// 1) get the local coordinate system of our convex center (transform the convexCenter to (0,0,0))
@@ -81,17 +80,6 @@ export class ProjectClippingPlanes {
 
 				const negatedNormal = Cesium.Cartesian3.negate(normal, new Cesium.Cartesian3());
 				clippingPlanes.push(new Cesium.ClippingPlane(negatedNormal, distance));
-
-				/* Debugging:
-				this.map.viewer.entities.add({
-					position: center,
-					plane: {
-						plane: new Cesium.Plane(negatedNormal, distance),
-						dimensions: new Cesium.Cartesian2(150.0, 150.0),
-						material: Cesium.Color.fromRandom({alpha: 0.4})
-					},
-				});
-				*/
 			}
 			
 
@@ -120,6 +108,7 @@ export class ProjectClippingPlanes {
 			globeClippingPlanes.edgeColor = this.clippingPlanes.edgeColor;
 			globeClippingPlanes.edgeWidth = this.clippingPlanes.edgeWidth;
 		}
+		this.map.viewer.scene.globe.clippingPlanes = globeClippingPlanes;
 	}
 
 
@@ -168,9 +157,5 @@ export class ProjectClippingPlanes {
 				primitive.clippingPlanes.removeAll();
 			}
 		}
-	}
-
-	public polygonToCartesians(polygon: Array<[lon: number, lat: number]>): Array<Cesium.Cartesian3> {
-		return polygon.map((coords) => Cesium.Cartesian3.fromDegrees(coords[0], coords[1]));
 	}
 }
