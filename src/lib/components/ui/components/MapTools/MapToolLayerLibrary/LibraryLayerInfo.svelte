@@ -259,7 +259,7 @@
     }
 
     .layer-image {
-        max-width: 20rem;
+        max-width: 11rem;
         float: right;
         margin: var(--cds-spacing-05);
     }
