@@ -194,7 +194,47 @@
                         "pitch": -65,
                         "duration": 2
                     }
-                ],
+                ]
+            }
+        },
+        {
+            "id": "cesium",
+            "enabled": true,
+            "settings": {
+                "fxaa": true,
+                "shadows": false,
+                "animate": false,
+                "resolutionScale": 1,
+                "maximumScreenSpaceError": 16,
+                "groundAtmosphere": true,
+                "lighting": true,
+                "skyAtmosphere": true,
+                "fog": true,
+                "highDynamicRange": false,
+                "pointCloudAttenuationMaximum": 2,
+                "terrainProviders": [
+                  {
+                    "title": "PDOK Terrain",
+                    "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
+                    "vertexNormals": true
+                  },
+                  {
+                    "title": "Uit"
+                  }
+                ]
+            }
+        },
+        {
+            "id": "config_switcher",
+            "enabled": false,
+            "settings": {
+                "fullReload": true 
+            }
+        },
+        {
+            "id": "projects",
+            "enabled": true,
+            "settings": {
                 "openProject": "My project name",
                 "projects": [
                     {
@@ -233,40 +273,6 @@
                         }
                     }
                 ]
-            }
-        },
-        {
-            "id": "cesium",
-            "enabled": true,
-            "settings": {
-                "fxaa": true,
-                "shadows": false,
-                "animate": false,
-                "resolutionScale": 1,
-                "maximumScreenSpaceError": 16,
-                "groundAtmosphere": true,
-                "lighting": true,
-                "skyAtmosphere": true,
-                "fog": true,
-                "highDynamicRange": false,
-                "pointCloudAttenuationMaximum": 2,
-                "terrainProviders": [
-                  {
-                    "title": "PDOK Terrain",
-                    "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
-                    "vertexNormals": true
-                  },
-                  {
-                    "title": "Uit"
-                  }
-                ]
-            }
-        },
-        {
-            "id": "config_switcher",
-            "enabled": true,
-            "settings": {
-                "fullReload": true 
             }
         },
         {

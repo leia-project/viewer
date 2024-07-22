@@ -155,6 +155,10 @@
             "noBookmarks": "Geen bladwijzers",
             "noBookmarksSubtitle": "Druk op toevoegen om een nieuwe bladwijzer aan te maken"
         },
+        "projects": {
+            "label": "Projecten",
+            "leaveProjectView": "Project verlaten"
+        },
         "featureInfo": {
             "label": "Object Informatie",
             "noData": "Geen data, Klik op een object voor meer informatie"

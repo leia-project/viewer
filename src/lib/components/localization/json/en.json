@@ -148,6 +148,10 @@
             "noBookmarks": "No bookmarks",
             "noBookmarksSubtitle": "Press add to create a new bookmark"
         },
+        "projects": {
+            "label": "Projects",
+            "leaveProjectView": "Leave project"
+        },
         "featureInfo": {
             "label": "Object Information",
             "noData": "No data, Press an object for more information"

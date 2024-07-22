@@ -9,6 +9,7 @@
 	import MapToolCesiumMeasure from "$lib/components/map-cesium/MapToolCesiumMeasure/MapToolCesiumMeasure.svelte";
 	import MapToolCesiumControls from "$lib/components/map-cesium/MapToolCesiumControls/MapToolCesiumControls.svelte";
 	import MapToolStories from "$lib/components/map-cesium/MapToolStories/MapToolStories.svelte";
+	import MapToolProjects from "./map-cesium/MapToolProjects/MapToolProjects.svelte";
 	import TostiStyle from "$lib/components/ui/components/TostiStyle/TostiStyle.svelte";
 	import { light } from "$lib/components/ui/style/themes";
 	import Header from "$lib/components/ui/components/Header/Header.svelte";
@@ -179,6 +180,12 @@
 						textCameraPosition={$_("tools.measure.cameraPosition")}
 						textTotalLength={$_("tools.measure.totalLength")}
 						textMeasurementPoints={$_("tools.measure.points")}
+					/>
+				{/if}
+
+				{#if $enabledTools.includes("projects")}
+					<MapToolProjects
+						label={$_("tools.projects.label")}
 					/>
 				{/if}
 

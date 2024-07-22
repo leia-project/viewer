@@ -1,5 +1,5 @@
 <script lang="ts">
-
+	import { _ } from "svelte-i18n";
 	import type { Map } from "$lib/components/map-cesium/module/map";
 	import { Button } from "carbon-components-svelte";
 	import { Exit } from "carbon-icons-svelte";
@@ -19,7 +19,7 @@
 			size="default"
 			icon={Exit}
 			on:click={() => map.options.selectedProject.set(undefined)}
-		>Leave Project View</Button>
+		>{$_('tools.projects.leaveProjectView')}</Button>
 	</div>
 {/if}
 
