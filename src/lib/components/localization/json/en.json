@@ -6,6 +6,10 @@
             "info": "Information",
             "success": "Success",
             "noConfigText": "No configuration found"
+        },
+        "buttons": {
+            "show": "Show",
+            "hide": "Hide"
         }
     },
     "tools": {
@@ -143,6 +147,11 @@
             "cameraPositionSubtitle": "The current camera position will be saved with this bookmark",
             "noBookmarks": "No bookmarks",
             "noBookmarksSubtitle": "Press add to create a new bookmark"
+        },
+        "projects": {
+            "label": "Projects",
+            "leaveProjectView": "Leave project",
+            "showOnMap": "Show projects on map"
         },
         "featureInfo": {
             "label": "Object Information",

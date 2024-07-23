@@ -1,8 +1,9 @@
 
 import * as Cesium from "cesium";
+import * as turf from "@turf/turf";
 
-import type { Map } from "$lib";
-import { getCartesian2, getPolygonCenter, turfPolygonToCartesians } from "../MapToolSubsurface/subsurface-helpers";
+import type { Map } from "$lib/components/map-cesium/module/map";
+import { getCartesian2, getPolygonCenter, turfPolygonToCartesians } from "./project-helpers";
 import type { CesiumProject } from "./project";
 import { writable, type Unsubscriber, type Writable, get } from "svelte/store";
 
@@ -34,9 +35,9 @@ export class ProjectLabels {
 	public init(map: Map): void {
 		this.map = map;
 		this.map.viewer.dataSources.add(this.labelEntities);
-		this.labelEntities.show = true;
+		this.labelEntities.show = get(this.show);
 		this.map.viewer.dataSources.add(this.polygonEntities);
-		this.polygonEntities.show = true;
+		this.polygonEntities.show = get(this.show);
 
 		this.inputHandler = new Cesium.ScreenSpaceEventHandler(this.map.viewer.scene.canvas);
 		this.showUnsubscriber = this.show.subscribe((b: boolean) => {
@@ -63,7 +64,8 @@ export class ProjectLabels {
 			  text: project.projectSettings.name,
 			  scale: this.labelScale,
 			  showBackground: this.showBackground,
-			  disableDepthTestDistance: Number.POSITIVE_INFINITY
+			  disableDepthTestDistance: Number.POSITIVE_INFINITY,
+			  font: '30px \'IBM Plex Sans\''
 			}
 		});
 		this.labelEntities.entities.add(label);
@@ -75,7 +77,8 @@ export class ProjectLabels {
 			polygon: {
 				hierarchy: convexGeom,
 				material: Cesium.Color.BLACK.withAlpha(0.3)
-			}
+			},
+			properties: new Cesium.PropertyBag({projectName: project.projectSettings.name})
 		});
 		this.polygonEntities.entities.add(polygon);
 	}
@@ -92,15 +95,18 @@ export class ProjectLabels {
 	private pickProjectFromMouseLocation(m: any): CesiumProject | undefined {
         const location = getCartesian2(m.position);
         const picked = this.map.viewer.scene.pick(location);
+		let label = null;
         if (picked?.id?.label !== undefined) {
-            const label = picked.id.label.text.getValue();
-            for (const project of get(this.projects)) {
-                if (label === project.projectSettings.name) {
-                    return project;
-                }
-            }
-        }
-        return undefined;
+            label = picked.id.label.text.getValue();
+		} else if (picked?.id?.properties?.hasProperty('projectName')) {
+			label = picked.id.properties.getValue(this.map.viewer.clock.currentTime)['projectName'];
+		}
+		for (const project of get(this.projects)) {
+			if (label === project.projectSettings.name) {
+				return project;
+			}
+		}
+		return undefined;
     }
 
 	private leftClickHandle = (m: any) => {

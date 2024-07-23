@@ -7,6 +7,7 @@
 	import MapWidgetLoading from "./MapWidgetLoading/MapWidgetLoading.svelte";
 	import MapWidgetCameraPosition from "./MapWidgetCameraPosition/MapWidgetCameraPosition.svelte";
 	import MapWidgetAnimation from "./MapWidgetAnimation/MapWidgetAnimation.svelte";
+	import MapWidgetProject from "./MapToolProjects/MapWidgetProject.svelte";
 	import { dragDropEvents } from "./module/drag-n-drop";
 
 	export let map: Map = new Map();
@@ -50,7 +51,13 @@
 </script>
 
 <div bind:this={viewer} class="cesiumContainer" use:dragDropEvents={{map: map, enabled: map.options.enableDragDropFiles}} >
-	<div class="map-widgets">
+	<div class="map-widgets-top">
+		{#if showProjectWidget}
+			<MapWidgetProject {map} />
+		{/if}
+	</div>
+
+	<div class="map-widgets-bottom">
 		{#if showMouseCoordinates}
 			<MapWidgetMouseCoordinates {map} />
 		{/if}
@@ -80,9 +87,16 @@
 		box-sizing: border-box;
 	}
 
-	.map-widgets {
+	.map-widgets-top {
 		position: absolute;
 		top: var(--cds-spacing-05);
+		left: var(--cds-spacing-05);
+		z-index: 10;
+	}
+
+	.map-widgets-bottom {
+		position: absolute;
+		bottom: var(--cds-spacing-05);
 		left: var(--cds-spacing-05);
 		z-index: 10;
 	}
