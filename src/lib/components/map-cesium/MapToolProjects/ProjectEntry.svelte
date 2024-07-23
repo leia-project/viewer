@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { CesiumProject } from "./project";
 	import { createEventDispatcher } from "svelte";
-	import { AccordionItem, Button } from "carbon-components-svelte";
+	import { AccordionItem, Button, Tag } from "carbon-components-svelte";
 	import { ZoomIn } from "carbon-icons-svelte";
 	import type Map from "$lib/components/Map.svelte";
 	import LayerEntry from "./LayerEntry.svelte";
@@ -36,6 +36,9 @@
                     {project.projectSettings.name}
                 </div>
             </div>
+			{#if $selected}
+				<Tag size="sm">Active</Tag>
+			{/if}
         </div>
     </svelte:fragment>
 	<div class="project-header">
@@ -57,7 +60,6 @@
 			</ul>
 		{/if}
 	</div>
-	{$selected}
 </AccordionItem>
 
 <style>
@@ -66,7 +68,7 @@
         display: flex;
         min-width: 95%;
         max-width: 95%;
-        justify-content: left;
+		justify-content: space-between;
         align-items: center;
         overflow: hidden;
     }
@@ -87,7 +89,7 @@
 	.project-header {
         cursor: pointer;
         display: flex;
-        justify-content: space-between;
+        justify-content: end;
         align-items: center;
         align-content: center;
 	}

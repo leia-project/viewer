@@ -150,7 +150,8 @@
         },
         "projects": {
             "label": "Projects",
-            "leaveProjectView": "Leave project"
+            "leaveProjectView": "Leave project",
+            "showOnMap": "Show projects on map"
         },
         "featureInfo": {
             "label": "Object Information",

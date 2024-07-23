@@ -69,12 +69,19 @@
 	function setSubscribers(): void {
 		selectedProject.subscribe((project) => {
 			if (project) {
-				console.log(project)
 				map.options.selectedProject.set(project.projectSettings.name);
 				projectLabels.show.set(false);
 				projectLabels.flashPolygons();
+			} else if ($selectedTool === tool) {
+				projectLabels.show.set(true);
 			}
 		})
+
+		selectedTool.subscribe((tool) => {
+			if (tool) {
+				projectLabels.show.set(tool.id === id);
+			}
+		});
 
 		map.options.selectedProject.subscribe((project: string | undefined) => {
 			if (project === undefined) {
@@ -91,14 +98,17 @@
 		}
 		$selectedProject?.deactivate();
 		selectedProject.set(project)
-	}
+}
 
 </script>
 
 {#if $selectedTool === tool }
 	<div class="wrapper">
 		<div>
-			<div>
+			<div class="sub-header" class:disabled={!$selectedProject}>
+				<div class="bx--label thematic-label no-margin">
+					{ $_('tools.projects.showOnMap') }
+				</div>
 				<Button
 					icon={$showLabels ? ViewOffFilled : ViewFilled}
 					iconDescription={`${$showLabels ? $_('general.buttons.hide') :  $_('general.buttons.show')}`}
@@ -108,11 +118,8 @@
 					on:click={() => projectLabels.show.set(!$showLabels)}
 				/>
 			</div>
-			<div>
-				<div class="bx--label thematic-label">
-					{label}
-				</div>
-				<Accordion >
+			<div class="project-accordion">
+				<Accordion class="project-accordion">
 					{#each $projects as project}
 						<ProjectEntry {map} {project} on:activate={() => activateProject(project)} />
 					{/each}
@@ -128,4 +135,23 @@
 		margin-left: var(--cds-spacing-05);
 		box-sizing: border-box;
     }
+
+	.sub-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.sub-header.disabled {
+		color: gray
+	}
+
+	.no-margin {
+		margin: 0;
+	}
+
+	.project-accordion {
+		margin-top: var(--cds-spacing-05);
+	}
+
 </style>

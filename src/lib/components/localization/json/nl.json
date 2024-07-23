@@ -157,7 +157,8 @@
         },
         "projects": {
             "label": "Projecten",
-            "leaveProjectView": "Project verlaten"
+            "leaveProjectView": "Project verlaten",
+            "showOnMap": "Projecten tonen op kaart"
         },
         "featureInfo": {
             "label": "Object Informatie",
