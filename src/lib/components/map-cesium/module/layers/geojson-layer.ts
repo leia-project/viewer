@@ -509,6 +509,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				const polygonPositions = entity.polygon.hierarchy?.getValue(this.map.viewer.clock.currentTime)?.positions;
 				const polygonHeights = polygonPositions?.map((p: Cesium.Cartesian3) => Cesium.Cartographic.fromCartesian(p).height);
 				const meanHeight = polygonHeights?.reduce((a: number, b: number) => a + b) / polygonHeights.length;
+				console.log(meanHeight);
 
 				entity.polygon.extrudedHeight = new Cesium.ConstantProperty(meanHeight + height);
 				// polygon styling

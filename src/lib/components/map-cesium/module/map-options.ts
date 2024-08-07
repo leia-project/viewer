@@ -145,6 +145,10 @@ export class MapOptions {
 		this.trySet(this.pointCloudEDLStrength, config.pointCloudEDLStrength);
 		this.trySet(this.pointCloudEDLRadius, config.pointCloudEDLRadius);
 		this.trySet(this.proMode, config.proMode);
+
+		//TODO
+		this.trySet(this.globeOpacity, config.globeOpacity);
+		console.log(config.globeOpacity);
 		this.loadTerrainProvider(config.terrainProviders);
 	}
 

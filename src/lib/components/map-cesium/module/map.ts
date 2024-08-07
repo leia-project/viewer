@@ -18,6 +18,8 @@ import { MapOptions } from "./map-options.js";
 
 import type { CesiumLayer } from "./layers/cesium-layer.js";
 
+import { writable } from 'svelte/store';
+
 
 export class Map extends MapCore {
 	public viewer!: Cesium.Viewer;
@@ -268,12 +270,15 @@ export class Map extends MapCore {
 		viewer.scene.globe.showGroundAtmosphere = get(this.options.groundAtmosphere);
 		viewer.scene.globe.depthTestAgainstTerrain = true;
 
+		viewer.scene.globe.translucency.enabled = true;
+		viewer.scene.globe.translucency.frontFaceAlpha = get(this.options.globeOpacity) / 100;
+
 		//viewer.clock.onTick.addEventListener((clock) => this._update(clock));
 		//viewer.scene.globe.terrainExaggeration = 50;
 		//this._addSilhouette(viewer)
 
-		viewer.scene.globe.translucency.enabled = false; //rwsProject?.menu?.globeOpacity > 0.0 ? true : false;
-		viewer.scene.globe.translucency.frontFaceAlpha = 0.0; //rwsProject?.menu?.globeOpacity ?? 0.0;
+		//viewer.scene.globe.translucency.enabled = true; //rwsProject?.menu?.globeOpacity > 0.0 ? true : false;
+		//viewer.scene.globe.translucency.frontFaceAlpha = 0.5; //rwsProject?.menu?.globeOpacity ?? 0.0;
 		//viewer.scene.globe.translucency.frontFaceAlphaByDistance.nearValue = 0.5;
 		//viewer.scene.globe.translucency.frontFaceAlphaByDistance.farValue = 0.5;
 
