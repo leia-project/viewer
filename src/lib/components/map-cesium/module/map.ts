@@ -277,8 +277,8 @@ export class Map extends MapCore {
 		//viewer.scene.globe.terrainExaggeration = 50;
 		//this._addSilhouette(viewer)
 
-		//viewer.scene.globe.translucency.enabled = true; //rwsProject?.menu?.globeOpacity > 0.0 ? true : false;
-		//viewer.scene.globe.translucency.frontFaceAlpha = 0.5; //rwsProject?.menu?.globeOpacity ?? 0.0;
+		//rwsProject?.menu?.globeOpacity > 0.0 ? true : false;
+		//rwsProject?.menu?.globeOpacity ?? 0.0;
 		//viewer.scene.globe.translucency.frontFaceAlphaByDistance.nearValue = 0.5;
 		//viewer.scene.globe.translucency.frontFaceAlphaByDistance.farValue = 0.5;
 
