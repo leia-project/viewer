@@ -269,9 +269,7 @@ export class Map extends MapCore {
 		viewer.scene.globe.enableLighting = get(this.options.lighting);
 		viewer.scene.globe.showGroundAtmosphere = get(this.options.groundAtmosphere);
 		viewer.scene.globe.depthTestAgainstTerrain = true;
-
 		viewer.scene.globe.translucency.enabled = true;
-		viewer.scene.globe.translucency.frontFaceAlpha = get(this.options.globeOpacity) / 100;
 
 		//viewer.clock.onTick.addEventListener((clock) => this._update(clock));
 		//viewer.scene.globe.terrainExaggeration = 50;

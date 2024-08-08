@@ -266,9 +266,10 @@ export class MapOptions {
 	}
 
 	public setGlobeOpacity(value: number): void {
-		const alpha = value / 100;
+		var alpha = Math.max(0, value) / 100;
 
 		if (alpha >= 1.0) {
+			alpha = 1.0;
 			this.map.viewer.scene.globe.translucency.enabled = false;
 		} else {
 			this.map.viewer.scene.globe.translucency.enabled = true;
