@@ -720,6 +720,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |pointCloudEDL|Eye Dome Lighting enabled, Use eye dome lighting when drawing with point attenuation Requires support for EXT_frag_depth, OES_texture_float, and WEBGL_draw_buffers extensions in WebGL 1.0, otherwise eye dome lighting is ignored|true|boolean|
 |pointCloudEDLStrength|Eye dome lighting strength (apparent contrast)|1|number|
 |pointCloudEDLRadius|Thickness of contours from eye dome lighting|1|number|
+|globeOpacity|Opacity percentage of the globe|100|number|
 |terrainProviders|Array of terrain providers, first in list is activated by default, leave out url to create empty provider (see example below)|-|Terrain Provider|
 
 
