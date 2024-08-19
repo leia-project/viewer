@@ -90,14 +90,18 @@ export class GeoNetworkConnector implements LibraryConnector {
      * @returns List of map-core LayerGroups with the correct parent and childs
      */
     private geoNetworkCategoriesToLayerGroups(result: Array<any>): Array<LayerConfigGroup> {
+        const parentId = "dataportal";
         const groups = new Array<LayerConfigGroup>();
+
+        const dataportaalGroup = new LayerConfigGroup("dataportal", "Dataportal", undefined);
+        groups.push(dataportaalGroup);
 
         for (let i = 0; i < result.length; i++) {
             const group = result[i];
 
             // handle parent groups
             if (group['@count'] > 0) {
-                const lg = new LayerConfigGroup(group['@name'], group['@name']);
+                const lg = new LayerConfigGroup(group['@name'], group['@name'], parentId);
                 groups.push(lg);
             }
         }
