@@ -127,7 +127,12 @@ export class GeoNetworkConnector implements LibraryConnector {
 
         for(let i = 0; i < layers.length; i++) {
             const l = layers[i];
-            
+            let groupId = l.topicCat || 'dataportal'; // Default to dataportal if no group is found
+
+            // If groupId is an array, use the first element
+            if (Array.isArray(groupId)) {
+                groupId = groupId[0];
+            }
             
 
             const lc = new LayerConfig({
@@ -135,7 +140,7 @@ export class GeoNetworkConnector implements LibraryConnector {
                 type: "wms",
                 title: l.title,
                 description: l.abstract,
-                groupId: l.topicCat,
+                groupId: groupId,
                 imageUrl: this.getImageUrl(l.image),
                 attribution: undefined,
                 isBackground: false,
