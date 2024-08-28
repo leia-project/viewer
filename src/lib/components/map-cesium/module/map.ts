@@ -11,7 +11,6 @@ import { MouseLocation } from "$lib/components/map-core/mouse-location";
 import { CameraLocation } from "$lib/components/map-core/camera-location";
 import { Layer } from "$lib/components/map-core/layer";
 import { FeatureInfo } from "$lib/components/map-core/FeatureInfo/feature-info";
-import type { Config } from "$lib/components/map-core/config/config";
 
 import { CesiumLayerFactory } from "./cesium-layer-factory.js";
 import { MapOptions } from "./map-options.js";
@@ -267,13 +266,12 @@ export class Map extends MapCore {
 		viewer.scene.globe.enableLighting = get(this.options.lighting);
 		viewer.scene.globe.showGroundAtmosphere = get(this.options.groundAtmosphere);
 		viewer.scene.globe.depthTestAgainstTerrain = true;
+		viewer.scene.globe.translucency.enabled = true;
 
 		//viewer.clock.onTick.addEventListener((clock) => this._update(clock));
 		//viewer.scene.globe.terrainExaggeration = 50;
 		//this._addSilhouette(viewer)
 
-		viewer.scene.globe.translucency.enabled = false; //rwsProject?.menu?.globeOpacity > 0.0 ? true : false;
-		viewer.scene.globe.translucency.frontFaceAlpha = 0.0; //rwsProject?.menu?.globeOpacity ?? 0.0;
 		//viewer.scene.globe.translucency.frontFaceAlphaByDistance.nearValue = 0.5;
 		//viewer.scene.globe.translucency.frontFaceAlphaByDistance.farValue = 0.5;
 
