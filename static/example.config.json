@@ -83,6 +83,19 @@
                     }
                 ]
             }
+        },
+        {
+            "id": "4",
+            "type": "flood",
+            "title": "Flood layer",
+            "groupId": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": false,
+            "opacity": 0,
+            "settings": {}
         }
     ],
     "viewer": {
