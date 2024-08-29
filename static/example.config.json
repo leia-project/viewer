@@ -95,7 +95,9 @@
             "defaultOn": false,
             "transparent": false,
             "opacity": 0,
-            "settings": {}
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/flood_borssele/layer.json"
+            }
         }
     ],
     "viewer": {

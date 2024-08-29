@@ -6,17 +6,34 @@ import type { Unsubscriber } from "svelte/motion";
 import { get, writable, type Writable } from "svelte/store";
 import { PrimitiveLayer } from "./primitive-layer";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
+import { CustomLayerControl } from "$lib/components/map-core/custom-layer-control";
+import LayerControlFlood from "$lib/components/map-cesium/LayerControlFlood/LayerControlFlood.svelte";
+
+interface FloodLayerContents {
+	name: string,
+	terrain: {
+		scaling: {
+			min: number,
+			max: number,
+		}
+		path: string
+	},
+	flood_planes: {
+		scaling: {
+			min: number,
+			max: number,
+		},
+		paths: Array<string>
+	}
+}
 
 interface DynamicWaterLevelOptions {
 	map: Map;
+	time: number;
 	sw: [lon: number, lat: number];
 	ne: [lon: number, lat: number];
 	gridSpacingInMeters: number;
-	terrain: string;
-	waterLevels: Array<{
-		time: number,
-		image: string
-	}>;
+	url: string;
 }
 
 interface WaterLevel {
@@ -30,9 +47,10 @@ class DynamicWaterLevel {
 	private gridSpacingInMeters: number;
 	private sw: [lon: number, lat: number];
 	private ne: [lon: number, lat: number];
-
-	private waterLevels: Array<WaterLevel> = [];
-	public imagesLoaded: Promise<void>;
+	private baseUrl: string;
+	public waterLevels: Array<WaterLevel> = [];
+	public imagesLoaded: Promise<boolean>;
+	public time: Writable<number>;
 
 	private uniformMap: any = {
 		uProgress: {
@@ -56,22 +74,24 @@ class DynamicWaterLevel {
 	private primitive?: Cesium.Primitive;
 	private material?: Cesium.Material;
 	private timeUnsubscriber?: Unsubscriber;
-	private verticalExaggeration: Writable<number> ;
+	private verticalExaggeration: Writable<number>;
 	private verticalExaggerationUnsubscriber?: Unsubscriber;
 
 	constructor (options: DynamicWaterLevelOptions) {
 		this.map = options.map;
+		this.time = writable(options.time);
 		this.gridSpacingInMeters = options.gridSpacingInMeters;
 		this.sw = options.sw;
 		this.ne = options.ne;
-		this.imagesLoaded = this.loadImages(options.terrain, options.waterLevels);
+		this.baseUrl = options.url.substring(0, options.url.lastIndexOf("/") + 1);
 		this.verticalExaggeration = writable(1);
+		this.imagesLoaded = this.loadImages(options.url);
 	}
 
 	public async add(): Promise<void> {
 		if (!this.primitive) await this.construct();
 		this.map.viewer.scene.primitives.add(this.primitive);
-		this.timeUnsubscriber = this.map.options.dateTime.subscribe((time) => this.setUniforms(time));
+		this.timeUnsubscriber = this.time.subscribe((time) => this.setUniforms(time));
 		this.verticalExaggerationUnsubscriber = this.verticalExaggeration.subscribe((value) => {
 			if (this.material) this.material.uniforms.u_vertical_exaggeration = value;
 		});
@@ -84,15 +104,19 @@ class DynamicWaterLevel {
 		this.verticalExaggerationUnsubscriber?.();
 	}
 
-	private async loadImages(terrain: string, waterLevels: Array<{time: number, image: string}>): Promise<void> {
-		const terrainImage = await this.loadImage(terrain);
+	private async loadImages(url: string): Promise<boolean> {
+		const contents: FloodLayerContents = await fetch(url).then((response) => response.json());
+		const terrainImage = await this.loadImage(contents.terrain.path);
 		if (!terrainImage) {
 			throw new Error("Failed to load terrain image");
 		}
 		this.uniformMap.uTerrain.value = terrainImage;
-		const loadWaterLevelPromises = waterLevels.map(async (waterLevel) => {
-			const image = await this.loadImage(waterLevel.image);
-			if (image) return { time: waterLevel.time, image: image };
+		const loadWaterLevelPromises = contents.flood_planes.paths.map(async (path: string, i: number) => {
+			const image = await this.loadImage(path);
+			if (!image) {
+				throw new Error("Failed to load terrain image");
+			}
+			if (image) return { time: i, image: image };
 		});
 		const loadedWaterLevels = await Promise.all(loadWaterLevelPromises);
 		for (const waterLevel of loadedWaterLevels) {
@@ -101,10 +125,11 @@ class DynamicWaterLevel {
 			}
 		}
 		this.setUniforms(get(this.map.options.dateTime));
+		return true;
 	}
 
-	private async loadImage(imageUrl: string): Promise<ImageBitmap | HTMLImageElement | undefined> {
-		const resource = await Cesium.Resource.fetchImage({url: imageUrl});
+	private async loadImage(path: string): Promise<ImageBitmap | HTMLImageElement | undefined> {
+		const resource = await Cesium.Resource.fetchImage({url: this.baseUrl + path});
 		return resource;
 	}
 
@@ -126,6 +151,7 @@ class DynamicWaterLevel {
 			this.material.uniforms.u_elevation_t1 = this.uniformMap.uElevationT1.value;
 			this.material.uniforms.u_elevation_t2 = this.uniformMap.uElevationT2.value;
 		}
+		this.map.refresh();
 	}
 
 	private findClosestWaterLevels(time: number): [WaterLevel, WaterLevel] {
@@ -335,7 +361,7 @@ class DynamicWaterLevel {
 
 				float terrain_height = texture(u_terrain_1, v_st).r * (90.0 - 30.0) + 30.0;
 				float elevation = computeElevation(v_st);
-				if (elevation == 0.0 || terrain_height == 0.0) {
+				if (elevation == 40.0 || terrain_height == 30.0) {
 					discard;
 				}
 				float height_to_terrain = elevation - terrain_height;
@@ -404,9 +430,6 @@ class DynamicWaterLevel {
 			closed: false,
 			renderState: renderState
 		});
-		//Console log the shaders:
-		//console.log(appearance.vertexShaderSource);
-		//console.log(appearance.getFragmentShaderSource());
 
 		this.primitive = new Cesium.Primitive({
 			geometryInstances: instance,
@@ -421,8 +444,28 @@ class DynamicWaterLevel {
 
 export class FloodLayer extends PrimitiveLayer {
 
+	private plane: DynamicWaterLevel | undefined;
+	private layerControl!: CustomLayerControl;
+	public timeSliderMin: number;
+	public timeSliderMax: number;
+	public timeSliderStep: number;
+	public timeSliderValue: Writable<number> = writable(0);
+	public timeSliderLabel: string;
+	private timeUnsubscriber!: Unsubscriber;
+
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
+
+		this.plane = undefined;
+		
+		this.timeSliderMin = 0;
+		this.timeSliderMax = 1;
+		this.timeSliderStep = 1;
+		this.timeSliderValue.set(0);
+		this.timeSliderLabel = "undefined";
+
+		this.addControl()
+		this.addListeners()
 		this.loadDynamicWaterLevel();
 	}
 
@@ -432,43 +475,42 @@ export class FloodLayer extends PrimitiveLayer {
 		const ne: [lon: number, lat: number] = [3.9378694, 51.4888285];
 		const resolution: number = 100;
 
-		const plane = new DynamicWaterLevel({
+		this.plane = new DynamicWaterLevel({
 			map: this.map,
+			time: this.timeSliderMin,
 			sw: sw,
 			ne: ne,
 			gridSpacingInMeters: resolution,
-			terrain: "https://virtueel.zeeland.nl/tiles_other/flood_borssele/ahn.jpg",
-			waterLevels: [
-				{
-					time: 1720602000000,
-					image: "https://virtueel.zeeland.nl/tiles_other/flood_borssele/00002.jpg"
-				},
-				{
-					time: 1720602000000 + (60 * 60 * 1000) * 3,
-					image: "https://virtueel.zeeland.nl/tiles_other/flood_borssele/00014.jpg"
-				},
-				{
-					time: 1720602000000 + (60 * 60 * 1000) * 6,
-					image: "https://virtueel.zeeland.nl/tiles_other/flood_borssele/00036.jpg"
-				},
-				{
-					time: 1720602000000 + (60 * 60 * 1000) * 9,
-					image: "https://virtueel.zeeland.nl/tiles_other/flood_borssele/00049.jpg"
-				}
-			]
+			url: this.config.settings.url,
 		});
-		plane.add();
-		const location = [3.90962, 51.49435];
-		setTimeout(() => {
-			this.map.viewer.camera.setView({
-				destination: Cesium.Cartesian3.fromDegrees(location[0], location[1], 40000),
-				orientation: {
-					heading: Cesium.Math.toRadians(0),
-					pitch: Cesium.Math.toRadians(-90),
-					roll: 0
-				}
-			});
-		}, 1000);
+
+		this.plane.add().then(() => {
+			if (this.plane) this.timeSliderMax = this.plane?.waterLevels.length;
+		});
+	}
+
+	private addControl(): void {
+		this.layerControl = new CustomLayerControl();
+		this.layerControl.component = LayerControlFlood;
+		this.layerControl.props = {
+			layer: this,
+		};
+		this.addCustomControl(this.layerControl);
+	}
+
+	private removeControl(): void {
+		this.removeCustomControl(this.layerControl);
+	}
+
+	private addListeners(): void {
+		this.timeUnsubscriber = this.timeSliderValue.subscribe((value: number) => {
+			if (value) this.plane?.time.set(value);
+		});
+	}
+
+	public removeFromMap(): void {
+		this.removeControl();
+		this.timeUnsubscriber();
 	}
 }
 
