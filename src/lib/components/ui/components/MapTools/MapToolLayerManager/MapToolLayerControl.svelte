@@ -156,6 +156,10 @@
         align-items: center;
     }
 
+    :global(.layer-control .bx--accordion__title) {
+        overflow: hidden;
+    }
+
     :global(.layer-control .bx--accordion__heading) {
         padding: var(--cds-spacing-02) 0 0 0;
     }
