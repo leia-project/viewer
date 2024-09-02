@@ -26,6 +26,8 @@
 	import Language from "$lib/components/Tools/Language.svelte";
 	import { Attributions } from "$lib/app/attributions";
 	import MapToolConfigSwitcher from "./ui/components/MapTools/MapToolConfigSwitcher/MapToolConfigSwitcher.svelte";
+	import { LogoGithub } from "carbon-icons-svelte";
+	import { HeaderActionLink } from "carbon-components-svelte";
 
 	const settings = writable<any>({});
 	const enabledTools = writable<Array<string>>(new Array<string>());
@@ -36,6 +38,7 @@
 	const map = app.map;
 	$: layers = $map ? $map.layers : [];
 	$: library = $map ? $map.layerLibrary : undefined;
+	$: title = $settings.title ? $settings.title + ' - ' + $settings.subTitle : $_('general.loading')
 
 	map.subscribe((map) => {
 		if (map) {
@@ -88,7 +91,7 @@
 </script>
 
 <svelte:head>
-	<title>{$settings.title + ' - ' + $settings.subTitle}</title>
+	<title>{title}</title>
 	<base href="{base}"> <!-- This is the base path for the app -->
 </svelte:head>
 
@@ -101,6 +104,7 @@
 					<HeaderUtilityGeocoder />
 				{/if}
 				<Language />
+				<HeaderActionLink title="Visit GitHub" icon={LogoGithub} href="https://github.com/leia-project" target="_blank"/>
 			</div>
 		</div>
 	</Header>
@@ -293,6 +297,10 @@
 		display: flex;
 		justify-content: right;
 		width: 100%;
+	}
+
+	.logo_github {
+		color: white;
 	}
 
 </style>

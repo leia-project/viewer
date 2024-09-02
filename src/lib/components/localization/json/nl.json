@@ -1,5 +1,6 @@
 {
     "general": {
+        "loading": "Laden...",
         "notifications": {
             "error": "Error",
             "warning": "Waarschuwing",
@@ -12,6 +13,9 @@
         "menu": {
             "expand": "Uitklappen",
             "collapse": "Inklappen"
+        },
+        "language": {
+            "setLanguage": "Taal instellen"
         },
         "geocoder": {
             "search": "Zoek Locatie"

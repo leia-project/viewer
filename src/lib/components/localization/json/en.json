@@ -1,5 +1,6 @@
 {
     "general": {
+        "loading": "Loading...",
         "notifications": {
             "error": "Error",
             "warning": "Warning",
@@ -12,6 +13,9 @@
         "menu": {
             "expand": "Expand",
             "collapse": "Collapse"
+        },
+        "language": {
+            "setLanguage": "Set language"
         },
         "geocoder": {
             "search": "Search Location"
