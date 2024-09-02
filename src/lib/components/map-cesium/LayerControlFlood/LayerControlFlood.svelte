@@ -5,10 +5,35 @@
 	import type { FloodLayer } from "../module/layers/flood-layer";
 	import { _ } from "svelte-i18n";
 	import { get, writable, type Writable } from "svelte/store";
+	import { ArrowLeft, ArrowRight, Pause, Play } from "carbon-icons-svelte";
 
 	export let layer: FloodLayer;
 
 	let { timeSliderValue } = layer;
+	let playing: boolean = false;
+	let intervalId: NodeJS.Timeout
+
+
+	function togglePlay() {
+		playing = !playing;
+		if (playing) {
+			intervalId = setInterval(() => {
+				layer.timeSliderValue.update((value) => {
+				if (value >= layer.timeSliderMax) {
+					playing = false;
+					clearInterval(intervalId);
+					return layer.timeSliderMin;
+				}
+				return value + layer.timeSliderStep;
+				});
+			}, 1000);
+		} else {
+			if (intervalId !== null) {
+				clearInterval(intervalId);
+				intervalId = null;
+			}
+		}
+  	}
 </script>
 
 <div class="control-section">
@@ -29,53 +54,55 @@
 			maxLabel={String(layer.timeSliderMax)}
 		/>
 	</div>
+	<div class="wrapper" style="display: flex; justify-content: center; gap: 4px;">
+		<!-- Decrease time slider value by step -->
+		<Button 
+			kind="secondary" 
+			size="small" 
+			icon="{ArrowLeft}"
+			on:click={() => {
+				layer.timeSliderValue.update((value) => value - layer.timeSliderStep);
+			}}
+		/>
+		{#if !playing}
+			<Button 
+				kind="secondary"
+				size="small" 
+				icon="{Play}"
+				on:click={() => {
+					togglePlay();
+				}}
+			/>
+		{:else}
+			<Button 
+				kind="secondary"
+				size="small" 
+				icon="{Pause}"
+				on:click={() => {
+					togglePlay();
+				}}
+			/>	
+		{/if}
+		<!-- Increase time slider value by step -->
+		<Button 
+			kind="secondary"
+			size="small" 
+			icon="{ArrowRight}"
+			on:click={() => {
+				layer.timeSliderValue.update((value) => value + layer.timeSliderStep);
+			}}
+		/>
+	</div>
 </div>
 
 <style>
 
-	.geojson-styling-options {
-		margin: 15px 0;
-	}
 	.control-header {
 		margin-bottom: 8px;
 	}
 	.control-section {
 		margin: 15px 0;
 		position: relative;
-	}
-	.legend-item {
-		display: grid;
-		grid-template-columns: 20px 1fr;
-		grid-gap: 10px;
-		margin-top: 6px;
-	}
-	.legend-color {
-		height: 100%;
-		width: 100%;
-		border: 1px solid #000;
-		border-radius: 4px;
-	}
-
-	.color-randomizer {
-		position: absolute;
-		top: 0;
-		right: 10px;
-		width: 20px;
-	}
-
-	.color-gradient-header {
-		margin: 15px 0 10px;
-	}
-	.color-gradient-setter {
-		display: grid;
-		grid-template-columns: 1fr 30px;
-	}
-	.color-gradient-input-fields {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-	}
-	.color-bar {
-		height: 15px;
 	}
 
 </style>

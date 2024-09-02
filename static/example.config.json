@@ -95,6 +95,13 @@
             "defaultOn": false,
             "transparent": false,
             "opacity": 0,
+            "cameraPosition": {
+                "x": 3.81618,
+                "y": 51.30636,
+                "z": 8521.21390,
+                "heading": 360.00000,
+                "pitch": -34.77142
+            },
             "settings": {
                 "url": "https://virtueel.zeeland.nl/tiles_other/flood_borssele/layer.json"
             }

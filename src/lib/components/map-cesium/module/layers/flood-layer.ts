@@ -8,6 +8,7 @@ import { PrimitiveLayer } from "./primitive-layer";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
 import { CustomLayerControl } from "$lib/components/map-core/custom-layer-control";
 import LayerControlFlood from "$lib/components/map-cesium/LayerControlFlood/LayerControlFlood.svelte";
+import { CesiumLayer } from "./cesium-layer";
 
 interface FloodLayerContents {
 	name: string,
@@ -51,7 +52,11 @@ class DynamicWaterLevel {
 	public waterLevels: Array<WaterLevel> = [];
 	public imagesLoaded: Promise<boolean>;
 	public time: Writable<number>;
-
+	public primitive?: Cesium.Primitive;
+	private material?: Cesium.Material;
+	private timeUnsubscriber?: Unsubscriber;
+	private verticalExaggeration: Writable<number>;
+	private verticalExaggerationUnsubscriber?: Unsubscriber;
 	private uniformMap: any = {
 		uProgress: {
 			type: "float",
@@ -71,11 +76,6 @@ class DynamicWaterLevel {
 		}
 	
 	};
-	private primitive?: Cesium.Primitive;
-	private material?: Cesium.Material;
-	private timeUnsubscriber?: Unsubscriber;
-	private verticalExaggeration: Writable<number>;
-	private verticalExaggerationUnsubscriber?: Unsubscriber;
 
 	constructor (options: DynamicWaterLevelOptions) {
 		this.map = options.map;
@@ -88,9 +88,8 @@ class DynamicWaterLevel {
 		this.imagesLoaded = this.loadImages(options.url);
 	}
 
-	public async add(): Promise<void> {
-		if (!this.primitive) await this.construct();
-		this.map.viewer.scene.primitives.add(this.primitive);
+	public async load(): Promise<void> {
+		if (!this.primitive) await this.createMesh();
 		this.timeUnsubscriber = this.time.subscribe((time) => this.setUniforms(time));
 		this.verticalExaggerationUnsubscriber = this.verticalExaggeration.subscribe((value) => {
 			if (this.material) this.material.uniforms.u_vertical_exaggeration = value;
@@ -99,7 +98,6 @@ class DynamicWaterLevel {
 
 	public remove(): void {
 		if (!this.primitive) return;
-		this.map.viewer.scene.primitives.remove(this.primitive);
 		this.timeUnsubscriber?.();
 		this.verticalExaggerationUnsubscriber?.();
 	}
@@ -176,8 +174,7 @@ class DynamicWaterLevel {
 		return { latDegrees, lonDegrees };
 	}
 	
-
-	private async construct(): Promise<void> {
+	private async createMesh(): Promise<void> {
 		await this.imagesLoaded;
 		
 		const lonStart = this.sw[0];
@@ -442,7 +439,7 @@ class DynamicWaterLevel {
 }
 
 
-export class FloodLayer extends PrimitiveLayer {
+export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 
 	private plane: DynamicWaterLevel | undefined;
 	private layerControl!: CustomLayerControl;
@@ -452,6 +449,7 @@ export class FloodLayer extends PrimitiveLayer {
 	public timeSliderValue: Writable<number> = writable(0);
 	public timeSliderLabel: string;
 	private timeUnsubscriber!: Unsubscriber;
+	public loaded: Promise<boolean>;
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
@@ -462,14 +460,14 @@ export class FloodLayer extends PrimitiveLayer {
 		this.timeSliderMax = 1;
 		this.timeSliderStep = 1;
 		this.timeSliderValue.set(0);
-		this.timeSliderLabel = "undefined";
+		this.timeSliderLabel = "";
 
 		this.addControl()
 		this.addListeners()
-		this.loadDynamicWaterLevel();
+		this.loaded = this.loadData();
 	}
 
-	private async loadDynamicWaterLevel(): Promise<void> {
+	private async loadData(): Promise<boolean> {
 
 		const sw: [lon: number, lat: number] = [3.7144324, 51.3825071];
 		const ne: [lon: number, lat: number] = [3.9378694, 51.4888285];
@@ -484,10 +482,42 @@ export class FloodLayer extends PrimitiveLayer {
 			url: this.config.settings.url,
 		});
 
-		this.plane.add().then(() => {
-			if (this.plane) this.timeSliderMax = this.plane?.waterLevels.length;
-		});
+		await this.plane.load()
+		if (this.plane) {
+			this.timeSliderMax = this.plane.waterLevels.length;
+			this.source = this.plane.primitive
+		}
+		return true;
 	}
+
+	public async addToMap(): Promise<void> {
+		await this.loaded;
+		this.map.viewer.scene.primitives.add(this.source);
+		if (get(this.visible) === true) {
+			this.show();
+			this.map.refresh();
+		} else {
+			this.hide();
+			this.map.refresh();
+		}
+	}
+
+	public removeFromMap(): void {
+		this.removeControl();
+		this.timeUnsubscriber();
+		this.plane?.remove();
+		this.map.viewer.scene.primitives.remove(this.source);
+	}
+
+	public show(): void {
+		if (!this.loaded) return;
+        if (this.plane?.primitive !== undefined) this.plane.primitive.show = true
+    }
+
+    public hide(): void {
+        if (!this.loaded) return;
+        if (this.plane?.primitive !== undefined) this.plane.primitive.show = false
+    }
 
 	private addControl(): void {
 		this.layerControl = new CustomLayerControl();
@@ -504,13 +534,14 @@ export class FloodLayer extends PrimitiveLayer {
 
 	private addListeners(): void {
 		this.timeUnsubscriber = this.timeSliderValue.subscribe((value: number) => {
-			if (value) this.plane?.time.set(value);
+			this.plane?.time.set(value);
 		});
 	}
 
-	public removeFromMap(): void {
-		this.removeControl();
-		this.timeUnsubscriber();
+	public opacityChanged(opacity: number): void {
+		if (this.source) {
+			//this.source.alpha = opacity > 1 ? 1.0 : opacity < 0 ? 0 : opacity;
+		}
 	}
 }
 
