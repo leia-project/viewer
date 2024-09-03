@@ -2,7 +2,7 @@
 	import type { CesiumProject } from "./project";
 	import { createEventDispatcher } from "svelte";
 	import { AccordionItem, Button, Tag } from "carbon-components-svelte";
-	import { ZoomIn } from "carbon-icons-svelte";
+	import { Login, ZoomIn } from "carbon-icons-svelte";
 	import type Map from "$lib/components/Map.svelte";
 	import LayerEntry from "./LayerEntry.svelte";
 
@@ -43,7 +43,7 @@
     </svelte:fragment>
 	<div class="project-header">
 		<Button
-			icon={ZoomIn}
+			icon={$selected ? ZoomIn : Login}
 			size="field"
 			iconDescription={$selected ? "Zoom to start view": "Activate project"}
 			tooltipPosition="left"
