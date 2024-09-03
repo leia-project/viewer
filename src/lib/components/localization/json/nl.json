@@ -1,5 +1,6 @@
 {
     "general": {
+        "goTo": "Ga naar",
         "notifications": {
             "error": "Error",
             "warning": "Waarschuwing",

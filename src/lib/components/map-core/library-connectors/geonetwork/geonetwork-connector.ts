@@ -10,7 +10,6 @@ export class GeoNetworkConnector implements LibraryConnector {
     private data: LibraryConnectorData = new LibraryConnectorData();
     private readonly debug = false;
     private readonly settings: GeoNetworkConnectorSettings;
-
     private readonly endpointSearch = "/srv/dut/q";
 
     constructor(settings: GeoNetworkConnectorSettings = {
@@ -93,8 +92,12 @@ export class GeoNetworkConnector implements LibraryConnector {
         const parentId = "dataportal";
         const groups = new Array<LayerConfigGroup>();
 
-        const dataportaalGroup = new LayerConfigGroup("dataportal", "Dataportal", undefined);
-        groups.push(dataportaalGroup);
+        const dataportalGroup = new LayerConfigGroup("dataportal", "Dataportal", undefined);
+        dataportalGroup.connector = {
+            type: "GeoNetwork",
+            url: this.settings.url 
+        }
+        groups.push(dataportalGroup);
 
         for (let i = 0; i < result.length; i++) {
             const group = result[i];

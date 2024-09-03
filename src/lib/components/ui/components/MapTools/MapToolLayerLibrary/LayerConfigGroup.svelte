@@ -50,7 +50,11 @@
                     {group.title}
                 {/if}
             </div>
-
+            {#if group.connector.type && group.connector.url}
+                <a href="{group.connector.url}" title="{$_('general.goTo') + ' ' + group.connector.type}" target="_blank" style="cursor: pointer">
+                    <Tag type="green" size="sm" interactive="{true}">{group.connector.type}</Tag>
+                </a>
+            {/if}
             <div class="group-menu">
                 <OverflowMenu
                     size="sm"
