@@ -11,6 +11,7 @@ export class GeoNetworkConnector implements LibraryConnector {
     private readonly debug = false;
     private readonly settings: GeoNetworkConnectorSettings;
     private readonly endpointSearch = "/srv/dut/q";
+    private readonly linkFormat = "/srv/dut/catalog.search#/metadata/{uuid}?tab=general";
 
     constructor(settings: GeoNetworkConnectorSettings = {
         url: "",
@@ -152,6 +153,7 @@ export class GeoNetworkConnector implements LibraryConnector {
                 defaultOn: false,
                 metadata: undefined,
                 metadataUrl: '',
+                metadataLink: this.settings.url + this.linkFormat.replace('{uuid}', l['geonet:info'].uuid),
                 settings: this.getSettings(l.link),
                 cameraPosition: undefined,
                 tags: undefined
