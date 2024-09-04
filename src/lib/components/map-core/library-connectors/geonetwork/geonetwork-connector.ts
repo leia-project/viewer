@@ -128,7 +128,6 @@ export class GeoNetworkConnector implements LibraryConnector {
 
         const layers = result.metadata;
 
-
         for(let i = 0; i < layers.length; i++) {
             const l = layers[i];
             let groupId = l.topicCat || 'dataportal'; // Default to dataportal if no group is found
@@ -138,7 +137,10 @@ export class GeoNetworkConnector implements LibraryConnector {
                 groupId = groupId[0];
             }
             
-
+            const layerSettings = this.getSettings(l.link);
+            if (Object.keys(layerSettings).length === 0) {
+                continue;
+            }
             const lc = new LayerConfig({
                 id: l.identifier,
                 type: "wms",
@@ -154,7 +156,7 @@ export class GeoNetworkConnector implements LibraryConnector {
                 metadata: undefined,
                 metadataUrl: '',
                 metadataLink: this.settings.url + this.linkFormat.replace('{uuid}', l['geonet:info'].uuid),
-                settings: this.getSettings(l.link),
+                settings: layerSettings,
                 cameraPosition: undefined,
                 tags: undefined
             });                
@@ -189,17 +191,21 @@ export class GeoNetworkConnector implements LibraryConnector {
     }
 
     private getSettings(link: Array<string>): Object {
-        for (let i = 0; i < link.length; i++) {
-            let l = link[i];
-            if (l.includes('OGC:WMS')) {
-                let l_split = l.split('|');
-                return {
-                    url: l_split[2].split('?')[0],
-                    type: 'wms',
-                    featureName: l_split[0],
-                    contenttype: 'image/png'
+        try {
+            for (let i = 0; i < link.length; i++) {
+                let l = link[i];
+                if (l.includes('OGC:WMS')) {
+                    let l_split = l.split('|');
+                    return {
+                        url: l_split[2].split('?')[0],
+                        type: 'wms',
+                        featureName: l_split[0],
+                        contenttype: 'image/png'
+                    }
                 }
             }
+        } catch (error) {
+            console.error(error);
         }
         return {}
     }
