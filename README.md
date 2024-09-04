@@ -811,17 +811,6 @@ This tool can be used to add bookmarks to the viewer, the bookmarks set trough t
 |pitch|Pitch of the camera (up/down) where -90 is looking down, 0 is forward, 90 is up|number|
 |duration|Time to fly to the locaton in seconds|number|
 
-#### projects
-The Bookmarks tool can also be used to added projects with poject-specific layers. The project will be cut-out from the viewer according to the polygon. The ```openProject``` option can be set to directly open a project when loading the viewer.
-
-|value|description|type|
-|-|-|-|
-|name|The name of the project|string|
-|description|A description for the project|string|
-|polygon|An array of coordinates describing the project delimitation|array of [lon: number, lat: number]|
-|layers|An array of layer names to be shown for the project|array|
-|cameraPosition|The default camera position|cameraLocation|
-
 ```json
 {
 	"id": "bookmarks",
@@ -848,7 +837,28 @@ The Bookmarks tool can also be used to added projects with poject-specific layer
 				"pitch": -20.82619,
 				"duration": 1.5
 			}
-		],
+		]
+	}
+}
+```
+
+#### projects
+This tool can be used to add projects with project-specific layers. The project will be cut-out from the viewer according to the input polygon. The ```openProject``` option can be set to directly open a project when loading the viewer.
+
+|value|description|type|
+|-|-|-|
+|openProject|The name of the project you want to open when loading the viewer. Leave this empty if you don't want to open a project by default.|string
+|name|The name of the project|string|
+|description|A description for the project|string|
+|polygon|An array of coordinates describing the project delimitation|array of [lon: number, lat: number]|
+|layers|An array of layer id's to be shown for the project|array|
+|cameraPosition|The default camera position|cameraLocation|
+
+```json
+{
+	"id": "projects",
+	"enabled": true,
+	"settings": {
 		"openProject": "My project name",
 		"projects": [
 			{
@@ -856,24 +866,20 @@ The Bookmarks tool can also be used to added projects with poject-specific layer
 				"description": "Short description of my project",
 				"polygon": [
 					[
-						5.55782,
-						51.90599
+						4.9000,
+						52.39961
 					],
 					[
-						5.40116,
-						51.8363
+						4.91807, 
+						52.39961
 					],
 					[
-						4.94641,
-						52.0349
+						4.9193,
+						52.38107
 					],
 					[
-						4.8641,
-						52.38806
-					],
-					[
-						5.05798,
-						52.36392
+						4.9000,
+						52.38575
 					]
 				],
 				"layers": [
@@ -882,17 +888,17 @@ The Bookmarks tool can also be used to added projects with poject-specific layer
 					"Bomen 3D"
 				],
 				"cameraPosition": {
-					"x": 5.11077,
-					"y": 52.04107,
-					"z": 774.09488,
-					"heading": 338.14749,
-					"pitch": -25.99005,
-					"duration": 1.5
+					"x": 4.94802,
+					"y": 52.35647,
+					"z": 2176.53646,
+					"heading": 326.85260,
+					"pitch": -24.10943,
+					"duration": 1.50
 				}
 			}
 		]
 	}
-}
+},		
 ```
 
 #### measure
