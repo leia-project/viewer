@@ -11,7 +11,7 @@ let selectedLanguage = writable<string>("en");
 const languages: Array<Language> = [
     new Language("English", "en", en),
     new Language("Nederlands", "nl", nl),
-    new Language("French", "fr", fr),
+    new Language("Français", "fr", fr),
 ];
 
 function setupLocalization(defaultLocale: string = "en", translations: Array<{ locale: string, translations: {} }> | undefined = undefined): void {
