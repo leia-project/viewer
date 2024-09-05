@@ -9,7 +9,7 @@
 
 	export let layer: FloodLayer;
 
-	let { timeSliderValue } = layer;
+	let { timeSliderValue, timeSliderMin, timeSliderMax, timeSliderStep } = layer;
 	let playing: boolean = false;
 	let intervalId: NodeJS.Timeout
 
@@ -19,12 +19,12 @@
 		if (playing) {
 			intervalId = setInterval(() => {
 				layer.timeSliderValue.update((value) => {
-				if (value >= layer.timeSliderMax) {
+				if (value >= $timeSliderMax) {
 					playing = false;
 					clearInterval(intervalId);
-					return layer.timeSliderMin;
+					return $timeSliderMin;
 				}
-				return value + layer.timeSliderStep;
+				return value + $timeSliderStep;
 				});
 			}, 1000);
 		} else {
@@ -41,17 +41,17 @@
 	<div class="wrapper">
 		<Slider 
 			value={$timeSliderValue}
-			labelText={$timeSliderValue} 
+			labelText={String($timeSliderValue)} 
 			fullWidth={true} 
 			on:input={(e) => {
 				layer.timeSliderValue.set(e.detail);
 			}}
 			hideTextInput={true} 
-			min={layer.timeSliderMin} 
-			max={layer.timeSliderMax} 
-			step={layer.timeSliderStep} 
-			minLabel={String(layer.timeSliderMin)} 
-			maxLabel={String(layer.timeSliderMax)}
+			min={$timeSliderMin} 
+			max={$timeSliderMax} 
+			step={$timeSliderStep} 
+			minLabel={String($timeSliderMin)} 
+			maxLabel={String($timeSliderMax)}
 		/>
 	</div>
 	<div class="wrapper" style="display: flex; justify-content: center; gap: 4px;">
@@ -60,8 +60,9 @@
 			kind="secondary" 
 			size="small" 
 			icon="{ArrowLeft}"
+			iconDescription={$_('tools.animation.previous')}
 			on:click={() => {
-				layer.timeSliderValue.update((value) => value - layer.timeSliderStep);
+				layer.timeSliderValue.update((value) => value - $timeSliderStep);
 			}}
 		/>
 		{#if !playing}
@@ -69,6 +70,7 @@
 				kind="secondary"
 				size="small" 
 				icon="{Play}"
+				iconDescription={$_('tools.animation.play')}
 				on:click={() => {
 					togglePlay();
 				}}
@@ -78,6 +80,7 @@
 				kind="secondary"
 				size="small" 
 				icon="{Pause}"
+				iconDescription={$_('tools.animation.pause')}
 				on:click={() => {
 					togglePlay();
 				}}
@@ -88,8 +91,9 @@
 			kind="secondary"
 			size="small" 
 			icon="{ArrowRight}"
+			iconDescription={$_('tools.animation.next')}
 			on:click={() => {
-				layer.timeSliderValue.update((value) => value + layer.timeSliderStep);
+				layer.timeSliderValue.update((value) => value + $timeSliderStep);
 			}}
 		/>
 	</div>

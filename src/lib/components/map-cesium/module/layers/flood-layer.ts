@@ -443,9 +443,9 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 
 	private plane: DynamicWaterLevel | undefined;
 	private layerControl!: CustomLayerControl;
-	public timeSliderMin: number;
-	public timeSliderMax: number;
-	public timeSliderStep: number;
+	public timeSliderMin: Writable<number> = writable(0);
+	public timeSliderMax: Writable<number> = writable(1);
+	public timeSliderStep: Writable<number> = writable(1);
 	public timeSliderValue: Writable<number> = writable(0);
 	public timeSliderLabel: string;
 	private timeUnsubscriber!: Unsubscriber;
@@ -456,10 +456,6 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 
 		this.plane = undefined;
 		
-		this.timeSliderMin = 0;
-		this.timeSliderMax = 1;
-		this.timeSliderStep = 1;
-		this.timeSliderValue.set(0);
 		this.timeSliderLabel = "";
 
 		this.addControl()
@@ -484,7 +480,7 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 
 		await this.plane.load()
 		if (this.plane) {
-			this.timeSliderMax = this.plane.waterLevels.length;
+			this.timeSliderMax.set(this.plane.waterLevels.length);
 			this.source = this.plane.primitive
 		}
 		return true;

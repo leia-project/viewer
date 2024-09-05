@@ -233,6 +233,8 @@
             "speed": "Snelheid",
             "play": "Play",
             "pause": "Pauze",
+            "previous": "Vorige",
+            "next": "Volgende",
             "currentTime": "Huidige tijd",
             "animationControls": "Animatie-widget",
             "showWayPoints": "Toon waypoints",

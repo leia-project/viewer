@@ -226,6 +226,8 @@
             "speed": "Speed",
             "play": "Play",
             "pause": "Pause",
+            "previous": "Previous",
+            "next": "Next",
             "currentTime": "Current time",
             "animationControls": "Animation controls",
             "showWayPoints": "Show waypoints",
