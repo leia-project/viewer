@@ -150,6 +150,7 @@
         },
         "projects": {
             "label": "Projects",
+            "activateProject": "Activate project",
             "leaveProjectView": "Leave project",
             "showOnMap": "Show projects on map"
         },

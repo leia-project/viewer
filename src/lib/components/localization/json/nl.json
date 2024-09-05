@@ -157,6 +157,7 @@
         },
         "projects": {
             "label": "Projecten",
+            "activateProject": "Project activeren",
             "leaveProjectView": "Project verlaten",
             "showOnMap": "Projecten tonen op kaart"
         },

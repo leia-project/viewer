@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import type { CesiumProject } from "./project";
 	import { createEventDispatcher } from "svelte";
 	import { AccordionItem, Button, Tag } from "carbon-components-svelte";
-	import { Login, ZoomIn } from "carbon-icons-svelte";
+	import { Exit, ZoomIn } from "carbon-icons-svelte";
 	import type Map from "$lib/components/Map.svelte";
 	import LayerEntry from "./LayerEntry.svelte";
 
@@ -42,13 +43,24 @@
         </div>
     </svelte:fragment>
 	<div class="project-header">
-		<Button
-			icon={$selected ? ZoomIn : Login}
-			size="field"
-			iconDescription={$selected ? "Zoom to start view": "Activate project"}
-			tooltipPosition="left"
-			on:click={() => dispatch("activate")}
-		/>
+		{#if $selected}
+			<Button
+				icon={ZoomIn}
+				size="field"
+				iconDescription={"Zoom to start view"}
+				tooltipPosition="left"
+				on:click={() => dispatch("activate")}
+			/>
+		{:else}
+			<Button
+				kind="primary"
+				size="default"
+				on:click={() => dispatch("activate")}
+			>
+				{$_('tools.projects.activateProject')}
+				<Exit slot="icon" size="{20}" class="bx--btn__icon flipped"/>
+			</Button>
+		{/if}
 	</div>
 	<div class="project-content">
 		<div class="project-description">{project.projectSettings.description}</div>
@@ -98,6 +110,8 @@
 		margin: 15px 0 15px;
 	}
 
-
+	.flipped {
+		transform: rotate(-180deg)
+	}
 
 </style>
