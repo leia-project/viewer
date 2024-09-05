@@ -1,0 +1,229 @@
+{
+    "general": {
+        "notifications": {
+            "error": "Erreur",
+            "warning": "Avertissement",
+            "info": "Information",
+            "success": "Réussi",
+            "noConfigText": "Aucune configuration trouvée"
+        }
+    },
+    "tools": {
+        "menu": {
+            "expand": "Développer",
+            "collapse": "Réduire"
+        },
+        "geocoder": {
+            "search": "Rechercher un emplacement"
+        },
+        "info": {
+            "info": "Information",
+            "close": "Fermer",
+            "general": "Ouvrir le visualiseur 3D, un produit de Geodan et de la Province de Zeeland.",
+            "attribution": "Attribution"
+        },
+        "help": {
+            "help": "Aide",
+            "title": "Visualiseur de jumeaux numériques",
+            "close": "Fermer",
+            "closeDontShowOnStart": "Fermer et ne plus afficher au démarrage",
+            "intro": "<div class='body-02'>Un jumeau numérique est une représentation numérique d'un produit, système ou processus physique réel prévu ou réel (un jumeau physique) qui sert de contrepartie numérique pratiquement indistinguable à des fins pratiques, telles que la simulation, l'intégration, les tests, la surveillance et la maintenance.<br><br>Pour plus d'informations sur l'utilisation du visualiseur, consultez les différents sujets</div><br><div style='display:flex; justify-content: center;'></div>",
+            "tabs": {
+              "intro": "Introduction",
+              "movement": "Mouvement",
+              "library": "Bibliothèque",
+              "search": "Recherche"
+            },
+            "movement": {
+              "headingZoom": "Zoom avant/arrière",
+              "zoomDescription": "Le zoom avant et arrière peut être effectué de 3 manières différentes :",
+              "zoomOption1": "1) Faites défiler vers le haut ou vers le bas avec la molette de votre souris pour zoomer.",
+              "zoomOption2": "2) Maintenez le bouton droit de la souris enfoncé et déplacez la souris vers le haut ou vers le bas pour zoomer en douceur.",
+              "zoomOption3": "3) Utilisez les boutons de zoom en bas à droite.",
+              "headingRotatePitch": "Rotation & Inclinaison",
+              "rotatePitchDescription": "Vous pouvez faire pivoter et incliner la caméra, il est également possible de diriger la caméra sous la surface pour voir dans le sol. Cela peut être fait de 2 manières différentes.",
+              "rotatePitchOption1": "1) Appuyez sur la molette de votre souris et déplacez la souris.",
+              "rotatePitchOption2": "2) Maintenez la touche <help-key>ctrl</help-key> de votre clavier et le bouton gauche de la souris enfoncé et déplacez la souris.",
+              "headingButtons": "Boutons de la carte",
+              "buttonsDescription": "En bas à droite, vous trouverez quelques boutons.",
+              "buttonsHome": "Réinitialiser la vue à la position de départ",
+              "buttonsCompass": "Réinitialiser la caméra vers le nord",
+              "buttonsZoomIn": "Zoom avant",
+              "buttonsZoomOut": "Zoom arrière"
+            },
+            "library": {
+              "headingLibraryOpen": "Ouvrir la bibliothèque",
+              "headingUsingLibrary": "Utilisation de la bibliothèque",
+              "description": "Si vous souhaitez ajouter plus de couches au-dessus des couches configurées dans le visualiseur, vous pouvez le faire en utilisant la bibliothèque",
+              "openLibrary": "Pour ouvrir la bibliothèque de couches, cliquez sur le bouton 'dossier' à gauche",
+              "libraryDescription": "Utilisez la barre de recherche en bas pour rechercher les couches souhaitées ou cliquez à travers les groupes affichés. Cliquez sur la couche pour afficher plus d'informations sur la couche, cochez la case pour ajouter la couche à la carte ou appuyez sur le bouton 'Ajouter à la carte' dans l'affichage de description de la couche"
+            }
+        },
+        "config_switcher": {
+            "label": "Choisir la configuration du visualiseur",
+            "title": "Choisissez une configuration de visualiseur",
+            "intro": "Choisissez une configuration de visualiseur dans la liste pour démarrer le visualiseur avec la configuration sélectionnée.",
+            "close": "Fermer",
+            "no_configs": "Aucune configuration trouvée."
+        },
+        "layerLibrary": {
+            "label": "Bibliothèque",
+            "baseLayers": "Couches de fond",
+            "noCategory": "Aucune catégorie",
+            "close": "Fermer",
+            "notImplemented": "Pas encore implémenté",
+            "catalogue": "Catalogue",
+            "myData": "Mes données",
+            "myDataTitle": "Configuration de la couche de mes données",
+            "btnAddToMap": "Ajouter à la carte",
+            "btnRemoveFromMap": "Retirer de la carte",
+            "btnAddAllToMap": "Ajouter toutes les couches",
+            "btnRemoveAllFromMap": "Retirer toutes les couches",
+            "btnCopyToClipboard": "Copier dans le presse-papiers",
+            "description": "Description",
+            "noDescription": "Aucune description trouvée",
+            "attribution": "Attribution",
+            "noAttribution": "Aucune attribution trouvée",
+            "layerType": "Type de couche",
+            "layerName": "Nom",
+            "metadata": "Métadonnées",
+            "noMetadata": "Aucune métadonnée trouvée",
+            "info": "Information",
+            "infoLibrary": "Ajoutez des données à la carte en ouvrant un groupe à gauche et en cochant la case pour les données, pour voir plus d'informations sur les données, cliquez sur le titre pour afficher des informations détaillées à droite lorsque disponible.",
+            "infoMyDataLibrary": "Créez votre propre couche de données en cliquant sur le bouton Ajouter. Après avoir rempli les informations, la couche de données peut être ajoutée à la carte.",
+            "searchPlaceholder": "Rechercher des données",
+            "searchResults": "Résultats de recherche",
+            "for": "pour",
+            "searchNoResults": "Aucun résultat pour",
+            "layerNamePlaceholder": "Nom de la couche...",
+            "contentTypePlaceholder": "par ex. image/png ou image/jpeg",
+            "geojsonStylePlaceholder": "Paramètre pour le style par défaut",
+            "timeKeyPlaceholder": "Paramètre temporel dans les propriétés GeoJSON",
+            "orientationKeyPlaceholder": "Optionnel : Paramètre d'orientation dans les propriétés GeoJSON",
+            "invalidTypeText": "Sélectionnez un type de données pris en charge dans la liste",
+            "invalidUrlText": "Entrez une URL valide",
+            "urlNotFoundText": "URL spécifiée non trouvée",
+            "addCustomLayer": "Ajouter une couche personnalisée",
+            "deleteLayer": "Supprimer la couche",
+            "selectedThemes": "Thèmes sélectionnés",
+            "filterByTheme": "Filtrer par thème",
+            "enableClipping": "Activer l'option de découpage",
+            "clampToTerrain": "Fixer au terrain",
+            "styling": "Style"
+        },
+        "layerManager": {
+            "label": "Gestion des couches",
+            "baseLayers": "Couches de fond",
+            "thematicLayer": "Couches thématiques",
+            "opacity": "Transparence",
+            "legend": "Légende",
+            "legendNotFoundText": "Aucune légende trouvée",
+            "styling": "Style",
+            "extrusion": "Extrusion",
+            "metersNAP": " m (NAP)",
+            "gradient": "Dégradé",
+            "applyGradient": "Définir le dégradé",
+            "btnShowAll": "Tout afficher",
+            "btnHideAll": "Tout masquer"
+        },
+        "layerTools": {
+            "theme": {
+                "label": "Thèmes",
+                "default": "Aucun",
+                "legend": "Légende",
+                "reset": "Réinitialiser la légende"
+            }
+        },
+        "backgroundControls": {
+            "opacity": "Transparence du monde",
+            "terrain": "Terrain"
+        },
+        "bookmarks": {
+            "label": "Signets",
+            "title": "Titre",
+            "save": "Enregistrer",
+            "cancel": "Annuler",
+            "delete": "Supprimer",
+            "add": "Ajouter un nouveau signet",
+            "description": "Description",
+            "cameraPosition": "Caméra",
+            "cameraPositionSubtitle": "La position actuelle de la caméra sera enregistrée avec ce signet",
+            "noBookmarks": "Aucun signet",
+            "noBookmarksSubtitle": "Appuyez sur ajouter pour créer un nouveau signet"
+        },
+        "featureInfo": {
+            "label": "Informations sur l'objet",
+            "noData": "Aucune donnée, cliquez sur un objet pour plus d'informations"
+        },
+        "measure": {
+            "label": "Mesurer",
+            "noMeasurement": "Aucune mesure",
+            "noMeasurementSubtitle": "Appuyez sur ajouter pour créer une nouvelle mesure",
+            "add": "Ajouter une nouvelle mesure",
+            "edit": "Modifier la mesure",
+            "title": "Titre",
+            "defaultTitle": "Mesure",
+            "save": "Enregistrer",
+            "record": "Enregistrer la position de la caméra",
+            "delete": "Supprimer",
+            "cameraPosition": "Position de la caméra",
+            "totalLength": "Longueur totale",
+            "points": "Points"
+        },
+        "controls": {
+            "label": "Paramètres de la carte",
+            "sunPosition": "Position du soleil",
+            "sunPositionDate": "Date",
+            "sunPositionHour": "Heure UTC",
+            "quality": "Qualité",
+            "rendering": "Rendu",
+            "environment": "Environnement",
+            "debug": "Débogage",
+            "low": "Bas",
+            "medium": "Moyen",
+            "high": "Élevé",
+            "custom": "Personnalisé",
+            "animate": "Animer",
+            "fxaa": "FXAA",
+            "fog": "Brouillard",
+            "groundAtmosphere": "Atmosphère terrestre",
+            "dynamicRange": "HDR",
+            "lighting": "Éclairage",
+            "msaa": "MSAA",
+            "maximumScreenspaceError": "Niveau de détail",
+            "resolutionScale": "Échelle de résolution",
+            "shadows": "Ombres",
+            "skyAtmosphere": "Atmosphère du ciel",
+            "FPSCounter": "Compteur FPS",
+            "inspector": "Inspecteur de tuiles",
+            "coordinates": "Coordonnées",
+            "pointCloud": "Nuages de points",
+            "pointCloudAttenuation": "Atténuation",
+            "pointCloudAttenuationBaseResolution": "Résolution de base de l'atténuation",
+            "pointCloudAttenuationErrorScale": "Échelle d'erreur géométrique de l'atténuation",
+            "pointCloudAttenuationMaximum": "Atténuation maximum",
+            "pointCloudEDL": "Éclairage de dôme oculaire",
+            "pointCloudEDLRadius": "Rayon d'éclairage de dôme oculaire",
+            "pointCloudEDLStrength": "Force d'éclairage de dôme oculaire",
+            "logo": "Logos"
+        },
+        "stories": {
+            "label": "Histoires",
+            "back": "Retour à l'aperçu",
+            "stepBack": "Étape en arrière",
+            "stepForward": "Étape en avant"
+        },
+        "animation": {
+            "speed": "Vitesse",
+            "play": "Jouer",
+            "pause": "Pause",
+            "currentTime": "Temps actuel",
+            "animationControls": "Widget d'animation",
+            "showWayPoints": "Afficher les points de passage",
+            "hideWayPoints": "Masquer les points de passage",
+            "trackModel": "Suivre le modèle",
+            "stopTracking": "Arrêter le suivi",
+            "zoomToModel": "Zoomer sur le modèle"
+        }
+    }
+}
