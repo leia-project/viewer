@@ -88,7 +88,7 @@
     "viewer": {
         "title": "3D viewer",
         "subTitle": "Leia Example",
-        "logo": "https://logo.nl",
+        "logo": "images/leia_logo.png",
         "startPosition": {
             "x": 5.40068,
             "y": 51.20089,
