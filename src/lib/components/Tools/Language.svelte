@@ -7,9 +7,10 @@
 	import Earth from 'carbon-icons-svelte/lib/EarthFilled.svelte';
 </script>
 
-<HeaderAction icon={Earth} closeIcon={Earth}>
+<HeaderAction icon={Earth} closeIcon={Earth} title="{$_('tools.language.setLanguage')}">
 	<div class="content">
 		<div class="wrapper shell">
+			<div class="heading-03" title="{$_('tools.language.setLanguage')}">{$_('tools.language.setLanguage')}</div>
 			<RadioButtonGroup orientation="vertical" bind:selected={$selectedLanguage} >
 				{#each languages as language}
 					<RadioButton labelText={language.title} value={language.shortName} class="test" />
