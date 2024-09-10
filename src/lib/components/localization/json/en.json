@@ -1,5 +1,6 @@
 {
     "general": {
+        "goTo": "Go to",
         "loading": "Loading...",
         "notifications": {
             "error": "Error",
@@ -106,7 +107,8 @@
             "filterByTheme": "Filter by Theme",
             "enableClipping": "Enable Clipping",
             "clampToTerrain": "Clamp to Terrain",
-            "styling": "Styling"
+            "styling": "Styling",
+            "viewRecordOn": "View record on"
         },
         "layerManager": {
             "label": "Layer Manager",

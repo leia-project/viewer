@@ -1,5 +1,6 @@
 {
     "general": {
+        "goTo": "Ga naar",
         "loading": "Laden...",
         "notifications": {
             "error": "Error",
@@ -113,7 +114,8 @@
             "filterByTheme": "Filter op thema",
             "enableClipping": "Clip-optie inschakelen",
             "clampToTerrain": "Vastzetten op terrein",
-            "styling": "Stijl"
+            "styling": "Stijl",
+            "viewRecordOn": "Bekijk record op"
         },
         "layerManager": {
             "label": "Lagenbeheer",

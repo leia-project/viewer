@@ -156,6 +156,18 @@
     "groups": [],
     "tools": [
         {
+            "id": "layerlibrary",
+            "enabled": true,
+            "settings": {
+                "connectors": [
+                    {
+                        "type": "geonetwork",
+                        "url": "https://dataportaal.zeeland.nl/dataportaal"
+                    }
+                ]
+            }
+        },
+        {
             "id": "layermanager",
             "enabled": true,
             "settings": {}
@@ -226,7 +238,7 @@
         },
         {
             "id": "config_switcher",
-            "enabled": true,
+            "enabled": false,
             "settings": {
                 "fullReload": true 
             }
