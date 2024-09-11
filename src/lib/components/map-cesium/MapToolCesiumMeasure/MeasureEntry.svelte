@@ -10,7 +10,7 @@
 	import Camera from "carbon-icons-svelte/lib/Camera.svelte";
 
 	import type { Map } from "../module/map";
-	import type { MapMeasurement } from "./map-measurement";
+	import type { MapMeasurement } from "../module/map-measurement";
 	import CarbonHeader from "$lib/components/ui/components/Header/CarbonHeader.svelte";
 
 	export let editting: boolean = false;

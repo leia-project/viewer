@@ -2,6 +2,8 @@
     "general": {
         "goTo": "Go to",
         "loading": "Loading...",
+        "on": "On",
+        "off": "Off",
         "notifications": {
             "error": "Error",
             "warning": "Warning",

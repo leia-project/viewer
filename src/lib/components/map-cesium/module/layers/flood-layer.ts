@@ -53,8 +53,10 @@ class DynamicWaterLevel {
 	public imagesLoaded: Promise<boolean>;
 	public time: Writable<number>;
 	public primitive?: Cesium.Primitive;
+	public alpha: Writable<number>;
 	private material?: Cesium.Material;
 	private timeUnsubscriber?: Unsubscriber;
+	private alphaUnsubscriber?: Unsubscriber;
 	private verticalExaggeration: Writable<number>;
 	private verticalExaggerationUnsubscriber?: Unsubscriber;
 	private uniformMap: any = {
@@ -85,12 +87,14 @@ class DynamicWaterLevel {
 		this.ne = options.ne;
 		this.baseUrl = options.url.substring(0, options.url.lastIndexOf("/") + 1);
 		this.verticalExaggeration = writable(1);
+		this.alpha = writable(0.8);
 		this.imagesLoaded = this.loadImages(options.url);
 	}
 
 	public async load(): Promise<void> {
 		if (!this.primitive) await this.createMesh();
-		this.timeUnsubscriber = this.time.subscribe((time) => this.setUniforms(time));
+		this.timeUnsubscriber = this.time.subscribe(() => this.setUniforms());
+		this.alphaUnsubscriber = this.alpha.subscribe(() => this.setUniforms());
 		this.verticalExaggerationUnsubscriber = this.verticalExaggeration.subscribe((value) => {
 			if (this.material) this.material.uniforms.u_vertical_exaggeration = value;
 		});
@@ -99,6 +103,7 @@ class DynamicWaterLevel {
 	public remove(): void {
 		if (!this.primitive) return;
 		this.timeUnsubscriber?.();
+		this.alphaUnsubscriber?.();
 		this.verticalExaggerationUnsubscriber?.();
 	}
 
@@ -122,7 +127,7 @@ class DynamicWaterLevel {
 				this.waterLevels.push(waterLevel);
 			}
 		}
-		this.setUniforms(get(this.map.options.dateTime));
+		this.setUniforms();
 		return true;
 	}
 
@@ -131,15 +136,15 @@ class DynamicWaterLevel {
 		return resource;
 	}
 
-	private async setUniforms(time: number): Promise<void> {
-		const [lowerBound, upperBound] = this.findClosestWaterLevels(time);
+	private async setUniforms(): Promise<void> {
+		const [lowerBound, upperBound] = this.findClosestWaterLevels();
 		if (!lowerBound || !upperBound) return;
 		this.uniformMap.uElevationT1.value = lowerBound.image;
 		this.uniformMap.uElevationT2.value = upperBound.image;
 
 		let progress: number = 1;
 		if (upperBound.time !== lowerBound.time) {
-			progress = (time - lowerBound.time) / (upperBound.time - lowerBound.time);
+			progress = (get(this.time) - lowerBound.time) / (upperBound.time - lowerBound.time);
 		}
 		this.uniformMap.uProgress.value = progress;
 
@@ -148,17 +153,18 @@ class DynamicWaterLevel {
 			this.material.uniforms.u_terrain = this.uniformMap.uTerrain.value;
 			this.material.uniforms.u_elevation_t1 = this.uniformMap.uElevationT1.value;
 			this.material.uniforms.u_elevation_t2 = this.uniformMap.uElevationT2.value;
+			this.material.uniforms.u_alpha = get(this.alpha);
 		}
 		this.map.refresh();
 	}
 
-	private findClosestWaterLevels(time: number): [WaterLevel, WaterLevel] {
+	private findClosestWaterLevels(): [WaterLevel, WaterLevel] {
 		let lowerBound = this.waterLevels[0];
 		let upperBound = this.waterLevels[this.waterLevels.length - 1];
 		for (const waterLevel of this.waterLevels) {
-			if (waterLevel.time < time) {
+			if (waterLevel.time < get(this.time)) {
 				lowerBound = waterLevel;
-			} else if (waterLevel.time > time) {
+			} else if (waterLevel.time > get(this.time)) {
 				upperBound = waterLevel;
 				break;
 			}
@@ -277,6 +283,7 @@ class DynamicWaterLevel {
 			uniform float u_texel_size_s_5;
 			uniform float u_texel_size_t_6;
 			uniform float u_vertical_exaggeration_7;
+			uniform float u_alpha_8;
 
 			in vec3 position3DHigh;
 			in vec3 position3DLow;
@@ -348,7 +355,7 @@ class DynamicWaterLevel {
             czm_material sdg_czm_getMaterial(czm_materialInput materialInput) {
                 czm_material material = czm_getDefaultMaterial(materialInput);
                 material.diffuse = czm_gammaCorrect(v_color * vec3(1.0));
-                material.alpha = 0.8;
+                material.alpha = u_alpha_8;
                 material.specular = 0.0;
                 material.shininess = 0.0;
                 return material;
@@ -396,10 +403,11 @@ class DynamicWaterLevel {
 					u_model_normal: modelNormal,
 					u_texel_size_s: 1 / lonSteps,
 					u_texel_size_t: 1 / latSteps,
-					u_vertical_exaggeration: get(this.verticalExaggeration)
+					u_vertical_exaggeration: get(this.verticalExaggeration),
+					u_alpha: get(this.alpha)
 				}
 			},
-			translucent: false,
+			translucent: true,
 			minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
 			magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
 		});
@@ -421,7 +429,7 @@ class DynamicWaterLevel {
 			material: this.material,
 			vertexShaderSource: vertexShader,
 			fragmentShaderSource: fragmentShader,
-			translucent: false,
+			translucent: true,
 			flat: false,
 			faceForward: false,
 			closed: false,
@@ -429,7 +437,7 @@ class DynamicWaterLevel {
 		});
 
 		this.primitive = new Cesium.Primitive({
-			geometryInstances: instance,
+			geometryInstances: [instance],
 			asynchronous: false,
 			appearance: appearance,
 			shadows: Cesium.ShadowMode.DISABLED
@@ -461,6 +469,7 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 		this.addControl()
 		this.addListeners()
 		this.loaded = this.loadData();
+
 	}
 
 	private async loadData(): Promise<boolean> {
@@ -520,6 +529,7 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 		this.layerControl.component = LayerControlFlood;
 		this.layerControl.props = {
 			layer: this,
+			map: this.map,
 		};
 		this.addCustomControl(this.layerControl);
 	}
@@ -535,8 +545,8 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 	}
 
 	public opacityChanged(opacity: number): void {
-		if (this.source) {
-			//this.source.alpha = opacity > 1 ? 1.0 : opacity < 0 ? 0 : opacity;
+		if (this.plane) {
+			this.plane.alpha.set(opacity > 100 ? 1.0 : opacity < 0 ? 0 : opacity / 100);
 		}
 	}
 }

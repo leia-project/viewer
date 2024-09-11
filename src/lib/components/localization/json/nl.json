@@ -2,6 +2,8 @@
     "general": {
         "goTo": "Ga naar",
         "loading": "Laden...",
+        "on": "Aan",
+        "off": "Uit",
         "notifications": {
             "error": "Error",
             "warning": "Waarschuwing",
