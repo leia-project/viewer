@@ -118,5 +118,6 @@
 <style>
     .logo {
         max-height: 2.5rem;
+        margin: 0.5rem;
     }
 </style>

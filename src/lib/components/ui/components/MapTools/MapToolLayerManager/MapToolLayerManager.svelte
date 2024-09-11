@@ -41,7 +41,7 @@
     });
 
     $: libraryGroups = library.groups;
-    $: groupsWithLayers = getGroupsWithLayers();
+    $: groupsWithLayers = getGroupsWithLayers(layers);
 
     // set the groups array, derived from the layers present in the layer manager
     let groups = Array<LayerManagerGroup>();
@@ -63,7 +63,7 @@
         }
     } 
 
-    function getGroupsWithLayers() {
+    function getGroupsWithLayers(layers: Array<Layer>) {
         let groupIds: Array<number|string> = [];
         // get group ids from present layers
         for (let i = 0; i < layers.length; i++) {
@@ -76,11 +76,9 @@
 
     function buildGroupsRecursive(layerConfigGroups: Array<LayerConfigGroup>) {
         let groups = Array<LayerManagerGroup>();
-        // filter library groups based on the groupIds
-        let libraryGroupsFiltered = layerConfigGroups.filter(g => groupsWithLayers.includes(g.id))
         // copy library groups to layer groups
-        for (let i = 0; i < libraryGroupsFiltered.length; i++) {
-            let group = libraryGroupsFiltered[i];
+        for (let i = 0; i < layerConfigGroups.length; i++) {
+            let group = layerConfigGroups[i];
             let layerManagerGroup = new LayerManagerGroup(group.id, group.title);
             // add layers belonging to this group to the layer manager group
             let layersFiltered = layers.filter(l => l.parentGroup == group.id)

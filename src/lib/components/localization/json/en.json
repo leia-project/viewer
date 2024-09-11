@@ -1,5 +1,7 @@
 {
     "general": {
+        "goTo": "Go to",
+        "loading": "Loading...",
         "notifications": {
             "error": "Error",
             "warning": "Warning",
@@ -16,6 +18,9 @@
         "menu": {
             "expand": "Expand",
             "collapse": "Collapse"
+        },
+        "language": {
+            "setLanguage": "Set language"
         },
         "geocoder": {
             "search": "Search Location"
@@ -106,7 +111,8 @@
             "filterByTheme": "Filter by Theme",
             "enableClipping": "Enable Clipping",
             "clampToTerrain": "Clamp to Terrain",
-            "styling": "Styling"
+            "styling": "Styling",
+            "viewRecordOn": "View record on"
         },
         "layerManager": {
             "label": "Layer Manager",

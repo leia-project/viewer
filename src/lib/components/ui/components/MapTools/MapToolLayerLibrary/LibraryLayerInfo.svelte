@@ -15,6 +15,8 @@
     $: config = $layerConfig;
     $: metadata = config.metadata;
     $: metadataUrl = config.metadataUrl;  //"https://nationaalgeoregister.nl/geonetwork/srv/api/records/1ad6e0e0-8684-4a63-afe0-df1089072653/formatters/xml?approved=true";
+    $: metadataLink = config.metadataLink;
+    $: metadataLinkShort = metadataLink ? metadataLink.split("/").pop() : "";
     $: attribution = config.attribution;
     $: addedToLayerManager = config.added;
     $: imageUrl = config.imageUrl;
@@ -31,6 +33,16 @@
 
     function getPath(): string {
         return "";
+    }
+
+    function getDomainFromLink(link: string) {
+        try {
+            const url = new URL(link);
+            return url.hostname;
+        } catch (error) {
+            console.error('Invalid URL:', link);
+            return '';
+        }
     }
 
     function addToManager(): void {
@@ -138,26 +150,26 @@
                 </div>
             </div>
 
-            {#if metadata}
-                {#each metadata as entry}
-                    {#if entry.key.toLowerCase() === "herkomst" && isImage(entry.value)}
-                        <div class="block ">
+            <div class="block ">
+                {#if metadata}
+                    {#each metadata as entry}
+                        {#if entry.key.toLowerCase() === "herkomst" && isImage(entry.value)}
                             <div class="label">{entry.key}</div>
                             <img class="body-01 img-metadata" src={entry.value} alt={entry.key}/>
-                        </div>
-                    {:else}
-                        <div class="block ">
+                        {:else}
                             <div class="label">{entry.key}</div>
                             <p class="body-01">{@html urlify(entry.value)}</p>
-                        </div>
-                    {/if}                    
-                {/each}
-            {:else}
-                <div class="block">
+                        {/if}                    
+                    {/each}
+                {:else if metadataLink}
+                    <div class="label">{$_("tools.layerLibrary.metadata")}</div>
+                    <a class="body-01" href="{metadataLink}" target="_blank">{$_('tools.layerLibrary.viewRecordOn')} {getDomainFromLink(metadataLink)}</a>
+                {:else}
                     <div class="label">{$_("tools.layerLibrary.metadata")}</div>
                     <p class="body-01">{$_("tools.layerLibrary.noMetadata")}</p>
-                </div>
-            {/if}
+                {/if}
+            </div>
+
 
             {#if $mdEntries.length > 0}
                 {#each $mdEntries as entry}
@@ -259,7 +271,7 @@
     }
 
     .layer-image {
-        max-width: 20rem;
+        max-width: 11rem;
         float: right;
         margin: var(--cds-spacing-05);
     }

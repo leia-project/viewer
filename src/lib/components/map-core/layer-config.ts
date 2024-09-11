@@ -17,6 +17,7 @@ export class LayerConfig {
     public attribution!: string;
     public metadata!: Array<{ key: string, value: string }>;
     public metadataUrl!: string;
+    public metadataLink: string;
     public transparent: boolean = false;
     public opacity!: number;
     public settings!: any;

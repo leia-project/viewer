@@ -88,7 +88,7 @@
     "viewer": {
         "title": "3D viewer",
         "subTitle": "Leia Example",
-        "logo": "https://logo.nl",
+        "logo": "images/leia_logo.png",
         "startPosition": {
             "x": 5.40068,
             "y": 51.20089,
@@ -155,6 +155,18 @@
     },
     "groups": [],
     "tools": [
+        {
+            "id": "layerlibrary",
+            "enabled": true,
+            "settings": {
+                "connectors": [
+                    {
+                        "type": "geonetwork",
+                        "url": "https://dataportaal.zeeland.nl/dataportaal"
+                    }
+                ]
+            }
+        },
         {
             "id": "layermanager",
             "enabled": true,
