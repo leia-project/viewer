@@ -8,6 +8,10 @@
             "info": "Informatie",
             "success": "Gelukt",
             "noConfigText": "Geen configuratie gevonden"
+        },
+        "buttons": {
+            "show": "Tonen",
+            "hide": "Verbergen"
         }
     },
     "tools": {
@@ -156,6 +160,12 @@
             "cameraPositionSubtitle": "De huidige camera positie zal opgeslagen worden bij deze bladwijzer",
             "noBookmarks": "Geen bladwijzers",
             "noBookmarksSubtitle": "Druk op toevoegen om een nieuwe bladwijzer aan te maken"
+        },
+        "projects": {
+            "label": "Projecten",
+            "activateProject": "Project activeren",
+            "leaveProjectView": "Project verlaten",
+            "showOnMap": "Projecten tonen op kaart"
         },
         "featureInfo": {
             "label": "Object Informatie",

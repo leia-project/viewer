@@ -244,6 +244,50 @@
             }
         },
         {
+            "id": "projects",
+            "enabled": true,
+            "settings": {
+                "openProject": "My project name",
+                "projects": [
+                    {
+                        "name": "My project name",
+                        "description": "Short description of my project",
+                        "polygon": [
+                            [
+                                4.9000,
+                                52.39961
+                            ],
+                            [
+                                4.91807, 
+                                52.39961
+                            ],
+                            [
+                                4.9193,
+                                52.38107
+                            ],
+                            [
+                                4.9000,
+                                52.38575
+                            ]
+                        ],
+                        "layers": [
+                            "DTB 3D",
+                            "3D BAG",
+                            "Bomen 3D"
+                        ],
+                        "cameraPosition": {
+                            "x": 4.94802,
+                            "y": 52.35647,
+                            "z": 2176.53646,
+                            "heading": 326.85260,
+                            "pitch": -24.10943,
+                            "duration": 1.50
+                        }
+                    }
+                ]
+            }
+        },
+        {
             "id": "stories",
             "enabled": true,
             "settings": {

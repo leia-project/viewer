@@ -8,6 +8,10 @@
             "info": "Information",
             "success": "Success",
             "noConfigText": "No configuration found"
+        },
+        "buttons": {
+            "show": "Show",
+            "hide": "Hide"
         }
     },
     "tools": {
@@ -142,13 +146,19 @@
             "title": "Title",
             "save": "Save",
             "cancel": "Cancel",
-            "delete": "Delte",
+            "delete": "Delete",
             "add": "Add New Bookmark",
             "description": "Description",
             "cameraPosition": "Camera",
             "cameraPositionSubtitle": "The current camera position will be saved with this bookmark",
             "noBookmarks": "No bookmarks",
             "noBookmarksSubtitle": "Press add to create a new bookmark"
+        },
+        "projects": {
+            "label": "Projects",
+            "activateProject": "Activate project",
+            "leaveProjectView": "Leave project",
+            "showOnMap": "Show projects on map"
         },
         "featureInfo": {
             "label": "Object Information",

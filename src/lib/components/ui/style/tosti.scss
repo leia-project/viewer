@@ -538,15 +538,15 @@ Header nav {
     width: 100%;
 }
 
-.layer-group-accordion .bx--accordion__content {
+.layer-group-accordion .bx--accordion__content, .project-accordion .bx--accordion__content {
     padding-right: 0rem !important;
 }
 
-.layer-group-accordion .bx--checkbox-label {
+.layer-group-accordion .bx--checkbox-label, .project-accordion .bx--accordion__content {
     width: 100% !important;
 }
 
-.layer-group-accordion .bx--checkbox-label-text {
+.layer-group-accordion .bx--checkbox-label-text, .project-accordion .bx--accordion__content {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -554,6 +554,15 @@ Header nav {
 
 .layer-group-accordion .bx--accordion__title {
     margin: 0px 0px 0px var(--cds-spacing-02);
+}
+
+.project-accordion .bx--accordion__heading {
+    display: flex;
+    align-items: center;
+}
+
+.project-accordion .bx--accordion__arrow {
+    margin: 0 1rem 0 0;
 }
 
 .bx--header__action {
