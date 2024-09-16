@@ -54,6 +54,7 @@ class DynamicWaterLevel {
 	public time: Writable<number>;
 	public primitive?: Cesium.Primitive;
 	public alpha: Writable<number>;
+	private contents: Promise<FloodLayerContents>;
 	private material?: Cesium.Material;
 	private timeUnsubscriber?: Unsubscriber;
 	private alphaUnsubscriber?: Unsubscriber;
@@ -88,7 +89,12 @@ class DynamicWaterLevel {
 		this.baseUrl = options.url.substring(0, options.url.lastIndexOf("/") + 1);
 		this.verticalExaggeration = writable(1);
 		this.alpha = writable(0.8);
+		this.contents = this.loadContents(options.url);
 		this.imagesLoaded = this.loadImages(options.url);
+	}
+
+	private async loadContents(url: string): Promise<FloodLayerContents> {
+		return fetch(url).then((response) => response.json());
 	}
 
 	public async load(): Promise<void> {
@@ -108,7 +114,7 @@ class DynamicWaterLevel {
 	}
 
 	private async loadImages(url: string): Promise<boolean> {
-		const contents: FloodLayerContents = await fetch(url).then((response) => response.json());
+		const contents = await this.contents;
 		const terrainImage = await this.loadImage(contents.terrain.path);
 		if (!terrainImage) {
 			throw new Error("Failed to load terrain image");
@@ -182,6 +188,12 @@ class DynamicWaterLevel {
 	
 	private async createMesh(): Promise<void> {
 		await this.imagesLoaded;
+		const contents = await this.contents;
+
+		const terrainScalingMin = contents.terrain.scaling.min;
+		const terrainScalingMax = contents.terrain.scaling.max;
+		const floodPlaneScalingMin = contents.flood_planes.scaling.min;
+		const floodPlaneScalingMax = contents.flood_planes.scaling.max;
 		
 		const lonStart = this.sw[0];
 		const latStart = this.sw[1];
@@ -284,6 +296,10 @@ class DynamicWaterLevel {
 			uniform float u_texel_size_t_6;
 			uniform float u_vertical_exaggeration_7;
 			uniform float u_alpha_8;
+			uniform float u_terrain_scaling_min_9;
+			uniform float u_terrain_scaling_max_10;
+			uniform float u_flood_plane_scaling_min_11;
+			uniform float u_flood_plane_scaling_max_12;
 
 			in vec3 position3DHigh;
 			in vec3 position3DLow;
@@ -298,8 +314,8 @@ class DynamicWaterLevel {
 
 			float computeElevation(vec2 _st) {
 				_st = clamp(_st, vec2(0.0), vec2(1.0));
-				float elevation_t1 = texture(u_elevation_t1_2, _st).r * (50.0 - 40.0) + 40.0;
-				float elevation_t2 = texture(u_elevation_t2_3, _st).r * (50.0 - 40.0) + 40.0;
+				float elevation_t1 = texture(u_elevation_t1_2, _st).r * (u_flood_plane_scaling_max_12 - u_flood_plane_scaling_min_11) + u_flood_plane_scaling_min_11;
+				float elevation_t2 = texture(u_elevation_t2_3, _st).r * (u_flood_plane_scaling_max_12 - u_flood_plane_scaling_min_11) + u_flood_plane_scaling_min_11;
 				float elevation = mix(elevation_t1, elevation_t2, u_progress_0);
 				return elevation;
 			}
@@ -346,8 +362,8 @@ class DynamicWaterLevel {
            
             float computeElevation(vec2 _st) {
                 _st = clamp(_st, vec2(0.0), vec2(1.0));
-                float elevation_t1 = texture(u_elevation_t1_2, _st).r * (50.0 - 40.0) + 40.0;
-                float elevation_t2 = texture(u_elevation_t2_3, _st).r * (50.0 - 40.0) + 40.0;
+                float elevation_t1 = texture(u_elevation_t1_2, _st).r * (u_flood_plane_scaling_max_12 - u_flood_plane_scaling_min_11) + u_flood_plane_scaling_min_11;
+                float elevation_t2 = texture(u_elevation_t2_3, _st).r * (u_flood_plane_scaling_max_12 - u_flood_plane_scaling_min_11) + u_flood_plane_scaling_min_11;
                 float elevation = mix(elevation_t1, elevation_t2, u_progress_0);
                 return elevation;
             }
@@ -363,9 +379,9 @@ class DynamicWaterLevel {
            
             void main() {
 
-				float terrain_height = texture(u_terrain_1, v_st).r * (90.0 - 30.0) + 30.0;
+				float terrain_height = texture(u_terrain_1, v_st).r * (u_terrain_scaling_max_10 - u_terrain_scaling_min_9) + u_terrain_scaling_min_9;
 				float elevation = computeElevation(v_st);
-				if (elevation == 40.0 || terrain_height == 30.0) {
+				if (elevation == u_flood_plane_scaling_min_11 || terrain_height == u_terrain_scaling_min_9) {
 					discard;
 				}
 				float height_to_terrain = elevation - terrain_height;
@@ -404,7 +420,11 @@ class DynamicWaterLevel {
 					u_texel_size_s: 1 / lonSteps,
 					u_texel_size_t: 1 / latSteps,
 					u_vertical_exaggeration: get(this.verticalExaggeration),
-					u_alpha: get(this.alpha)
+					u_alpha: get(this.alpha),
+					u_terrain_scaling_min: terrainScalingMin,
+					u_terrain_scaling_max: terrainScalingMax,
+					u_flood_plane_scaling_min: floodPlaneScalingMin,
+					u_flood_plane_scaling_max: floodPlaneScalingMax
 				}
 			},
 			translucent: true,
@@ -480,7 +500,7 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 
 		this.plane = new DynamicWaterLevel({
 			map: this.map,
-			time: this.timeSliderMin,
+			time: get(this.timeSliderMin),
 			sw: sw,
 			ne: ne,
 			gridSpacingInMeters: resolution,
