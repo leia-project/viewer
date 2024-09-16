@@ -12,6 +12,8 @@ import { CesiumLayer } from "./cesium-layer";
 
 interface FloodLayerContents {
 	name: string,
+	sw: [number, number],
+	ne: [number, number],
 	terrain: {
 		scaling: {
 			min: number,
@@ -31,8 +33,6 @@ interface FloodLayerContents {
 interface DynamicWaterLevelOptions {
 	map: Map;
 	time: number;
-	sw: [lon: number, lat: number];
-	ne: [lon: number, lat: number];
 	gridSpacingInMeters: number;
 	url: string;
 }
@@ -46,8 +46,6 @@ class DynamicWaterLevel {
 
 	private map: Map;
 	private gridSpacingInMeters: number;
-	private sw: [lon: number, lat: number];
-	private ne: [lon: number, lat: number];
 	private baseUrl: string;
 	public waterLevels: Array<WaterLevel> = [];
 	public imagesLoaded: Promise<boolean>;
@@ -84,8 +82,6 @@ class DynamicWaterLevel {
 		this.map = options.map;
 		this.time = writable(options.time);
 		this.gridSpacingInMeters = options.gridSpacingInMeters;
-		this.sw = options.sw;
-		this.ne = options.ne;
 		this.baseUrl = options.url.substring(0, options.url.lastIndexOf("/") + 1);
 		this.verticalExaggeration = writable(1);
 		this.alpha = writable(0.8);
@@ -195,10 +191,10 @@ class DynamicWaterLevel {
 		const floodPlaneScalingMin = contents.flood_planes.scaling.min;
 		const floodPlaneScalingMax = contents.flood_planes.scaling.max;
 		
-		const lonStart = this.sw[0];
-		const latStart = this.sw[1];
-		const lonEnd = this.ne[0];
-		const latEnd = this.ne[1];
+		const lonStart = contents.sw[0];
+		const latStart = contents.sw[1];
+		const lonEnd = contents.ne[0];
+		const latEnd = contents.ne[1];
 
 		const modelOrigin = Cesium.Cartesian3.fromDegrees((lonStart + lonEnd) / 2, (latStart + latEnd) / 2, 0);
 		const modelNormal = Cesium.Cartesian3.normalize(modelOrigin, new Cesium.Cartesian3());
@@ -494,16 +490,10 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 
 	private async loadData(): Promise<boolean> {
 
-		const sw: [lon: number, lat: number] = [3.7144324, 51.3825071];
-		const ne: [lon: number, lat: number] = [3.9378694, 51.4888285];
-		const resolution: number = 100;
-
 		this.plane = new DynamicWaterLevel({
 			map: this.map,
 			time: get(this.timeSliderMin),
-			sw: sw,
-			ne: ne,
-			gridSpacingInMeters: resolution,
+			gridSpacingInMeters: this.config.settings.resolution,
 			url: this.config.settings.url,
 		});
 

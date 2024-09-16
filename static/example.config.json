@@ -103,7 +103,8 @@
                 "pitch": -34.77142
             },
             "settings": {
-                "url": "https://virtueel.zeeland.nl/tiles_other/flood_borssele/layer.json"
+                "url": "https://virtueel.zeeland.nl/tiles_other/flood_borssele/layer.json",
+                "resolution": 100
             }
         }
     ],
