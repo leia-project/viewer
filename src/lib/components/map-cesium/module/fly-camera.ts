@@ -12,9 +12,8 @@ export default class FlyCamera {
 	private mouseMoveY: number;
 	private moveSpeed: number;
 	private speedModifier: number;
-	private pointerCameraEnabled: boolean;
-	private keys: any;
 	public enabled: boolean;
+	private keys: any;
 
 	constructor(
 		viewer: Cesium.Viewer,
@@ -36,7 +35,6 @@ export default class FlyCamera {
 		this.moveSpeed = moveSpeed;
 		this.speedModifier = this.speedModOff;
 		this.enabled = false;
-		this.pointerCameraEnabled = false;
 
 		this.setupKeys();
 		this.setupEvents();
@@ -89,16 +87,11 @@ export default class FlyCamera {
 			(e) => {
 				const key = e.key.toLowerCase();
 
-				if (this.pointerCameraEnabled || this.enabled) {
+				if (this.enabled) {
 					if (this.keys[key]) {
 						this.keys[key].state = "down";
 						this.keys[key].updated = true;
 					}
-				}
-
-				// need to do it directly else requesting pointerlock does not work
-				if (key === "\\") {
-					this.switchPointerCamera();
 				}
 			},
 			true
@@ -122,7 +115,7 @@ export default class FlyCamera {
 	private addPointerLockChangeEvent() {
 		document.addEventListener("pointerlockchange", (event) => {
 			if (document.pointerLockElement === null) {
-				this.pointerCameraEnabled = false;
+				this.enabled = false;
 			}
 		});
 	}
@@ -132,11 +125,11 @@ export default class FlyCamera {
 	}
 
 	private onMouseMove(event: MouseEvent) {
-		if (!this.pointerCameraEnabled) {
+		if (!this.enabled) {
 			return;
 		}
-
-		if (event.movementX && event.movementY) {
+		
+		if (event.movementX || event.movementY) {
 			// the condition workarounds https://bugzilla.mozilla.org/show_bug.cgi?id=1417702
 			// in Firefox, event.mouseMoveX is -2 even though there is no movement
 			this.mouseMoveX += event.movementX;
@@ -144,14 +137,14 @@ export default class FlyCamera {
 		}
 	}
 
-	private switchPointerCamera() {
-		if (!this.pointerCameraEnabled) {
+	public switchPointerCamera() {
+		if (!this.enabled) {
 			this.scene.canvas.requestPointerLock();
 		} else {
 			document.exitPointerLock();
 		}
 
-		this.pointerCameraEnabled = !this.pointerCameraEnabled;
+		this.enabled = !this.enabled;
 	}
 
 	private speedModifierOn() {
@@ -170,8 +163,14 @@ export default class FlyCamera {
 		this.speedModifier = this.speedModOff;
 	}
 
+	private getHeightSpeedModifier() {
+		const height = this.camera.positionCartographic.height;
+		const heightModifier = Math.max(1, height / 100);
+		return heightModifier;
+	}
+
 	private getMoveSpeed() {
-		return this.moveSpeed * this.speedModifier;
+		return this.moveSpeed * this.speedModifier * this.getHeightSpeedModifier();
 	}
 
 	private getMouseSpeed() {
@@ -179,7 +178,7 @@ export default class FlyCamera {
 	}
 
 	private mouseLook() {
-		if (!this.pointerCameraEnabled) {
+		if (!this.enabled) {
 			return;
 		}
 
@@ -230,7 +229,7 @@ export default class FlyCamera {
 
 	private viewerUpdate() {
 		this.mouseLook();
-
+		console.log(this.camera.position)
 		for (const property in this.keys) {
 			const key = this.keys[property];
 			if (key.downAction && key.state == "down" && (key.continuesly || key.updated)) {
