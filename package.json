@@ -43,6 +43,7 @@
 		"carbon-preprocess-svelte": "^0.11.7",
 		"cesium": "^1.121.1",
 		"cookie": "^0.6.0",
+		"d3-delaunay": "^6.0.4",
 		"dotenv": "^16.4.5",
 		"fuzzysort": "^3.0.2",
 		"jsonwebtoken": "^9.0.2",

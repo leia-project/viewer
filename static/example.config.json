@@ -83,6 +83,29 @@
                     }
                 ]
             }
+        },
+        {
+            "id": "4",
+            "type": "flood",
+            "title": "Flood layer",
+            "groupId": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": false,
+            "opacity": 0,
+            "cameraPosition": {
+                "x": 3.81618,
+                "y": 51.30636,
+                "z": 8521.21390,
+                "heading": 360.00000,
+                "pitch": -34.77142
+            },
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/flood_borssele/layer.json",
+                "resolution": 100
+            }
         }
     ],
     "viewer": {
@@ -225,14 +248,19 @@
                 "highDynamicRange": false,
                 "pointCloudAttenuationMaximum": 2,
                 "terrainProviders": [
-                  {
-                    "title": "PDOK Terrain",
-                    "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
-                    "vertexNormals": true
-                  },
-                  {
-                    "title": "Uit"
-                  }
+                    {
+                        "title": "Zeeland 1m",
+                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
+                        "vertexNormals": true
+                    },
+                    {
+                        "title": "PDOK Terrain",
+                        "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
+                        "vertexNormals": true
+                    },
+                    {
+                        "title": "Uit"
+                    }
                 ]
             }
         },
