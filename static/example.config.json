@@ -49,39 +49,56 @@
             "transparent": false,
             "opacity": 0,
             "settings": {
+                "style": {
+                    "color": "color('#000000')"
+                },
                 "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/gebouwen/3dtiles",
-                "defaultTheme": "Bouwjaar",
-                "themes": [
-                    {
-                        "title": "Bouwjaar",
-                        "conditions": [
-                            [
-                                "${bouwjaar} < 1900",
-                                "color(\"#F62D2D\")"
-                            ],
-                            [
-                                "${bouwjaar} >= 1900 && ${bouwjaar} < 1950",
-                                "color(\"#D3212D\")"
-                            ],
-                            [
-                                "${bouwjaar} >= 1950 && ${bouwjaar} < 1970",
-                                "color(\"#722B6A\")"
-                            ],
-                            [
-                                "${bouwjaar} >= 1970 && ${bouwjaar} < 1990",
-                                "color(\"#412F88\")"
-                            ],
-                            [
-                                "${bouwjaar} >= 1990",
-                                "color(\"#1034A6\")"
-                            ],
-                            [
-                                "true",
-                                "color(\"#ededed\")"
-                            ]
-                        ]
+                "filterFeatureClasses": {
+                    "featureName": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zandige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen",
+                        "10": "Zand met onbekende korrelgrootte"
                     }
-                ]
+                }
+            }
+        },
+        {
+            "id": "4",
+            "type": "3dtiles",
+            "title": "GeoTOP",
+            "groupId": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": false,
+            "opacity": 0,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_middelburg/tileset.json",
+                "shadows": false,
+                "filterFeatureClasses": {
+                    "featureName": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zandige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen",
+                        "10": "Zand met onbekende korrelgrootte"
+                    }
+                }
             }
         }
     ],

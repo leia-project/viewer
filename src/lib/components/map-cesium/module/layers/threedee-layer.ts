@@ -48,74 +48,19 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		if (this.config.settings["themes"]) {
 			const themes = this.config.settings["themes"];
 
+			// get styling conditions for selected features
 			const themeSelectedCondition = this.getThemeConditionSelected();
+			// add selected condition to all themes
 			for (let i = 0; i < themes.length; i++) {
 				themes[i].conditions.unshift(themeSelectedCondition);
 			}
 
+			// initialize themeControl
 			this.themeControl = new CustomLayerControl();
 			this.themeControl.component = LayerControlTheme;
 			this.themeControl.props = { layer: this, themes: themes, defaultTheme: this.config.settings["defaultTheme"] };
 			this.addCustomControl(this.themeControl);
 		}
-
-		/* 
-				const customShader = new Cesium.CustomShader({
-					lightingModel: Cesium.LightingModel.PBR,
-					mode: Cesium.CustomShaderMode.MODIFY_MATERIAL,
-					uniforms: {
-						u_colorIndex: {
-							type: Cesium.UniformType.FLOAT,
-							value: 0.5
-						},
-						u_colorStart: {
-							type: Cesium.UniformType.VEC3,
-							value: { x: 0.0, y: 0.0, z: 0.0 }
-						},
-						u_colorEnd: {
-							type: Cesium.UniformType.VEC3,
-							value: { x: 1.0, y: 0.0, z: 0.0 }
-						}
-					},
-					varyings: {
-						v_selectedColor: Cesium.VaryingType.VEC3
-					},
-					vertexShaderText: `
-		  void vertexMain(VertexInput vsInput, inout czm_modelVertexOutput vsOutput) {
-			vec4 positionENU = u_inverse * vsInput.attributes.positionWC;
-			// modify positionENU as output here, for example, scale z by 0.1
-			vec4 modifiedPosition = positionENU * vec4(1.0, 1.0, 0.1, 1.0);
-			vsOutput.positionMC = u_toEcefMatrix * modifiedPosition;
-		  }`,
-					fragmentShaderText: `
-						void fragmentMain(FragmentInput fsInput, inout czm_modelMaterial material) {
-		
-							float take = 0.0;
-							if(fsInput.attributes.positionMC.z > 10.0) {
-								take = 1.0;
-							}
-						    
-							vec3 testColor = mix(u_colorStart, u_colorEnd, take);
-							material.diffuse = vec3(testColor.r, testColor.g, testColor.b);
-						    
-						}
-					`
-				});  */
-
-		/* const newShader = new Cesium.CustomShader({
-			lightingModel: Cesium.LightingModel.PBR,
-		fragmentShaderText : `void fragmentMain(FragmentInput fsInput, inout czm_modelMaterial material)
-		{
-			material.diffuse = vec3(0.0, 0.0, 1.0);
-  
-			vec3 position_absolute = vec3(czm_model * vec4(fsInput.attributes.positionMC, 1.0));
-			
-			float height = (position_absolute.z - 0.0) / (4.0 - 0.0) * (0.9 - 0.0) + 0.0;
-			material.diffuse = mix(vec3(0.0, 0.0, 1.0), vec3(0.0, 1.0, 0.0), height);
-		}`
-		  });
- */
-		//#material.diffuse.g = -fsInput.attributes.positionEC.z / 0.1e4;
 
 		const tileset = await Cesium3DTileset.fromUrl(this.config.settings["url"], {
 			shadows:
@@ -127,32 +72,6 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			cullRequestsWhileMovingMultiplier: 600,
 			maximumScreenSpaceError: 16
 		});
-
-
-		if (this.config.settings["style"]) {
-			tileset.style = new Cesium.Cesium3DTileStyle(this.config.settings.style);
-		}
-		
-		//tileset.customShader = newShader;
-		//tileset.outlineColor = Cesium.Color.AQUA;
-		//tileset.showOutline = true;
-
-		/* 	tileset.tileVisible.addEventListener(function (tile) {
-			var content = tile.content;
-
-			if (content.styleSet === true) {
-				return;
-			}
-
-			content.styleSet = true;
-			var featuresLength = content.featuresLength;
-			for (var i = 0; i < featuresLength; i += 2) {
-				const feature = content.getFeature(i);
-				//feature.color = undefined;
-				//feature.color_0 = Cesium.Color.fromRandom();
-				//feature.color_1 = Cesium.Color.fromRandom();
-			}
-		}); */
 
 		this.source = tileset;
 
@@ -206,11 +125,15 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	}
 
 	public getEmptyTheme(): Cesium.Cesium3DTileStyle {
-		return new Cesium.Cesium3DTileStyle({
+		const style = {
 			color: {
-				conditions: [this.getThemeConditionSelected()]
+				conditions: [
+					this.getThemeConditionSelected(),
+					["'true'", "color('white')"]
+				]
 			}
-		});
+		}
+		return new Cesium.Cesium3DTileStyle(style);
 	}
 
 	public getThemeConditionSelected(): Array<string> {
