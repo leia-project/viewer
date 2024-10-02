@@ -7,6 +7,8 @@ import type { LayerConfig } from "$lib/components/map-core/layer-config";
 import LayerControlHeight from "../../LayerControlHeight/LayerControlHeight.svelte";
 import LayerControlTheme from "../../LayerControlTheme/LayerControlTheme.svelte";
 import LayerControlClip from "../../LayerControlClip/LayerControlClip.svelte";
+import LayerControlPointCloudFilter from "../../LayerControlPointCloudFilter/LayerControlPointCloudFilter.svelte";
+
 import { ClipSlider } from "../../LayerControlClip/clip-slider";
 import { PrimitiveLayer } from "./primitive-layer";
 import type { Map } from "../map";
@@ -15,9 +17,12 @@ import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
 
 export class ThreedeeLayer extends PrimitiveLayer {
 	public tilesetHeight: Writable<number>;
+	public isPointCloud: boolean = false;
+	private POINT_SIZE: number = 10;
 	private heightControl: CustomLayerControl | undefined;
 	private themeControl: CustomLayerControl | undefined;
 	public clipControl: CustomLayerControl | undefined;
+	public pointCloudFilterControl: CustomLayerControl | undefined;
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
@@ -79,6 +84,11 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			return;
 		}
 
+		//@ts-ignore
+		this.isPointCloud = tileset.root?._header?.content?.uri?.includes(".pnts")
+
+		this.source = tileset;
+
 		if (this.config.settings["enableClipping"]) {
 			this.clipControl = new CustomLayerControl();
 			this.clipControl.component = LayerControlClip;
@@ -89,17 +99,25 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		}
 
 
-		this.setPointCloudAttenuation(get(this.map.options.pointCloudAttenuation));
-		this.setPointCloudAttenuationMaximum(get(this.map.options.pointCloudAttenuationMaximum));
-		this.setPointCloudAttenuationGeometricErrorScale(get(this.map.options.pointCloudAttenuationErrorScale));
-		this.setPointCloudAttenuationBaseResolution(get(this.map.options.pointCloudAttenuationBaseResolution));
+		if (this.isPointCloud) {
+			this.setPointCloudAttenuation(get(this.map.options.pointCloudAttenuation));
+			this.setPointCloudAttenuationMaximum(get(this.map.options.pointCloudAttenuationMaximum));
+			this.setPointCloudAttenuationGeometricErrorScale(get(this.map.options.pointCloudAttenuationErrorScale));
+			this.setPointCloudAttenuationBaseResolution(get(this.map.options.pointCloudAttenuationBaseResolution));
 
-		this.setPointCloudEdl(get(this.map.options.pointCloudEDL));
-		this.setPointCloudEdlStrength(get(this.map.options.pointCloudEDLStrength));
-		this.setPointCloudEdlRadius(get(this.map.options.pointCloudEDLRadius));
+			this.setPointCloudEdl(get(this.map.options.pointCloudEDL));
+			this.setPointCloudEdlStrength(get(this.map.options.pointCloudEDLStrength));
+			this.setPointCloudEdlRadius(get(this.map.options.pointCloudEDLRadius));
 
-		if (!tileset) {
-			return;
+			if (this.config.settings["filterFeatureClasses"]) {
+				this.pointCloudFilterControl = new CustomLayerControl();
+				this.pointCloudFilterControl.component = LayerControlPointCloudFilter;
+				this.pointCloudFilterControl.props = {
+					classMapping: this.config.settings.filterFeatureClasses.classMapping,
+					layer: this
+				};
+				this.addCustomControl(this.pointCloudFilterControl);
+			}
 		}
 
 		if (!this.config.cameraPosition) {
@@ -113,15 +131,12 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		if (this.config.settings.defaultTheme) {
 			this.applyThemeByName(this.config.settings.defaultTheme);
 		} else {
-			//@ts-ignore
-			if (tileset.root?._header?.content?.uri?.includes(".pnts")) {
-				// ToDo: How to check if tileset is pnts? do nothing
+			if (this.isPointCloud) {
+				this.setPointCloudStyle();
 			} else {
 				this.setTheme(this.getEmptyTheme());
 			}
 		}
-
-		//this.addShader(tileset);
 	}
 
 	public getEmptyTheme(): Cesium.Cesium3DTileStyle {
@@ -202,6 +217,26 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 		this.source.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
 		this.map.refresh();
+	}
+
+	public setPointCloudStyle(): void {
+		if(!this.source) return;
+		this.source.style = new Cesium.Cesium3DTileStyle({
+			pointSize: this.config.settings.style?.pointSize ?? this.POINT_SIZE,
+			show: true
+		});
+	}
+
+	public filterPointCloudClasses(ids: Array<string>): void {
+		if(!this.source) return;
+
+		var showConditions = ids.map(id => {return `\${feature['${this.config.settings.filterFeatureClasses.featureName}']} === ` + id})
+		if (ids.length > 0) {
+			let style = {
+				show: showConditions.join(' || ')
+			}
+			this.source.style = new Cesium.Cesium3DTileStyle(style);
+		}
 	}
 
 	public setPointCloudAttenuation(value: boolean): void {

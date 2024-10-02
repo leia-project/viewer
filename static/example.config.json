@@ -84,6 +84,9 @@
             "settings": {
                 "url": "https://virtueel.zeeland.nl/tiles_other/geotop_middelburg/tileset.json",
                 "shadows": false,
+                "style": {
+                    "pointSize": "23"
+                },
                 "filterFeatureClasses": {
                     "featureName": "Classification",
                     "classMapping": {
