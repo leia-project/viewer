@@ -134,7 +134,8 @@
             "gradient": "Kleurverloop",
             "applyGradient": "Kleurverloop instellen",
             "btnShowAll": "Alles tonen",
-            "btnHideAll": "Alles verbergen"
+            "btnHideAll": "Alles verbergen",
+            "filterPointCloudClasses": "Filter puntenwolk klasses"
         },
         "layerTools": {
             "theme": {
