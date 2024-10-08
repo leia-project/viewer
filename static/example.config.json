@@ -49,10 +49,39 @@
             "transparent": false,
             "opacity": 0,
             "settings": {
-                "style": {
-                    "color": "color('#000000')"
-                },
-                "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/gebouwen/3dtiles"
+                "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/gebouwen/3dtiles",
+                "defaultTheme": "Bouwjaar",
+                "themes": [
+                    {
+                        "title": "Bouwjaar",
+                        "conditions": [
+                            [
+                                "${bouwjaar} < 1900",
+                                "color(\"#F62D2D\")"
+                            ],
+                            [
+                                "${bouwjaar} >= 1900 && ${bouwjaar} < 1950",
+                                "color(\"#D3212D\")"
+                            ],
+                            [
+                                "${bouwjaar} >= 1950 && ${bouwjaar} < 1970",
+                                "color(\"#722B6A\")"
+                            ],
+                            [
+                                "${bouwjaar} >= 1970 && ${bouwjaar} < 1990",
+                                "color(\"#412F88\")"
+                            ],
+                            [
+                                "${bouwjaar} >= 1990",
+                                "color(\"#1034A6\")"
+                            ],
+                            [
+                                "true",
+                                "color(\"#ededed\")"
+                            ]
+                        ]
+                    }
+                ]
             }
         }
     ],
