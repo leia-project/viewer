@@ -34,31 +34,6 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 	private async createLayer(): Promise<void> {
 
-		this.map.options.proMode.subscribe(enabled => {
-			if (enabled) {
-				this.heightControl = new CustomLayerControl();
-				this.heightControl.component = LayerControlHeight;
-				this.heightControl.props = { tilesetHeight: this.tilesetHeight };
-				this.addCustomControl(this.heightControl);
-			} else if (!enabled && this.heightControl) {
-				this.removeCustomControl(this.heightControl);
-			}
-		});
-
-		if (this.config.settings["themes"]) {
-			const themes = this.config.settings["themes"];
-
-			const themeSelectedCondition = this.getThemeConditionSelected();
-			for (let i = 0; i < themes.length; i++) {
-				themes[i].conditions.unshift(themeSelectedCondition);
-			}
-
-			this.themeControl = new CustomLayerControl();
-			this.themeControl.component = LayerControlTheme;
-			this.themeControl.props = { layer: this, themes: themes, defaultTheme: this.config.settings["defaultTheme"] };
-			this.addCustomControl(this.themeControl);
-		}
-
 		/* 
 				const customShader = new Cesium.CustomShader({
 					lightingModel: Cesium.LightingModel.PBR,
@@ -158,6 +133,27 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 		if(!this.source) {
 			return;
+		}
+		console.log(this.config.settings)
+		if (this.config.settings["enableHeightControl"]) {
+			this.heightControl = new CustomLayerControl();
+			this.heightControl.component = LayerControlHeight;
+			this.heightControl.props = { tilesetHeight: this.tilesetHeight };
+			this.addCustomControl(this.heightControl);
+		}
+
+		if (this.config.settings["themes"]) {
+			const themes = this.config.settings["themes"];
+
+			const themeSelectedCondition = this.getThemeConditionSelected();
+			for (let i = 0; i < themes.length; i++) {
+				themes[i].conditions.unshift(themeSelectedCondition);
+			}
+
+			this.themeControl = new CustomLayerControl();
+			this.themeControl.component = LayerControlTheme;
+			this.themeControl.props = { layer: this, themes: themes, defaultTheme: this.config.settings["defaultTheme"] };
+			this.addCustomControl(this.themeControl);
 		}
 
 		if (this.config.settings["enableClipping"]) {

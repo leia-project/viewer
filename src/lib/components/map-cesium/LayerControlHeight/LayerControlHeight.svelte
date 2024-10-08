@@ -1,38 +1,31 @@
 <script lang="ts">
-	import { TextInput } from "carbon-components-svelte";
+	import { NumberInput } from "carbon-components-svelte";
+    import { _ } from "svelte-i18n";
 	import { writable } from "svelte/store";
 
 	import type { Writable } from "svelte/store";
 
     export let tilesetHeight: Writable<number>;
 
-    const height = writable<string>("");
+    const height = writable<number>(0);
     let invalid = false;
 
-    height.subscribe(h => {
-        const length = h.length;
-        if(h[length -1] === ".") {
-            invalid = true;
-            return;
-        }
-
-        const number = Number.parseFloat(h);
+    height.subscribe(number => {
         if (Number.isNaN(number)) {
             invalid = true;
             return;
         }
-
         invalid = false;
         tilesetHeight.set(number);
     });
 
     tilesetHeight.subscribe(h => {
-        height.set(h.toString());
+        height.set(h);
     })
 </script>
 
 <div>
-    <TextInput labelText="Tileset height" invalid={invalid ? true : false} bind:value={$height} light={false}></TextInput>
+    <NumberInput label="{$_("tools.layerManager.heightControlLabel")}" invalid={invalid ? true : false} bind:value={$height} light={false}></NumberInput>
 </div>
 
 <style>
