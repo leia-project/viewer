@@ -55,6 +55,8 @@
               "rotatePitchOption2": "2) Houd de <help-key>ctrl</help-key> toets op uw toetsenbord en uw linkermuisknop en beweeg de muis rond.",
               "headingButtons": "Kaart Knoppen",
               "buttonsDescription": "Rechtsonder zijn enkele knoppen te vinden.",
+              "buttonsFlyMode": "Activeer FlyMode",
+              "buttonsWalkMode": "Activeer WalkMode",
               "buttonsHome": "Reset het aanzicht naar de startpositie",
               "buttonsCompass": "Reset de camera naar het noorden",
               "buttonsZoomIn": "Zoom in",

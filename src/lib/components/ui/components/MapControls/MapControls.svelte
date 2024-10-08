@@ -1,12 +1,12 @@
 <script lang="ts">
     import { getContext } from "svelte";
+    import { _ } from "svelte-i18n";
     import { get } from "svelte/store";
-    import Home from "carbon-icons-svelte/lib/Home.svelte";
-    import Add from "carbon-icons-svelte/lib/Add.svelte";
     import Subtract from "carbon-icons-svelte/lib/Subtract.svelte";
     import Compass from "carbon-icons-svelte/lib/Compass.svelte";
     import Button from "../Button/Button.svelte";
     import Divider from "../Divider/Divider.svelte";
+	import { Pedestrian, Home, Add, Plane } from "carbon-icons-svelte";
 
     export let place: string = "bottom-right";
 
@@ -39,33 +39,60 @@
     class:top-left={place === "top-right"}
 >
         <Button
-        kind="secondary"
+            kind="secondary"
+            icon={Plane}
+            on:click={(e) => {
+                map.flyCamera.switchPointerCamera()
+            }}
+            tooltipPosition="top"
+            iconDescription={map.flyCamera?.enabled ? undefined : $_("tools.help.movement.buttonsFlyMode")}
+        />
+        <Button
+            kind="secondary"
+            icon={Pedestrian}
+            on:click={(e) => {
+                map.flyCamera.switchPointerCamera()
+            }}
+            tooltipPosition="top"
+            iconDescription={$_("tools.help.movement.buttonsWalkMode")}
+        />
+        <Button
+            kind="secondary"
             icon={Home}
             on:click={(e) => {
                 mapCenter();
             }}
+            tooltipPosition="top"
+            iconDescription={$_("tools.help.movement.buttonsHome")}
         />
         <Button
-        kind="secondary"
+            kind="secondary"
             icon={Compass}
             on:click={(e) => {
                 mapResetNorth();
             }}
+            tooltipPosition="top"
+            iconDescription={$_("tools.help.movement.buttonsCompass")}
         />
         <Divider direction="vertical"></Divider>
         <Button
-        kind="secondary"
+            kind="secondary"
             icon={Subtract}
             on:click={(e) => {
                 mapZoomOut();
             }}
+            tooltipPosition="top"
+            iconDescription={$_("tools.help.movement.buttonsZoomIn")}
         />
         <Button
-        kind="secondary"
+            kind="secondary"
             icon={Add}
             on:click={(e) => {                
                 mapZoomIn();
             }}
+            tooltipAlignment="end"
+            tooltipPosition="top"
+            iconDescription={$_("tools.help.movement.buttonsZoomOut")}
         />
 </div>
 
