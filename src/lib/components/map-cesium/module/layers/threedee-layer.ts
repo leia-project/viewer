@@ -107,11 +107,11 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			this.setPointCloudEdlStrength(get(this.map.options.pointCloudEDLStrength));
 			this.setPointCloudEdlRadius(get(this.map.options.pointCloudEDLRadius));
 
-			if (this.config.settings["filterFeatureClasses"]) {
+			if (this.config.settings["filter"]) {
 				this.pointCloudFilterControl = new CustomLayerControl();
 				this.pointCloudFilterControl.component = LayerControlPointCloudFilter;
 				this.pointCloudFilterControl.props = {
-					classMapping: this.config.settings.filterFeatureClasses.classMapping,
+					classMapping: this.config.settings.filter.classMapping,
 					layer: this
 				};
 				this.addCustomControl(this.pointCloudFilterControl);
@@ -227,7 +227,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	public filterPointCloudClasses(ids: Array<string>): void {
 		if(!this.source) return;
 
-		var showConditions = ids.map(id => {return `\${feature['${this.config.settings.filterFeatureClasses.featureName}']} === ` + id})
+		var showConditions = ids.map(id => {return `\${feature['${this.config.settings.filter.filterAttribute}']} === ` + id})
 		if (ids.length > 0) {
 			let style = {
 				show: showConditions.join(' || '),
