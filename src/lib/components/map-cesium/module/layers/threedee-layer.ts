@@ -87,8 +87,6 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		//@ts-ignore
 		this.isPointCloud = tileset.root?._header?.content?.uri?.includes(".pnts")
 
-		this.source = tileset;
-
 		if (this.config.settings["enableClipping"]) {
 			this.clipControl = new CustomLayerControl();
 			this.clipControl.component = LayerControlClip;
@@ -128,14 +126,13 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			this.tilesetHeight.set(this.config.settings.tilesetHeight);
 		}
 
-		if (this.config.settings.defaultTheme) {
+		// apply styles
+		if (this.isPointCloud) {
+			this.setPointCloudStyle();
+		} else if (this.config.settings.defaultTheme) {
 			this.applyThemeByName(this.config.settings.defaultTheme);
 		} else {
-			if (this.isPointCloud) {
-				this.setPointCloudStyle();
-			} else {
-				this.setTheme(this.getEmptyTheme());
-			}
+			this.setTheme(this.getEmptyTheme());
 		}
 	}
 
@@ -233,9 +230,10 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		var showConditions = ids.map(id => {return `\${feature['${this.config.settings.filterFeatureClasses.featureName}']} === ` + id})
 		if (ids.length > 0) {
 			let style = {
-				show: showConditions.join(' || ')
+				show: showConditions.join(' || '),
+				pointSize: this.config.settings.style?.pointSize ?? this.POINT_SIZE
 			}
-			this.source.style = new Cesium.Cesium3DTileStyle(style);
+			this.source.style =  new Cesium.Cesium3DTileStyle(style);
 		}
 	}
 
