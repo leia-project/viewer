@@ -137,7 +137,8 @@
             "applyGradient": "Kleurverloop instellen",
             "btnShowAll": "Alles tonen",
             "btnHideAll": "Alles verbergen",
-            "filterPointCloudClasses": "Filter puntenwolk klasses"
+            "filterPointCloudClasses": "Filter puntenwolk klasses",
+            "heightControlLabel": "Hoogtecorrectie Tileset (m)"
         },
         "layerTools": {
             "theme": {

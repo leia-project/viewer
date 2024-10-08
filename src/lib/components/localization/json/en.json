@@ -130,7 +130,8 @@
             "applyGradient": "Apply gradient",
             "btnShowAll": "Show All",
             "btnHideAll": "Hide All",
-            "filterPointCloudClasses": "Filter Point Cloud classes"
+            "filterPointCloudClasses": "Filter Point Cloud classes",
+            "heightControlLabel": "Tileset height offset (m)"
         },
         "layerTools": {
             "theme": {

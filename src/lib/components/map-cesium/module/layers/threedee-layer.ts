@@ -83,6 +83,27 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		if(!this.source) {
 			return;
 		}
+		console.log(this.config.settings)
+		if (this.config.settings["enableHeightControl"]) {
+			this.heightControl = new CustomLayerControl();
+			this.heightControl.component = LayerControlHeight;
+			this.heightControl.props = { tilesetHeight: this.tilesetHeight };
+			this.addCustomControl(this.heightControl);
+		}
+
+		if (this.config.settings["themes"]) {
+			const themes = this.config.settings["themes"];
+
+			const themeSelectedCondition = this.getThemeConditionSelected();
+			for (let i = 0; i < themes.length; i++) {
+				themes[i].conditions.unshift(themeSelectedCondition);
+			}
+
+			this.themeControl = new CustomLayerControl();
+			this.themeControl.component = LayerControlTheme;
+			this.themeControl.props = { layer: this, themes: themes, defaultTheme: this.config.settings["defaultTheme"] };
+			this.addCustomControl(this.themeControl);
+		}
 
 		//@ts-ignore
 		this.isPointCloud = tileset.root?._header?.content?.uri?.includes(".pnts")
