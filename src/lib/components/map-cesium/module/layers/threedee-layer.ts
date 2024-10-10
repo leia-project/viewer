@@ -83,11 +83,11 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		if(!this.source) {
 			return;
 		}
-		console.log(this.config.settings)
+
 		if (this.config.settings["enableHeightControl"]) {
 			this.heightControl = new CustomLayerControl();
 			this.heightControl.component = LayerControlHeight;
-			this.heightControl.props = { tilesetHeight: this.tilesetHeight };
+			this.heightControl.props = { height: this.tilesetHeight };
 			this.addCustomControl(this.heightControl);
 		}
 
@@ -207,7 +207,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	}
 
 	private setHeight(height: number) {
-		if (!height || !this.source) {
+		if (height === undefined || !this.source) {
 			return;
 		}
 
