@@ -10,7 +10,7 @@
 	import * as Cesium from "cesium";
 
 	import type { Map } from "../module/map";
-	import { MapMeasurement } from "./map-measurement";
+	import { MapMeasurement } from "../module/map-measurement";
 	import MeasureEntry from "./MeasureEntry.svelte";
 
 	const { registerTool, selectedTool, map, disableInteractionFromOtherTools, enableInteractionsFromOtherTools } = getContext<any>("mapTools");
