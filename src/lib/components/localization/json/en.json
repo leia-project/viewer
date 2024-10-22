@@ -129,7 +129,8 @@
             "gradient": "Gradient",
             "applyGradient": "Apply gradient",
             "btnShowAll": "Show All",
-            "btnHideAll": "Hide All"
+            "btnHideAll": "Hide All",
+            "filterPointCloudClasses": "Filter Point Cloud classes"
         },
         "layerTools": {
             "theme": {
