@@ -83,6 +83,82 @@
                     }
                 ]
             }
+        },
+        {
+            "id": "099",
+            "type": "wms",
+            "title": "Test Groote Gat T0 (basic)",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Zeeland",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/natuur/wms",
+                "type": "wms",
+                "featureName": "ext_nat_habgrtgt010_v1",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "099",
+            "type": "wms",
+            "title": "Test Groote Gat T0 (habitattypen_kwaliteit2)",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Zeeland",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/natuur/wms?styles=habitattypen_kwaliteit2",
+                "type": "wms",
+                "featureName": "ext_nat_habgrtgt010_v1",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "099",
+            "type": "wms",
+            "title": "Test Groote Gat T0 (habitattypen3)",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Zeeland",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/natuur/wms?styles=habitattypen3",
+                "type": "wms",
+                "featureName": "ext_nat_habgrtgt010_v1",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "099",
+            "type": "wms",
+            "title": "Test Groote Gat T0 (habitattypen_kwaliteit1)",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Zeeland",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/natuur/wms?styles=habitattypen_kwaliteit1",
+                "type": "wms",
+                "featureName": "ext_nat_habgrtgt010_v1",
+                "contenttype": "image/png"
+            }
         }
     ],
     "viewer": {

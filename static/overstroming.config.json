@@ -1,0 +1,685 @@
+{
+    "name": "3D Viewer",
+    "layers": [
+        {
+            "id": "001",
+            "type": "wmts",
+            "title": "BRT Achtergrondkaart (WMTS)",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": true,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "attribution": "PDOK",
+            "settings": {
+                "url": "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0?",
+                "featureName": "standaard",
+                "contentType": "image/png"
+            }
+        },
+        {
+            "id": "002",
+            "type": "wmts",
+            "title": "Luchtfoto Actueel HR (WMTS)",
+            "groupId": "",
+            "legendUrl": "",
+            "isBackground": true,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 0,
+            "settings": {
+                "url": "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0",
+                "featureName": "Actueel_orthoHR",
+                "contenttype": "image/jpeg",
+                "matrixids": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"],
+                "matrixset": "EPSG:3857"
+            }
+        },
+        {
+            "id": "003",
+            "type": "wms",
+            "title": "Topo Simple",
+            "groupId": "",
+            "legendUrl": "",
+            "isBackground": true,
+            "defaultAddToManager": true,
+            "defaultOn": true,
+            "settings": {
+                "url": "https://s.map5.nl/map/prze.zu1952/service?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.1.1",
+                "featureName": "map5topo_simple",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "004",
+            "type": "geojson",
+            "title": "Bestuurlijke grens Middelburg",
+            "groupId": "algemeen",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/middelburg_bestuurlijkegrens_line_4326.geojson",
+                "theme": "woonplaatsnaam"
+            }
+        },
+        {
+            "id": "005",
+            "type": "3dtiles",
+            "title": "3D Gebouwen",
+            "groupId": "algemeen",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/spotinfo_panden_nl/tileset.json"
+            }
+        },   
+        {
+            "id": "006",
+            "type": "wms",
+            "title": "AHN",
+            "groupId": "algemeen",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "Het Actueel Hoogtebestand Nederland is een digitaal hoogtemodel voor het Europese deel van Nederland. De eigenaar van de dataset is Rijkswaterstaat. Het AHN is als open data publiek toegankelijk, zowel door het downloaden van de data als door middel van verschillende viewers.",
+            "attribution": "AHN4_DTM_0.5mtr",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/AHN4/wms?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.1.1",
+                "featureName": "AHN4_DTM_0.5mtr",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "007",
+            "type": "wms",
+            "title": "Bodemhoogte",
+            "groupId": "bodem",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "Voor de Provincie Zeeland is adequaat digitaal inzicht in de hoogte van het terrein en in de wateren van groot belang. Bestaande beschikbare geodata is hiervoor bijgewerkt tot 1 dekkende bodemhoogte kaart. De bodemhoogte kaart is te gebruiken door ketenpartners waar de Provincie Zeeland mee samenwerkt in het kader van de Digital Twin. CC - SPOTinfo.",
+            "attribution": "digitaltwin%3Azeeland_1m",
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin/wms?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.1.1&request=GetMap&layers=digitaltwin%3Azeeland_1m",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "008",
+            "type": "wms",
+            "title": "1850",
+            "groupId": "algemeen",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "attribution": "tmk_1850",
+            "settings": {
+                "url": "https://s.map5.nl/map/prze.zu1952/service?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.1.1",
+                "featureName": "tmk_1850",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "009",
+            "type": "wms",
+            "title": "Riolering",
+            "groupId": "water",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "gemeente%3Ariolering_middelburg",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/gemeenten/wms?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.1.1&request=GetMap&layers=gemeente%3Ariolering_middelburg",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "010",
+            "type": "3dtiles",
+            "title": "BHR",
+            "groupId": "bodem",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/BHR_Cesium_Tileset_Zeeland/tileset.json",
+                "shadows": false
+            }
+        }     ,
+        {
+            "id": "011",
+            "type": "wms",
+            "title": "Bodemvlakken (BRO)",
+            "groupId": "bodem",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "soilarea",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-bodemkaart/wms/v2_0?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.1.1",
+                "featureName": "soilarea",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "012",
+            "type": "wms",
+            "title": "Vlakken van bodemkundig belang (BRO)",
+            "groupId": "bodem",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "areaofpedologicalinterest",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-bodemkaart/wms/v2_0?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.1.1",
+                "featureName": "areaofpedologicalinterest",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "013",
+            "type": "wms",
+            "title": "Dieptemetingen (BRO)",
+            "groupId": "grondwaterspiegel",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v2_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "014",
+            "type": "wms",
+            "title": "GHG - gemiddeld kleinste diepte (BRO)",
+            "groupId": "grondwaterspiegel",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen-GHG",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v2_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen-GHG",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "015",
+            "type": "wms",
+            "title": "GLG - gemiddeld grootste diepte (BRO)",
+            "groupId": "grondwaterspiegel",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen-GLG",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v2_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen-GLG",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "016",
+            "type": "wms",
+            "title": "GVG - gemiddelde diepte voorjaar (BRO)",
+            "groupId": "grondwaterspiegel",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen-GVG",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v2_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen-GVG",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "017",
+            "type": "wms",
+            "title": "GT - Grondwatertrappen (BRO)",
+            "groupId": "grondwaterspiegel",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen-GT",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v2_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen-GT",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "018",
+            "type": "geojson",
+            "title": "Waterspiegel",
+            "groupId": "water",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/waterspiegel_tot_dijk_7415.geojson",
+                "theme": "",
+                "colorPolygon": "#0000CD",
+                "tools": {
+                    "extrude": {
+                        "slider_min": 0,
+                        "slider_max": 20,
+                        "slider_step": 1
+                    }
+                }
+            }
+        },
+        {
+            "id": "019",
+            "type": "3dtiles",
+            "title": "Overstroming 24h (3D tiles)",
+            "groupId": "overstromingskaarten",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": false,
+            "opacity": 0,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/flood_24h_nap/tileset.json",
+                "defaultTheme": "Water",
+                "themes": [
+                {
+                        "title": "Water",
+                        "conditions": [
+                            [
+                                "${hoogte_nap} < 1",
+                                "color(\"#25b0e1\")"
+                            ],
+                            [
+                                "${hoogte_nap} >= 1",
+                                "color(\"#2560f1\")"
+                            ]
+                        ],
+                        "legend": [
+                            {
+                                "color": "#25b0e1",
+                                "label": "< 1m NAP"
+                            },
+                            {
+                                "color": "#2560f1",
+                                "label": ">= 1m NAP"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "020",
+            "type": "3dtiles",
+            "title": "Overstroming 48h (3D tiles)",
+            "groupId": "overstromingskaarten",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": false,
+            "opacity": 0,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/flood_48h_nap/tileset.json",
+                "defaultTheme": "Water",
+                "themes": [
+                {
+                        "title": "Water",
+                        "conditions": [
+                            [
+                                "${hoogte_nap} < 1",
+                                "color(\"#25b0e1\")"
+                            ],
+                            [
+                                "${hoogte_nap} >= 1",
+                                "color(\"#2560f1\")"
+                            ]
+                        ],
+                        "legend": [
+                            {
+                                "color": "#25b0e1",
+                                "label": "< 1m NAP"
+                            },
+                            {
+                                "color": "#2560f1",
+                                "label": ">= 1m NAP"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "021",
+            "type": "3dtiles",
+            "title": "Overstroming Max (3D tiles)",
+            "groupId": "overstromingskaarten",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": false,
+            "opacity": 0,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/flood_max_nap/tileset.json",
+                "defaultTheme": "Water",
+                "themes": [
+                {
+                        "title": "Water",
+                        "conditions": [
+                            [
+                                "${hoogte_nap} < 1",
+                                "color(\"#25b0e1\")"
+                            ],
+                            [
+                                "${hoogte_nap} >= 1",
+                                "color(\"#2560f1\")"
+                            ]
+                        ],
+                        "legend": [
+                            {
+                                "color": "#25b0e1",
+                                "label": "< 1m NAP"
+                            },
+                            {
+                                "color": "#2560f1",
+                                "label": ">= 1m NAP"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }                    
+    ],
+    "viewer": {
+        "title": "Klimaat Scenario: Overstroming",
+        "subTitle": "",
+        "logo": "https://virtueel.zeeland.nl/global_assets/img/logo.svg",
+        "thumbnail": "/assets/previews/preview-klimaat-overstroming.png",
+        "startPosition": {
+            "x": 3.62121,
+            "y": 51.45503,
+            "z": 3096.96140,
+            "heading": 360.00000,
+            "pitch": -34.77193,
+            "duration": 1.50
+        },
+        "terrain": {
+            "url": "https://virtueel.zeeland.nl/tiles/zeeland_basis_dt_1m",
+            "requestVertexNormals": true
+        },
+        "colors": {
+            "ui-background": "#ffffff",
+            "interactive-01": "#214170",
+            "interactive-02": "#171717",
+            "interactive-03": "#0062ff",
+            "interactive-04": "#0062ff",
+            "ui-01": "#f3f3f3",
+            "ui-02": "#ffffff",
+            "ui-03": "#dcdcdc",
+            "ui-04": "#8c8c8c",
+            "ui-05": "#171717",
+            "text-01": "#171717",
+            "text-02": "#565656",
+            "text-03": "#8c8c8c",
+            "text-04": "#ffffff",
+            "link-01": "#0062ff",
+            "icon-01": "#171717",
+            "icon-02": "#565656",
+            "icon-03": "#ffffff",
+            "field-01": "#f3f3f3",
+            "field-02": "#ffffff",
+            "inverse-01": "#ffffff",
+            "inverse-02": "#3d3d3d",
+            "support-01": "#da1e28",
+            "support-02": "#24a148",
+            "support-03": "#fdd13a",
+            "support-04": "#054ada",
+            "inverse-support-01": "#fb4b53",
+            "inverse-support-02": "#3dbb61",
+            "inverse-support-03": "#fdd13a",
+            "inverse-support-04": "#408bfc",
+            "overlay-01": "#171717CC",
+            "interaction-tokens": "#0062ff",
+            "hover-primary": "#376dbc",
+            "hover-primary-text": "#054ada",
+            "hover-secondary": "#4c4c4c",
+            "hover-tertiary": "#4cabd8",
+            "hover-ui": "#e5e5e5",
+            "hover-selected-ui": "#cacaca",
+            "hover-danger": "#ba1b23",
+            "hover-row": "#e5e5e5",
+            "active-primary": "#376dbc",
+            "active-secondary": "#6f6f6f",
+            "active-tertiary": "#0530ad",
+            "active-ui": "#bebebe",
+            "active-danger": "#750e13",
+            "selected-ui": "#dcdcdc",
+            "highlight": "#C9deff",
+            "skeleton-01": "#e5e5e5",
+            "skeleton-02": "#bebebe",
+            "visited-link": "#'Visited links'",
+            "disabled-01": "#f3f3f3",
+            "disabled-02": "#bebebe",
+            "disabled-03": "#8c8c8c"
+        }
+    },
+    "groups": [
+        {
+            "id": "algemeen",
+            "title": "Algemeen",
+            "parentId": ""
+        },
+        {
+            "id": "bodem",
+            "title": "Bodem",
+            "parentId": ""
+        },
+        {
+            "id": "water",
+            "title": "Water",
+            "parentId": ""
+        },
+        {
+            "id": "geotop",
+            "title": "GeoTop (BRO)",
+            "parentId": "bodem"
+        },
+        {
+            "id": "freshem",
+            "title": "FRESHEM",
+            "parentId": "water"
+        },
+        {
+            "id": "overstromingskaarten",
+            "title": "Overstromingskaarten",
+            "parentId": "water"
+        }
+        ,
+        {
+            "id": "grondwaterspiegel",
+            "title": "Grondwaterspiegel (BRO)",
+            "parentId": "water"
+        }
+    ],
+    "tools": [
+        {
+            "id": "layerlibrary",
+            "enabled": true,
+            "settings": {
+                "connectors": [
+                    {
+                        "type": "geonetwork",
+                        "url": "https://dataportaal.zeeland.nl/dataportaal"
+                    }
+                    ],
+                "useTags": true
+            }
+        },
+        {
+            "id": "layermanager",
+            "enabled": true,
+            "settings": {}
+        },
+        {
+            "id": "featureinfo",
+            "enabled": true
+        },  
+        {
+            "id": "info",
+            "enabled": true,
+            "settings": {
+                "title": "Klimaat Scenario: Overstroming",
+                "description": "<div class='body-02'><br><h2>Wat is een Digital Twin?</h2><br>Een digital twin is een digitale kopie van de werkelijkheid, bedoeld om te monitoren, scenarios te bedenken en voorspellingen te doen. Daar ligt vaak een (reken)model aan ten grondslag. Meest bekend zijn digital twins die laten zien 'hoe iets er uit zou komen te zien' in de echte wereld. Maar je kunt een digital twin ook gebruiken om de sociaal-culturele, natuurlijke en economische context van een onderwerp beter te begrijpen.<br><br> Door een situatie virtueel in beeld te brengen, kan je zowel een probleem als mogelijke oplossingen inzichtelijk maken vanuit verschillende invalshoeken.<br><br>Elke digitale representatie van de werkelijkheid is in essentie conceptueel. Een digital twin - hoe nauwkeurig en realistisch het ook lijkt - blijft een representatie, een vereenvoudiging van de werkelijkheid en is bedoeld als hulpmiddel bij het nemen van beslissingen.<br><br></div>"
+            }
+        },
+        {
+            "id": "help",
+            "enabled": true,
+            "settings": {
+                "showOnStart": true
+            }
+        },
+        {
+            "id": "bookmarks",
+            "enabled": true,
+            "settings": {
+                "bookmarks": [
+                    {
+                        "title": "Verdronken land van Saeftinghe",
+                        "description": "Dit is de grootste brak waterschor van Europa.",
+                        "x": 4.16924,
+                        "y": 51.29199,
+                        "z": 4547.79957,
+                        "heading": 360.00000,
+                        "pitch": -34.77189,
+                        "duration": 1.50
+                    }
+                ]
+            }
+        },
+        {
+            "id": "cesium",
+            "enabled": true,
+            "settings": {
+                "showMouseCoordinates": false,
+                "fxaa": true,
+                "shadows": false,
+                "animate": true,
+                "resolutionScale": 1,
+                "maximumScreenSpaceError": 16,
+                "groundAtmosphere": true,
+                "lighting": true,
+                "skyAtmosphere": true,
+                "fog": true,
+                "highDynamicRange": false,
+                "pointCloudAttenuationMaximum": 2,
+                "terrainProviders": [
+                  {
+                    "title": "Zeeland terrain",
+                    "url": "https://virtueel.zeeland.nl/tiles/zeeland_basis_dt_1m",
+                    "vertexNormals": true
+                  },
+                  {
+                    "title": "Uit"
+                  }
+                ]
+            }
+        },
+        {
+            "id": "stories",
+            "enabled": true,
+            "settings": {
+                "stories": [
+                    {
+                        "name": "My story",
+                        "description": "Description of my story",
+                        "width": "600px",
+                        "steps": [
+                            {
+                                "title": "Title of step",
+                                "html": "<div>Content of the step.</div>",
+                                "globeOpacity": 100,
+                                "terrain": "Uit",
+                                "camera": {
+                                    "x": 5.23907,
+                                    "y": 52.20004,
+                                    "z": 13130.05823,
+                                    "heading": 335.10694,
+                                    "pitch": -30.69127,
+                                    "duration": 1.5
+                                },
+                                "layers": [
+                                    {
+                                        "id": "8352260480948"
+                                    },
+                                    {
+                                        "id": "19747667-ddb2-4162-99f6-a37d5aaa15ea",
+                                        "style": "Bouwjaar"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "measure",
+            "enabled": true
+        },
+        {
+            "id": "search",
+            "enabled": false
+        },
+        {
+            "id": "geocoder",
+            "enabled": true
+        }
+    ]
+}
