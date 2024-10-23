@@ -2,6 +2,8 @@
     "general": {
         "goTo": "Ga naar",
         "loading": "Laden...",
+        "on": "Aan",
+        "off": "Uit",
         "notifications": {
             "error": "Error",
             "warning": "Waarschuwing",
@@ -134,7 +136,9 @@
             "gradient": "Kleurverloop",
             "applyGradient": "Kleurverloop instellen",
             "btnShowAll": "Alles tonen",
-            "btnHideAll": "Alles verbergen"
+            "btnHideAll": "Alles verbergen",
+            "filterPointCloudClasses": "Filter puntenwolk klasses",
+            "heightControlLabel": "Hoogtecorrectie Tileset (m)"
         },
         "layerTools": {
             "theme": {
@@ -233,6 +237,8 @@
             "speed": "Snelheid",
             "play": "Play",
             "pause": "Pauze",
+            "previous": "Vorige",
+            "next": "Volgende",
             "currentTime": "Huidige tijd",
             "animationControls": "Animatie-widget",
             "showWayPoints": "Toon waypoints",

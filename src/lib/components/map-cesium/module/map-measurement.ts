@@ -1,7 +1,7 @@
 import { writable, get } from "svelte/store";
 import * as Cesium from "cesium";
 
-import type { Map } from "../module/map";
+import type { Map } from "./map";
 import type { CameraLocation } from "$lib/components/map-core/camera-location";
 
 export class MapMeasurement {
@@ -13,9 +13,14 @@ export class MapMeasurement {
     public cameraLocation = writable<CameraLocation>(undefined);
 
     public points = writable<Array<Cesium.Cartesian3>>(new Array<Cesium.Cartesian3>);
-    private pointEntities = new Array<Cesium.Entity>();
+    public pointEntities = new Array<Cesium.Entity>();
     private lineEntities = new Array<Cesium.Entity>();
     private helpLineEntities = new Array<Cesium.Entity>();
+
+    public pointFill = Cesium.Color.RED;
+    public pointOutline = Cesium.Color.BLACK;
+    public helpLineColor = Cesium.Color.YELLOW;
+    public lineColor = Cesium.Color.RED;
 
     constructor(id: number, map: Map) {
         this.id = id;
@@ -185,14 +190,14 @@ export class MapMeasurement {
         return from && to ? this.distanceVector(from, to) : 0;
     }
 
-    private addPointEntity(location: Cesium.Cartesian3, index: number): void {
+    public addPointEntity(location: Cesium.Cartesian3, index: number): void {
         const entity = this.map.viewer.entities.add({
 			position: location,
 			point: {
 				show: true,
-				color: Cesium.Color.RED,
+				color: this.pointFill,
 				pixelSize: 10,
-				outlineColor: Cesium.Color.BLACK,
+				outlineColor: this.pointOutline,
 				outlineWidth: 1
 			},     
             label: {
@@ -220,7 +225,7 @@ export class MapMeasurement {
             polyline: {
                 positions: [from, to],
                 width: 3,
-                material: Cesium.Color.RED
+                material: this.lineColor
             },
             label: {
                 text: `${distance.toFixed(2)} M`,
@@ -249,7 +254,7 @@ export class MapMeasurement {
             polyline: {
                 positions: [from, to],
                 width: 1,
-                material: Cesium.Color.YELLOW
+                material: this.helpLineColor
             },
         });
 

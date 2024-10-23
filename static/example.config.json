@@ -51,6 +51,7 @@
             "settings": {
                 "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/gebouwen/3dtiles",
                 "defaultTheme": "Bouwjaar",
+                "enableHeightControl": true,
                 "themes": [
                     {
                         "title": "Bouwjaar",
@@ -301,14 +302,19 @@
                 "highDynamicRange": false,
                 "pointCloudAttenuationMaximum": 2,
                 "terrainProviders": [
-                  {
-                    "title": "PDOK Terrain",
-                    "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
-                    "vertexNormals": true
-                  },
-                  {
-                    "title": "Uit"
-                  }
+                    {
+                        "title": "Zeeland 1m",
+                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
+                        "vertexNormals": true
+                    },
+                    {
+                        "title": "PDOK Terrain",
+                        "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
+                        "vertexNormals": true
+                    },
+                    {
+                        "title": "Uit"
+                    }
                 ]
             }
         },
