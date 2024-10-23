@@ -39,34 +39,6 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 	private async createLayer(): Promise<void> {
 
-		this.map.options.proMode.subscribe(enabled => {
-			if (enabled) {
-				this.heightControl = new CustomLayerControl();
-				this.heightControl.component = LayerControlHeight;
-				this.heightControl.props = { tilesetHeight: this.tilesetHeight };
-				this.addCustomControl(this.heightControl);
-			} else if (!enabled && this.heightControl) {
-				this.removeCustomControl(this.heightControl);
-			}
-		});
-
-		if (this.config.settings["themes"]) {
-			const themes = this.config.settings["themes"];
-
-			// get styling conditions for selected features
-			const themeSelectedCondition = this.getThemeConditionSelected();
-			// add selected condition to all themes
-			for (let i = 0; i < themes.length; i++) {
-				themes[i].conditions.unshift(themeSelectedCondition);
-			}
-
-			// initialize themeControl
-			this.themeControl = new CustomLayerControl();
-			this.themeControl.component = LayerControlTheme;
-			this.themeControl.props = { layer: this, themes: themes, defaultTheme: this.config.settings["defaultTheme"] };
-			this.addCustomControl(this.themeControl);
-		}
-
 		const tileset = await Cesium3DTileset.fromUrl(this.config.settings["url"], {
 			shadows:
 				this.config.settings["shadows"] === false
@@ -82,6 +54,27 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 		if(!this.source) {
 			return;
+		}
+
+		if (this.config.settings["enableHeightControl"]) {
+			this.heightControl = new CustomLayerControl();
+			this.heightControl.component = LayerControlHeight;
+			this.heightControl.props = { height: this.tilesetHeight };
+			this.addCustomControl(this.heightControl);
+		}
+
+		if (this.config.settings["themes"]) {
+			const themes = this.config.settings["themes"];
+
+			const themeSelectedCondition = this.getThemeConditionSelected();
+			for (let i = 0; i < themes.length; i++) {
+				themes[i].conditions.unshift(themeSelectedCondition);
+			}
+
+			this.themeControl = new CustomLayerControl();
+			this.themeControl.component = LayerControlTheme;
+			this.themeControl.props = { layer: this, themes: themes, defaultTheme: this.config.settings["defaultTheme"] };
+			this.addCustomControl(this.themeControl);
 		}
 
 		//@ts-ignore
@@ -186,7 +179,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	}
 
 	private setHeight(height: number) {
-		if (!height || !this.source) {
+		if (height === undefined || !this.source) {
 			return;
 		}
 

@@ -373,6 +373,7 @@ LayerSettings
 |url|Url to tileset.json for the 3D Tiles layer||string|
 |shadows|If shadows casting & receiving is enabled or disabled|true|boolean|
 |tilesetHeight|3D tiles layer height (z position) can be changed, supply the change in meters here|0|number|
+|enableHeightControl|Allows the user to set the tilesetHeight using an input element. The tileset height is taken as the input element's initial value.|false|boolean|
 |defaultTheme|If a layer has themes, you can set the default theme to use here|First in the list if not set|string|
 |style|A cesium 3D Tiles style object as defined in [the documentation](https://cesium.com/learn/cesiumjs/ref-doc/Cesium3DTileStyle.html). For pointclouds, this is where you set the `pointSize` attribute. ||Object|
 |themes|List of type theme, themes can be used to style features in 3D Tiles||Array<[Theme](#themes-for-3d-tiles)>|
