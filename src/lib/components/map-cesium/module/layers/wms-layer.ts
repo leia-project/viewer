@@ -13,35 +13,23 @@ export class WmsLayer extends CesiumImageryLayer {
 		super(map, config);
 	}
 
-	async createLayer() {
-		const provider = new Cesium.WebMapServiceImageryProvider({
-			url: this.config.settings["url"],
-			layers: this.config.settings["featureName"],
-			parameters: {
-				transparent: true,
-				format: this.config.settings["contentType"] ? this.config.settings["contentType"] : "image/png",
-				//TODO
-				// styles: true
-			},
-		});
+	public async createLayer(selectedStyle="") {
 
-		//store styles in here
+		// Extract all layer styles before creating the layer
 		var styleNames = [];
 
 		const featureName = this.config.settings["featureName"];
 
-		const url = new String(this.config.settings["url"]);
-		const urlBase = url.split("?")[0];
+		var url = this.config.settings["url"];
+		const urlString = new String(url);
+		const urlBase = urlString.split("?")[0];
+
 		// Construct the correct DOM URL
 		const DOM_String = urlBase + "?request=GetCapabilities";
 		console.log('DOM_String', DOM_String)
 
-		this.source = new Cesium.ImageryLayer(provider, {
-			alpha: this.getOpacity(this.config.opacity)
-		});
-
 		try {
-			// Fetch XML data for this domain (e.g. Natuur)
+			// Fetch XML data
 			const response = await fetch(DOM_String);
 			if (!response.ok) {
 				throw new Error(`Network response was not ok for ${DOM_String}`);
@@ -51,22 +39,22 @@ export class WmsLayer extends CesiumImageryLayer {
 			const parser = new DOMParser();
 			const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
-			// Extract layer styles for this theme
+			// Extract layers
 			const layers = xmlDoc.getElementsByTagName("Layer");
 
-			//SEARCH FOR LAYER NAME TO GET ITS STYLE
+			// Search for layer name to get its styles
 			for (let j = 0; j < layers.length; j++) {
 				const layer = layers[j];
 
-				// Get the Name of the layer
+				// Get the layer name
 				const nameElement = layer.getElementsByTagName("Name")[0];
 
 				if (nameElement) {
 					const layerName = nameElement.textContent ?? "";
 					//console.log(typeof layerName, typeof featureName);
 
+					// Get all style elements within the layer
 					if (featureName === layerName){
-						// Get all Style elements within the layer
 						const styles = layer.getElementsByTagName("Style");
 						
 						for (let k = 0; k < styles.length; k++) {
@@ -79,7 +67,8 @@ export class WmsLayer extends CesiumImageryLayer {
 					}
 				}
 			}
-			//now check if there are styles in there. if there are, add a style dropdown component for the layer
+
+			// Ceck if there are styles. if there are, add a style dropdown component for the layer
 			if (styleNames.length > 0) {
 				this.styleControl = new CustomLayerControl();
 				this.styleControl.component = LayerControlStyleWMS;
@@ -89,7 +78,25 @@ export class WmsLayer extends CesiumImageryLayer {
 		} catch (error) {
 			console.error(`There was a problem with the WMS style fetch operation for ${featureName}:`, error);
 		}
+		
+		// Update url with style selected
+		if (selectedStyle !== "") {
+			url = urlBase + `?styles=${selectedStyle}`
+		}
+
+		// Now construct the layer with the url, using a style if necessary
+		const provider = new Cesium.WebMapServiceImageryProvider({
+			url: url,
+			layers: this.config.settings["featureName"],
+			parameters: {
+				transparent: true,
+				format: this.config.settings["contentType"] ? this.config.settings["contentType"] : "image/png",
+			},
+		});
+
+		this.source = new Cesium.ImageryLayer(provider, {
+			alpha: this.getOpacity(this.config.opacity)
+		});
+
 	}
-
-
 }

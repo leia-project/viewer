@@ -10,58 +10,32 @@
 	import { text } from "@sveltejs/kit";
 
     export let layer: WmsLayer;
+	export let styles: Array<string>;
 
-    function getDropdownList(): Array<{id: number; text: string}> {
-		const items = [];
-        const len = layer.styleControl?.props?.styles?.length;
+	$: dropdownStyles = styles.map((v, i) => ({ id: i, text: v }));
+	$: activeStyleId = "0"
 
-		for (let i=0; i<layer.styleControl?.props.styles.length; i++) {
-			items.push({
-				id: i + 1,
-				text: layer.styleControl?.props.styles[i].propertyName
-			});
-		}
-		return items;
-	}
-
-    const firstStyleName = (layer.styleControl?.props as { styles: string[] }).styles[0] || "Test Failed";
-
-    let dropdownStylesWMS = getDropdownList();
-    let activeStyleWMS = dropdownStylesWMS[0];
 </script>
 
-<!-- can't get dropdown list to work -->
-
-<!-- <div class="wrapper">
-    <div class="control-section">
-        <div class="control-header">{ $_('tools.layerManager.extrusion') }</div>
-        <div class="wrapper">
-			<Dropdown
-				bind:selectedId={activeStyleWMS}
-				items={dropdownStylesWMS}
-				size="sm"
-				on:select={(e) => console.log(e, ': Selected something...')}
-			></Dropdown>
-        </div>
-    </div>
-</div> -->
-
-
-<!-- Testing only -->
+<!-- Fix layer reloading. Change extrusion control-header -->
 
 <div class="wrapper">
     <div class="control-section">
         <div class="control-header">{ $_('tools.layerManager.extrusion') }</div>
         <div class="wrapper">
 			<Dropdown
-				selectedId="0"
-                items={[
-                    { id: "0", text: firstStyleName },
-                    { id: "1", text: "Item 2" },
-                    { id: "2", text: "Item 3" },
-                ]}
+				selectedId={activeStyleId}
+				items={dropdownStyles}
 				size="sm"
-				on:select={(e) => console.log(e.detail.selectedItem, ': Selected something...')}
+				on:select={(e) => 
+					{
+						console.log(`Selected ${e.detail.selectedItem.text}`);
+
+						// Reload the layer with the selected style
+						layer.remove();
+						layer.createLayer(selectedStyle=dropdownStyles[activeStyleId]);
+					}	
+				}
 			></Dropdown>
         </div>
     </div>
