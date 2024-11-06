@@ -12,7 +12,9 @@
 
 	const { app } = getContext<any>("page");
 
-	let geocoderUrl = "https://api.pdok.nl/bzk/locatieserver/search/v3_1";
+	//let geocoderUrl = "https://api.pdok.nl/bzk/locatieserver/search/v3_1";
+	let geocoderUrl = "https://nominatim.openstreetmap.org";
+
 	let value = writable<string>();
 	let selectedResultIndex = 0;
 	let events: any[] = [];
@@ -36,7 +38,7 @@
 	});
 
 	value.subscribe((v) => {
-		if (v && v.length >= 1) {
+		if (v && v.length >= 9) {
 			geosearch(v);
 		} else {
 			results = new Array<any>();
@@ -53,32 +55,48 @@
 
 	async function geosearch(query: string): Promise<void> {
 		try {
-			const result = await fetch(`${geocoderUrl}/suggest?wt=json&q=${query}`);
-			const searchResults = await result.json();
+			const searchResultsResponse = await fetch(`${geocoderUrl}/search?format=json&q=${query}`);
+			const searchResults = await searchResultsResponse.json();
+			const firstSearchResult = searchResults[0];
+
 			const entries = new Array<any>();
 
-			for (let i = 0; i < searchResults.response.docs.length; i++) {
-				const searchResult = searchResults.response.docs[i];
+			console.log('firstSearchResult: ', firstSearchResult);
+			console.log('firstSearchResult place_id: ', firstSearchResult.place_id);
+
+			//parse osm_type
+
+			for (let i = 0; i < searchResults.length; i++) {
+				const searchResult = searchResults[i];
+				console.log('locationId: ', searchResult.osm_type.charAt(0).toUpperCase() + searchResult.osm_id);
+				
 				entries.push({
-					text: searchResult.weergavenaam,
-					locationId: searchResult.id
+					text: searchResult.display_name,
+					locationId: searchResult.osm_type.charAt(0).toUpperCase() + searchResult.osm_id
 				});
 			}
 
+			// Show suggestions in dropdown menu. Probably not possible using Nominatim
 			results = entries;
 		} catch (e) {
 			console.log("PDOK Geocoder", `Error getting suggest (${e})`);
 		}
 	}
 
-	async function zoomTo(placeId: string): Promise<void> {
+	async function zoomTo(locationId: string): Promise<void> {
 		try {
-			const result = await fetch(`${geocoderUrl}/lookup?wt=json&id=${placeId}&fl=geometrie_ll`);
-			const lookupResult = await result.json();
+			const result = await fetch(`${geocoderUrl}/lookup?format=json&osm_ids=${locationId}`);
+			const lookupResults = await result.json();
+			const firstLookupResult = lookupResults[0];
 
-			if (lookupResult?.response?.docs?.length > 0) {
-				const geomLL = lookupResult.response.docs[0].geometrie_ll;
+			console.log('lookup result', firstLookupResult);
+
+			//if there are findable results with this search
+			if (firstLookupResult) {
+				const geomLL = `${firstLookupResult.lat}, ${firstLookupResult.lon}`;
+				// TODO: This box is not right WKT string
 				const box = wktToBox(geomLL);
+				console.log('box: ', box);
 				setCameraView(box);
 			}
 		} catch (e) {
@@ -135,13 +153,10 @@
 <style>
 	:global([role="search"]) {
 		max-width: 100%;
+		outline: 0px !important;
 	}
 
 	:global([slot="headerUtilities"]) {
 		width: 100%;
-	}
-
-	:global([role="search"]) {
-		outline: 0px !important;
 	}
 </style>
