@@ -23,6 +23,7 @@
 	$: map = get(app.map);
 
 	// Handle geocoder config
+	// TODO: Make a geocoder switcher based on Config settings
 	app.map.subscribe((map) => {
 		if (map) {
 			map.configLoaded.subscribe((loaded: boolean) => {
@@ -93,9 +94,11 @@
 
 			//if there are findable results with this search
 			if (firstLookupResult) {
-				const geomLL = `${firstLookupResult.lat}, ${firstLookupResult.lon}`;
+				//const geomLL = `${firstLookupResult.lat}, ${firstLookupResult.lon}`;
 				// TODO: This box is not right WKT string
-				const box = wktToBox(geomLL);
+				const wktString = `POLYGON((${firstLookupResult.boundingbox[0]} ${firstLookupResult.boundingbox[2]}, ${firstLookupResult.boundingbox[1]} ${firstLookupResult.boundingbox[2]}, ${firstLookupResult.boundingbox[1]} ${firstLookupResult.boundingbox[3]}, ${firstLookupResult.boundingbox[0]} ${firstLookupResult.boundingbox[3]}, ${firstLookupResult.boundingbox[0]} ${firstLookupResult.boundingbox[2]}))`;
+				const box = wktToBox(wktString);
+				console.log('wktString: ', wktString);
 				console.log('box: ', box);
 				setCameraView(box);
 			}
