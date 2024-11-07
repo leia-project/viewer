@@ -703,13 +703,20 @@ The info tool will display attribution from used libraries in the viewer and som
 
 #### geocoder
 
-Geocoder tool,  located at the right corner of the header instead of the toolbar, the user can search for locations using and zoom to locations using this tool. For geocoding the PDOK geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. No additional settings are required for this tool
+Geocoder tool,  located at the right corner of the header instead of the toolbar, the user can search for locations using and zoom to locations using this tool. By default the Dutch Locatieserver geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. For international geocoding, OSM's Nominatim can be used: https://nominatim.openstreetmap.org.
+
+|value|description|type|
+|-|-|-|
+|name|Geocoder name (currently supporting locatieserver and nominatim)|string|
+
 
 ```json
 {
 	"id": "geocoder",
 	"enabled": true,
-	"settings": {}
+	"settings": {
+		"name": "locatieserver"
+	}
 }
 ```
 

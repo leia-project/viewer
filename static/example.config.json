@@ -364,7 +364,10 @@
         },
         {
             "id": "geocoder",
-            "enabled": true
+            "enabled": true,
+            "settings": {
+                "name": "locatieserver"
+            }
         }
     ]
 }

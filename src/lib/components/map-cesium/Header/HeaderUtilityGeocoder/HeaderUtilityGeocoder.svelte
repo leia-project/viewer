@@ -12,9 +12,8 @@
 
 	const { app } = getContext<any>("page");
 
-	//let geocoderUrl = "https://api.pdok.nl/bzk/locatieserver/search/v3_1";
-	let geocoderUrl = "https://nominatim.openstreetmap.org";
-
+	let geocoderName: string;
+	let geocoderUrl: string;
 	let value = writable<string>();
 	let selectedResultIndex = 0;
 	let events: any[] = [];
@@ -22,15 +21,24 @@
 
 	$: map = get(app.map);
 
-	// Handle geocoder config
-	// TODO: Make a geocoder switcher based on Config settings
 	app.map.subscribe((map) => {
 		if (map) {
 			map.configLoaded.subscribe((loaded: boolean) => {
 				if (loaded) {
-					if (map.toolSettings.geocoder) {
-						if (map.toolSettings.geocoder.url) {
-							geocoderUrl = map.toolSettings.geocoder.url;
+					let geocoderConfig = map.config.tools.find((t: any) => t.id === "geocoder");
+
+					if (geocoderConfig.enabled) {
+						geocoderName = geocoderConfig.settings.name.toLowerCase();
+
+						if (geocoderName === "nominatim") {
+							geocoderUrl = "https://nominatim.openstreetmap.org";
+						}
+						else if (geocoderName === "locatieserver") {
+							geocoderUrl = "https://api.pdok.nl/bzk/locatieserver/search/v3_1";
+						};
+						// TODO: Add option for custom geocoder
+						if (geocoderConfig.settings.url) {
+							geocoderUrl = geocoderConfig.settings.url;
 						}
 					}
 				}
@@ -39,68 +47,75 @@
 	});
 
 	value.subscribe((v) => {
-		if (v && v.length >= 2) {
-			geosearch(v);
+		if (v && v.length >= 1) {
+			geosearch(v, geocoderName);
 		} else {
 			results = new Array<any>();
 		}
 	});
 
-	function select(entity: any): void {
+	function select(entity: any, geocoder: string): void {
 		const id = entity?.selectedResult?.locationId;
 
 		if (id) {
-			zoomTo(id);
+			zoomTo(id, geocoder);
 		}
 	}
 
-	async function geosearch(query: string): Promise<void> {
+	async function geosearch(query: string, geocoder: string): Promise<void> {
 		try {
-			const searchResultsResponse = await fetch(`${geocoderUrl}/search?format=json&q=${query}`);
-			const searchResults = await searchResultsResponse.json();
-			const firstSearchResult = searchResults[0];
+			let searchResults;
+			let entries = new Array<any>();
 
-			const entries = new Array<any>();
-
-			console.log('firstSearchResult: ', firstSearchResult);
-			console.log('firstSearchResult place_id: ', firstSearchResult.place_id);
-
-			//parse osm_type
-
-			for (let i = 0; i < searchResults.length; i++) {
-				const searchResult = searchResults[i];
-				console.log('locationId: ', searchResult.osm_type.charAt(0).toUpperCase() + searchResult.osm_id);
+			if (geocoder === "nominatim") {
+				const result = await fetch(`${geocoderUrl}/search?format=json&q=${query}`);
+				searchResults = await result.json();
 				
-				entries.push({
-					text: searchResult.display_name,
-					locationId: searchResult.osm_type.charAt(0).toUpperCase() + searchResult.osm_id
+				searchResults.forEach((searchResult: any) => {
+					entries.push({
+						text: searchResult.display_name,
+						locationId: searchResult.osm_type.charAt(0).toUpperCase() + searchResult.osm_id
+					});
+				});
+			} else if (geocoder === "locatieserver") {
+				const result = await fetch(`${geocoderUrl}/suggest?wt=json&q=${query}`);
+				searchResults = await result.json();
+				
+				searchResults.response.docs.forEach((searchResult: any) => {
+					entries.push({
+						text: searchResult.weergavenaam,
+						locationId: searchResult.id
+					});
 				});
 			}
-
-			// Show suggestions in dropdown menu. Probably not possible using Nominatim
 			results = entries;
 		} catch (e) {
-			console.log("PDOK Geocoder", `Error getting suggest (${e})`);
+			console.log(`${geocoder} geocoder`, `Error getting suggest (${e})`);
 		}
-	}
+	};
 
-	async function zoomTo(locationId: string): Promise<void> {
+	async function zoomTo(locationId: string, geocoder: string): Promise<void> {
 		try {
-			const result = await fetch(`${geocoderUrl}/lookup?format=json&osm_ids=${locationId}`);
-			const lookupResults = await result.json();
-			const firstLookupResult = lookupResults[0];
+			if (geocoder === "nominatim") {
+				const result = await fetch(`${geocoderUrl}/lookup?format=json&osm_ids=${locationId}`);
+				const lookupResults = await result.json();
+				const firstLookupResult = lookupResults[0];
 
-			console.log('lookup result', firstLookupResult);
+				if (firstLookupResult) {
+					const wktString = `POLYGON((${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[0]}, ${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[1]}, ${firstLookupResult.boundingbox[3]} ${firstLookupResult.boundingbox[1]}, ${firstLookupResult.boundingbox[3]} ${firstLookupResult.boundingbox[0]}, ${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[0]}))`;
+					const box = wktToBox(wktString);
+					setCameraView(box);
+				}
+			}
+			else if (geocoder === "locatieserver") {
+				const result = await fetch(`${geocoderUrl}/lookup?wt=json&id=${locationId}&fl=geometrie_ll`);
+				const lookupResult = await result.json();
 
-			//if there are findable results with this search
-			if (firstLookupResult) {
-				//const geomLL = `${firstLookupResult.lat}, ${firstLookupResult.lon}`;
-				// TODO: This box is not right WKT string
-				const wktString = `POLYGON((${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[0]}, ${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[1]}, ${firstLookupResult.boundingbox[3]} ${firstLookupResult.boundingbox[1]}, ${firstLookupResult.boundingbox[3]} ${firstLookupResult.boundingbox[0]}, ${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[0]}))`;
-				const box = wktToBox(wktString);
-				console.log('wktString: ', wktString);
-				console.log('box: ', box);
-				setCameraView(box);
+				if (lookupResult?.response?.docs?.length > 0) {
+					const geomLL = lookupResult.response.docs[0].geometrie_ll;
+					const box = wktToBox(geomLL);
+					setCameraView(box);
+				}
 			}
 		} catch (e) {
 			console.log("PDOK Geocoder", `Error getting lookup (${e})`);
@@ -149,7 +164,7 @@
 		events = [...events, { type: "clear" }];
 	}}
 	on:select={(e) => {
-		select(e.detail);
+		select(e.detail, geocoderName);
 	}}
 />
 
