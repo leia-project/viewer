@@ -39,7 +39,7 @@
 	});
 
 	value.subscribe((v) => {
-		if (v && v.length >= 9) {
+		if (v && v.length >= 2) {
 			geosearch(v);
 		} else {
 			results = new Array<any>();
@@ -96,7 +96,7 @@
 			if (firstLookupResult) {
 				//const geomLL = `${firstLookupResult.lat}, ${firstLookupResult.lon}`;
 				// TODO: This box is not right WKT string
-				const wktString = `POLYGON((${firstLookupResult.boundingbox[0]} ${firstLookupResult.boundingbox[2]}, ${firstLookupResult.boundingbox[1]} ${firstLookupResult.boundingbox[2]}, ${firstLookupResult.boundingbox[1]} ${firstLookupResult.boundingbox[3]}, ${firstLookupResult.boundingbox[0]} ${firstLookupResult.boundingbox[3]}, ${firstLookupResult.boundingbox[0]} ${firstLookupResult.boundingbox[2]}))`;
+				const wktString = `POLYGON((${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[0]}, ${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[1]}, ${firstLookupResult.boundingbox[3]} ${firstLookupResult.boundingbox[1]}, ${firstLookupResult.boundingbox[3]} ${firstLookupResult.boundingbox[0]}, ${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[0]}))`;
 				const box = wktToBox(wktString);
 				console.log('wktString: ', wktString);
 				console.log('box: ', box);
