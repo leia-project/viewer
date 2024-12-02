@@ -333,7 +333,6 @@ class DynamicWaterLevel {
  
 				float terrain_height = texture(u_terrain_1, v_st).r * (u_terrain_scaling_max_10 - u_terrain_scaling_min_9) + u_terrain_scaling_min_9;
                 float depth = computeDepth(st);
-				float elevation = terrain_height + depth;
                
                 // Height exaggeration relative to terrain:
 				p.xyz += u_model_normal_4 * (terrain_height + depth * u_vertical_exaggeration_7);
@@ -380,8 +379,13 @@ class DynamicWaterLevel {
 				if (depth == flood_plane_class_mapping[0] || terrain_height == u_terrain_scaling_min_9) {
 					discard;
 				}
-				// float elevation = terrain_height + depth;
-				v_color = mix(vec3(0.522, 0.631, 0.737), vec3(0.0, 0.301, 0.600), depth);
+
+				// normalize the depth value using the minimum and maximum depth
+				float min = flood_plane_class_mapping[0];
+				float max = flood_plane_class_mapping[${floodPlaneClassMapping.length - 1}];
+				float depth_normalized = (depth - min) / (max - min);
+				// use the normalized depth value to interpolate between two colors
+				v_color = mix(vec3(0.522, 0.631, 0.737), vec3(0.0, 0.0, 0.400), depth_normalized * 1.0);
  
                 vec3 positionToEyeEC = -v_positionEC;
  
