@@ -335,9 +335,9 @@ LayerSettings
 |-|-|-|-|
 |url|base url for the layer service||string|
 |featureName|name of feature of wmts layer, can be found in WMTS GetCapabilities||string|
-|contenttype|the http content type for the map data to be retrieved|image/png|string|
+|contentType|the http content type for the map data to be retrieved|image/png|string|
 |matrixids|list matrix ids to be used by this wmts layer|EPSG:3857:0...EPSG:3857:19|array of string|
-|matrixset|name of the matrixset|EPSG:3857|string|
+|tileMatrixSetID|name of the matrixset|EPSG:3857|string|
 |tileWidth|Pixel width of tile|256|number|
 |tileHeigth|Pixel height of tile|256|number|
 |maximumLevel|Maximum zoom levers of layer|amount items in matrixids - 1|number|
@@ -358,9 +358,9 @@ LayerSettings
 		"settings": {
 			"url": "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0",
 			"featureName": "Actueel_orthoHR",
-			"contenttype": "image/jpeg",
+			"contentType": "image/jpeg",
 			"matrixids": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"],
-			"matrixset": "EPSG:3857"
+			"tileMatrixSetID": "EPSG:3857"
         }
     }
 ]
