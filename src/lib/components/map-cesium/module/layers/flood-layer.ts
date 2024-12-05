@@ -448,7 +448,7 @@ class DynamicWaterLevel {
 			vertexShaderSource: vertexShader,
 			fragmentShaderSource: fragmentShader,
 			translucent: true,
-			flat: false,
+			flat: true,
 			faceForward: false,
 			closed: false,
 			renderState: renderState

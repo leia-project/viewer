@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Slider, Toggle } from "carbon-components-svelte";
+	import { Button, Loading, Slider, Toggle } from "carbon-components-svelte";
 	import * as Cesium from "cesium";
 
 	import type { FloodLayer } from "../module/layers/flood-layer";
@@ -12,7 +12,7 @@
 	export let layer: FloodLayer;
 	export let map: Map;
 
-	let { timeSliderValue, timeSliderMin, timeSliderMax, timeSliderStep, opacity } = layer;
+	let { timeSliderValue, timeSliderMin, timeSliderMax, timeSliderStep, opacity, loaded } = layer;
 	let playing: boolean = false;
 	let intervalId: NodeJS.Timeout
 
@@ -24,6 +24,11 @@
 		new Array<MapMeasurementFloodDepth>()
 	);
 	let movingPoint: Cesium.Entity | undefined;
+
+	let ready; 
+	loaded.then(() => {
+		ready = true;
+	});
 
 
 	function togglePlay() {
@@ -141,98 +146,102 @@
 	});
 </script>
 
-<div class="control-section">
-	<div class="wrapper">
-		<Slider 
-			value={$opacity}
-			labelText={$_('tools.layerManager.opacity') + ' ' + $opacity + '%'} 
-			fullWidth={true} 
-			on:input={(e) => {
-				layer.opacity.set(e.detail);
-			}}
-			hideTextInput={true} 
-			min={0} 
-			max={100} 
-			step={1} 
-			minLabel={"0"} 
-			maxLabel={"100"}
-		/>
-	</div>
-	<div class="label-01">Time slider</div>
-	<div class="wrapper">
-		<Slider 
-			value={$timeSliderValue}
-			labelText={String($timeSliderValue) + " uur sinds bres"} 
-			fullWidth={true} 
-			on:input={(e) => {
-				layer.timeSliderValue.set(e.detail);
-			}}
-			hideTextInput={true} 
-			min={$timeSliderMin} 
-			max={$timeSliderMax} 
-			step={$timeSliderStep} 
-			minLabel={String($timeSliderMin)} 
-			maxLabel={String($timeSliderMax)}
-		/>
-	</div>
-	<div class="wrapper" style="display: flex; justify-content: center; gap: 4px;">
-		<!-- Decrease time slider value by step -->
-		<Button 
-			kind="secondary" 
-			size="small" 
-			icon="{ArrowLeft}"
-			iconDescription={$_('tools.animation.previous')}
-			on:click={() => {
-				layer.timeSliderValue.update((value) => value - $timeSliderStep);
-			}}
-		/>
-		{#if !playing}
+{#if !ready}
+	<Loading withOverlay={false} small />
+{:else}
+	<div class="control-section">
+		<div class="wrapper">
+			<Slider 
+				value={$opacity}
+				labelText={$_('tools.layerManager.opacity') + ' ' + $opacity + '%'} 
+				fullWidth={true} 
+				on:input={(e) => {
+					layer.opacity.set(e.detail);
+				}}
+				hideTextInput={true} 
+				min={0} 
+				max={100} 
+				step={1} 
+				minLabel={"0"} 
+				maxLabel={"100"}
+			/>
+		</div>
+		<div class="label-01">Time slider</div>
+		<div class="wrapper">
+			<Slider 
+				value={$timeSliderValue}
+				labelText={String($timeSliderValue) + " uur sinds bres"} 
+				fullWidth={true} 
+				on:input={(e) => {
+					layer.timeSliderValue.set(e.detail);
+				}}
+				hideTextInput={true} 
+				min={$timeSliderMin} 
+				max={$timeSliderMax} 
+				step={$timeSliderStep} 
+				minLabel={String($timeSliderMin)} 
+				maxLabel={String($timeSliderMax)}
+			/>
+		</div>
+		<div class="wrapper" style="display: flex; justify-content: center; gap: 4px;">
+			<!-- Decrease time slider value by step -->
 			<Button 
-				kind="secondary"
+				kind="secondary" 
 				size="small" 
-				icon="{Play}"
-				iconDescription={$_('tools.animation.play')}
+				icon="{ArrowLeft}"
+				iconDescription={$_('tools.animation.previous')}
 				on:click={() => {
-					togglePlay();
+					layer.timeSliderValue.update((value) => value - $timeSliderStep);
 				}}
 			/>
-		{:else}
+			{#if !playing}
+				<Button 
+					kind="secondary"
+					size="small" 
+					icon="{Play}"
+					iconDescription={$_('tools.animation.play')}
+					on:click={() => {
+						togglePlay();
+					}}
+				/>
+			{:else}
+				<Button 
+					kind="secondary"
+					size="small" 
+					icon="{Pause}"
+					iconDescription={$_('tools.animation.pause')}
+					on:click={() => {
+						togglePlay();
+					}}
+				/>	
+			{/if}
+			<!-- Increase time slider value by step -->
 			<Button 
 				kind="secondary"
 				size="small" 
-				icon="{Pause}"
-				iconDescription={$_('tools.animation.pause')}
+				icon="{ArrowRight}"
+				iconDescription={$_('tools.animation.next')}
 				on:click={() => {
-					togglePlay();
+					layer.timeSliderValue.update((value) => value + $timeSliderStep);
 				}}
-			/>	
-		{/if}
-		<!-- Increase time slider value by step -->
-		<Button 
-			kind="secondary"
-			size="small" 
-			icon="{ArrowRight}"
-			iconDescription={$_('tools.animation.next')}
-			on:click={() => {
-				layer.timeSliderValue.update((value) => value + $timeSliderStep);
-			}}
-		/>
+			/>
+		</div>
 	</div>
-</div>
-<div class="measure">
-	<div class="measure-checkbox">
-		<span class="label-02">Measure</span>
-		<Toggle
-			toggled={$enableMeasurement}
-			hideLabel={true}
-			on:toggle={() => {
-				$enableMeasurement = !$enableMeasurement;
-			}}
-			labelA={$_("general.off")}
-			labelB={$_("general.on")}
-		/>
+	<div class="measure">
+		<div class="measure-checkbox">
+			<span class="label-02">Measure</span>
+			<Toggle
+				toggled={$enableMeasurement}
+				hideLabel={true}
+				on:toggle={() => {
+					$enableMeasurement = !$enableMeasurement;
+				}}
+				labelA={$_("general.off")}
+				labelB={$_("general.on")}
+			/>
+		</div>
 	</div>
-</div>
+{/if}
 
 <style>
 
