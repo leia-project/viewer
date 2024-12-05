@@ -93,19 +93,12 @@
             "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
-            "defaultOn": false,
+            "defaultOn": true,
             "transparent": false,
             "opacity": 0,
-            "cameraPosition": {
-                "x": 3.81618,
-                "y": 51.30636,
-                "z": 8521.21390,
-                "heading": 360.00000,
-                "pitch": -34.77142
-            },
             "settings": {
-                "url": "https://virtueel.zeeland.nl/tiles_other/flood_borssele/layer.json",
-                "resolution": 100
+                "url": "https://virtueel.zeeland.nl/tiles_other/flood_26_OS-dp15_300/layer.json",
+                "resolution": 50
             }
         }
     ],
@@ -243,6 +236,7 @@
                 "resolutionScale": 1,
                 "maximumScreenSpaceError": 16,
                 "groundAtmosphere": true,
+                "globeOpacity": 10,
                 "lighting": true,
                 "skyAtmosphere": true,
                 "fog": true,
@@ -274,7 +268,7 @@
         },
         {
             "id": "projects",
-            "enabled": true,
+            "enabled": false,
             "settings": {
                 "openProject": "My project name",
                 "projects": [
