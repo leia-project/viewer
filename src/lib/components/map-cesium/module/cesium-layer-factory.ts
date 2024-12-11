@@ -16,6 +16,7 @@ import { ArcGISLayer } from "./layers/arcgis-layer";
 import { DroppedGLBLayer } from "./layers/dropped-glb-layer";
 import { FloodLayer } from "./layers/flood-layer";
 import { WfsLayer } from "./layers/wfs-layer";
+import { OgcFeaturesLayer } from "./layers/ogc-features-layer";
 
 export class CesiumLayerFactory {
 	public convert(map: Map, config: LayerConfig): CesiumLayer<unknown> | undefined {
@@ -38,6 +39,8 @@ export class CesiumLayerFactory {
 				return this.createGeoJsonLayer(map, config);
 			case "geojson":
 				return this.createGeoJsonLayer(map, config);
+			case "ogc-features":
+				return this.createOgcFeaturesLayer(map, config);
 			/* Shapefile support built in via shapefile NPM module and GeoJSON layer, but not enabled
 			case "shapefile": 
 				return this.createGeoJsonLayer(map, config);
@@ -95,7 +98,7 @@ export class CesiumLayerFactory {
 		return new WmtsLayer(map, layerConfig);
 	}
 
-	private createWfs(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> {
+	private createWfs(map: Map, layerConfig: LayerConfig): WfsLayer {
 		return new WfsLayer(map, layerConfig);
 	}
 
@@ -109,6 +112,10 @@ export class CesiumLayerFactory {
 
 	private createGeoJsonLayer(map: Map, layerConfig: LayerConfig): GeoJsonLayer {
 		return new GeoJsonLayer(map, layerConfig);
+	}
+
+	private createOgcFeaturesLayer(map: Map, layerConfig: LayerConfig): OgcFeaturesLayer {
+		return new OgcFeaturesLayer(map, layerConfig);
 	}
 
 	private createDroppedGLBLayer(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> {
