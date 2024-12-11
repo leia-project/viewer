@@ -7,7 +7,8 @@ import type { GeographicLocation } from "$lib/components/map-core/geographic-loc
 
 export class CesiumIcon {
 	private map: Map;
-	private location: GeographicLocation;
+	public location: GeographicLocation;
+	public properties: object;
 	public billboard!: Cesium.Entity;
 
 	private icon: string;
@@ -29,6 +30,7 @@ export class CesiumIcon {
 	constructor(
 		map: Map,
 		location: GeographicLocation,
+		properties: object,
 		icon: string,
 		color: Cesium.ConstantProperty,
 		activeColor: Cesium.ConstantProperty,
@@ -36,6 +38,7 @@ export class CesiumIcon {
 	) {
 		this.map = map;
 		this.location = location;
+		this.properties = properties;
 		this.icon = icon;
 		this.color = color;
 		this.activeColor = activeColor;

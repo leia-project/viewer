@@ -16,8 +16,8 @@ export class IconLayer extends CustomLayer {
 
     public hoveredIcon: Writable<CesiumIcon | undefined> = writable(undefined);
     public activeIcon: Writable<CesiumIcon | undefined> = writable(undefined);
-    public loaded: boolean = false;
-    public MapIcons: Array<CesiumIcon> = new Array<CesiumIcon>();
+    public loaded: Writable<boolean> = writable(false);
+    public mapIcons: Writable<Array<CesiumIcon>> = writable(new Array<CesiumIcon>());
     private unsubscribers: Array<Unsubscriber> = new Array<Unsubscriber>();
 
     public colorProperties = {
@@ -28,19 +28,19 @@ export class IconLayer extends CustomLayer {
     constructor(map: Map, config: LayerConfig) {
 		super(map, config);
 
-		this.loaded = false;
 		this.addListeners();
         this.addMouseEvents();
+        this.loadData();
 	}
 
     private addListeners() {
         this.unsubscribers.push(
             this.hoveredIcon.subscribe((icon) => {
-                this.MapIcons.forEach((i) => i.hovered.set(i === icon));
+                get(this.mapIcons).forEach((i) => i.hovered.set(i === icon));
                 this.map.refresh();
             }),
             this.activeIcon.subscribe((icon) => {
-                this.MapIcons.forEach((i) => i.active.set(i === icon));
+                get(this.mapIcons).forEach((i) => i.active.set(i === icon));
                 this.map.refresh();
             })
         );
@@ -51,14 +51,17 @@ export class IconLayer extends CustomLayer {
             .then(response => response.json())
             .then(data => {
                 // extract locations from GeoJSON features and create CesiumIcon objects
+                let mapIcons: Array<CesiumIcon> = [];
                 data.features.map((feature: any) => {
                     const location = new GeographicLocation(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
-                    const icon = new CesiumIcon(this.map, location, depotIcon, this.colorProperties.custom, this.colorProperties.active, true);
-                    this.MapIcons.push(icon);
+                    const properties = feature.properties;
+                    const icon = new CesiumIcon(this.map, location, properties, depotIcon, this.colorProperties.custom, this.colorProperties.active, false);
+                    mapIcons.push(icon);
                     return location;
                 });
+                this.mapIcons.set(mapIcons);
                 this.setCameraPosition();
-                this.loaded = true;
+                this.loaded.set(true);
             })
     }
 
@@ -70,8 +73,8 @@ export class IconLayer extends CustomLayer {
     }
 
     private clearMapEntities(): void {
-        this.MapIcons.forEach((item) => item.removeItem());
-        this.MapIcons = new Array();
+        get(this.mapIcons).forEach((item) => item.removeItem());
+        this.mapIcons.set(new Array());
         this.removeMouseEvents();
     }
 
@@ -81,7 +84,7 @@ export class IconLayer extends CustomLayer {
         const picked = this.map.viewer.scene.pick(location);
         if (picked?.id?.billboard !== undefined) {
             const billboard = picked.id.billboard as Cesium.BillboardGraphics;
-            for (const icon of this.MapIcons) {
+            for (const icon of get(this.mapIcons)) {
                 if (billboard === icon.billboard.billboard) {
                     return icon;
                 }
@@ -110,20 +113,16 @@ export class IconLayer extends CustomLayer {
     }
 
     public setCameraPosition(): void {
-		const cartesians = this.MapIcons.map(i => i.billboard.position?.getValue()).filter(c => c !== undefined);
+		const cartesians = get(this.mapIcons).map(i => i.billboard.position?.getValue()).filter(c => c !== undefined);
 		const sphere = Cesium.BoundingSphere.fromPoints(cartesians);
         this.config.cameraPosition = getCameraPositionFromBoundingSphere(sphere);
 	}
 
     public show(): void {
-		if (!this.loaded) {
-			this.loadData();
-		} else {
-            this.MapIcons.forEach((icon) => icon.show.set(true));
-        }
+        if (get(this.loaded)) get(this.mapIcons).forEach((icon) => icon.show.set(true));
 	}
 
 	public hide(): void {
-		this.MapIcons.forEach((icon) => icon.show.set(false));
+		if (get(this.loaded)) get(this.mapIcons).forEach((icon) => icon.show.set(false));
 	}
 }

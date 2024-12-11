@@ -84,37 +84,6 @@
                     }
                 ]
             }
-        },
-        {
-            "id": "4",
-            "type": "flood",
-            "title": "Flood layer",
-            "groupId": "",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": true,
-            "transparent": false,
-            "opacity": 0,
-            "settings": {
-                "url": "https://virtueel.zeeland.nl/tiles_other/flood_26_OS-dp15_300/layer.json",
-                "resolution": 50
-            }
-        },
-        {
-            "id": "5",
-            "type": "icon",
-            "title": "Icon layer",
-            "groupId": "",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": true,
-            "transparent": false,
-            "opacity": 0,
-            "settings": {
-                "url": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson"
-            }
         }
     ],
     "viewer": {
@@ -324,6 +293,10 @@
                     }
                 ]
             }
+        },
+        {
+            "id": "flooding",
+            "enabled": true
         },
         {
             "id": "stories",

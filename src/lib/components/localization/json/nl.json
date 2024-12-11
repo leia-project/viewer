@@ -246,6 +246,9 @@
             "trackModel": "Model volgen",
             "stopTracking": "Stop met volgen",
             "zoomToModel": "Zoom naar model"
+        },
+        "flooding": {
+            "label": "Overstromingen"
         }
     }
 }
