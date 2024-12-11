@@ -15,6 +15,7 @@ import { GeoJsonLayer } from "./layers/geojson-layer";
 import { ArcGISLayer } from "./layers/arcgis-layer";
 import { DroppedGLBLayer } from "./layers/dropped-glb-layer";
 import { FloodLayer } from "./layers/flood-layer";
+import { WfsLayer } from "./layers/wfs-layer";
 
 export class CesiumLayerFactory {
 	public convert(map: Map, config: LayerConfig): CesiumLayer<unknown> | undefined {
@@ -23,6 +24,8 @@ export class CesiumLayerFactory {
 				return this.createWms(map, config);
 			case "wmts":
 				return this.createWmts(map, config);
+			case "wfs":
+				return this.createWfs(map, config);
 			case "arcgis":
 				return this.createArcGIS(map, config);
 			case "basiskaart":
@@ -90,6 +93,10 @@ export class CesiumLayerFactory {
 
 	private createWmts(map: Map, layerConfig: LayerConfig): CesiumLayer<ImageryLayer> {
 		return new WmtsLayer(map, layerConfig);
+	}
+
+	private createWfs(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> {
+		return new WfsLayer(map, layerConfig);
 	}
 
 	private createArcGIS(map: Map, layerConfig: LayerConfig): CesiumLayer<ImageryLayer> {
