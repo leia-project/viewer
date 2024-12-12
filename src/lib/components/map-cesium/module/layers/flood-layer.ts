@@ -293,6 +293,7 @@ class DynamicWaterLevel {
 			uniform float u_alpha_8;
 			uniform float u_terrain_scaling_min_9;
 			uniform float u_terrain_scaling_max_10;
+			uniform float u_depth_value_max_11;
 
 			in vec3 position3DHigh;
 			in vec3 position3DLow;
@@ -309,8 +310,8 @@ class DynamicWaterLevel {
 
 			float computeDepth(vec2 _st) {
 				_st = clamp(_st, vec2(0.0), vec2(1.0));
-				float depth_t1 = flood_plane_class_mapping[int(texture(u_depth_t1_2, _st).r * 255.0)];
-				float depth_t2 = flood_plane_class_mapping[int(texture(u_depth_t2_3, _st).r * 255.0)];
+				float depth_t1 = flood_plane_class_mapping[int(texture(u_depth_t1_2, _st).r * u_depth_value_max_11)];
+				float depth_t2 = flood_plane_class_mapping[int(texture(u_depth_t2_3, _st).r * u_depth_value_max_11)];
 				float depth = mix(depth_t1, depth_t2, u_progress_0);
 				return depth;
 			}
@@ -330,8 +331,7 @@ class DynamicWaterLevel {
 
 			void main() {
                 vec4 p = czm_computePosition();
- 
-				float terrain_height = texture(u_terrain_1, v_st).r * (u_terrain_scaling_max_10 - u_terrain_scaling_min_9) + u_terrain_scaling_min_9;
+				float terrain_height = texture(u_terrain_1, st).r * (u_terrain_scaling_max_10 - u_terrain_scaling_min_9) + u_terrain_scaling_min_9;
                 float depth = computeDepth(st);
                
                 // Height exaggeration relative to terrain:
@@ -357,8 +357,8 @@ class DynamicWaterLevel {
            
             float computeDepth(vec2 _st) {
                 _st = clamp(_st, vec2(0.0), vec2(1.0));
-                float depth_t1 = flood_plane_class_mapping[int(texture(u_depth_t1_2, _st).r * 255.0)];
-				float depth_t2 = flood_plane_class_mapping[int(texture(u_depth_t2_3, _st).r * 255.0)];
+                float depth_t1 = flood_plane_class_mapping[int(texture(u_depth_t1_2, _st).r * u_depth_value_max_11)];
+				float depth_t2 = flood_plane_class_mapping[int(texture(u_depth_t2_3, _st).r * u_depth_value_max_11)];
                 float depth = mix(depth_t1, depth_t2, u_progress_0);
                 return depth;
             }
@@ -376,7 +376,7 @@ class DynamicWaterLevel {
 
 				float terrain_height = texture(u_terrain_1, v_st).r * (u_terrain_scaling_max_10 - u_terrain_scaling_min_9) + u_terrain_scaling_min_9;
 				float depth = computeDepth(v_st);
-				if (depth == flood_plane_class_mapping[0] || terrain_height == u_terrain_scaling_min_9) {
+				if (depth == flood_plane_class_mapping[0] || depth == flood_plane_class_mapping[1] || terrain_height == u_terrain_scaling_min_9) {
 					discard;
 				}
 
@@ -423,6 +423,7 @@ class DynamicWaterLevel {
 					u_alpha: get(this.alpha),
 					u_terrain_scaling_min: terrainScalingMin,
 					u_terrain_scaling_max: terrainScalingMax,
+					u_depth_value_max: 255.0
 				}
 			},
 			translucent: true,
