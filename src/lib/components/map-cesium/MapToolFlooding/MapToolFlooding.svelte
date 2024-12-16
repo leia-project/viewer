@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { getContext, onDestroy, onMount } from "svelte";
 	import { writable, type Unsubscriber, type Writable, get } from "svelte/store";
-	import { Close, WaveHeight } from "carbon-icons-svelte";
-	import { Tabs, Tab, TabContent, Dropdown, Button, Slider, Search } from "carbon-components-svelte";
+	import { WaveHeight } from "carbon-icons-svelte";
+	import { Search } from "carbon-components-svelte";
 	import { _ } from "svelte-i18n";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import { LayerConfig } from "$lib/components/map-core/layer-config";
@@ -24,14 +24,14 @@
 	$: tool.label.set($_("tools.flooding.label"));
 
 	let iconLayer: IconLayer;
-	let floodLayer: FloodLayer;
+	let floodLayer: FloodLayer | undefined;
+	let layerControlRef;
 	
 	iconLayer = addIconLayer();
 
 	$: active = iconLayer.activeIcon;
 	$: hovered = iconLayer.hoveredIcon;
 	$: breaches = iconLayer.mapIcons;
-	$: mapLayers = map.layers;
 
 	let searchString = writable<string>("");
     let searchableList: Array<{ key: string; value: CesiumIcon }> = new Array<{ key: string; value: CesiumIcon }>();
@@ -40,7 +40,6 @@
 	function searchBreach() {
 		if (!breaches) return;
 		searchableList = $breaches.map((b) => ({ key: b.properties.naam.toLowerCase(), value: b }));
-		console.log(searchableList)
 		searchResults = searchableList.filter((item) => item.key.toLowerCase().includes(get(searchString).toLowerCase()) || get(searchString) === "")
 			.sort((a, b) => a.key.localeCompare(b.key))
 			.map((item) => item.value);
@@ -90,35 +89,42 @@
 
 	$: iconLayer.activeIcon.subscribe((breach) => {
 		if (!breach) {
-			if (floodLayer) {
-				floodLayer.hide();
-				floodLayer.removeFromMap();
-			}
+			removeFloodLayer();
 			return;
-		} else {
-			let layerId = "fl_" + breach.properties.naam;
-			if (floodLayer?.config?.id !== layerId) {
-				console.log(`adding flood layer for breach ${breach.properties.naam}`);
-				floodLayer = map.addLayer(new LayerConfig({
-					id: layerId,
-					type: "flood",
-					title: "Flood layer",
-					groupId: "",
-					legendUrl: "",
-					isBackground: false,
-					defaultAddToManager: true,
-					defaultOn: true,
-					transparent: false,
-					opacity: 0,
-					settings: {
-						url: "https://virtueel.zeeland.nl/tiles_other/flood_26_OS-dp15_300/layer.json",
-						resolution: 50
-					}
-				}));
-			}
+		}
+
+		let layerId = "fl_" + breach.properties.naam;
+		if (floodLayer?.config?.id !== layerId) {
+			removeFloodLayer();
+			floodLayer = map.addLayer(new LayerConfig({
+				id: layerId,
+				type: "flood",
+				title: "Flood layer",
+				groupId: "",
+				legendUrl: "",
+				isBackground: false,
+				defaultAddToManager: true,
+				defaultOn: true,
+				transparent: false,
+				opacity: 0,
+				settings: {
+					url: "https://virtueel.zeeland.nl/tiles_other/overstroming/27_SintMaartensdijk_30000/layer.json",
+					resolution: 50
+				}
+			}));
+
+			
 		}
 	});
 
+	function removeFloodLayer() {
+		if (floodLayer) {
+			floodLayer.hide();
+			floodLayer.removeFromMap();
+			floodLayer = undefined;
+			layerControlRef.$destroy();
+		}
+	}
 
 	registerTool(tool);
 
@@ -139,19 +145,15 @@
 					<svelte:fragment slot="info"> 
 						{#if $active }
 							<div class="info-content">
-								<LayerControlFlood
-									layer={floodLayer}
-									map={map}
-								/>
-
+								{#if floodLayer !== undefined}
+									<LayerControlFlood
+										bind:this={layerControlRef}
+										layer={floodLayer}
+										map={map}
+										showGlobeOpacitySlider={true}
+									/>
+								{/if}
 							</div>
-							<Button
-								kind="ghost"
-								iconDescription={undefined}
-								icon={Close}
-								size="small"
-								on:click={() => active.set(undefined)}
-							/>
 						{/if}
 					</svelte:fragment>
 					

@@ -476,7 +476,8 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 	public timeSliderValue: Writable<number> = writable(0);
 	public timeSliderLabel: string;
 	private timeUnsubscriber!: Unsubscriber;
-	public loaded: Promise<boolean>;
+	public loaded: Writable<boolean> = writable(false);
+	public loadedPromise: Promise<boolean>;
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
@@ -488,7 +489,8 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 
 		this.addControl()
 		this.addListeners()
-		this.loaded = this.loadData();
+		this.loadedPromise = this.loadData()
+		this.loadedPromise.then(() => this.loaded.set(true));
 
 	}
 
@@ -518,7 +520,7 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 	}
 
 	public async addToMap(): Promise<void> {
-		await this.loaded;
+		await this.loadedPromise;
 		this.map.viewer.scene.primitives.add(this.source);
 		if (get(this.visible) === true) {
 			this.show();

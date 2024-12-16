@@ -248,7 +248,9 @@
             "zoomToModel": "Zoom naar model"
         },
         "flooding": {
-            "label": "Overstromingen"
+            "label": "Overstromingen",
+            "measureDepth": "Diepte meten",
+            "waterTransparency": "Water Transparantie"
         }
     }
 }

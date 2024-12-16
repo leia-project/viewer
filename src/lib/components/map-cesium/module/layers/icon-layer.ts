@@ -100,7 +100,7 @@ export class IconLayer extends CustomLayer {
     }
     private leftClickHandle = (m: any) => {
         const obj = this.getObjectFromMouseLocation(m);
-        if (obj !== get(this.activeIcon)) this.activeIcon.set(obj);
+        if (obj !== get(this.activeIcon) && obj !== undefined) this.activeIcon.set(obj);
     }
 
     private addMouseEvents(): void {

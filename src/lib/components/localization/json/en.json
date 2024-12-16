@@ -241,7 +241,9 @@
             "zoomToModel": "Zoom to model"
         },
         "flooding": {
-            "label": "Flooding"
+            "label": "Flooding",
+            "measureDepth": "Measure",
+            "waterTransparency": "Water Transparency"
         }
     }
 }

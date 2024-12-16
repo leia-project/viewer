@@ -11,6 +11,7 @@
 
 	export let layer: FloodLayer;
 	export let map: Map;
+	export let showGlobeOpacitySlider: boolean = true;
 
 	let { timeSliderValue, timeSliderMin, timeSliderMax, timeSliderStep, opacity, loaded } = layer;
 	let playing: boolean = false;
@@ -25,10 +26,7 @@
 	);
 	let movingPoint: Cesium.Entity | undefined;
 
-	let ready; 
-	loaded.then(() => {
-		ready = true;
-	});
+	$: globeOpacity = map.options.globeOpacity;
 
 
 	function togglePlay() {
@@ -146,14 +144,28 @@
 	});
 </script>
 
-{#if !ready}
-	<Loading withOverlay={false} small />
+{#if !$loaded}
+	<div class="loading-wrapper">
+		<Loading withOverlay={false} small />
+	</div>
 {:else}
 	<div class="control-section">
 		<div class="wrapper">
+			{#if showGlobeOpacitySlider}
+				<Slider
+					hideTextInput
+					labelText={$_("tools.backgroundControls.opacity") + " " + $globeOpacity + "%"}
+					min={0}
+					max={100}
+					bind:value={$globeOpacity}
+					step={1}
+				/>
+			{/if}
+		</div>
+		<div class="wrapper">
 			<Slider 
 				value={$opacity}
-				labelText={$_('tools.layerManager.opacity') + ' ' + $opacity + '%'} 
+				labelText={$_('tools.flooding.waterTransparency') + ' ' + $opacity + '%'} 
 				fullWidth={true} 
 				on:input={(e) => {
 					layer.opacity.set(e.detail);
@@ -229,7 +241,7 @@
 	</div>
 	<div class="measure">
 		<div class="measure-checkbox">
-			<span class="label-02">Measure</span>
+			<span class="label-02">{$_("tools.flooding.measureDepth")}</span>
 			<Toggle
 				toggled={$enableMeasurement}
 				hideLabel={true}
@@ -244,7 +256,12 @@
 {/if}
 
 <style>
-
+	.loading-wrapper {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+	}
 	.wrapper {
 		margin-bottom: 8px;
 	}
@@ -257,12 +274,12 @@
 		margin: 10px 0 15px;
 		background-color: var(--cds-ui-01);
 		border-radius: 5px;
+		border: 1px solid var(--cds-ui-03);
 	}
 	.measure-checkbox {
 		display: flex;
 		align-items: center;
 		column-gap: 20px;
-		margin-bottom: 10px;
 		padding-left: 10px;
 	}
 	.label-02 {

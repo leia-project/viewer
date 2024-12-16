@@ -1,13 +1,9 @@
 <script lang="ts">
 	import type { Writable } from "svelte/store";
 	import { _ } from "svelte-i18n";
-	import { Button } from "carbon-components-svelte";
-	import { OverflowMenuHorizontal, Edit, Save, TrashCan, FetchUpload, ZoomIn, FavoriteFilled, AreaCustom, Location } from "carbon-icons-svelte";
-	import * as Cesium from "cesium";
-
-	import { onDestroy, onMount } from "svelte";
-	import type { Unsubscriber } from "svelte/motion";
+	import { Location, Close } from "carbon-icons-svelte";
 	import type { CesiumIcon } from "../module/cesium-icon";
+	import { Button } from "carbon-components-svelte";
 
 
 	export let breach: CesiumIcon;
@@ -26,29 +22,6 @@
 	$: activeBoolean = $active === breach;
 	$: name = breach.properties.naam;
 
-
-
-	let selectedProjectUnsubscriber: Unsubscriber;
-	let extentUnsubscriber: Unsubscriber;
-
-	// onMount(() => {
-	// 	if (!soilBatch.custom) {
-	// 		selectedProjectUnsubscriber = selectedProject.subscribe(() => {
-	// 			extentUnsubscriber?.();
-	// 			if (!$selectedProject) {
-	// 				extentUnsubscriber = cesiumHandler.cesiumMapLayer.extent.subscribe(checkInView);
-	// 			} else {
-	// 				inView = true;
-	// 			}
-	// 		});
-	// 	}
-	// });
-	onDestroy(() => {
-		selectedProjectUnsubscriber?.();
-		extentUnsubscriber?.();
-	});
-
-
 </script>
 
 
@@ -62,6 +35,15 @@
 		<div class="entry-body">
 			<div>{ name }</div>
 		</div>
+		{#if activeBoolean}
+			<Button
+				kind="ghost"
+				iconDescription={"Close"}
+				icon={Close}
+				size="small"
+				on:click={() => active.set(undefined)}
+			/>
+		{/if}
 	</div>
 	<slot name="info" />
 </div>
