@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { getContext, onDestroy, onMount } from "svelte";
-	import { writable, type Unsubscriber, type Writable, get } from "svelte/store";
+	import { getContext } from "svelte";
+	import { writable, get, type Writable } from "svelte/store";
 	import { WaveHeight } from "carbon-icons-svelte";
 	import { Search, Dropdown } from "carbon-components-svelte";
 	import { _ } from "svelte-i18n";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import { LayerConfig } from "$lib/components/map-core/layer-config";
-	import type { Map } from "$lib/components/map-cesium/module/map";
 	import type { IconLayer } from "../module/layers/icon-layer";
 	import BreachEntry from "./BreachEntry.svelte";
 	import type { CesiumIcon } from "../module/cesium-icon";
@@ -20,7 +19,16 @@
 	const icon: any = WaveHeight;
 	let label: string = $_("tools.flooding.label");
 	let showOnBottom: boolean = false;
+
 	let tool = new MapToolMenuOption(id, icon, label, showOnBottom);
+	$: settings = tool.settings;
+
+	tool.settings.subscribe((settings) => {
+        if (settings) {
+			console.log(settings)
+			iconLayer = addIconLayer();
+        }
+    });
 
 	$: tool.label.set($_("tools.flooding.label"));
 
@@ -28,21 +36,20 @@
 	let floodLayer: FloodLayer | undefined;
 	let layerControlRef;
 	
-	iconLayer = addIconLayer();
 
 	$: active = iconLayer.activeIcon;
 	$: hovered = iconLayer.hoveredIcon;
 	$: breaches = iconLayer.mapIcons;
 
-	let searchString = writable<string>("");
+	let searchString: Writable<string> = writable<string>("");
     let searchableList: Array<{ key: string; value: CesiumIcon }> = new Array<{ key: string; value: CesiumIcon }>();
     let searchResults: Array<CesiumIcon> = new Array<CesiumIcon>();
 
-	let scenario: string = "300";
+	let scenario: Writable<string> = writable()
 
 	function searchBreach() {
 		if (!breaches) return;
-		searchableList = $breaches.map((b) => ({ key: b.properties.naam.toLowerCase(), value: b }));
+		searchableList = $breaches.map((b) => ({ key: b.properties.name.toLowerCase(), value: b }));
 		searchResults = searchableList.filter((item) => item.key.toLowerCase().includes(get(searchString).toLowerCase()) || get(searchString) === "")
 			.sort((a, b) => a.key.localeCompare(b.key))
 			.map((item) => item.value);
@@ -57,7 +64,7 @@
 			iconLayer.show();
 			zoomToLayer();
 		} else {
-			iconLayer.hide();
+			if (iconLayer) iconLayer.hide();
 		}
 	});
 
@@ -81,7 +88,7 @@
 			title: "Breach Locations",
 			type: "icon",
 			settings: {
-                "url": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson"
+                "url": get(tool.settings).breachUrl
             },
 			isBackground: false,
 			defaultOn: true,
@@ -95,37 +102,52 @@
 			removeFloodLayer();
 			return;
 		}
-		console.log(breach);
+		// set current scenario to first in list
+		scenario.set(breach.properties.scenarios[0]);
+		addFloodLayer();
+	});
 
-		let layerId = "fl_" + breach.properties.naam;
+	$: scenario.subscribe((sc) => {
+		if (!get(iconLayer.activeIcon)) {
+			return;
+		}
+		addFloodLayer()
+	});
+
+	function addFloodLayer() {
+		let breach = get(iconLayer.activeIcon);
+		if (!breach) return;
+		
+		let layerId = `${breach.properties.dijkring}_${breach.properties.name}_${get(scenario)}`
 		if (floodLayer?.config?.id !== layerId) {
 			removeFloodLayer();
-			floodLayer = map.addLayer(new LayerConfig({
-				id: layerId,
-				type: "flood",
-				title: "Flood layer",
-				groupId: "",
-				legendUrl: "",
-				isBackground: false,
-				defaultAddToManager: true,
-				defaultOn: true,
-				transparent: false,
-				opacity: 0,
-				settings: {
-					url: "https://virtueel.zeeland.nl/tiles_other/overstroming/27_SintMaartensdijk_30000/layer.json",
-					resolution: 50
-				}
-			}));
-			// Fly to breach location
-			console.log(breach.billboard.position)
-			
-			map.viewer.flyTo(breach.billboard, {
-				duration: 1,
-				offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 5000)
-			});
-
+			try {
+				floodLayer = map.addLayer(new LayerConfig({
+					id: layerId,
+					type: "flood",
+					title: "Flood layer",
+					groupId: "",
+					legendUrl: "",
+					isBackground: false,
+					defaultAddToManager: true,
+					defaultOn: true,
+					transparent: false,
+					opacity: 0,
+					settings: {
+						url: `${$settings.scenariosBaseUrl}${layerId}/layer.json`,
+						resolution: 50
+					}
+				}));
+				// Fly to breach location
+				map.viewer.flyTo(breach.billboard, {
+					duration: 1,
+					offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 5000)
+				});
+			} catch (error) {
+				console.error(error);
+			}
 		}
-	});
+	}
 
 	function removeFloodLayer() {
 		if (floodLayer) {
@@ -155,17 +177,12 @@
 					<svelte:fragment slot="info"> 
 						{#if $active }
 							<div class="info-content">
-								<div class="wrapper">
-									<Dropdown
-										label={$_("tools.flooding.scenario")}
-										items=  {[
-											{ id: "300", text: "1:300" },
-											{ id: "3000", text: "1:3000" }
-										]}
-										bind:selectedId={scenario}
-										titleText={$_("tools.flooding.scenario")}
-									/>
-								</div>
+								<Dropdown
+									label={$_("tools.flooding.scenario")}
+									items={$active.properties.scenarios.map((sc) => ({ id: sc, text: "1:" + sc }))}
+									bind:selectedId={$scenario}
+									titleText={$_("tools.flooding.scenario")}
+								/>
 								{#if floodLayer !== undefined}
 									<LayerControlFlood
 										bind:this={layerControlRef}

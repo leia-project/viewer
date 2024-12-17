@@ -244,7 +244,8 @@
             "label": "Flooding",
             "measureDepth": "Measure",
             "waterTransparency": "Water Transparency",
-            "scenario": "Scenario"
+            "scenario": "Scenario",
+            "errorCouldNotLoad": "Could not load flooding data"
         }
     }
 }

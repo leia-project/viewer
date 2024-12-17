@@ -8,12 +8,13 @@
 	import { ArrowLeft, ArrowRight, Pause, Play } from "carbon-icons-svelte";
 	import type { Map } from "../module/map";
 	import { MapMeasurementFloodDepth } from "./map-measurement-flood-depth";
+	import ErrorMessage from "$lib/components/ui/components/ErrorMessage/ErrorMessage.svelte";
 
 	export let layer: FloodLayer;
 	export let map: Map;
 	export let showGlobeOpacitySlider: boolean = true;
 
-	let { timeSliderValue, timeSliderMin, timeSliderMax, timeSliderStep, opacity, loaded } = layer;
+	let { timeSliderValue, timeSliderMin, timeSliderMax, timeSliderStep, opacity, loaded, error } = layer;
 	let playing: boolean = false;
 	let intervalId: NodeJS.Timeout
 
@@ -143,10 +144,13 @@
 	});
 
 </script>
-
 {#if !$loaded}
 	<div class="loading-wrapper">
 		<Loading withOverlay={false} small />
+	</div>
+{:else if $error}
+	<div class="loading-wrapper">
+		<ErrorMessage message={$_("tools.flooding.errorCouldNotLoad")} />
 	</div>
 {:else}
 	<div class="control-section">
@@ -261,6 +265,7 @@
 		justify-content: center;
 		align-items: center;
 		height: 100%;
+		margin: var(--cds-spacing-05) 0;
 	}
 	.wrapper {
 		margin-bottom: 8px;

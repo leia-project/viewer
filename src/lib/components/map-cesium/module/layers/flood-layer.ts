@@ -478,6 +478,7 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 	private timeUnsubscriber!: Unsubscriber;
 	public loaded: Writable<boolean> = writable(false);
 	public loadedPromise: Promise<boolean>;
+	public error: Writable<boolean> = writable(false);
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
@@ -503,8 +504,13 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 			url: this.config.settings.url,
 			alpha: get(this.opacity) / 100
 		});
-
-		await this.plane.load()
+		
+		try {
+			await this.plane.load()
+		} catch (e) {
+			this.error.set(true);
+			return false;
+		}
 		if (this.plane) {
 			this.timeSliderMax.set(this.plane.waterLevels.length);
 			this.source = this.plane.primitive
