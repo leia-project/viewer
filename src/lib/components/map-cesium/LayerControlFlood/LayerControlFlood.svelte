@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Loading, Slider, Toggle } from "carbon-components-svelte";
+	import { Button, Dropdown, Loading, Slider, Toggle } from "carbon-components-svelte";
 	import * as Cesium from "cesium";
 
 	import type { FloodLayer } from "../module/layers/flood-layer";
@@ -27,7 +27,6 @@
 	let movingPoint: Cesium.Entity | undefined;
 
 	$: globeOpacity = map.options.globeOpacity;
-
 
 	function togglePlay() {
 		playing = !playing;
@@ -142,6 +141,7 @@
 			activate();
 		}
 	});
+
 </script>
 
 {#if !$loaded}

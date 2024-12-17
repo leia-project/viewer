@@ -243,7 +243,8 @@
         "flooding": {
             "label": "Flooding",
             "measureDepth": "Measure",
-            "waterTransparency": "Water Transparency"
+            "waterTransparency": "Water Transparency",
+            "scenario": "Scenario"
         }
     }
 }

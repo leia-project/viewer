@@ -2,7 +2,7 @@
 	import { getContext, onDestroy, onMount } from "svelte";
 	import { writable, type Unsubscriber, type Writable, get } from "svelte/store";
 	import { WaveHeight } from "carbon-icons-svelte";
-	import { Search } from "carbon-components-svelte";
+	import { Search, Dropdown } from "carbon-components-svelte";
 	import { _ } from "svelte-i18n";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import { LayerConfig } from "$lib/components/map-core/layer-config";
@@ -12,6 +12,7 @@
 	import type { CesiumIcon } from "../module/cesium-icon";
 	import LayerControlFlood from "../LayerControlFlood/LayerControlFlood.svelte";
 	import { FloodLayer } from "../module/layers/flood-layer";
+	import * as Cesium from "cesium";
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
@@ -36,6 +37,8 @@
 	let searchString = writable<string>("");
     let searchableList: Array<{ key: string; value: CesiumIcon }> = new Array<{ key: string; value: CesiumIcon }>();
     let searchResults: Array<CesiumIcon> = new Array<CesiumIcon>();
+
+	let scenario: string = "300";
 
 	function searchBreach() {
 		if (!breaches) return;
@@ -92,6 +95,7 @@
 			removeFloodLayer();
 			return;
 		}
+		console.log(breach);
 
 		let layerId = "fl_" + breach.properties.naam;
 		if (floodLayer?.config?.id !== layerId) {
@@ -112,8 +116,14 @@
 					resolution: 50
 				}
 			}));
-
+			// Fly to breach location
+			console.log(breach.billboard.position)
 			
+			map.viewer.flyTo(breach.billboard, {
+				duration: 1,
+				offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 5000)
+			});
+
 		}
 	});
 
@@ -145,6 +155,17 @@
 					<svelte:fragment slot="info"> 
 						{#if $active }
 							<div class="info-content">
+								<div class="wrapper">
+									<Dropdown
+										label={$_("tools.flooding.scenario")}
+										items=  {[
+											{ id: "300", text: "1:300" },
+											{ id: "3000", text: "1:3000" }
+										]}
+										bind:selectedId={scenario}
+										titleText={$_("tools.flooding.scenario")}
+									/>
+								</div>
 								{#if floodLayer !== undefined}
 									<LayerControlFlood
 										bind:this={layerControlRef}

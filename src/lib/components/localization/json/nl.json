@@ -250,7 +250,8 @@
         "flooding": {
             "label": "Overstromingen",
             "measureDepth": "Diepte meten",
-            "waterTransparency": "Water Transparantie"
+            "waterTransparency": "Water Transparantie",
+            "scenario": "Scenario"
         }
     }
 }
