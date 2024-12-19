@@ -4,7 +4,7 @@ import * as turf from "@turf/turf";
 
 import type { Map } from "$lib/components/map-cesium/module/map";
 import type { Unsubscriber } from "svelte/store";
-import { getPolygonCenter, polygonToCartesians } from "./project-helpers";
+import { getPolygonCenter, polygonToCartesians } from "$lib/components/map-cesium/module/utils/geo-utils";
 
 
 export class ProjectClippingPlanes {

@@ -84,22 +84,6 @@
                     }
                 ]
             }
-        },
-        {
-            "id": "4",
-            "type": "flood",
-            "title": "Flood layer",
-            "groupId": "",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": true,
-            "transparent": false,
-            "opacity": 0,
-            "settings": {
-                "url": "https://virtueel.zeeland.nl/tiles_other/flood_26_OS-dp15_300/layer.json",
-                "resolution": 50
-            }
         }
     ],
     "viewer": {
@@ -236,7 +220,7 @@
                 "resolutionScale": 1,
                 "maximumScreenSpaceError": 16,
                 "groundAtmosphere": true,
-                "globeOpacity": 10,
+                "globeOpacity": 100,
                 "lighting": true,
                 "skyAtmosphere": true,
                 "fog": true,
@@ -245,7 +229,7 @@
                 "terrainProviders": [
                     {
                         "title": "Zeeland 1m",
-                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
+                        "url": "https://95.217.154.75/tiles_other/zeeland_1m",
                         "vertexNormals": true
                     },
                     {
@@ -308,6 +292,14 @@
                         }
                     }
                 ]
+            }
+        },
+        {
+            "id": "flooding",
+            "enabled": true,
+            "settings": {
+                "scenariosBaseUrl": "https://95.217.154.75/tiles_other/overstroming/",
+                "breachUrl": "https://95.217.154.75/tiles_other/breslocaties.geojson"
             }
         },
         {

@@ -268,11 +268,16 @@ export class MapOptions {
 	public setGlobeOpacity(value: number): void {
 		var alpha = Math.max(0, value) / 100;
 
-		if (alpha >= 1.0) {
-			alpha = 1.0;
-			this.map.viewer.scene.globe.translucency.enabled = false;
+		if (alpha > 0) {
+			this.map.viewer.scene.globe.show = true;
+			if (alpha >= 1.0) {
+				alpha = 1.0;
+				this.map.viewer.scene.globe.translucency.enabled = false;
+			} else {
+				this.map.viewer.scene.globe.translucency.enabled = true;
+			}
 		} else {
-			this.map.viewer.scene.globe.translucency.enabled = true;
+			this.map.viewer.scene.globe.show = false;
 		}
 
 		this.map.viewer.scene.globe.translucency.frontFaceAlpha = alpha;

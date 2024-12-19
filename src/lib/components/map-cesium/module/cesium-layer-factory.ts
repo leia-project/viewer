@@ -15,6 +15,7 @@ import { GeoJsonLayer } from "./layers/geojson-layer";
 import { ArcGISLayer } from "./layers/arcgis-layer";
 import { DroppedGLBLayer } from "./layers/dropped-glb-layer";
 import { FloodLayer } from "./layers/flood-layer";
+import { IconLayer } from "./layers/icon-layer";
 
 export class CesiumLayerFactory {
 	public convert(map: Map, config: LayerConfig): CesiumLayer<unknown> | undefined {
@@ -41,6 +42,8 @@ export class CesiumLayerFactory {
 			*/
 			case "flood":
 				return this.createFloodLayer(map, config);
+			case "icon":
+				return this.createIconLayer(map, config);
 			case "modelanimation":
 				return this.createModelAnimation(map, config);
 			case "dropped-glb":
@@ -110,6 +113,10 @@ export class CesiumLayerFactory {
 
 	private createFloodLayer(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> {
 		return new FloodLayer(map, layerConfig);
+	}
+
+	private createIconLayer(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> {
+		return new IconLayer(map, layerConfig);
 	}
 
 	private createModelAnimation(map: Map, layerConfig: LayerConfig): ModelAnimation {
