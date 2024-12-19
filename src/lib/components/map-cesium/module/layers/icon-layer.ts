@@ -5,7 +5,7 @@ import type { Map } from "$lib/components/map-cesium/module/map";
 import { CesiumIcon } from '$lib/components/map-cesium/module/cesium-icon';
 import { CustomLayer } from "./custom-layer";
 
-import depotIcon from "$lib/components/map-cesium/MapToolFlooding/icon-breach.svg";
+import breachIcon from "$lib/components/map-cesium/MapToolFlooding/icon-breach.svg";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
 import { GeographicLocation } from "$lib/components/map-core/geographic-location";
 import { getCartesian2 } from "$lib/components/map-cesium/module/utils/geo-utils";
@@ -55,7 +55,7 @@ export class IconLayer extends CustomLayer {
                 data.features.map((feature: any) => {
                     const location = new GeographicLocation(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
                     const properties = feature.properties;
-                    const icon = new CesiumIcon(this.map, location, properties, depotIcon, this.colorProperties.custom, this.colorProperties.active, false);
+                    const icon = new CesiumIcon(this.map, location, properties, breachIcon, this.colorProperties.custom, this.colorProperties.active, false);
                     mapIcons.push(icon);
                     return location;
                 });
