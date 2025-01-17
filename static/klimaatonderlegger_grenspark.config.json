@@ -1,0 +1,1716 @@
+{
+    "name": "3D Viewer",
+    "layers": [
+        {
+            "id": "001",
+            "type": "wmts",
+            "title": "BRT Achtergrondkaart (WMTS)",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": true,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "attribution": "PDOK",
+            "settings": {
+                "url": "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0?",
+                "featureName": "standaard",
+                "contentType": "image/png"
+            }
+        },
+        {
+            "id": "002",
+            "type": "wmts",
+            "title": "Luchtfoto Actueel HR (WMTS)",
+            "groupId": "",
+            "legendUrl": "",
+            "isBackground": true,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 0,
+            "settings": {
+                "url": "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0",
+                "featureName": "Actueel_orthoHR",
+                "contenttype": "image/jpeg",
+                "matrixids": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"],
+                "matrixset": "EPSG:3857"
+            }
+        },
+        {
+            "id": "003",
+            "type": "wmts",
+            "title": "Topo Simple",
+            "groupId": "",
+            "legendUrl": "",
+            "isBackground": true,
+            "defaultAddToManager": true,
+            "defaultOn": true,
+            "settings": {
+                "url": "https://s.map5.nl/map/prze.zu1952/service?service=WMTS&request=GetCapabilities&version=1.0.0",
+                "featureName": "map5topo_simple",
+                "contentType": "image/jpeg",
+                "matrixids": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"],
+                "tileMatrixSetID": "webmerc_grid"
+            }
+        },
+        {
+            "id": "004",
+            "type": "wms",
+            "title": "Grenspark Groot Saeftinghe: Globale Begrenzing",
+            "groupId": "2",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/grenspark/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ext_ggs_gblbeg",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": true,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/grenspark/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "ext_ggs_gblbeg",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "005a",
+            "type": "3dtiles",
+            "title": "3D Gebouwen (NL)",
+            "groupId": "12",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/spotinfo_panden_nl/tileset.json"
+            }
+        },
+        {
+            "id": "005b",
+            "type": "3dtiles",
+            "title": "3D Gebouwen (BE)",
+            "groupId": "12",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/gebouwen_vlaanderen/tileset.json"
+            }
+        },
+        {
+            "id": "006",
+            "type": "3dtiles",
+            "title": "Getijdendok",
+            "groupId": "13",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/Toekomstplan_Getijdendok/tileset.json",
+                "defaultTheme": "Getijdendok",
+                "themes": [
+                    {
+                    "title": "Getijdendok",
+                    "conditions": [
+                        [
+                            "true",
+                            "color(\"#0000FF\")"
+                        ]
+                    ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "012",
+            "type": "3dtiles",
+            "title": "Windturbines",
+            "groupId": "12",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/windturbines_zeeland/tileset.json",
+                "shadows": true
+                }
+        },
+        {
+            "id": "100",
+            "type": "wms",
+            "title": "Bodemvlakken (BRO)",
+            "groupId": "1",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "soilarea",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-bodemkaart/wms/v1_0?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.3.0",
+                "featureName": "soilarea",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "101",
+            "type": "wms",
+            "title": "Vlakken van bodemkundig belang (BRO)",
+            "groupId": "1",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "areaofpedologicalinterest",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-bodemkaart/wms/v1_0?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.3.0",
+                "featureName": "areaofpedologicalinterest",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "103",
+            "type": "wms",
+            "title": "Dieptemetingen (BRO)",
+            "groupId": "1",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v2_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "104",
+            "type": "wms",
+            "title": "GHG - gemiddeld kleinste diepte (BRO)",
+            "groupId": "1",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen-GHG",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v2_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen-GHG",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "105",
+            "type": "wms",
+            "title": "GLG - gemiddeld grootste diepte (BRO)",
+            "groupId": "1",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen-GLG",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v2_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen-GLG",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "106",
+            "type": "wms",
+            "title": "GVG - gemiddelde diepte voorjaar (BRO)",
+            "groupId": "1",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen-GVG",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v2_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen-GVG",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "107",
+            "type": "wms",
+            "title": "GT - Grondwatertrappen (BRO)",
+            "groupId": "1",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen-GT",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v2_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen-GT",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "108",
+            "type": "wms",
+            "title": "Bodemhoogte",
+            "groupId": "1",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "Voor de Provincie Zeeland is adequaat digitaal inzicht in de hoogte van het terrein en in de wateren van groot belang. Bestaande beschikbare geodata is hiervoor bijgewerkt tot 1 dekkende bodemhoogte kaart. De bodemhoogte kaart is te gebruiken door ketenpartners waar de Provincie Zeeland mee samenwerkt in het kader van de Digital Twin. CC - SPOTinfo.",
+            "attribution": "digitaltwin%3Azeeland_1m",
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin/wms?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.1.1&request=GetMap&layers=digitaltwin%3Azeeland_1m",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "109",
+            "type": "3dtiles",
+            "title": "BHR",
+            "groupId": "1",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/BHR_Cesium_Tileset_Zeeland/tileset.json",
+                "shadows": false
+            }
+        },
+        {
+            "id": "110",
+            "type": "3dtiles",
+            "title": "FRESHEM",
+            "groupId": "1",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_grenspark/tileset.json",
+                "shadows": false,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "100": "0",
+                        "101": "150",
+                        "102": "300",
+                        "103": "500",
+                        "104": "750",
+                        "105": "1000",
+                        "106": "1250",
+                        "107": "1500",
+                        "108": "2000",
+                        "109": "3000",
+                        "110": "5000",
+                        "111": "7500",
+                        "112": "10000",
+                        "113": "15000"
+                    }
+                }
+            }
+        },
+        {
+            "id": "200",
+            "type": "wms",
+            "title": "BRP Gewaspercelen",
+            "groupId": "2",
+            "imageUrl": "",
+            "legendUrl": "https://service.pdok.nl/rvo/brpgewaspercelen/wms/v1_0/legend/BrpGewas/Default.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRP Gewaspercelen",
+            "settings": {
+                "url": "https://service.pdok.nl/rvo/brpgewaspercelen/wms/v1_0?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "BrpGewas",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "201",
+            "type": "wms",
+            "title": "Kadastrale percelen Grenspark",
+            "groupId": "2",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/grenspark/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=grenspark%3Aext_ggs_kadpertot",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Kadastrale percelen Grenspark",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/grenspark/wms?SERVICE=WMS&VERSION=1.3.0&layers=grenspark%3Aext_ggs_kadpertot",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "300",
+            "type": "wms",
+            "title": "1850",
+            "groupId": "3",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "attribution": "tmk_1850",
+            "settings": {
+                "url": "https://s.map5.nl/map/prze.zu1952/service?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.1.1",
+                "featureName": "tmk_1850",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "301",
+            "type": "wms",
+            "title": "Archeologische Monumentenkaart 2014",
+            "groupId": "3",
+            "imageUrl": "",
+            "legendUrl": "https://data.geo.cultureelerfgoed.nl/openbaar/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&SERVICE=WMS&LAYER=Archeologische_Monumentenkaart_2014&STYLE=AMK_2014_archeologische_waarde&WIDTH=20&HEIGHT=20&FORMAT=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Archeologische Monumentenkaart 2014",
+            "settings": {
+                "url": "https://data.geo.cultureelerfgoed.nl/openbaar/wms?service=WMS&version=1.3.0",
+                "featureName": "Archeologische_Monumentenkaart_2014",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "302",
+            "type": "wms",
+            "title": "Rijksmonumentpunten",
+            "groupId": "3",
+            "imageUrl": "",
+            "legendUrl": "https://data.geo.cultureelerfgoed.nl/openbaar/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&SERVICE=WMS&LAYER=rijksmonumentpunten&STYLE=Rijksmonumentpunten_juridische_status_Blauw&WIDTH=20&HEIGHT=20&FORMAT=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Rijksmonumentpunten",
+            "settings": {
+                "url": "https://data.geo.cultureelerfgoed.nl/openbaar/wms?service=WMS&version=1.3.0",
+                "featureName": "rijksmonumentpunten",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "303",
+            "type": "wms",
+            "title": "Rijksmonumenten",
+            "groupId": "3",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Rijksmonumenten",
+            "settings": {
+                "url": "https://services.rce.geovoorziening.nl/rce/wms?service=WMS&version=1.3.0",
+                "featureName": "NationalListedMonuments",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "304",
+            "type": "wms",
+            "title": "Stads- en dorpsgezichten",
+            "groupId": "3",
+            "imageUrl": "",
+            "legendUrl": "https://services.rce.geovoorziening.nl/rce/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=Townscapes",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Stads- en dorpsgezichten",
+            "settings": {
+                "url": "https://services.rce.geovoorziening.nl/rce/wms?service=WMS&version=1.3.0",
+                "featureName": "Townscapes",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "305",
+            "type": "wms",
+            "title": "Werelderfgoed",
+            "groupId": "3",
+            "imageUrl": "",
+            "legendUrl": "https://services.rce.geovoorziening.nl/rce/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=WorldHeritage",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Werelderfgoed",
+            "settings": {
+                "url": "https://services.rce.geovoorziening.nl/rce/wms?service=WMS&version=1.3.0",
+                "featureName": "WorldHeritage",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "400",
+            "type": "wms",
+            "title": "Grenspark Groot Saeftinghe: MAS Bezoekstippen (2022 & 2023)",
+            "groupId": "4",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/grenspark/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ext_ggs_mastelbez",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Grenspark Groot Saeftinghe: MAS Bezoekstippen (2022 & 2023)",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/grenspark/ows?service=WMS&version=1.3.0",
+                "featureName": "ext_ggs_mastelbez",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "401",
+            "type": "wms",
+            "title": "Habitatrichtlijn(deel)gebieden",
+            "groupId": "9",
+            "imageUrl": "",
+            "legendUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ps%3Aps_hbtrl_deel",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Habitatrichtlijn(deel)gebieden",
+            "settings": {
+                "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wms?service=WMS&version=1.3.0&layers=ps%3Aps_hbtrl_deel",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "402",
+            "type": "wms",
+            "title": "Vogelrichtlijngebieden",
+            "groupId": "9",
+            "imageUrl": "",
+            "legendUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ps%3Aps_vglrl",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Vogelrichtlijngebieden",
+            "settings": {
+                "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wms?service=WMS&version=1.3.0&layers=ps%3Aps_vglrl",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "403",
+            "type": "wms",
+            "title": "Natura2000 NL",
+            "groupId": "9",
+            "imageUrl": "",
+            "legendUrl": "https://service.pdok.nl/rvo/beschermdegebieden/natura2000/wms/v1_0/legend/PS.ProtectedSitesNatureConservation/PS.ProtectedSites.Default.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Natura2000 NL",
+            "settings": {
+                "url": "https://service.pdok.nl/rvo/beschermdegebieden/natura2000/wms/v1_0?service=WMS&version=1.3.0",
+                "featureName": "PS.ProtectedSitesNatureConservation",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "404",
+            "type": "wms",
+            "title": "Agrarische zoekgebieden 2024 (NL)",
+            "groupId": "10",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/natuur/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ext_nat_agz",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Agrarische zoekgebieden 2024 (NL)",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/natuur/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "ext_nat_agz",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "405",
+            "type": "wms",
+            "title": "Natuurbeheerplan Zeeland (NL)",
+            "groupId": "10",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/natuur/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ext_nat_nbp",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Natuurbeheerplan Zeeland (NL)",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/natuur/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "ext_nat_nbp",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "406",
+            "type": "wms",
+            "title": "ZoekGebiedKlimaat 2024 (NL)",
+            "groupId": "10",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/natuur/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ext_nat_nbpzkgebkli024",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "ZoekGebiedKlimaat 2024 (NL)",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/natuur/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "ext_nat_nbpzkgebkli024",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "407",
+            "type": "wms",
+            "title": "ZoekGebiedWater 2024 (NL)",
+            "groupId": "10",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/natuur/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ext_nat_nbpzkgebwtr024",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "ZoekGebiedWater 2024 (NL)",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/natuur/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "ext_nat_nbpzkgebwtr024",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "408",
+            "type": "wms",
+            "title": "Natuurbeheerplannen (BE)",
+            "groupId": "11",
+            "imageUrl": "",
+            "legendUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ps%3Aps_nbhp",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Natuurbeheerplannen (BE)",
+            "settings": {
+                "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wms?service=WMS&version=1.3.0&layers=ps%3Aps_nbhp",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "409",
+            "type": "wms",
+            "title": "Natuurdoelen Sigmaplan (BE)",
+            "groupId": "11",
+            "imageUrl": "",
+            "legendUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=lu%3Alu_ndl_sigma",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Natuurdoelen Sigmaplan (BE)",
+            "settings": {
+                "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wms?service=WMS&version=1.3.0&layers=lu%3Alu_ndl_sigma",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "410",
+            "type": "wms",
+            "title": "Natuurrichtplannen (BE)",
+            "groupId": "11",
+            "imageUrl": "",
+            "legendUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=lu%3Alu_nrp",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Natuurrichtplannen (BE)",
+            "settings": {
+                "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wms?service=WMS&version=1.3.0&layers=lu%3Alu_nrp",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "411",
+            "type": "wms",
+            "title": "Natuurstreefbeelden (BE)",
+            "groupId": "11",
+            "imageUrl": "",
+            "legendUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=lu%3Alu_nsb",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Natuurstreefbeelden (BE)",
+            "settings": {
+                "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wms?service=WMS&version=1.3.0&layers=lu%3Alu_nsb",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "412",
+            "type": "wms",
+            "title": "Openbare bossen en natuurdomeinen (BE)",
+            "groupId": "11",
+            "imageUrl": "",
+            "legendUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=am%3Aam_patdat",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Openbare bossen en natuurdomeinen beheerd door ANB in naam van de Vlaamse overheid",
+            "settings": {
+                "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wms?service=WMS&version=1.3.0&layers=am%3Aam_patdat",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "413",
+            "type": "wms",
+            "title": "Uitbreidingszones van natuurreservaten (BE)",
+            "groupId": "11",
+            "imageUrl": "",
+            "legendUrl": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ps%3Aps_uznres_anb",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Uitbreidingszones van de erkende en Vlaamse natuurreservaten",
+            "settings": {
+                "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/wms?service=WMS&version=1.3.0&layers=ps%3Aps_uznres_anb",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "500",
+            "type": "geojson",
+            "title": "Overstroming situatie na 24 uur",
+            "groupId": "8",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 50,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/overstroom_middelburg/DR29_mburg_24uur.geojson",
+                "theme": "diepte_mv"
+            }
+        },
+        {
+            "id": "501",
+            "type": "geojson",
+            "title": "Overstroming situatie na 48 uur",
+            "groupId": "8",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 50,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/overstroom_middelburg/DR29_mburg_48uur.geojson",
+                "theme": "diepte_mv"
+            }
+        },
+        {
+            "id": "502",
+            "type": "geojson",
+            "title": "Overstroming maximale diepte",
+            "groupId": "8",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 50,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/overstroom_middelburg/DR29_xxuur_WH_WD_4326_mburg_new.geojson",
+                "theme": "diepte_mv"
+            }
+        },
+        {
+            "id": "503",
+            "type": "geojson",
+            "title": "Waterspiegel",
+            "groupId": "5",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 50,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/waterspiegel_tot_dijk_7415.geojson",
+                "theme": "",
+                "style": {
+                    "fill": "#0000CD"
+                },
+                "tools": {
+                    "extrude": {
+                        "slider_min": 0,
+                        "slider_max": 20,
+                        "slider_step": 1
+                    }
+                }
+            }
+        },
+        {
+            "id": "504",
+            "type": "wms",
+            "title": "Hoogte_kust_2023_dsm_2m",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=hoogte_kust_2023_dsm_2m",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Hoogte_kust_2023_dsm_2m",
+            "settings": {
+                "url": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0",
+                "featureName": "hoogte_kust_2023_dsm_2m",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "505",
+            "type": "wms",
+            "title": "Hoogte_kust_2023_dsm_5m",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=hoogte_kust_2023_dsm_5m",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Hoogte_kust_2023_dsm_5m",
+            "settings": {
+                "url": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0",
+                "featureName": "hoogte_kust_2023_dsm_5m",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "506",
+            "type": "wms",
+            "title": "Hoogte_kust_2023_dtm_2m",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=hoogte_kust_2023_dtm_2m",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Hoogte_kust_2023_dtm_2m",
+            "settings": {
+                "url": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0",
+                "featureName": "hoogte_kust_2023_dtm_2m",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "507",
+            "type": "wms",
+            "title": "Hoogte_kust_2023_dtm_5m",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=hoogte_kust_2023_dtm_5m",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Hoogte_kust_2023_dtm_5m",
+            "settings": {
+                "url": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0",
+                "featureName": "hoogte_kust_2023_dtm_5m",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "508",
+            "type": "wms",
+            "title": "Hoogte_westerschelde_2023_dsm_2m_tif",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=hoogte_westerschelde_2023_dsm_2m_tif",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Hoogte_westerschelde_2023_dsm_2m_tif",
+            "settings": {
+                "url": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0",
+                "featureName": "hoogte_westerschelde_2023_dsm_2m_tif",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "509",
+            "type": "wms",
+            "title": "Hoogte_westerschelde_2023_dsm_5m_tif",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=hoogte_westerschelde_2023_dsm_5m_tif",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Hoogte_westerschelde_2023_dsm_5m_tif",
+            "settings": {
+                "url": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0",
+                "featureName": "hoogte_westerschelde_2023_dsm_5m_tif",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "510",
+            "type": "wms",
+            "title": "Hoogte_westerschelde_2023_dtm_2m_tif",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=hoogte_westerschelde_2023_dtm_2m_tif",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Hoogte_westerschelde_2023_dtm_2m_tif",
+            "settings": {
+                "url": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0",
+                "featureName": "hoogte_westerschelde_2023_dtm_2m_tif",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "511",
+            "type": "wms",
+            "title": "Hoogte_westerschelde_2023_dtm_5m_tif",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=hoogte_westerschelde_2023_dtm_5m_tif",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Hoogte_westerschelde_2023_dtm_5m_tif",
+            "settings": {
+                "url": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/hoogte_2023/ows?service=WMS&version=1.3.0",
+                "featureName": "hoogte_westerschelde_2023_dtm_5m_tif",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "512",
+            "type": "wms",
+            "title": "Bevoegd gezag (Water)",
+            "groupId": "5",
+            "imageUrl": "",
+            "legendUrl": "https://geo.scheldestromen.nl/arcgis/services/Extern/EXT_JZ_Grondwaterbeheer/MapServer/WMSServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=Bevoegd_gezag835",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Bevoegd gezag (Water)",
+            "settings": {
+                "url": "https://geo.scheldestromen.nl/arcgis/services/Extern/EXT_JZ_Grondwaterbeheer/MapServer/WMSServer?service=WMS&version=1.3.0&layers=Bevoegd_gezag835",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "513",
+            "type": "wms",
+            "title": "Grondwaterbeschermingsgebieden",
+            "groupId": "5",
+            "imageUrl": "",
+            "legendUrl": "https://geo.scheldestromen.nl/arcgis/services/Extern/EXT_JZ_Grondwaterbeheer/MapServer/WMSServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=Grondwaterbeschermingsgebieden",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Grondwaterbeschermingsgebieden",
+            "settings": {
+                "url": "https://geo.scheldestromen.nl/arcgis/services/Extern/EXT_JZ_Grondwaterbeheer/MapServer/WMSServer?service=WMS&version=1.3.0&layers=Grondwaterbeschermingsgebieden",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "514",
+            "type": "wms",
+            "title": "Grondwateronttrekkingen",
+            "groupId": "5",
+            "imageUrl": "",
+            "legendUrl": "https://geo.scheldestromen.nl/arcgis/services/Extern/EXT_JZ_Grondwaterbeheer/MapServer/WMSServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=Grondwateronttrekkingen",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Grondwateronttrekkingen",
+            "settings": {
+                "url": "https://geo.scheldestromen.nl/arcgis/services/Extern/EXT_JZ_Grondwaterbeheer/MapServer/WMSServer?service=WMS&version=1.3.0&layers=Grondwateronttrekkingen",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "515",
+            "type": "wms",
+            "title": "Infiltraties",
+            "groupId": "5",
+            "imageUrl": "",
+            "legendUrl": "https://geo.scheldestromen.nl/arcgis/services/Extern/EXT_JZ_Grondwaterbeheer/MapServer/WMSServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=Infiltraties",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Infiltraties",
+            "settings": {
+                "url": "https://geo.scheldestromen.nl/arcgis/services/Extern/EXT_JZ_Grondwaterbeheer/MapServer/WMSServer?service=WMS&version=1.3.0&layers=Infiltraties",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "516",
+            "type": "wms",
+            "title": "KRW Grondwaterlichamen (vlak)",
+            "groupId": "5",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/water/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_krwgrdwtrlchindvlk",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "KRW Grondwaterlichamen (vlak)",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/water/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "geonam_krwgrdwtrlchindvlk",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "517",
+            "type": "wms",
+            "title": "Primaire, secundaire en tertiaire waterlopen in Zeeland",
+            "groupId": "5",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/water/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_opvwtrprmwlplin",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Primaire, secundaire en tertiaire waterlopen in Zeeland",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/water/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "geonam_opvwtrprmwlplin",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "518",
+            "type": "wms",
+            "title": "Zoetwatervoorkomens",
+            "groupId": "5",
+            "imageUrl": "",
+            "legendUrl": "https://geo.scheldestromen.nl/arcgis/services/Extern/EXT_JZ_Grondwaterbeheer/MapServer/WMSServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=Zoetwatervoorkomens",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "Zoetwatervoorkomens",
+            "settings": {
+                "url": "https://geo.scheldestromen.nl/arcgis/services/Extern/EXT_JZ_Grondwaterbeheer/MapServer/WMSServer?service=WMS&version=1.3.0&layers=Zoetwatervoorkomens",
+                "featureName": "",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "599",
+            "type": "wms",
+            "title": "Luchtfoto Vlaanderen",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://geo.api.vlaanderen.be/OFW/wms?service=wms&version=1.3.0",
+                "featureName": "OFW",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "600",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2022 8cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2022_8cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "601",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2021 8cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2021_8cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "602",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2020 5cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2020_5cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "603",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2019 75mm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2019_75mm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "604",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2018 10cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2018_10cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "605",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2017 10cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?service=WMS&version=1.3.0",
+                "featureName": "Zld_2017_10cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "606",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2016 10cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2016_10cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "607",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2015 10cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2015_10cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "608",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2014 10cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2014_10cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "609",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2013 10cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2013_10cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "610",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2012 10cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2012_10cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "611",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2011 8cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2011_8cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "612",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2010 25cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2010_25cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "613",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2009 75mm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2009_75mm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "614",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2007 75mm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2007_75mm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "615",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2005 75mm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2005_75mm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "616",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 2003 50cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_2003_50cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "617",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 1970 50cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_1970_50cm",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "618",
+            "type": "wms",
+            "title": "Luchtfoto Zeeland 1959 50cm",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/Lufo/wms?SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Zld_1959_50cm",
+                "contenttype": "image/png"
+            }
+        }
+        
+                         
+    ],
+    "viewer": {
+        "title": "Klimaatonderlegger",
+        "subTitle": "",
+        "logo": "https://virtueel.zeeland.nl/global_assets/img/logo.svg",
+        "thumbnail": "/assets/previews/preview-grenspark.png",
+        "startPosition": {
+            "x": 4.20396,
+            "y": 51.04733,
+            "z": 19639.17545,
+            "heading": 360.00000,
+            "pitch": -34.77189,
+            "duration": 1.50
+        },
+        "terrain": {
+            "url": "https://virtueel.zeeland.nl/tiles/zeeland_basis_dt_1m",
+            "requestVertexNormals": true
+        },
+        "colors": {
+            "ui-background": "#ffffff",
+            "interactive-01": "#214170",
+            "interactive-02": "#171717",
+            "interactive-03": "#0062ff",
+            "interactive-04": "#0062ff",
+            "ui-01": "#f3f3f3",
+            "ui-02": "#ffffff",
+            "ui-03": "#dcdcdc",
+            "ui-04": "#8c8c8c",
+            "ui-05": "#171717",
+            "text-01": "#171717",
+            "text-02": "#565656",
+            "text-03": "#8c8c8c",
+            "text-04": "#ffffff",
+            "link-01": "#0062ff",
+            "icon-01": "#171717",
+            "icon-02": "#565656",
+            "icon-03": "#ffffff",
+            "field-01": "#f3f3f3",
+            "field-02": "#ffffff",
+            "inverse-01": "#ffffff",
+            "inverse-02": "#3d3d3d",
+            "support-01": "#da1e28",
+            "support-02": "#24a148",
+            "support-03": "#fdd13a",
+            "support-04": "#054ada",
+            "inverse-support-01": "#fb4b53",
+            "inverse-support-02": "#3dbb61",
+            "inverse-support-03": "#fdd13a",
+            "inverse-support-04": "#408bfc",
+            "overlay-01": "#171717CC",
+            "interaction-tokens": "#0062ff",
+            "hover-primary": "#376dbc",
+            "hover-primary-text": "#054ada",
+            "hover-secondary": "#4c4c4c",
+            "hover-tertiary": "#4cabd8",
+            "hover-ui": "#e5e5e5",
+            "hover-selected-ui": "#cacaca",
+            "hover-danger": "#ba1b23",
+            "hover-row": "#e5e5e5",
+            "active-primary": "#376dbc",
+            "active-secondary": "#6f6f6f",
+            "active-tertiary": "#0530ad",
+            "active-ui": "#bebebe",
+            "active-danger": "#750e13",
+            "selected-ui": "#dcdcdc",
+            "highlight": "#C9deff",
+            "skeleton-01": "#e5e5e5",
+            "skeleton-02": "#bebebe",
+            "visited-link": "#'Visited links'",
+            "disabled-01": "#f3f3f3",
+            "disabled-02": "#bebebe",
+            "disabled-03": "#8c8c8c"
+        }
+    },
+    "groups": [
+        {
+            "id": "2",
+            "title": "Administratieve grenzen",
+            "parentId": ""
+        },
+        {
+            "id": "1",
+            "title": "Bodem",
+            "parentId": ""
+        },
+        {
+            "id": "3",
+            "title": "Cultuur en erfgoed",
+            "parentId": ""
+        },
+        {
+            "id": "12",
+            "title": "Gebouwen en inrichtingselementen",
+            "parentId": ""
+        },
+        {
+            "id": "4",
+            "title": "Natuur",
+            "parentId": ""
+        },
+        {
+            "id": "13",
+            "title": "Toekomstplannen",
+            "parentId": ""
+        },
+        {
+            "id": "5",
+            "title": "Water",
+            "parentId": ""
+        },
+        {
+            "id": "6",
+            "title": "Luchtfoto's",
+            "parentId": ""
+        },
+        {
+            "id": "7",
+            "title": "RWS Hoogte",
+            "parentId": "5"
+        },
+        {
+            "id": "8",
+            "title": "Overstromingsscenario's",
+            "parentId": "5"
+        },
+        {
+            "id": "9",
+            "title": "Habitat- en vogelrichtlijngebieden",
+            "parentId": "4"
+        },
+        {
+            "id": "10",
+            "title": "Nederland Natuurbeheerplannen",
+            "parentId": "4"
+        },
+        {
+            "id": "11",
+            "title": "België Natuurbeheerplannen",
+            "parentId": "4"
+        }
+        ,
+        {
+            "id": "geonetwork",
+            "title": "Dataportaal Zeeland",
+            "parentId": ""
+        }
+    ],
+    "tools": [
+        {
+            "id": "layerlibrary",
+            "enabled": true,
+            "settings": {
+                "connectors": [
+                    {
+                        "type": "geonetwork",
+                        "url": "https://dataportaal.zeeland.nl/dataportaal"
+                    }
+                    ],
+                "useTags": true
+            }
+        },
+        {
+            "id": "layermanager",
+            "enabled": true,
+            "settings": {}
+        },
+        {
+            "id": "featureinfo",
+            "enabled": true
+        },  
+        {
+            "id": "info",
+            "enabled": true,
+            "settings": {
+                "title": "Grenspark Groot Saeftinghe",
+                "description": "<div class='body-02'><br><h2>Wat is een Digital Twin?</h2><br>Een digital twin is een digitale kopie van de werkelijkheid, bedoeld om te monitoren, scenarios te bedenken en voorspellingen te doen. Daar ligt vaak een (reken)model aan ten grondslag. Meest bekend zijn digital twins die laten zien 'hoe iets er uit zou komen te zien' in de echte wereld. Maar je kunt een digital twin ook gebruiken om de sociaal-culturele, natuurlijke en economische context van een onderwerp beter te begrijpen.<br><br> Door een situatie virtueel in beeld te brengen, kan je zowel een probleem als mogelijke oplossingen inzichtelijk maken vanuit verschillende invalshoeken.<br><br>Elke digitale representatie van de werkelijkheid is in essentie conceptueel. Een digital twin - hoe nauwkeurig en realistisch het ook lijkt - blijft een representatie, een vereenvoudiging van de werkelijkheid en is bedoeld als hulpmiddel bij het nemen van beslissingen.<br><br></div>"
+            }
+        },
+        {
+            "id": "help",
+            "enabled": true,
+            "settings": {
+                "showOnStart": true
+            }
+        },
+        {
+            "id": "bookmarks",
+            "enabled": true,
+            "settings": {
+                "bookmarks": [
+                    {
+                        "title": "Verdronken land van Saeftinghe",
+                        "description": "Dit is de grootste brak waterschor van Europa.",
+                        "x": 4.16924,
+                        "y": 51.29199,
+                        "z": 4547.79957,
+                        "heading": 360.00000,
+                        "pitch": -34.77189,
+                        "duration": 1.50
+                    }
+                ]
+            }
+        },
+        {
+            "id": "cesium",
+            "enabled": true,
+            "settings": {
+                "showMouseCoordinates": false,
+                "fxaa": true,
+                "shadows": false,
+                "animate": true,
+                "resolutionScale": 1,
+                "maximumScreenSpaceError": 16,
+                "groundAtmosphere": true,
+                "lighting": true,
+                "skyAtmosphere": true,
+                "fog": true,
+                "highDynamicRange": false,
+                "pointCloudAttenuationMaximum": 2,
+                "terrainProviders": [
+                  {
+                    "title": "Zeeland 1m",
+                    "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
+                    "vertexNormals": true
+                  },
+                  {
+                    "title": "Uit"
+                  }
+                ]
+            }
+        },
+        {
+            "id": "stories",
+            "enabled": true,
+            "settings": {
+                "stories": [
+                    {
+                        "name": "My story",
+                        "description": "Description of my story",
+                        "width": "600px",
+                        "steps": [
+                            {
+                                "title": "Title of step",
+                                "html": "<div>Content of the step.</div>",
+                                "globeOpacity": 100,
+                                "terrain": "Uit",
+                                "camera": {
+                                    "x": 5.23907,
+                                    "y": 52.20004,
+                                    "z": 13130.05823,
+                                    "heading": 335.10694,
+                                    "pitch": -30.69127,
+                                    "duration": 1.5
+                                },
+                                "layers": [
+                                    {
+                                        "id": "8352260480948"
+                                    },
+                                    {
+                                        "id": "19747667-ddb2-4162-99f6-a37d5aaa15ea",
+                                        "style": "Bouwjaar"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "measure",
+            "enabled": true
+        },
+        {
+            "id": "search",
+            "enabled": false
+        },
+        {
+            "id": "geocoder",
+            "enabled": true
+        }
+    ]
+}
