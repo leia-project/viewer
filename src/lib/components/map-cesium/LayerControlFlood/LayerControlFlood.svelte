@@ -29,6 +29,14 @@
 
 	$: globeOpacity = map.options.globeOpacity;
 
+	// This doesn't work without a "$:" prefix, which causes each step to add additional subscriptions
+	// layer.timeSliderValue.subscribe((value) => {
+	// 	if (value !== $timeSliderValue) {
+	// 		$timeSliderValue = value;
+	// 	}
+	// 	console.log($timeSliderValue, timeSliderValue)
+	// });
+
 	function togglePlay() {
 		playing = !playing;
 		if (playing) {
@@ -39,6 +47,7 @@
 					clearInterval(intervalId);
 					return $timeSliderMin;
 				}
+				$timeSliderValue = value + $timeSliderStep;
 				return value + $timeSliderStep;
 				});
 			}, 1000);
@@ -185,7 +194,7 @@
 		<div class="label-01">Time slider</div>
 		<div class="wrapper">
 			<Slider 
-				value={$timeSliderValue}
+				bind:value={$timeSliderValue}
 				labelText={String($timeSliderValue) + " uur sinds bres"} 
 				fullWidth={true} 
 				on:input={(e) => {
@@ -207,7 +216,9 @@
 				icon="{ArrowLeft}"
 				iconDescription={$_('tools.animation.previous')}
 				on:click={() => {
-					layer.timeSliderValue.update((value) => value - $timeSliderStep);
+					// After switching scenario or breach, the Slider no longer listens to layer.timeSliderValue, so #timeSliderValue must be updated manually
+					layer.timeSliderValue.update((value) => {$timeSliderValue -= 1; return value - $timeSliderStep});	
+					// layer.timeSliderValue.update((value) => value - $timeSliderStep);	
 				}}
 			/>
 			{#if !playing}
@@ -238,7 +249,9 @@
 				icon="{ArrowRight}"
 				iconDescription={$_('tools.animation.next')}
 				on:click={() => {
-					layer.timeSliderValue.update((value) => value + $timeSliderStep);
+					// After switching scenario or breach, the Slider no longer listens to layer.timeSliderValue, so #timeSliderValue must be updated manually
+					layer.timeSliderValue.update((value) => {$timeSliderValue += 1; return value + $timeSliderStep});
+					// layer.timeSliderValue.update((value) => value + $timeSliderStep);	
 				}}
 			/>
 		</div>

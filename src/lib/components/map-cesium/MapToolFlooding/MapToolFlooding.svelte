@@ -55,7 +55,7 @@
 			.map((item) => item.value);
 	}
 
-	$: searchString.subscribe(() => {
+	searchString.subscribe(() => {
 		searchBreach();
 	});
 
@@ -104,10 +104,9 @@
 		}
 		// set current scenario to first in list
 		scenario.set(breach.properties.scenarios[0]);
-		addFloodLayer();
 	});
 
-	$: scenario.subscribe((sc) => {
+	$: scenario.subscribe(() => {
 		if (!get(iconLayer.activeIcon)) {
 			return;
 		}
@@ -118,7 +117,7 @@
 		let breach = get(iconLayer.activeIcon);
 		if (!breach) return;
 		
-		let layerId = `${breach.properties.dijkring}_${breach.properties.name}_${get(scenario)}`
+		let layerId = `${breach.properties.dijkring}_${breach.properties.name}_${get(scenario)}`;
 		if (floodLayer?.config?.id !== layerId) {
 			removeFloodLayer();
 			try {
@@ -147,6 +146,7 @@
 				console.error(error);
 			}
 		}
+	console.log("added flood layer")
 	}
 
 	function removeFloodLayer() {
@@ -154,7 +154,9 @@
 			floodLayer.hide();
 			floodLayer.removeFromMap();
 			floodLayer = undefined;
-			layerControlRef.$destroy();
+			// layerControlRef.$destroy();
+			// layerControlRef was destroyed but never instantiated again, so it breaks
+			console.log("removed flood layer")
 		}
 	}
 
