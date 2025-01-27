@@ -831,7 +831,7 @@
             }
         },
         {
-            "id": "4018",
+            "id": "4017",
             "type": "arcgis",
             "title": "Ruimtelijk afwegingskader: Sturingskaart blootstelling overstroming",
             "groupId": "waterveiligheid",
@@ -1099,12 +1099,12 @@
             "type": "wms",
             "title": "Afwateringsgebieden",
             "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/wbn/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_opvwtrafvgbdvlk",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=water%3Ageonam_opvwtrafvgbdvlk",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/wbn/wms?SERVICE=WMS&VERSION=1.3.0",
+                "url": "https://opengeodata.zeeland.nl/geoserver/water/wms?SERVICE=WMS&VERSION=1.3.0",
                 "featureName": "geonam_opvwtrafvgbdvlk",
                 "contenttype": "image/png"
             }
@@ -1298,7 +1298,7 @@
             "type": "arcgis",
             "title": "Zoutvracht naar oppervlaktewater voor huidige situatie",
             "groupId": "waterkwaliteit",
-            "legendUrl": "https://geoservices.zuid-holland.nl/arcgis/rest/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/legend",
+            "legendUrl": "https://geoservices.zuid-holland.nl/arcgis/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/WMSServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=29",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
@@ -1312,7 +1312,7 @@
             "type": "arcgis",
             "title": "Zoutvracht naar oppervlaktewater voor huidige situatie Waterschap Hollandsche Delta",
             "groupId": "waterkwaliteit",
-            "legendUrl": "https://geoservices.zuid-holland.nl/arcgis/rest/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/legend",
+            "legendUrl": "https://geoservices.zuid-holland.nl/arcgis/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/WMSServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=28",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
@@ -1324,15 +1324,60 @@
         {
             "id": "6009",
             "type": "arcgis",
-            "title": "Interne verzilting",
+            "title": "Indicatie verzilting op de lange termijn ",
             "groupId": "waterkwaliteit",
-            "legendUrl": "https://geoservices.zuid-holland.nl/arcgis/rest/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/legend",
+            "legendUrl": "https://geoservices.zuid-holland.nl/arcgis/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/WMSServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=30",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": { 
                 "url": "https://geoservices.zuid-holland.nl/arcgis/rest/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/",
-                "layers": [19]
+                "layers": [18]
+            }
+        },
+        {
+            "id": "6010",
+            "type": "wms",
+            "title": "Ligging grensvlak zoet zout grondwater (Deltares, 2020)",
+            "groupId": "waterkwaliteit",
+            "legendUrl": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ligging_grensvlak_tussen_zoet_en_zout_grondwater&servicekey=bf852b88-fd6a-11ea-932f-005056805b87",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/wms?service=wms&REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "ligging_grensvlak_tussen_zoet_en_zout_grondwater",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "6011",
+            "type": "wms",
+            "title": "Zoutvracht 1m zeespiegelstijging",
+            "groupId": "waterkwaliteit",
+            "legendUrl": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=zoutvracht_verschil_1m&servicekey=bf852b88-fd6a-11ea-932f-005056805b87",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/wms?service=wms&REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "zoutvracht_verschil_1m",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "6012",
+            "type": "wms",
+            "title": "Doorspoeling 1m zeespiegelstijging",
+            "groupId": "waterkwaliteit",
+            "legendUrl": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=Verandering_doorspoelwatervraag_1m_ZSS&servicekey=bf852b88-fd6a-11ea-932f-005056805b87",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/wms?service=wms&REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0",
+                "featureName": "Verandering_doorspoelwatervraag_1m_ZSS",
+                "contenttype": "image/png"
             }
         },
         {
@@ -1521,11 +1566,11 @@
         "subTitle": "3D viewer",
         "logo": "images/leia_logo.png",
         "startPosition": {
-            "x": 5.40068,
-            "y": 51.20089,
-            "z": 55885.52117,
+            "x": 3.96280,
+            "y": 51.49285,
+            "z": 108025.35868,
             "heading": 360.00000,
-            "pitch": -34.77194,
+            "pitch": -90.00000,
             "duration": 1.50
         },
         "colors": {
