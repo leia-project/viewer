@@ -239,6 +239,13 @@
             "trackModel": "Track model",
             "stopTracking": "Stop tracking",
             "zoomToModel": "Zoom to model"
+        },
+        "flooding": {
+            "label": "Flooding",
+            "measureDepth": "Measure",
+            "waterTransparency": "Water Transparency",
+            "scenario": "Scenario",
+            "errorCouldNotLoad": "Could not load flooding data"
         }
     }
 }

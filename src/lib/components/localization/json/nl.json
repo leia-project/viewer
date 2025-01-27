@@ -246,6 +246,13 @@
             "trackModel": "Model volgen",
             "stopTracking": "Stop met volgen",
             "zoomToModel": "Zoom naar model"
+        },
+        "flooding": {
+            "label": "Overstromingen",
+            "measureDepth": "Diepte meten",
+            "waterTransparency": "Water Transparantie",
+            "scenario": "Scenario",
+            "errorCouldNotLoad": "Kan overstromingsdata niet laden"
         }
     }
 }

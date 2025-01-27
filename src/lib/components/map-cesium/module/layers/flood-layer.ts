@@ -293,6 +293,7 @@ class DynamicWaterLevel {
 			uniform float u_alpha_8;
 			uniform float u_terrain_scaling_min_9;
 			uniform float u_terrain_scaling_max_10;
+			uniform float u_depth_value_max_11;
 
 			in vec3 position3DHigh;
 			in vec3 position3DLow;
@@ -309,8 +310,8 @@ class DynamicWaterLevel {
 
 			float computeDepth(vec2 _st) {
 				_st = clamp(_st, vec2(0.0), vec2(1.0));
-				float depth_t1 = flood_plane_class_mapping[int(texture(u_depth_t1_2, _st).r * 255.0)];
-				float depth_t2 = flood_plane_class_mapping[int(texture(u_depth_t2_3, _st).r * 255.0)];
+				float depth_t1 = flood_plane_class_mapping[int(texture(u_depth_t1_2, _st).r * u_depth_value_max_11)];
+				float depth_t2 = flood_plane_class_mapping[int(texture(u_depth_t2_3, _st).r * u_depth_value_max_11)];
 				float depth = mix(depth_t1, depth_t2, u_progress_0);
 				return depth;
 			}
@@ -330,8 +331,7 @@ class DynamicWaterLevel {
 
 			void main() {
                 vec4 p = czm_computePosition();
- 
-				float terrain_height = texture(u_terrain_1, v_st).r * (u_terrain_scaling_max_10 - u_terrain_scaling_min_9) + u_terrain_scaling_min_9;
+				float terrain_height = texture(u_terrain_1, st).r * (u_terrain_scaling_max_10 - u_terrain_scaling_min_9) + u_terrain_scaling_min_9;
                 float depth = computeDepth(st);
                
                 // Height exaggeration relative to terrain:
@@ -357,8 +357,8 @@ class DynamicWaterLevel {
            
             float computeDepth(vec2 _st) {
                 _st = clamp(_st, vec2(0.0), vec2(1.0));
-                float depth_t1 = flood_plane_class_mapping[int(texture(u_depth_t1_2, _st).r * 255.0)];
-				float depth_t2 = flood_plane_class_mapping[int(texture(u_depth_t2_3, _st).r * 255.0)];
+                float depth_t1 = flood_plane_class_mapping[int(texture(u_depth_t1_2, _st).r * u_depth_value_max_11)];
+				float depth_t2 = flood_plane_class_mapping[int(texture(u_depth_t2_3, _st).r * u_depth_value_max_11)];
                 float depth = mix(depth_t1, depth_t2, u_progress_0);
                 return depth;
             }
@@ -376,7 +376,7 @@ class DynamicWaterLevel {
 
 				float terrain_height = texture(u_terrain_1, v_st).r * (u_terrain_scaling_max_10 - u_terrain_scaling_min_9) + u_terrain_scaling_min_9;
 				float depth = computeDepth(v_st);
-				if (depth == flood_plane_class_mapping[0] || terrain_height == u_terrain_scaling_min_9) {
+				if (depth == flood_plane_class_mapping[0] || depth == flood_plane_class_mapping[1] || terrain_height == u_terrain_scaling_min_9) {
 					discard;
 				}
 
@@ -423,6 +423,7 @@ class DynamicWaterLevel {
 					u_alpha: get(this.alpha),
 					u_terrain_scaling_min: terrainScalingMin,
 					u_terrain_scaling_max: terrainScalingMax,
+					u_depth_value_max: 255.0
 				}
 			},
 			translucent: true,
@@ -448,7 +449,7 @@ class DynamicWaterLevel {
 			vertexShaderSource: vertexShader,
 			fragmentShaderSource: fragmentShader,
 			translucent: true,
-			flat: false,
+			flat: true,
 			faceForward: false,
 			closed: false,
 			renderState: renderState
@@ -475,7 +476,9 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 	public timeSliderValue: Writable<number> = writable(0);
 	public timeSliderLabel: string;
 	private timeUnsubscriber!: Unsubscriber;
-	public loaded: Promise<boolean>;
+	public loaded: Writable<boolean> = writable(false);
+	public loadedPromise: Promise<boolean>;
+	public error: Writable<boolean> = writable(false);
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
@@ -487,7 +490,8 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 
 		this.addControl()
 		this.addListeners()
-		this.loaded = this.loadData();
+		this.loadedPromise = this.loadData()
+		this.loadedPromise.then(() => this.loaded.set(true));
 
 	}
 
@@ -500,8 +504,13 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 			url: this.config.settings.url,
 			alpha: get(this.opacity) / 100
 		});
-
-		await this.plane.load()
+		
+		try {
+			await this.plane.load()
+		} catch (e) {
+			this.error.set(true);
+			return false;
+		}
 		if (this.plane) {
 			this.timeSliderMax.set(this.plane.waterLevels.length);
 			this.source = this.plane.primitive
@@ -517,7 +526,7 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 	}
 
 	public async addToMap(): Promise<void> {
-		await this.loaded;
+		await this.loadedPromise;
 		this.map.viewer.scene.primitives.add(this.source);
 		if (get(this.visible) === true) {
 			this.show();
