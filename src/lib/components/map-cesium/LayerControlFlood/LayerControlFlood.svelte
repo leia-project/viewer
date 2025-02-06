@@ -56,8 +56,8 @@
                     tileWidth: 40640
                 },
                 parameters: {
-                    scenario: "flood_26_OS-dp15_300",
-                    timestep: timestep.toString(),
+                    scenario: "26_NzSch-dp_160_300",
+                    timestep: (timestep * 6).toString(),
                     limit: "1420"
                 }
             },

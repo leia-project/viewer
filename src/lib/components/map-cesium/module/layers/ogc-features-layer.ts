@@ -8,9 +8,9 @@ import { get } from "svelte/store";
 
 export class OgcFeaturesLayer extends CesiumLayer<OgcFeaturesProviderCesium> {
 
-	constructor(map: Map, config: LayerConfig) {
+    constructor(map: Map, config: LayerConfig, timesliderValue: Writable<number>) {
         super(map, config);
-        this.source = new OgcFeaturesProviderCesium(this.config.settings.url, this.config.settings.options, this.config.settings.parameters);
+        this.source = new OgcFeaturesProviderCesium(this.config.settings.url, this.config.settings.options, timesliderValue, this.config.settings.parameters);
     }
 
     public async addToMap(): Promise<void> {

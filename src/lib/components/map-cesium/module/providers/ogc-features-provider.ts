@@ -2,6 +2,8 @@ import * as Cesium from "cesium";
 import type { Map } from "../map";
 import type { Unsubscriber } from "svelte/motion";
 import * as turf from "@turf/turf";
+import { time } from "svelte-i18n";
+import type { Writable } from "svelte/store";
 
 
 interface OgcFeaturesTile {
@@ -64,7 +66,9 @@ export class OgcFeaturesProviderCesium {
 	public setupPromise: Promise<void> | undefined;
 	public showing: boolean = false;
 
-	constructor(url: string, options: Partial<OgcFeaturesConstructorOptions>, parameters?: Record<string, string>) {
+	public timeSliderValue: Writable<number> | undefined;
+
+	constructor(url: string, options: Partial<OgcFeaturesConstructorOptions>, timeSliderValue?: Writable<number>, parameters?: Record<string, string>) {
 		const {
 			collectionId = "",
 			allowPicking = true
@@ -77,7 +81,9 @@ export class OgcFeaturesProviderCesium {
 
 		this.collectionId = collectionId;
 		this.allowPicking = allowPicking;
+		this.timeSliderValue = timeSliderValue;
 	}
+
 
 	public addToMap(map: Map, show: boolean = true): void {
 		this.map = map;

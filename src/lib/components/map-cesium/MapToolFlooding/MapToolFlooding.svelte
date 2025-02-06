@@ -210,9 +210,9 @@
 							"tileWidth": 40640
 						},
 						"parameters": { 
-							"scenario": "flood_26_OS-dp15_300",
+							"scenario": "26_NzSch-dp_160_300",
 							// "scenario": layerId, // scenario not yet formatted correctly in data
-							"timestep": "01188",
+							"timestep": "01440",
 							"limit": "1420"
 						}
 					},
