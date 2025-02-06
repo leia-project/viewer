@@ -10,7 +10,7 @@ export class OgcFeaturesLayer extends CesiumLayer<OgcFeaturesProviderCesium> {
 
 	constructor(map: Map, config: LayerConfig) {
         super(map, config);
-        this.source = new OgcFeaturesProviderCesium(this.config.settings.url, this.config.settings.options);
+        this.source = new OgcFeaturesProviderCesium(this.config.settings.url, this.config.settings.options, this.config.settings.parameters);
     }
 
     public async addToMap(): Promise<void> {

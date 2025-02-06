@@ -6,6 +6,8 @@
 	import { _ } from "svelte-i18n";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import { LayerConfig } from "$lib/components/map-core/layer-config";
+	// import type { WfsLayer } from "../module/layers/wfs-layer";
+	import { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
 	import type { IconLayer } from "../module/layers/icon-layer";
 	import BreachEntry from "./BreachEntry.svelte";
 	import type { CesiumIcon } from "../module/cesium-icon";
@@ -27,16 +29,18 @@
         if (settings) {
 			console.log(settings)
 			iconLayer = addIconLayer();
+			// roadsLayer = addAllRoadsLayer(); // Takes too long to load currently
         }
     });
 
 	$: tool.label.set($_("tools.flooding.label"));
 
 	let iconLayer: IconLayer;
+	let allRoadsLayer: OgcFeaturesLayer;
 	let floodLayer: FloodLayer | undefined;
+	let floodedRoadsLayer: OgcFeaturesLayer | undefined;
 	let layerControlRef;
 	
-
 	$: active = iconLayer.activeIcon;
 	$: hovered = iconLayer.hoveredIcon;
 	$: breaches = iconLayer.mapIcons;
@@ -97,6 +101,31 @@
 		return map.addLayer(layerConfig);
 	}
 
+	function addAllRoadsLayer() {
+		let breach = get(iconLayer.activeIcon);
+		if (!breach) return;
+
+		// add roads layer with all roads
+		const layerConfig = new LayerConfig({
+			id: "all_roads",
+			title: "Wegen",
+			type: "ogc-features",
+			settings: {
+				"url": "http://localhost:5000/",
+                "options": {
+                    "collectionId": "nwb",
+                    "heightStartLoading": 50000,
+                    "maxFeatures": 10,
+                    "tileWidth": 1024
+                }
+			},
+			isBackground: false,
+			defaultOn: true,
+			defaultAddToManager: false,
+		});
+		return map.addLayer(layerConfig);
+	}
+
 	$: iconLayer.activeIcon.subscribe((breach) => {
 		if (!breach) {
 			removeFloodLayer();
@@ -110,13 +139,25 @@
 		if (!get(iconLayer.activeIcon)) {
 			return;
 		}
-		addFloodLayer()
+		addFloodsAndRoads();
 	});
 
-	function addFloodLayer() {
+	async function addFloodsAndRoads() {
 		let breach = get(iconLayer.activeIcon);
 		if (!breach) return;
-		
+
+		// Fly to breach location
+		await map.viewer.flyTo(breach.billboard, {
+				duration: 3,
+				offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 5000)
+			});
+		addFloodLayer(breach);
+		addFloodedRoadsLayer(breach);
+	}
+
+	function addFloodLayer(breach) {
+		// add flood layer for specific scenario 
+
 		let layerId = `${breach.properties.dijkring}_${breach.properties.name}_${get(scenario)}`;
 		if (floodLayer?.config?.id !== layerId) {
 			removeFloodLayer();
@@ -137,16 +178,53 @@
 						resolution: 50
 					}
 				}));
-				// Fly to breach location
-				map.viewer.flyTo(breach.billboard, {
-					duration: 1,
-					offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 5000)
-				});
+
 			} catch (error) {
 				console.error(error);
 			}
 		}
 	console.log("added flood layer")
+	}
+
+	function addFloodedRoadsLayer(breach) {
+		// add flooded roads for specific scenario from OGC feature API
+		
+		let layerId = `${breach.properties.dijkring}_${breach.properties.name}_${get(scenario)}`;
+		// get(timeSliderValue);
+		console.log(layerId);
+		
+		if (floodedRoadsLayer?.config?.id !== layerId) {
+			removeFloodedRoadsLayer();
+		
+			try {
+					floodedRoadsLayer = map.addLayer(new LayerConfig({
+					id: "flooded_roads",
+					title: "Wegen",
+					type: "ogc-features",
+					settings: {
+						"url": `http://localhost:5000`,
+						"options": {
+							"collectionId": "nwb_floods",
+							"heightStartLoading": 50000,
+							"maxFeatures": 10000,
+							"tileWidth": 40640
+						},
+						"parameters": { 
+							"scenario": "flood_26_OS-dp15_300",
+							// "scenario": layerId, // scenario not yet formatted correctly in data
+							"timestep": "01188",
+							"limit": "1420"
+						}
+					},
+					isBackground: false,
+					defaultOn: true,
+					defaultAddToManager: false
+					}))
+			} catch (error) {
+					console.error(error);
+			}
+		}
+		console.log("added flooded roads layer")
 	}
 
 	function removeFloodLayer() {
@@ -157,6 +235,15 @@
 			// layerControlRef.$destroy();
 			// layerControlRef was destroyed but never instantiated again, so it breaks
 			console.log("removed flood layer")
+		}
+	}
+
+	function removeFloodedRoadsLayer() {
+		if (floodedRoadsLayer) {
+			floodedRoadsLayer.hide();
+			floodedRoadsLayer.removeFromMap();
+			floodedRoadsLayer = undefined;
+			console.log("removed flooded roads layer")
 		}
 	}
 

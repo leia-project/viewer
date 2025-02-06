@@ -84,18 +84,58 @@
                     }
                 ]
             }
+        },
+        {
+            "id": "5",
+            "type": "ogc-features",
+            "title": "NWB (OGC Features API)",
+            "groupId": "",
+            
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": false,
+            "opacity": 0,
+            "settings": {
+                "url": "http://localhost:5000/",
+                "options": {
+                    "collectionId": "nwb",
+                    "heightStartLoading": 50000,
+                    "maxFeatures": 10,
+                    "tileWidth": 1024
+                }
+            }
+        },
+        {
+            "id": "7",
+            "type": "geojson",
+            "title": "Static wegen geojson",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "attribution": "NWB Nederland",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/nwb_zeeland_subset.geojson", 
+                "style": "",
+                "clampToGround": true
+            }
         }
+
     ],
     "viewer": {
-        "title": "3D viewer",
-        "subTitle": "Leia Example",
+        "title": "FIER",
+        "subTitle": "3D Leia Viewer",
         "logo": "images/leia_logo.png",
         "startPosition": {
-            "x": 5.40068,
-            "y": 51.20089,
-            "z": 55885.52117,
+            "x": 3.96280,
+            "y": 51.49285,
+            "z": 108025.35868,
             "heading": 360.00000,
-            "pitch": -34.77194,
+            "pitch": -90.69420,
             "duration": 1.50
         },
         "colors": {
@@ -229,7 +269,7 @@
                 "terrainProviders": [
                     {
                         "title": "Zeeland 1m",
-                        "url": "https://95.217.154.75/tiles_other/zeeland_1m",
+                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
                         "vertexNormals": true
                     },
                     {
@@ -298,8 +338,9 @@
             "id": "flooding",
             "enabled": true,
             "settings": {
-                "scenariosBaseUrl": "https://95.217.154.75/tiles_other/overstroming/",
-                "breachUrl": "https://95.217.154.75/tiles_other/breslocaties.geojson"
+                "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
+                "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson",
+                "roadsUrl": "https://service.pdok.nl/rws/vervoersnetwerken/wegen/wms/v1_0"
             }
         },
         {

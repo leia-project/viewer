@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Button, Dropdown, Loading, Slider, Toggle } from "carbon-components-svelte";
 	import * as Cesium from "cesium";
+	import { onDestroy } from "svelte";
 
 	import type { FloodLayer } from "../module/layers/flood-layer";
 	import { _ } from "svelte-i18n";
@@ -9,12 +10,18 @@
 	import type { Map } from "../module/map";
 	import { MapMeasurementFloodDepth } from "./map-measurement-flood-depth";
 	import ErrorMessage from "$lib/components/ui/components/ErrorMessage/ErrorMessage.svelte";
+	import { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
+	import { LayerConfig } from "$lib/components/map-core/layer-config";
+	// import addFloodedRoadsLayer from "$lib/components/map-cesium/MapToolFlooding/MapToolFlooding.svelte";
 
+	
 	export let layer: FloodLayer;
 	export let map: Map;
 	export let showGlobeOpacitySlider: boolean = true;
-
+	
 	let { timeSliderValue, timeSliderMin, timeSliderMax, timeSliderStep, opacity, loaded, error } = layer;
+	
+
 	let playing: boolean = false;
 	let intervalId: NodeJS.Timeout
 
@@ -26,16 +33,63 @@
 		new Array<MapMeasurementFloodDepth>()
 	);
 	let movingPoint: Cesium.Entity | undefined;
+	
+	let roadsLayer: OgcFeaturesLayer | undefined;
 
 	$: globeOpacity = map.options.globeOpacity;
+	
+	function addFloodedRoadsLayer(timestep: number) {
+        if (roadsLayer) {
+            map.removeLayer(roadsLayer);
+        }
 
-	// This doesn't work without a "$:" prefix, which causes each step to add additional subscriptions
+        const layerConfig = new LayerConfig({
+            id: "flooded_roads",
+            title: "Wegen",
+            type: "ogc-features",
+            settings: {
+                url: `http://localhost:5000`,
+                options: {
+                    collectionId: "nwb_floods",
+                    heightStartLoading: 50000,
+                    maxFeatures: 100000,
+                    tileWidth: 40640
+                },
+                parameters: {
+                    scenario: "flood_26_OS-dp15_300",
+                    timestep: timestep.toString(),
+                    limit: "1420"
+                }
+            },
+            isBackground: false,
+            defaultOn: true,
+            defaultAddToManager: false
+        });
+
+        roadsLayer = new OgcFeaturesLayer(map, layerConfig);
+        roadsLayer.addToMap();
+    
+		console.log("Changed roadsLayer from $timeSliderValue")
+	}
+
+	$: {
+        if ($timeSliderValue !== undefined) {
+            addFloodedRoadsLayer($timeSliderValue);
+        }
+    }
+	onDestroy(() => {
+        if (roadsLayer) {
+            map.removeLayer(roadsLayer);
+        }
+    });
+	// This doesn't work without a "$:" prefix, which causes each step to add additional subscriptions so I added a manual change
 	// layer.timeSliderValue.subscribe((value) => {
 	// 	if (value !== $timeSliderValue) {
 	// 		$timeSliderValue = value;
 	// 	}
 	// 	console.log($timeSliderValue, timeSliderValue)
 	// });
+
 
 	function togglePlay() {
 		playing = !playing;

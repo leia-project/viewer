@@ -47,6 +47,7 @@ export class OgcFeaturesProviderCesium {
 
 	private url: string;
 	public options: Partial<OgcFeaturesConstructorOptions>;
+	public parameters: Record<string, string> | undefined;
 
 	private collectionId: string;
 	private collection: Collection | undefined = undefined;
@@ -63,7 +64,7 @@ export class OgcFeaturesProviderCesium {
 	public setupPromise: Promise<void> | undefined;
 	public showing: boolean = false;
 
-	constructor(url: string, options: Partial<OgcFeaturesConstructorOptions>) {
+	constructor(url: string, options: Partial<OgcFeaturesConstructorOptions>, parameters?: Record<string, string>) {
 		const {
 			collectionId = "",
 			allowPicking = true
@@ -72,6 +73,7 @@ export class OgcFeaturesProviderCesium {
 		// todo: parse URL to recognize if it already contains the collection name (e.g. /collections/{collection}/items)
 		this.url = url;
 		this.options = options;
+		this.parameters = parameters;
 
 		this.collectionId = collectionId;
 		this.allowPicking = allowPicking;
@@ -127,6 +129,7 @@ export class OgcFeaturesProviderCesium {
 		try {
 			const req = await fetch(url);
 			const json = await req.json();
+			
 			this.availableCollections = Array.from(json.collections).map(col => {
 				return {id: col.id, title: col.title, bbox: col.extent.spatial.bbox[0]} as Collection
 			}).filter(col => col.id !== "");
@@ -168,13 +171,24 @@ export class OgcFeaturesProviderCesium {
 	}
 	
 	
-	public async getFeature(bbox?: string): Promise<Array<GeoJSONFeature> | undefined> {
-		const params = new URLSearchParams({
+	public async getFeature(bbox?: string, parameters?: Record<string, string>): Promise<Array<GeoJSONFeature> | undefined> {
+		let params = new URLSearchParams({
 			f: this.outputFormat || 'json',
 			limit: this.maxFeatures.toString()
 		});
 		if (bbox) params.append('bbox', bbox);
+		if (parameters) {
+			Object.keys(parameters).forEach(key => {
+				// overwrite existing params with new ones or append
+				if (key in params) {
+					params.set(key, parameters[key]);
+				}
+				params.append(key, parameters[key]);
+			});
+		}
 		const url = `${this.url}/collections/${this.collection?.id}/items?${params.toString()}`;
+		console.log('Fetching features from:', url);
+
 
 		try {
 			const response = await fetch(url);
@@ -189,8 +203,6 @@ export class OgcFeaturesProviderCesium {
 	}
 
 
-	
-
 	public async featuresAtPoint(lon: number, lat: number): Promise<GeoJSONFeature | undefined> {
 		const srsName = 'EPSG:4326';
 		const point = `<gml:Point srsName="${srsName}"><gml:coordinates>${lon},${lat}</gml:coordinates></gml:Point>`;
@@ -202,7 +214,7 @@ export class OgcFeaturesProviderCesium {
 			request: 'GetFeature',
 			typeName: this.featureType,
 			srsName: `EPSG:4326`,
-			maxFeatures: "1",
+			maxFeatures: "1", //this.maxFeatures.toString(),
 			outputFormat: 'application/json',
 			Filter: filter
 		});
@@ -585,6 +597,7 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 
 	public async loadFeatures(): Promise<void> {
 		if (!this.features) {
+			console.log("Loading features from loadFeatures() (no params are passed here)");
 			const features = await this.OgcFeatures.getFeature();
 			this.features = features || [];
 		}
@@ -767,7 +780,7 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 	private async fetchFeaturesForTile(tile: OgcFeaturesTile, coords: Array<number>, tileHeight: number): Promise<void> {
 		if (tile.destroyed) return;
 		const bbox = `${coords[0]},${coords[2]},${coords[1]},${coords[3]}`;
-		const features = await this.OgcFeatures.getFeature(bbox);
+		const features = await this.OgcFeatures.getFeature(bbox, this.OgcFeatures.parameters);
 		if (!features) return;
 		if (features.length >= this.OgcFeatures.maxFeatures) {
 			const subTiles = [
