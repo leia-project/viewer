@@ -60,6 +60,13 @@
 		}
 	});
 
+	activeBreach.subscribe((breach) => {
+		if (breach && !$selectedTool) {
+			$selectedTool = tool
+		}
+	});
+	
+
 </script>
 
 
