@@ -1,27 +1,26 @@
 <script lang="ts">
 	import type { Writable } from "svelte/store";
 	import { _ } from "svelte-i18n";
-	import { Location, Close } from "carbon-icons-svelte";
-	import type { CesiumIcon } from "../module/cesium-icon";
-	import { Button, Tooltip } from "carbon-components-svelte";
+	import { Close } from "carbon-icons-svelte";
+	import { Button } from "carbon-components-svelte";
+	import type { Breach } from "./layer-controller";
 
-
-	export let breach: CesiumIcon;
-	export let active: Writable<CesiumIcon | undefined>;
-	export let hovered: Writable<CesiumIcon | undefined>;
+	export let breach: Breach;
+	export let active: Writable<Breach | undefined>;
+	export let hovered: Writable<Breach | undefined>;
 		
 	export let showInfo: boolean = true;
 
+	const name = breach.properties.name;
+	const dijkring = breach.properties.dijkring;
+
+	$: hoveredBoolean = $hovered === breach;
+	$: activeBoolean = $active === breach;
 
 	function entryClick(): void {
 		if (breach !== $active) active.set(breach);
 		showInfo = true;
 	}
-
-	$: hoveredBoolean = $hovered === breach;
-	$: activeBoolean = $active === breach;
-	$: name = breach.properties.name;
-	$: dijkring = breach.properties.dijkring;
 
 </script>
 
@@ -32,11 +31,11 @@
 	<div class="entry" on:click={entryClick} class:entry-hovered={hoveredBoolean}>
 		<div class="entry-prefix">
 			<span class="encircled-text">
-				{ dijkring }
+				{dijkring}
 			</span>
 		</div>
 		<div class="entry-body">
-			<div>{ name }</div>
+			<div>{name}</div>
 		</div>
 		{#if activeBoolean}
 			<Button

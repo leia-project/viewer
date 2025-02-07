@@ -1,117 +1,67 @@
 <script lang="ts">
-	import { Button, Dropdown, Loading, Slider, Toggle } from "carbon-components-svelte";
+	import { get, writable, type Writable } from "svelte/store";
+	import { _ } from "svelte-i18n";
 	import * as Cesium from "cesium";
+	import { Button, Loading, Slider, Toggle } from "carbon-components-svelte";
+	import { ArrowLeft, ArrowRight, Pause, Play } from "carbon-icons-svelte";
+
+	import type { Map } from "../module/map";
+	import ErrorMessage from "$lib/components/ui/components/ErrorMessage/ErrorMessage.svelte";
+	import { MapMeasurementFloodDepth } from "./map-measurement-flood-depth";
+	import { FloodLayerController } from "../MapToolFlooding/layer-controller";
 	import { onDestroy } from "svelte";
 
-	import type { FloodLayer } from "../module/layers/flood-layer";
-	import { _ } from "svelte-i18n";
-	import { get, writable, type Writable } from "svelte/store";
-	import { ArrowLeft, ArrowRight, Pause, Play } from "carbon-icons-svelte";
-	import type { Map } from "../module/map";
-	import { MapMeasurementFloodDepth } from "./map-measurement-flood-depth";
-	import ErrorMessage from "$lib/components/ui/components/ErrorMessage/ErrorMessage.svelte";
-	import { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
-	import { LayerConfig } from "$lib/components/map-core/layer-config";
-	// import addFloodedRoadsLayer from "$lib/components/map-cesium/MapToolFlooding/MapToolFlooding.svelte";
-
 	
-	export let layer: FloodLayer;
+	export let floodLayerController: FloodLayerController;
 	export let map: Map;
 	export let showGlobeOpacitySlider: boolean = true;
 	
-	let { timeSliderValue, timeSliderMin, timeSliderMax, timeSliderStep, opacity, loaded, error } = layer;
-	
+	const { time, minTime, maxTime, speed, opacity } = floodLayerController;
+	const error = floodLayerController.floodLayer.error;
+	const floodLayerLoaded = floodLayerController.floodLayer.loaded;
 
 	let playing: boolean = false;
-	let intervalId: NodeJS.Timeout
 
 	let previouseAnimateState: boolean
 
-	let enableMeasurement = writable<boolean>(false);
+	const enableMeasurement = writable<boolean>(false);
 	let measurementId: number = 0;
 	let measurements: Writable<Array<MapMeasurementFloodDepth>> = writable<Array<MapMeasurementFloodDepth>>(
 		new Array<MapMeasurementFloodDepth>()
 	);
 	let movingPoint: Cesium.Entity | undefined;
 	
-	let roadsLayer: OgcFeaturesLayer | undefined;
+	const globeOpacity = map.options.globeOpacity;
 
-	$: globeOpacity = map.options.globeOpacity;
-	
-	function addFloodedRoadsLayer(timestep: number) {
-        if (roadsLayer) {
-            map.removeLayer(roadsLayer);
-        }
-
-        const layerConfig = new LayerConfig({
-            id: "flooded_roads",
-            title: "Wegen",
-            type: "ogc-features",
-            settings: {
-                url: `http://localhost:5000`,
-                options: {
-                    collectionId: "nwb_floods",
-                    heightStartLoading: 50000,
-                    maxFeatures: 100000,
-                    tileWidth: 40640
-                },
-                parameters: {
-                    scenario: "26_NzSch-dp_160_300",
-                    timestep: (timestep * 6).toString(),
-                    limit: "1420"
-                }
-            },
-            isBackground: false,
-            defaultOn: true,
-            defaultAddToManager: false
-        });
-
-        roadsLayer = new OgcFeaturesLayer(map, layerConfig);
-        roadsLayer.addToMap();
-    
-		console.log("Changed roadsLayer from $timeSliderValue")
-	}
-
-	$: {
-        if ($timeSliderValue !== undefined) {
-            addFloodedRoadsLayer($timeSliderValue);
-        }
-    }
-	onDestroy(() => {
-        if (roadsLayer) {
-            map.removeLayer(roadsLayer);
-        }
-    });
-	// This doesn't work without a "$:" prefix, which causes each step to add additional subscriptions so I added a manual change
-	// layer.timeSliderValue.subscribe((value) => {
-	// 	if (value !== $timeSliderValue) {
-	// 		$timeSliderValue = value;
-	// 	}
-	// 	console.log($timeSliderValue, timeSliderValue)
-	// });
-
-
-	function togglePlay() {
+	let intervalId: NodeJS.Timeout | null;
+	function togglePlay(): void {
 		playing = !playing;
 		if (playing) {
 			intervalId = setInterval(() => {
-				layer.timeSliderValue.update((value) => {
-				if (value >= $timeSliderMax) {
-					playing = false;
-					clearInterval(intervalId);
-					return $timeSliderMin;
-				}
-				$timeSliderValue = value + $timeSliderStep;
-				return value + $timeSliderStep;
+				time.update((value) => {
+					if (value >= $maxTime) {
+						stopPlaying();
+						return value;
+					}
+					return value + $speed;
 				});
-			}, 1000);
+			}, 50);
 		} else {
-			if (intervalId !== null) {
-				clearInterval(intervalId);
-				intervalId = null;
-			}
+			stopPlaying();
 		}
   	}
+
+	function stopPlaying(): void {
+		playing = false;
+		if (intervalId !== null) {
+			clearInterval(intervalId);
+			intervalId = null;
+		}
+	}
+
+	onDestroy(() => {
+		stopPlaying();
+	});
 
 	let leftClickHandle = (m: any) => {
 		createFloodMeasurement(getCartesian2(m));
@@ -131,14 +81,14 @@
 		return new Cesium.Cartesian2(m.x, m.y);
 	}
 
-	function removeMovingPoint() {
+	function removeMovingPoint(): void {
 		if (!movingPoint) return;
 
 		map.viewer.entities.remove(movingPoint);
 		movingPoint = undefined;
 	}
 
-	function addMovingPoint(position: Cesium.Cartesian3) {
+	function addMovingPoint(position: Cesium.Cartesian3): void {
 		movingPoint = map.viewer.entities.add({
 			position: position,
 			point: {
@@ -151,7 +101,7 @@
 		});
 	}
 
-	function createFloodMeasurement(location: Cesium.Cartesian2) {
+	function createFloodMeasurement(location: Cesium.Cartesian2): void {
 		const picked = map.viewer.scene.pickPosition(location);
 		const measurement = addMeasurement();
 		measurement.addPoint(picked);
@@ -163,14 +113,14 @@
 		});
 	}
 
-	function drawPointMove(location: Cesium.Cartesian2) {
+	function drawPointMove(location: Cesium.Cartesian2): void {
 		const picked = map.viewer.scene.pickPosition(location);
 		if (!movingPoint) addMovingPoint(picked);
 		// @ts-ignore
 		movingPoint.position = new Cesium.ConstantPositionProperty(picked);
 	}
 
-	function addMeasurement() {
+	function addMeasurement(): MapMeasurementFloodDepth {
 		const newMeasurement = new MapMeasurementFloodDepth(measurementId, map);
 		$measurements.push(newMeasurement);
 		measurements.set($measurements);
@@ -178,7 +128,7 @@
 		return newMeasurement;
 	}
 
-	function activate() {
+	function activate(): void {
 		map.on("mouseLeftClick", leftClickHandle);
 		map.on("mouseMove", moveHandle);
 		previouseAnimateState = get(map.options.animate);
@@ -207,7 +157,7 @@
 	});
 
 </script>
-{#if !$loaded}
+{#if !$floodLayerLoaded}
 	<div class="loading-wrapper">
 		<Loading withOverlay={false} small />
 	</div>
@@ -231,12 +181,9 @@
 		</div>
 		<div class="wrapper">
 			<Slider 
-				value={$opacity}
+				bind:value={$opacity}
 				labelText={$_('tools.flooding.waterTransparency') + ' ' + $opacity + '%'} 
 				fullWidth={true} 
-				on:input={(e) => {
-					layer.opacity.set(e.detail);
-				}}
 				hideTextInput={true} 
 				min={0} 
 				max={100} 
@@ -248,18 +195,15 @@
 		<div class="label-01">Time slider</div>
 		<div class="wrapper">
 			<Slider 
-				bind:value={$timeSliderValue}
-				labelText={String($timeSliderValue) + " uur sinds bres"} 
-				fullWidth={true} 
-				on:input={(e) => {
-					layer.timeSliderValue.set(e.detail);
-				}}
-				hideTextInput={true} 
-				min={$timeSliderMin} 
-				max={$timeSliderMax} 
-				step={$timeSliderStep} 
-				minLabel={String($timeSliderMin)} 
-				maxLabel={String($timeSliderMax)}
+				bind:value={$time}
+				labelText={`${Math.round($time)} uur sinds bres`}
+				fullWidth={true}
+				hideTextInput={true}
+				min={$minTime}
+				max={$maxTime}
+				step={$speed}
+				minLabel={$minTime.toString()}
+				maxLabel={$maxTime.toString()}
 			/>
 		</div>
 		<div class="wrapper" style="display: flex; justify-content: center; gap: 4px;">
@@ -271,32 +215,18 @@
 				iconDescription={$_('tools.animation.previous')}
 				on:click={() => {
 					// After switching scenario or breach, the Slider no longer listens to layer.timeSliderValue, so #timeSliderValue must be updated manually
-					layer.timeSliderValue.update((value) => {$timeSliderValue -= 1; return value - $timeSliderStep});	
-					// layer.timeSliderValue.update((value) => value - $timeSliderStep);	
+					time.update((value) => value - $speed);	
 				}}
 			/>
-			{#if !playing}
-				<Button 
-					kind="secondary"
-					size="small" 
-					icon="{Play}"
-					iconDescription={$_('tools.animation.play')}
-					on:click={() => {
-						togglePlay();
-					}}
-				/>
-			{:else}
-				<Button 
-					kind="secondary"
-					size="small" 
-					icon="{Pause}"
-					iconDescription={$_('tools.animation.pause')}
-					on:click={() => {
-						togglePlay();
-					}}
-				/>	
-			{/if}
-			<!-- Increase time slider value by step -->
+			<Button 
+				kind="secondary"
+				size="small" 
+				icon={playing ? Pause : Play}
+				iconDescription={playing ? $_('tools.animation.pause') : $_('tools.animation.play')}
+				on:click={() => {
+					togglePlay();
+				}}
+			/>
 			<Button 
 				kind="secondary"
 				size="small" 
@@ -304,8 +234,7 @@
 				iconDescription={$_('tools.animation.next')}
 				on:click={() => {
 					// After switching scenario or breach, the Slider no longer listens to layer.timeSliderValue, so #timeSliderValue must be updated manually
-					layer.timeSliderValue.update((value) => {$timeSliderValue += 1; return value + $timeSliderStep});
-					// layer.timeSliderValue.update((value) => value + $timeSliderStep);	
+					time.update((value) => value + $speed);	
 				}}
 			/>
 		</div>

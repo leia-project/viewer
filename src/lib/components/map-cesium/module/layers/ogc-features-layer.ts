@@ -3,18 +3,17 @@ import type { Map } from "../map";
 
 import { OgcFeaturesProviderCesium } from "../providers/ogc-features-provider";
 import { CesiumLayer } from "./cesium-layer";
-import { get } from "svelte/store";
 
 
 export class OgcFeaturesLayer extends CesiumLayer<OgcFeaturesProviderCesium> {
 
-    constructor(map: Map, config: LayerConfig, timesliderValue: Writable<number>) {
+	constructor(map: Map, config: LayerConfig) {
         super(map, config);
-        this.source = new OgcFeaturesProviderCesium(this.config.settings.url, this.config.settings.options, timesliderValue, this.config.settings.parameters);
+        this.source = new OgcFeaturesProviderCesium(map, this.config.settings.url, this.config.settings.options, this.config.settings.parameters);
     }
 
     public async addToMap(): Promise<void> {
-        this.source.addToMap(this.map, get(this.visible));
+        this.source.init();
     }
 
     public removeFromMap(): void {
