@@ -57,7 +57,7 @@
                 },
                 parameters: {
                     scenario: "26_NzSch-dp_160_300",
-                    timestep: (timestep * 6).toString(),
+                    timestep: (timestep * 6).toString().padStart(5, '0'),
                     limit: "1420"
                 }
             },

@@ -82,9 +82,17 @@ export class OgcFeaturesProviderCesium {
 		this.collectionId = collectionId;
 		this.allowPicking = allowPicking;
 		this.timeSliderValue = timeSliderValue;
+	
+		this.timeSliderValue?.subscribe(value => {
+			console.log("Time slider value changed:", value);
+		}
+			
+		)
 	}
 
 
+
+	
 	public addToMap(map: Map, show: boolean = true): void {
 		this.map = map;
 		if (show) this.show();

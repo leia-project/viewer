@@ -212,7 +212,7 @@
 						"parameters": { 
 							"scenario": "26_NzSch-dp_160_300",
 							// "scenario": layerId, // scenario not yet formatted correctly in data
-							"timestep": "01440",
+							"timestep": "00006",
 							"limit": "1420"
 						}
 					},
