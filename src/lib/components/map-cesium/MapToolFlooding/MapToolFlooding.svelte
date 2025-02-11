@@ -65,7 +65,6 @@
 			$selectedTool = tool
 		}
 	});
-	
 
 </script>
 
