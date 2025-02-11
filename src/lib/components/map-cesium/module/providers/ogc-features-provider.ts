@@ -2,6 +2,7 @@ import type { Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Map } from "../map";
 import * as turf from "@turf/turf";
+import { Undefined } from "carbon-icons-svelte";
 
 
 interface OgcFeaturesTile {
@@ -88,6 +89,8 @@ export class OgcFeaturesProviderCesium {
 	public async init(): Promise<void> {
 		this.showing = true;
 		this.OgcFeaturesLoaderCesium?.destroy();
+		this.setupPromise = undefined;
+		this.clear();
 		await this.setup();
 		if (this.showing) { // If hide() may have been called before setup was done
 			this.show();
@@ -96,6 +99,7 @@ export class OgcFeaturesProviderCesium {
 	
 	public switchUrl(url: string, parameters?: Record<string, string>): void {
 		if (url !== this.url || parameters !== this.parameters) {
+			console.log('Switching parameters from:', this.parameters, 'to:', parameters);
 			this.url = url;
 			this.parameters = parameters;
 			this.init();
@@ -112,6 +116,10 @@ export class OgcFeaturesProviderCesium {
 		this.showing = false;
 		this.OgcFeaturesLoaderCesium?.deactivate();
 		this.map.refresh();
+	}
+
+	public clear(): void {
+		this.OgcFeaturesLoaderCesium?.clear();
 	}
 
 	public setOpacity(opacity: number): void {
@@ -132,6 +140,7 @@ export class OgcFeaturesProviderCesium {
 			this.setupPromise = (async () => {
 				await this.getMetadata();
 				this.dynamicLoading = await this.dynamicLoadingNeeded();
+				console.log('Dynamic loading needed:', this.dynamicLoading);
 				this.OgcFeaturesLoaderCesium = this.dynamicLoading ? new OgcFeaturesLoaderCesiumDynamic(this) : new OgcFeaturesLoaderCesiumStatic(this);
 			})();
 		}
@@ -164,23 +173,26 @@ export class OgcFeaturesProviderCesium {
 	}
 
 	private async dynamicLoadingNeeded(): Promise<boolean> {
-		const params = new URLSearchParams({
-			f: this.outputFormat || 'json',
-			limit: '1',
-			skipGeometry: 'true'
-		});
-		
-		try {
-			const response = await fetch(`${this.url}/collections/${this.collection?.id}/items?${params.toString()}`);
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-			const json = await response.json();
-			return json.numberMatched > this.maxFeatures;
-		} catch (error) {
-			console.error('Error fetching features:', error);
-			return false;
-		}
+		// the static loader is deprecated and should not be used TODO: refactor this
+		return true;
+		// const params = new URLSearchParams({
+		// 	f: this.outputFormat || 'json',
+		// 	limit: '1',
+		// 	skipGeometry: 'true'
+		// });
+		// // Hier gebleven!
+		// try {
+		// 	const response = await fetch(`${this.url}/collections/${this.collection?.id}/items?${params.toString()}`);
+		// 	if (!response.ok) {
+		// 		throw new Error('Network response was not ok');
+		// 	}
+		// 	const json = await response.json();
+		// 	console.log('Number of features:', json.numberMatched, 'MaxFeatures:', this.maxFeatures, 'Dynamic loading needed:', json.numberMatched > this.maxFeatures);
+		// 	return json.numberMatched > this.maxFeatures;
+		// } catch (error) {
+		// 	console.error('Error fetching features:', error);
+		// 	return false;
+		// }
 	}
 	
 	
@@ -193,10 +205,12 @@ export class OgcFeaturesProviderCesium {
 		if (parameters) {
 			Object.keys(parameters).forEach(key => {
 				// overwrite existing params with new ones or append
-				if (key in params) {
+				if (key in params.keys()) {
 					params.set(key, parameters[key]);
 				}
-				params.append(key, parameters[key]);
+				else {
+					params.append(key, parameters[key]);
+				}
 			});
 		}
 		const url = `${this.url}/collections/${this.collection?.id}/items?${params.toString()}`;
@@ -290,11 +304,17 @@ abstract class OgcFeaturesLoaderCesium {
 		this.primitiveCollection.removeAll();
 	}
 
+	public clear(): void {
+		this.loadedFeatures = [];
+		this.primitiveCollection.removeAll();
+	}
+
 	public destroy(): void {
 		this.deactivate();
 		this.loadedFeatures = [];
 		this.primitiveCollection.removeAll();
 	}
+	
 
 	public async createPrimitives(features: Array<GeoJSONFeature>, tileHeight: number, perInstanceTerrainSample: boolean = false): Promise<Array<Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive | Cesium.Primitive>> {
 		const primitives: Array<Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive | Cesium.Primitive> = [];
@@ -387,7 +407,7 @@ abstract class OgcFeaturesLoaderCesium {
             const positions = coordinates.map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1], height));
             const props = this.OgcFeatures.allowPicking ? properties : undefined;
             const polylineInstance = new Cesium.GeometryInstance({
-                geometry: new Cesium.GroundPolylineGeometry({
+                geometry: new Cesium.PolylineGeometry({
                     positions: positions,
                     width: 2.0
                 }),
@@ -404,6 +424,7 @@ abstract class OgcFeaturesLoaderCesium {
 					color: Cesium.Color.BLACK
 				})
 			});
+			// console.log("pushing polylines", polylineInstances),
 			primitives.push(
 				new Cesium.Primitive({
 					geometryInstances: polylineInstances,
@@ -417,11 +438,12 @@ abstract class OgcFeaturesLoaderCesium {
 			const polygonAppearance = new Cesium.PerInstanceColorAppearance({
 				translucent: false
 			});
+			// console.log("pushing polygons", polygonInstances),
 			primitives.push(
-				new Cesium.GroundPrimitive({
+				new Cesium.Primitive({
 					geometryInstances: polygonInstances,
 					appearance: polygonAppearance,
-					//depthFailAppearance: polygonAppearance,
+					depthFailAppearance: polygonAppearance,
 					releaseGeometryInstances: true,
 					allowPicking: this.OgcFeatures.allowPicking
 				})
@@ -520,7 +542,7 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 	constructor(OgcFeatures: OgcFeaturesProviderCesium) {
 		super(OgcFeatures);
 	}
-
+	
 	public async activate(): Promise<void> {
 		await this.loadFeatures();
 		super.activate();

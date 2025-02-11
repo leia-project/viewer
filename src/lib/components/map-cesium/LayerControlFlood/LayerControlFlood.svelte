@@ -33,7 +33,7 @@
 					}
 					return value + $speed;
 				});
-			}, 50);
+			}, 250);
 		} else {
 			stopPlaying();
 		}
@@ -99,7 +99,7 @@
 		<div class="wrapper">
 			<Slider 
 				bind:value={$time}
-				labelText={`${Math.round($time)} uur sinds bres`}
+				labelText={`${Math.round($time)}` + ' ' + $_('tools.flooding.hourSinceBreach')}
 				fullWidth={true}
 				hideTextInput={true}
 				min={$minTime}

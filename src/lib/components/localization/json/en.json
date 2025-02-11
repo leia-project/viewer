@@ -245,7 +245,8 @@
             "measureDepth": "Measure",
             "waterTransparency": "Water Transparency",
             "scenario": "Scenario",
-            "errorCouldNotLoad": "Could not load flooding data"
+            "errorCouldNotLoad": "Could not load flooding data",
+            "hourSinceBreach": "hours since breach"
         }
     }
 }

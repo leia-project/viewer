@@ -5,12 +5,14 @@ import type { FloodLayer } from "../module/layers/flood-layer";
 import type { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
 import { get, writable, type Writable } from "svelte/store";
 import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
+import { Parameter } from "carbon-icons-svelte";
 
 
 export interface FloodToolSettings {
 	scenariosBaseUrl: string;
 	breachUrl: string;
 	roadsUrl: string;
+	floodedRoadsUrl: string;
 }
 
 export interface Breach {
@@ -54,7 +56,7 @@ export class FloodLayerController {
 		this.iconLayer = this.addIconLayer();
 		this.floodLayer = this.addFloodLayer(settings.scenariosBaseUrl);
 		this.floodedRoadsLayer = this.addFloodedRoadsLayer("http://localhost:5000");
-
+		
 		this.activeBreach.subscribe(() => {
 			this.selectedScenario.set(undefined);
 			this.floodLayer.clear();
@@ -66,7 +68,23 @@ export class FloodLayerController {
 				this.loadNewScenario(breach, scenario);
 			}
 		});
+		this.time.subscribe((time) => {
+			const breach = get(this.activeBreach);
+			const scenario = get(this.selectedScenario) || 'geen_scenario';
+			if (breach && scenario) {
+			const scenarioId = `${breach?.properties.dijkring}_${breach?.properties.name}_${scenario}`;
+			const timestring = (Math.round(time) * 6).toString().padStart(5, "0")
+			const parameters ={
+				scenario: scenarioId, 
+				timestep: timestring, 
+				limit: "666"}
+			this.floodedRoadsLayer.source.switchUrl(settings.floodedRoadsUrl, parameters);
+			};
+		});
 	}
+
+	// whenever the time changes, update the flooded roads layer
+
 
 	public showAll(): void {
 		this.iconLayer?.show();
@@ -89,12 +107,13 @@ export class FloodLayerController {
 		}
 		
 		const scenarioId = `${breach.properties.dijkring}_${breach.properties.name}_${scenario}`;
-		const endpoint = `${scenarioId}/layer.json`;
+		const endpoint = this.floodedRoadsLayer.config.settings.url;
 		const parameters = {
-			scenario: breach.properties.scenarios[0],
-			timestep: "01188",
-			limit: "1420"
+			scenario: scenarioId, //breach.properties.scenarios[0],
+			timestep: (Math.round(get(this.time)) * 6).toString().padStart(5, "0"),
+			limit: "69"
 		}
+		console.log("Switching flooded roads layer to new scenario", scenarioId, parameters);
 		this.floodedRoadsLayer?.source.switchUrl(endpoint, parameters);
 	}
 
@@ -181,10 +200,10 @@ export class FloodLayerController {
 					tileWidth: 40640
 				},
 				parameters: { 
-					scenario: "26_NzSch-dp_160_300",
+					scenario: get(this.selectedScenario)?.toString(), //"26_NzSch-dp_160_300",
 					// "scenario": layerId, // scenario not yet formatted correctly in data
-					timestep: "01440",
-					limit: "1420"
+					timestep: (Math.round(get(this.time)) * 6).toString().padStart(5, "0"),
+					limit: "420"
 				},
 				hideInLayerManager: false,
 				dragDropped: false
@@ -194,6 +213,7 @@ export class FloodLayerController {
 			defaultOn: true,
 			defaultAddToManager: true
 		});
+		console.log("Adding flooded roads layer", layerConfig);
 		this.map.layerLibrary.addLayerConfig(layerConfig);
 		layerConfig.added.set(true);
 		const floodedRoadsLayer = get(this.map.layers).find((l) => l.id === layerConfig.id) as OgcFeaturesLayer;

@@ -252,7 +252,8 @@
             "measureDepth": "Diepte meten",
             "waterTransparency": "Water Transparantie",
             "scenario": "Scenario",
-            "errorCouldNotLoad": "Kan overstromingsdata niet laden"
+            "errorCouldNotLoad": "Kan overstromingsdata niet laden",
+            "hourSinceBreach": "uur na bres"
         }
     }
 }

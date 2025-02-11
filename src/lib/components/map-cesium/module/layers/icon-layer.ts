@@ -147,7 +147,8 @@ export class IconLayer<F> extends CustomLayer {
 		const icon = this.mapIcons.find((i) => i.feature === feature);
 		if (!icon) return;
 		this.map.viewer.flyTo(icon.billboard, {
-			duration: 1
+			duration: 1,
+			offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 5000)
 		});
 	}
 }
