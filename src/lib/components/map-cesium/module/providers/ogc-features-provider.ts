@@ -84,6 +84,7 @@ export class OgcFeaturesProviderCesium {
 
 		this.collectionId = collectionId;
 		this.allowPicking = allowPicking;
+
 	}
 
 	public async init(): Promise<void> {
@@ -104,6 +105,7 @@ export class OgcFeaturesProviderCesium {
 			this.parameters = parameters;
 			this.init();
 		}
+
 	}
 
 	public show(): void {

@@ -15,7 +15,6 @@
 	export let showGlobeOpacitySlider: boolean = true;
 	
 	const globeOpacity = map.options.globeOpacity;
-
 	const { time, minTime, maxTime, speed, opacity } = floodLayerController;
 	const error = floodLayerController.floodLayer.error;
 	const floodLayerLoaded = floodLayerController.floodLayer.loaded;
