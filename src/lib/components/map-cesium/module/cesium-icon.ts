@@ -1,14 +1,12 @@
 import { get, writable, type Unsubscriber, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
-
-import type { Map } from "$lib/components/map-cesium/module/map";
 import type { GeographicLocation } from "$lib/components/map-core/geographic-location";
 
 
-export class CesiumIcon {
-	private map: Map;
+export class CesiumIcon<F> {
+
 	public location: GeographicLocation;
-	public properties: object;
+	public feature: F;
 	public billboard!: Cesium.Entity;
 
 	private icon: string;
@@ -28,17 +26,15 @@ export class CesiumIcon {
 	private showUnsubscriber!: Unsubscriber;
 
 	constructor(
-		map: Map,
 		location: GeographicLocation,
-		properties: object,
+		feature: F,
 		icon: string,
 		color: Cesium.ConstantProperty,
 		activeColor: Cesium.ConstantProperty,
 		show: boolean
 	) {
-		this.map = map;
 		this.location = location;
-		this.properties = properties;
+		this.feature = feature;
 		this.icon = icon;
 		this.color = color;
 		this.activeColor = activeColor;
@@ -50,7 +46,7 @@ export class CesiumIcon {
 
 		this.hoveredUnsubscriber = this.hovered.subscribe((hovered) => {
 			if (this.billboard.billboard) {
-				this.billboard.billboard.color = get(this.hovered) || get(this.active) ? this.activeColor : this.color;
+				this.billboard.billboard.color = hovered || get(this.active) ? this.activeColor : this.color;
 			}
 		});
 
@@ -70,7 +66,6 @@ export class CesiumIcon {
 	}
 
 	public removeItem(): void {
-		this.map.viewer.entities.remove(this.billboard);
 		this.hoveredUnsubscriber();
 		this.activeUnsubscriber();
 		this.showUnsubscriber();
@@ -98,6 +93,6 @@ export class CesiumIcon {
 				heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
 			}
 		});
-		this.map.viewer.entities.add(this.billboard);
 	}
+
 }

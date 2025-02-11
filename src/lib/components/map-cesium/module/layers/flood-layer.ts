@@ -1,15 +1,15 @@
+import { get, writable, type Writable, type Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
 import { Delaunay } from "d3-delaunay";
 import type { Map } from "../map";
 
-import type { Unsubscriber } from "svelte/motion";
-import { get, writable, type Writable } from "svelte/store";
-import { PrimitiveLayer } from "./primitive-layer";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
 import { CustomLayerControl } from "$lib/components/map-core/custom-layer-control";
 import LayerControlFlood from "$lib/components/map-cesium/LayerControlFlood/LayerControlFlood.svelte";
 import { CesiumLayer } from "./cesium-layer";
 import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
+import type { Breach } from "../../MapToolFlooding/layer-controller";
+
 
 interface FloodLayerContents {
 	name: string,
@@ -30,7 +30,6 @@ interface FloodLayerContents {
 
 interface DynamicWaterLevelOptions {
 	map: Map;
-	time: number;
 	gridSpacingInMeters: number;
 	url: string;
 	alpha: number;
@@ -45,13 +44,12 @@ class DynamicWaterLevel {
 
 	private map: Map;
 	private gridSpacingInMeters: number;
-	private baseUrl: string;
+	private baseUrl: URL;
 	public waterLevels: Array<WaterLevel> = [];
-	public imagesLoaded: Promise<boolean>;
 	public time: Writable<number>;
 	public primitive?: Cesium.Primitive;
 	public alpha: Writable<number>;
-	public contents: Promise<FloodLayerContents>;
+	public contents?: FloodLayerContents;
 	private material?: Cesium.Material;
 	private timeUnsubscriber?: Unsubscriber;
 	private alphaUnsubscriber?: Unsubscriber;
@@ -77,23 +75,17 @@ class DynamicWaterLevel {
 	
 	};
 
-	constructor (options: DynamicWaterLevelOptions) {
+	constructor(options: DynamicWaterLevelOptions) {
 		this.map = options.map;
-		this.time = writable(options.time);
+		this.time = writable(0);
 		this.gridSpacingInMeters = options.gridSpacingInMeters;
-		this.baseUrl = options.url.substring(0, options.url.lastIndexOf("/") + 1);
+		this.baseUrl = new URL(options.url);
 		this.verticalExaggeration = writable(1);
 		this.alpha = writable(options.alpha);
-		this.contents = this.loadContents(options.url);
-		this.imagesLoaded = this.loadImages(options.url);
+		this.addListeners();
 	}
 
-	private async loadContents(url: string): Promise<FloodLayerContents> {
-		return fetch(url).then((response) => response.json());
-	}
-
-	public async load(): Promise<void> {
-		if (!this.primitive) await this.createMesh();
+	public addListeners(): void {
 		this.timeUnsubscriber = this.time.subscribe(() => this.setUniforms());
 		this.alphaUnsubscriber = this.alpha.subscribe(() => this.setUniforms());
 		this.verticalExaggerationUnsubscriber = this.verticalExaggeration.subscribe((value) => {
@@ -101,28 +93,41 @@ class DynamicWaterLevel {
 		});
 	}
 
-	public remove(): void {
-		if (!this.primitive) return;
+	public removeListeners(): void {
 		this.timeUnsubscriber?.();
 		this.alphaUnsubscriber?.();
 		this.verticalExaggerationUnsubscriber?.();
 	}
 
-	private async loadImages(url: string): Promise<boolean> {
-		const contents = await this.contents;
-		const terrainImage = await this.loadImage(contents.terrain.path);
+	public async load(endpoint: string): Promise<void> {
+		const scenarioUrl = new URL(endpoint, this.baseUrl);
+		this.contents = await this.loadContents(`${scenarioUrl.href}/layer.json`);
+		await this.loadImages(scenarioUrl, this.contents);
+
+		// Not always recreate mesh when sw/ne stay the same?
+
+		await this.createMesh(this.contents);		
+	}
+
+	private async loadContents(url: string): Promise<FloodLayerContents> {
+		return fetch(url).then((response) => response.json());
+	}
+
+	private async loadImages(scenarioUrl: URL, contents: FloodLayerContents): Promise<boolean> {
+		const terrainImage = await this.loadImage(`${scenarioUrl.href}/${contents.terrain.path}`);
 		if (!terrainImage) {
 			throw new Error("Failed to load terrain image");
 		}
 		this.uniformMap.uTerrain.value = terrainImage;
 		const loadWaterLevelPromises = contents.flood_planes.paths.map(async (path: string, i: number) => {
-			const image = await this.loadImage(path);
+			const image = await this.loadImage(`${scenarioUrl.href}/${path}`);
 			if (!image) {
 				throw new Error("Failed to load terrain image");
 			}
 			if (image) return { time: i, image: image };
 		});
 		const loadedWaterLevels = await Promise.all(loadWaterLevelPromises);
+		this.waterLevels = [];
 		for (const waterLevel of loadedWaterLevels) {
 			if (waterLevel) {
 				this.waterLevels.push(waterLevel);
@@ -132,8 +137,8 @@ class DynamicWaterLevel {
 		return true;
 	}
 
-	private async loadImage(path: string): Promise<ImageBitmap | HTMLImageElement | undefined> {
-		const resource = await Cesium.Resource.fetchImage({url: this.baseUrl + path});
+	private async loadImage(url: string): Promise<ImageBitmap | HTMLImageElement | undefined> {
+		const resource = await Cesium.Resource.fetchImage({ url });
 		return resource;
 	}
 
@@ -181,10 +186,7 @@ class DynamicWaterLevel {
 		return { latDegrees, lonDegrees };
 	}
 	
-	private async createMesh(): Promise<void> {
-		await this.imagesLoaded;
-		const contents = await this.contents;
-
+	private async createMesh(contents: FloodLayerContents): Promise<void> {
 		const terrainScalingMin = contents.terrain.scaling.min;
 		const terrainScalingMax = contents.terrain.scaling.max;
 		const floodPlaneClassMapping = Object.values(contents.flood_planes.class_mapping).map(num => {
@@ -200,20 +202,20 @@ class DynamicWaterLevel {
 
 		const { latDegrees, lonDegrees } = this.metersToDegrees((latStart + latEnd) / 2, this.gridSpacingInMeters);
 
-        const lonSteps = Math.ceil((lonEnd - lonStart) / lonDegrees);
-        const latSteps = Math.ceil((latEnd - latStart) / latDegrees);
+		const lonSteps = Math.ceil((lonEnd - lonStart) / lonDegrees);
+		const latSteps = Math.ceil((latEnd - latStart) / latDegrees);
 
-        const coordinates2D: Array<[lon: number, lat: number]> = [];
+		const coordinates2D: Array<[lon: number, lat: number]> = [];
 
-        for (let i = 0; i <= lonSteps; i++) {
-            for (let j = 0; j <= latSteps; j++) {
-                const lon = lonStart + i * lonDegrees;
-                const lat = latStart + j * latDegrees;
-                coordinates2D.push([lon, lat]);
-            }
-        }
-        const delaunay = Delaunay.from(coordinates2D);
-        const triangles = delaunay.triangles;
+		for (let i = 0; i <= lonSteps; i++) {
+			for (let j = 0; j <= latSteps; j++) {
+				const lon = lonStart + i * lonDegrees;
+				const lat = latStart + j * latDegrees;
+				coordinates2D.push([lon, lat]);
+			}
+		}
+		const delaunay = Delaunay.from(coordinates2D);
+		const triangles = delaunay.triangles;
 
 		const pos = new Float64Array(triangles.length * 3);
 		const st = new Float32Array(triangles.length * 2);
@@ -330,49 +332,49 @@ class DynamicWaterLevel {
 			}
 
 			void main() {
-                vec4 p = czm_computePosition();
+				vec4 p = czm_computePosition();
 				float terrain_height = texture(u_terrain_1, st).r * (u_terrain_scaling_max_10 - u_terrain_scaling_min_9) + u_terrain_scaling_min_9;
-                float depth = computeDepth(st);
-               
-                // Height exaggeration relative to terrain:
+				float depth = computeDepth(st);
+			   
+				// Height exaggeration relative to terrain:
 				p.xyz += u_model_normal_4 * (terrain_height + depth * u_vertical_exaggeration_7);
  
-                vec3 computedNormal = computeNormalFromNeighbors();
+				vec3 computedNormal = computeNormalFromNeighbors();
  
-                v_positionEC = (czm_modelViewRelativeToEye * p).xyz;
-                v_normalEC = czm_normal * computedNormal;
-                v_st = st;
+				v_positionEC = (czm_modelViewRelativeToEye * p).xyz;
+				v_normalEC = czm_normal * computedNormal;
+				v_st = st;
  
-                gl_Position = czm_modelViewProjectionRelativeToEye * p;
-            }
+				gl_Position = czm_modelViewProjectionRelativeToEye * p;
+			}
 		`;
 		
 		const fragmentShader = `
-            in vec3 v_positionEC;
-            in vec3 v_normalEC;
-            in vec2 v_st;
-            vec3 v_color;
+			in vec3 v_positionEC;
+			in vec3 v_normalEC;
+			in vec2 v_st;
+			vec3 v_color;
  
 			float flood_plane_class_mapping[${floodPlaneClassMapping.length}] = float[${floodPlaneClassMapping.length}](${floodPlaneClassMapping.join(",")});
-           
-            float computeDepth(vec2 _st) {
-                _st = clamp(_st, vec2(0.0), vec2(1.0));
-                float depth_t1 = flood_plane_class_mapping[int(texture(u_depth_t1_2, _st).r * u_depth_value_max_11)];
+		   
+			float computeDepth(vec2 _st) {
+				_st = clamp(_st, vec2(0.0), vec2(1.0));
+				float depth_t1 = flood_plane_class_mapping[int(texture(u_depth_t1_2, _st).r * u_depth_value_max_11)];
 				float depth_t2 = flood_plane_class_mapping[int(texture(u_depth_t2_3, _st).r * u_depth_value_max_11)];
-                float depth = mix(depth_t1, depth_t2, u_progress_0);
-                return depth;
-            }
+				float depth = mix(depth_t1, depth_t2, u_progress_0);
+				return depth;
+			}
  
-            czm_material sdg_czm_getMaterial(czm_materialInput materialInput) {
-                czm_material material = czm_getDefaultMaterial(materialInput);
-                material.diffuse = czm_gammaCorrect(v_color * vec3(1.0));
-                material.alpha = u_alpha_8;
-                material.specular = 0.0;
-                material.shininess = 0.0;
-                return material;
-            }
-           
-            void main() {
+			czm_material sdg_czm_getMaterial(czm_materialInput materialInput) {
+				czm_material material = czm_getDefaultMaterial(materialInput);
+				material.diffuse = czm_gammaCorrect(v_color * vec3(1.0));
+				material.alpha = u_alpha_8;
+				material.specular = 0.0;
+				material.shininess = 0.0;
+				return material;
+			}
+		   
+			void main() {
 
 				float terrain_height = texture(u_terrain_1, v_st).r * (u_terrain_scaling_max_10 - u_terrain_scaling_min_9) + u_terrain_scaling_min_9;
 				float depth = computeDepth(v_st);
@@ -387,26 +389,26 @@ class DynamicWaterLevel {
 				// use the normalized depth value to interpolate between two colors
 				v_color = mix(vec3(0.522, 0.631, 0.737), vec3(0.0, 0.0, 0.400), depth_normalized * 1.0);
  
-                vec3 positionToEyeEC = -v_positionEC;
+				vec3 positionToEyeEC = -v_positionEC;
  
-                vec3 normalEC = normalize(v_normalEC);
+				vec3 normalEC = normalize(v_normalEC);
 				#ifdef FACE_FORWARD
 					normalEC = faceforward(normalEC, vec3(0.0, 0.0, 1.0), -normalEC);
 				#endif
  
-                czm_materialInput materialInput;
-                materialInput.normalEC = normalEC;
-                materialInput.positionToEyeEC = positionToEyeEC;
-                //materialInput.st = v_st;
-                czm_material material = sdg_czm_getMaterial(materialInput);
-               
+				czm_materialInput materialInput;
+				materialInput.normalEC = normalEC;
+				materialInput.positionToEyeEC = positionToEyeEC;
+				//materialInput.st = v_st;
+				czm_material material = sdg_czm_getMaterial(materialInput);
+			   
 				#ifdef FLAT
 					out_FragColor = vec4(material.diffuse + material.emission, material.alpha);
 				#else
 					out_FragColor = czm_phong(normalize(positionToEyeEC), material, czm_lightDirectionEC);
 				#endif
-            }
-        `;
+			}
+		`;
 
 		this.material = new Cesium.Material({
 			fabric: {
@@ -466,93 +468,106 @@ class DynamicWaterLevel {
 }
 
 
-export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
+export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 
-	private plane: DynamicWaterLevel | undefined;
 	private layerControl!: CustomLayerControl;
-	public timeSliderMin: Writable<number> = writable(0);
-	public timeSliderMax: Writable<number> = writable(1);
-	public timeSliderStep: Writable<number> = writable(1);
-	public timeSliderValue: Writable<number> = writable(0);
-	public timeSliderLabel: string;
+	public _time: Writable<number> = writable(0);
+
 	private timeUnsubscriber!: Unsubscriber;
 	public loaded: Writable<boolean> = writable(false);
-	public loadedPromise: Promise<boolean>;
 	public error: Writable<boolean> = writable(false);
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
 
-		this.plane = undefined;
 		this.opacity.set(80);
-		
-		this.timeSliderLabel = "";
-
-		this.addControl()
-		this.addListeners()
-		this.loadedPromise = this.loadData()
-		this.loadedPromise.then(() => this.loaded.set(true));
-
-	}
-
-	private async loadData(): Promise<boolean> {
-
-		this.plane = new DynamicWaterLevel({
+		this.source = new DynamicWaterLevel({
 			map: this.map,
-			time: get(this.timeSliderMin),
 			gridSpacingInMeters: this.config.settings.resolution,
 			url: this.config.settings.url,
 			alpha: get(this.opacity) / 100
 		});
-		
-		try {
-			await this.plane.load()
-		} catch (e) {
-			this.error.set(true);
-			return false;
-		}
-		if (this.plane) {
-			this.timeSliderMax.set(this.plane.waterLevels.length);
-			this.source = this.plane.primitive
 
-			if (!this.config.cameraPosition) {
-				const {ne, sw} = await this.plane.contents
+		this.addControl()
+		this.setTimeListener()
+	}
+
+	private setTimeListener(): void {
+		this.timeUnsubscriber?.();
+		this.timeUnsubscriber = this._time.subscribe((value: number) => {
+			this.source?.time.set(value);
+		});
+	}
+	
+	/**
+	 * Use an external time store for the layer
+	 */
+	set time(timeStore: Writable<number>) {
+		this._time = timeStore;
+		this.setTimeListener();
+	}
+
+
+	public async loadScenario(breach: Breach, scenario: string): Promise<void> {
+		this.loaded.set(false);
+		this.error.set(false);
+		try {
+			this.clear();
+			const endpoint = `${breach.properties.dijkring}_${breach.properties.name}_${scenario}`;
+			await this.source.load(endpoint);
+			if (!this.config.cameraPosition && this.source.contents) {
+				const { ne, sw } = this.source.contents;
 				const rectangle = Cesium.Rectangle.fromDegrees(sw[0], sw[1], ne[0], ne[1]);
 				const sphere = Cesium.BoundingSphere.fromRectangle3D(rectangle);
 				this.config.cameraPosition = getCameraPositionFromBoundingSphere(sphere);
 			}
+			this.loaded.set(true);
+			this.addToMap();
+		} catch(e) {
+			this.error.set(true);
+		} 
+		this.map.refresh();
+	}
+
+	public clear(): void {
+		if (this.source.primitive) {
+			this.map.viewer.scene.primitives.remove(this.source.primitive); // Primitive is automatically destroyed
+			this.source.primitive = undefined;
 		}
-		return true;
 	}
 
 	public async addToMap(): Promise<void> {
-		await this.loadedPromise;
-		this.map.viewer.scene.primitives.add(this.source);
+		if (this.source.primitive && !this.map.viewer.scene.primitives.contains(this.source.primitive)) {
+			this.map.viewer.scene.primitives.add(this.source.primitive);
+		}
 		if (get(this.visible) === true) {
 			this.show();
-			this.map.refresh();
 		} else {
 			this.hide();
-			this.map.refresh();
 		}
+		this.map.refresh();
 	}
 
 	public removeFromMap(): void {
 		this.removeControl();
 		this.timeUnsubscriber();
-		this.plane?.remove();
-		this.map.viewer.scene.primitives.remove(this.source);
+		this.source?.removeListeners();
+		if (this.source.primitive) {
+			this.map.viewer.scene.primitives.remove(this.source.primitive);
+		}
 	}
 
 	public show(): void {
 		if (!this.loaded) return;
-        if (this.plane?.primitive !== undefined) this.plane.primitive.show = true
-    }
+		if (this.source.primitive) this.source.primitive.show = true;
+		this.map.refresh();
+	}
 
-    public hide(): void {
-        if (!this.loaded) return;
-        if (this.plane?.primitive !== undefined) this.plane.primitive.show = false
-    }
+	public hide(): void {
+		if (!this.loaded) return;
+		if (this.source.primitive) this.source.primitive.show = false;
+		this.map.refresh();
+	}
 
 	private addControl(): void {
 		this.layerControl = new CustomLayerControl();
@@ -561,22 +576,17 @@ export class FloodLayer extends CesiumLayer<PrimitiveLayer> {
 			layer: this,
 			map: this.map,
 		};
-		this.addCustomControl(this.layerControl);
+		// I disabled this for now, is it necessary?
+		//this.addCustomControl(this.layerControl);
 	}
 
 	private removeControl(): void {
 		this.removeCustomControl(this.layerControl);
 	}
 
-	private addListeners(): void {
-		this.timeUnsubscriber = this.timeSliderValue.subscribe((value: number) => {
-			this.plane?.time.set(value);
-		});
-	}
-
 	public opacityChanged(opacity: number): void {
-		if (this.plane) {
-			this.plane.alpha.set(opacity > 100 ? 1.0 : opacity < 0 ? 0 : opacity / 100);
+		if (this.source) {
+			this.source.alpha.set(opacity > 100 ? 1.0 : opacity < 0 ? 0 : opacity / 100);
 		}
 	}
 }

@@ -1,9 +1,7 @@
+import type { Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Map } from "../map";
-import type { Unsubscriber } from "svelte/motion";
 import * as turf from "@turf/turf";
-import { time } from "svelte-i18n";
-import type { Writable } from "svelte/store";
 
 
 interface OgcFeaturesTile {
@@ -19,7 +17,12 @@ interface OgcFeaturesTile {
 interface Collection {
 	id: string;
 	title: string;
-	bbox: [number, number, number, number];
+	description?: string;
+	extent: {
+		spatial: {
+			bbox: Array<[number, number, number, number]>;
+		}
+	}
 }
 
 interface OgcFeaturesConstructorOptions {
@@ -47,6 +50,7 @@ interface OgcFeaturesConstructorOptions {
 
 export class OgcFeaturesProviderCesium {
 
+	public map: Map;
 	private url: string;
 	public options: Partial<OgcFeaturesConstructorOptions>;
 	public parameters: Record<string, string> | undefined;
@@ -58,7 +62,6 @@ export class OgcFeaturesProviderCesium {
 	public maxFeatures: number = 1000;
 	public boundingRect: Cesium.Rectangle = Cesium.Rectangle.MAX_VALUE;
 
-	public map!: Map;
 	public dynamicLoading: boolean = false;
 	private OgcFeaturesLoaderCesium!: OgcFeaturesLoaderCesium;
 	public allowPicking: boolean;
@@ -66,52 +69,51 @@ export class OgcFeaturesProviderCesium {
 	public setupPromise: Promise<void> | undefined;
 	public showing: boolean = false;
 
-	public timeSliderValue: Writable<number> | undefined;
-
-	constructor(url: string, options: Partial<OgcFeaturesConstructorOptions>, timeSliderValue?: Writable<number>, parameters?: Record<string, string>) {
+	constructor(map: Map, url: string, options: Partial<OgcFeaturesConstructorOptions>, parameters?: Record<string, string>) {
 		const {
 			collectionId = "",
 			allowPicking = true
         } = options;
 
 		// todo: parse URL to recognize if it already contains the collection name (e.g. /collections/{collection}/items)
+		this.map = map;
 		this.url = url;
 		this.options = options;
 		this.parameters = parameters;
 
 		this.collectionId = collectionId;
 		this.allowPicking = allowPicking;
-		this.timeSliderValue = timeSliderValue;
-	
-		this.timeSliderValue?.subscribe(value => {
-			console.log("Time slider value changed:", value);
-		}
-			
-		)
+
 	}
 
-
-
-	
-	public addToMap(map: Map, show: boolean = true): void {
-		this.map = map;
-		if (show) this.show();
-	}
-
-	public async show(): Promise<void> {
+	public async init(): Promise<void> {
 		this.showing = true;
-        // check if already loaded and showing
-		if (this.OgcFeaturesLoaderCesium && this.map.viewer.scene.primitives.contains(this.OgcFeaturesLoaderCesium.primitiveCollection) && this.OgcFeaturesLoaderCesium.primitiveCollection.show) return;
+		this.OgcFeaturesLoaderCesium?.destroy();
 		await this.setup();
-		if (!this.showing) return; // If hide() was called before setup was done
-		this.OgcFeaturesLoaderCesium.activate();
+		if (this.showing) { // If hide() may have been called before setup was done
+			this.show();
+		}
+	}
+	
+	public switchUrl(url: string, parameters?: Record<string, string>): void {
+		if (url !== this.url || parameters !== this.parameters) {
+			this.url = url;
+			this.parameters = parameters;
+			this.init();
+		}
+
+	}
+
+	public show(): void {
+		this.showing = true;
+		this.OgcFeaturesLoaderCesium?.activate();
 		this.map.refresh();
 	}
 
 	public hide(): void {
 		this.showing = false;
 		this.OgcFeaturesLoaderCesium?.deactivate();
-		this.map?.refresh();
+		this.map.refresh();
 	}
 
 	public setOpacity(opacity: number): void {
@@ -143,10 +145,9 @@ export class OgcFeaturesProviderCesium {
 		try {
 			const req = await fetch(url);
 			const json = await req.json();
-			
-			this.availableCollections = Array.from(json.collections).map(col => {
-				return {id: col.id, title: col.title, bbox: col.extent.spatial.bbox[0]} as Collection
-			}).filter(col => col.id !== "");
+			const collections = json.collections as Array<Collection>;
+
+			this.availableCollections = collections.filter(col => col.id !== "");
 
 			if (this.collectionId) {
 				this.collection = this.availableCollections.find(col => col.id === this.collectionId);
@@ -156,8 +157,8 @@ export class OgcFeaturesProviderCesium {
 				this.collection = this.availableCollections[0];
 			}
 			// set bounding box
-			if (this.collection.bbox) {
-				this.boundingRect = Cesium.Rectangle.fromDegrees(...this.collection.bbox);
+			if (this.collection.extent.spatial.bbox) {
+				this.boundingRect = Cesium.Rectangle.fromDegrees(...this.collection.extent.spatial.bbox[0]);
 			}
 		} catch (error) {
 			console.error(error);
@@ -217,34 +218,6 @@ export class OgcFeaturesProviderCesium {
 	}
 
 
-	public async featuresAtPoint(lon: number, lat: number): Promise<GeoJSONFeature | undefined> {
-		const srsName = 'EPSG:4326';
-		const point = `<gml:Point srsName="${srsName}"><gml:coordinates>${lon},${lat}</gml:coordinates></gml:Point>`;
-		const filter = `<Filter><Intersects><PropertyName>geom</PropertyName>${point}</Intersects></Filter>`;
-		
-		const params = new URLSearchParams({
-			service: 'WFS',
-			version: '1.1.0',
-			request: 'GetFeature',
-			typeName: this.featureType,
-			srsName: `EPSG:4326`,
-			maxFeatures: "1", //this.maxFeatures.toString(),
-			outputFormat: 'application/json',
-			Filter: filter
-		});
-
-		try {
-			const response = await fetch(`${this.url}?${params.toString()}`);
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-			const feature = await response.json();
-			return feature;
-		} catch (error) {
-			console.error('Error fetching feature:', error);
-		}
-	}
-
 	public async featuresInPolygon(polygon: Array<[lon: number, lat: number]>): Promise<Array<GeoJSONFeature> | undefined> {
 		await this.setup();
 		if (this.OgcFeaturesLoaderCesium instanceof OgcFeaturesLoaderCesiumStatic) {
@@ -276,71 +249,6 @@ export class OgcFeaturesProviderCesium {
 		}
 	}
 
-	public async polygonIntersect2(polygon: Array<[lon: number, lat: number]>): Promise<string | undefined> {
-		const srsName = 'EPSG:4326';
-		const coords = polygon.map(coord => coord.join(',')).join(' ');
-		const point = `<gml:Polygon xmlns:gml="http://www.opengis.net/gml" srsName="${srsName}"><gml:exterior><gml:LinearRing><gml:posList>${coords}</gml:posList></gml:LinearRing></gml:exterior></gml:Polygon>`;
-		const filter = `<ogc:Filter xmlns:ogc="http://www.opengis.net/ogc"><ogc:Intersects><ogc:PropertyName>geom</ogc:PropertyName>${point}</ogc:Intersects></ogc:Filter>`;
-		
-		const params = new URLSearchParams({
-			service: 'WFS',
-			version: '2.0.0',
-			request: 'GetFeature',
-			typeName: this.featureType,
-			srsName: `EPSG:4326`,
-			Filter: filter
-		});
-
-		try {
-			const response = await fetch(`${this.url}`, { //?${params.toString()}
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					polgyon: this.getPolygonFilter(polygon, this.featureType)
-				})
-			});
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-			const features = await response.text();
-			return features;
-		} catch (error) {
-			console.error('Error fetching features:', error);
-		}
-	}
-
-	private getPolygonFilter(coordinates: Array<[lon: number, lat: number]>, layerName: string): string {
-		const gmlCoordinates = coordinates.map(coord => coord.join(',')).join(' ');
-		return `
-			<wfs:GetFeature service="WFS" version="1.1.0"
-				xmlns:wfs="http://www.opengis.net/wfs"
-				xmlns:ogc="http://www.opengis.net/ogc"
-				xmlns:gml="http://www.opengis.net/gml"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-				xsi:schemaLocation="http://www.opengis.net/wfs
-				http://schemas.opengis.net/wfs/1.1.0/wfs.xsd">
-				<wfs:Query typeName="${layerName}">
-					<ogc:Filter>
-						<ogc:Intersects>
-							<ogc:PropertyName>geometry</ogc:PropertyName>
-							<gml:Polygon srsName="EPSG:4326">
-								<gml:outerBoundaryIs>
-									<gml:LinearRing>
-										<gml:coordinates>
-											${gmlCoordinates}
-										</gml:coordinates>
-									</gml:LinearRing>
-								</gml:outerBoundaryIs>
-							</gml:Polygon>
-						</ogc:Intersects>
-					</ogc:Filter>
-				</wfs:Query>
-			</wfs:GetFeature>
-		`
-	}
-
 }
 
 
@@ -364,6 +272,7 @@ abstract class OgcFeaturesLoaderCesium {
 			mapPrimitives.add(this.primitiveCollection);
 		}
 		this.primitiveCollection.show = true;
+		this.terrainUnsubscriber?.();
 		this.terrainUnsubscriber = this.OgcFeatures.map.options.terrainSwitchReady.subscribe((b) => {
 			const provider = this.OgcFeatures.map.viewer.terrainProvider;
 			if (b && this.cachedTerrainProvider !== provider) {
@@ -380,6 +289,12 @@ abstract class OgcFeaturesLoaderCesium {
 	}
 
 	public onTerrainSwitch(): void {
+		this.primitiveCollection.removeAll();
+	}
+
+	public destroy(): void {
+		this.deactivate();
+		this.loadedFeatures = [];
 		this.primitiveCollection.removeAll();
 	}
 
@@ -405,17 +320,21 @@ abstract class OgcFeaturesLoaderCesium {
 					});
 					break;
                 case 'LineString':
-                    if (perInstanceTerrainSample && this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
+                    /*
+					if (perInstanceTerrainSample && this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
                         let terrainHeight = await Cesium.sampleTerrainMostDetailed(this.OgcFeatures.map.viewer.terrainProvider, [Cesium.Cartographic.fromDegrees(feature.geometry.coordinates[0][0], feature.geometry.coordinates[0][1])]);
                         if (terrainHeight[0]) height = terrainHeight[0].height;
                     }
+					*/
                     await addLineString(feature.geometry.coordinates, height, feature.properties, colorAttribute);
                     break;
 				case 'MultiLineString':
+					/*
 					if (perInstanceTerrainSample && this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
 						let terrainHeight = await Cesium.sampleTerrainMostDetailed(this.OgcFeatures.map.viewer.terrainProvider, [Cesium.Cartographic.fromDegrees(feature.geometry.coordinates[0][0][0], feature.geometry.coordinates[0][0][1])]);
 						if (terrainHeight[0]) height = terrainHeight[0].height;
 					}
+					*/
 					for (let i=0; i < feature.geometry.coordinates.length; i++) {
 						const uniqueProperties = { ...feature.properties, hidden: i };
 						await addLineString(feature.geometry.coordinates[i], height, uniqueProperties, colorAttribute);
@@ -470,7 +389,7 @@ abstract class OgcFeaturesLoaderCesium {
             const positions = coordinates.map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1], height));
             const props = this.OgcFeatures.allowPicking ? properties : undefined;
             const polylineInstance = new Cesium.GeometryInstance({
-                geometry: new Cesium.PolylineGeometry({
+                geometry: new Cesium.GroundPolylineGeometry({
                     positions: positions,
                     width: 2.0
                 }),
@@ -501,10 +420,10 @@ abstract class OgcFeaturesLoaderCesium {
 				translucent: false
 			});
 			primitives.push(
-				new Cesium.Primitive({
+				new Cesium.GroundPrimitive({
 					geometryInstances: polygonInstances,
 					appearance: polygonAppearance,
-					depthFailAppearance: polygonAppearance,
+					//depthFailAppearance: polygonAppearance,
 					releaseGeometryInstances: true,
 					allowPicking: this.OgcFeatures.allowPicking
 				})
@@ -689,7 +608,6 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 		this.OgcFeatures.map.viewer.scene.camera.changed.removeEventListener(this.loadHandle);
 	}
 
-
 	public onTerrainSwitch(): void {
 		super.onTerrainSwitch();
 		this.loadedTiles = [];
@@ -700,7 +618,6 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 
 	private async onCameraChanged(): Promise<void> {
 		if (this.blocking || !this.primitiveCollection.show) return;
-		console.log("Camera changed");
 		this.blocking = true;
 		setTimeout(() => this.blocking = false, 3500);
 		await this.bustCache();

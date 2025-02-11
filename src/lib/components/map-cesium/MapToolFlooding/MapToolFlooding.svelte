@@ -1,290 +1,104 @@
 <script lang="ts">
 	import { getContext } from "svelte";
 	import { writable, get, type Writable } from "svelte/store";
+	import { _ } from "svelte-i18n";
 	import { WaveHeight } from "carbon-icons-svelte";
 	import { Search, Dropdown } from "carbon-components-svelte";
-	import { _ } from "svelte-i18n";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
-	import { LayerConfig } from "$lib/components/map-core/layer-config";
-	// import type { WfsLayer } from "../module/layers/wfs-layer";
-	import { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
-	import type { IconLayer } from "../module/layers/icon-layer";
 	import BreachEntry from "./BreachEntry.svelte";
-	import type { CesiumIcon } from "../module/cesium-icon";
 	import LayerControlFlood from "../LayerControlFlood/LayerControlFlood.svelte";
-	import { FloodLayer } from "../module/layers/flood-layer";
-	import * as Cesium from "cesium";
+	import { FloodLayerController, type Breach, type FloodToolSettings } from "./layer-controller";
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
 	const id: string = "flooding";
 	const icon: any = WaveHeight;
-	let label: string = $_("tools.flooding.label");
-	let showOnBottom: boolean = false;
+	const label: string = $_("tools.flooding.label");
+	const showOnBottom: boolean = false;
 
-	let tool = new MapToolMenuOption(id, icon, label, showOnBottom);
-	$: settings = tool.settings;
+	const tool = new MapToolMenuOption(id, icon, label, showOnBottom);
+	registerTool(tool);
 
-	tool.settings.subscribe((settings) => {
-        if (settings) {
-			console.log(settings)
-			iconLayer = addIconLayer();
-			// roadsLayer = addAllRoadsLayer(); // Takes too long to load currently
-        }
-    });
 
-	$: tool.label.set($_("tools.flooding.label"));
+	const selectedScenario: Writable<string | undefined> = writable(undefined);
 
-	let iconLayer: IconLayer;
-	let allRoadsLayer: OgcFeaturesLayer;
-	let floodLayer: FloodLayer | undefined;
-	let floodedRoadsLayer: OgcFeaturesLayer | undefined;
-	let layerControlRef;
+	let breaches: Array<Breach>;
+	const activeBreach: Writable<Breach | undefined> = writable(undefined);
+	const hoveredBreach: Writable<Breach | undefined> = writable(undefined);
+
+	let floodLayerController: FloodLayerController | undefined;
 	
-	$: active = iconLayer.activeIcon;
-	$: hovered = iconLayer.hoveredIcon;
-	$: breaches = iconLayer.mapIcons;
+	tool.settings.subscribe(async(settings?: FloodToolSettings) => {
+		if (settings) {
+			floodLayerController = new FloodLayerController(map, settings, activeBreach, selectedScenario);
+			const breachCollection = await fetch(settings.breachUrl).then((res) => res.json());
+			breaches = breachCollection.features;
+			floodLayerController.addBreaches(breaches);
+			setSearchResults();
+		}
+	});
 
-	let searchString: Writable<string> = writable<string>("");
-    let searchableList: Array<{ key: string; value: CesiumIcon }> = new Array<{ key: string; value: CesiumIcon }>();
-    let searchResults: Array<CesiumIcon> = new Array<CesiumIcon>();
+	const searchString: Writable<string> = writable<string>("");
+	let searchableList: Array<{ key: string; value: Breach }> = new Array<{ key: string; value: Breach }>();
+	let searchResults: Array<Breach> = new Array<Breach>();
 
-	let scenario: Writable<string> = writable()
-
-	function searchBreach() {
+	function setSearchResults(): void {
 		if (!breaches) return;
-		searchableList = $breaches.map((b) => ({ key: b.properties.name.toLowerCase(), value: b }));
+		searchableList = breaches.map((b) => ({ key: b.properties.name.toLowerCase(), value: b }));
 		searchResults = searchableList.filter((item) => item.key.toLowerCase().includes(get(searchString).toLowerCase()) || get(searchString) === "")
 			.sort((a, b) => a.key.localeCompare(b.key))
 			.map((item) => item.value);
 	}
 
 	searchString.subscribe(() => {
-		searchBreach();
+		setSearchResults();
 	});
 
 	selectedTool.subscribe((selected: MapToolMenuOption) => {
 		if (selected === tool) {
-			iconLayer.show();
-			zoomToLayer();
-		} else {
-			if (iconLayer) iconLayer.hide();
+			floodLayerController?.showAll();
 		}
 	});
 
-	$: iconLayer.loaded.subscribe((loaded) => {
-		if (loaded) {
-			zoomToLayer();
-			searchBreach();
+	activeBreach.subscribe((breach) => {
+		if (breach && !$selectedTool) {
+			$selectedTool = tool
 		}
 	});
-
-
-	function zoomToLayer() {
-		const pos = iconLayer.getLayerPosition();
-		if (pos) map.flyTo(pos);
-	}
-
-	function addIconLayer() {
-		// add icon layer with breach locations
-		const layerConfig = new LayerConfig({
-			id: "fl_breachicons",
-			title: "Breach Locations",
-			type: "icon",
-			settings: {
-                "url": get(tool.settings).breachUrl
-            },
-			isBackground: false,
-			defaultOn: true,
-			defaultAddToManager: false,
-		});
-		return map.addLayer(layerConfig);
-	}
-
-	function addAllRoadsLayer() {
-		let breach = get(iconLayer.activeIcon);
-		if (!breach) return;
-
-		// add roads layer with all roads
-		const layerConfig = new LayerConfig({
-			id: "all_roads",
-			title: "Wegen",
-			type: "ogc-features",
-			settings: {
-				"url": "http://localhost:5000/",
-                "options": {
-                    "collectionId": "nwb",
-                    "heightStartLoading": 50000,
-                    "maxFeatures": 10,
-                    "tileWidth": 1024
-                }
-			},
-			isBackground: false,
-			defaultOn: true,
-			defaultAddToManager: false,
-		});
-		return map.addLayer(layerConfig);
-	}
-
-	$: iconLayer.activeIcon.subscribe((breach) => {
-		if (!breach) {
-			removeFloodLayer();
-			return;
-		}
-		// set current scenario to first in list
-		scenario.set(breach.properties.scenarios[0]);
-	});
-
-	$: scenario.subscribe(() => {
-		if (!get(iconLayer.activeIcon)) {
-			return;
-		}
-		addFloodsAndRoads();
-	});
-
-	async function addFloodsAndRoads() {
-		let breach = get(iconLayer.activeIcon);
-		if (!breach) return;
-
-		// Fly to breach location
-		await map.viewer.flyTo(breach.billboard, {
-				duration: 3,
-				offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 5000)
-			});
-		addFloodLayer(breach);
-		addFloodedRoadsLayer(breach);
-	}
-
-	function addFloodLayer(breach) {
-		// add flood layer for specific scenario 
-
-		let layerId = `${breach.properties.dijkring}_${breach.properties.name}_${get(scenario)}`;
-		if (floodLayer?.config?.id !== layerId) {
-			removeFloodLayer();
-			try {
-				floodLayer = map.addLayer(new LayerConfig({
-					id: layerId,
-					type: "flood",
-					title: "Flood layer",
-					groupId: "",
-					legendUrl: "",
-					isBackground: false,
-					defaultAddToManager: true,
-					defaultOn: true,
-					transparent: false,
-					opacity: 0,
-					settings: {
-						url: `${$settings.scenariosBaseUrl}${layerId}/layer.json`,
-						resolution: 50
-					}
-				}));
-
-			} catch (error) {
-				console.error(error);
-			}
-		}
-	console.log("added flood layer")
-	}
-
-	function addFloodedRoadsLayer(breach) {
-		// add flooded roads for specific scenario from OGC feature API
-		
-		let layerId = `${breach.properties.dijkring}_${breach.properties.name}_${get(scenario)}`;
-		// get(timeSliderValue);
-		console.log(layerId);
-		
-		if (floodedRoadsLayer?.config?.id !== layerId) {
-			removeFloodedRoadsLayer();
-		
-			try {
-					floodedRoadsLayer = map.addLayer(new LayerConfig({
-					id: "flooded_roads",
-					title: "Wegen",
-					type: "ogc-features",
-					settings: {
-						"url": `http://localhost:5000`,
-						"options": {
-							"collectionId": "nwb_floods",
-							"heightStartLoading": 50000,
-							"maxFeatures": 10000,
-							"tileWidth": 40640
-						},
-						"parameters": { 
-							"scenario": "26_NzSch-dp_160_300",
-							// "scenario": layerId, // scenario not yet formatted correctly in data
-							"timestep": "00006",
-							"limit": "1420"
-						}
-					},
-					isBackground: false,
-					defaultOn: true,
-					defaultAddToManager: false
-					}))
-			} catch (error) {
-					console.error(error);
-			}
-		}
-		console.log("added flooded roads layer")
-	}
-
-	function removeFloodLayer() {
-		if (floodLayer) {
-			floodLayer.hide();
-			floodLayer.removeFromMap();
-			floodLayer = undefined;
-			// layerControlRef.$destroy();
-			// layerControlRef was destroyed but never instantiated again, so it breaks
-			console.log("removed flood layer")
-		}
-	}
-
-	function removeFloodedRoadsLayer() {
-		if (floodedRoadsLayer) {
-			floodedRoadsLayer.hide();
-			floodedRoadsLayer.removeFromMap();
-			floodedRoadsLayer = undefined;
-			console.log("removed flooded roads layer")
-		}
-	}
-
-	registerTool(tool);
-
 
 </script>
 
 
-{#if $selectedTool === tool}
+{#if $selectedTool === tool && floodLayerController}
 	<div class="wrapper">
 		<div class="selected-content">
 			<div class="bx--label">Gekozen bres</div>
-			{#if $active !== undefined}
-				<BreachEntry
-					bind:breach={$active}
-					bind:active
-					bind:hovered
-				>
-					<svelte:fragment slot="info"> 
-						{#if $active }
+			{#if $activeBreach}
+				{#key $activeBreach}
+					<BreachEntry
+						breach={$activeBreach}
+						active={activeBreach}
+						hovered={hoveredBreach}
+					>
+						<svelte:fragment slot="info"> 
 							<div class="info-content">
 								<Dropdown
 									label={$_("tools.flooding.scenario")}
-									items={$active.properties.scenarios.map((sc) => ({ id: sc, text: "1:" + sc }))}
-									bind:selectedId={$scenario}
+									items={$activeBreach.properties.scenarios.map((sc) => ({ id: sc, text: "1:" + sc }))}
+									bind:selectedId={$selectedScenario}
 									titleText={$_("tools.flooding.scenario")}
 								/>
-								{#if floodLayer !== undefined}
+								{#if $selectedScenario}
 									<LayerControlFlood
-										bind:this={layerControlRef}
-										layer={floodLayer}
+										{floodLayerController}
 										map={map}
 										showGlobeOpacitySlider={true}
 									/>
 								{/if}
 							</div>
-						{/if}
-					</svelte:fragment>
-					
-				</BreachEntry>
+						</svelte:fragment>
+					</BreachEntry>
+				{/key}
 			{:else}
 				<div>
 					Geen bres geselecteerd
@@ -301,12 +115,12 @@
 				{#if searchResults.length === 0}
 					<div>Geen resultaten</div>
 				{/if}
-				{#each searchResults as breach}
-					{#if breach && (!$active || breach !== $active)}
+				{#each searchResults as breach (breach.properties.name)}
+					{#if breach && (!$activeBreach || breach !== $activeBreach)}
 						<BreachEntry
 							bind:breach
-							bind:active
-							bind:hovered
+							active={activeBreach}
+							hovered={hoveredBreach}
 						/>
 					{/if}
 				{/each}
