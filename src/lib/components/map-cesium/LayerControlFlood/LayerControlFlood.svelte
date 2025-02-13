@@ -32,7 +32,7 @@
 					}
 					return value + $speed;
 				});
-			}, 250);
+			}, 1000);
 		} else {
 			stopPlaying();
 		}

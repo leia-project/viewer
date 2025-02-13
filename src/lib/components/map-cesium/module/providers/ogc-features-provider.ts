@@ -103,9 +103,10 @@ export class OgcFeaturesProviderCesium {
 			console.log('Switching parameters from:', this.parameters, 'to:', parameters);
 			this.url = url;
 			this.parameters = parameters;
-			this.init();
+			// this.init();
+			this.OgcFeaturesLoaderCesium?.sourceSwitch();
 		}
-
+		this.map.refresh();
 	}
 
 	public show(): void {
@@ -176,7 +177,7 @@ export class OgcFeaturesProviderCesium {
 
 	private async dynamicLoadingNeeded(): Promise<boolean> {
 		// the static loader is deprecated and should not be used TODO: refactor this
-		return true;
+		return false;
 		// const params = new URLSearchParams({
 		// 	f: this.outputFormat || 'json',
 		// 	limit: '1',
@@ -317,6 +318,10 @@ abstract class OgcFeaturesLoaderCesium {
 		this.primitiveCollection.removeAll();
 	}
 	
+	public sourceSwitch(): void {
+		// this.primitiveCollection.removeAll();
+		const awesome = 69420;
+	}
 
 	public async createPrimitives(features: Array<GeoJSONFeature>, tileHeight: number, perInstanceTerrainSample: boolean = false): Promise<Array<Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive | Cesium.Primitive>> {
 		const primitives: Array<Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive | Cesium.Primitive> = [];
@@ -552,8 +557,8 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 
 	public async loadFeatures(): Promise<void> {
 		if (!this.features) {
-			console.log("Loading features from loadFeatures() (no params are passed here)");
-			const features = await this.OgcFeatures.getFeature();
+			// console.log("Loading features from loadFeatures() (no params are passed here)");
+			const features = await this.OgcFeatures.getFeature(undefined, this.OgcFeatures.parameters);
 			this.features = features || [];
 		}
 	}
@@ -565,8 +570,21 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 			this.primitives = primitives;
 			this.primitives.forEach(primitive => this.primitiveCollection.add(primitive));
 		});
+		this.features = undefined;
 	}
 
+	public async sourceSwitch(): Promise<void> {
+		console.log("sourceSwitch");
+		await this.loadFeatures();
+		super.sourceSwitch();
+		if (this.features) this.createPrimitives(this.features, 0, true).then(primitives => {
+			this.primitives = primitives;
+			this.primitiveCollection.removeAll();
+			this.primitives.forEach(primitive => this.primitiveCollection.add(primitive));
+		});
+		this.features = undefined;
+	}
+		
 	public async getFeaturesInPolygon(polygon: Array<[lon: number, lat: number]>): Promise<Array<GeoJSONFeature>> {
 		await this.loadFeatures();
 		if (!this.features) return [];
@@ -649,6 +667,7 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 			console.log("camera too high")
 			return;
 		}
+		// console.log("camera low enough");
 		this.primitiveCollection.show = true;
 		const targetArea = this.getTargetRectangle();
 		const tileIndicesInView = this.getTileIndices(targetArea, this.OgcFeatures.map.viewer.camera.positionCartographic);

@@ -38,7 +38,7 @@ export class FloodLayerController {
 	public time: Writable<number> = writable(0);
 	public minTime: Writable<number> = writable(0);
 	public maxTime: Writable<number> = writable(1);
-	public speed: Writable<number> = writable(0.1);
+	public speed: Writable<number> = writable(1);
 
 	public opacity: Writable<number> = writable(1);
 
