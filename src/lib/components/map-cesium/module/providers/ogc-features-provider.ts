@@ -2,7 +2,6 @@ import type { Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Map } from "../map";
 import * as turf from "@turf/turf";
-import { Undefined } from "carbon-icons-svelte";
 
 
 interface OgcFeaturesTile {
@@ -99,7 +98,8 @@ export class OgcFeaturesProviderCesium {
 	}
 	
 	public switchUrl(url: string, parameters?: Record<string, string>): void {
-		if (url !== this.url || parameters !== this.parameters) {
+		const parametersChanged = this.parametersChanged(parameters);
+		if (url !== this.url || parametersChanged) {
 			console.log('Switching parameters from:', this.parameters, 'to:', parameters);
 			this.url = url;
 			this.parameters = parameters;
@@ -107,6 +107,26 @@ export class OgcFeaturesProviderCesium {
 			this.OgcFeaturesLoaderCesium?.sourceSwitch();
 		}
 		this.map.refresh();
+	}
+
+	private parametersChanged(newParameters?: Record<string, any>): boolean {
+		if (!newParameters && !this.parameters) {
+			return false;
+		}
+		if (!newParameters || !this.parameters) {
+			return true;
+		}
+		if (Object.keys(newParameters).length !== Object.keys(this.parameters).length) {
+			return true;
+		}
+		for (const key in newParameters) {
+			if (newParameters.hasOwnProperty(key)) {
+				if (newParameters[key] !== this.parameters[key]) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public show(): void {

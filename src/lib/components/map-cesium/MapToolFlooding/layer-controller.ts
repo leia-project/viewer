@@ -5,7 +5,6 @@ import type { FloodLayer } from "../module/layers/flood-layer";
 import type { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
 import { get, writable, type Writable } from "svelte/store";
 import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
-import { Parameter } from "carbon-icons-svelte";
 
 
 export interface FloodToolSettings {
@@ -38,9 +37,7 @@ export class FloodLayerController {
 	public time: Writable<number> = writable(0);
 	public minTime: Writable<number> = writable(0);
 	public maxTime: Writable<number> = writable(1);
-	public speed: Writable<number> = writable(1);
-
-	public opacity: Writable<number> = writable(1);
+	public stepInterval: Writable<number> = writable(0.05);
 
 	public layerConfigGroup: LayerConfigGroup = new LayerConfigGroup("overstromingen", "Overstromingen");
 	public iconLayer: IconLayer<Breach>;
@@ -72,13 +69,14 @@ export class FloodLayerController {
 			const breach = get(this.activeBreach);
 			const scenario = get(this.selectedScenario) || 'geen_scenario';
 			if (breach && scenario) {
-			const scenarioId = `${breach?.properties.dijkring}_${breach?.properties.name}_${scenario}`;
-			const timestring = (Math.round(time) * 6).toString().padStart(5, "0")
-			const parameters ={
-				scenario: scenarioId, 
-				timestep: timestring, 
-				limit: "666"}
-			this.floodedRoadsLayer.source.switchUrl(settings.floodedRoadsUrl, parameters);
+				const scenarioId = `${breach?.properties.dijkring}_${breach?.properties.name}_${scenario}`;
+				const timestring = (Math.round(time) * 6).toString().padStart(5, "0")
+				const parameters = {
+					scenario: scenarioId, 
+					timestep: timestring, 
+					limit: "666"
+				}
+				this.floodedRoadsLayer.source.switchUrl(settings.floodedRoadsUrl, parameters);
 			};
 		});
 	}
@@ -146,8 +144,8 @@ export class FloodLayerController {
 			isBackground: false,
 			defaultAddToManager: true,
 			defaultOn: true,
-			transparent: false,
-			opacity: 0,
+			transparent: true,
+			opacity: 20,
 			settings: {
 				resolution: 50,
 				url: baseUrl
@@ -157,7 +155,6 @@ export class FloodLayerController {
 		layerConfig.added.set(true);
 		const floodLayer = get(this.map.layers).find((l) => l.id === layerConfig.id) as FloodLayer;
 		floodLayer.time = this.time;
-		floodLayer.opacity = this.opacity;
 		return floodLayer;
 	}
 
@@ -181,7 +178,6 @@ export class FloodLayerController {
 			defaultAddToManager: false,
 		});
 		this.roadsLayer = this.map.addLayer(layerConfig) as OgcFeaturesLayer;
-		this.roadsLayer.opacity = this.opacity;
 	}
 	*/
 
@@ -213,11 +209,9 @@ export class FloodLayerController {
 			defaultOn: true,
 			defaultAddToManager: true
 		});
-		console.log("Adding flooded roads layer", layerConfig);
 		this.map.layerLibrary.addLayerConfig(layerConfig);
 		layerConfig.added.set(true);
 		const floodedRoadsLayer = get(this.map.layers).find((l) => l.id === layerConfig.id) as OgcFeaturesLayer;
-		floodedRoadsLayer.opacity = this.opacity;
 		return floodedRoadsLayer;
 	}
 }

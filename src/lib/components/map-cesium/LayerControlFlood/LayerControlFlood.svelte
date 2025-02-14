@@ -15,9 +15,10 @@
 	export let showGlobeOpacitySlider: boolean = true;
 	
 	const globeOpacity = map.options.globeOpacity;
-	const { time, minTime, maxTime, speed, opacity } = floodLayerController;
+	const { time, minTime, maxTime, stepInterval } = floodLayerController;
 	const error = floodLayerController.floodLayer.error;
 	const floodLayerLoaded = floodLayerController.floodLayer.loaded;
+	const floodOpacity = floodLayerController.floodLayer.opacity;
 
 	let playing: boolean = false;
 	let intervalId: NodeJS.Timeout | null;
@@ -30,9 +31,9 @@
 						stopPlaying();
 						return value;
 					}
-					return value + $speed;
+					return value + $stepInterval;
 				});
-			}, 1000);
+			}, 1000 * $stepInterval);
 		} else {
 			stopPlaying();
 		}
@@ -72,19 +73,19 @@
 		<div class="wrapper">
 			{#if showGlobeOpacitySlider}
 				<Slider
+					bind:value={$globeOpacity}
 					hideTextInput
 					labelText={$_("tools.backgroundControls.opacity") + " " + $globeOpacity + "%"}
 					min={0}
 					max={100}
-					bind:value={$globeOpacity}
 					step={1}
 				/>
 			{/if}
 		</div>
 		<div class="wrapper">
 			<Slider 
-				bind:value={$opacity}
-				labelText={$_('tools.flooding.waterTransparency') + ' ' + $opacity + '%'} 
+				bind:value={$floodOpacity}
+				labelText={$_('tools.flooding.waterTransparency') + ' ' + $floodOpacity + '%'} 
 				fullWidth={true} 
 				hideTextInput={true} 
 				min={0} 
@@ -103,9 +104,10 @@
 				hideTextInput={true}
 				min={$minTime}
 				max={$maxTime}
-				step={$speed}
+				step={$stepInterval}
 				minLabel={$minTime.toString()}
 				maxLabel={$maxTime.toString()}
+				on:input={stopPlaying}
 			/>
 		</div>
 		<div class="wrapper" style="display: flex; justify-content: center; gap: 4px;">
@@ -117,7 +119,7 @@
 				iconDescription={$_('tools.animation.previous')}
 				on:click={() => {
 					// After switching scenario or breach, the Slider no longer listens to layer.timeSliderValue, so #timeSliderValue must be updated manually
-					time.update((value) => value - $speed);	
+					time.update((value) => Math.max(0, Math.round(value - 1)));
 				}}
 			/>
 			<Button 
@@ -136,7 +138,7 @@
 				iconDescription={$_('tools.animation.next')}
 				on:click={() => {
 					// After switching scenario or breach, the Slider no longer listens to layer.timeSliderValue, so #timeSliderValue must be updated manually
-					time.update((value) => value + $speed);	
+					time.update((value) => Math.min($maxTime, Math.round(value +1)));
 				}}
 			/>
 		</div>

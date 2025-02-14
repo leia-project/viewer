@@ -463,6 +463,8 @@ class DynamicWaterLevel {
 			appearance: appearance,
 			shadows: Cesium.ShadowMode.DISABLED
 		});
+		//@ts-ignore
+		this.primitive.type = "flood";
 	}
 
 }
@@ -480,7 +482,6 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
 
-		this.opacity.set(80);
 		this.source = new DynamicWaterLevel({
 			map: this.map,
 			gridSpacingInMeters: this.config.settings.resolution,
