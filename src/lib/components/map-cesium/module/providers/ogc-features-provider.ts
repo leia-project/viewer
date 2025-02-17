@@ -2,6 +2,7 @@ import type { Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Map } from "../map";
 import * as turf from "@turf/turf";
+import { render } from "sass";
 
 
 interface OgcFeaturesTile {
@@ -106,7 +107,6 @@ export class OgcFeaturesProviderCesium {
 			// this.init();
 			this.OgcFeaturesLoaderCesium?.sourceSwitch();
 		}
-		this.map.refresh();
 	}
 
 	private parametersChanged(newParameters?: Record<string, any>): boolean {
@@ -433,11 +433,19 @@ abstract class OgcFeaturesLoaderCesium {
         const addLineString = async (coordinates: Array<[lon: number, lat: number]>, height: number, properties: any, colorAttribute: Cesium.ColorGeometryInstanceAttribute) => {
             const positions = coordinates.map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1], height));
             const props = this.OgcFeatures.allowPicking ? properties : undefined;
+			const floodDepth = properties.flood_depth || 0;
+			const color = Cesium.Color.fromHsl(0.6 - (floodDepth / 10), 1.0, 0.5); // Adjust the color based on flood_depth
+			colorAttribute = Cesium.ColorGeometryInstanceAttribute.fromColor(color);
+			
             const polylineInstance = new Cesium.GeometryInstance({
                 geometry: new Cesium.PolylineGeometry({
                     positions: positions,
                     width: 2.0
                 }),
+				attributes: {
+					color: colorAttribute,
+					depthFailColor: colorAttribute
+				},
                 id: props
             });
             polylineInstances.push(polylineInstance);
@@ -446,18 +454,36 @@ abstract class OgcFeaturesLoaderCesium {
 		await Promise.all(features.map(processFeature));
 		polygonInstances.filter(instance => instance !== undefined);
 		if (polylineInstances.length > 0) {
-			const polylineAppearance = new Cesium.PolylineMaterialAppearance({
-				material: Cesium.Material.fromType('Color', {
-					color: Cesium.Color.BLACK
-				})
+			// const polylineAppearance = new Cesium.PolylineMaterialAppearance({
+			// 	material: Cesium.Material.fromType('Color', {
+			// 		color: Cesium.Color.BLACK
+			// 	})
+			// });
+			const polylineAppearance = new Cesium.PerInstanceColorAppearance({
+				translucent: false,
+				renderState: {
+					depthTest: {
+						enabled: false
+					 },
+					 blending: {
+						enabled: true,
+						color: {
+							red: 1.0,
+							green: 1.0,
+							blue: 1.0,
+							alpha: 0.5
+						}
+					}
+				}
 			});
+			
 			// console.log("pushing polylines", polylineInstances),
 			primitives.push(
 				new Cesium.Primitive({
 					geometryInstances: polylineInstances,
 					appearance: polylineAppearance,
 					depthFailAppearance: polylineAppearance,
-					releaseGeometryInstances: true
+					releaseGeometryInstances: true,
 				})
 			)
 		}
@@ -603,6 +629,7 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 			this.primitives.forEach(primitive => this.primitiveCollection.add(primitive));
 		});
 		this.features = undefined;
+		this.OgcFeatures.map.refresh();
 	}
 		
 	public async getFeaturesInPolygon(polygon: Array<[lon: number, lat: number]>): Promise<Array<GeoJSONFeature>> {
