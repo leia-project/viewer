@@ -35,6 +35,10 @@
 						}
 						else if (geocoderName === "locatieserver") {
 							geocoderUrl = "https://api.pdok.nl/bzk/locatieserver/search/v3_1";
+						}
+						else if (geocoderName === "geolocation") {
+							console.log("Belgian geocoder");
+							geocoderUrl = "https://geo.api.vlaanderen.be/geolocation/";
 						};
 						// TODO: Add option for custom geocoder
 						if (geocoderConfig.settings.url) {
@@ -56,6 +60,7 @@
 
 	function select(entity: any, geocoder: string): void {
 		const id = entity?.selectedResult?.locationId;
+		console.log('id', id);
 
 		if (id) {
 			zoomTo(id, geocoder);
@@ -80,11 +85,26 @@
 			} else if (geocoder === "locatieserver") {
 				const result = await fetch(`${geocoderUrl}/suggest?wt=json&q=${query}`);
 				searchResults = await result.json();
+				console.log('results', searchResults);
 				
 				searchResults.response.docs.forEach((searchResult: any) => {
 					entries.push({
 						text: searchResult.weergavenaam,
 						locationId: searchResult.id
+					});
+				});
+			// https://geo.api.vlaanderen.be/geolocation/Help/Api/GET-v4-Suggestion_q_c 
+			// Try Pijkestraat 140
+			} else if (geocoder === "geolocation") {
+				const result = await fetch(`${geocoderUrl}v4/Location?q=${query}&c=5`);
+				searchResults = await result.json();
+				
+				searchResults.LocationResult.forEach((searchResult: any) => {
+					// geolocation sucks because ID cannot be used to return adressess, we need the whole object
+					console.log('searchResult', searchResult);
+					entries.push({
+						text: searchResult.FormattedAddress,
+						locationId: searchResult
 					});
 				});
 			}
@@ -102,7 +122,6 @@
 				const firstLookupResult = lookupResults[0];
 
 				if (firstLookupResult) {
-					const wktString = `POLYGON((${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[0]}, ${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[1]}, ${firstLookupResult.boundingbox[3]} ${firstLookupResult.boundingbox[1]}, ${firstLookupResult.boundingbox[3]} ${firstLookupResult.boundingbox[0]}, ${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[0]}))`;
 					const box = wktToBox(wktString);
 					setCameraView(box);
 				}
@@ -116,6 +135,28 @@
 					const box = wktToBox(geomLL);
 					setCameraView(box);
 				}
+			}
+			// TODO
+			else if (geocoder === "geolocation") {
+				debugger;
+				// const result = await fetch(`${geocoderUrl}/lookup?wt=json&id=${locationId}&fl=geometrie_ll`);
+				// const lookupResult = await result.json();
+				console.log('locationId', locationId);
+
+				if (locationId) {
+					//const wktString = `POLYGON((${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[0]}, ${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[1]}, ${firstLookupResult.boundingbox[3]} ${firstLookupResult.boundingbox[1]}, ${firstLookupResult.boundingbox[3]} ${firstLookupResult.boundingbox[0]}, ${firstLookupResult.boundingbox[2]} ${firstLookupResult.boundingbox[0]}))`;
+
+					const geomLL = locationId.BoundingBox;
+					console.log('geomLL', geomLL);
+					const box = wktToBox(geomLL);
+					setCameraView(box);
+				}
+
+				// if (lookupResult?.response?.docs?.length > 0) {
+				// 	const geomLL = lookupResult.response.docs[0].geometrie_ll;
+				// 	const box = wktToBox(geomLL);
+				// 	setCameraView(box);
+				// }
 			}
 		} catch (e) {
 			console.log("PDOK Geocoder", `Error getting lookup (${e})`);
