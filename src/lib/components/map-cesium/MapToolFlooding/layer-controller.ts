@@ -201,6 +201,15 @@ export class FloodLayerController {
 					timestep: (Math.round(get(this.time)) * 6).toString().padStart(5, "0"),
 					limit: "420"
 				},
+				style: [
+					{
+						property: "water_depth",
+						stops: [
+							{ value: 0, color: "#ff0000" },
+							{ value: 100, color: "#0000ff" }
+						]
+					}
+				],
 				hideInLayerManager: false,
 				dragDropped: false
 	

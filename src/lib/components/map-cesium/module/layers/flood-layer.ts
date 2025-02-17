@@ -124,7 +124,7 @@ class DynamicWaterLevel {
 			if (!image) {
 				throw new Error("Failed to load terrain image");
 			}
-			if (image) return { time: i, image: image };
+			if (image) return { time: i - 4, image: image };
 		});
 		const loadedWaterLevels = await Promise.all(loadWaterLevelPromises);
 		this.waterLevels = [];
@@ -168,7 +168,7 @@ class DynamicWaterLevel {
 		let lowerBound = this.waterLevels[0];
 		let upperBound = this.waterLevels[this.waterLevels.length - 1];
 		for (const waterLevel of this.waterLevels) {
-			if (waterLevel.time < get(this.time)) {
+			if (waterLevel.time <= get(this.time)) {
 				lowerBound = waterLevel;
 			} else if (waterLevel.time > get(this.time)) {
 				upperBound = waterLevel;
