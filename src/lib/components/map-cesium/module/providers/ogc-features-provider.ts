@@ -119,7 +119,6 @@ export class OgcFeaturesProviderCesium {
 		this.url = url;
 		this.options = options;
 		this.parameters = parameters;
-		this.stylize = stylize;
 
 		this.collectionId = collectionId;
 		this.allowPicking = allowPicking;
@@ -511,12 +510,7 @@ abstract class OgcFeaturesLoaderCesium {
 			const polylineAppearance = new Cesium.PolylineMaterialAppearance({
 				material: Cesium.Material.fromType('Color', {
 					color: Cesium.Color.BLACK
-				}),
-				renderState: {
-					depthTest : {
-						enabled : false
-					 }
-				}
+				})
 			});
 			// const polylineAppearance = new Cesium.PerInstanceColorAppearance({
 			// 	translucent: false,
