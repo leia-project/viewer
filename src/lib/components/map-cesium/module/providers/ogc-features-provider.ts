@@ -454,28 +454,28 @@ abstract class OgcFeaturesLoaderCesium {
 		await Promise.all(features.map(processFeature));
 		polygonInstances.filter(instance => instance !== undefined);
 		if (polylineInstances.length > 0) {
-			// const polylineAppearance = new Cesium.PolylineMaterialAppearance({
-			// 	material: Cesium.Material.fromType('Color', {
-			// 		color: Cesium.Color.BLACK
-			// 	})
-			// });
-			const polylineAppearance = new Cesium.PerInstanceColorAppearance({
-				translucent: false,
-				renderState: {
-					depthTest: {
-						enabled: false
-					 },
-					 blending: {
-						enabled: true,
-						color: {
-							red: 1.0,
-							green: 1.0,
-							blue: 1.0,
-							alpha: 0.5
-						}
-					}
-				}
+			const polylineAppearance = new Cesium.PolylineMaterialAppearance({
+				material: Cesium.Material.fromType('Color', {
+					color: Cesium.Color.BLACK
+				})
 			});
+			// const polylineAppearance = new Cesium.PerInstanceColorAppearance({
+			// 	translucent: false,
+			// 	renderState: {
+			// 		depthTest: {
+			// 			enabled: false
+			// 		 },
+			// 		 blending: {
+			// 			enabled: true,
+			// 			color: {
+			// 				red: 1.0,
+			// 				green: 1.0,
+			// 				blue: 1.0,
+			// 				alpha: 0.5
+			// 			}
+			// 		}
+			// 	}
+			// });
 			
 			// console.log("pushing polylines", polylineInstances),
 			primitives.push(
