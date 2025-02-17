@@ -34,6 +34,41 @@ interface OgcFeaturesConstructorOptions {
 }
 
 
+
+class RateLimiter {
+	private currentTask: Promise<void> | null = null;
+	private latestTask: (() => Promise<void>) | null = null;
+	private readonly interval: number;
+
+	constructor(interval: number) {
+		this.interval = interval;
+	}
+
+	// Function to add the task to be rate-limited
+	async addTask(task: () => Promise<void>) {
+		this.latestTask = task;
+		if (!this.currentTask) {
+			this.scheduleNextTask();
+		}
+	}
+
+	// Function to schedule the next task execution
+	private async scheduleNextTask() {
+		if (this.latestTask) {
+			this.currentTask = this.latestTask(); 
+			try {
+				await this.currentTask;
+			} catch (error) {
+				console.error("Error processing task:", error);
+			}
+			this.currentTask = null; 
+			setTimeout(() => this.scheduleNextTask(), this.interval);
+		}
+	}
+}
+
+
+
 /**
  * Represents a provider that draws Cesium primitives from geometrical features
  * retrieved from a OGC API - Features server.
@@ -69,6 +104,9 @@ export class OgcFeaturesProviderCesium {
 	public setupPromise: Promise<void> | undefined;
 	public showing: boolean = false;
 
+	private switchRateLimiter: RateLimiter = new RateLimiter(500);
+	private switchAbortController: AbortController | undefined;
+
 	constructor(map: Map, url: string, options: Partial<OgcFeaturesConstructorOptions>, parameters?: Record<string, string>) {
 		const {
 			collectionId = "",
@@ -80,6 +118,7 @@ export class OgcFeaturesProviderCesium {
 		this.url = url;
 		this.options = options;
 		this.parameters = parameters;
+		this.stylize = stylize;
 
 		this.collectionId = collectionId;
 		this.allowPicking = allowPicking;
@@ -98,15 +137,21 @@ export class OgcFeaturesProviderCesium {
 	}
 	
 	public switchUrl(url: string, parameters?: Record<string, string>): void {
+		this.switchRateLimiter.addTask(() => this.switchUrlTask(url, parameters));
+	}
+
+	public async switchUrlTask(url: string, parameters?: Record<string, string>): Promise<void> {
+		this.switchAbortController?.abort();
+		this.switchAbortController = new AbortController();
 		const parametersChanged = this.parametersChanged(parameters);
 		if (url !== this.url || parametersChanged) {
 			console.log('Switching parameters from:', this.parameters, 'to:', parameters);
 			this.url = url;
 			this.parameters = parameters;
 			// this.init();
-			this.OgcFeaturesLoaderCesium?.sourceSwitch();
+			await this.OgcFeaturesLoaderCesium?.sourceSwitch();
+			this.map.refresh();
 		}
-		this.map.refresh();
 	}
 
 	private parametersChanged(newParameters?: Record<string, any>): boolean {
@@ -241,7 +286,9 @@ export class OgcFeaturesProviderCesium {
 
 
 		try {
-			const response = await fetch(url);
+			const response = await fetch(url, {
+				signal: this.switchAbortController?.signal
+			});
 			if (!response.ok) {
 				throw new Error('Network response was not ok');
 			}
@@ -302,10 +349,19 @@ abstract class OgcFeaturesLoaderCesium {
 	}
 
 	public activate(): void {
+		// --> must be groundPrimtives
 		const mapPrimitives = this.OgcFeatures.map.viewer.scene.primitives;
-		if (!mapPrimitives.contains(this.primitiveCollection)) {
-			mapPrimitives.add(this.primitiveCollection);
+		const mapGroundPrimitives = this.OgcFeatures.map.viewer.scene.groundPrimitives;
+
+		for (let i = 0; i < this.primitiveCollection.length; i++) {
+			const primitive = this.primitiveCollection.get(i);
+			if (primitive instanceof Cesium.GroundPrimitive) {
+				if (!mapGroundPrimitives.contains(primitive)) mapGroundPrimitives.add(primitive);
+			} else {
+				if (!mapPrimitives.contains(primitive)) mapPrimitives.add(primitive);
+			}
 		}
+
 		this.primitiveCollection.show = true;
 		this.terrainUnsubscriber?.();
 		this.terrainUnsubscriber = this.OgcFeatures.map.options.terrainSwitchReady.subscribe((b) => {
@@ -338,10 +394,7 @@ abstract class OgcFeaturesLoaderCesium {
 		this.primitiveCollection.removeAll();
 	}
 	
-	public sourceSwitch(): void {
-		// this.primitiveCollection.removeAll();
-		const awesome = 69420;
-	}
+	public abstract sourceSwitch(): Promise<void>;
 
 	public async createPrimitives(features: Array<GeoJSONFeature>, tileHeight: number, perInstanceTerrainSample: boolean = false): Promise<Array<Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive | Cesium.Primitive>> {
 		const primitives: Array<Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive | Cesium.Primitive> = [];
@@ -371,7 +424,7 @@ abstract class OgcFeaturesLoaderCesium {
                         if (terrainHeight[0]) height = terrainHeight[0].height;
                     }
 					*/
-                    await addLineString(feature.geometry.coordinates, height, feature.properties, colorAttribute);
+                    addLineString(feature.geometry.coordinates, height, feature.properties, colorAttribute);
                     break;
 				case 'MultiLineString':
 					/*
@@ -382,7 +435,7 @@ abstract class OgcFeaturesLoaderCesium {
 					*/
 					for (let i=0; i < feature.geometry.coordinates.length; i++) {
 						const uniqueProperties = { ...feature.properties, hidden: i };
-						await addLineString(feature.geometry.coordinates[i], height, uniqueProperties, colorAttribute);
+						addLineString(feature.geometry.coordinates[i], height, uniqueProperties, colorAttribute);
 					}
 					break;
 				case 'Polygon':
@@ -390,7 +443,7 @@ abstract class OgcFeaturesLoaderCesium {
 						let terrainHeight = await Cesium.sampleTerrainMostDetailed(this.OgcFeatures.map.viewer.terrainProvider, [Cesium.Cartographic.fromDegrees(feature.geometry.coordinates[0][0][0], feature.geometry.coordinates[0][0][1])]);
 						if (terrainHeight[0]) height = terrainHeight[0].height;
 					}
-					await addPolygon(feature.geometry.coordinates, height, feature.properties, colorAttribute);
+					addPolygon(feature.geometry.coordinates, height, feature.properties, colorAttribute);
 					break;
 				case 'MultiPolygon':
 					if (perInstanceTerrainSample && this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
@@ -399,12 +452,12 @@ abstract class OgcFeaturesLoaderCesium {
 					}
 					for (let i=0; i < feature.geometry.coordinates.length; i++) {
 						const uniqueProperties = { ...feature.properties, hidden: i };
-						await addPolygon(feature.geometry.coordinates[i], height, uniqueProperties, colorAttribute);
+						addPolygon(feature.geometry.coordinates[i], height, uniqueProperties, colorAttribute);
 					}
 					break;
 			}
 		}
-		const addPolygon = async (coordinates: Array<Array<[lon: number, lat: number]>>, height: number, properties: any, colorAttribute: Cesium.ColorGeometryInstanceAttribute) => {
+		const addPolygon = (coordinates: Array<Array<[lon: number, lat: number]>>, height: number, properties: any, colorAttribute: Cesium.ColorGeometryInstanceAttribute) => {
 			const positions = coordinates[0].map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1], height));
 			const props = this.OgcFeatures.allowPicking ? properties : undefined;
 			const polygonIstance = new Cesium.GeometryInstance({
@@ -430,7 +483,7 @@ abstract class OgcFeaturesLoaderCesium {
 			polylineInstances.push(polylineInstance);
 		}
 
-        const addLineString = async (coordinates: Array<[lon: number, lat: number]>, height: number, properties: any, colorAttribute: Cesium.ColorGeometryInstanceAttribute) => {
+        const addLineString = (coordinates: Array<[lon: number, lat: number]>, height: number, properties: any, colorAttribute: Cesium.ColorGeometryInstanceAttribute) => {
             const positions = coordinates.map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1], height));
             const props = this.OgcFeatures.allowPicking ? properties : undefined;
             const polylineInstance = new Cesium.GeometryInstance({
@@ -444,16 +497,21 @@ abstract class OgcFeaturesLoaderCesium {
         }
 
 		await Promise.all(features.map(processFeature));
-		polygonInstances.filter(instance => instance !== undefined);
+		polylineInstances.filter(instance => instance !== undefined);
 		if (polylineInstances.length > 0) {
 			const polylineAppearance = new Cesium.PolylineMaterialAppearance({
 				material: Cesium.Material.fromType('Color', {
 					color: Cesium.Color.BLACK
-				})
+				}),
+				renderState: {
+					depthTest : {
+						enabled : false
+					 }
+				}
 			});
 			// console.log("pushing polylines", polylineInstances),
 			primitives.push(
-				new Cesium.Primitive({
+				new Cesium.GroundPrimitive({
 					geometryInstances: polylineInstances,
 					appearance: polylineAppearance,
 					depthFailAppearance: polylineAppearance,
@@ -461,6 +519,7 @@ abstract class OgcFeaturesLoaderCesium {
 				})
 			)
 		}
+		polygonInstances.filter(instance => instance !== undefined);
 		if (polygonInstances.length > 0) {
 			const polygonAppearance = new Cesium.PerInstanceColorAppearance({
 				translucent: false
@@ -594,14 +653,13 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 	}
 
 	public async sourceSwitch(): Promise<void> {
-		console.log("sourceSwitch");
 		await this.loadFeatures();
-		super.sourceSwitch();
-		if (this.features) this.createPrimitives(this.features, 0, true).then(primitives => {
+		if (this.features) {
+			const primitives = await this.createPrimitives(this.features, 0, true);
 			this.primitives = primitives;
 			this.primitiveCollection.removeAll();
 			this.primitives.forEach(primitive => this.primitiveCollection.add(primitive));
-		});
+		}
 		this.features = undefined;
 	}
 		
@@ -674,6 +732,13 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 		this.loadedFeatures = [];
 		this.blocking = false;
 		this.onCameraChanged();
+	}
+
+	public async sourceSwitch(): Promise<void> {
+		this.loadedTiles = [];
+		this.loadedFeatures = [];
+		this.blocking = false;
+		await this.onCameraChanged();
 	}
 
 	private async onCameraChanged(): Promise<void> {
