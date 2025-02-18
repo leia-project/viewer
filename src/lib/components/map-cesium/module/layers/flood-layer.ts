@@ -64,16 +64,30 @@ class DynamicWaterLevel {
 			type: "sampler2D",
 			value: undefined
 		},
-		uDepthT1: {
+		uFloodSlot1: {
 			type: "sampler2D",
 			value: undefined
 		},
-		uDepthT2: {
+		uFloodSlot2: {
+			type: "sampler2D",
+			value: undefined
+		},
+		uFloodSlot3: {
+			type: "sampler2D",
+			value: undefined
+		},
+		uFloodSlot4: {
 			type: "sampler2D",
 			value: undefined
 		}
-	
 	};
+
+	private floodTextureMapping: Array<{ slot: number, time?: number, image: any}> = [
+		{ slot: 1, time: undefined, image: undefined },
+		{ slot: 2, time: undefined, image: undefined },
+		{ slot: 3, time: undefined, image: undefined },
+		{ slot: 4, time: undefined, image: undefined }
+	];
 
 	constructor(options: DynamicWaterLevelOptions) {
 		this.map = options.map;
@@ -107,6 +121,7 @@ class DynamicWaterLevel {
 		// Not always recreate mesh when sw/ne stay the same?
 
 		await this.createMesh(this.contents);		
+		this.setUniforms();
 	}
 
 	private async loadContents(url: string): Promise<FloodLayerContents> {
@@ -143,10 +158,67 @@ class DynamicWaterLevel {
 	}
 
 	private async setUniforms(): Promise<void> {
-		const [lowerBound, upperBound] = this.findClosestWaterLevels();
-		if (!lowerBound || !upperBound) return;
-		this.uniformMap.uDepthT1.value = lowerBound.image;
-		this.uniformMap.uDepthT2.value = upperBound.image;
+		const [lowerLowerBound, lowerBound, upperBound, upperUpperBound] = this.findClosestWaterLevels();
+
+		let slotTextureT1: number;
+		const textureT1 = this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time);
+		if (!textureT1) {
+			for (const mapping of this.floodTextureMapping) {
+				if (mapping.time !== lowerBound.time && mapping.time !== upperBound.time) {
+					mapping.time = lowerBound.time;
+					mapping.image = lowerBound.image;
+					break;
+				}
+			}
+			slotTextureT1 = this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time)?.slot || 0;
+		} else {
+			slotTextureT1 = textureT1.slot;
+		}
+
+		let slotTextureT2: number;
+		const textureT2 = this.floodTextureMapping.find((mapping) => mapping.time === upperBound.time);
+		if (!textureT2) {
+			for (const mapping of this.floodTextureMapping) {
+				if (mapping.time !== lowerBound.time && mapping.time !== upperBound.time) {
+					mapping.time = upperBound.time;
+					mapping.image = upperBound.image;
+					break;
+				}
+			}
+			slotTextureT2 = this.floodTextureMapping.find((mapping) => mapping.time === upperBound.time)?.slot || 0;
+		} else {
+			slotTextureT2 = textureT2.slot;
+		}
+
+		const availableSlots = this.floodTextureMapping.filter((mapping) => mapping.time !== lowerBound.time && mapping.time !== upperBound.time);
+		availableSlots[0].time = lowerLowerBound.time; availableSlots[0].image = lowerLowerBound.image;
+		availableSlots[1].time = upperUpperBound.time; availableSlots[1].image = upperUpperBound.image;
+
+		//if (!lowerBound || !upperBound) return;
+		const setTextureSlot = (slot: number, image: any) => {
+			if (!this.material) return;
+			if (slot === 1) this.material.uniforms.u_flood_slot_1 = image;
+			if (slot === 2) this.material.uniforms.u_flood_slot_2 = image;
+			if (slot === 3) this.material.uniforms.u_flood_slot_3 = image;
+			if (slot === 4) this.material.uniforms.u_flood_slot_4 = image;
+		}
+
+		setTextureSlot(availableSlots[0].slot, availableSlots[0].image);
+		setTextureSlot(availableSlots[1].slot, availableSlots[1].image);
+
+		this.uniformMap.uFloodSlot1.value = this.floodTextureMapping[0].image;
+		this.uniformMap.uFloodSlot2.value = this.floodTextureMapping[1].image;
+		this.uniformMap.uFloodSlot3.value = this.floodTextureMapping[2].image;
+		this.uniformMap.uFloodSlot4.value = this.floodTextureMapping[3].image;
+
+
+		//this.uniformMap.uFloodSlot1.value = this.floodTextureMapping[0].image;
+		//this.uniformMap.uFloodSlot2.value = this.floodTextureMapping[1].image;
+
+		if (this.material) {
+			this.material.uniforms.u_flood_t1 = slotTextureT1;
+			this.material.uniforms.u_flood_t2 = slotTextureT2;
+		}
 
 		let progress: number = 1;
 		if (upperBound.time !== lowerBound.time) {
@@ -157,15 +229,15 @@ class DynamicWaterLevel {
 
 		if (this.material) {
 			this.material.uniforms.u_terrain = this.uniformMap.uTerrain.value;
-			this.material.uniforms.u_depth_t1 = this.uniformMap.uDepthT1.value;
-			this.material.uniforms.u_depth_t2 = this.uniformMap.uDepthT2.value;
+			//this.material.uniforms.u_depth_t1 = this.uniformMap.uDepthT1.value;
+			//this.material.uniforms.u_depth_t2 = this.uniformMap.uDepthT2.value;
 			this.material.uniforms.u_progress = this.uniformMap.uProgress.value;
 			this.material.uniforms.u_alpha = get(this.alpha);
 		}
 		this.map.refresh();
 	}
 
-	private findClosestWaterLevels(): [WaterLevel, WaterLevel] {
+	private findClosestWaterLevels(): [WaterLevel, WaterLevel, WaterLevel, WaterLevel] {
 		let lowerBound = this.waterLevels[0];
 		let upperBound = this.waterLevels[this.waterLevels.length - 1];
 		for (const waterLevel of this.waterLevels) {
@@ -176,7 +248,9 @@ class DynamicWaterLevel {
 				break;
 			}
 		}
-		return [lowerBound, upperBound];
+		const lowerLowerBound = this.waterLevels[Math.max(0, this.waterLevels.indexOf(lowerBound) - 1)];
+		const upperUpperBound = this.waterLevels[Math.min(this.waterLevels.length - 1, this.waterLevels.indexOf(upperBound) + 1)];
+		return [lowerLowerBound, lowerBound, upperBound, upperUpperBound];
 	}
 
 	private metersToDegrees(lat: number, meters: number) {
@@ -283,20 +357,24 @@ class DynamicWaterLevel {
 			geometry: geometry,
 			modelMatrix: Cesium.Matrix4.IDENTITY
 		});
-
 		const vertexShader = `
 			uniform float u_progress_0;
 			uniform sampler2D u_terrain_1;
-			uniform sampler2D u_depth_t1_2;
-			uniform sampler2D u_depth_t2_3;
-			uniform vec3 u_model_normal_4;
-			uniform float u_texel_size_s_5;
-			uniform float u_texel_size_t_6;
-			uniform float u_vertical_exaggeration_7;
-			uniform float u_alpha_8;
-			uniform float u_terrain_scaling_min_9;
-			uniform float u_terrain_scaling_max_10;
-			uniform float u_depth_value_max_11;
+			uniform sampler2D u_flood_slot_1_2;
+			uniform sampler2D u_flood_slot_2_3;
+			uniform sampler2D u_flood_slot_3_4;
+			uniform sampler2D u_flood_slot_4_5;
+			uniform float u_flood_t1_6;
+			uniform float u_flood_t2_7;
+
+			uniform vec3 u_model_normal_8;
+			uniform float u_texel_size_s_9;
+			uniform float u_texel_size_t_10;
+			uniform float u_vertical_exaggeration_11;
+			uniform float u_alpha_12;
+			uniform float u_terrain_scaling_min_13;
+			uniform float u_terrain_scaling_max_14;
+			uniform float u_depth_value_max_15;
 
 			in vec3 position3DHigh;
 			in vec3 position3DLow;
@@ -311,22 +389,44 @@ class DynamicWaterLevel {
 
 			float flood_plane_class_mapping[${floodPlaneClassMapping.length}] = float[${floodPlaneClassMapping.length}](${floodPlaneClassMapping.join(",")});
 
+
 			float computeDepth(vec2 _st) {
 				_st = clamp(_st, vec2(0.0), vec2(1.0));
-				float depth_t1 = flood_plane_class_mapping[int(texture(u_depth_t1_2, _st).r * u_depth_value_max_11)];
-				float depth_t2 = flood_plane_class_mapping[int(texture(u_depth_t2_3, _st).r * u_depth_value_max_11)];
+
+				float depth_t1 = 0.;
+				if (u_flood_t1_6 == 1.) {
+					depth_t1 = flood_plane_class_mapping[int(texture(u_flood_slot_1_2, _st).r * u_depth_value_max_15)];
+				} else if (u_flood_t1_6 == 2.) {
+					depth_t1 = flood_plane_class_mapping[int(texture(u_flood_slot_2_3, _st).r * u_depth_value_max_15)];
+				} else if (u_flood_t1_6 == 3.) {
+					depth_t1 = flood_plane_class_mapping[int(texture(u_flood_slot_3_4, _st).r * u_depth_value_max_15)];
+				} else if (u_flood_t1_6 == 4.) {
+					depth_t1 = flood_plane_class_mapping[int(texture(u_flood_slot_4_5, _st).r * u_depth_value_max_15)];
+				}
+
+				float depth_t2 = 0.;
+				if (u_flood_t2_7 == 1.) {
+					depth_t2 = flood_plane_class_mapping[int(texture(u_flood_slot_1_2, _st).r * u_depth_value_max_15)];
+				} else if (u_flood_t2_7 == 2.) {
+					depth_t2 = flood_plane_class_mapping[int(texture(u_flood_slot_2_3, _st).r * u_depth_value_max_15)];
+				} else if (u_flood_t2_7 == 3.) {
+					depth_t2 = flood_plane_class_mapping[int(texture(u_flood_slot_3_4, _st).r * u_depth_value_max_15)];
+				} else if (u_flood_t2_7 == 4.) {
+					depth_t2 = flood_plane_class_mapping[int(texture(u_flood_slot_4_5, _st).r * u_depth_value_max_15)];
+				}
+
 				float depth = mix(depth_t1, depth_t2, u_progress_0);
 				return depth;
 			}
 
 			vec3 computeNormalFromNeighbors() {
-				float left = computeDepth(st - vec2(u_texel_size_s_5, 0.0));
-				float right = computeDepth(st + vec2(u_texel_size_s_5, 0.0));
-				float up = computeDepth(st + vec2(0.0, u_texel_size_t_6));
-				float down = computeDepth(st - vec2(0.0, u_texel_size_t_6));	
+				float left = computeDepth(st - vec2(u_texel_size_s_9, 0.0));
+				float right = computeDepth(st + vec2(u_texel_size_s_9, 0.0));
+				float up = computeDepth(st + vec2(0.0, u_texel_size_t_10));
+				float down = computeDepth(st - vec2(0.0, u_texel_size_t_10));	
 
-				vec3 tangent1 = vec3(u_texel_size_s_5, 0.0, right - left);
-				vec3 tangent2 = vec3(0.0, u_texel_size_t_6, up - down);
+				vec3 tangent1 = vec3(u_texel_size_s_9, 0.0, right - left);
+				vec3 tangent2 = vec3(0.0, u_texel_size_t_10, up - down);
 				vec3 normal = normalize(cross(tangent1, tangent2));
 				normal *= 1.0;
 				return normal;
@@ -334,11 +434,11 @@ class DynamicWaterLevel {
 
 			void main() {
 				vec4 p = czm_computePosition();
-				float terrain_height = texture(u_terrain_1, st).r * (u_terrain_scaling_max_10 - u_terrain_scaling_min_9) + u_terrain_scaling_min_9;
+				float terrain_height = texture(u_terrain_1, st).r * (u_terrain_scaling_max_14 - u_terrain_scaling_min_13) + u_terrain_scaling_min_13;
 				float depth = computeDepth(st);
 			   
 				// Height exaggeration relative to terrain:
-				p.xyz += u_model_normal_4 * (terrain_height + depth * u_vertical_exaggeration_7);
+				p.xyz += u_model_normal_8 * (terrain_height + depth * u_vertical_exaggeration_11);
  
 				vec3 computedNormal = computeNormalFromNeighbors();
  
@@ -357,11 +457,33 @@ class DynamicWaterLevel {
 			vec3 v_color;
  
 			float flood_plane_class_mapping[${floodPlaneClassMapping.length}] = float[${floodPlaneClassMapping.length}](${floodPlaneClassMapping.join(",")});
-		   
+
+		
 			float computeDepth(vec2 _st) {
 				_st = clamp(_st, vec2(0.0), vec2(1.0));
-				float depth_t1 = flood_plane_class_mapping[int(texture(u_depth_t1_2, _st).r * u_depth_value_max_11)];
-				float depth_t2 = flood_plane_class_mapping[int(texture(u_depth_t2_3, _st).r * u_depth_value_max_11)];
+				
+				float depth_t1 = 0.;
+				if (u_flood_t1_6 == 1.) {
+					depth_t1 = flood_plane_class_mapping[int(texture(u_flood_slot_1_2, _st).r * u_depth_value_max_15)];
+				} else if (u_flood_t1_6 == 2.) {
+					depth_t1 = flood_plane_class_mapping[int(texture(u_flood_slot_2_3, _st).r * u_depth_value_max_15)];
+				} else if (u_flood_t1_6 == 3.) {
+					depth_t1 = flood_plane_class_mapping[int(texture(u_flood_slot_3_4, _st).r * u_depth_value_max_15)];
+				} else if (u_flood_t1_6 == 4.) {
+					depth_t1 = flood_plane_class_mapping[int(texture(u_flood_slot_4_5, _st).r * u_depth_value_max_15)];
+				}
+
+				float depth_t2 = 0.;
+				if (u_flood_t2_7 == 1.) {
+					depth_t2 = flood_plane_class_mapping[int(texture(u_flood_slot_1_2, _st).r * u_depth_value_max_15)];
+				} else if (u_flood_t2_7 == 2.) {
+					depth_t2 = flood_plane_class_mapping[int(texture(u_flood_slot_2_3, _st).r * u_depth_value_max_15)];
+				} else if (u_flood_t2_7 == 3.) {
+					depth_t2 = flood_plane_class_mapping[int(texture(u_flood_slot_3_4, _st).r * u_depth_value_max_15)];
+				} else if (u_flood_t2_7 == 4.) {
+					depth_t2 = flood_plane_class_mapping[int(texture(u_flood_slot_4_5, _st).r * u_depth_value_max_15)];
+				}
+
 				float depth = mix(depth_t1, depth_t2, u_progress_0);
 				return depth;
 			}
@@ -369,7 +491,7 @@ class DynamicWaterLevel {
 			czm_material sdg_czm_getMaterial(czm_materialInput materialInput) {
 				czm_material material = czm_getDefaultMaterial(materialInput);
 				material.diffuse = czm_gammaCorrect(v_color * vec3(1.0));
-				material.alpha = u_alpha_8;
+				material.alpha = u_alpha_12;
 				material.specular = 0.0;
 				material.shininess = 0.0;
 				return material;
@@ -377,9 +499,9 @@ class DynamicWaterLevel {
 		   
 			void main() {
 
-				float terrain_height = texture(u_terrain_1, v_st).r * (u_terrain_scaling_max_10 - u_terrain_scaling_min_9) + u_terrain_scaling_min_9;
+				float terrain_height = texture(u_terrain_1, v_st).r * (u_terrain_scaling_max_14 - u_terrain_scaling_min_13) + u_terrain_scaling_min_13;
 				float depth = computeDepth(v_st);
-				if (depth == flood_plane_class_mapping[0] || depth == flood_plane_class_mapping[1] || terrain_height == u_terrain_scaling_min_9) {
+				if (depth == flood_plane_class_mapping[0] || depth == flood_plane_class_mapping[1] || terrain_height == u_terrain_scaling_min_13) {
 					discard;
 				}
 
@@ -417,8 +539,12 @@ class DynamicWaterLevel {
 				uniforms: {
 					u_progress: this.uniformMap.uProgress.value,
 					u_terrain: this.uniformMap.uTerrain.value,
-					u_depth_t1: this.uniformMap.uDepthT1.value,
-					u_depth_t2: this.uniformMap.uDepthT2.value,
+					u_flood_slot_1: this.uniformMap.uFloodSlot1.value,
+					u_flood_slot_2: this.uniformMap.uFloodSlot2.value,
+					u_flood_slot_3: this.uniformMap.uFloodSlot3.value,
+					u_flood_slot_4: this.uniformMap.uFloodSlot4.value,
+					u_flood_t1: 0,
+					u_flood_t2: 1,
 					u_model_normal: modelNormal,
 					u_texel_size_s: 1 / lonSteps,
 					u_texel_size_t: 1 / latSteps,

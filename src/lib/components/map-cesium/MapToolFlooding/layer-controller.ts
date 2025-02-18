@@ -81,9 +81,6 @@ export class FloodLayerController {
 		});
 	}
 
-	// whenever the time changes, update the flooded roads layer
-
-
 	public showAll(): void {
 		this.iconLayer?.show();
 		this.floodLayer?.show();
