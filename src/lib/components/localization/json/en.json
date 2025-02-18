@@ -246,7 +246,11 @@
             "waterTransparency": "Water Transparency",
             "scenario": "Scenario",
             "errorCouldNotLoad": "Could not load flooding data",
-            "hourSinceBreach": "hours since breach"
+            "hourSinceBreach": "hours since breach",
+            "chosenBreach": "Chosen breach",
+            "otherBreaches": "Other breaches",
+            "noResults": "No results",
+            "noBreachSelected": "No breach selected"
         }
     }
 }

@@ -72,7 +72,7 @@
 {#if $selectedTool === tool && floodLayerController}
 	<div class="wrapper">
 		<div class="selected-content">
-			<div class="bx--label">Gekozen bres</div>
+			<div class="bx--label">{$_('tools.flooding.chosenBreach')}</div>
 			{#if $activeBreach}
 				{#key $activeBreach}
 					<BreachEntry
@@ -101,19 +101,19 @@
 				{/key}
 			{:else}
 				<div>
-					Geen bres geselecteerd
+					{$_('tools.flooding.noBreachSelected')}
 				</div>
 			{/if}
 		</div>
 
 		<div class="list-content">
-			<div class="bx--label">Overige bressen</div>
+			<div class="bx--label">{$_('tools.flooding.otherBreaches')}</div>
 			<div class="search">
 				<Search size="sm" light placeholder={"zoeken"} bind:value={$searchString} />
 			</div>
 			<div class="search-results">
 				{#if searchResults.length === 0}
-					<div>Geen resultaten</div>
+					<div>{$_('tools.flooding.noResults')}</div>
 				{/if}
 				{#each searchResults as breach (breach.properties.name)}
 					{#if breach && (!$activeBreach || breach !== $activeBreach)}
