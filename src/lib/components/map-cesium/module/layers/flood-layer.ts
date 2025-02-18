@@ -159,6 +159,7 @@ class DynamicWaterLevel {
 
 	private async setUniforms(): Promise<void> {
 		const [lowerLowerBound, lowerBound, upperBound, upperUpperBound] = this.findClosestWaterLevels();
+		if (!lowerBound || !upperBound) return;
 
 		let slotTextureT1: number;
 		const textureT1 = this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time);

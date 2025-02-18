@@ -151,10 +151,10 @@ export class OgcFeaturesProviderCesium {
 	}
 
 	private async switchUrlTask(url: string, parameters?: Record<string, string>): Promise<void> {
-		this.switchAbortController?.abort();
-		this.switchAbortController = new AbortController();
 		const parametersChanged = this.parametersChanged(parameters);
 		if (url !== this.url || parametersChanged) {
+			this.switchAbortController?.abort();
+			this.switchAbortController = new AbortController();
 			this.url = url;
 			this.parameters = parameters;
 			// this.init();
@@ -356,7 +356,28 @@ abstract class OgcFeaturesLoaderCesium {
 	}
 
 	public activate(): void {
-		// --> must be groundPrimtives
+		this.addPrimitives();
+		this.primitiveCollection.show = true;
+		this.terrainUnsubscriber?.();
+		this.terrainUnsubscriber = this.OgcFeatures.map.options.terrainSwitchReady.subscribe((b) => {
+			const provider = this.OgcFeatures.map.viewer.terrainProvider;
+			if (b && this.cachedTerrainProvider !== provider) {
+				this.onTerrainSwitch();
+				this.cachedTerrainProvider = provider;
+			}
+		});
+	}
+
+	public deactivate(): void {
+		this.primitiveCollection.show = false;
+		this.terrainUnsubscriber?.();
+	}
+
+	public onTerrainSwitch(): void {
+		this.primitiveCollection.removeAll();
+	}
+
+	public addPrimitives(): void {
 		const mapPrimitives = this.OgcFeatures.map.viewer.scene.primitives;
 		const mapGroundPrimitives = this.OgcFeatures.map.viewer.scene.groundPrimitives;
 
@@ -368,26 +389,6 @@ abstract class OgcFeaturesLoaderCesium {
 				if (!mapPrimitives.contains(primitive)) mapPrimitives.add(primitive);
 			}
 		}
-
-		this.primitiveCollection.show = true;
-		this.terrainUnsubscriber?.();
-		this.terrainUnsubscriber = this.OgcFeatures.map.options.terrainSwitchReady.subscribe((b) => {
-			const provider = this.OgcFeatures.map.viewer.terrainProvider;
-			if (b && this.cachedTerrainProvider !== provider) {
-				this.onTerrainSwitch();
-				this.cachedTerrainProvider = provider;
-			}
-		});
-
-	}
-
-	public deactivate(): void {
-		this.primitiveCollection.show = false;
-		this.terrainUnsubscriber?.();
-	}
-
-	public onTerrainSwitch(): void {
-		this.primitiveCollection.removeAll();
 	}
 
 	public clear(): void {
@@ -671,11 +672,12 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 			this.primitives = primitives;
 			this.primitiveCollection.removeAll();
 			this.primitives.forEach(primitive => this.primitiveCollection.add(primitive));
+			this.addPrimitives();
 		}
 		this.features = undefined;
 		this.OgcFeatures.map.refresh();
 	}
-		
+
 	public async getFeaturesInPolygon(polygon: Array<[lon: number, lat: number]>): Promise<Array<GeoJSONFeature>> {
 		await this.loadFeatures();
 		if (!this.features) return [];
