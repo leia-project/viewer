@@ -37,7 +37,7 @@ export class FloodLayerController {
 	public time: Writable<number> = writable(0);
 	public minTime: Writable<number> = writable(0);
 	public maxTime: Writable<number> = writable(1);
-	public stepInterval: Writable<number> = writable(1);
+	public stepInterval: Writable<number> = writable(0.05);
 
 	public layerConfigGroup: LayerConfigGroup = new LayerConfigGroup("overstromingen", "Overstromingen");
 	public iconLayer: IconLayer<Breach>;
@@ -84,7 +84,6 @@ export class FloodLayerController {
 	public showAll(): void {
 		this.iconLayer?.show();
 		this.floodLayer?.show();
-		//this.roadsLayer?.show();
 		this.floodedRoadsLayer?.show();
 	}
 
@@ -119,10 +118,9 @@ export class FloodLayerController {
 			type: "icon",
 			groupId: this.layerConfigGroup.id,
 			isBackground: false,
-			defaultOn: true,
+			defaultOn: false,
 			defaultAddToManager: true,
 		});
-		//const layer = this.map.addLayer(layerConfig) as IconLayer<Breach>;
 		this.map.layerLibrary.addLayerConfig(layerConfig);
 		layerConfig.added.set(true);
 		const layer = get(this.map.layers).find((l) => l.id === layerConfig.id) as IconLayer<Breach>;
@@ -134,7 +132,7 @@ export class FloodLayerController {
 		const layerConfig = new LayerConfig({
 			id: "flood_layer_fier",
 			type: "flood",
-			title: "Flood layer", //vertaling toevoegen?
+			title: "Flood layer",
 			groupId: this.layerConfigGroup.id,
 			legendUrl: "",
 			isBackground: false,
@@ -180,7 +178,7 @@ export class FloodLayerController {
 	private addFloodedRoadsLayer(baseUrl: string): OgcFeaturesLayer {
 		const layerConfig = new LayerConfig({
 			id: "flooded_roads",
-			title: "Wegen", //vertaling toevoegen?
+			title: "Wegen",
 			type: "ogc-features",
 			groupId: this.layerConfigGroup.id,
 			settings: {
@@ -195,7 +193,7 @@ export class FloodLayerController {
 							property: "flood_depth",
 							stops: [
 								{ value: 0, color: "#ff0000" },
-								{ value: 10, color: "#0000ff" }
+								{ value: 1, color: "#0000ff" }
 							]
 						}
 					]
