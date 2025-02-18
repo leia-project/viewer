@@ -151,14 +151,15 @@ class DynamicWaterLevel {
 		let progress: number = 1;
 		if (upperBound.time !== lowerBound.time) {
 			progress = (get(this.time) - lowerBound.time) / (upperBound.time - lowerBound.time);
+			progress = Math.max(0, Math.min(1, progress));
 		}
 		this.uniformMap.uProgress.value = progress;
 
 		if (this.material) {
-			this.material.uniforms.u_progress = this.uniformMap.uProgress.value;
 			this.material.uniforms.u_terrain = this.uniformMap.uTerrain.value;
 			this.material.uniforms.u_depth_t1 = this.uniformMap.uDepthT1.value;
 			this.material.uniforms.u_depth_t2 = this.uniformMap.uDepthT2.value;
+			this.material.uniforms.u_progress = this.uniformMap.uProgress.value;
 			this.material.uniforms.u_alpha = get(this.alpha);
 		}
 		this.map.refresh();

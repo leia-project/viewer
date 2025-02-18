@@ -103,7 +103,6 @@ export class FloodLayerController {
 				this.maxTime.set(numberOfSteps);
 			});
 		}
-		
 		const scenarioId = `${breach.properties.dijkring}_${breach.properties.name}_${scenario}`;
 		const endpoint = this.floodedRoadsLayer.config.settings.url;
 		const parameters = {
@@ -193,7 +192,16 @@ export class FloodLayerController {
 					collectionId: "nwb_floods",
 					heightStartLoading: 50000,
 					maxFeatures: 10000,
-					tileWidth: 40640
+					tileWidth: 40640,
+					style: [
+						{
+							property: "flood_depth",
+							stops: [
+								{ value: 0, color: "#ff0000" },
+								{ value: 10, color: "#0000ff" }
+							]
+						}
+					]
 				},
 				parameters: { 
 					scenario: get(this.selectedScenario)?.toString(), //"26_NzSch-dp_160_300",
@@ -201,18 +209,8 @@ export class FloodLayerController {
 					timestep: (Math.round(get(this.time)) * 6).toString().padStart(5, "0"),
 					limit: "420"
 				},
-				style: [
-					{
-						property: "water_depth",
-						stops: [
-							{ value: 0, color: "#ff0000" },
-							{ value: 100, color: "#0000ff" }
-						]
-					}
-				],
 				hideInLayerManager: false,
 				dragDropped: false
-	
 			},
 			isBackground: false,
 			defaultOn: true,

@@ -118,8 +118,8 @@
 				icon="{ArrowLeft}"
 				iconDescription={$_('tools.animation.previous')}
 				on:click={() => {
-					// After switching scenario or breach, the Slider no longer listens to layer.timeSliderValue, so #timeSliderValue must be updated manually
 					time.update((value) => Math.max(0, Math.round(value - 1)));
+					stopPlaying();
 				}}
 			/>
 			<Button 
@@ -139,6 +139,7 @@
 				on:click={() => {
 					// After switching scenario or breach, the Slider no longer listens to layer.timeSliderValue, so #timeSliderValue must be updated manually
 					time.update((value) => Math.min($maxTime, Math.round(value +1)));
+					stopPlaying();
 				}}
 			/>
 		</div>

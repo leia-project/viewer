@@ -1,4 +1,4 @@
-import type { Unsubscriber } from "svelte/store";
+import { get, type Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Map } from "../map";
 import * as turf from "@turf/turf";
@@ -26,14 +26,22 @@ interface Collection {
 	}
 }
 
+interface StyleCondition {
+	property: string;
+	stops: Array<{
+		value: number;
+		color: string;
+	}>;
+}
+
 interface OgcFeaturesConstructorOptions {
 	collectionId: string;
 	heightStartLoading: number;
 	tileWidth: number;
 	cacheBuster: number;
 	allowPicking: boolean;
+	style: Array<StyleCondition>;
 }
-
 
 
 class RateLimiter {
@@ -90,6 +98,7 @@ export class OgcFeaturesProviderCesium {
 	private url: string;
 	public options: Partial<OgcFeaturesConstructorOptions>;
 	public parameters: Record<string, string> | undefined;
+	public style: Array<StyleCondition> | undefined;
 
 	private collectionId: string;
 	private collection: Collection | undefined = undefined;
@@ -118,6 +127,7 @@ export class OgcFeaturesProviderCesium {
 		this.map = map;
 		this.url = url;
 		this.options = options;
+		this.style = options.style;
 		this.parameters = parameters;
 
 		this.collectionId = collectionId;
@@ -403,8 +413,7 @@ abstract class OgcFeaturesLoaderCesium {
 		const processFeature = async (feature: GeoJSONFeature) => {
 			if (this.loadedFeatures.includes(feature.id)) return
 			this.loadedFeatures.push(feature.id);
-			const colorAttribute = Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromRandom());
-			let height = tileHeight;
+			const colorAttribute = this.getColorGeometryInstanceAttribute(feature.properties);
 			switch (feature.geometry.type) {
 				case 'Point':
 					const geometryInstance = new Cesium.GeometryInstance({
@@ -418,46 +427,36 @@ abstract class OgcFeaturesLoaderCesium {
 					});
 					break;
                 case 'LineString':
-                    /*
-					if (perInstanceTerrainSample && this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
-                        let terrainHeight = await Cesium.sampleTerrainMostDetailed(this.OgcFeatures.map.viewer.terrainProvider, [Cesium.Cartographic.fromDegrees(feature.geometry.coordinates[0][0], feature.geometry.coordinates[0][1])]);
-                        if (terrainHeight[0]) height = terrainHeight[0].height;
-                    }
-					*/
-                    addLineString(feature.geometry.coordinates, height, feature.properties, colorAttribute);
+                    const instance = this.getGroundLineGeometryInstance(feature.geometry.coordinates, feature.properties, colorAttribute);
+					polylineInstances.push(instance);
                     break;
 				case 'MultiLineString':
-					/*
-					if (perInstanceTerrainSample && this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
-						let terrainHeight = await Cesium.sampleTerrainMostDetailed(this.OgcFeatures.map.viewer.terrainProvider, [Cesium.Cartographic.fromDegrees(feature.geometry.coordinates[0][0][0], feature.geometry.coordinates[0][0][1])]);
-						if (terrainHeight[0]) height = terrainHeight[0].height;
-					}
-					*/
 					for (let i=0; i < feature.geometry.coordinates.length; i++) {
 						const uniqueProperties = { ...feature.properties, hidden: i };
-						addLineString(feature.geometry.coordinates[i], height, uniqueProperties, colorAttribute);
+						const instance = this.getGroundLineGeometryInstance(feature.geometry.coordinates[i], uniqueProperties, colorAttribute);
+						polylineInstances.push(instance);
 					}
 					break;
 				case 'Polygon':
-					if (perInstanceTerrainSample && this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
+					/*if (perInstanceTerrainSample && this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
 						let terrainHeight = await Cesium.sampleTerrainMostDetailed(this.OgcFeatures.map.viewer.terrainProvider, [Cesium.Cartographic.fromDegrees(feature.geometry.coordinates[0][0][0], feature.geometry.coordinates[0][0][1])]);
 						if (terrainHeight[0]) height = terrainHeight[0].height;
-					}
-					addPolygon(feature.geometry.coordinates, height, feature.properties, colorAttribute);
+					}*/
+					//const instance = this.getGroundPolygonGeometryInstance(feature.geometry.coordinates, feature.properties, colorAttribute);
 					break;
 				case 'MultiPolygon':
-					if (perInstanceTerrainSample && this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
+					/*if (perInstanceTerrainSample && this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
 						let terrainHeight = await Cesium.sampleTerrainMostDetailed(this.OgcFeatures.map.viewer.terrainProvider, [Cesium.Cartographic.fromDegrees(feature.geometry.coordinates[0][0][0][0], feature.geometry.coordinates[0][0][0][1])]);
 						if (terrainHeight[0]) height = terrainHeight[0].height;
-					}
+					}*/
 					for (let i=0; i < feature.geometry.coordinates.length; i++) {
 						const uniqueProperties = { ...feature.properties, hidden: i };
-						addPolygon(feature.geometry.coordinates[i], height, uniqueProperties, colorAttribute);
+						//addPolygon(feature.geometry.coordinates[i], height, uniqueProperties, colorAttribute);
 					}
 					break;
 			}
 		}
-		const addPolygon = (coordinates: Array<Array<[lon: number, lat: number]>>, height: number, properties: any, colorAttribute: Cesium.ColorGeometryInstanceAttribute) => {
+		/* const addPolygon = (coordinates: Array<Array<[lon: number, lat: number]>>, height: number, properties: any, colorAttribute: Cesium.ColorGeometryInstanceAttribute) => {
 			const positions = coordinates[0].map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1], height));
 			const props = this.OgcFeatures.allowPicking ? properties : undefined;
 			const polygonIstance = new Cesium.GeometryInstance({
@@ -481,61 +480,41 @@ abstract class OgcFeaturesLoaderCesium {
 				})
 			});
 			polylineInstances.push(polylineInstance);
-		}
+		} */
 
-        const addLineString = (coordinates: Array<[lon: number, lat: number]>, height: number, properties: any, colorAttribute: Cesium.ColorGeometryInstanceAttribute) => {
+        /* const addLineString = (coordinates: Array<[lon: number, lat: number]>, height: number, properties: any, colorAttribute: Cesium.ColorGeometryInstanceAttribute) => {
             const positions = coordinates.map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1], height));
             const props = this.OgcFeatures.allowPicking ? properties : undefined;
 			const floodDepth = properties.flood_depth || 0;
 			const color = Cesium.Color.fromHsl(0.6 - (floodDepth / 10), 1.0, 0.5); // Adjust the color based on flood_depth
-			colorAttribute = Cesium.ColorGeometryInstanceAttribute.fromColor(color);
+			//colorAttribute = Cesium.ColorGeometryInstanceAttribute.fromColor(color);
 			
             const polylineInstance = new Cesium.GeometryInstance({
                 geometry: new Cesium.PolylineGeometry({
                     positions: positions,
-                    width: 2.0
+                    width: 3.0
                 }),
 				attributes: {
-					color: colorAttribute,
-					depthFailColor: colorAttribute
+					color: Cesium.ColorGeometryInstanceAttribute.fromColor(color)
 				},
                 id: props
             });
             polylineInstances.push(polylineInstance);
-        }
+        } */
 
 		await Promise.all(features.map(processFeature));
 		polylineInstances.filter(instance => instance !== undefined);
 		if (polylineInstances.length > 0) {
-			const polylineAppearance = new Cesium.PolylineMaterialAppearance({
-				material: Cesium.Material.fromType('Color', {
-					color: Cesium.Color.BLACK
-				})
+			const polylineAppearanceOld = new Cesium.PolylineMaterialAppearance({
+				material: Cesium.Material.fromType('Color')
 			});
-			// const polylineAppearance = new Cesium.PerInstanceColorAppearance({
-			// 	translucent: false,
-			// 	renderState: {
-			// 		depthTest: {
-			// 			enabled: false
-			// 		 },
-			// 		 blending: {
-			// 			enabled: true,
-			// 			color: {
-			// 				red: 1.0,
-			// 				green: 1.0,
-			// 				blue: 1.0,
-			// 				alpha: 0.5
-			// 			}
-			// 		}
-			// 	}
-			// });
-			
-			// console.log("pushing polylines", polylineInstances),
+			const polylineAppearance = new Cesium.PerInstanceColorAppearance({
+				translucent: true
+			});
 			primitives.push(
 				new Cesium.GroundPrimitive({
 					geometryInstances: polylineInstances,
 					appearance: polylineAppearance,
-					depthFailAppearance: polylineAppearance,
 					releaseGeometryInstances: true,
 				})
 			)
@@ -557,6 +536,73 @@ abstract class OgcFeaturesLoaderCesium {
 			)
 		}
 		return primitives;
+	}
+
+	private getColorGeometryInstanceAttribute(properties: any): Cesium.ColorGeometryInstanceAttribute {
+		let color = Cesium.Color.BLACK;
+		if (this.OgcFeatures.style) {
+			for (const styleCondition of this.OgcFeatures.style) {
+				const propertyValue = properties[styleCondition.property];
+				if (propertyValue !== undefined) {
+					const stops = styleCondition.stops;
+
+					// Find the two stops between which the property value falls
+					let lowerStop = stops[0];
+					let upperStop = stops[stops.length - 1];
+	
+					for (let i = 0; i < stops.length - 1; i++) {
+						if (propertyValue >= stops[i].value && propertyValue <= stops[i + 1].value) {
+							lowerStop = stops[i];
+							upperStop = stops[i + 1];
+							break;
+						}
+					}
+
+					// Interpolate the color
+					const t = (propertyValue - lowerStop.value) / (upperStop.value - lowerStop.value);
+					const lowerColor = Cesium.Color.fromCssColorString(lowerStop.color);
+					const upperColor = Cesium.Color.fromCssColorString(upperStop.color);
+					color = Cesium.Color.lerp(lowerColor, upperColor, t, new Cesium.Color());
+					break;
+				}
+			}
+		}
+		return Cesium.ColorGeometryInstanceAttribute.fromColor(color);
+	}
+
+	private getGroundLineGeometryInstance(coordinates: Array<[lon: number, number: number]>, properties: any, color: Cesium.ColorGeometryInstanceAttribute): Cesium.GeometryInstance {
+		const positions = coordinates.map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1]));
+		const props = this.OgcFeatures.allowPicking ? properties : undefined;
+		const polylineInstance = new Cesium.GeometryInstance({
+			geometry: new Cesium.GroundPolylineGeometry({
+				positions: positions,
+				width: 3.0
+			}),
+			attributes: {
+				color: color
+			},
+			id: props
+		});
+		return polylineInstance;
+	}
+
+	private getGroundPolygonGeometryInstance(coordinates: Array<Array<[lon: number, lat: number]>>, properties: any, color: Cesium.ColorGeometryInstanceAttribute): Cesium.GeometryInstance {
+		const positions = coordinates[0].map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1]));
+		const props = this.OgcFeatures.allowPicking ? properties : undefined;
+		const polygonIstance = new Cesium.GeometryInstance({
+			geometry: Cesium.PolygonGeometry.fromPositions({
+				positions: positions,
+				vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
+				perPositionHeight: true,
+			}),
+			attributes: {
+				color: color,
+				depthFailColor: color,
+				show: new Cesium.ShowGeometryInstanceAttribute(true)
+			},
+			id: props
+		});
+		return polygonIstance;
 	}
 
 	// Has Cesium bug: https://github.com/CesiumGS/cesium/issues/11291
