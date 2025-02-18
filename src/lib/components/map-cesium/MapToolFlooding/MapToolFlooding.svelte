@@ -109,7 +109,7 @@
 		<div class="list-content">
 			<div class="bx--label">{$_('tools.flooding.otherBreaches')}</div>
 			<div class="search">
-				<Search size="sm" light placeholder={"zoeken"} bind:value={$searchString} />
+				<Search size="sm" light placeholder={$_("tools.flooding.searchBreach")} bind:value={$searchString} />
 			</div>
 			<div class="search-results">
 				{#if searchResults.length === 0}

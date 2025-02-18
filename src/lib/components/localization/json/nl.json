@@ -255,9 +255,11 @@
             "errorCouldNotLoad": "Kan overstromingsdata niet laden",
             "hourSinceBreach": "uur na bres",
             "chosenBreach": "Gekozen bres",
-            "otherBreaches": "Overige Bressen",
+            "otherBreaches": "Overige bressen",
             "noResults": "Geen resultaten",
-            "noBreachSelected": "Geen bres geselecteerd"
+            "noBreachSelected": "Geen bres geselecteerd",
+            "searchBreach": "Zoek bres",
+            "timeSlider": "Tijd slider"
         }
     }
 }

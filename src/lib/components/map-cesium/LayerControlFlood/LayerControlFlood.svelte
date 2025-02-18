@@ -95,7 +95,7 @@
 				maxLabel={"100"}
 			/>
 		</div>
-		<div class="label-01">Time slider</div>
+		<div class="label-01">{$_('tools.flooding.timeSlider')}</div>
 		<div class="wrapper">
 			<Slider 
 				bind:value={$time}

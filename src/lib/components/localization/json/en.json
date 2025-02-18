@@ -242,15 +242,17 @@
         },
         "flooding": {
             "label": "Flooding",
-            "measureDepth": "Measure",
-            "waterTransparency": "Water Transparency",
+            "measureDepth": "Measure depth",
+            "waterTransparency": "Water Opacity",
             "scenario": "Scenario",
             "errorCouldNotLoad": "Could not load flooding data",
             "hourSinceBreach": "hours since breach",
             "chosenBreach": "Chosen breach",
             "otherBreaches": "Other breaches",
             "noResults": "No results",
-            "noBreachSelected": "No breach selected"
+            "noBreachSelected": "No breach selected",
+            "searchBreach": "Search breach",
+            "timeSlider": "Time slider"
         }
     }
 }
