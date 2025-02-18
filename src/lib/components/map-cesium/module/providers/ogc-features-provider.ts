@@ -155,7 +155,6 @@ export class OgcFeaturesProviderCesium {
 		this.switchAbortController = new AbortController();
 		const parametersChanged = this.parametersChanged(parameters);
 		if (url !== this.url || parametersChanged) {
-			console.log('Switching parameters from:', this.parameters, 'to:', parameters);
 			this.url = url;
 			this.parameters = parameters;
 			// this.init();
@@ -454,66 +453,16 @@ abstract class OgcFeaturesLoaderCesium {
 					break;
 			}
 		}
-		/* const addPolygon = (coordinates: Array<Array<[lon: number, lat: number]>>, height: number, properties: any, colorAttribute: Cesium.ColorGeometryInstanceAttribute) => {
-			const positions = coordinates[0].map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1], height));
-			const props = this.OgcFeatures.allowPicking ? properties : undefined;
-			const polygonIstance = new Cesium.GeometryInstance({
-				geometry: Cesium.PolygonGeometry.fromPositions({
-					positions: positions,
-					vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
-					perPositionHeight: true,
-				}),
-				attributes: {
-					color: colorAttribute,
-					depthFailColor: colorAttribute,
-					show: new Cesium.ShowGeometryInstanceAttribute(true)
-				},
-				id: props
-			});
-			polygonInstances.push(polygonIstance);
-			const polylineInstance = new Cesium.GeometryInstance({
-				geometry: new Cesium.PolylineGeometry({
-					positions: positions,
-					width: 2.0
-				})
-			});
-			polylineInstances.push(polylineInstance);
-		} */
-
-        /* const addLineString = (coordinates: Array<[lon: number, lat: number]>, height: number, properties: any, colorAttribute: Cesium.ColorGeometryInstanceAttribute) => {
-            const positions = coordinates.map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1], height));
-            const props = this.OgcFeatures.allowPicking ? properties : undefined;
-			const floodDepth = properties.flood_depth || 0;
-			const color = Cesium.Color.fromHsl(0.6 - (floodDepth / 10), 1.0, 0.5); // Adjust the color based on flood_depth
-			//colorAttribute = Cesium.ColorGeometryInstanceAttribute.fromColor(color);
-			
-            const polylineInstance = new Cesium.GeometryInstance({
-                geometry: new Cesium.PolylineGeometry({
-                    positions: positions,
-                    width: 3.0
-                }),
-				attributes: {
-					color: Cesium.ColorGeometryInstanceAttribute.fromColor(color)
-				},
-                id: props
-            });
-            polylineInstances.push(polylineInstance);
-        } */
-
 		await Promise.all(features.map(processFeature));
 		polylineInstances.filter(instance => instance !== undefined);
 		if (polylineInstances.length > 0) {
-			const polylineAppearanceOld = new Cesium.PolylineMaterialAppearance({
-				material: Cesium.Material.fromType('Color')
-			});
-			const polylineAppearance = new Cesium.PerInstanceColorAppearance({
-				translucent: true
-			});
 			primitives.push(
-				new Cesium.GroundPrimitive({
+				new Cesium.GroundPolylinePrimitive({
 					geometryInstances: polylineInstances,
-					appearance: polylineAppearance,
-					releaseGeometryInstances: true,
+					appearance: new Cesium.PolylineColorAppearance(),
+					asynchronous: true,
+					allowPicking: false,
+					show: true
 				})
 			)
 		}
@@ -522,7 +471,6 @@ abstract class OgcFeaturesLoaderCesium {
 			const polygonAppearance = new Cesium.PerInstanceColorAppearance({
 				translucent: false
 			});
-			// console.log("pushing polygons", polygonInstances),
 			primitives.push(
 				new Cesium.Primitive({
 					geometryInstances: polygonInstances,
@@ -574,7 +522,7 @@ abstract class OgcFeaturesLoaderCesium {
 		const polylineInstance = new Cesium.GeometryInstance({
 			geometry: new Cesium.GroundPolylineGeometry({
 				positions: positions,
-				width: 3.0
+				width: 4.0
 			}),
 			attributes: {
 				color: color
@@ -584,7 +532,7 @@ abstract class OgcFeaturesLoaderCesium {
 		return polylineInstance;
 	}
 
-	private getGroundPolygonGeometryInstance(coordinates: Array<Array<[lon: number, lat: number]>>, properties: any, color: Cesium.ColorGeometryInstanceAttribute): Cesium.GeometryInstance {
+	/* private getGroundPolygonGeometryInstance(coordinates: Array<Array<[lon: number, lat: number]>>, properties: any, color: Cesium.ColorGeometryInstanceAttribute): Cesium.GeometryInstance {
 		const positions = coordinates[0].map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1]));
 		const props = this.OgcFeatures.allowPicking ? properties : undefined;
 		const polygonIstance = new Cesium.GeometryInstance({
@@ -601,7 +549,7 @@ abstract class OgcFeaturesLoaderCesium {
 			id: props
 		});
 		return polygonIstance;
-	}
+	} */
 
 	// Has Cesium bug: https://github.com/CesiumGS/cesium/issues/11291
 	/*
@@ -701,7 +649,6 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 
 	public async loadFeatures(): Promise<void> {
 		if (!this.features) {
-			// console.log("Loading features from loadFeatures() (no params are passed here)");
 			const features = await this.OgcFeatures.getFeature(undefined, this.OgcFeatures.parameters);
 			this.features = features || [];
 		}
@@ -818,7 +765,6 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 			console.log("camera too high")
 			return;
 		}
-		// console.log("camera low enough");
 		this.primitiveCollection.show = true;
 		const targetArea = this.getTargetRectangle();
 		const tileIndicesInView = this.getTileIndices(targetArea, this.OgcFeatures.map.viewer.camera.positionCartographic);
