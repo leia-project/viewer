@@ -52,7 +52,7 @@ export class FloodLayerController {
 		this.map.layerLibrary.addLayerConfigGroup(this.layerConfigGroup);
 		this.iconLayer = this.addIconLayer();
 		this.floodLayer = this.addFloodLayer(settings.scenariosBaseUrl);
-		this.floodedRoadsLayer = this.addFloodedRoadsLayer("http://localhost:5000");
+		this.floodedRoadsLayer = this.addFloodedRoadsLayer(settings.floodedRoadsUrl);
 		
 		this.activeBreach.subscribe(() => {
 			this.selectedScenario.set(undefined);
@@ -80,9 +80,6 @@ export class FloodLayerController {
 			};
 		});
 	}
-
-	// whenever the time changes, update the flooded roads layer
-
 
 	public showAll(): void {
 		this.iconLayer?.show();

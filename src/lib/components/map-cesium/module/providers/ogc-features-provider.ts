@@ -150,7 +150,7 @@ export class OgcFeaturesProviderCesium {
 		this.switchRateLimiter.addTask(() => this.switchUrlTask(url, parameters));
 	}
 
-	public async switchUrlTask(url: string, parameters?: Record<string, string>): Promise<void> {
+	private async switchUrlTask(url: string, parameters?: Record<string, string>): Promise<void> {
 		this.switchAbortController?.abort();
 		this.switchAbortController = new AbortController();
 		const parametersChanged = this.parametersChanged(parameters);
@@ -291,9 +291,7 @@ export class OgcFeaturesProviderCesium {
 				}
 			});
 		}
-		const url = `${this.url}/collections/${this.collection?.id}/items?${params.toString()}`;
-		console.log('Fetching features from:', url);
-
+		const url = `${this.url}/collections/${this.collection?.id ?? this.collectionId}/items?${params.toString()}`;
 
 		try {
 			const response = await fetch(url, {
@@ -305,7 +303,7 @@ export class OgcFeaturesProviderCesium {
 			const features = await response.json();
 			return features.features;
 		} catch (error) {
-			console.error('Error fetching features:', error);
+			//console.error('Error fetching features:', error);
 		}
 	}
 
