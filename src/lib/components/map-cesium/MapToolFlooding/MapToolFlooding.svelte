@@ -23,8 +23,7 @@
 	const icon: any = WaveHeight;
 	const showOnBottom: boolean = false;
 
-	let tool = new MapToolMenuOption(id, icon, label, showOnBottom);
-	$: { tool.label.set(label); }
+	const tool = new MapToolMenuOption(id, icon, label, showOnBottom);
 	registerTool(tool);
 
 
