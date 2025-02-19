@@ -136,11 +136,7 @@ export class IconLayer<F> extends CustomLayer {
 	}
 
 	public zoomToLayer(): void {
-		const allBillboards = this.mapIcons.map((i) => i.billboard);
-		this.map.viewer.flyTo(allBillboards, {
-			duration: 1.5
-		});
-		this.show();
+		this.map.flyTo(this.config.cameraPosition);
 	}
 
 	public flyToFeature(feature: F): void {

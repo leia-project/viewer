@@ -1,3 +1,4 @@
+import { get } from "svelte/store";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
 import type { Map } from "../map";
 
@@ -13,7 +14,7 @@ export class OgcFeaturesLayer extends CesiumLayer<OgcFeaturesProviderCesium> {
     }
 
     public async addToMap(): Promise<void> {
-        this.source.init();
+        this.source.init(get(this.visible));
     }
 
     public removeFromMap(): void {

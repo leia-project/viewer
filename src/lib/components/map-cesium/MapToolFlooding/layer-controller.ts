@@ -82,9 +82,9 @@ export class FloodLayerController {
 	}
 
 	public showAll(): void {
-		this.iconLayer?.show();
-		this.floodLayer?.show();
-		this.floodedRoadsLayer?.show();
+		this.iconLayer?.visible.set(true);
+		this.floodLayer?.visible.set(true);
+		this.floodedRoadsLayer?.visible.set(true);
 	}
 
 	
@@ -104,9 +104,8 @@ export class FloodLayerController {
 		const parameters = {
 			scenario: scenarioId, //breach.properties.scenarios[0],
 			timestep: (Math.round(get(this.time)) * 6).toString().padStart(5, "0"),
-			limit: "69"
+			limit: "500"
 		}
-		console.log("Switching flooded roads layer to new scenario", scenarioId, parameters);
 		this.floodedRoadsLayer?.source.switchUrl(endpoint, parameters);
 	}
 
@@ -137,7 +136,7 @@ export class FloodLayerController {
 			legendUrl: "",
 			isBackground: false,
 			defaultAddToManager: true,
-			defaultOn: true,
+			defaultOn: false,
 			transparent: true,
 			opacity: 20,
 			settings: {
@@ -208,7 +207,7 @@ export class FloodLayerController {
 				dragDropped: false
 			},
 			isBackground: false,
-			defaultOn: true,
+			defaultOn: false,
 			defaultAddToManager: true
 		});
 		this.map.layerLibrary.addLayerConfig(layerConfig);
