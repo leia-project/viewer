@@ -118,7 +118,7 @@ class DynamicWaterLevel {
 		this.contents = await this.loadContents(`${scenarioUrl.href}/layer.json`);
 		await this.loadImages(scenarioUrl, this.contents);
 		this.setUniforms(true);
-        await this.createMesh(this.contents);
+		await this.createMesh(this.contents);
 	}
 
 	private async loadContents(url: string): Promise<FloodLayerContents> {

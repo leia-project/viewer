@@ -1,8 +1,7 @@
-import { get, type Unsubscriber } from "svelte/store";
+import type { Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
-import type { Map } from "../map";
 import * as turf from "@turf/turf";
-import { render } from "sass";
+import type { Map } from "../map";
 
 
 interface OgcFeaturesTile {
@@ -45,42 +44,42 @@ interface OgcFeaturesConstructorOptions {
 
 
 class RateLimiter {
-    private currentTask: Promise<void> | null = null;
-    private latestTask: ((...args: Array<any>) => Promise<void>) | null = null;
-    private latestArgs: any[] | null = null;
-    private readonly interval: number;
+	private currentTask: Promise<void> | null = null;
+	private latestTask: ((...args: Array<any>) => Promise<void>) | null = null;
+	private latestArgs: any[] | null = null;
+	private readonly interval: number;
 
-    constructor(interval: number) {
-        this.interval = interval;
-    }
+	constructor(interval: number) {
+		this.interval = interval;
+	}
 
-    // Function to add the task to be rate-limited
-    async addTask(task: (...args: Array<any>) => Promise<void>, ...args: Array<any>): Promise<void> {
-        this.latestTask = task;
-        this.latestArgs = args;
-        if (!this.currentTask) {
-            this.scheduleNextTask();
-        }
-    }
+	// Function to add the task to be rate-limited
+	async addTask(task: (...args: Array<any>) => Promise<void>, ...args: Array<any>): Promise<void> {
+		this.latestTask = task;
+		this.latestArgs = args;
+		if (!this.currentTask) {
+			this.scheduleNextTask();
+		}
+	}
 
-    // Function to schedule the next task execution
-    private async scheduleNextTask() {
-        if (this.latestTask && this.latestArgs && !this.currentTask) {
+	// Function to schedule the next task execution
+	private async scheduleNextTask() {
+		if (this.latestTask && this.latestArgs && !this.currentTask) {
 			const task = this.latestTask(...this.latestArgs);
 			this.currentTask = task;
-            try {
-                await task;
+			try {
+				await task;
 				this.latestTask = null;
 				this.latestArgs = null;
-            } catch (error) {
-            } finally {
-            	setTimeout(() => {
+			} catch (error) {
+			} finally {
+				setTimeout(() => {
 					this.currentTask = null;
 					this.scheduleNextTask();
 				}, this.interval);
 			}
-        }
-    }
+		}
+	}
 }
 
 
