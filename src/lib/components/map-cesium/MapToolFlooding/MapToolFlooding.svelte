@@ -11,9 +11,16 @@
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
+	export let label: string = "Flooding";
+	export let scenario: string = "Scenario";
+	export let chosenBreach: string = "Chosen breach";
+	export let noBreachSelected: string = "No breach selected";
+	export let otherBreaches: string = "Other breaches";
+	export let searchBreach: string = "Search for a breach";
+	export let noResults: string = "No results";
+
 	const id: string = "flooding";
 	const icon: any = WaveHeight;
-	const label: string = $_("tools.flooding.label");
 	const showOnBottom: boolean = false;
 
 	const tool = new MapToolMenuOption(id, icon, label, showOnBottom);
@@ -72,7 +79,7 @@
 {#if $selectedTool === tool && floodLayerController}
 	<div class="wrapper">
 		<div class="selected-content">
-			<div class="bx--label">{$_('tools.flooding.chosenBreach')}</div>
+			<div class="bx--label">{chosenBreach}</div>
 			{#if $activeBreach}
 				{#key $activeBreach}
 					<BreachEntry
@@ -83,10 +90,10 @@
 						<svelte:fragment slot="info"> 
 							<div class="info-content">
 								<Dropdown
-									label={$_("tools.flooding.scenario")}
+									label={scenario}
 									items={$activeBreach.properties.scenarios.map((sc) => ({ id: sc, text: "1:" + sc }))}
 									bind:selectedId={$selectedScenario}
-									titleText={$_("tools.flooding.scenario")}
+									titleText={scenario}
 								/>
 								{#if $selectedScenario}
 									<LayerControlFlood
@@ -101,19 +108,19 @@
 				{/key}
 			{:else}
 				<div>
-					{$_('tools.flooding.noBreachSelected')}
+					{noBreachSelected}
 				</div>
 			{/if}
 		</div>
 
 		<div class="list-content">
-			<div class="bx--label">{$_('tools.flooding.otherBreaches')}</div>
+			<div class="bx--label">{otherBreaches}</div>
 			<div class="search">
-				<Search size="sm" light placeholder={$_("tools.flooding.searchBreach")} bind:value={$searchString} />
+				<Search size="sm" light placeholder={searchBreach} bind:value={$searchString} />
 			</div>
 			<div class="search-results">
 				{#if searchResults.length === 0}
-					<div>{$_('tools.flooding.noResults')}</div>
+					<div>{noResults}</div>
 				{/if}
 				{#each searchResults as breach (breach.properties.name)}
 					{#if breach && (!$activeBreach || breach !== $activeBreach)}
