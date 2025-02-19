@@ -142,7 +142,15 @@
 				{/if}
 
 				{#if $enabledTools.includes("flooding")}
-					<MapToolFlooding />
+					<MapToolFlooding 
+						label={$_("tools.flooding.label")}
+						scenario={$_('tools.flooding.scenario')}
+						chosenBreach={$_('tools.flooding.chosenBreach')}
+						noBreachSelected={$_('tools.flooding.noBreachSelected')}
+						otherBreaches={$_('tools.flooding.otherBreaches')}
+						searchBreach={$_('tools.flooding.searchBreach')}
+						noResults={$_('tools.flooding.noResults')}
+					/>
 				{/if}
 
 				{#if $enabledTools.includes("bookmarks")}
