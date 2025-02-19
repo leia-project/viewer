@@ -84,41 +84,6 @@
                     }
                 ]
             }
-        },
-        {
-            "id": "4",
-            "type": "flood",
-            "title": "Flood layer",
-            "groupId": "",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": true,
-            "transparent": false,
-            "opacity": 0,
-            "settings": {
-                "url": "https://virtueel.zeeland.nl/tiles_other/flood_26_OS-dp15_300/layer.json",
-                "resolution": 50
-            }
-        },
-        {
-            "id": "5",
-            "type": "ogc-features",
-            "title": "NWB (OGC Features)",
-            "groupId": "",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": true,
-            "transparent": false,
-            "opacity": 0,
-            "settings": {
-                "url": "http://localhost:5000",
-                "options": {
-                    "collectionId": "nwb",
-                    "heightStartLoading": 5000
-                }
-            }
         }
     ],
     "viewer": {
@@ -333,8 +298,9 @@
             "id": "flooding",
             "enabled": true,
             "settings": {
-                "scenariosBaseUrl": "https://95.217.154.75/tiles_other/overstroming/",
-                "breachUrl": "https://95.217.154.75/tiles_other/breslocaties.geojson"
+                "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
+                "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson",
+                "floodedRoadsUrl": "http://localhost:5000"
             }
         },
         {

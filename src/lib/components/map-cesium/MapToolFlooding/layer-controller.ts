@@ -191,8 +191,8 @@ export class FloodLayerController {
 						{
 							property: "flood_depth",
 							stops: [
-								{ value: 0, color: "#ff0000" },
-								{ value: 1, color: "#0000ff" }
+								{ value: 0, color: "#ffffff" },
+								{ value: 3, color: "#ff0000" }
 							]
 						}
 					]

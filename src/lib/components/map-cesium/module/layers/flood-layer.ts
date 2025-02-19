@@ -136,7 +136,7 @@ class DynamicWaterLevel {
 			if (!image) {
 				throw new Error("Failed to load terrain image");
 			}
-			if (image) return { time: i - 4, image: image };
+			if (image) return { time: i, image: image };
 		});
 		const loadedWaterLevels = await Promise.all(loadWaterLevelPromises);
 		this.waterLevels = [];

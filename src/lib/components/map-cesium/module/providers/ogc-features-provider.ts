@@ -110,7 +110,7 @@ export class OgcFeaturesProviderCesium {
 	private collection: Collection | undefined = undefined;
 	private availableCollections: Array<Collection> = [];
 	private outputFormat: string | undefined = "json";
-	public maxFeatures: number = 1000;
+	public maxFeatures: number = 2000;
 	public boundingRect: Cesium.Rectangle = Cesium.Rectangle.MAX_VALUE;
 
 	public dynamicLoading: boolean = false;
@@ -538,7 +538,7 @@ abstract class OgcFeaturesLoaderCesium {
 		const polylineInstance = new Cesium.GeometryInstance({
 			geometry: new Cesium.GroundPolylineGeometry({
 				positions: positions,
-				width: 4.0
+				width: 2.5
 			}),
 			attributes: {
 				color: color
