@@ -5,12 +5,17 @@ import type { Map } from "../map";
 import { OgcFeaturesProviderCesium } from "../providers/ogc-features-provider";
 import { CesiumLayer } from "./cesium-layer";
 
+import * as Cesium from "cesium";
+import { CustomLayerControl } from "$lib/components/map-core/custom-layer-control";
+import LayerControlOgcFeaturesLayer from "../../LayerControls/LayerControlOGCFeaturesLayer.svelte";
+
 
 export class OgcFeaturesLayer extends CesiumLayer<OgcFeaturesProviderCesium> {
 
 	constructor(map: Map, config: LayerConfig) {
         super(map, config);
         this.source = new OgcFeaturesProviderCesium(map, this.config.settings.url, this.config.settings.options, this.config.settings.parameters);
+        this.addControl();
     }
 
     public async addToMap(): Promise<void> {
@@ -37,5 +42,14 @@ export class OgcFeaturesLayer extends CesiumLayer<OgcFeaturesProviderCesium> {
         if (this.source) {
             this.source.setOpacity(opacity);
         }
+    }
+
+    private addControl(): void {
+        const layerControl = new CustomLayerControl();
+        layerControl.component = LayerControlOgcFeaturesLayer;
+        layerControl.props = {
+            style: this.config.settings.options.style,
+        };
+        this.addCustomControl(layerControl);
     }
 }

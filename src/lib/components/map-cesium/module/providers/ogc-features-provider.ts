@@ -25,7 +25,7 @@ interface Collection {
 	}
 }
 
-interface StyleCondition {
+export interface OgcStyleCondition {
 	property: string;
 	stops: Array<{
 		value: number;
@@ -39,7 +39,7 @@ interface OgcFeaturesConstructorOptions {
 	tileWidth: number;
 	cacheBuster: number;
 	allowPicking: boolean;
-	style: Array<StyleCondition>;
+	style: Array<OgcStyleCondition>;
 }
 
 

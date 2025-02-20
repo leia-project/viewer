@@ -5,6 +5,9 @@ import type { FloodLayer } from "../module/layers/flood-layer";
 import type { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
 import { get, writable, type Writable } from "svelte/store";
 import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
+import type { OgcStyleCondition } from "../module/providers/ogc-features-provider";
+
+
 
 
 export interface FloodToolSettings {
@@ -12,6 +15,7 @@ export interface FloodToolSettings {
 	breachUrl: string;
 	roadsUrl: string;
 	floodedRoadsUrl: string;
+	floodedRoadsStyle: Array<OgcStyleCondition>;
 }
 
 export interface Breach {
@@ -52,7 +56,7 @@ export class FloodLayerController {
 		this.map.layerLibrary.addLayerConfigGroup(this.layerConfigGroup);
 		this.iconLayer = this.addIconLayer();
 		this.floodLayer = this.addFloodLayer(settings.scenariosBaseUrl);
-		this.floodedRoadsLayer = this.addFloodedRoadsLayer(settings.floodedRoadsUrl);
+		this.floodedRoadsLayer = this.addFloodedRoadsLayer(settings.floodedRoadsUrl, settings.floodedRoadsStyle);
 		
 		this.activeBreach.subscribe(() => {
 			this.selectedScenario.set(undefined);
@@ -174,7 +178,7 @@ export class FloodLayerController {
 	}
 	*/
 
-	private addFloodedRoadsLayer(baseUrl: string): OgcFeaturesLayer {
+	private addFloodedRoadsLayer(baseUrl: string, style: Array<OgcStyleCondition>): OgcFeaturesLayer {
 		const layerConfig = new LayerConfig({
 			id: "flooded_roads",
 			title: "Wegen",
@@ -187,15 +191,7 @@ export class FloodLayerController {
 					heightStartLoading: 50000,
 					maxFeatures: 10000,
 					tileWidth: 40640,
-					style: [
-						{
-							property: "flood_depth",
-							stops: [
-								{ value: 0, color: "#ffffff" },
-								{ value: 3, color: "#ff0000" }
-							]
-						}
-					]
+					style: style
 				},
 				parameters: { 
 					scenario: get(this.selectedScenario)?.toString(), //"26_NzSch-dp_160_300",
