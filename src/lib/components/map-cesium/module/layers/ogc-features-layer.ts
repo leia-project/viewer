@@ -24,7 +24,7 @@ export class OgcFeaturesLayer extends CesiumLayer<OgcFeaturesProviderCesium> {
 
     public removeFromMap(): void {
         this.source.hide();
-    }
+    }   
 
     public show(): void {
         if (this.source) {

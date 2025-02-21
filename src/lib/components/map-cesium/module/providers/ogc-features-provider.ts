@@ -537,7 +537,7 @@ abstract class OgcFeaturesLoaderCesium {
 		const polylineInstance = new Cesium.GeometryInstance({
 			geometry: new Cesium.GroundPolylineGeometry({
 				positions: positions,
-				width: 2.5
+				width: 3.5
 			}),
 			attributes: {
 				color: color
