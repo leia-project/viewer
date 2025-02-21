@@ -56,10 +56,6 @@ class DynamicWaterLevel {
 	private verticalExaggeration: Writable<number>;
 	private verticalExaggerationUnsubscriber?: Unsubscriber;
 	private uniformMap: any = {
-		uProgress: {
-			type: "float",
-			value: 0
-		},
 		uTerrain: {
 			type: "sampler2D",
 			value: undefined
@@ -162,6 +158,14 @@ class DynamicWaterLevel {
 				{ slot: 4, time: undefined, image: undefined }
 			];
 		}
+		const setTextureSlot = (slot: number, image: any) => {
+			if (!this.material) return;
+			if (slot === 1) this.material.uniforms.u_flood_slot_1 = image;
+			if (slot === 2) this.material.uniforms.u_flood_slot_2 = image;
+			if (slot === 3) this.material.uniforms.u_flood_slot_3 = image;
+			if (slot === 4) this.material.uniforms.u_flood_slot_4 = image;
+		}
+
 		const [lowerLowerBound, lowerBound, upperBound, upperUpperBound] = this.findClosestWaterLevels();
 		if (lowerBound === undefined || !upperBound === undefined) return;
 
@@ -175,7 +179,9 @@ class DynamicWaterLevel {
 					break;
 				}
 			}
-			slotTextureT1 = this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time)?.slot || 0;
+			slotTextureT1 = this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time)?.slot || 1;
+			setTextureSlot(slotTextureT1, lowerBound.image);
+			setTimeout(() => this.map.refresh(), 100); // Because of small delay in setting the texture
 		} else {
 			slotTextureT1 = textureT1.slot;
 		}
@@ -190,7 +196,9 @@ class DynamicWaterLevel {
 					break;
 				}
 			}
-			slotTextureT2 = this.floodTextureMapping.find((mapping) => mapping.time === upperBound.time)?.slot || 0;
+			slotTextureT2 = this.floodTextureMapping.find((mapping) => mapping.time === upperBound.time)?.slot || 2;
+			setTextureSlot(slotTextureT2, upperBound.image);
+			setTimeout(() => this.map.refresh(), 100); // Because of small delay in setting the texture
 		} else {
 			slotTextureT2 = textureT2.slot;
 		}
@@ -198,15 +206,6 @@ class DynamicWaterLevel {
 		const availableSlots = this.floodTextureMapping.filter((mapping) => mapping.time !== lowerBound.time && mapping.time !== upperBound.time);
 		availableSlots[0].time = lowerLowerBound.time; availableSlots[0].image = lowerLowerBound.image;
 		availableSlots[1].time = upperUpperBound.time; availableSlots[1].image = upperUpperBound.image;
-
-		//if (!lowerBound || !upperBound) return;
-		const setTextureSlot = (slot: number, image: any) => {
-			if (!this.material) return;
-			if (slot === 1) this.material.uniforms.u_flood_slot_1 = image;
-			if (slot === 2) this.material.uniforms.u_flood_slot_2 = image;
-			if (slot === 3) this.material.uniforms.u_flood_slot_3 = image;
-			if (slot === 4) this.material.uniforms.u_flood_slot_4 = image;
-		}
 
 		setTextureSlot(availableSlots[0].slot, availableSlots[0].image);
 		setTextureSlot(availableSlots[1].slot, availableSlots[1].image);
@@ -216,27 +215,17 @@ class DynamicWaterLevel {
 		this.uniformMap.uFloodSlot3.value = this.floodTextureMapping[2].image;
 		this.uniformMap.uFloodSlot4.value = this.floodTextureMapping[3].image;
 
-
-		//this.uniformMap.uFloodSlot1.value = this.floodTextureMapping[0].image;
-		//this.uniformMap.uFloodSlot2.value = this.floodTextureMapping[1].image;
-
-		if (this.material) {
-			this.material.uniforms.u_flood_t1 = slotTextureT1;
-			this.material.uniforms.u_flood_t2 = slotTextureT2;
-		}
-
 		let progress: number = 1;
 		if (upperBound.time !== lowerBound.time) {
 			progress = (get(this.time) - lowerBound.time) / (upperBound.time - lowerBound.time);
 			progress = Math.max(0, Math.min(1, progress));
 		}
-		this.uniformMap.uProgress.value = progress;
 
 		if (this.material) {
 			this.material.uniforms.u_terrain = this.uniformMap.uTerrain.value;
-			//this.material.uniforms.u_depth_t1 = this.uniformMap.uDepthT1.value;
-			//this.material.uniforms.u_depth_t2 = this.uniformMap.uDepthT2.value;
-			this.material.uniforms.u_progress = this.uniformMap.uProgress.value;
+			this.material.uniforms.u_progress = progress;
+			this.material.uniforms.u_flood_t1 = slotTextureT1;
+			this.material.uniforms.u_flood_t2 = slotTextureT2;
 			this.material.uniforms.u_alpha = get(this.alpha);
 		}
 		this.map.refresh();
@@ -525,7 +514,7 @@ class DynamicWaterLevel {
 			fabric: {
 				type : 'CustomDynamicPlaneMaterial',
 				uniforms: {
-					u_progress: this.uniformMap.uProgress.value,
+					u_progress: 0,
 					u_terrain: this.uniformMap.uTerrain.value,
 					u_flood_slot_1: this.uniformMap.uFloodSlot1.value,
 					u_flood_slot_2: this.uniformMap.uFloodSlot2.value,

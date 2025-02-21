@@ -103,7 +103,7 @@ export class OgcFeaturesProviderCesium {
 	private url: string;
 	public options: Partial<OgcFeaturesConstructorOptions>;
 	public parameters: Record<string, string> | undefined;
-	public style: Array<StyleCondition> | undefined;
+	public style: Array<OgcStyleCondition> | undefined;
 
 	private collectionId: string;
 	private collection: Collection | undefined = undefined;
@@ -876,7 +876,7 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 		}
 		tile.ids = features.map(feature => feature.id);
 		tile.size += features.length;
-		const primitives = await this.createPrimitives(features, tileHeight);
+		const primitives = this.createPrimitives(features, tileHeight);
 		if (primitives.length > 0 && !tile.destroyed) {
 			primitives.forEach(primitive => {
 				tile.primitives.push(primitive);
