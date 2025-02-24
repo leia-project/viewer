@@ -85,17 +85,18 @@
                 ]
             }
         }
+
     ],
     "viewer": {
-        "title": "3D viewer",
-        "subTitle": "Leia Example",
+        "title": "FIER",
+        "subTitle": "3D Leia Viewer",
         "logo": "images/leia_logo.png",
         "startPosition": {
-            "x": 5.40068,
-            "y": 51.20089,
-            "z": 55885.52117,
+            "x": 3.96280,
+            "y": 51.49285,
+            "z": 108025.35868,
             "heading": 360.00000,
-            "pitch": -34.77194,
+            "pitch": -90.69420,
             "duration": 1.50
         },
         "colors": {
@@ -229,7 +230,7 @@
                 "terrainProviders": [
                     {
                         "title": "Zeeland 1m",
-                        "url": "https://95.217.154.75/tiles_other/zeeland_1m",
+                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
                         "vertexNormals": true
                     },
                     {
@@ -298,8 +299,19 @@
             "id": "flooding",
             "enabled": true,
             "settings": {
-                "scenariosBaseUrl": "https://95.217.154.75/tiles_other/overstroming/",
-                "breachUrl": "https://95.217.154.75/tiles_other/breslocaties.geojson"
+                "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
+                "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson",
+                "roadsUrl": "https://service.pdok.nl/rws/vervoersnetwerken/wegen/wms/v1_0",
+                "floodedRoadsUrl": "http://localhost:5000",
+                "floodedRoadsStyle":[
+                    {
+                        "property": "flood_depth",
+                        "stops": [
+                            { "value": 0, "color": "#ffffff" },
+                            { "value": 3, "color": "#ff0000" }
+                        ]
+                    }
+                ]
             }
         },
         {

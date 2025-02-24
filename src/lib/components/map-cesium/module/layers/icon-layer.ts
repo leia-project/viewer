@@ -12,117 +12,139 @@ import { getCartesian2 } from "$lib/components/map-cesium/module/utils/geo-utils
 import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
 
 
-export class IconLayer extends CustomLayer {
+export class IconLayer<F> extends CustomLayer {
 
-    public hoveredIcon: Writable<CesiumIcon | undefined> = writable(undefined);
-    public activeIcon: Writable<CesiumIcon | undefined> = writable(undefined);
-    public loaded: Writable<boolean> = writable(false);
-    public mapIcons: Writable<Array<CesiumIcon>> = writable(new Array<CesiumIcon>());
-    private unsubscribers: Array<Unsubscriber> = new Array<Unsubscriber>();
+	public hoveredFeature: Writable<F | undefined> = writable(undefined);
+	public activeFeature: Writable<F | undefined> = writable(undefined);
+	public mapIcons: Array<CesiumIcon<F>> = [];
+	private unsubscribers: Array<Unsubscriber> = new Array<Unsubscriber>();
 
-    public colorProperties = {
-        custom: new Cesium.ConstantProperty(Cesium.Color.LIGHTGRAY),
-        active: new Cesium.ConstantProperty(Cesium.Color.LIGHTSKYBLUE),
-    }
+	public colorProperties = {
+		custom: new Cesium.ConstantProperty(Cesium.Color.LIGHTGRAY),
+		active: new Cesium.ConstantProperty(Cesium.Color.LIGHTSKYBLUE),
+	}
 
-    constructor(map: Map, config: LayerConfig) {
+	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
-
+		this.source = new Cesium.CustomDataSource(config.id);
 		this.addListeners();
-        this.addMouseEvents();
-        this.loadData();
+		this.addMouseEvents();
 	}
 
-    private addListeners() {
-        this.unsubscribers.push(
-            this.hoveredIcon.subscribe((icon) => {
-                get(this.mapIcons).forEach((i) => i.hovered.set(i === icon));
-                this.map.refresh();
-            }),
-            this.activeIcon.subscribe((icon) => {
-                get(this.mapIcons).forEach((i) => i.active.set(i === icon));
-                this.map.refresh();
-            })
-        );
-    }
+	private addListeners() {
+		this.unsubscribers.forEach((unsubscriber) => unsubscriber());
+		this.unsubscribers.push(
+			this.hoveredFeature.subscribe((feature) => {
+				this.mapIcons.forEach((i) => i.hovered.set(i.feature === feature));
+				this.map.refresh();
+			}),
+			this.activeFeature.subscribe((feature) => {
+				this.mapIcons.forEach((i) => i.active.set(i.feature === feature));
+				this.map.refresh();
+				if (feature) this.flyToFeature(feature);
+			})
+		);
+	}
 
-    private async loadData() {
-        await fetch(this.config.settings["url"])
-            .then(response => response.json())
-            .then(data => {
-                // extract locations from GeoJSON features and create CesiumIcon objects
-                let mapIcons: Array<CesiumIcon> = [];
-                data.features.map((feature: any) => {
-                    const location = new GeographicLocation(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
-                    const properties = feature.properties;
-                    const icon = new CesiumIcon(this.map, location, properties, breachIcon, this.colorProperties.custom, this.colorProperties.active, false);
-                    mapIcons.push(icon);
-                    return location;
-                });
-                this.mapIcons.set(mapIcons);
-                this.setCameraPosition();
-                this.loaded.set(true);
-            })
-    }
+	set activeStore(value: Writable<F | undefined>) {
+		this.activeFeature = value;
+		this.addListeners();
+	}
+
+	public loadFeatures(items: Array<F>): void {
+		// extract locations from GeoJSON features and create CesiumIcon objects
+		const mapIcons: Array<CesiumIcon<F>> = [];
+		items.map((feature: any) => {
+			const location = new GeographicLocation(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
+			const icon = new CesiumIcon(location, feature, breachIcon, this.colorProperties.custom, this.colorProperties.active, false);
+			mapIcons.push(icon);
+			return location;
+		});
+		this.addMapEntities(mapIcons);
+		this.setCameraPosition();
+		this.zoomToLayer();
+	}
 
 
-    public destroy() {
-        this.unsubscribers.forEach((unsubscriber) => unsubscriber());
-        this.clearMapEntities();
+	public destroy() {
+		this.unsubscribers.forEach((unsubscriber) => unsubscriber());
+		this.clearMapEntities();
 		this.removeMouseEvents();
-    }
-
-    private clearMapEntities(): void {
-        get(this.mapIcons).forEach((item) => item.removeItem());
-        this.mapIcons.set(new Array());
-        this.removeMouseEvents();
-    }
-
-    private getObjectFromMouseLocation(m: any): CesiumIcon | undefined {
-        const location = getCartesian2(m);
-        if (!location) return undefined;
-        const picked = this.map.viewer.scene.pick(location);
-        if (picked?.id?.billboard !== undefined) {
-            const billboard = picked.id.billboard as Cesium.BillboardGraphics;
-            for (const icon of get(this.mapIcons)) {
-                if (billboard === icon.billboard.billboard) {
-                    return icon;
-                }
-            }
-            return undefined;
-        }
-    }
-
-    private moveHandle = (m: any) => {
-        const obj = this.getObjectFromMouseLocation(m);
-        if (obj !== get(this.hoveredIcon)) this.hoveredIcon.set(obj);
-        this.map.container.style.cursor = obj ? "pointer" : "default";
-    }
-    private leftClickHandle = (m: any) => {
-        const obj = this.getObjectFromMouseLocation(m);
-        if (obj !== get(this.activeIcon) && obj !== undefined) this.activeIcon.set(obj);
-    }
-
-    private addMouseEvents(): void {
-        this.map.on("mouseLeftClick", this.leftClickHandle);
-        this.map.on("mouseMove", this.moveHandle);
-    }
-    private removeMouseEvents(): void {
-        this.map.off("mouseLeftClick", this.leftClickHandle);
-        this.map.off("mouseMove", this.moveHandle);
-    }
-
-    public setCameraPosition(): void {
-		const cartesians = get(this.mapIcons).map(i => i.billboard.position?.getValue()).filter(c => c !== undefined);
-		const sphere = Cesium.BoundingSphere.fromPoints(cartesians);
-        this.config.cameraPosition = getCameraPositionFromBoundingSphere(sphere);
 	}
 
-    public show(): void {
-        if (get(this.loaded)) get(this.mapIcons).forEach((icon) => icon.show.set(true));
+	private addMapEntities(newIcons: Array<CesiumIcon<F>>): void {
+		this.mapIcons.push(...newIcons);
+		newIcons.forEach((icon) => {
+			this.source.entities.add(icon.billboard);
+		});
+	}
+
+	private clearMapEntities(): void {
+		this.source.entities.removeAll();
+		this.mapIcons = [];
+		this.removeMouseEvents();
+	}
+
+	private getObjectFromMouseLocation(m: any): F | undefined {
+		const location = getCartesian2(m);
+		if (!location) return undefined;
+		const picked = this.map.viewer.scene.pick(location);
+		if (picked?.id?.billboard !== undefined) {
+			const billboard = picked.id.billboard as Cesium.BillboardGraphics;
+			for (const icon of this.mapIcons) {
+				if (billboard === icon.billboard.billboard) {
+					return icon.feature;
+				}
+			}
+			return undefined;
+		}
+	}
+
+	private moveHandle = (m: any) => {
+		const obj = this.getObjectFromMouseLocation(m);
+		if (obj !== get(this.hoveredFeature)) this.hoveredFeature.set(obj);
+		this.map.container.style.cursor = obj ? "pointer" : "default";
+	}
+	private leftClickHandle = (m: any) => {
+		const obj = this.getObjectFromMouseLocation(m);
+		if (obj !== get(this.activeFeature) && obj !== undefined) this.activeFeature.set(obj);
+	}
+
+	private addMouseEvents(): void {
+		this.map.on("mouseLeftClick", this.leftClickHandle);
+		this.map.on("mouseMove", this.moveHandle);
+	}
+	private removeMouseEvents(): void {
+		this.map.off("mouseLeftClick", this.leftClickHandle);
+		this.map.off("mouseMove", this.moveHandle);
+	}
+
+	public setCameraPosition(): void {
+		const cartesians = this.mapIcons.map(i => i.billboard.position?.getValue()).filter(c => c !== undefined);
+		const sphere = Cesium.BoundingSphere.fromPoints(cartesians);
+		this.config.cameraPosition = getCameraPositionFromBoundingSphere(sphere);
+	}
+
+	public show(): void {
+		this.mapIcons?.forEach((icon) => icon.show.set(true));
+		this.map?.refresh();
 	}
 
 	public hide(): void {
-		if (get(this.loaded)) get(this.mapIcons).forEach((icon) => icon.show.set(false));
+		this.mapIcons?.forEach((icon) => icon.show.set(false));
+		this.map?.refresh();
+	}
+
+	public zoomToLayer(): void {
+		this.map.flyTo(this.config.cameraPosition);
+	}
+
+	public flyToFeature(feature: F): void {
+		const icon = this.mapIcons.find((i) => i.feature === feature);
+		if (!icon) return;
+		this.map.viewer.flyTo(icon.billboard, {
+			duration: 1,
+			offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 5000)
+		});
 	}
 }

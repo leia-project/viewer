@@ -298,8 +298,9 @@
             "id": "flooding",
             "enabled": true,
             "settings": {
-                "scenariosBaseUrl": "https://95.217.154.75/tiles_other/overstroming/",
-                "breachUrl": "https://95.217.154.75/tiles_other/breslocaties.geojson"
+                "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
+                "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson",
+                "floodedRoadsUrl": "http://localhost:5000"
             }
         },
         {
