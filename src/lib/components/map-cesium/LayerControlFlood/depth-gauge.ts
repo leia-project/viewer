@@ -92,6 +92,7 @@ export class DepthGauge {
 		this.measurements.forEach((measurement) => {
 			measurement?.remove();
 		});
+		this.measurementId = 0;
 		this.removeMovingPoint();
 		this.map.options.animate.set(this.previouseAnimateState);
 
