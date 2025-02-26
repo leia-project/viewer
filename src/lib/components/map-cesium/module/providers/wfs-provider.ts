@@ -649,7 +649,7 @@ abstract class WFSLoaderCesium {
 			const polylineInstance = new Cesium.GeometryInstance({
 				geometry: new Cesium.PolylineGeometry({
 					positions: positions,
-					width: 2.0
+					width: 4.0
 				}),
 				id: props
 			});
@@ -660,16 +660,10 @@ abstract class WFSLoaderCesium {
 		polygonInstances.filter((instance) => instance !== undefined);
 
 		if (polylineInstances.length > 0) {
-			const polylineAppearance = new Cesium.PolylineMaterialAppearance({
-				material: Cesium.Material.fromType("Color", {
-					color: Cesium.Color.BLACK
-				})
-			});
 			primitives.push(
-				new Cesium.Primitive({
+				new Cesium.GroundPolylinePrimitive({
 					geometryInstances: polylineInstances,
-					appearance: polylineAppearance,
-					depthFailAppearance: polylineAppearance,
+					appearance: new Cesium.PolylineColorAppearance(),
 					releaseGeometryInstances: true
 				})
 			);
