@@ -360,7 +360,7 @@ abstract class OgcFeaturesLoaderCesium {
 	}
 
 	public activate(): void {
-		this.addPrimitives();
+		this.addPrimitives(this.primitives);
 		this.primitives.forEach(p => p.show = true);
 		this.terrainUnsubscriber?.();
 		this.terrainUnsubscriber = this.OgcFeatures.map.options.terrainSwitchReady.subscribe((b) => {
@@ -379,33 +379,41 @@ abstract class OgcFeaturesLoaderCesium {
 
 	protected abstract onTerrainSwitch(): void;
 
-	protected addPrimitives(): void {
+	protected addPrimitives(primitives: Array<Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive>): void {
 		const mapPrimitives = this.OgcFeatures.map.viewer.scene.primitives;
 		const mapGroundPrimitives = this.OgcFeatures.map.viewer.scene.groundPrimitives;
-		for (const primitive of this.primitives) {
+		for (const primitive of primitives) {
 			if (!primitive || primitive.isDestroyed()) continue;
-			if (primitive instanceof Cesium.GroundPrimitive) {
-				if (!mapGroundPrimitives.contains(primitive)) mapGroundPrimitives.add(primitive);
+			if (primitive instanceof Cesium.GroundPrimitive || primitive instanceof Cesium.GroundPolylinePrimitive) {
+				if (!mapGroundPrimitives.contains(primitive)) {
+					mapGroundPrimitives.add(primitive);
+					if (!this.primitives.includes(primitive)) this.primitives.push(primitive);
+				}
 			} else {
-				if (!mapPrimitives.contains(primitive)) mapPrimitives.add(primitive);
+				if (!mapPrimitives.contains(primitive)) {
+					mapPrimitives.add(primitive);
+					if (!this.primitives.includes(primitive)) this.primitives.push(primitive);
+				}
 			}
 		}
+		this.OgcFeatures.map.refresh();
 	}
 
 	public clearPrimitives(primitives?: Array<Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive>): void {
-		if (!primitives) primitives = this.primitives;
+		if (!primitives) primitives = this.primitives
 		const mapPrimitives = this.OgcFeatures.map.viewer.scene.primitives;
 		const mapGroundPrimitives = this.OgcFeatures.map.viewer.scene.groundPrimitives;
-		for (const primitive of this.primitives) {
+		//instead of destroying all primitives instantly, only destroy the old primitives later
+		for (const primitive of primitives) {
 			if (!primitive || primitive.isDestroyed()) continue;
-			if (primitive instanceof Cesium.GroundPrimitive) {
+			if (primitive instanceof Cesium.GroundPrimitive || primitive instanceof Cesium.GroundPolylinePrimitive) {
 				if (mapGroundPrimitives.contains(primitive)) mapGroundPrimitives.remove(primitive);
 			} else {
 				if (mapPrimitives.contains(primitive)) mapPrimitives.remove(primitive);
 			}
+			this.primitives = this.primitives.filter(p => p !== primitive);
 		}
-		this.primitives = [];
-		this.loadedFeatures = [];
+		this.OgcFeatures.map.refresh();
 	}
 
 
@@ -663,32 +671,32 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 	}
 
 	public async loadFeatures(): Promise<void> {
-		if (!this.features) {
-			const features = await this.OgcFeatures.getFeature(undefined, this.OgcFeatures.parameters);
-			this.features = features || [];
+		const features = await this.OgcFeatures.getFeature(undefined, this.OgcFeatures.parameters);
+		this.features = features || [];
+	}
+
+	private refreshPrimitives(): void {
+		this.loadedFeatures = [];
+		if (this.features) {
+			const oldPrimitives = [...this.primitives];
+			const delay = Math.min(50 + ( Math.floor(this.features.length * 0.25)), 250);
+			if (oldPrimitives.length > 0) {
+				setTimeout(() => {
+					this.clearPrimitives(oldPrimitives);
+				}, delay);
+			}
+			const newPrimitives = this.createPrimitives(this.features, 0, true);
+			this.addPrimitives(newPrimitives);
 		}
 	}
 
 	public onTerrainSwitch(): void {
-		this.loadedFeatures = [];
-		if (this.features) {
-			this.clearPrimitives();
-			this.primitives = this.createPrimitives(this.features, 0, true);
-			this.addPrimitives();
-		}
-		this.features = undefined;
-		this.OgcFeatures.map.refresh();
+		this.refreshPrimitives();
 	}
 
 	public async sourceSwitch(): Promise<void> {
 		await this.loadFeatures();
-		if (this.features) {
-			this.clearPrimitives();
-			this.primitives = this.createPrimitives(this.features, 0, true);
-			this.addPrimitives();
-		}
-		this.features = undefined;
-		this.OgcFeatures.map.refresh();
+		this.refreshPrimitives();
 	}
 
 	public async getFeaturesInPolygon(polygon: Array<[lon: number, lat: number]>): Promise<Array<GeoJSONFeature>> {
