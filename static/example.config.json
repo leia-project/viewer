@@ -33,8 +33,42 @@
                 "url": "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0",
                 "featureName": "Actueel_orthoHR",
                 "contenttype": "image/jpeg",
-                "matrixids": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"],
+                "matrixids": [
+                    "00",
+                    "01",
+                    "02",
+                    "03",
+                    "04",
+                    "05",
+                    "06",
+                    "07",
+                    "08",
+                    "09",
+                    "10",
+                    "11",
+                    "12",
+                    "13",
+                    "14",
+                    "15",
+                    "16",
+                    "17",
+                    "18",
+                    "19"
+                ],
                 "matrixset": "EPSG:3857"
+            }
+        },
+        {
+            "id": "11008",
+            "type": "arcgis",
+            "title": "Bebouwingscontouren",
+            "groupId": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://geo.scheldestromen.nl/arcgis/rest/services/Extern/EXT_ALG_DSO_2025/MapServer",
+                "layers": "25"
             }
         },
         {
@@ -192,7 +226,7 @@
         {
             "id": "featureinfo",
             "enabled": true
-        },  
+        },
         {
             "id": "info",
             "enabled": true,
@@ -263,7 +297,7 @@
             "id": "config_switcher",
             "enabled": false,
             "settings": {
-                "fullReload": true 
+                "fullReload": true
             }
         },
         {
@@ -281,7 +315,7 @@
                                 52.39961
                             ],
                             [
-                                4.91807, 
+                                4.91807,
                                 52.39961
                             ],
                             [
