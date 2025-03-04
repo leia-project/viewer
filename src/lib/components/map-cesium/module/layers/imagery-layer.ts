@@ -5,7 +5,6 @@ import type { Map } from "../map";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
 
 export abstract class CesiumImageryLayer extends CesiumLayer<ImageryLayer> {
-
 	constructor(map: Map, config: LayerConfig) {
 		config.transparent = true;
 		super(map, config);

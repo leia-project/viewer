@@ -8,10 +8,9 @@ import LayerControlArcGis from "../../LayerControlArcGis/LayerControlArcGis.svel
 
 export class ArcGISLayer extends CesiumImageryLayer {
 	private layerControl!: CustomLayerControl;
-	private legendUrl: string | undefined;
+	private legendUrls: { srcString: string; legendName: string } | undefined;
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
-		this.createLayer();
 	}
 
 	async createLayer(): Promise<void> {
@@ -20,30 +19,36 @@ export class ArcGISLayer extends CesiumImageryLayer {
 			enablePickFeatures: true
 		});
 		this.source = new Cesium.ImageryLayer(provider, {});
-		this.legendUrl = await this.getLegendUrl();
+		this.legendUrls = await this.getLegendUrl();
 		this.addControl();
 	}
 
-	private async getLegendUrl(): Promise<string> {
+	private async getLegendUrl(): Promise<{ srcString: string; legendName: string }> {
 		const response = await fetch(`${this.config.settings.url}/legend?f=pjson`);
 		const body = await response.json();
 		const layerLegendInfo = body.layers.find((layer: any) => {
 			return layer.layerId.toString() === this.config.settings.layers;
 		});
 		const srcString = `data:${layerLegendInfo.legend[0].contentType};base64,${layerLegendInfo.legend[0].imageData}`;
-		return srcString;
+		const legendName = layerLegendInfo.layerName;
+		return { srcString, legendName };
 	}
 
 	private addControl(): void {
 		this.layerControl = new CustomLayerControl();
 		this.layerControl.component = LayerControlArcGis;
 		this.layerControl.props = {
-			legendUrl: this.legendUrl
+			legendUrls: this.legendUrls
 		};
 		this.addCustomControl(this.layerControl);
 	}
 
 	private removeControl(): void {
 		this.removeCustomControl(this.layerControl);
+	}
+
+	public removeFromMap(): void {
+		super.removeFromMap();
+		this.removeControl();
 	}
 }
