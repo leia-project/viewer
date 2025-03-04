@@ -1,0 +1,4 @@
+Nieuwe Freshem lagen met filters
+Legenda's arcgis lagen
+
+Uitzoeken hoe het zit met "url": "https://95.217.154.75/tiles_other/zeeland_1m", vs virtueel.zeeland.nl

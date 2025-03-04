@@ -15,6 +15,9 @@ import { GeoJsonLayer } from "./layers/geojson-layer";
 import { ArcGISLayer } from "./layers/arcgis-layer";
 import { DroppedGLBLayer } from "./layers/dropped-glb-layer";
 import { FloodLayer } from "./layers/flood-layer";
+import { IconLayer } from "./layers/icon-layer";
+import { WfsLayer } from "./layers/wfs-layer";
+import { OgcFeaturesLayer } from "./layers/ogc-features-layer";
 
 export class CesiumLayerFactory {
 	public convert(map: Map, config: LayerConfig): CesiumLayer<unknown> | undefined {
@@ -23,6 +26,8 @@ export class CesiumLayerFactory {
 				return this.createWms(map, config);
 			case "wmts":
 				return this.createWmts(map, config);
+			case "wfs":
+				return this.createWfs(map, config);
 			case "arcgis":
 				return this.createArcGIS(map, config);
 			case "basiskaart":
@@ -35,12 +40,16 @@ export class CesiumLayerFactory {
 				return this.createGeoJsonLayer(map, config);
 			case "geojson":
 				return this.createGeoJsonLayer(map, config);
+			case "ogc-features":
+				return this.createOgcFeaturesLayer(map, config);
 			/* Shapefile support built in via shapefile NPM module and GeoJSON layer, but not enabled
 			case "shapefile": 
 				return this.createGeoJsonLayer(map, config);
 			*/
 			case "flood":
 				return this.createFloodLayer(map, config);
+			case "icon":
+				return this.createIconLayer(map, config);
 			case "modelanimation":
 				return this.createModelAnimation(map, config);
 			case "dropped-glb":
@@ -92,6 +101,10 @@ export class CesiumLayerFactory {
 		return new WmtsLayer(map, layerConfig);
 	}
 
+	private createWfs(map: Map, layerConfig: LayerConfig): WfsLayer {
+		return new WfsLayer(map, layerConfig);
+	}
+
 	private createArcGIS(map: Map, layerConfig: LayerConfig): CesiumLayer<ImageryLayer> {
 		return new ArcGISLayer(map, layerConfig);
 	}
@@ -104,12 +117,20 @@ export class CesiumLayerFactory {
 		return new GeoJsonLayer(map, layerConfig);
 	}
 
+	private createOgcFeaturesLayer(map: Map, layerConfig: LayerConfig): OgcFeaturesLayer {
+		return new OgcFeaturesLayer(map, layerConfig);
+	}
+
 	private createDroppedGLBLayer(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> {
 		return new DroppedGLBLayer(map, layerConfig);
 	}
 
 	private createFloodLayer(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> {
 		return new FloodLayer(map, layerConfig);
+	}
+
+	private createIconLayer(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> {
+		return new IconLayer(map, layerConfig);
 	}
 
 	private createModelAnimation(map: Map, layerConfig: LayerConfig): ModelAnimation {
