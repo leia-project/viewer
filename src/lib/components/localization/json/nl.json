@@ -13,7 +13,8 @@
         },
         "buttons": {
             "show": "Tonen",
-            "hide": "Verbergen"
+            "hide": "Verbergen",
+            "reset": "Resetten"
         }
     },
     "tools": {
@@ -146,6 +147,10 @@
                 "default": "Geen",
                 "legend": "Legenda",
                 "reset": "Reset legenda"
+            },
+            "slicer": {
+                "rotationVerticalAxis": "Rotatie verticale as",
+                "rotationHorizontalAxis": "Rotatie horizontale as"
             }
         },
         "backgroundControls": {

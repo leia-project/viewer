@@ -18,6 +18,10 @@
 	let sliderXY = clipSlider.angleXY;
 	let sliderZ = clipSlider.angleZ;
 
+	let heightSliceActive = clipSlider.heightSliceActive;
+	let minSliceHeight = clipSlider.minSliceHeight;
+	let maxSliceHeight = clipSlider.maxSliceHeight;
+	let heightSliceHeight = clipSlider.heightSliceHeight;
 </script>
 
 
@@ -34,11 +38,22 @@
 				labelA={$_("general.off")}
 				labelB={$_("general.on")}
 			/>
+			<!-- Finn Testing -->
+			<span class="label-02">Test</span>
+			<Toggle
+			toggled={$heightSliceActive}
+			hideLabel={true}
+			on:toggle={() => {
+				if ($layerVisible) heightSliceActive.set(!$heightSliceActive);
+			}}
+			labelA={$_("general.off")}
+			labelB={$_("general.on")}
+			/>
 			<div class="top-buttons">
 				{#if $clipActive}
 					{#if ($sliderXY !== 180 || $sliderZ !== 0)}
 					<Button
-						iconDescription={$_("buttons.reset")}
+						iconDescription={$_("general.buttons.reset")}
 						icon={Reset}
 						tooltipPosition="bottom"
 						tooltipAlignment="center"
@@ -47,7 +62,7 @@
 					/>
 					{/if}
 				<Button
-					iconDescription={$showSlider ? $_("buttons.hide") :  $_("buttons.show")}
+					iconDescription={$showSlider ? $_("general.buttons.hide") :  $_("general.buttons.show")}
 					icon={$showSlider ? ViewOffFilled : ViewFilled}
 					tooltipPosition="bottom"
 					tooltipAlignment="end"
@@ -60,7 +75,7 @@
 
 		{#if $clipActive }
 			<div class="clip-angle-sliders">
-				<div class="slider-label">{$_("otherComponents.rotationVerticalAxis")}</div>
+				<div class="slider-label">{$_("tools.layerTools.slicer.rotationVerticalAxis")}</div>
 				<Slider
 					bind:value={$sliderXY}
 					min={0}
@@ -69,7 +84,7 @@
 					hideTextInput={true}
 					id="slider-1"
 				/>
-				<div class="slider-label">{$_("otherComponents.rotationHorizontalAxis")}</div>
+				<div class="slider-label">{$_("tools.layerTools.slicer.rotationHorizontalAxis")}</div>
 				<Slider
 					bind:value={$sliderZ}
 					min={-90}

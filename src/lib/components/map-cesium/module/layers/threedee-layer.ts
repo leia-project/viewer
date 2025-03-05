@@ -7,7 +7,7 @@ import type { LayerConfig } from "$lib/components/map-core/layer-config";
 import LayerControlHeight from "../../LayerControlHeight/LayerControlHeight.svelte";
 import LayerControlTheme from "../../LayerControlTheme/LayerControlTheme.svelte";
 import LayerControlClip from "../../LayerControlClip/LayerControlClip.svelte";
-import LayerControlPointCloudFilter from "../../LayerControlPointCloudFilter/LayerControlPointCloudFilter.svelte";
+import LayerControlPointCloudFilter from "../../LayerControlPointCloud/LayerControlPointCloudFilter.svelte";
 
 import { ClipSlider } from "../../LayerControlClip/clip-slider";
 import { PrimitiveLayer } from "./primitive-layer";
@@ -77,10 +77,8 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			this.addCustomControl(this.themeControl);
 		}
 
-		//@ts-ignore
-		this.isPointCloud = tileset.root?._header?.content?.uri?.includes(".pnts")
-
 		if (this.config.settings["enableClipping"]) {
+			console.log("enableClipping");
 			this.clipControl = new CustomLayerControl();
 			this.clipControl.component = LayerControlClip;
 			this.clipControl.props = {
@@ -89,6 +87,8 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			this.addCustomControl(this.clipControl);
 		}
 
+		//@ts-ignore
+		this.isPointCloud = tileset.root?._header?.content?.uri?.includes(".pnts");
 
 		if (this.isPointCloud) {
 			this.setPointCloudAttenuation(get(this.map.options.pointCloudAttenuation));
