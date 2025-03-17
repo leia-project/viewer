@@ -148,9 +148,11 @@
                 "legend": "Legenda",
                 "reset": "Reset legenda"
             },
-            "slicer": {
+            "clipper": {
+                "label": "Laag knippen",
                 "rotationVerticalAxis": "Rotatie verticale as",
-                "rotationHorizontalAxis": "Rotatie horizontale as"
+                "rotationHorizontalAxis": "Rotatie horizontale as",
+                "sliceModeLabel": "Doorsnede maken"
             }
         },
         "backgroundControls": {

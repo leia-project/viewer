@@ -141,9 +141,11 @@
                 "legend": "Legend",
                 "reset": "Reset Legend"
             },
-            "slicer": {
+            "clipper": {
+                "label": "Slice layer",
                 "rotationVerticalAxis": "Vertical axis rotation",
-                "rotationHorizontalAxis": "Horizontal axis rotation"
+                "rotationHorizontalAxis": "Horizontal axis rotation",
+                "sliceModeLabel": "Create cross section"
             }
         },
         "backgroundControls": {

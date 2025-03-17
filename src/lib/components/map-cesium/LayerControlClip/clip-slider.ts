@@ -12,9 +12,7 @@ export class ClipSlider {
 	private inputHandler: Cesium.ScreenSpaceEventHandler;
 
 	private plane: Cesium.Plane = new Cesium.ClippingPlane(new Cesium.Cartesian3(1, 1, 1), 0);
-	// private doublePlane: Cesium.Plane | undefined = new Cesium.Plane(new Cesium.Cartesian3(1, 1, 1), 0);
 	public slider: Cesium.Entity = new Cesium.Entity();
-	// public doubleSlider: Cesium.Entity | undefined = new Cesium.Entity();
 	public showSlider: Writable<boolean> = writable(true);
 
 	public angleXY: Writable<number> = writable(180);
@@ -25,14 +23,10 @@ export class ClipSlider {
 	private unsubscribers: Array<Unsubscriber> = new Array<Unsubscriber>();
 
 	public active: Writable<boolean> = writable(false);
-	public heightSliceActive: Writable<boolean> = writable(true);
+	public sliceMode: Writable<boolean> = writable(false);
 	public minSliceHeight: Writable<number> = writable(-2);
 	public maxSliceHeight: Writable<number> = writable(2);
 	public heightSliceHeight: Writable<number> = writable(0);
-
-	// add to config
-	// private doubleMode: boolean = true;
-	// //tussen freshem/geotop punten zit 50m (verticaal)
 	
 
 	constructor(layer: ThreedeeLayer, map: Map) {
@@ -42,8 +36,6 @@ export class ClipSlider {
 		this.inputHandler = new Cesium.ScreenSpaceEventHandler(this.map.viewer.scene.canvas);
 		this.updatePlaneOrientation();
 		this.setSubscribers();
-
-		// this.sliceHeight();
 	}
 
 	private setSubscribers(): void {
@@ -55,10 +47,6 @@ export class ClipSlider {
 
 			this.showSlider.subscribe((b) => {
 				this.slider.show = b
-
-				// if (this.doubleSlider?.show)  {
-				// 	this.doubleSlider.show = b;
-				// }
 			}),
 
 			this.angleXY.subscribe(() => { 
@@ -95,14 +83,12 @@ export class ClipSlider {
 		this.tileset.clippingPlanes.add(this.plane);
 		this.tileset.clippingPlanes.enabled = true
 		
-		this.setModelMatrixNew();
-		// this.doubleMode = true;
+		this.setModelMatrix();
 		this.makePlaneEntity();
 		this.addInputActions();
 	}
 
 	public deactivate(): void {
-		debugger;
 		this.tileset.clippingPlanes.remove(this.plane);
 		this.map.viewer.entities.remove(this.slider);
 		this.removeInputActions();
@@ -127,7 +113,7 @@ export class ClipSlider {
 			// 2. Get the inverse transform of the tileset's clippingPlane reference frame
 			// 3. Multiplication of 1 and 2 allows use to transfer the clipping planes from the default clipping plane origin to the northEastUp frame of the bounding sphere center
 			const transformMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(this.tileset.boundingSphere.center);
-			const tilesetRootTransform = Cesium.Matrix4.inverseTransformation(this.tileset.root.transform, new Cesium.Matrix4()); // this.tileset.root.transform === this.tileset.clippingPlanesOriginMatrix
+			const tilesetRootTransform = Cesium.Matrix4.inverse(this.tileset.root.transform, new Cesium.Matrix4()); // Should satisfy conditions of the more efficient inverseTransformation but this does not work
 			const centerInverseTransform = Cesium.Matrix4.multiplyTransformation(tilesetRootTransform, transformMatrix, new Cesium.Matrix4());
 			this.tileset.clippingPlanes.modelMatrix = centerInverseTransform;
 		}
@@ -148,7 +134,11 @@ export class ClipSlider {
 			plane: {
 				dimensions: new Cesium.Cartesian2(radius * 2, radius * 2),
 				material: new Cesium.GridMaterialProperty({color: Cesium.Color.fromCssColorString("#757575"), cellAlpha: 0.1, lineCount: new Cesium.Cartesian2(20, 20), lineThickness: new Cesium.Cartesian2(0.5, 0.5)}),
-				plane: new Cesium.CallbackProperty(() => { return this.plane }, false), // TODO: Many callbacks lead to lag on large datasets
+				plane: new Cesium.CallbackProperty(() => {
+					          console.log("plane callback");
+					          this.map.viewer.scene.requestRender();
+					          return this.plane 
+					        }, false), // Smooth but requires a lot of computation
 				outline: true,
 				outlineColor: Cesium.Color.BLACK,
 			},
@@ -255,95 +245,6 @@ export class ClipSlider {
 		const delta = this.tempAngleXY - get(this.angleXY) ;
 		this.plane.distance = this.tempDistance *  Math.cos(delta * Math.PI / 180);
 	}
-
-
-	private setModelMatrixNew(): void {		
-		//For Freshem/Geotop, this is always used
-		if (!Cesium.Matrix4.equals(this.tileset.root.transform, Cesium.Matrix4.IDENTITY)) {
-			// We use the center of the bounding sphere as the origin of the clipping planes, so we:
-			// 1. Get the transform of the tileset's bounding sphere center in a earthNorthUp frame
-			// 2. Get the inverse transform of the tileset's clippingPlane reference frame
-			// 3. Multiplication of 1 and 2 allows use to transfer the clipping planes from the default clipping plane origin to the northEastUp frame of the bounding sphere center
-
-			//TODO: one of these pieces of Sht is an impostor and I need to find out which one
-			const transformMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(this.tileset.boundingSphere.center); // red point
-			const tilesetRootTransform = Cesium.Matrix4.inverseTransformation(this.tileset.root.transform, new Cesium.Matrix4()); // green point // this.tileset.root.transform === this.tileset.clippingPlanesOriginMatrix
-			const centerInverseTransform = Cesium.Matrix4.multiplyTransformation(tilesetRootTransform, transformMatrix, new Cesium.Matrix4());
-			console.log('transformMatrix:', transformMatrix);
-			console.log('tilesetRootTransform:', tilesetRootTransform);
-			console.log('centerInverseTransform:', centerInverseTransform);
-			this.tileset.clippingPlanes.modelMatrix = centerInverseTransform;
-
-			// Debugging
-			console.log('if')
-			console.log('tileset:', this.tileset._url);
-			console.log('TEST bounding sphere center:', this.tileset.boundingSphere.center);
-
-			//this point is in the middle of the clipping plane
-			const testpoint = new Cesium.Entity({
-				position: this.tileset.boundingSphere.center,
-				point: {
-					pixelSize: 40,
-					color: Cesium.Color.RED,
-				}});
-			this.map.viewer.entities.add(testpoint);
-
-			const testpoint2 = new Cesium.Entity({
-				position: Cesium.Matrix4.getTranslation(this.tileset.root.transform, new Cesium.Cartesian3()),
-				point: {
-					pixelSize: 40,
-					color: Cesium.Color.GREEN,
-				}});
-			this.map.viewer.entities.add(testpoint2);
-
-			const testline = new Cesium.Entity({
-				polyline: {
-					positions: [Cesium.Matrix4.getTranslation(this.tileset.root.transform, new Cesium.Cartesian3()), 
-								Cesium.Cartesian3.add(
-									Cesium.Matrix4.getTranslation(this.tileset.root.transform, new Cesium.Cartesian3()), 
-									Cesium.Matrix4.getTranslation(centerInverseTransform, new Cesium.Cartesian3()), 
-									new Cesium.Cartesian3()
-								)
-					],
-					width: 10,
-					material: Cesium.Color.RED,
-				}});
-			this.map.viewer.entities.add(testline);
-
-		}
-		//For the dijk, this is always used!
-		else if (this.tileset.clippingPlanes.modelMatrix !== Cesium.Matrix4.IDENTITY) {
-			this.tileset.clippingPlanes.modelMatrix = Cesium.Matrix4.IDENTITY;
-
-			console.log('else')
-			console.log('tileset:', this.tileset._url);
-
-			//this point is in the middle of the earth
-			const testpoint = new Cesium.Entity({
-				position: Cesium.Matrix4.getTranslation(this.tileset.clippingPlanes.modelMatrix, new Cesium.Cartesian3()),
-				point: {
-					pixelSize: 40,
-					color: Cesium.Color.YELLOW,
-				}});
-			this.map.viewer.entities.add(testpoint);
-
-			const testpoint2 = new Cesium.Entity({
-				position: Cesium.Matrix4.getTranslation(this.tileset.root.transform, new Cesium.Cartesian3()),
-				point: {
-					pixelSize: 40,
-					color: Cesium.Color.GREEN,
-				}});
-			this.map.viewer.entities.add(testpoint2);
-
-			// TO DO:
-			// The modelMatrix of the 3D tileset may have been shifted when the globe clipping planes are set on the tileset (e.g. in project-clip.ts or set3DTilesetClippingPlanes in subsurface cesium-handler.ts)
-			// In this case, we need to shift the clipping planes as well 
-		}
-		else{
-			console.log('neither');
-		}
-	}
-
 
 
 	// Debugging functions:
