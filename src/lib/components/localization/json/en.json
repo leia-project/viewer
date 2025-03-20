@@ -30,7 +30,7 @@
         "info": {
             "info": "Information",
             "close": "Close",
-            "general": "Open 3D viewer, product by Geodan and Provincie Zeeland.",
+            "general": "Open 3D viewer, product by Sogelink (formerly Geodan) and Provincie Zeeland.",
             "attribution": "Attribution"
         },
         "help": {
@@ -49,16 +49,16 @@
             "headingZoom": "Zooming in/out",
             "zoomDescription": "Zooming in and out can be done in 3 different ways:",
             "zoomOption1": "1) Scroll up or down to zoom in or out.",
-            "zoomOption2": "2) Hold your right mouse button and move the mouse up or down for seemless zooming.",
+            "zoomOption2": "2) Hold your right mouse button and move the mouse up or down for seamless zooming.",
             "zoomOption3": "3) Use the zoom in and out buttons in the bottom right.",
             "headingRotatePitch": "Rotate & Pitch",
-            "rotatePitchDescription": "You can rotate en pitch the camera, it is also possible to pitch the camera below the surface. This can be done in 2 different ways.",
+            "rotatePitchDescription": "You can rotate and pitch the camera, it is also possible to pitch the camera below the surface. This can be done in 2 different ways.",
             "rotatePitchOption1": "1) Press down your mouse scroll wheel and move the mouse around.",
             "rotatePitchOption2": "2) Hold down the <help-key>ctrl</help-key> key on your keyboard and your left mouse button and move the mouse around.",
             "headingButtons": "Map Buttons",
             "buttonsDescription": "On the bottom right some map buttons can be found.",
             "buttonsHome": "Reset the view to the start position",
-            "buttonsCompass": "Reset the heading to north",
+            "buttonsCompass": "Reset the heading to North",
             "buttonsZoomIn": "Zoom in",
             "buttonsZoomOut": "Zoom out"
           },
@@ -123,9 +123,9 @@
             "opacity": "Opacity",
             "legend": "Legend",
             "legendNotFoundText": "Legend not found",
-            "styling": "Stijl",
-            "extrusion": "Extrusie",
-            "metersNAP": " meter(s) (NAP)",
+            "styling": "Styling",
+            "extrusion": "Extrusion",
+            "metersNAP": " Meter(s) (NAP)",
             "gradient": "Gradient",
             "applyGradient": "Apply gradient",
             "btnShowAll": "Show All",
@@ -166,7 +166,7 @@
         },
         "featureInfo": {
             "label": "Object Information",
-            "noData": "No data, Press an object for more information"
+            "noData": "No data, press an object for more information"
         },
         "measure": {
             "label": "Measure",
