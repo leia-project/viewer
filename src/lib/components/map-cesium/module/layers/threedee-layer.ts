@@ -29,7 +29,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		super(map, config);
 		this.tilesetHeight = writable<number>(0);
 		this.alpha = this.getOpacity(this.config.opacity);
-	
+
 		this.createLayer();
 		this.addListeners();
 	}
@@ -44,7 +44,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 	// Input is percentage, output is cleaned and normalized to 0-1
 	private getOpacity(opacity: number | undefined): number {
-		if (opacity === undefined) return 0;
+		if (opacity === undefined) return 1;
 		return opacity === 0 ? 1 : 1 - (opacity / 100);
 	}
 
