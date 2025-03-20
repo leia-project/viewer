@@ -36,7 +36,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 	// Called from opacity subscriber in layer.ts
 	public opacityChanged(opacity: number): void {
-		this.alpha = opacity / 100;
+		this.alpha = (opacity > 100 ? 1.0 : opacity < 0 ? 0 : opacity / 100);
 		if (this.source) {
 			this.applyStyles();
 		}
@@ -44,9 +44,8 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 	// Input is percentage, output is cleaned and normalized to 0-1
 	private getOpacity(opacity: number | undefined): number {
-		if (opacity === undefined) return 1.0;
-		opacity = opacity / 100;
-		return opacity > 1 ? 1.0 : opacity < 0 ? 0 : opacity;
+		if (opacity === undefined) return 0;
+		return opacity === 0 ? 1 : 1 - (opacity / 100);
 	}
 
 	private addListeners(): void {
@@ -247,7 +246,8 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		if (ids.length > 0) {
 			let style = {
 				show: showConditions.join(' || '),
-				pointSize: this.config.settings.style?.pointSize ?? this.POINT_SIZE
+				pointSize: this.config.settings.style?.pointSize ?? this.POINT_SIZE,
+				color: "${COLOR} * rgba(255, 255, 255, " + this.alpha + ")"
 			}
 			this.source.style =  new Cesium.Cesium3DTileStyle(style);
 		}

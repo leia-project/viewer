@@ -452,7 +452,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	}
 
 	public opacityChanged(opacity: number): void {
-		this.alpha = opacity / 100;
+		this.alpha = (opacity > 100 ? 1.0 : opacity < 0 ? 0 : opacity / 100);
 		if (this.source) {
 			this.setStyle(get(this.style));
 			this.updateOutlineOpacity();

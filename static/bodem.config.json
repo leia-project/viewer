@@ -289,6 +289,8 @@
             "defaultOn": false,
             "description": "",
             "attribution": "BRO",
+            "transparent": true,
+            "opacity": 0,
             "settings": {
                 "url": "https://virtueel.zeeland.nl/tiles_other/geotop_middelburg/tileset.json",
                 "enableClipping": true,
@@ -323,6 +325,8 @@
             "defaultOn": false,
             "description": "",
             "attribution": "",
+            "transparent": true,
+            "opacity": 0,
             "settings": {
                 "url": "https://virtueel.zeeland.nl/tiles_other/freshem_middelburg/tileset.json",
                 "enableClipping": true,
