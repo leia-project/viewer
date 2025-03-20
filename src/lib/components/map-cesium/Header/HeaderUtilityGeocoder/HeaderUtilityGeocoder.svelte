@@ -28,21 +28,25 @@
 					let geocoderConfig = map.config.tools.find((t: any) => t.id === "geocoder");
 
 					if (geocoderConfig.enabled) {
-						geocoderName = geocoderConfig.settings.name.toLowerCase();
+						if (geocoderConfig.settings) {
+							geocoderName = geocoderConfig.settings.name ? geocoderConfig.settings.name.trim().toLowerCase() : "locatieserver";
 
-						if (geocoderName === "nominatim") {
-							geocoderUrl = "https://nominatim.openstreetmap.org";
-						}
-						else if (geocoderName === "locatieserver") {
-							geocoderUrl = "https://api.pdok.nl/bzk/locatieserver/search/v3_1";
-						}
-						else if (geocoderName === "geolocation") {
-							console.log("Belgian geocoder");
-							geocoderUrl = "https://geo.api.vlaanderen.be/geolocation/";
-						};
-						// TODO: Add option for custom geocoder
-						if (geocoderConfig.settings.url) {
-							geocoderUrl = geocoderConfig.settings.url;
+							if (geocoderName === "nominatim") {
+								console.log("Worldwide geocoder");
+								geocoderUrl = "https://nominatim.openstreetmap.org";
+							}
+							else if (geocoderName === "locatieserver") {
+								console.log("Dutch geocoder");
+								geocoderUrl = "https://api.pdok.nl/bzk/locatieserver/search/v3_1";
+							}
+							else if (geocoderName === "geolocation") {
+								console.log("Belgian geocoder");
+								geocoderUrl = "https://geo.api.vlaanderen.be/geolocation/";
+							};
+							// TODO: Add option for custom geocoder
+							if (geocoderConfig.settings.url) {
+								geocoderUrl = geocoderConfig.settings.url;
+							}
 						}
 					}
 				}
