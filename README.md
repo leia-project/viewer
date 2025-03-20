@@ -233,7 +233,7 @@ Colors for the GUI. The black header cannot be changed currently, this is an ope
 
 ### Groups configuration ("groups: {}")
 
-List of groups, these groups are used for grouping layers in the layer library, there is no limit on how many child groups there can be.
+List of groups, these groups are used for grouping layers in the layer library, there is no limit on how many child groups there can be. The root parent should be on top.
 
 |value|description|type|
 |-|-|-|
