@@ -80,10 +80,11 @@
 					step={1}
 					hideTextInput={true}
 				/>
-				<!-- Finn Testing -->
+				<!-- TODO: Implement sliceMode functionality -->
 				<div class="slice-mode-label">{$_("tools.layerTools.clipper.sliceModeLabel")}</div>
 				<Toggle
 				toggled={$sliceMode}
+				disabled={true}
 				hideLabel={true}
 				on:toggle={() => {
 					if ($layerVisible) sliceMode.set(!$sliceMode);
