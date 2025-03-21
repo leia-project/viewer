@@ -7,7 +7,7 @@ import type { LayerConfig } from "$lib/components/map-core/layer-config";
 import LayerControlHeight from "../../LayerControlHeight/LayerControlHeight.svelte";
 import LayerControlTheme from "../../LayerControlTheme/LayerControlTheme.svelte";
 import LayerControlClip from "../../LayerControlClip/LayerControlClip.svelte";
-import LayerControlPointCloudFilter from "../../LayerControlPointCloudFilter/LayerControlPointCloudFilter.svelte";
+import LayerControlPointCloudFilter from "../../LayerControlPointCloud/LayerControlPointCloudFilter.svelte";
 
 import { ClipSlider } from "../../LayerControlClip/clip-slider";
 import { PrimitiveLayer } from "./primitive-layer";
@@ -23,12 +23,29 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	private themeControl: CustomLayerControl | undefined;
 	public clipControl: CustomLayerControl | undefined;
 	public pointCloudFilterControl: CustomLayerControl | undefined;
+	private alpha: number;
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
 		this.tilesetHeight = writable<number>(0);
+		this.alpha = this.getOpacity(this.config.opacity);
+
 		this.createLayer();
 		this.addListeners();
+	}
+
+	// Called from opacity subscriber in layer.ts
+	public opacityChanged(opacity: number): void {
+		this.alpha = (opacity > 100 ? 1.0 : opacity < 0 ? 0 : opacity / 100);
+		if (this.source) {
+			this.applyStyles();
+		}
+	}
+
+	// Input is percentage, output is cleaned and normalized to 0-1
+	private getOpacity(opacity: number | undefined): number {
+		if (opacity === undefined) return 1;
+		return opacity === 0 ? 1 : 1 - (opacity / 100);
 	}
 
 	private addListeners(): void {
@@ -77,9 +94,6 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			this.addCustomControl(this.themeControl);
 		}
 
-		//@ts-ignore
-		this.isPointCloud = tileset.root?._header?.content?.uri?.includes(".pnts")
-
 		if (this.config.settings["enableClipping"]) {
 			this.clipControl = new CustomLayerControl();
 			this.clipControl.component = LayerControlClip;
@@ -89,6 +103,8 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			this.addCustomControl(this.clipControl);
 		}
 
+		//@ts-ignore
+		this.isPointCloud = tileset.root?._header?.content?.uri?.includes(".pnts");
 
 		if (this.isPointCloud) {
 			this.setPointCloudAttenuation(get(this.map.options.pointCloudAttenuation));
@@ -96,9 +112,9 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			this.setPointCloudAttenuationGeometricErrorScale(get(this.map.options.pointCloudAttenuationErrorScale));
 			this.setPointCloudAttenuationBaseResolution(get(this.map.options.pointCloudAttenuationBaseResolution));
 
-			this.setPointCloudEdl(get(this.map.options.pointCloudEDL));
-			this.setPointCloudEdlStrength(get(this.map.options.pointCloudEDLStrength));
-			this.setPointCloudEdlRadius(get(this.map.options.pointCloudEDLRadius));
+			// this.setPointCloudEdl(get(this.map.options.pointCloudEDL));
+			// this.setPointCloudEdlStrength(get(this.map.options.pointCloudEDLStrength));
+			// this.setPointCloudEdlRadius(get(this.map.options.pointCloudEDLRadius));
 
 			if (this.config.settings["filter"]) {
 				this.pointCloudFilterControl = new CustomLayerControl();
@@ -119,7 +135,10 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			this.tilesetHeight.set(this.config.settings.tilesetHeight);
 		}
 
-		// apply styles
+		this.applyStyles();
+	}
+
+	private applyStyles(): void {
 		if (this.isPointCloud) {
 			this.setPointCloudStyle();
 		} else if (this.config.settings.defaultTheme) {
@@ -127,6 +146,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		} else {
 			this.setTheme(this.getEmptyTheme());
 		}
+		this.map.refresh();
 	}
 
 	public getEmptyTheme(): Cesium.Cesium3DTileStyle {
@@ -134,7 +154,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			color: {
 				conditions: [
 					this.getThemeConditionSelected(),
-					["'true'", "color('white')"]
+					["'true'", `color("white", ${this.alpha})`]
 				]
 			}
 		}
@@ -144,7 +164,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	public getThemeConditionSelected(): Array<string> {
 		const selectedColor = get(this.map.featureInfo.selectedFeatureColor);
 		const selectedPropperty = this.map.featureInfoHandler.selectedProperty;
-		return [`\${${selectedPropperty}} === 'true'`, `color("${selectedColor}")`];
+		return [`\${${selectedPropperty}} === 'true'`, `color("${selectedColor}", ${this.alpha})`];
 	}
 
 	public applyThemeByName(themeName: string): void {
@@ -209,11 +229,13 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		this.map.refresh();
 	}
 
+	// FINN TODO: Figure out why alpha is not updated when one or more classes are filtered
 	public setPointCloudStyle(): void {
 		if(!this.source) return;
 		this.source.style = new Cesium.Cesium3DTileStyle({
 			pointSize: this.config.settings.style?.pointSize ?? this.POINT_SIZE,
-			show: true
+			show: true,
+			color: "${COLOR} * rgba(255, 255, 255, " + this.alpha + ")", // Adds opacity but keeps color
 		});
 	}
 
@@ -224,7 +246,8 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		if (ids.length > 0) {
 			let style = {
 				show: showConditions.join(' || '),
-				pointSize: this.config.settings.style?.pointSize ?? this.POINT_SIZE
+				pointSize: this.config.settings.style?.pointSize ?? this.POINT_SIZE,
+				color: "${COLOR} * rgba(255, 255, 255, " + this.alpha + ")"
 			}
 			this.source.style =  new Cesium.Cesium3DTileStyle(style);
 		}

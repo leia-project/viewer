@@ -13,7 +13,8 @@
         },
         "buttons": {
             "show": "Show",
-            "hide": "Hide"
+            "hide": "Hide",
+            "reset": "Reset"
         }
     },
     "tools": {
@@ -139,6 +140,12 @@
                 "default": "None",
                 "legend": "Legend",
                 "reset": "Reset Legend"
+            },
+            "clipper": {
+                "label": "Slice layer",
+                "rotationVerticalAxis": "Vertical axis rotation",
+                "rotationHorizontalAxis": "Horizontal axis rotation",
+                "sliceModeLabel": "Create cross section"
             }
         },
         "backgroundControls": {

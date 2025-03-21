@@ -23,6 +23,11 @@ export class ClipSlider {
 	private unsubscribers: Array<Unsubscriber> = new Array<Unsubscriber>();
 
 	public active: Writable<boolean> = writable(false);
+	public sliceMode: Writable<boolean> = writable(false);
+	public minSliceHeight: Writable<number> = writable(-2);
+	public maxSliceHeight: Writable<number> = writable(2);
+	public heightSliceHeight: Writable<number> = writable(0);
+	
 
 	constructor(layer: ThreedeeLayer, map: Map) {
 		this.layer = layer;
@@ -108,7 +113,7 @@ export class ClipSlider {
 			// 2. Get the inverse transform of the tileset's clippingPlane reference frame
 			// 3. Multiplication of 1 and 2 allows use to transfer the clipping planes from the default clipping plane origin to the northEastUp frame of the bounding sphere center
 			const transformMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(this.tileset.boundingSphere.center);
-			const tilesetRootTransform = Cesium.Matrix4.inverseTransformation(this.tileset.root.transform, new Cesium.Matrix4()); // this.tileset.root.transform === this.tileset.clippingPlanesOriginMatrix
+			const tilesetRootTransform = Cesium.Matrix4.inverse(this.tileset.root.transform, new Cesium.Matrix4()); // Should satisfy conditions of the more efficient inverseTransformation but this does not work
 			const centerInverseTransform = Cesium.Matrix4.multiplyTransformation(tilesetRootTransform, transformMatrix, new Cesium.Matrix4());
 			this.tileset.clippingPlanes.modelMatrix = centerInverseTransform;
 		}
@@ -120,6 +125,7 @@ export class ClipSlider {
 		}
 	}
 
+	// Creates slider (visual of gridded plane)
 	private makePlaneEntity(): void {
 		const boundingSphere = this.tileset.boundingSphere;
 		const radius = boundingSphere.radius;
@@ -128,7 +134,11 @@ export class ClipSlider {
 			plane: {
 				dimensions: new Cesium.Cartesian2(radius * 2, radius * 2),
 				material: new Cesium.GridMaterialProperty({color: Cesium.Color.fromCssColorString("#757575"), cellAlpha: 0.1, lineCount: new Cesium.Cartesian2(20, 20), lineThickness: new Cesium.Cartesian2(0.5, 0.5)}),
-				plane: new Cesium.CallbackProperty(() => { return this.plane }, false),
+				plane: new Cesium.CallbackProperty(() => {
+					          console.log("plane callback");
+					          this.map.viewer.scene.requestRender();
+					          return this.plane 
+					        }, false), // Smooth but requires a lot of computation
 				outline: true,
 				outlineColor: Cesium.Color.BLACK,
 			},
@@ -235,9 +245,6 @@ export class ClipSlider {
 		const delta = this.tempAngleXY - get(this.angleXY) ;
 		this.plane.distance = this.tempDistance *  Math.cos(delta * Math.PI / 180);
 	}
-
-
-
 
 
 	// Debugging functions:
