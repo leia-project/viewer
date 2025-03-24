@@ -20,6 +20,7 @@
 	import MapToolBookmark from "$lib/components/ui/components/MapTools/MapToolBookmarks/MapToolBookmarks.svelte";
 	import MapControls from "$lib/components/ui/components/MapControls/MapControls.svelte";
 	import MapToolFlooding from "./map-cesium/MapToolFlooding/MapToolFlooding.svelte";
+	import MapToolFloodingSeriousGame from "./map-cesium/MapToolFlooding/MapToolSeriousGame/MapToolFloodingSeriousGame.svelte";
 	import MapToolInfo from "$lib/components/ui/components/MapTools/MapToolInfo/MapToolInfo.svelte";
 	import NotificationView from "$lib/components/ui/components/Notifications/NotificationView.svelte";
 	import MapToolHelp from "$lib/components/ui/components/MapTools/MapToolHelp/MapToolHelp.svelte";
@@ -151,6 +152,10 @@
 						searchBreach={$_('tools.flooding.searchBreach')}
 						noResults={$_('tools.flooding.noResults')}
 					/>
+				{/if}
+
+				{#if $enabledTools.includes("flooding-serious-game")}
+					<MapToolFloodingSeriousGame />
 				{/if}
 
 				{#if $enabledTools.includes("bookmarks")}

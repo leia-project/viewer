@@ -315,6 +315,10 @@
             }
         },
         {
+            "id": "flooding-serious-game",
+            "enabled": true
+        },
+        {
             "id": "stories",
             "enabled": true,
             "settings": {
