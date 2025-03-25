@@ -1,6 +1,4 @@
 import { writable, type Unsubscriber, type Writable } from "svelte/store";
-import * as Cesium from "cesium";
-import { bbox } from "@turf/bbox";
 import type { FeatureCollection } from "geojson";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { getColorRange } from "../utils/layer-color";

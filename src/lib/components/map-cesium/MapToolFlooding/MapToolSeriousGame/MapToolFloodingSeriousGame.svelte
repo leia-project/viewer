@@ -5,8 +5,6 @@
 	import Button from "$lib/components/ui/components/Button/Button.svelte";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import { GameController } from "./game-controller";
-	import GameContainer from "./game-ui/GameContainer.svelte";
-	import { MarvinApp } from "../Marvin/marvin";
 	import { addMarvini18n } from "../Marvin/module/i18n/i18n-marvin";
 
 
@@ -16,7 +14,7 @@
 
 	const tool = new MapToolMenuOption("flooding-serious-game", icon, "Serious Game - Floods", false);
 	registerTool(tool);
-	
+
 	addMarvini18n();
 	
 	const gameController = new GameController(map);

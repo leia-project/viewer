@@ -13,8 +13,6 @@
 
 	const activeGame = gameController.active;
 
-	$: console.log("inGame", inGame, "activeGame", activeGame);
-
 </script>
 
 
@@ -50,10 +48,6 @@
 		width: 100%;
 		height: 100%;
 		pointer-events: none;
-	}
-
-	#game-overlay > * {
-		pointer-events: auto;
 	}
 
 	#top-container {

@@ -5,31 +5,29 @@
 	import Language from './Language.svelte';
 
 
-    let openState = false;
+    let open = false;
 
     function switchModalState() {
-		openState = !openState;
+		open = !open;
 	}
 </script>
 
-<button on:click={switchModalState} class="btn-icon preset-filled" title="">
+<button on:click={switchModalState} class="qa-btn qa-btn-primary" title="">
     <Settings size={16} />
 </button>
 
 <div class="hidden">
 	<Modal
-		bind:open={openState}
+		modalHeading={$_("settings.title")}
+		bind:open
+		passiveModal={true}
 	>
-		<header class="flex justify-between">
-			<h2 class="h2">{$_("settings.title")}</h2>
-		</header>
-
-		<div class="mb-4 h-full overflow-y-auto p-4">
-			<article class="flex h-full flex-col gap-4">
+		<div class="modal-body">
+			<article class="modal-content">
 				<Language />
 			</article>
 		</div>
-		<footer class="flex justify-end gap-4">
+		<footer class="modal-footer">
 			<button type="button" class="btn preset-filled" on:click={switchModalState}>{$_("common.close")}</button>
 		</footer>
 	</Modal>
@@ -37,13 +35,58 @@
 
 
 <style>
+	.qa-btn {
+        border: none;
+        border-radius: 0.375rem;
+        padding: 0.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-	/*
-	backdrop-blur-sm
-	*/
+    .qa-btn-primary {
+        background-color: var(--primary-500);
+        color: white;
+    }
 
-	/*
-	card bg-surface-100-900 p-4 flex flex-col space-y-4 shadow-xl max-h-[80%] min-w-[80%] max-w-screen-xl min-w-screen-xl overflow-hidden
-	*/
+    .qa-btn-primary:hover {
+        background-color: var(--primary-600);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid var(--surface-200);
+    }
+
+    .modal-title {
+        font-size: 1.25rem; /* Equivalent to text-lg */
+        color: var(--surface-800);
+    }
+
+    .modal-body {
+        margin-bottom: 1rem;
+        height: 100%;
+        overflow-y: auto;
+        padding: 1rem;
+    }
+
+    .modal-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        height: 100%;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding: 1rem;
+        border-top: 1px solid var(--surface-200);
+    }
 
 </style>

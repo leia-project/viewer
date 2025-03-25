@@ -2,7 +2,7 @@ export class MarvinClient {
 	private baseUrl: string;
 
 	constructor() {
-		this.baseUrl = '/marvin';
+		this.baseUrl = 'https://marvin-server.bertha.geodan.nl';
 	}
 
 	public async askGeo(
@@ -52,7 +52,6 @@ export class MarvinClient {
 			}
 
 			const result = await response.json();
-
 			return result as T;
 		} catch (error) {
 			throw new Error(`POST request to ${url} failed: ${(error as Error).message}`);

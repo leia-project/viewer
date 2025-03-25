@@ -12,9 +12,8 @@
 	const qaResult = qa.result;
 
 	let showLayer = true;
-	let loading = qa.loading;
-	let error = qa.error;
-	$: hasError = error !== undefined;
+	const loading = qa.loading;
+	const qaEror = qa.error;
 	let color = qa.color;
 	let openState = false;
 
@@ -37,12 +36,14 @@
 	function switchModalState() {
 		openState = !openState;
 	}
+
+	$: console.log("qaResult", $qaResult)
 </script>
 
 
 <div class="qa-card">
     {qa.question}
-    {#if loading}
+    {#if $loading}
         <ProgressBar />
     {:else if $qaResult?.features}
         {#if $qaResult.hasGeometry}
@@ -53,14 +54,14 @@
         </div>
     {/if}
 
-    {#if qa.error}
-        <div class="qa-error">{app.qaManager.getQAError(`qa.errors.${qa.error}`)}</div>
+    {#if $qaEror}
+        <div class="qa-error">{app.qaManager.getQAError(`qa.errors.${$qaEror}`)}</div>
     {/if}
 
     <div class="qa-color-bar" style="background-color: {color};"></div>
 
     <div class="qa-actions">
-        {#if !loading}
+        {#if !$loading}
             {#if $qaResult?.features}
                 <button on:click={switchModalState} class="qa-btn qa-btn-primary">
                     <InformationFilled color="#fff" />
