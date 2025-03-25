@@ -6,6 +6,8 @@
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import { GameController } from "./game-controller";
 	import GameContainer from "./game-ui/GameContainer.svelte";
+	import { MarvinApp } from "../Marvin/marvin";
+	import { addMarvini18n } from "../Marvin/module/i18n/i18n-marvin";
 
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
@@ -14,16 +16,10 @@
 
 	const tool = new MapToolMenuOption("flooding-serious-game", icon, "Serious Game - Floods", false);
 	registerTool(tool);
-
-
+	
+	addMarvini18n();
+	
 	const gameController = new GameController(map);
-
-	new GameContainer({
-		target: map.getContainer(),
-		props: {
-			gameController
-		}
-	});
 
 	tool.settings.subscribe((settings?: any) => {
 		if (settings) {
@@ -50,14 +46,6 @@
 		}
 	];
 
-	function startNewGame(): void {
-
-	}
-
-	function loadGameFromCache(): void {
-
-	}
-
 </script>
 
 
@@ -68,7 +56,7 @@
 		<Button
 			label="Play"
 			on:click={() => {
-				console.log("Level 1");
+				gameController.play();
 			}}
 		>Continue</Button>
 	{/if}

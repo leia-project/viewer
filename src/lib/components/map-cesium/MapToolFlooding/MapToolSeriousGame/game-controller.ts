@@ -1,6 +1,8 @@
 import { writable, type Writable } from "svelte/store";
 import type { Map } from "../../module/map";
 import { Game } from "./game";
+import { MarvinApp } from "../Marvin/marvin";
+import GameContainer from "./game-ui/GameContainer.svelte";
 
 
 const hidedElements = [
@@ -17,7 +19,10 @@ const hidedElements = [
 
 export class GameController {
 
-	private map: Map;
+	public map: Map;
+	private gameContainer?: GameContainer;
+	private marvin?: MarvinApp;
+
 	public inGame: Writable<boolean> = writable(false);
 	private savedGames: any[] = [];
 
@@ -26,17 +31,40 @@ export class GameController {
 	constructor(map: Map) {
 		this.map = map;
 		this.active.set(new Game("breach", "scenario"));
+		console.log("this.active.geasdfsdafsfdasfdasfdasfdat()");
 	}
 
 
 	public play(): void {
 		this.inGame.set(true);
 		this.toggleViewerUI(false);
+		this.initMarvin();
+		this.loadUserInterface();
 	}
 
 	public exit(): void {   
 		this.inGame.set(false);
 		this.toggleViewerUI(true);
+		this.gameContainer?.$destroy();
+	}
+
+	private loadUserInterface(): void {
+		this.gameContainer?.$destroy();
+		this.gameContainer = new GameContainer({
+			target: this.map.getContainer(),
+			props: {
+				gameController: this,
+				marvinApp: this.marvin
+			}
+		});
+	}
+
+	private initMarvin(): void {
+		if (!this.marvin) {
+			this.marvin = new MarvinApp(this.map);
+			this.marvin.init();
+		}
+		console.log(this.marvin);
 	}
 
 	private toggleViewerUI(show: boolean): void {

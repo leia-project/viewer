@@ -1,0 +1,59 @@
+{
+    "appTitle": "Marvin",
+    "appSubtitle": "De geospatial assistent",
+    "commands": {
+        "categoryChat": "Chat",
+        "categoryExampleQuestions": "Voorbeeld vragen",
+        "categoryFocus": "Focus",
+        "categoryLayers": "Lagen",
+        "catergoryMisc": "Diversen",
+        "deleteAllChats": "Verwijder alle chats",
+        "focusChat": "Focus: chat",
+        "focusSearch": "Focus: geocoder",
+        "hideAllLayers": "Verberg alle lagen",
+        "openPalette": "Open commando paneel",
+        "repeatLastChat": "Herhaal laatste chat",
+        "showAllLayers": "Toon alle lagen",
+        "searchPlaceholder": "Zoek naar een commando.."
+    },
+    "common": {
+        "yes": "Ja",
+        "no": "Nee",
+        "cancel": "Annuleren",
+        "close": "Sluiten",
+        "save": "Opslaan",
+        "delete": "Verwijderen",
+        "edit": "Bewerk",
+        "add": "Toevoegen",
+        "search": "Zoek",
+        "none": "Geen"
+    },
+    "settings": {
+        "title": "Instellingen",
+        "language": "Taal",
+        "locale": {
+            "en": "Engels",
+            "nl": "Nederlands"
+        }
+    },
+    "qa": {
+        "chatPlaceholder": "Stel een vraag..",
+        "foundFeatures": "Gevonden features",
+        "noGeomFound": "Geen locatie gevonden",
+        "errors": {
+            "default": "Er is iets misgegaan, vraag kon niet worden verwerkt",
+            "NO_GEO_FOCUS_FOUND": "Geen locatie opgegeven of gevonden in de vraag",
+            "NO_GEOCODE_RESULT_FOUND": "Geen locatie gevonden",
+            "INVALID_SQL_QUERY": "Invalide SQL query",
+            "NO_SQL_RESULT_RETURNED": "Geen resultaten gevonden"
+        }
+    },
+    "geocoder": {
+        "searchPlaceholder": "Zoek locatie.."
+    },
+    "layers": {
+        "title": "Kaartlagen",
+        "myLocationLayer": "Mijn Locatie",
+        "selectCategoryColor": "Kleur Categorie"
+    }
+}

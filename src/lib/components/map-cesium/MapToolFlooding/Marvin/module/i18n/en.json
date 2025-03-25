@@ -1,0 +1,59 @@
+{
+    "appTitle": "Marvin",
+    "appSubtitle": "The geospatial assistant",
+    "commands": {
+        "categoryChat": "Chat",
+        "categoryExampleQuestions": "Example questions",
+        "categoryFocus": "Focus",
+        "categoryLayers": "Layers",
+        "catergoryMisc": "Miscellaneous",
+        "deleteAllChats": "Delete all chats",
+        "focusChat": "Focus: chat",
+        "focusSearch": "Focus: geocoder",
+        "hideAllLayers": "Hide all layers",
+        "openPalette": "Open command palette",
+        "repeatLastChat": "Repeat last chat",
+        "showAllLayers": "Show all layers",
+        "searchPlaceholder": "Search for a command.."
+    },
+    "common": {
+        "yes": "Yes",
+        "no": "No",
+        "cancel": "Cancel",
+        "close": "Close",
+        "save": "Save",
+        "delete": "Delete",
+        "edit": "Edit",
+        "add": "Add",
+        "search": "Search",
+        "none": "None"
+    },
+    "settings": {
+        "title": "Settings",
+        "language": "Language",
+        "locale": {
+            "en": "English",
+            "nl": "Dutch"
+        }
+    },
+    "qa": {
+        "chatPlaceholder": "Ask a question..",
+        "foundFeatures": "Found features",
+        "noGeomFound": "No location found",
+        "errors": {
+            "default": "Something went wrong, question could not be processed",
+            "NO_GEO_FOCUS_FOUND": "No geofocus found",
+            "NO_GEOCODE_RESULT_FOUND": "No geocode result found",
+            "INVALID_SQL_QUERY": "Invalid SQL query",
+            "NO_SQL_RESULT_RETURNED": "No SQL result returned"
+        }
+    },
+    "geocoder": {
+        "searchPlaceholder": "Search location.."
+    },
+    "layers": {
+        "title": "Map layers",
+        "myLocationLayer": "My Location",
+        "selectCategoryColor": "Color Category"
+    }
+}

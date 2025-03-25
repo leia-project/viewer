@@ -3,11 +3,17 @@
 	import { Return } from "carbon-icons-svelte";
 	import type { GameController } from "../game-controller";
 	import GameStats from "./GameStats.svelte";
+	import MarvinMenu from "../../Marvin/MarvinMenu.svelte";
+	import type { MarvinApp } from "../../Marvin/marvin";
 
 	export let gameController: GameController;
+	export let marvinApp: MarvinApp;
+
 	const inGame = gameController.inGame;
 
 	const activeGame = gameController.active;
+
+	$: console.log("inGame", inGame, "activeGame", activeGame);
 
 </script>
 
@@ -25,7 +31,7 @@
 				<GameStats game={$activeGame} />
 			</div>
 			<div id="top-right">
-				<div>Marvin?</div>
+				<MarvinMenu app={marvinApp} />
 			</div>
 		</div>
 		
