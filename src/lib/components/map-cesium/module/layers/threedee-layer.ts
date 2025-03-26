@@ -38,7 +38,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	public opacityChanged(opacity: number): void {
 		this.alpha = (opacity > 100 ? 1.0 : opacity < 0 ? 0 : opacity / 100);
 		if (this.source) {
-			this.applyStyles();
+			this.updateStyles();
 		}
 	}
 
@@ -149,6 +149,17 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		this.map.refresh();
 	}
 
+	private updateStyles(): void {
+		if (this.isPointCloud) {
+			this.updatePointCloudStyle();
+		} else if (this.config.settings.defaultTheme) {
+			this.applyThemeByName(this.config.settings.defaultTheme);
+		} else {
+			this.setTheme(this.getEmptyTheme());
+		}
+		this.map.refresh();
+	}
+
 	public getEmptyTheme(): Cesium.Cesium3DTileStyle {
 		const style = {
 			color: {
@@ -229,7 +240,6 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		this.map.refresh();
 	}
 
-	// FINN TODO: Figure out why alpha is not updated when one or more classes are filtered
 	public setPointCloudStyle(): void {
 		if(!this.source) return;
 		this.source.style = new Cesium.Cesium3DTileStyle({
@@ -237,6 +247,19 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			show: true,
 			color: "${COLOR} * rgba(255, 255, 255, " + this.alpha + ")", // Adds opacity but keeps color
 		});
+	}
+
+	public updatePointCloudStyle(): void {
+		if(!this.source) return;
+		if (this.source.style) {
+			this.source.style = new Cesium.Cesium3DTileStyle({
+				//@ts-ignore
+				pointSize: this.source.style.pointSize._expression,
+				//@ts-ignore
+				show: this.source.style.show._expression,
+				color: "${COLOR} * rgba(255, 255, 255, " + this.alpha + ")", // Adds opacity but keeps color
+			});
+		}
 	}
 
 	public filterPointCloudClasses(ids: Array<string>): void {
