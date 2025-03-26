@@ -99,7 +99,6 @@ export class QA {
 			this.app.layerManager.removeQALayer(this.resultLayer.id);
 			this.resultLayer = undefined;
 		}
-
 		if (this.inputLayer) {
 			this.app.layerManager.removeInputLayer(this.inputLayer.id);
 			this.inputLayer = undefined;
@@ -110,7 +109,6 @@ export class QA {
 		if (this.resultLayer) {
 			this.resultLayer.visible.set(true);
 		}
-
 		if (this.inputLayer) {
 			this.inputLayer.visible.set(true);
 		}
@@ -120,7 +118,6 @@ export class QA {
 		if (this.resultLayer) {
 			this.resultLayer.visible.set(false);
 		}
-
 		if (this.inputLayer) {
 			this.inputLayer.visible.set(false);
 		}

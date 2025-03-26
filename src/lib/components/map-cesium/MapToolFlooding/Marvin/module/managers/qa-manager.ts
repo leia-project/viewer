@@ -5,12 +5,18 @@ import type { QA } from "../qa";
 export class QAManager {
 
 	public entries: Writable<Array<QA>> = writable([]);
+	private loading: Writable<boolean>;
 
-	constructor() {}
+	constructor(loading: Writable<boolean> = writable(false)) {
+		this.loading = loading;
+	}
 
-	public async addEntry(entry: any): Promise<void> {
-		this.entries.update((entries: any) => [...entries, entry]);
-		entry.askGeo();
+	public async addEntry(entry: QA): Promise<void> {
+		this.entries.update((entries) => [...entries, entry]);
+		this.loading.set(true);
+		await entry.askGeo();
+		setTimeout(() => this.loading.set(false), 5000);
+		//this.loading.set(false);
 	}
 
 	public async removeEntry(id: string): Promise<void> {
@@ -18,8 +24,7 @@ export class QAManager {
 		if (entry) {
 			entry.removeLayers();
 		}
-
-		this.entries.update((entries: any[]) => entries.filter((entry: any) => entry.id !== id));
+		this.entries.update((entries) => entries.filter((entry) => entry.id !== id));
 	}
 
 	public getQAError(input: string): string {

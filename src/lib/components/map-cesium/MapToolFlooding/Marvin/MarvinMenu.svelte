@@ -1,26 +1,60 @@
 <script lang="ts">
+	import { get } from "svelte/store";
 	import { _ } from "svelte-i18n";
+	import { Button } from "carbon-components-svelte";
+	import { Settings, Terminal } from "carbon-icons-svelte";
 	import QA from "./components/QA.svelte";
 	import Chat from "./components/Chat.svelte";
-	import Settings from "./components/Settings/Settings.svelte";
+	import SettingsModal from "./components/Settings/Settings.svelte";
 	import type { MarvinApp } from "./marvin";
+	import CommandPalette from "./components/CommandPalette.svelte";
+	import MarvinAvatar from "./components/MarvinAvatar.svelte";
 
 	export let app: MarvinApp;
 
 	const questions = app.qaManager.entries;
 
+	let openMenu: boolean = false;
+
+	let openModal: boolean = false;
+	let modalComponent: any;
+	let props: any;
+
+	function setModal(component: any, properties: Record<string, any>): void {
+		props = properties;
+		modalComponent = component;
+	}
+
+
 </script>
-<div class="menu-container">
+
+
+<div class="menu-container" class:open={openMenu}>
 	<div class="menu-header">
 		<div class="menu-title">
+			<div class="avatar">
+				<MarvinAvatar animate={app.loading} bind:open={openMenu} />
+			</div>
 			<p class="menu-app-title">{$_("appTitle")}</p>
-			<p class="menu-app-subtitle">- {$_("appSubtitle")}</p>
+			<p class="menu-app-subtitle">{$_("appSubtitle")}</p>
 		</div>
-		<div>
-			<Settings />
-			<!-- <button onclick={() => (app.commandPalette.open = !app.commandPalette.open)} class="btn-icon preset-filled" title="">
-				<Terminal size={18} />
-			</button> -->
+		<div class="header-buttons">
+			<Button
+				icon={Settings}
+				iconDescription={"Settings"}
+				size="small"
+				on:click={() => setModal(SettingsModal, {})}
+			/>
+			<Button
+				icon={Terminal}
+				iconDescription={"Command Palette"}
+				tooltipPosition="bottom"
+				tooltipAlignment="end"
+				size="small"
+				on:click={() => {
+					app.commandPalette.open.set(!get(app.commandPalette.open));
+				}}
+			/>
 		</div>
 	</div>
 
@@ -31,7 +65,7 @@
 		<div class="menu-scrollable">
 			<div class="menu-questions">
 				{#each $questions as qa}
-					<QA {app} {qa} />
+					<QA {app} {qa} on:openModal={(e) => setModal(e.detail.component, e.detail.props)} />
 				{/each}
 			</div>
 		</div>
@@ -40,11 +74,22 @@
 	<Chat {app} />
 </div>
 
+<CommandPalette {app} />
+
+{#if modalComponent && props}
+<div style="pointer-events: auto">x
+	<svelte:component this={modalComponent} {...props} bind:open={openModal} />
+	</div>
+{/if}
+
+
 <style>
-
-
 	.menu-container {
+		visibility: hidden;
+		transform: translateX(calc(100% - 50px));
+		transition: transform 1s;
 		pointer-events: auto;
+
 		--surface-50: #f9fafb;
 		--surface-200: #e5e7eb;
 		--surface-800: #374151;
@@ -65,6 +110,10 @@
 		border-radius: 0.375rem;
 		padding: 0.75rem;
 	}
+	.menu-container.open {
+		visibility: visible;
+		transform: translateX(0);
+	}
 
 	.menu-header {
 		display: flex;
@@ -75,7 +124,16 @@
 	.menu-title {
 		display: flex;
 		align-items: center;
-		gap: 0.25rem;
+		column-gap: 0.5rem;
+	}
+
+	.avatar {
+		visibility: visible;
+		transform: scale(1.3);
+		transition: transform 1s;
+	}
+	.open .avatar {
+		transform: scale(1);
 	}
 
 	.menu-app-title {
@@ -86,6 +144,12 @@
 	.menu-app-subtitle {
 		font-size: 0.75rem; /* Equivalent to type-caption */
 		color: var(--surface-800);
+		padding-top: 0.25rem;
+		font-weight: 800;
+	}
+
+	.header-buttons {
+		display: flex;
 	}
 
 	.menu-divider {

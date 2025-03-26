@@ -58,7 +58,6 @@ export class LayerManager {
 		if (layer) {
 			layer.delete();
 		}
-
 		this.qaLayers.update((layers: any) => layers.filter((layer: any) => layer.id !== id));
 	}
 
@@ -67,7 +66,6 @@ export class LayerManager {
 		if (layer) {
 			layer.delete();
 		}
-
 		this.inputLayers.update((layers: any) => layers.filter((layer: any) => layer.id !== id));
 	}
 

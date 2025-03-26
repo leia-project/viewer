@@ -96,14 +96,14 @@ export class Features {
 }
 
 export class Result {
-	features?: Features;
-	summary?: string;
-	datasetName?: string;
-	error?: string;
-	inputLocation?: InputLocation;
-	executionTime?: number;
-	debug?: DebugInfo;
-	hasGeometry: boolean;
+	public features?: Features;
+	public summary?: string;
+	public datasetName?: string;
+	public error?: string;
+	public inputLocation?: InputLocation;
+	public executionTime?: number;
+	public debug?: DebugInfo;
+	public hasGeometry: boolean;
 
 	constructor(response: Partial<ResultResponse> = {}) {
 		this.features = response.data ? new Features(response.data) : undefined;
@@ -130,13 +130,13 @@ export class Result {
 }
 
 class DebugInfo {
-	ddl?: string[];
-	documentation?: string[];
-	sqlPrompt?: string;
-	sql?: string;
-	similarQuestions?: string[];
-	logs?: string[];
-	geometry?: any;
+	public ddl?: string[];
+	public documentation?: string[];
+	public sqlPrompt?: Array<{ role: string; content: string }>;
+	public sql?: string;
+	public similarQuestions?: Array<{ question: string; sql: string }>;
+	public logs?: string[];
+	public geometry?: any;
 
 	constructor(debug: Partial<DebugInfo> = {}) {
 		this.ddl = debug.ddl;
@@ -162,8 +162,8 @@ class DebugInfo {
 }
 
 class Location {
-	name?: string;
-	geometry?: any;
+	public name?: string;
+	public geometry?: any;
 
 	constructor(location: Partial<Location> = {}) {
 		this.name = location.name;
@@ -172,9 +172,9 @@ class Location {
 }
 
 class InputLocation {
-	tag?: string;
-	source?: string[];
-	locations?: Location[];
+	public tag?: string;
+	public source?: string[];
+	public locations?: Location[];
 
 	constructor(inputLocations: Partial<InputLocation> = {}) {
 		this.tag = inputLocations.tag;

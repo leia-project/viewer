@@ -31,7 +31,6 @@ export class GameController {
 	constructor(map: Map) {
 		this.map = map;
 		this.active.set(new Game("breach", "scenario"));
-		console.log("this.active.geasdfsdafsfdasfdasfdasfdat()");
 	}
 
 

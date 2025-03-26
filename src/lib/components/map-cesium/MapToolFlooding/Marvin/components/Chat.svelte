@@ -358,6 +358,7 @@
 	{/if}
 </div>
 
+
 <style>
 	.editable {
 		min-height: 20px;

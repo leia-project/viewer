@@ -6,7 +6,7 @@ import { GeomInputManager } from "./module/managers/geom-input-manager"
 import { UserLocationManager } from "./module/managers/user-location-manager"
 import { LayerManager } from "./module/managers/layer-manager"
 import MarvinMenu from "./MarvinMenu.svelte";
-// import { CommandPalette } from "module/command-center/command-palette.svelte";
+import { CommandPalette } from "./module/command-center/command-palette";
 
 
 export class MarvinApp {
@@ -18,16 +18,18 @@ export class MarvinApp {
 	public geomInputManager: GeomInputManager;
 	public userLocationManager: UserLocationManager;
 	public layerManager: LayerManager;
-	//public commandPalette!: CommandPalette;
+	public commandPalette!: CommandPalette;
+
+	public loading: Writable<boolean> = writable(false);
 
 	constructor(map: Map) {
 		this.map = map;
 		this.ready = writable(false);
-		this.qaManager = new QAManager();
+		this.qaManager = new QAManager(this.loading);
 		this.geomInputManager = new GeomInputManager();
 		this.userLocationManager = new UserLocationManager();
 		this.layerManager = new LayerManager();
-		//this.commandPalette = new CommandPalette();
+		this.commandPalette = new CommandPalette(this);
 	}
 
 	public init() {

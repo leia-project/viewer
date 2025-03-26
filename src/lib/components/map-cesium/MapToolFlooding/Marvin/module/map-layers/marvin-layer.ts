@@ -1,4 +1,5 @@
 import { writable, type Unsubscriber, type Writable } from "svelte/store";
+import * as Cesium from "cesium";
 import type { FeatureCollection } from "geojson";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { getColorRange } from "../utils/layer-color";
@@ -42,9 +43,11 @@ export class MarvinLayer {
 			id: this.id,
 			settings: {
 				clampToGround: true,
+				markers: []
 			}
 		}
 		this.geojsonLayer = new GeoJsonLayer(map, layerConfig, data);
+		this.geojsonLayer.defaultColorPoint = Cesium.Color.fromCssColorString(this.color);
 		this.visibleUnsubscribe = this.visible.subscribe((v) => v ? this.show() : this.hide())
 	}
 
@@ -62,7 +65,7 @@ export class MarvinLayer {
 	}
 
 	public delete(): void {
-		this.geojsonLayer.remove();
+		this.geojsonLayer.removeFromMap();
 		this.visibleUnsubscribe?.();
 	}
 

@@ -20,10 +20,12 @@
 	<div id="game-overlay">
 		<div id="top-container">
 			<div id="top-left">
-				<Button
-					icon={Return}
-					on:click={() => gameController.exit()}
-				>Exit</Button>
+				<div>
+					<Button
+						icon={Return}
+						on:click={() => gameController.exit()}
+					>Exit</Button>
+				</div>
 			</div>
 			<div id="top-center">
 				<GameStats game={$activeGame} />
@@ -58,6 +60,15 @@
 		display: grid;
 		grid-template-columns: 1fr auto 1fr;
 	}
+	#top-right {
+		display: flex;
+		justify-content: flex-end;
+		padding: 1rem;
+	}
+	#top-left div {
+		pointer-events: auto;
+	}
+
 	#bottom-container {
 		position: absolute;
 		bottom: 0;
