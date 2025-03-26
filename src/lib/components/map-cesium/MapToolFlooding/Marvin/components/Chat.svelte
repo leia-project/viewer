@@ -7,7 +7,6 @@
 /* 	import { DefaultCommand } from "$lib/core/command-center/command"; */
 /* 	import { FloatingArrow, arrow, autoUpdate, flip, offset, useDismiss, useFloating, useInteractions, useRole } from "@skeletonlabs/floating-ui-svelte"; */
 	import { fade } from "svelte/transition";
-
 	// @ts-ignore
 	import Wkt from "wicket";
 	
@@ -15,7 +14,7 @@
 
 	export let app: MarvinApp;
 
-	let chatElement: HTMLElement;
+	let chatElement: HTMLInputElement;
 	let question ="";
 	let geomInput: Array<{ name: string; id: string; data: any }> | undefined = undefined;
 
@@ -246,7 +245,7 @@
 	}
 
 	function executeQuestion() {
-		const query = chatElement.textContent;
+		const query = chatElement.value;
 		if (!query) {
 			return;
 		}
@@ -281,35 +280,8 @@
 		question = "";
 	}
 
-	// State
 	let open = false;
-	let elemArrow: HTMLElement | null = null;
-
-	// Use Floating
-	/* const floating = useFloating({
-		whileElementsMounted: autoUpdate,
-		get open() {
-			return open;
-		},
-		onOpenChange: (v) => {
-			open = v;
-			if (!v) {
-				deleteSearchNode();
-			}
-		},
-		strategy: "fixed",
-		transform: true,
-		get middleware() {
-			return [offset(10), flip(), elemArrow && arrow({ element: elemArrow })];
-		}
-	}); */
-
-	/* // Interactions
-	const role = useRole(floating.context);
-	//const click = useClick(floating.context);
-	const dismiss = useDismiss(floating.context);
-	//const interactions = useInteractions([role, click, dismiss]);
-	const interactions = useInteractions([role, dismiss]); */
+	
 </script>
 
 
@@ -317,15 +289,15 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="marvin-container">
 	<div class="chat-input-container">
-		<div
+		<input
 			bind:this={chatElement}
 			on:input={chatInputChange}
 			class="editable"
 			contenteditable="true"
-			data-placeholder={$_("qa.chatPlaceholder")}
+			placeholder={$_("qa.chatPlaceholder")}
 			bind:innerHTML={question}
 			on:keydown={handleKeydown}
-		></div>
+		/>
 		<button on:click={executeQuestion} class="send-button" title="">
 			<ChevronRight size={16} />
 		</button>
@@ -383,7 +355,6 @@
 		justify-content: space-between;
 		border: 1px solid var(--surface-200);
 		border-radius: 0.375rem;
-		padding: 0.25rem;
 	}
 
 	.editable {

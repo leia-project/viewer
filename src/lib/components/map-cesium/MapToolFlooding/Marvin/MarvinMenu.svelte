@@ -18,13 +18,12 @@
 
 	let openModal: boolean = false;
 	let modalComponent: any;
-	let props: any;
+	let props: Record<string, any>;
 
 	function setModal(component: any, properties: Record<string, any>): void {
 		props = properties;
 		modalComponent = component;
 	}
-
 
 </script>
 
@@ -64,7 +63,7 @@
 	{#if $questions.length !== 0}
 		<div class="menu-scrollable">
 			<div class="menu-questions">
-				{#each $questions as qa}
+				{#each $questions as qa (qa.id)}
 					<QA {app} {qa} on:openModal={(e) => setModal(e.detail.component, e.detail.props)} />
 				{/each}
 			</div>
@@ -77,8 +76,8 @@
 <CommandPalette {app} />
 
 {#if modalComponent && props}
-<div style="pointer-events: auto">x
-	<svelte:component this={modalComponent} {...props} bind:open={openModal} />
+	<div style="pointer-events: auto">
+		<svelte:component this={modalComponent} {...props} bind:open={openModal} />
 	</div>
 {/if}
 

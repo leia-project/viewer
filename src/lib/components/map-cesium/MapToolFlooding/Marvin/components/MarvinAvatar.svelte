@@ -9,7 +9,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div id="logo-container" class={!$animate ? "" : "logo-animation-disabled"} on:click={() => open = !open}>
+<div id="logo-container" class={$animate ? "" : "logo-animation-disabled"} on:click={() => open = !open}>
 	<svg width="32" height="32" version="1.1" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
 		<g id="icon-group" transform="translate(-37.468 -83.688)" stroke="#000">
 			<ellipse id="head" cx="46.151" cy="92.371" rx="8.5329" ry="8.533" fill="#e6e6e6" stroke-dasharray="0.03, 0.03" stroke-linecap="round" stroke-linejoin="round" stroke-width=".45" />
@@ -55,7 +55,7 @@
         animation: pulsateDropShadow 2s infinite ease-in-out;
     }
 
-    :global(.logo-animation-disabled #logo-container) {
+    :global(.logo-animation-disabled#logo-container) {
         animation: none;
     }
 

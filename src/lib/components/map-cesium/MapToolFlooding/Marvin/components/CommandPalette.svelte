@@ -35,11 +35,11 @@
 		return categories;
 	}
 
-	let open = app.commandPalette.open;
+	const open = app.commandPalette.open;
 	let inputElement: HTMLInputElement | undefined = undefined;
 
 	$: {
-		if (open) {
+		if ($open) {
 			window.addEventListener("keydown", keyDown, true);
 			results.set(app.commandPalette.commands.getAll());
 			inputElement?.focus();
@@ -55,7 +55,7 @@
 	}
 
 	function keyDown(e: KeyboardEvent) {
-		if (!open) {
+		if (!$open) {
 			return;
 		}
 
