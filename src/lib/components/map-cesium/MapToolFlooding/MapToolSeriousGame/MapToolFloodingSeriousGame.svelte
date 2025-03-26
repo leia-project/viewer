@@ -30,6 +30,12 @@
 	let cachedGame: Writable<boolean> = writable(false);
 
 
+	/*
+	WSNoo-DP760 – 1 op 100,000
+	OS-dp_165 – 1 op 3000
+	WSNoo-DP155 – 1 op 30000
+	Schelde-Rijnkanaal_19_KM 1 op 3000
+	*/
 	// to config (?):
 	const levels: Array<IGameConfig> = [
 		{
@@ -39,13 +45,11 @@
 			breach: {
 				type: "Feature",
 				properties: {
-					dijkring: "27",
+					dijkring: "29",
 					scenarios: [
-						"3000",
-						"10000",
-						"30000"
+						"100000"
 					],
-					name: "OS-dp_1047"
+					name: "WSNoo-DP760"
 				},
 				geometry: {
 					type: "Point",
@@ -55,7 +59,7 @@
 					]
 				}
 			},
-			scenario: "30000"
+			scenario: "100000"
 		},
 		{
 			name: "Schouwen-Duiveland",
@@ -70,7 +74,7 @@
 						"10000",
 						"30000"
 					],
-					name: "OS-dp_1047"
+					name: "27_OS-dp_1047"
 				},
 				geometry: {
 					type: "Point",

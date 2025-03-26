@@ -1,8 +1,8 @@
 import type { Map } from "../module/map";
 import { LayerConfig } from "$lib/components/map-core/layer-config";
-import type { IconLayer } from "../module/layers/icon-layer";
-import type { FloodLayer } from "../module/layers/flood-layer";
-import type { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
+import { IconLayer } from "../module/layers/icon-layer";
+import { FloodLayer } from "../module/layers/flood-layer";
+import { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
 import { get, writable, type Writable } from "svelte/store";
 import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
 import type { OgcStyleCondition } from "../module/providers/ogc-features-provider";
@@ -43,17 +43,20 @@ export class FloodLayerController {
 	public maxTime: Writable<number> = writable(1);
 	public stepInterval: Writable<number> = writable(0.05);
 
-	public layerConfigGroup: LayerConfigGroup = new LayerConfigGroup("overstromingen", "Overstromingen");
+	public layerConfigGroup: LayerConfigGroup | undefined;
 	public iconLayer: IconLayer<Breach>;
 	public floodLayer: FloodLayer;
 	//public roadsLayer?: OgcFeaturesLayer;
 	public floodedRoadsLayer: OgcFeaturesLayer;
 
-	constructor(map: Map, settings: FloodToolSettings, activeBreach: Writable<Breach | undefined>, selectedScenario: Writable<string | undefined>) {
+	constructor(map: Map, settings: FloodToolSettings, activeBreach: Writable<Breach | undefined>, selectedScenario: Writable<string | undefined>, layerGroupName?: string) {
 		this.map = map;
 		this.activeBreach = activeBreach;
 		this.selectedScenario = selectedScenario;
-		this.map.layerLibrary.addLayerConfigGroup(this.layerConfigGroup);
+		if (layerGroupName) {
+			this.layerConfigGroup = new LayerConfigGroup(layerGroupName.toLowerCase(), layerGroupName);
+			this.map.layerLibrary.addLayerConfigGroup(this.layerConfigGroup);
+		}
 		this.iconLayer = this.addIconLayer();
 		this.floodLayer = this.addFloodLayer(settings.scenariosBaseUrl);
 		this.floodedRoadsLayer = this.addFloodedRoadsLayer(settings.floodedRoadsUrl, settings.floodedRoadsStyle);
@@ -97,12 +100,6 @@ export class FloodLayerController {
 	}
 
 	public async loadNewScenario(breach: Breach, scenario: string): Promise<void> {
-		if (this.floodLayer) {
-			this.floodLayer.loadScenario(breach, scenario).then(() => {
-				const numberOfSteps = this.floodLayer.source?.waterLevels.length;
-				this.maxTime.set(numberOfSteps);
-			});
-		}
 		const scenarioId = `${breach.properties.dijkring}_${breach.properties.name}_${scenario}`;
 		const endpoint = this.floodedRoadsLayer.config.settings.url;
 		const parameters = {
@@ -111,6 +108,11 @@ export class FloodLayerController {
 			limit: "500"
 		}
 		this.floodedRoadsLayer?.source.switchUrl(endpoint, parameters);
+		if (this.floodLayer) {
+			await this.floodLayer.loadScenario(breach, scenario);
+			const numberOfSteps = this.floodLayer.source?.waterLevels.length;
+			this.maxTime.set(numberOfSteps);
+		}
 	}
 
 	private addIconLayer(): IconLayer<Breach> {
@@ -119,14 +121,19 @@ export class FloodLayerController {
 			id: `fl_breachicons_${Math.random().toString(36).substring(7)}`,
 			title: "Breach Locations",
 			type: "icon",
-			groupId: this.layerConfigGroup.id,
+			groupId: this.layerConfigGroup?.id,
 			isBackground: false,
 			defaultOn: false,
 			defaultAddToManager: true,
 		});
-		this.map.layerLibrary.addLayerConfig(layerConfig);
-		layerConfig.added.set(true);
-		const layer = get(this.map.layers).find((l) => l.id === layerConfig.id) as IconLayer<Breach>;
+		let layer: IconLayer<Breach>;
+		if (this.layerConfigGroup) {
+			this.map.layerLibrary.addLayerConfig(layerConfig);
+			layerConfig.added.set(true);
+			layer = get(this.map.layers).find((l) => l.id === layerConfig.id) as IconLayer<Breach>;
+		} else {
+			layer = new IconLayer<Breach>(this.map, layerConfig);
+		}
 		layer.activeStore = this.activeBreach;
 		return layer;
 	}
@@ -136,7 +143,7 @@ export class FloodLayerController {
 			id: `flood_layer_fier_${Math.random().toString(36).substring(7)}`,
 			type: "flood",
 			title: "Flood layer",
-			groupId: this.layerConfigGroup.id,
+			groupId: this.layerConfigGroup?.id,
 			legendUrl: "",
 			isBackground: false,
 			defaultAddToManager: true,
@@ -148,9 +155,14 @@ export class FloodLayerController {
 				url: baseUrl
 			}
 		});
-		this.map.layerLibrary.addLayerConfig(layerConfig);
-		layerConfig.added.set(true);
-		const floodLayer = get(this.map.layers).find((l) => l.id === layerConfig.id) as FloodLayer;
+		let floodLayer: FloodLayer;
+		if (this.layerConfigGroup) {
+			this.map.layerLibrary.addLayerConfig(layerConfig);
+			layerConfig.added.set(true);
+			floodLayer = get(this.map.layers).find((l) => l.id === layerConfig.id) as FloodLayer;
+		} else {
+			floodLayer = new FloodLayer(this.map, layerConfig);
+		}
 		floodLayer.time = this.time;
 		return floodLayer;
 	}
@@ -183,7 +195,7 @@ export class FloodLayerController {
 			id: `flooded_roads_${Math.random().toString(36).substring(7)}`,
 			title: "Wegen",
 			type: "ogc-features",
-			groupId: this.layerConfigGroup.id,
+			groupId: this.layerConfigGroup?.id,
 			settings: {
 				url: baseUrl,
 				options: {
@@ -206,9 +218,14 @@ export class FloodLayerController {
 			defaultOn: false,
 			defaultAddToManager: true
 		});
-		this.map.layerLibrary.addLayerConfig(layerConfig);
-		layerConfig.added.set(true);
-		const floodedRoadsLayer = get(this.map.layers).find((l) => l.id === layerConfig.id) as OgcFeaturesLayer;
+		let floodedRoadsLayer: OgcFeaturesLayer;
+		if (this.layerConfigGroup) {
+			this.map.layerLibrary.addLayerConfig(layerConfig);
+			layerConfig.added.set(true);
+			floodedRoadsLayer = get(this.map.layers).find((l) => l.id === layerConfig.id) as OgcFeaturesLayer;
+		} else {
+			floodedRoadsLayer = new OgcFeaturesLayer(this.map, layerConfig);
+		}
 		return floodedRoadsLayer;
 	}
 }

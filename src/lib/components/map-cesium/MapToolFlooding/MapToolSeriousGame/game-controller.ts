@@ -1,4 +1,4 @@
-import { writable, type Writable } from "svelte/store";
+import { get, writable, type Writable } from "svelte/store";
 import type { Map } from "../../module/map";
 import { Game } from "./game";
 import { MarvinApp } from "../Marvin/marvin";
@@ -25,6 +25,8 @@ export class GameController {
 	private gameContainer?: GameContainer;
 	private marvin?: MarvinApp;
 
+	private cachedMapLayers: Array<any> = [];
+
 	public inGame: Writable<boolean> = writable(false);
 	private savedGames: Array<Game> = [];
 
@@ -42,14 +44,15 @@ export class GameController {
 
 	public loadGame(gameConfig: IGameConfig): void {
 		const game = new Game(gameConfig.breach, gameConfig.scenario, this.time);
-		this.floodLayerController.loadNewScenario(gameConfig.breach, gameConfig.scenario);
+		this.floodLayerController.loadNewScenario(gameConfig.breach, gameConfig.scenario).then(() => {
+			this.addLayers();
+		});
 		this.active.set(game);
 	}
 
 	public play(gameConfig: IGameConfig): void {
 		this.inGame.set(true);
 		this.toggleViewerUI(false);
-		this.toggleFloodLayer(true);
 		this.initMarvin();
 		this.loadUserInterface();
 		this.loadGame(gameConfig);
@@ -57,8 +60,8 @@ export class GameController {
 
 	public exit(): void {   
 		this.inGame.set(false);
+		this.removeLayers();
 		this.toggleViewerUI(true);
-		this.toggleFloodLayer(false);
 		this.gameContainer?.$destroy();
 	}
 
@@ -73,9 +76,18 @@ export class GameController {
 		});
 	}
 
-	private toggleFloodLayer(show: boolean): void {
-		this.floodLayerController.floodLayer.visible.set(show);
-		this.floodLayerController.floodedRoadsLayer.visible.set(show);
+	private addLayers(): void {
+		this.floodLayerController.floodLayer.addToMap();
+		this.floodLayerController.floodedRoadsLayer.addToMap();
+		this.floodLayerController.floodLayer.show();
+		this.floodLayerController.floodedRoadsLayer.show();
+	}
+
+	private removeLayers(): void {
+		this.floodLayerController.floodLayer.removeFromMap();
+		this.floodLayerController.floodedRoadsLayer.removeFromMap();
+		this.floodLayerController.floodLayer.hide();
+		this.floodLayerController.floodedRoadsLayer.hide();
 	}
 
 	private initMarvin(): void {
@@ -104,6 +116,11 @@ export class GameController {
 				view.style.paddingTop = show ? "3rem" : "0";
 			}
 		}
-
+		if (!show) {
+			this.cachedMapLayers = get(this.map.layers);
+		}
+		this.cachedMapLayers.forEach((layer) => {
+			layer.visible.set(show);
+		});
 	}
 }

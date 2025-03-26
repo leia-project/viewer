@@ -9,22 +9,27 @@ interface IGameStats {
 
 const steps = [
 	{
-		time: 4,
+		time: 0,
 		title: "Introduction",
 		cameraPosition: {}
 	},
 	{
-		time: 18,
+		time: 4,
 		title: "Hour 3",
 		cameraPosition: {}
 	},
 	{
-		time: 36,
+		time: 6,
 		title: "Hour 6",
 		cameraPosition: {}
 	},
 	{
-		time: 72,
+		time: 8,
+		title: "Hour 12",
+		cameraPosition: {}
+	},
+	{
+		time: 12,
 		title: "Hour 12",
 		cameraPosition: {}
 	}
@@ -37,7 +42,7 @@ export class Game {
 
 	private animating: Writable<boolean> = writable(false);
 	private step: Writable<number> = writable(0);
-	private time: Writable<number> = writable(0);
+	private time: Writable<number>;
 	private interval: NodeJS.Timeout | undefined;
 
 	public stats: IGameStats;
@@ -49,6 +54,7 @@ export class Game {
 			victims: 92,
 			evacuated: 240
 		}
+		this.time = time;
 	}
 
 	public changeStep(direction: "next" | "previous"): void {
@@ -71,14 +77,14 @@ export class Game {
 	
 		this.interval = setInterval(() => {
 			this.time.update((value) => {
-				if (value < newTime) {
-					return value + 0.05;
+				if (direction === "next") {
+					return value + 0.5;
 				} else if (value > newTime) {
 					return value - 0.05;
 				}
 				return value;
 			});
-			if (get(this.time) === newTime) {
+			if (get(this.time) >= newTime) {
 				this.animating.set(false);
 				clearInterval(this.interval);
 				this.interval = undefined;

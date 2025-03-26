@@ -37,7 +37,7 @@
 	
 	tool.settings.subscribe(async(settings?: FloodToolSettings) => {
 		if (settings) {
-			floodLayerController = new FloodLayerController(map, settings, activeBreach, selectedScenario);
+			floodLayerController = new FloodLayerController(map, settings, activeBreach, selectedScenario, "Overstromingen");
 			const breachCollection = await fetch(settings.breachUrl).then((res) => res.json());
 			breaches = breachCollection.features;
 			floodLayerController.addBreaches(breaches);
