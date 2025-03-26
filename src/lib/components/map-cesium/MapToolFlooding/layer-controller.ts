@@ -116,7 +116,7 @@ export class FloodLayerController {
 	private addIconLayer(): IconLayer<Breach> {
 		// add icon layer with breach locations
 		const layerConfig = new LayerConfig({
-			id: "fl_breachicons",
+			id: `fl_breachicons_${Math.random().toString(36).substring(7)}`,
 			title: "Breach Locations",
 			type: "icon",
 			groupId: this.layerConfigGroup.id,
@@ -133,7 +133,7 @@ export class FloodLayerController {
 
 	private addFloodLayer(baseUrl: string): FloodLayer {
 		const layerConfig = new LayerConfig({
-			id: "flood_layer_fier",
+			id: `flood_layer_fier_${Math.random().toString(36).substring(7)}`,
 			type: "flood",
 			title: "Flood layer",
 			groupId: this.layerConfigGroup.id,
@@ -180,7 +180,7 @@ export class FloodLayerController {
 
 	private addFloodedRoadsLayer(baseUrl: string, style: Array<OgcStyleCondition>): OgcFeaturesLayer {
 		const layerConfig = new LayerConfig({
-			id: "flooded_roads",
+			id: `flooded_roads_${Math.random().toString(36).substring(7)}`,
 			title: "Wegen",
 			type: "ogc-features",
 			groupId: this.layerConfigGroup.id,

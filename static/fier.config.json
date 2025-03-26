@@ -302,7 +302,7 @@
                 "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
                 "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson",
                 "roadsUrl": "https://service.pdok.nl/rws/vervoersnetwerken/wegen/wms/v1_0",
-                "floodedRoadsUrl": "http://localhost:5000",
+                "floodedRoadsUrl": "https://virtueel.zeeland.nl/pygeoapi",
                 "floodedRoadsStyle":[
                     {
                         "property": "flood_depth",

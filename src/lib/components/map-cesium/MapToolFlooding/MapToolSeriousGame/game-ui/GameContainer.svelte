@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { Button } from "carbon-components-svelte";
-	import { Return } from "carbon-icons-svelte";
+	import { Exit } from "carbon-icons-svelte";
 	import type { GameController } from "../game-controller";
 	import GameStats from "./GameStats.svelte";
 	import MarvinMenu from "../../Marvin/MarvinMenu.svelte";
 	import type { MarvinApp } from "../../Marvin/marvin";
+	import Roles from "./Roles.svelte";
+	import TimeControl from "./TimeControl.svelte";
 
 	export let gameController: GameController;
 	export let marvinApp: MarvinApp;
@@ -22,9 +24,12 @@
 			<div id="top-left">
 				<div>
 					<Button
-						icon={Return}
+						icon={Exit}
+						iconDescription="Exit game"
+						tooltipPosition="right"
+						kind="secondary"
 						on:click={() => gameController.exit()}
-					>Exit</Button>
+					/>
 				</div>
 			</div>
 			<div id="top-center">
@@ -36,7 +41,12 @@
 		</div>
 		
 		<div id="bottom-container">
-			<div>bottom container</div>
+			<div id="bottom-left">
+				<Roles />
+			</div>
+			<div id="bottom-right">
+				<TimeControl game={$activeGame} />
+			</div>
 		</div>
 	</div>
 {/if}
@@ -74,6 +84,13 @@
 		bottom: 0;
 		left: 0;
 		width: 100%;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+	}
+	#bottom-right {
+		display: flex;
+		justify-content: flex-end;
+		padding: 1rem;
 	}
 
 </style>

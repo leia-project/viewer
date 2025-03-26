@@ -6,6 +6,7 @@
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import { GameController } from "./game-controller";
 	import { addMarvini18n } from "../Marvin/module/i18n/i18n-marvin";
+	import type { IGameConfig } from "./game-models";
 
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
@@ -28,19 +29,58 @@
 	
 	let cachedGame: Writable<boolean> = writable(false);
 
+
 	// to config (?):
-	const levels = [
+	const levels: Array<IGameConfig> = [
 		{
 			name: "Middelburg",
 			description: "The city of Middelburg is under water. Can you save the city?",
 			thumbnail: "https://via.placeholder.com/150",
-			scenario: "HS-ds-470"
+			breach: {
+				type: "Feature",
+				properties: {
+					dijkring: "27",
+					scenarios: [
+						"3000",
+						"10000",
+						"30000"
+					],
+					name: "OS-dp_1047"
+				},
+				geometry: {
+					type: "Point",
+					coordinates: [
+						4.136564350767653,
+						51.52539867663192
+					]
+				}
+			},
+			scenario: "30000"
 		},
 		{
 			name: "Schouwen-Duiveland",
 			description: "The island of Schouwen-Duiveland is under water. Can you save the island?",
 			thumbnail: "https://via.placeholder.com/150",
-			scenario: "HS-ds-472"
+			breach: {
+				type: "Feature",
+				properties: {
+					dijkring: "27",
+					scenarios: [
+						"3000",
+						"10000",
+						"30000"
+					],
+					name: "OS-dp_1047"
+				},
+				geometry: {
+					type: "Point",
+					coordinates: [
+						4.136564350767653,
+						51.52539867663192
+					]
+				}
+			},
+			scenario: "30000"
 		}
 	];
 
@@ -49,34 +89,33 @@
 
 {#if $selectedTool === tool}
 	<div class="start-menu">
-	{#if cachedGame}
-		<span>Current game: <strong>Game 1</strong></span>
+		{#if cachedGame}
+			<span>Current game: <strong>Game 1</strong></span>
+			<Button
+				label="Play"
+				on:click={() => {
+					gameController.play(levels[0]);
+				}}
+			>Continue</Button>
+		{/if}
+
+		<div class="header">Levels</div>
+		{#each levels as level}
+			<div class="level">
+				<div class="description">
+					<h3>{level.name}</h3>
+					<p>{level.description}</p>
+				</div>
+
+			</div>
+		{/each}
+
 		<Button
 			label="Play"
 			on:click={() => {
-				gameController.play();
+				gameController.play(levels[0]);
 			}}
-		>Continue</Button>
-	{/if}
-
-	<div class="header">Levels</div>
-	{#each levels as level}
-		<div class="level">
-			<div class="description">
-				<h3>{level.name}</h3>
-				<p>{level.description}</p>
-			</div>
-
-		</div>
-	{/each}
-
-	<Button
-		label="Play"
-		on:click={() => {
-			gameController.play();
-		}}
-	>Start new game</Button>
-
+		>Start new game</Button>
 	</div>
 {/if}
 

@@ -22,6 +22,10 @@
 
 
 <style>
+	#logo-container {
+		cursor: pointer;
+	}
+	
 	#eye-left {
 		animation: eyeColorChange 2s infinite alternate ease-in-out;
 	}

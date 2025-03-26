@@ -28,7 +28,7 @@ export class QA {
 
 	constructor(app: MarvinApp, question: string, geom: string, geomName: string = "") {
 		this.app = app;
-		this.id = Math.random().toString(36).slice(2, 11);
+		this.id = Math.random().toString(36).substring(7);
 		this.color = getLayerColor();
 		this.question = question;
 		this.geom = geom;
