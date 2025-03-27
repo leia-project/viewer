@@ -40,7 +40,7 @@
 		"@fontsource/open-sans": "^5.1.0",
 		"@lukeed/uuid": "^2.0.1",
 		"@observablehq/plot": "^0.6.16",
-		"@turf/turf": "^7.1.0",
+		"@turf/turf": "^7.2.0",
 		"3d-viewer": "file:",
 		"carbon-preprocess-svelte": "^0.11.11",
 		"cesium": "^1.121.1",
