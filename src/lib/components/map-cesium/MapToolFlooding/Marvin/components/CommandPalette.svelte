@@ -3,6 +3,7 @@
 	import { _ } from "svelte-i18n";
 	import type { Command } from "../module/command-center/command";
 	import type { MarvinApp } from "../marvin";
+	import { onMount } from "svelte";
 
 	export let app: MarvinApp;
 
@@ -88,7 +89,7 @@
 		}
 	}
 
-	function search() {
+	function search(): void {
 		selectedIndex = 0;
 		if (!searchInput) {
 			results.set(app.commandPalette.commands.getAll());
@@ -114,6 +115,10 @@
 	function getKeyText(key: string): string {
 		return key === "control" ? "ctrl" : key;
 	}
+
+	onMount(() => {
+		search();
+	});
 </script>
 
 
@@ -217,9 +222,9 @@
 	}
 
 	.command-palette {
-		color: #1a1a1a; /* Equivalent to text-dark */
-		border: 1px solid #e5e7eb; /* Equivalent to border-surface-200 */
-		background-color: #f9fafb; /* Equivalent to bg-surface-50 */
+		color: #1a1a1a;
+		border: 1px solid #e5e7eb;
+		background-color: #f9fafb;
 		position: absolute;
 		left: 0;
 		top: 0;
@@ -237,12 +242,12 @@
 		display: flex;
 		width: 100%;
 		border: none;
-		font-size: 0.875rem; /* Equivalent to text-sm */
-		color: #000000; /* Equivalent to text-black */
+		font-size: 0.875rem;
+		color: #000000;
 	}
 
 	.command-palette-divider {
-		border: 1px solid #e5e7eb; /* Equivalent to border-surface-200 */
+		border: 1px solid #e5e7eb;
 	}
 
 	.command-palette-results {
@@ -262,10 +267,10 @@
 	}
 
 	.command-palette-category-title {
-		color: #6b7280; /* Equivalent to text-surface-600 */
+		color: #6b7280;
 		margin-top: 0.5rem;
 		padding-left: 0.5rem;
-		font-size: 0.875rem; /* Equivalent to text-sm */
+		font-size: 0.875rem;
 	}
 
 	.command-palette-command {
@@ -277,17 +282,17 @@
 		gap: 0.5rem;
 		overflow: hidden;
 		padding: 0.5rem;
-		font-size: 0.875rem; /* Equivalent to text-sm */
-		color: #000000; /* Equivalent to text-black */
+		font-size: 0.875rem;
+		color: #000000;
 		border-radius: 0.375rem;
 	}
 
 	.command-palette-command:hover {
-		background-color: #f3f4f6; /* Equivalent to hover:bg-surface-100 */
+		background-color: #f3f4f6;
 	}
 
 	.command-palette-command-selected {
-		background-color: #f3f4f6; /* Equivalent to bg-surface-100 */
+		background-color: #f3f4f6;
 	}
 
 	.command-palette-command-display {
@@ -305,6 +310,11 @@
 	}
 
 	.command-palette-key {
-		font-size: 1rem; /* Equivalent to text-large */
+		font-size: 1rem; 
+		color: #fff;
+		background-color: #4b5563;
+		border-radius: 0.25rem;
+		padding: 0.25rem 0.45rem;
+
 	}
 </style>

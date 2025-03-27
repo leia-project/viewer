@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from "carbon-components-svelte";
-	import { Compass, Exit } from "carbon-icons-svelte";
+	import { Compass, Menu } from "carbon-icons-svelte";
 	import type { MarvinApp } from "../../Marvin/marvin";
 	import type { GameController } from "../module/game-controller";
 	import GameStats from "./GameStats.svelte";
@@ -40,7 +40,7 @@
 								on:click={() => $activeGame.flyHome()}
 							/>
 							<Button
-								icon={Exit}
+								icon={Menu}
 								iconDescription="Menu"
 								tooltipPosition="right"
 								size="default"

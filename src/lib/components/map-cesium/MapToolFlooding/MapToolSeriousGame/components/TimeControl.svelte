@@ -8,11 +8,18 @@
 
 	const startTime = game.startTime;
 	const elapsedTime = game.elapsedTime;
+
 	$: currentTime = new Date($startTime + $elapsedTime * 3600000).toLocaleTimeString("nl", {
 		hour: "2-digit",
 		minute: "2-digit"
 	});
-   
+	$: elapsedTimeFormatted = (() => {
+		const totalMinutes = Math.floor($elapsedTime * 60);
+		const hours = Math.floor(totalMinutes / 60);
+		const minutes = totalMinutes % 60;
+		return `${hours}:${minutes.toString().padStart(2, "0")}`;
+	})();
+
 </script>
 
 
@@ -32,7 +39,7 @@
 		<Pill 
 			icon={Timer} 
 			label="Since Breach" 
-			bind:value={$elapsedTime}
+			value={elapsedTimeFormatted}
 			unit={"hours"}
 		/>
 	</div>
@@ -42,7 +49,7 @@
 <style>
    .time-control {
 		text-align: end;
-		padding: 1rem;
+		padding: 1.5rem;
    }
    .times {
 		display: flex;

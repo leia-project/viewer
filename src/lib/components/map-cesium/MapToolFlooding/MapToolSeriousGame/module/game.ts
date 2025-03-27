@@ -129,9 +129,9 @@ export class Game {
 		this.interval = setInterval(() => {
 			this.elapsedTime.update((value) => {
 				if (direction === "next") {
-					return value + 0.5;
+					return value + 0.1;
 				} else if (value > newTime) {
-					return value - 0.05;
+					return value - 0.1;
 				}
 				return value;
 			});

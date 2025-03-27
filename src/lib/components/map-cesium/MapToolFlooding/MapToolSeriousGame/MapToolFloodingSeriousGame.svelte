@@ -127,7 +127,57 @@
 <style>
 
 	.start-menu {
-		padding: 0.5rem;
+		padding: 1rem;
+		border-radius: 0.5rem;
+		max-width: 600px;
+		margin: 2rem auto;
+		text-align: start;
+	}
+
+	.start-menu .header {
+		font-size: 1.25rem;
+		font-weight: bold;
+		color: var(--dark, #111827);
+		margin-bottom: 1rem;
+		text-align: center;
+		margin-top: 2rem;
+	}
+
+	.level {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding: 1rem;
+		border: 1px solid var(--surface-200, #e5e7eb);
+		border-radius: 0.375rem;
+		background-color: var(--surface-100, #ffffff);
+		margin-bottom: 1rem;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	}
+
+	.level .description h3 {
+		font-size: 1.125rem;
+		font-weight: bold;
+		color: var(--primary-500, #007bff);
+		margin: 0;
+	}
+
+	.level .description p {
+		font-size: 0.875rem;
+		color: var(--surface-800, #374151);
+		margin: 0;
+	}
+
+	.start-menu span {
+		display: block;
+		font-size: 1rem;
+		color: var(--surface-800, #374151);
+		margin-bottom: 1rem;
+		text-align: center;
+	}
+
+	.start-menu span strong {
+		color: var(--primary-500, #007bff);
 	}
 
 </style>
