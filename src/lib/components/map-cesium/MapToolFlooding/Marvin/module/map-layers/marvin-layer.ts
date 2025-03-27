@@ -36,7 +36,8 @@ export class MarvinLayer {
 		this.colorCategories = this.getColorCategories();
 		this.removeCategoryProperties();
 
-		const layerConfig: Partial<LayerConfig> = {
+		//@ts-ignore
+		const layerConfig: LayerConfig = {
 			id: this.id,
 			settings: {
 				clampToGround: true,
@@ -57,15 +58,18 @@ export class MarvinLayer {
 
 	private show(): void {
 		this.geojsonLayer.show();
+		this.map.refresh();
 	}
 
 	private hide(): void {
-		this.geojsonLayer.hide()
+		this.geojsonLayer.hide();
+		this.map.refresh();
 	}
 
 	public delete(): void {
 		this.geojsonLayer.removeFromMap();
 		this.visibleUnsubscribe?.();
+		this.map.refresh();
 	}
 
 

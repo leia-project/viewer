@@ -4,9 +4,9 @@
 	import { GameConsole } from "carbon-icons-svelte";
 	import Button from "$lib/components/ui/components/Button/Button.svelte";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
-	import { GameController } from "./game-controller";
+	import { GameController } from "./module/game-controller";
 	import { addMarvini18n } from "../Marvin/module/i18n/i18n-marvin";
-	import type { IGameConfig, IGameSettings } from "./game-models";
+	import type { IGameConfig, IGameSettings } from "./module/game-models";
 
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");

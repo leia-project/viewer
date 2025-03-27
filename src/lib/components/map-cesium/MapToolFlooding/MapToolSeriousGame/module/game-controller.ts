@@ -1,9 +1,8 @@
 import { get, writable, type Writable } from "svelte/store";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { Game } from "./game";
-import { MarvinApp } from "../Marvin/marvin";
-import GameContainer from "./game-ui/GameContainer.svelte";
-import { FloodLayerController } from "../layer-controller";
+import { MarvinApp } from "../../Marvin/marvin";
+import GameContainer from "../components/GameContainer.svelte";
 import type { IGameConfig, IGameSettings } from "./game-models";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
 

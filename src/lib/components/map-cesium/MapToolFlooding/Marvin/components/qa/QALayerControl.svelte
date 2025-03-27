@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { RadioButton, RadioButtonGroup } from "carbon-components-svelte";
-	import type { QALayer } from "../module/map-layers/qa-layer";
+	import type { QALayer } from "../../module/map-layers/qa-layer";
 
 	export let qaLayer: QALayer;
 	

@@ -2,7 +2,7 @@
 	import { CodeSnippet, Modal } from "carbon-components-svelte";
 	import { WarningSquareFilled } from "carbon-icons-svelte";
 
-	import type { QA } from "../module/qa";
+	import type { QA } from "../../module/qa";
 
 	export let qa: QA;
 	export let open: boolean = true;

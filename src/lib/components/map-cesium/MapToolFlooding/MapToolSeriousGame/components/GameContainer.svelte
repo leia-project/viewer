@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { Button } from "carbon-components-svelte";
-	import { Exit } from "carbon-icons-svelte";
+	import { Compass, Exit } from "carbon-icons-svelte";
 	import type { MarvinApp } from "../../Marvin/marvin";
-	import type { GameController } from "../game-controller";
+	import type { GameController } from "../module/game-controller";
 	import GameStats from "./GameStats.svelte";
 	import MarvinMenu from "../../Marvin/MarvinMenu.svelte";
 	import Roles from "./Roles.svelte";
 	import TimeControl from "./TimeControl.svelte";
 	import Notifications from "./notifications/Notifications.svelte";
-	import MapControls from "./MapControls.svelte";
+	import StartMenu from "./StartMenu.svelte";
 
 	export let gameController: GameController;
 	export let marvinApp: MarvinApp;
@@ -19,6 +19,8 @@
 
 	$: notificationLog = $activeGame?.notificationLog;
 
+	let showStartMenu = true;
+
 </script>
 
 
@@ -27,7 +29,27 @@
 		<div id="top-left">
 			{#key notificationLog}
 				{#if notificationLog}
-					<Notifications {notificationLog} />
+					<Notifications {notificationLog}>
+						<svelte:fragment slot="extra-buttons">
+							<Button
+								icon={Compass}
+								iconDescription="Start Position"
+								tooltipPosition="right"
+								size="default"
+								kind="secondary"
+								on:click={() => $activeGame.flyHome()}
+							/>
+							<Button
+								icon={Exit}
+								iconDescription="Menu"
+								tooltipPosition="right"
+								size="default"
+								kind="secondary"
+								on:click={() => showStartMenu = !showStartMenu}
+							/>
+						</svelte:fragment>
+
+					</Notifications>
 				{/if}
 			{/key}
 		</div>
@@ -42,9 +64,12 @@
 		</div>
 		<div id="bottom-right">
 			<TimeControl game={$activeGame} />
-			<MapControls game={$activeGame} />
 		</div>
 	</div>
+
+	{#if showStartMenu}
+		<StartMenu />
+	{/if}
 {/if}
 
 <style>

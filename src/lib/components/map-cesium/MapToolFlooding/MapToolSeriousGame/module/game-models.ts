@@ -1,4 +1,4 @@
-import type { Breach } from "../layer-controller";
+import type { Breach } from "../../layer-controller";
 
 export interface IGameSettings {
     backgroundLayerId: string;

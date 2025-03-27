@@ -2,7 +2,7 @@
     import { tick } from "svelte";
     import { Button } from "carbon-components-svelte";
 	import { Chat } from "carbon-icons-svelte";
-	import type { NotificationLog } from "../../notification-log";
+	import type { NotificationLog } from "../../module/notification-log";
     import Notification from "./Notification.svelte";
 
 	export let notificationLog: NotificationLog;
@@ -41,6 +41,7 @@
 			showLog.set(!$showLog)
 		}} 
 	/>
+	<slot name="extra-buttons" />
 </div>
 
 {#if !$showLog}
@@ -69,6 +70,9 @@
 
 	.top-right-button {
 		padding: 0.5rem;
+		display: flex;
+		flex-direction: column;
+		row-gap: 0.5rem;
 	}
 	.notifications {
 		max-height: 50vh;

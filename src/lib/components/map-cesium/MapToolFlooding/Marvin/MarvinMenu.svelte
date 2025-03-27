@@ -3,9 +3,9 @@
 	import { _ } from "svelte-i18n";
 	import { Button } from "carbon-components-svelte";
 	import { Settings, Terminal } from "carbon-icons-svelte";
-	import QA from "./components/QA.svelte";
+	import QA from "./components/qa/QA.svelte";
 	import Chat from "./components/Chat.svelte";
-	import SettingsModal from "./components/Settings/Settings.svelte";
+	import SettingsModal from "./components/settings/Settings.svelte";
 	import type { MarvinApp } from "./marvin";
 	import CommandPalette from "./components/CommandPalette.svelte";
 	import MarvinAvatar from "./components/MarvinAvatar.svelte";

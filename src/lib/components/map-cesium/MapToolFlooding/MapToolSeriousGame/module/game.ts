@@ -1,7 +1,8 @@
 import { get, writable, type Writable } from "svelte/store";
-import { FloodLayerController, type Breach } from "../layer-controller";
+import { FloodLayerController, type Breach } from "../../layer-controller";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { NotificationLog } from "./notification-log";
+import { CameraLocation } from "$lib/components/map-core/camera-location";
 
 
 interface IGameStats {
@@ -9,36 +10,43 @@ interface IGameStats {
 	evacuated: number;
 }
 
-const steps = [
+interface IGameStep {
+	time: number;
+	title: string;
+	cameraPosition: CameraLocation;
+}
+
+const steps: Array<IGameStep> = [
 	{
 		time: 0,
 		title: "Introduction",
-		cameraPosition: {}
+		cameraPosition: new CameraLocation(4.45092, 49.07338, 174273.52797, 6.35918, -28.59832, 1.5)
 	},
 	{
 		time: 4,
 		title: "Hour 3",
-		cameraPosition: {}
+		cameraPosition: new CameraLocation(4.45092, 49.07338, 174273.52797, 6.35918, -28.59832, 1.5)
 	},
 	{
 		time: 6,
 		title: "Hour 6",
-		cameraPosition: {}
+		cameraPosition: new CameraLocation(4.45092, 49.07338, 174273.52797, 6.35918, -28.59832, 1.5)
 	},
 	{
 		time: 8,
 		title: "Hour 12",
-		cameraPosition: {}
+		cameraPosition: new CameraLocation(4.45092, 49.07338, 174273.52797, 6.35918, -28.59832, 1.5)
 	},
 	{
 		time: 12,
 		title: "Hour 12",
-		cameraPosition: {}
+		cameraPosition: new CameraLocation(4.45092, 49.07338, 174273.52797, 6.35918, -28.59832, 1.5)
 	}
 ];
 
 export class Game {
 
+	private map: Map;
 	private breach: Breach;
 	private scenario: string;
 
@@ -54,6 +62,7 @@ export class Game {
 	public stats: IGameStats;
 
 	constructor(map: Map, breach: Breach, scenario: string) {
+		this.map = map;
 		this.breach = breach;
 		this.scenario = scenario;
 		this.notificationLog = new NotificationLog();
@@ -134,4 +143,8 @@ export class Game {
 		}, 50);
 	}
 
+	public flyHome(): void {
+		const cameraPosition = steps[get(this.step)].cameraPosition;
+		this.map.flyTo(cameraPosition);
+	}
 }

@@ -1,12 +1,12 @@
 <script lang="ts">
+	import { createEventDispatcher } from "svelte";
 	import { _ } from "svelte-i18n";	
 	import { Button, ProgressBar } from "carbon-components-svelte";
 	import { InformationFilled, Repeat, TrashCan, ViewFilled, ViewOffFilled } from "carbon-icons-svelte";
 
-	import type { QA } from "../module/qa";
-	import type { MarvinApp } from "../marvin";
+	import type { QA } from "../../module/qa";
+	import type { MarvinApp } from "../../marvin";
 	import QaModal from "./QAModal.svelte";
-	import { createEventDispatcher, onDestroy } from "svelte";
 	import QaLayerControl from "./QALayerControl.svelte";
 
 	export let app: MarvinApp;

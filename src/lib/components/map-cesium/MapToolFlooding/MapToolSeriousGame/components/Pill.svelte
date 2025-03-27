@@ -25,7 +25,7 @@
 		align-items: center;
         column-gap: 0.75rem;
 		background-color: rgba(255, 255, 255, 0.5);
-		backdrop-filter: blur(10px);
+		backdrop-filter: blur(8px);
 		padding: 0.25rem;
 		padding-right: 1rem;
 		border-radius: 0.25rem;

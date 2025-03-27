@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { INotification } from "../../notification-log";
+    import type { INotification } from "../../module/notification-log";
     import { UserAvatarFilled } from "carbon-icons-svelte";
     import { onMount } from "svelte";
 

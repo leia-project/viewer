@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from "carbon-components-svelte";
-	import type { Game } from "../game";
+	import type { Game } from "../module/game";
 	import { SkipForwardSolidFilled, TimeFilled, Timer } from "carbon-icons-svelte";
 	import Pill from "./Pill.svelte";
 
