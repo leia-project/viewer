@@ -23,6 +23,7 @@
 	function setModal(component: any, properties: Record<string, any>): void {
 		props = properties;
 		modalComponent = component;
+		openModal = true;
 	}
 
 </script>
@@ -42,6 +43,7 @@
 				icon={Settings}
 				iconDescription={"Settings"}
 				size="small"
+				kind="secondary"
 				on:click={() => setModal(SettingsModal, {})}
 			/>
 			<Button
@@ -50,6 +52,7 @@
 				tooltipPosition="bottom"
 				tooltipAlignment="end"
 				size="small"
+				kind="secondary"
 				on:click={() => {
 					app.commandPalette.open.set(!get(app.commandPalette.open));
 				}}
@@ -75,7 +78,7 @@
 
 <CommandPalette {app} />
 
-{#if modalComponent && props}
+{#if modalComponent}
 	<div style="pointer-events: auto">
 		<svelte:component this={modalComponent} {...props} bind:open={openModal} />
 	</div>

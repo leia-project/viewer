@@ -3,7 +3,7 @@
 	import { Modal } from 'carbon-components-svelte';
 	import Language from './Language.svelte';
 
-	export let open = false;
+	export let open: boolean;
 	
 </script>
 

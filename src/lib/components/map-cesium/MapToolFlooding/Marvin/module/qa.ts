@@ -23,7 +23,7 @@ export class QA {
 	public hasGeometry: Writable<boolean> = writable(false);
 	public error: Writable<string | undefined> = writable(undefined);
  */	public color: string;
-	public resultLayer: QALayer | undefined;
+	public resultLayer: Writable<QALayer | undefined> = writable(undefined);
 	public inputLayer: InputLayer | undefined;
 
 	constructor(app: MarvinApp, question: string, geom: string, geomName: string = "") {
@@ -38,6 +38,7 @@ export class QA {
 	public async askGeo(): Promise<any> {
 		this.removeLayers();
 		this.loading.set(true);
+		this.error.set(undefined);
 
 		try {
 			const client = new MarvinClient();
@@ -45,10 +46,6 @@ export class QA {
 
 			const result = Result.fromJSON(response);
 			this.result.set(result);
-			/* this.summary = this.result.summary;
-			this.datasetName = this.result.datasetName;
-			this.hasGeometry = this.result?.features?.hasGeometry();
-			this.error = this.result.error; */
 			if (result.error) {
 				console.error(result.error);
 				this.error.set(result.error);
@@ -81,8 +78,9 @@ export class QA {
 		}
 
 		if (result.hasGeometry && result.features) {
-			this.resultLayer = new QALayer(this.app.map, this.id, "features", result.datasetName || "Unnamed", this.color, result.features.getFeatureCollection());
-			this.app.layerManager.addQALayer(this.resultLayer);
+			const resultLayer = new QALayer(this.app.map, this.id, "features", result.datasetName || "Unnamed", this.color, result.features.getFeatureCollection());
+			this.app.layerManager.addQALayer(resultLayer);
+			this.resultLayer.set(resultLayer);
 		}
 	}
 
@@ -90,14 +88,15 @@ export class QA {
 		if (this.inputLayer) {
 			this.inputLayer?.zoomTo();
 		} else if (get(this.result)?.hasGeometry) {
-			this.resultLayer?.zoomTo();
+			get(this.resultLayer)?.zoomTo();
 		}
 	}
 
 	public removeLayers(): void {
-		if (this.resultLayer) {
-			this.app.layerManager.removeQALayer(this.resultLayer.id);
-			this.resultLayer = undefined;
+		const resultLayer = get(this.resultLayer);
+		if (resultLayer) {
+			this.app.layerManager.removeQALayer(resultLayer.id);
+			this.resultLayer.set(undefined);
 		}
 		if (this.inputLayer) {
 			this.app.layerManager.removeInputLayer(this.inputLayer.id);
@@ -106,20 +105,12 @@ export class QA {
 	}
 
 	public showLayers(): void {
-		if (this.resultLayer) {
-			this.resultLayer.visible.set(true);
-		}
-		if (this.inputLayer) {
-			this.inputLayer.visible.set(true);
-		}
+		get(this.resultLayer)?.visible.set(true);
+		this.inputLayer?.visible.set(true);
 	}
 
 	public hideLayers(): void {
-		if (this.resultLayer) {
-			this.resultLayer.visible.set(false);
-		}
-		if (this.inputLayer) {
-			this.inputLayer.visible.set(false);
-		}
+		get(this.resultLayer)?.visible.set(false);
+		this.inputLayer?.visible.set(false);
 	}
 }

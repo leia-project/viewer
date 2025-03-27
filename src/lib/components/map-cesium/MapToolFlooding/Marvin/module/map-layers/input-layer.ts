@@ -9,16 +9,7 @@ export class InputLayer extends MarvinLayer {
 		super(id, datasetName, color, map, featureCollection);
 
 		this.qaId = qaId;
-/* 
-		this.paintPolygonOutline = {
-			"line-color": this.color,
-			"line-width": 2,
-			"line-dasharray": [2, 2]
-		};
-
-		this.polygonOutline = true;
-		this.polygonFill = false;
-
-		this.tryCreateLayer(); */
+		
+		this.geojsonLayer.opacityChanged(20);
 	}
 }

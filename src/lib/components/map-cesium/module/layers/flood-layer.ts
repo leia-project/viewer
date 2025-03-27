@@ -111,13 +111,9 @@ class DynamicWaterLevel {
 
 	public async load(endpoint: string): Promise<void> {
 		const scenarioUrl = new URL(endpoint, this.baseUrl);
-		console.log("this.contents2222222", `${scenarioUrl.href}/layer.json`);
 		this.contents = await this.loadContents(`${scenarioUrl.href}/layer.json`);
-		console.log("this.contents");
 		await this.loadImages(scenarioUrl, this.contents);
-		console.log("this.contents1");
 		this.setUniforms(true);
-		console.log("this.contents2");
 		await this.createMesh(this.contents);
 	}
 
@@ -271,7 +267,6 @@ class DynamicWaterLevel {
 	}
 	
 	private async createMesh(contents: FloodLayerContents): Promise<void> {
-		console.log("Creating mesh");
 		const terrainScalingMin = contents.terrain.scaling.min;
 		const terrainScalingMax = contents.terrain.scaling.max;
 		const floodPlaneClassMapping = Object.values(contents.flood_planes.class_mapping).map(num => {
@@ -577,7 +572,6 @@ class DynamicWaterLevel {
 			renderState: renderState
 		});
 
-		console.log("Setting primitive");
 		this.primitive = new Cesium.Primitive({
 			geometryInstances: [instance],
 			asynchronous: false,

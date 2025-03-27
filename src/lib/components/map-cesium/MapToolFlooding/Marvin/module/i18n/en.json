@@ -1,6 +1,6 @@
 {
     "appTitle": "Marvin",
-    "appSubtitle": "The geospatial assistant",
+    "appSubtitle": "Your Geospatial Assistant",
     "commands": {
         "categoryChat": "Chat",
         "categoryExampleQuestions": "Example questions",

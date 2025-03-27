@@ -15,9 +15,9 @@ export class QAManager {
 		this.entries.update((entries) => [...entries, entry]);
 		this.loading.set(true);
 		await entry.askGeo();
-		setTimeout(() => 
-			this.loading.set(false)
-		, 3000);
+			setTimeout(() => {
+				this.loading.set(false)
+		}, 3000);
 	}
 
 	public async removeEntry(id: string): Promise<void> {

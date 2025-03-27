@@ -7,6 +7,12 @@ import { GeoJsonLayer } from "$lib/components/map-cesium/module/layers/geojson-l
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
 
 
+/*
+geom: "POLYGON ((5.474286 51.762729, 5.474056 51.762111, 5.474823 51.76174, 5.475819 51.761989, 5.476049 51.762608, 5.475283 51.762978, 5.474286 51.762729))"
+school_density_per_sqkm: 0
+school_density_per_sqkm.category: "10"
+*/
+
 export class MarvinLayer {
 
 	public id: string;
@@ -17,20 +23,8 @@ export class MarvinLayer {
 	private visibleUnsubscribe?: Unsubscriber = undefined;
 
 	public map: Map;
-	private geojsonLayer: GeoJsonLayer;
-
-/* 	private mapLayers: any[] = [];
- */	
-/* 
-	protected paintPoint: any = undefined;
-	protected paintLine: any = undefined;
-	protected paintPolygonFill: any = undefined;
-	protected paintPolygonOutline: any = undefined;
-	protected paintLabel: any = undefined;
-
-	protected polygonFill = true;
-	protected polygonOutline = false; */
-
+	public colorCategories: string[] | undefined;
+	public geojsonLayer: GeoJsonLayer;
 
 	constructor(id: string, name: string, color: string, map: Map, data: any) {
 		this.id = id;
@@ -39,15 +33,20 @@ export class MarvinLayer {
 		this.data = data;
 		this.map = map;
 
+		this.colorCategories = this.getColorCategories();
+		this.removeCategoryProperties();
+
 		const layerConfig: Partial<LayerConfig> = {
 			id: this.id,
 			settings: {
 				clampToGround: true,
 				markers: []
 			}
-		}
+		};
 		this.geojsonLayer = new GeoJsonLayer(map, layerConfig, data);
 		this.geojsonLayer.defaultColorPoint = Cesium.Color.fromCssColorString(this.color);
+		this.geojsonLayer.defaultColorPolygon = new Cesium.ColorMaterialProperty(Cesium.Color.fromCssColorString(this.color));
+		this.geojsonLayer.defaultColorLine = new Cesium.ColorMaterialProperty(Cesium.Color.fromCssColorString(this.color));
 		this.visibleUnsubscribe = this.visible.subscribe((v) => v ? this.show() : this.hide())
 	}
 
@@ -70,24 +69,35 @@ export class MarvinLayer {
 	}
 
 
-	protected getColorCategories(): string[] | undefined {
+	protected getColorCategories(): Array<string> | undefined {
 		// check the first feature in data and see if there is a property which contains .category
 		const feature = this.data.features[0];
 		if (!feature?.properties) {
 			return undefined;
 		}
-
 		const keys = Object.keys(feature.properties);
-		const categories = keys.filter((key) => key.toLowerCase().includes(".category"));
-
+		const categories = keys
+			.filter((key) => key.toLowerCase().endsWith(".category"))
+			.map((key) => key.slice(0, -9)); 
 		if (categories.length === 0) {
 			return undefined;
 		}
-
 		return categories;
 	}
 
-	protected getCategoryUniqueValue(category: string): number[] {
+	protected removeCategoryProperties(): void {
+		for (const feature of this.data.features) {
+			if (feature.properties) {
+				for (const key of Object.keys(feature.properties)) {
+					if (key.toLowerCase().endsWith(".category")) {
+						delete feature.properties[key];
+					}
+				}
+			}
+		}
+	}
+
+	protected getCategoryUniqueValue(category: string): Array<number> {
 		const values = new Set<number>();
 		for (const feature of this.data.features) {
 			const value = feature.properties?.[category];
@@ -99,8 +109,11 @@ export class MarvinLayer {
 		return Array.from(values);
 	}
 
-	protected createColorMap(category: string): { value: number; color: string }[] {
+	protected createColorMap(category: string): Array<{ value: number; color: string }> | undefined {
 		const values = this.getCategoryUniqueValue(category);
+		if (values.length < 2) {
+			return undefined;
+		}
 		const colorRange = getColorRange(this.color, values.length);
 
 		return values.map((value, index) => {
@@ -109,12 +122,5 @@ export class MarvinLayer {
 				color: colorRange[index]
 			};
 		});
-	}
-
-	protected updatePolygonFill(fill: any, opacity: number | undefined) {
-		/* this.map.setPaintProperty(`polygon-${this.id}`, "fill-color", fill);
-		if (opacity) {
-			this.map.setPaintProperty(`polygon-${this.id}`, "fill-opacity", opacity);
-		} */
 	}
 }

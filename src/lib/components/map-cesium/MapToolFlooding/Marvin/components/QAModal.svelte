@@ -15,6 +15,7 @@
 <Modal 
 	open={true}
 	modalHeading={qa.question}
+	passiveModal={true}
 >
 	<div class="qa-modal">
 		<article class="modal-content">

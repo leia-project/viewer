@@ -6,18 +6,19 @@
 	import type { QA } from "../module/qa";
 	import type { MarvinApp } from "../marvin";
 	import QaModal from "./QAModal.svelte";
-	import { createEventDispatcher } from "svelte";
+	import { createEventDispatcher, onDestroy } from "svelte";
+	import QaLayerControl from "./QALayerControl.svelte";
 
 	export let app: MarvinApp;
 	export let qa: QA;
 
 	const qaResult = qa.result;
-
+	
+	const resultLayer = qa.resultLayer;
+	
 	let showLayer = true;
 	const loading = qa.loading;
 	const qaEror = qa.error;
-	let color = qa.color;
-	let openState = false;
 
 	$: {
 		if (showLayer) {
@@ -33,10 +34,6 @@
 
 	function refresh(): void {
 		qa.askGeo();
-	}
-
-	function switchModalState(): void {
-		openState = !openState;
 	}
 
 	const dispatch = createEventDispatcher();
@@ -61,7 +58,11 @@
 		<div class="qa-error">{app.qaManager.getQAError(`qa.errors.${$qaEror}`)}</div>
 	{/if}
 
-	<div class="qa-color-bar" style="background-color: {color};"></div>
+	<div class="qa-color-bar" style="background-color: {qa.color};"></div>
+	
+	{#if $resultLayer}
+		<QaLayerControl qaLayer={$resultLayer} />
+	{/if}
 
 	<div class="qa-actions">
 		{#if !$loading}
@@ -103,8 +104,6 @@
 	</div>
 </div>
 
-<!-- <QaModal {qa} bind:open={openState} />
- -->
 
 <style>
 
