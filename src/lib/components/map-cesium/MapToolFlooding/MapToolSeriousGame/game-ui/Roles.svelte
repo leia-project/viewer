@@ -40,7 +40,7 @@
 
 <div class="role-menu">
 	{#each roles as role}
-		<img src={role.image} alt="{role.role}" width="60%">
+		<img src={role.image} alt="{role.role}" width=60>
 	{/each}
 
 </div>

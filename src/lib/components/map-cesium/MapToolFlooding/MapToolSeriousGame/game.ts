@@ -1,6 +1,7 @@
 import { get, writable, type Writable } from "svelte/store";
 import { FloodLayerController, type Breach } from "../layer-controller";
 import type { Map } from "$lib/components/map-cesium/module/map";
+import { NotificationLog } from "./notification-log";
 
 
 interface IGameStats {
@@ -41,6 +42,7 @@ export class Game {
 	private breach: Breach;
 	private scenario: string;
 
+	public notificationLog: NotificationLog;
 	private forwarding: Writable<boolean> = writable(false);
 	private step: Writable<number> = writable(0);
 
@@ -54,6 +56,7 @@ export class Game {
 	constructor(map: Map, breach: Breach, scenario: string) {
 		this.breach = breach;
 		this.scenario = scenario;
+		this.notificationLog = new NotificationLog();
 		this.stats = {
 			victims: 92,
 			evacuated: 240
@@ -93,6 +96,11 @@ export class Game {
 
 	public changeStep(direction: "next" | "previous"): void {
 		this.forwarding.set(true);
+		this.notificationLog.send({
+			title: "Game",
+			message: `Time forwarded to ${steps[get(this.step)].title}`,
+			type: "info"
+		});
 	
 		this.step.update((value) => {
 			if (direction === "next" && value < steps.length - 1) {

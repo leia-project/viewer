@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { Person } from "carbon-icons-svelte";
+	import { FaceDizzyFilled, FaceWinkFilled } from "carbon-icons-svelte";
 	import type { Game } from "../game";
+	import Pill from "./Pill.svelte";
 
 	export let game: Game;
 
@@ -8,28 +9,28 @@
 
 
 <div class="game-stats">
-	<div class="game-stat">
-		<div class="stat-icon">
-			<Person />
-		</div>
-		<div class="stat-text">
-			<span>Slachtoffers</span>
-			<span>{game.stats.victims}</span>
-		</div>
-	</div>
-	<div class="game-stat">
-		<div class="stat-icon">
-			<Person />
-		</div>
-		<div class="stat-text">
-			<span>Geevacueerd</span>
-			<span>{game.stats.evacuated}</span>
-		</div>
-	</div>
+	<Pill
+		icon={FaceDizzyFilled}
+		label="Slachtoffers"
+		value={game.stats.victims}
+		color="#c21111"
+	/>
+	<Pill
+		icon={FaceWinkFilled}
+		label="Geevacueerd"
+		value={game.stats.evacuated}
+		color="green"
+	/>
+	
 </div>
 
 
 <style>
-	
-
+	.game-stats {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		column-gap: 0.5rem;
+		padding: 1rem;
+	}
 </style>

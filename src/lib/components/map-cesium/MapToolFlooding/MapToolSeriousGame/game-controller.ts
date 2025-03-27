@@ -47,8 +47,8 @@ export class GameController {
 	public play(gameConfig: IGameConfig): void {
 		this.inGame.set(true);
 		this.toggleViewerUI(false);
-		this.initMarvin();
-		this.loadUserInterface();
+		const marvin = this.initMarvin();
+		this.loadUserInterface(marvin);
 		this.addLayers();
 		this.loadGame(gameConfig);
 	}
@@ -62,13 +62,13 @@ export class GameController {
 		this.gameContainer?.$destroy();
 	}
 
-	private loadUserInterface(): void {
+	private loadUserInterface(marvin: MarvinApp): void {
 		this.gameContainer?.$destroy();
 		this.gameContainer = new GameContainer({
 			target: this.map.getContainer(),
 			props: {
 				gameController: this,
-				marvinApp: this.marvin
+				marvinApp: marvin
 			}
 		});
 	}
@@ -85,11 +85,12 @@ export class GameController {
 		this.backgroundLayer?.added.set(false);
 	}
 
-	private initMarvin(): void {
+	private initMarvin(): MarvinApp {
 		if (!this.marvin) {
 			this.marvin = new MarvinApp(this.map);
 			this.marvin.init();
 		}
+		return this.marvin;
 	}
 
 	private toggleViewerUI(show: boolean): void {

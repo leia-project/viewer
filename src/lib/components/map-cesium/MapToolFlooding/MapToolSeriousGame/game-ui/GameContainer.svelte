@@ -7,6 +7,8 @@
 	import MarvinMenu from "../../Marvin/MarvinMenu.svelte";
 	import Roles from "./Roles.svelte";
 	import TimeControl from "./TimeControl.svelte";
+	import Notifications from "./notifications/Notifications.svelte";
+	import MapControls from "./MapControls.svelte";
 
 	export let gameController: GameController;
 	export let marvinApp: MarvinApp;
@@ -15,19 +17,19 @@
 
 	const activeGame = gameController.active;
 
+	$: notificationLog = $activeGame?.notificationLog;
+
 </script>
 
 
 {#if $inGame && $activeGame}
 	<div id="game-container">
 		<div id="top-left">
-			<Button
-				icon={Exit}
-				iconDescription="Exit game"
-				tooltipPosition="right"
-				kind="secondary"
-				on:click={() => gameController.exit()}
-			/>
+			{#key notificationLog}
+				{#if notificationLog}
+					<Notifications {notificationLog} />
+				{/if}
+			{/key}
 		</div>
 		<div id="top-center">
 			<GameStats game={$activeGame} />
@@ -39,8 +41,8 @@
 			<Roles />
 		</div>
 		<div id="bottom-right">
-			MAPCONTROLS WHERE?
 			<TimeControl game={$activeGame} />
+			<MapControls game={$activeGame} />
 		</div>
 	</div>
 {/if}
@@ -48,11 +50,7 @@
 <style>
 
 	#game-container {
-		/* position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%; */
+		--game-bg: #212121;
 	}
 
 	#top-left {
@@ -69,7 +67,6 @@
 		transform: translateX(-50%);
 		display: flex;
 		justify-content: center;
-		padding: 1rem;
 	}
 	#top-right {
 		position: absolute;
@@ -78,6 +75,8 @@
 		display: flex;
 		justify-content: flex-end;
 		padding: 1rem;
+		max-height: 80vh;
+		overflow-y: auto;
 	}
 
 	#bottom-left {
