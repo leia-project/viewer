@@ -1,27 +1,49 @@
 <script lang="ts">
 	import { _ } from 'svelte-i18n';
-
-	/* const locales = localizationManager.locales;
-
-	function setLocale(event: any) {
-		localizationManager.setLocale(event.target.value);
-	} */
+	import { RadioButtonGroup, RadioButton } from 'carbon-components-svelte';
+	import { Earth } from 'carbon-icons-svelte';
+	import { languages, selectedLanguage } from '$lib/components/localization/localization';
 
 </script>
 
-<div class="flex flex-col gap-4">
-	<p class="type-subtitle">
-		{$_("settings.language")}
-	</p>
 
-	<!-- <div class="max-w-[20rem]">
-		<select class="select" on:change="{setLocale}" bind:value="{localizationManager.locale}">
-				{#each locales as locale}
-				<option value="{locale}">
-					{$_(`settings.locale.${locale}`)}
-				</option>
-			{/each}
-		</select>
-	</div> -->
+<div class="content">
+	<div class="wrapper">
+		<div class="heading-03" title="{$_('tools.language.setLanguage')}">
+			<Earth size={24} />
+			{$_('tools.language.setLanguage')}
+		</div>
+		<div class="language-options">
+			<RadioButtonGroup orientation="vertical" bind:selected={$selectedLanguage} >
+				{#each languages as language}
+					<RadioButton labelText={language.title} value={language.shortName} />
+				{/each}
+			</RadioButtonGroup>
+		</div>
+	</div>
 </div>
 
+
+<style>
+	.content {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.wrapper {
+		width: 100%;
+		padding: var(--cds-spacing-05);
+		height: 100%;
+		box-sizing: border-box;
+	}
+
+	.heading-03 {
+		display: flex;
+		align-items: center;
+		column-gap: 0.5rem;
+	}
+	
+	.language-options {
+		margin-left: 2px;
+	}
+</style>

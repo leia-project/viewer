@@ -68,7 +68,7 @@
 	</div>
 
 	{#if showStartMenu}
-		<StartMenu />
+		<StartMenu {gameController} bind:open={showStartMenu} />
 	{/if}
 {/if}
 
