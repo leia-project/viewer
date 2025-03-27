@@ -1,10 +1,11 @@
 import { get, writable, type Writable } from "svelte/store";
-import type { Map } from "../../module/map";
+import type { Map } from "$lib/components/map-cesium/module/map";
 import { Game } from "./game";
 import { MarvinApp } from "../Marvin/marvin";
 import GameContainer from "./game-ui/GameContainer.svelte";
 import { FloodLayerController } from "../layer-controller";
-import type { IGameConfig } from "./game-models";
+import type { IGameConfig, IGameSettings } from "./game-models";
+import type { LayerConfig } from "$lib/components/map-core/layer-config";
 
 
 const hidedElements = [
@@ -25,6 +26,7 @@ export class GameController {
 	private gameContainer?: GameContainer;
 	private marvin?: MarvinApp;
 
+	private backgroundLayer?: LayerConfig;
 	private cachedMapLayers: Array<any> = [];
 
 	public inGame: Writable<boolean> = writable(false);
@@ -32,21 +34,13 @@ export class GameController {
 
 	public active: Writable<Game | undefined> = writable(undefined);
 
-	private floodLayerController: FloodLayerController;
-	public time: Writable<number>;
-
-	constructor(map: Map) {
+	constructor(map: Map, settings: IGameSettings) {
 		this.map = map;
-		const floodTool = map.toolSettings.find((tool: { id: string, settings: any}) => tool.id === "flooding");
-		this.floodLayerController = new FloodLayerController(map, floodTool.settings, writable(undefined), writable(undefined));
-		this.time = this.floodLayerController.time;
+		this.backgroundLayer = this.map.layerLibrary.findLayer(settings.backgroundLayerId);
 	}
 
 	public loadGame(gameConfig: IGameConfig): void {
-		const game = new Game(gameConfig.breach, gameConfig.scenario, this.time);
-		this.floodLayerController.loadNewScenario(gameConfig.breach, gameConfig.scenario).then(() => {
-			this.addLayers();
-		});
+		const game = new Game(this.map, gameConfig.breach, gameConfig.scenario);
 		this.active.set(game);
 	}
 
@@ -55,6 +49,7 @@ export class GameController {
 		this.toggleViewerUI(false);
 		this.initMarvin();
 		this.loadUserInterface();
+		this.addLayers();
 		this.loadGame(gameConfig);
 	}
 
@@ -62,6 +57,8 @@ export class GameController {
 		this.inGame.set(false);
 		this.removeLayers();
 		this.toggleViewerUI(true);
+		get(this.active)?.exit();
+		this.active.set(undefined);
 		this.gameContainer?.$destroy();
 	}
 
@@ -77,17 +74,15 @@ export class GameController {
 	}
 
 	private addLayers(): void {
-		this.floodLayerController.floodLayer.addToMap();
-		this.floodLayerController.floodedRoadsLayer.addToMap();
-		this.floodLayerController.floodLayer.show();
-		this.floodLayerController.floodedRoadsLayer.show();
+		if (this.backgroundLayer) {
+			this.backgroundLayer.added.set(true);
+			const layer = get(this.map.layers).find((l) => l.id === this.backgroundLayer?.id);
+			layer?.visible.set(true);
+		}
 	}
 
 	private removeLayers(): void {
-		this.floodLayerController.floodLayer.removeFromMap();
-		this.floodLayerController.floodedRoadsLayer.removeFromMap();
-		this.floodLayerController.floodLayer.hide();
-		this.floodLayerController.floodedRoadsLayer.hide();
+		this.backgroundLayer?.added.set(false);
 	}
 
 	private initMarvin(): void {

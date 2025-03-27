@@ -77,7 +77,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public defaultColorPolygon: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.ORANGE);
 	private colorUnselected: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.LIGHTGREY);
 	private defaultLineWidth: number = 3;
-	private alpha: number = 0.5;
+	private alpha: number = 0.6;
 
 	public colorGradientStart: Cesium.Color = Cesium.Color.BLUE;
 	public colorGradientEnd: Cesium.Color = Cesium.Color.RED;
@@ -278,11 +278,14 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				const propertyType = typeof propertyValue;
 				const idx = this.availableProperties.findIndex(p => p.propertyName === property);
 
-				if (propertyType === "number") {
+				if (propertyType === "string" && !isNaN(Number(propertyValue))) {
+					const numericValue = Number(propertyValue);
+					this.addNumberProperty(property, numericValue, idx);
+				} else if (propertyType === "number") {
 					this.addNumberProperty(property, propertyValue, idx);
 				} else if (propertyType === "string") {
 					this.addStringProperty(property, propertyValue, idx);
-				} 
+				}
 			}
 		}
 		// Sort everything alphabetically:
@@ -343,7 +346,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		if (prop.propertyType === "number") {
 			const min = prop.range?.min;
 			const max = prop.range?.max;
-			if (!min || !max) return;
+			if (min === undefined || max === undefined) return;
 			this.setNumberStyle(prop, min, max);
 			this.makeNumberLegend(min, max, 10);
 			this.styleType.set("number");

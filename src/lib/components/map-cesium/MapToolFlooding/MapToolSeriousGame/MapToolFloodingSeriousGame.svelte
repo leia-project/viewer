@@ -6,7 +6,7 @@
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import { GameController } from "./game-controller";
 	import { addMarvini18n } from "../Marvin/module/i18n/i18n-marvin";
-	import type { IGameConfig } from "./game-models";
+	import type { IGameConfig, IGameSettings } from "./game-models";
 
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
@@ -18,11 +18,11 @@
 
 	addMarvini18n();
 	
-	const gameController = new GameController(map);
+	let gameController: GameController;
 
-	tool.settings.subscribe((settings?: any) => {
+	tool.settings.subscribe((settings?: IGameSettings) => {
 		if (settings) {
-			// set levels
+			gameController = new GameController(map, settings)
 		}
 	});
 
@@ -91,7 +91,7 @@
 </script>
 
 
-{#if $selectedTool === tool}
+{#if $selectedTool === tool && gameController}
 	<div class="start-menu">
 		{#if cachedGame}
 			<span>Current game: <strong>Game 1</strong></span>

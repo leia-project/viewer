@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { Button } from "carbon-components-svelte";
 	import { Exit } from "carbon-icons-svelte";
+	import type { MarvinApp } from "../../Marvin/marvin";
 	import type { GameController } from "../game-controller";
 	import GameStats from "./GameStats.svelte";
 	import MarvinMenu from "../../Marvin/MarvinMenu.svelte";
-	import type { MarvinApp } from "../../Marvin/marvin";
 	import Roles from "./Roles.svelte";
 	import TimeControl from "./TimeControl.svelte";
 
@@ -19,78 +19,80 @@
 
 
 {#if $inGame && $activeGame}
-	<div id="game-overlay">
-		<div id="top-container">
-			<div id="top-left">
-				<div>
-					<Button
-						icon={Exit}
-						iconDescription="Exit game"
-						tooltipPosition="right"
-						kind="secondary"
-						on:click={() => gameController.exit()}
-					/>
-				</div>
-			</div>
-			<div id="top-center">
-				<GameStats game={$activeGame} />
-			</div>
-			<div id="top-right">
-				<MarvinMenu app={marvinApp} />
-			</div>
+	<div id="game-container">
+		<div id="top-left">
+			<Button
+				icon={Exit}
+				iconDescription="Exit game"
+				tooltipPosition="right"
+				kind="secondary"
+				on:click={() => gameController.exit()}
+			/>
 		</div>
-		
-		<div id="bottom-container">
-			<div id="bottom-left">
-				<Roles />
-			</div>
-			<div id="bottom-right">
-				<TimeControl game={$activeGame} />
-			</div>
+		<div id="top-center">
+			<GameStats game={$activeGame} />
+		</div>
+		<div id="top-right">
+			<MarvinMenu app={marvinApp} />
+		</div>
+		<div id="bottom-left">
+			<Roles />
+		</div>
+		<div id="bottom-right">
+			MAPCONTROLS WHERE?
+			<TimeControl game={$activeGame} />
 		</div>
 	</div>
 {/if}
 
 <style>
 
-	#game-overlay {
-		position: absolute;
+	#game-container {
+		/* position: absolute;
 		top: 0;
 		left: 0;
 		width: 100%;
-		height: 100%;
-		pointer-events: none;
+		height: 100%; */
 	}
 
-	#top-container {
+	#top-left {
 		position: absolute;
 		top: 0;
 		left: 0;
-		width: 100%;
-		display: grid;
-		grid-template-columns: 1fr auto 1fr;
+		display: flex;
+		justify-content: flex-start;
+	}
+	#top-center {
+		position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		justify-content: center;
+		padding: 1rem;
 	}
 	#top-right {
+		position: absolute;
+		top: 0;
+		right: 0;
 		display: flex;
 		justify-content: flex-end;
 		padding: 1rem;
 	}
-	#top-left div {
-		pointer-events: auto;
-	}
 
-	#bottom-container {
+	#bottom-left {
 		position: absolute;
 		bottom: 0;
 		left: 0;
-		width: 100%;
-		display: grid;
-		grid-template-columns: 1fr 1fr;
+		display: flex;
+		justify-content: flex-start;
 	}
 	#bottom-right {
+		position: absolute;
+		bottom: 0;
+		right: 0;
 		display: flex;
 		justify-content: flex-end;
-		padding: 1rem;
 	}
 
 </style>
