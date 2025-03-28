@@ -48,13 +48,13 @@ export class GameController {
 		this.toggleViewerUI(false);
 		const marvin = this.initMarvin();
 		this.loadUserInterface(marvin);
-		this.addLayers();
+		this.addBackgroundLayer();
 		this.loadGame(gameConfig);
 	}
 
 	public exit(): void {   
 		this.inGame.set(false);
-		this.removeLayers();
+		this.removeBackgroundLayer();
 		this.toggleViewerUI(true);
 		get(this.active)?.exit();
 		this.active.set(undefined);
@@ -72,7 +72,7 @@ export class GameController {
 		});
 	}
 
-	private addLayers(): void {
+	private addBackgroundLayer(): void {
 		if (this.backgroundLayer) {
 			this.backgroundLayer.added.set(true);
 			const layer = get(this.map.layers).find((l) => l.id === this.backgroundLayer?.id);
@@ -80,7 +80,7 @@ export class GameController {
 		}
 	}
 
-	private removeLayers(): void {
+	private removeBackgroundLayer(): void {
 		this.backgroundLayer?.added.set(false);
 	}
 

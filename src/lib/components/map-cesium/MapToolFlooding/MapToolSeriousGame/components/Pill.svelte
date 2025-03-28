@@ -20,6 +20,7 @@
 
 <style>
     .pill-container {
+        user-select: none;
 		display: flex;
 		flex-direction: row;
 		align-items: center;

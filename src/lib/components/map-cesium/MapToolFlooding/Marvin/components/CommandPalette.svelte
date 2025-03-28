@@ -149,7 +149,6 @@
 					{#each Array.from(categories.keys()) as category}
 						<div class="command-palette-category">
 							<div class="command-palette-category-title">{$_(category)}</div>
-							<hr class="command-palette-divider" />
 							{#each categories.get(category) ?? [] as command}
 								<div
 									class="command-palette-command {command.idx === selectedIndex ? 'command-palette-command-selected' : ''}"
@@ -268,9 +267,11 @@
 
 	.command-palette-category-title {
 		color: #6b7280;
-		margin-top: 0.5rem;
+		margin-top: 1rem;
 		padding-left: 0.5rem;
+		padding-bottom: 0.35rem;
 		font-size: 0.875rem;
+		border-bottom: 1px solid #e5e7eb;
 	}
 
 	.command-palette-command {

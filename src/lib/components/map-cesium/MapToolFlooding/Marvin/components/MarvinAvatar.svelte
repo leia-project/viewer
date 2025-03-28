@@ -12,7 +12,7 @@
 <div id="logo-container" class={$animate ? "" : "logo-animation-disabled"} on:click={() => open = !open}>
 	<svg width="32" height="32" version="1.1" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
 		<g id="icon-group" transform="translate(-37.468 -83.688)" stroke="#000">
-			<ellipse id="head" cx="46.151" cy="92.371" rx="8.5329" ry="8.533" fill="#e6e6e6" stroke-dasharray="0.03, 0.03" stroke-linecap="round" stroke-linejoin="round" stroke-width=".45" />
+			<ellipse id="head" cx="46.151" cy="92.371" rx="8.5329" ry="8.533" fill="#e6e6e6" stroke-dasharray="0.03, 0.03" stroke-linecap="round" stroke-linejoin="round" stroke-width=".35" />
 			<path id="eye-right" d="m53.044 94.36-2.2251 2.5518-3.2336-3.5085c2.1055 0.23179 4.5309 0.60842 5.4587 0.95667" fill="#7ebd01" stroke-linejoin="bevel" stroke-width=".1" />
 			<path id="eye-left" d="m39.498 94.404 2.1079 2.5433 3.4304-3.5538c-1.3623 0.09579-3.9272 0.53002-5.5383 1.0105" fill="#7ebd01" stroke-linejoin="bevel" stroke-width=".1" />
 			<path id="eye-line" d="m38.126 94.918c8.1779-3.3793 16.233-0.09411 16.233-0.09411" fill="none" stroke-width=".3" />
