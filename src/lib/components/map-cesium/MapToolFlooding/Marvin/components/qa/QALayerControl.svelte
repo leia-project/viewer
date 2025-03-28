@@ -52,7 +52,7 @@
 		justify-content: space-between;
 		font-size: 0.75rem;
 		color: var(--surface-600);
-		margin-top: 0.75rem;
+		margin: 0.75rem 0 0.25rem;
 	}
 
 </style>

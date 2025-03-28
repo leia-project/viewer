@@ -79,9 +79,11 @@
 <CommandPalette {app} />
 
 {#if modalComponent}
-	<div style="pointer-events: auto">
-		<svelte:component this={modalComponent} {...props} bind:open={openModal} />
-	</div>
+	{#key props}
+		<div style="pointer-events: auto">
+			<svelte:component this={modalComponent} {...props} bind:open={openModal} />
+		</div>
+	{/key}
 {/if}
 
 

@@ -316,6 +316,9 @@
         },
         {
             "id": "flooding-serious-game",
+            "settings": {
+                "backgroundLayerId": "1"
+            },
             "enabled": true
         },
         {
