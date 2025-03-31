@@ -24,16 +24,12 @@
 			});
 			map.viewer.scene.screenSpaceCameraController.enableTilt = false;
 		}
-		//switch terrain provider to default?
-		map.options.selectedTerrainProvider.set(
-			{
-			title: get(map.options.terrainProviders[0].title),
-			url: get(map.options.terrainProviders[0].url),
-			vertexNormals: get(map.options.terrainProviders[0].vertexNormals)
-			}
-		);
-		
-		
+		// Set the terrain provider to "Uit" (off)
+		// FINN TODO: radio button does not update the selected terrain provider yet
+		const terrainProviderOff = get(map.options.terrainProviders).find(provider => provider.title === 'Uit');
+		if (terrainProviderOff && get(map.options.selectedTerrainProvider) !== terrainProviderOff) {
+			map.options.selectedTerrainProvider.set(terrainProviderOff);
+		}
 	}
 
 	function to3D() {

@@ -115,6 +115,7 @@ export class MapOptions {
 		this.subscribe<{ title: string, url: string, vertexNormals: boolean }>(this.selectedTerrainProvider, (v) => {
 			this.terrainSwitchReady.set(false);
 			this.switchTerrainProvider(v);
+			console.log("Selected terrain provider: ", v);
 		});
 	}
 
