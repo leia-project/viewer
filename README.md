@@ -703,7 +703,7 @@ The info tool will display attribution from used libraries in the viewer and som
 
 #### geocoder
 
-Geocoder tool,  located at the right corner of the header instead of the toolbar, the user can search for locations using and zoom to locations using this tool. For geocoding the PDOK geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. No additional settings are required for this tool
+Geocoder tool, located at the right corner of the header instead of the toolbar, the user can search for locations using and zoom to locations using this tool. For geocoding the PDOK geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. No additional settings are required for this tool
 
 ```json
 {
@@ -712,6 +712,20 @@ Geocoder tool,  located at the right corner of the header instead of the toolbar
 	"settings": {}
 }
 ```
+
+#### modeswitcher
+
+Mode switcher tool, located at the right corner of the header instead of the toolbar, the user can toggle between 3D and 2D mode using this tool. This disables tilting in the viewer, locks the pitch angle at -90, and turns the terrain off. Defaults to 3D mode.
+
+```json
+{
+	"id": "modeswitcher",
+	"enabled": true,
+	"settings": {}
+}
+```
+
+
 
 #### cesium
 
