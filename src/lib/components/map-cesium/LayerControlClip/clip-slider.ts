@@ -120,7 +120,7 @@ export class ClipSlider {
 		else if (this.tileset.clippingPlanes.modelMatrix !== Cesium.Matrix4.IDENTITY) {
 			this.tileset.clippingPlanes.modelMatrix = Cesium.Matrix4.IDENTITY;
 			// TO DO:
-			// The modelMatrix of the 3D tileset may have been shifted when the globe clipping planes are set on the tileset (e.g. in project-clip.ts or set3DTilesetClippingPlanes in subsurface cesium-handler.ts)
+			// The modelMatrix of the 3D tileset may have been shifted when the globe clipping planes are set on the tileset (e.g. in project-clip.ts)
 			// In this case, we need to shift the clipping planes as well 
 		}
 	}
