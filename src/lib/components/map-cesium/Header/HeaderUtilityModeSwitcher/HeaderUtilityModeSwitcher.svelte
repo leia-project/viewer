@@ -29,7 +29,6 @@
 	
 	// Note: we dont use the built in scene switcher because it sucks
 	function to2D() {
-		// map.viewer.scene.morphTo2D(2);
 		if (map) {
 			map.viewer.camera.flyTo({
 				destination: map.viewer.camera.position,
@@ -47,7 +46,6 @@
 	}
 
 	function to3D() {
-		// map.viewer.scene.morphTo3D(2);
 		if (map) {
 			map.viewer.camera.flyTo({
 				destination: map.viewer.camera.position,
