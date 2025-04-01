@@ -15,7 +15,6 @@
 	onMount(() => {
 		const unsubscribe = use3Dmode.subscribe((m) => {
 			if (ready) {
-				// Perform any necessary actions when use3Dmode changes
 				m ? to3D() : to2D();
 			} else {
 				ready = true;
@@ -27,7 +26,7 @@
 		};
 	});
 	
-	// Note: we dont use the built in scene switcher because it sucks
+	// Note: we dont use the built-in scene switcher because it sucks
 	function to2D() {
 		if (map) {
 			map.viewer.camera.flyTo({

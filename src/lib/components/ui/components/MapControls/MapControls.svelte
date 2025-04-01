@@ -23,8 +23,8 @@
     }
 
     function mapCenter() {
-        map.home();
         map.options.use3DMode.set(true);
+        map.home();
     }
 
     function mapResetNorth() {
