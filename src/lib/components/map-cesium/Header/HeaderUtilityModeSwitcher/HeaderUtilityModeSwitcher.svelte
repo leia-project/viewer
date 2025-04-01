@@ -17,15 +17,18 @@
 	function to2D() {
 		// map.viewer.scene.morphTo2D(2);
 		if (map) {
-			map.viewer.camera.setView({
+			map.viewer.camera.flyTo({
+				destination: map.viewer.camera.position,
 				orientation: {
 					pitch: Cesium.Math.toRadians(-90.0)
 				},
+				duration: 1.5
 			});
 			map.viewer.scene.screenSpaceCameraController.enableTilt = false;
 		}
 		// Set the terrain provider to "Uit" (off)
-		// FINN TODO: radio button does not update the selected terrain provider yet
+		// FINN TODO: radio button does not refresh, need to force it to refresh
+		// TODO: Make sure home button turns 3d mode on
 		const terrainProviderOff = get(map.options.terrainProviders).find(provider => provider.title === 'Uit');
 		if (terrainProviderOff && get(map.options.selectedTerrainProvider) !== terrainProviderOff) {
 			map.options.selectedTerrainProvider.set(terrainProviderOff);
@@ -35,6 +38,13 @@
 	function to3D() {
 		// map.viewer.scene.morphTo3D(2);
 		if (map) {
+			map.viewer.camera.flyTo({
+				destination: map.viewer.camera.position,
+				orientation: {
+					pitch: Cesium.Math.toRadians(-34.0)
+				},
+				duration: 1.5
+			});
 			map.viewer.scene.screenSpaceCameraController.enableTilt = true;
 		}
 	}
