@@ -33,6 +33,7 @@ export class MapOptions {
 	public selectedTerrainProvider: Writable<{ title: string, url: string, vertexNormals: boolean }> = writable<{ title: string, url: string, vertexNormals: boolean }>(undefined);
 	public terrainSwitchReady: Writable<boolean> = writable(false);
 	public selectedProject: Writable<string | undefined> = writable(undefined);
+	public use3DMode: Writable<boolean> = writable(true);
 
 	public pointCloudAttenuation: Writable<boolean> = writable<boolean>(true);
 	public pointCloudAttenuationMaximum: Writable<number> = writable<number>(0);

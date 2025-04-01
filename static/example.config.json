@@ -386,6 +386,10 @@
         {
             "id": "geocoder",
             "enabled": true
+        },
+        {
+            "id": "modeswitcher",
+            "enabled": true
         }
     ]
 }
