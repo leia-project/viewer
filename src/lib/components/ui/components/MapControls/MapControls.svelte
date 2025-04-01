@@ -24,6 +24,7 @@
 
     function mapCenter() {
         map.home();
+        map.options.use3DMode.set(true);
     }
 
     function mapResetNorth() {

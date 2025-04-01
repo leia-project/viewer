@@ -1,18 +1,32 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
 	import * as Cesium from "cesium";
-	import { getContext } from "svelte";
-	import { get, writable } from "svelte/store";
+	import { getContext, onMount } from "svelte";
+	import { get, writable, type Writable } from "svelte/store";
 	import { Toggle } from "carbon-components-svelte";
-
 	import type { Map } from "../../module/map";
 
 
 	const { app } = getContext<any>("page");
 	$: map = get(app.map) as Map;
+	$: use3Dmode = map.options.use3DMode;
+	let ready = false;
 
-	let use3Dmode = true;
+	onMount(() => {
+		const unsubscribe = use3Dmode.subscribe((m) => {
+			if (ready) {
+				// Perform any necessary actions when use3Dmode changes
+				m ? to3D() : to2D();
+			} else {
+				ready = true;
+			}
+		});
 
+		return () => {
+			unsubscribe();
+		};
+	});
+	
 	// Note: we dont use the built in scene switcher because it sucks
 	function to2D() {
 		// map.viewer.scene.morphTo2D(2);
@@ -26,9 +40,6 @@
 			});
 			map.viewer.scene.screenSpaceCameraController.enableTilt = false;
 		}
-		// Set the terrain provider to "Uit" (off)
-		// FINN TODO: radio button does not refresh, need to force it to refresh
-		// TODO: Make sure home button turns 3d mode on
 		const terrainProviderOff = get(map.options.terrainProviders).find(provider => provider.title === 'Uit');
 		if (terrainProviderOff && get(map.options.selectedTerrainProvider) !== terrainProviderOff) {
 			map.options.selectedTerrainProvider.set(terrainProviderOff);
@@ -51,15 +62,13 @@
 
 </script>
 
+
+
 <div class="mode-switcher">
 	<Toggle
 		id="toggle-3d-mode"
 		size="sm"
-		bind:toggled={use3Dmode}
-		on:change={() => {
-			console.log("toggle status:", use3Dmode);
-			use3Dmode ? to3D() : to2D();
-		}}
+		bind:toggled={$use3Dmode}
 	>
 		<span slot="labelA" style="color: white">2D</span>
 		<span slot="labelB" style="color: green">3D</span>

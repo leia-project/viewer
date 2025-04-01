@@ -229,7 +229,6 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		this.map.refresh();
 	}
 
-	// FINN TODO: Figure out why alpha is not updated when one or more classes are filtered
 	public setPointCloudStyle(): void {
 		if(!this.source) return;
 		this.source.style = new Cesium.Cesium3DTileStyle({
