@@ -1,4 +1,5 @@
-import type * as Cesium from "cesium";
+import * as Cesium from "cesium";
+import type { CesiumProject } from "../MapToolProjects/project";
 
 export default class FlyCamera {
 	private viewer: Cesium.Viewer;
@@ -13,6 +14,8 @@ export default class FlyCamera {
 	private moveSpeed: number;
 	private speedModifier: number;
 	public enabled: boolean;
+	public flying: boolean;
+  public coolingDown: boolean;
 	private keys: any;
 
 	constructor(
@@ -35,7 +38,8 @@ export default class FlyCamera {
 		this.moveSpeed = moveSpeed;
 		this.speedModifier = this.speedModOff;
 		this.enabled = false;
-
+    this.coolingDown = false;
+		this.flying = true;
 		this.setupKeys();
 		this.setupEvents();
 	}
@@ -44,9 +48,9 @@ export default class FlyCamera {
 		this.keys = {
 			a: { downAction: () => this.moveLeft() },
 			d: { downAction: () => this.moveRight() },
-			q: { downAction: () => this.moveUp() },
-			w: { downAction: () => this.moveForward() },
-			s: { downAction: () => this.moveBackward() },
+			q: { downAction: () => this.moveUp()},
+			w: { downAction: () => this.moveHorizontally(true) },
+			s: { downAction: () => this.moveHorizontally(false) },
 			e: { downAction: () => this.moveDown() },
 			r: {
 				continuesly: false,
@@ -57,7 +61,7 @@ export default class FlyCamera {
 				continuesly: false,
 				downAction: () => this.speedModifierOn(),
 				upAction: () => this.speedModifierOff()
-			}
+			},
 		};
 
 		for (const property in this.keys) {
@@ -115,8 +119,12 @@ export default class FlyCamera {
 	private addPointerLockChangeEvent() {
 		document.addEventListener("pointerlockchange", (event) => {
 			if (document.pointerLockElement === null) {
-				this.enabled = false;
-			}
+        this.switchPointerCamera();
+          //wait out the pointerlock restriction without errors
+        setTimeout(() => {
+          document.getElementById("navfooter").style.visibility = "visible";
+        }, 1000);	
+		}
 		});
 	}
 
@@ -136,15 +144,118 @@ export default class FlyCamera {
 			this.mouseMoveY += event.movementY;
 		}
 	}
+     
 
 	public switchPointerCamera() {
+    //has an error when done too quickly in certain browsers, fixed by removing buttons temporarily
 		if (!this.enabled) {
+			this.scene.globe.depthTestAgainstTerrain = true;
+			this.scene.screenSpaceCameraController.enableCollisionDetection = true;
 			this.scene.canvas.requestPointerLock();
+      this.enabled = true;
+      document.getElementById("navfooter").style.visibility = "hidden";
 		} else {
-			document.exitPointerLock();
+			this.scene.globe.depthTestAgainstTerrain = false;
+			this.scene.screenSpaceCameraController.enableCollisionDetection = false;
+      this.enabled = false;
+      this.flying = true;
+
+		}
+	}
+
+
+  public bringToFlyingPOV() {
+    //unused, but should become a replacement for using switchPointerCamera to manage enable and flying variable
+    this.flying = true;
+    this.enabled = true;
+    this.switchPointerCamera();
+  }
+	public bringToGroundPOV() {
+    //flying is kind of used as a secondary enable boolean but just for ground pov, i should honestly find another way to do this
+    //reason why its iffy is because flying variable should honestly notbe considered on for purely code reasons while flying pov is off
+ 
+		this.flying = false;
+		let viewer = this.viewer;
+		document.body.style.cursor = 'grab';
+
+		const defaultRenderMode = viewer.scene.requestRenderMode;
+		if(defaultRenderMode == true) {
+			viewer.scene.requestRenderMode = false;
 		}
 
-		this.enabled = !this.enabled;
+		let movingEntity = viewer.entities.add({
+			name: "Cursor tracker",
+			position: Cesium.Cartesian3.ZERO,
+			billboard: {
+				image: "https://cdn.iconscout.com/icon/free/png-256/free-aim-logo-icon-download-in-svg-png-gif-file-formats--logos-pack-icons-722670.png",
+				width: 32,
+				height: 32,
+				verticalOrigin: Cesium.VerticalOrigin.BOTTOM
+			}
+		  });
+
+		  //used for tweening
+		let currentPosition = Cesium.Cartesian3.clone(Cesium.Cartesian3.ZERO);
+		let targetPosition = Cesium.Cartesian3.clone(Cesium.Cartesian3.ZERO);
+		let pickedPosition: Cesium.Cartesian3;
+	
+    //separate handlers so that we can remove events apart from eachother
+    //also dont want to use onmousemove event because cesium functions in cesium project SHOULD work easier together
+    //probably.
+		const movementHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+		const clickHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+		movementHandler.setInputAction((movement) => {
+		    pickedPosition = viewer.scene.pickPosition(movement.endPosition);
+			if (Cesium.defined(pickedPosition)) {
+				targetPosition = pickedPosition;
+			} 
+
+		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+		//tweening
+		const smoothfactor = 0.4;
+		movingEntity.position = new Cesium.CallbackProperty(() => {
+			const distance = Cesium.Cartesian3.distance(currentPosition, targetPosition);
+			const epsilon = 0.001;
+			
+			if(distance < epsilon) {
+				currentPosition = targetPosition;
+			} else {
+				Cesium.Cartesian3.lerp(currentPosition, targetPosition, smoothfactor, currentPosition);
+			}
+			return currentPosition;
+		}, false);
+
+		clickHandler.setInputAction((click) => {
+			clickHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+			movementHandler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+		 
+			if (Cesium.defined(pickedPosition)) {
+				const offset = Cesium.Cartesian3.fromElements(0, 0, 0); //height
+				const newCameraPosition = Cesium.Cartesian3.add(pickedPosition, offset, new Cesium.Cartesian3());
+	
+
+				const up = Cesium.Cartesian3.clone(Cesium.Cartesian3.UNIT_Z);
+
+		 
+				viewer.camera.setView({
+					destination: newCameraPosition,
+					orientation: {
+						direction: this.getForwardFromPosition(newCameraPosition),
+						up: up
+					}
+				});
+				this.viewer.entities.removeById(movingEntity.id);
+				this.switchPointerCamera();
+				viewer.scene.requestRenderMode = defaultRenderMode;
+        document.body.style.cursor = 'auto';
+			}
+
+		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+	
+
 	}
 
 	private speedModifierOn() {
@@ -197,15 +308,34 @@ export default class FlyCamera {
 		});
 	}
 
-	private moveForward() {
-		const speed = this.getMoveSpeed();
-		this.camera.moveForward(speed);
-	}
+  private getForwardFromPosition(cameraPosition: Cesium.Cartesian3) {
+    const transform = Cesium.Transforms.eastNorthUpToFixedFrame(this.camera.position);
 
-	private moveBackward() {
-		const speed = this.getMoveSpeed();
-		this.camera.moveBackward(speed);
-	}
+    const east = new Cesium.Cartesian3(transform[0], transform[1], transform[2]);
+    const north = new Cesium.Cartesian3(transform[4], transform[5], transform[6]);
+    const heading = this.camera.heading;
+  
+    const forward = Cesium.Cartesian3.add(
+      Cesium.Cartesian3.multiplyByScalar(north, Math.cos(heading), new Cesium.Cartesian3()),
+      Cesium.Cartesian3.multiplyByScalar(east, Math.sin(heading), new Cesium.Cartesian3()), new Cesium.Cartesian3());
+    
+
+ Cesium.Cartesian3.normalize(forward, forward)
+ 
+ return forward;
+  }
+
+  private moveHorizontally(ahead: boolean) {
+    let speed;
+
+   if(ahead) {
+    speed = this.getMoveSpeed();
+   } else {
+    speed = (this.getMoveSpeed()) - (this.getMoveSpeed() * 2)
+   }
+    let forward = this.getForwardFromPosition(this.camera.position);
+    this.camera.move(forward, speed);
+  }
 
 	private moveLeft() {
 		const speed = this.getMoveSpeed();
@@ -218,25 +348,28 @@ export default class FlyCamera {
 	}
 
 	private moveUp() {
+		if (this.flying) { 
 		const speed = this.getMoveSpeed();
 		this.camera.moveUp(speed);
+		}
 	}
 
 	private moveDown() {
+		if(this.flying) {
 		const speed = this.getMoveSpeed();
 		this.camera.moveDown(speed);
+		}
 	}
 
 	private viewerUpdate() {
 		this.mouseLook();
-		console.log(this.camera.position)
 		for (const property in this.keys) {
 			const key = this.keys[property];
 			if (key.downAction && key.state == "down" && (key.continuesly || key.updated)) {
 				key.downAction();
 				key.updated = false;
 			}
-
+        
 			if (key.upAction && key.state == "up" && key.updated) {
 				key.upAction();
 				key.updated = false;

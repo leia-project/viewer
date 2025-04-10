@@ -33,6 +33,7 @@
 
 <div
     class="wrapper"
+    id="navfooter"
     class:bottom-right={place === "bottom-right"}
     class:bottom-left={place === "bottom-left"}
     class:top-right={place === "top-right"}
@@ -51,7 +52,7 @@
             kind="secondary"
             icon={Pedestrian}
             on:click={(e) => {
-                map.flyCamera.switchPointerCamera()
+                map.flyCamera.bringToGroundPOV()
             }}
             tooltipPosition="top"
             iconDescription={$_("tools.help.movement.buttonsWalkMode")}
