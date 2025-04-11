@@ -43,7 +43,7 @@
             kind="secondary"
             icon={Plane}
             on:click={(e) => {
-                map.flyCamera.switchPointerCamera()
+                map.flyCamera.bringToFlyingPOV()
             }}
             tooltipPosition="top"
             iconDescription={map.flyCamera?.enabled ? undefined : $_("tools.help.movement.buttonsFlyMode")}
