@@ -39,7 +39,7 @@
 		"@fontsource/fira-mono": "^5.2.5",
 		"@fontsource/open-sans": "^5.1.0",
 		"@lukeed/uuid": "^2.0.1",
-		"@observablehq/plot": "^0.6.16",
+		"@observablehq/plot": "^0.6.17",
 		"@turf/turf": "^7.2.0",
 		"3d-viewer": "file:",
 		"carbon-preprocess-svelte": "^0.11.11",
