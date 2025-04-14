@@ -16,7 +16,7 @@
 		"@carbon/grid": "^11.33.0",
 		"@sveltejs/adapter-node": "^5.2.12",
 		"@sveltejs/adapter-static": "^3.0.8",
-		"@sveltejs/kit": "^2.20.1",
+		"@sveltejs/kit": "^2.20.5",
 		"@types/cookie": "^0.6.0",
 		"@types/d3-delaunay": "^6.0.4",
 		"@types/jsonwebtoken": "^9.0.9",
