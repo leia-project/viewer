@@ -51,7 +51,13 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	private addListeners(): void {
 		this.tilesetHeight.subscribe(h => {
 			this.setHeight(h);
-		})
+		});
+
+		this.map.options.use3DMode.subscribe((b) => {
+			if (!this.source) return;
+			console.log('switch to', b);
+			this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.source.boundingSphere, b);
+		});
 	}
 
 	private async createLayer(): Promise<void> {

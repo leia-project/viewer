@@ -8,14 +8,15 @@
 
 
 	const { app } = getContext<any>("page");
+
 	$: map = get(app.map) as Map;
 	$: use3Dmode = map.options.use3DMode;
 	let ready = false;
 
 	onMount(() => {
-		const unsubscribe = use3Dmode.subscribe((m) => {
+		const unsubscribe = use3Dmode.subscribe((b) => {
 			if (ready) {
-				m ? to3D() : to2D();
+				b ? to3D() : to2D();
 			} else {
 				ready = true;
 			}
@@ -30,7 +31,7 @@
 	function to2D() {
 		if (map) {
 			map.viewer.camera.flyTo({
-				destination: map.viewer.camera.position,
+				destination: map.viewer.camera.position, //todo: calculate better position with viewrectangle
 				orientation: {
 					pitch: Cesium.Math.toRadians(-90.0)
 				},
@@ -38,6 +39,7 @@
 			});
 			map.viewer.scene.screenSpaceCameraController.enableTilt = false;
 		}
+		// Turn off terrain
 		const terrainProviderOff = get(map.options.terrainProviders).find(provider => provider.title === 'Uit');
 		if (terrainProviderOff && get(map.options.selectedTerrainProvider) !== terrainProviderOff) {
 			map.options.selectedTerrainProvider.set(terrainProviderOff);

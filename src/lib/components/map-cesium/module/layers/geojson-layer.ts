@@ -53,6 +53,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	private layerControl!: CustomLayerControl;
 	private availableProperties: Array<GeoJSONpropertySummary> = [];
 	private hatchConditions: {[key: string]: string|number|Array<string|number>};
+	private boundingSphere: Cesium.BoundingSphere | undefined;
 
 	private defaultColorPoint: Cesium.Color = Cesium.Color.BLUE;
 	private defaultColorLine: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.GREEN);
@@ -103,7 +104,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.alpha = this.getOpacity(this.config.opacity);
 		this.addControl();
 
-		// check what tools should be included in the layer manager based on config.json
+		// Add tools based on config.json
 		this.tools = this.config.settings.tools ? Object.keys(this.config.settings.tools) : [];
 
 		this.extrusionSliderMin = this.config.settings.tools?.extrude?.slider_min ?? 0;
@@ -115,9 +116,17 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.clampToGround = this.config.settings.clampToGround ?? true;
     }
 
+	private addListeners(): void {
+		this.map.options.use3DMode.subscribe((b) => {
+			if (!this.source || !this.boundingSphere) return;
+			this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, b);
+		});
+	}
+
 	public async addToMap(): Promise<void> {
 		if (!this.loaded && (this.url || this.data)) await this.loadData();
 		await this.map.viewer.dataSources.add(this.source);
+		this.addListeners();
 		this.setAvailableProperties();
 		this.styleUnsubscriber = this.style.subscribe((property: string) => {
 			if (property && this.loaded) this.setStyle(property);
@@ -502,8 +511,8 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			}
 		}
 		if (vertices.length === 0) return;
-		const boundingSphere = Cesium.BoundingSphere.fromVertices(vertices, Cesium.Cartesian3.ZERO, 3);
-		this.config.cameraPosition = getCameraPositionFromBoundingSphere(boundingSphere);
+		this.boundingSphere = Cesium.BoundingSphere.fromVertices(vertices, Cesium.Cartesian3.ZERO, 3);
+		this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere);
 	}
 
 	public setExtrusion(height: number): void {
