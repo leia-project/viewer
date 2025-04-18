@@ -37,28 +37,3 @@ export function getCameraPositionFromBoundingSphere(boundingSphere: Cesium.Bound
 		);
 	}
 }
-
-
-export function getCameraPositionFromPoint(point: Cesium.Cartographic, use3DMode: boolean = true): CameraLocation {
-
-	if (use3DMode) {
-		return new CameraLocation(
-			Cesium.Math.toDegrees(point.longitude),
-			Cesium.Math.toDegrees(point.latitude),
-			point.height + 1000,
-			0,      // heading
-			-45,    // pitch
-			1.5     // duration
-		);
-	}
-	else {
-		return new CameraLocation(
-			Cesium.Math.toDegrees(point.longitude),
-			Cesium.Math.toDegrees(point.latitude),
-			point.height + 1000,
-			0,      // heading
-			-90,    // pitch
-			1.5     // duration
-		);
-	}
-}
