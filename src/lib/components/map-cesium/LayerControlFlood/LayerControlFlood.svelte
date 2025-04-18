@@ -50,6 +50,9 @@
 	const depthGauge = new DepthGauge(map);
 	let depthGaugeEnabled = false;
 
+	// Create a writable store for depthGaugeButtonDisabled
+	$: depthGaugeButtonDisabled = depthGauge.isDisabled;
+
 	$: depthGaugeEnabled ? depthGauge.activate() : depthGauge.deactivate();
 	
 	onDestroy(() => {
@@ -155,6 +158,9 @@
 			/>
 		</div>
 	</div>
+	{#if $depthGaugeButtonDisabled && depthGaugeEnabled}
+		<ErrorMessage message={$_("tools.flooding.measureDepthError")} />
+	{/if}
 {/if}
 
 

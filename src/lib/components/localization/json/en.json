@@ -250,6 +250,7 @@
         "flooding": {
             "label": "Flooding",
             "measureDepth": "Measure depth",
+            "measureDepthError": "Zoom in to measure the water depth",
             "waterTransparency": "Water Opacity",
             "scenario": "Scenario",
             "errorCouldNotLoad": "Could not load flooding data",
