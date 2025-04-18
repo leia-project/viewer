@@ -117,7 +117,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
     }
 
 	private addListeners(): void {
-		this.map.options.use3DMode.subscribe((b) => {
+		this.use3DModeUnsubscriber = this.map.options.use3DMode.subscribe((b) => {
 			if (!this.source || !this.boundingSphere) return;
 			this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, b);
 		});
