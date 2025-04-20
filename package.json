@@ -13,7 +13,7 @@
 	},
 	"devDependencies": {
 		"@carbon/colors": "^11.30.0",
-		"@carbon/grid": "^11.33.0",
+		"@carbon/grid": "^11.34.0",
 		"@sveltejs/adapter-node": "^5.2.12",
 		"@sveltejs/adapter-static": "^3.0.8",
 		"@sveltejs/kit": "^2.20.5",
