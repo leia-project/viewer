@@ -37,7 +37,7 @@
 	"type": "module",
 	"dependencies": {
 		"@fontsource/fira-mono": "^5.2.5",
-		"@fontsource/open-sans": "^5.1.0",
+		"@fontsource/open-sans": "^5.2.5",
 		"@lukeed/uuid": "^2.0.1",
 		"@observablehq/plot": "^0.6.17",
 		"@turf/turf": "^7.2.0",
