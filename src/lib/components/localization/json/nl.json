@@ -258,6 +258,7 @@
             "label": "Overstromingen",
             "measureDepth": "Diepte meten",
             "waterTransparency": "Water Transparantie",
+            "measureDepthError": "Zoom in om de waterdiepte te meten",
             "scenario": "Scenario",
             "errorCouldNotLoad": "Kan overstromingsdata niet laden",
             "hourSinceBreach": "uur na bres",

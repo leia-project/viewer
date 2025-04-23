@@ -243,6 +243,7 @@
         "flooding": {
             "label": "Inondations",
             "measureDepth": "Mesurer la profondeur",
+            "measureDepthError": "Zoomez pour mesurer la profondeur de l'eau",
             "waterTransparency": "Opacité de l'eau",
             "scenario": "Scénario",
             "errorCouldNotLoad": "Impossible de charger les données d'inondation",
