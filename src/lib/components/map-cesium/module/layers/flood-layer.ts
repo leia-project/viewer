@@ -641,7 +641,7 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 			this.clear();
 			const endpoint = `${breach.properties.dijkring}_${breach.properties.name}_${scenario}`;
 			await this.source.load(endpoint);
-			if (!this.config.cameraPosition && this.source.contents) {
+			if (this.source.contents) {
 				const { ne, sw } = this.source.contents;
 				const rectangle = Cesium.Rectangle.fromDegrees(sw[0], sw[1], ne[0], ne[1]);
 				this.boundingSphere = Cesium.BoundingSphere.fromRectangle3D(rectangle);
