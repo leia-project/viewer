@@ -13,8 +13,6 @@ export function getCameraPositionFromBoundingSphere(boundingSphere: Cesium.Bound
 	const cartographicRotated = Cesium.Cartographic.fromCartesian(rotatedPoint);
 
 	if (use3DMode) {
-		console.log('3d camera');
-
 		return new CameraLocation(
 			cartographicRotated.longitude * 180 / Math.PI,
 			cartographicRotated.latitude * 180 / Math.PI,
@@ -24,7 +22,6 @@ export function getCameraPositionFromBoundingSphere(boundingSphere: Cesium.Bound
 			1     // duration
 		);
 	} else {
-		console.log('2d camera');
 		const boundingSphereCartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);
 
 		return new CameraLocation(
@@ -32,7 +29,7 @@ export function getCameraPositionFromBoundingSphere(boundingSphere: Cesium.Bound
 			Cesium.Math.toDegrees(boundingSphereCartographic.latitude),
 			cartographicRotated.height + boundingSphere.radius,
 			0,      // heading
-			-90,    // pitch
+			-89.9,    // pitch
 			1     // duration
 		);
 	}
