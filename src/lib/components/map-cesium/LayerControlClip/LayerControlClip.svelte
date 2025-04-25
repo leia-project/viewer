@@ -18,13 +18,15 @@
 	let sliderXY = clipSlider.angleXY;
 	let sliderZ = clipSlider.angleZ;
 
+	let sliceMode = clipSlider.sliceMode;
+
 </script>
 
 
 {#if $layerVisible}
-	<div class="slicer">
-		<div class="slicer-checkbox">
-			<span class="label-02">Slicer</span>
+	<div class="clipper">
+		<div class="clipper-checkbox">
+			<span class="label-02">{$_("tools.layerTools.clipper.label")}</span>
 			<Toggle
 				toggled={$clipActive}
 				hideLabel={true}
@@ -34,11 +36,12 @@
 				labelA={$_("general.off")}
 				labelB={$_("general.on")}
 			/>
+			
 			<div class="top-buttons">
 				{#if $clipActive}
 					{#if ($sliderXY !== 180 || $sliderZ !== 0)}
 					<Button
-						iconDescription={$_("buttons.reset")}
+						iconDescription={$_("general.buttons.reset")}
 						icon={Reset}
 						tooltipPosition="bottom"
 						tooltipAlignment="center"
@@ -47,7 +50,7 @@
 					/>
 					{/if}
 				<Button
-					iconDescription={$showSlider ? $_("buttons.hide") :  $_("buttons.show")}
+					iconDescription={$showSlider ? $_("general.buttons.hide") :  $_("general.buttons.show")}
 					icon={$showSlider ? ViewOffFilled : ViewFilled}
 					tooltipPosition="bottom"
 					tooltipAlignment="end"
@@ -60,7 +63,7 @@
 
 		{#if $clipActive }
 			<div class="clip-angle-sliders">
-				<div class="slider-label">{$_("otherComponents.rotationVerticalAxis")}</div>
+				<div class="slider-label">{$_("tools.layerTools.clipper.rotationVerticalAxis")}</div>
 				<Slider
 					bind:value={$sliderXY}
 					min={0}
@@ -69,13 +72,25 @@
 					hideTextInput={true}
 					id="slider-1"
 				/>
-				<div class="slider-label">{$_("otherComponents.rotationHorizontalAxis")}</div>
+				<div class="slider-label">{$_("tools.layerTools.clipper.rotationHorizontalAxis")}</div>
 				<Slider
 					bind:value={$sliderZ}
 					min={-90}
 					max={90}
 					step={1}
 					hideTextInput={true}
+				/>
+				<!-- TODO: Implement sliceMode functionality -->
+				<div class="slice-mode-label">{$_("tools.layerTools.clipper.sliceModeLabel")}</div>
+				<Toggle
+				toggled={$sliceMode}
+				disabled={true}
+				hideLabel={true}
+				on:toggle={() => {
+					if ($layerVisible) sliceMode.set(!$sliceMode);
+				}}
+				labelA={$_("general.off")}
+				labelB={$_("general.on")}
 				/>
 			</div>
 		{/if}
@@ -85,12 +100,12 @@
 
 <style>
 
-	.slicer {
+	.clipper {
 		margin: 10px 0 15px;
 		background-color: var(--cds-ui-01);
 		border-radius: 5px;
 	}
-	.slicer-checkbox {
+	.clipper-checkbox {
 		display: flex;
 		align-items: center;
 		column-gap: 20px;
@@ -119,5 +134,15 @@
 	}
 	.clip-angle-sliders :global(.bx--slider) {
 		min-width: 100px !important;
+	}
+
+	.slice-mode-label {
+		width: 100%;
+		text-align: left;
+		display: block;
+		color: #565656;
+		font-size: 14px;
+		margin-top: 10px;
+		margin-bottom: 10px;
 	}
 </style>

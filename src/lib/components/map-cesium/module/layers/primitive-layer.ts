@@ -6,7 +6,7 @@ import type { Map } from "../map";
 
 export abstract class PrimitiveLayer extends CesiumLayer<Cesium3DTileset> {
 	constructor(map: Map, config: LayerConfig) {
-		config.transparent = false;
+		config.transparent = config.transparent ?? false;
 		super(map, config);
 	}
 
