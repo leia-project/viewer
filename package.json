@@ -46,7 +46,7 @@
 		"cesium": "^1.121.1",
 		"cookie": "^0.7.0",
 		"d3-delaunay": "^6.0.4",
-		"dotenv": "^16.4.5",
+		"dotenv": "^16.5.0",
 		"fuzzysort": "^3.0.2",
 		"jsonwebtoken": "^9.0.2",
 		"sass": "^1.86.0",
