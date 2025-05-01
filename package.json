@@ -20,7 +20,7 @@
 		"@types/cookie": "^0.6.0",
 		"@types/d3-delaunay": "^6.0.4",
 		"@types/jsonwebtoken": "^9.0.9",
-		"carbon-components-svelte": "^0.85.2",
+		"carbon-components-svelte": "^0.89.1",
 		"carbon-icons-svelte": "^13.3.0",
 		"eslint": "^9.25.1",
 		"eslint-config-prettier": "^10.1.1",
