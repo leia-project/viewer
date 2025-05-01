@@ -13,17 +13,16 @@
 
     export let layer: Layer;
     export let active: boolean = false;
-    export let textOpacity: string;
+    export let textOpacity: string = "Opacity:";
+    export let textLegend: string = "Legend";
     //export let textInfo: string = "Info";
 
     let open: boolean;
     let imageValid: boolean = true;
-    let descriptionValid: boolean = true;
 
     $: visible = layer.visible;
     $: opacity = layer.opacity;
     $: customControls = layer.customControls;
-    $: textOpacity = `${$_("tools.layerManager.opacity")} ` + $opacity + "%";
 
     function removeLayer() {
         layer.remove();
@@ -72,23 +71,12 @@
                 <svelte:component this={control.component} {...control.props} />
             {/each}
         {/if}
-        {#if layer.config.descriptionSupported}
-            <div class="label-01 description-header">
-                {$_("description")}
-            </div>
-            {#if descriptionValid && layer.config.description}
-                <p class="description">{layer.config.description}</p>
-            <!-- {#if !descriptionValid}
-                <ErrorMessage message="{$_("tools.layerManager.legendNotFoundText")}" />
-            {/if} -->
-            {/if}
-        {/if}
         {#if layer.config.opacitySupported}
-            <Slider hideTextInput labelText={textOpacity} min={0} max={100} bind:value={$opacity} />
+            <Slider hideTextInput labelText={textOpacity + " " + $opacity + "%"} min={0} max={100} bind:value={$opacity} />
         {/if}
         {#if layer.config.legendSupported}
             <div class="label-01 legend-header">
-                {$_("tools.layerManager.legend")}
+                {textLegend}
             </div>
             {#if imageValid}
                 <img class="legend" src={layer.config.legendUrl} alt="legend" on:error="{()=>{imageValid = false}}" />
@@ -126,16 +114,6 @@
     .panel {
         overflow: hidden;
         width: 100%;
-    }
-
-    .description {
-        margin-top: var(--cds-spacing-01);
-        max-width: 100%;
-        margin-bottom: var(--cds-spacing-02);
-    }
-
-    .description-header {
-        margin-bottom: 5px;
     }
 
     .legend {

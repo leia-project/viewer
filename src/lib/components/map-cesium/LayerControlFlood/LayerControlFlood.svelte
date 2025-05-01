@@ -1,172 +1,241 @@
 <script lang="ts">
-	import { onDestroy } from "svelte";
+	import { Button, Slider, Toggle } from "carbon-components-svelte";
+	import * as Cesium from "cesium";
+
+	import type { FloodLayer } from "../module/layers/flood-layer";
 	import { _ } from "svelte-i18n";
-	import { Button, Loading, Slider, Toggle } from "carbon-components-svelte";
+	import { get, writable, type Writable } from "svelte/store";
 	import { ArrowLeft, ArrowRight, Pause, Play } from "carbon-icons-svelte";
-
 	import type { Map } from "../module/map";
-	import ErrorMessage from "$lib/components/ui/components/ErrorMessage/ErrorMessage.svelte";
-	import { FloodLayerController } from "../MapToolFlooding/layer-controller";
-	import { DepthGauge } from "./depth-gauge";
+	import { MapMeasurementFloodDepth } from "./map-measurement-flood-depth";
 
-	
-	export let floodLayerController: FloodLayerController;
+	export let layer: FloodLayer;
 	export let map: Map;
-	export let showGlobeOpacitySlider: boolean = true;
-	
-	const globeOpacity = map.options.globeOpacity;
-	const { time, minTime, maxTime, stepInterval } = floodLayerController;
-	const error = floodLayerController.floodLayer.error;
-	const floodLayerLoaded = floodLayerController.floodLayer.loaded;
-	const floodOpacity = floodLayerController.floodLayer.opacity;
 
+	let { timeSliderValue, timeSliderMin, timeSliderMax, timeSliderStep, opacity } = layer;
 	let playing: boolean = false;
-	let intervalId: NodeJS.Timeout | null;
-	function togglePlay(): void {
+	let intervalId: NodeJS.Timeout
+
+	let previouseAnimateState: boolean
+
+	let enableMeasurement = writable<boolean>(false);
+	let measurementId: number = 0;
+	let measurements: Writable<Array<MapMeasurementFloodDepth>> = writable<Array<MapMeasurementFloodDepth>>(
+		new Array<MapMeasurementFloodDepth>()
+	);
+	let movingPoint: Cesium.Entity | undefined;
+
+
+	function togglePlay() {
 		playing = !playing;
 		if (playing) {
 			intervalId = setInterval(() => {
-				time.update((value) => {
-					if (value >= $maxTime) {
-						stopPlaying();
-						return value;
-					}
-					return value + $stepInterval;
+				layer.timeSliderValue.update((value) => {
+				if (value >= $timeSliderMax) {
+					playing = false;
+					clearInterval(intervalId);
+					return $timeSliderMin;
+				}
+				return value + $timeSliderStep;
 				});
-			}, 1000 * $stepInterval);
+			}, 1000);
 		} else {
-			stopPlaying();
+			if (intervalId !== null) {
+				clearInterval(intervalId);
+				intervalId = null;
+			}
 		}
   	}
 
-	function stopPlaying(): void {
-		playing = false;
-		if (intervalId !== null) {
-			clearInterval(intervalId);
-			intervalId = null;
+	let leftClickHandle = (m: any) => {
+		createFloodMeasurement(getCartesian2(m));
+	};
+
+	let moveHandle = (m: any) => {
+		const picked = map.viewer.scene.pick(m);
+		if (picked?.primitive?.type === "flood") {
+			drawPointMove(getCartesian2(m));
+		} else if (movingPoint != undefined) {
+			removeMovingPoint();
 		}
+	};
+
+
+	function getCartesian2(m: any): Cesium.Cartesian2 {
+		return new Cesium.Cartesian2(m.x, m.y);
 	}
 
-	const depthGauge = new DepthGauge(map);
-	let depthGaugeEnabled = false;
+	function removeMovingPoint() {
+		if (!movingPoint) return;
 
-	$: depthGaugeEnabled ? depthGauge.activate() : depthGauge.deactivate();
-	
-	onDestroy(() => {
-		stopPlaying();
-		depthGauge.deactivate();
+		map.viewer.entities.remove(movingPoint);
+		movingPoint = undefined;
+	}
+
+	function addMovingPoint(position: Cesium.Cartesian3) {
+		movingPoint = map.viewer.entities.add({
+			position: position,
+			point: {
+				show: true,
+				color: Cesium.Color.BLUE,
+				pixelSize: 10,
+				outlineColor: Cesium.Color.BLACK,
+				outlineWidth: 1
+			}
+		});
+	}
+
+	function createFloodMeasurement(location: Cesium.Cartesian2) {
+		const picked = map.viewer.scene.pickPosition(location);
+		const measurement = addMeasurement();
+		measurement.addPoint(picked);
+
+		// add point on terrain
+		let pickedCartographic = Cesium.Cartographic.fromCartesian(picked);
+		Cesium.sampleTerrainMostDetailed(map.viewer.terrainProvider, [pickedCartographic]).then((result) => {
+			measurement.addPoint(Cesium.Cartographic.toCartesian(result[0]));
+		});
+	}
+
+	function drawPointMove(location: Cesium.Cartesian2) {
+		const picked = map.viewer.scene.pickPosition(location);
+		if (!movingPoint) addMovingPoint(picked);
+		// @ts-ignore
+		movingPoint.position = new Cesium.ConstantPositionProperty(picked);
+	}
+
+	function addMeasurement() {
+		const newMeasurement = new MapMeasurementFloodDepth(measurementId, map);
+		$measurements.push(newMeasurement);
+		measurements.set($measurements);
+		measurementId++;
+		return newMeasurement;
+	}
+
+	function activate() {
+		map.on("mouseLeftClick", leftClickHandle);
+		map.on("mouseMove", moveHandle);
+		previouseAnimateState = get(map.options.animate);
+		map.options.animate.set(true);
+	}
+
+	function deactivate() {
+		map.off("mouseLeftClick", leftClickHandle);
+		map.off("mouseMove", moveHandle);
+		// remove all measurements
+		$measurements.forEach((measurement) => {
+			measurement?.remove();
+		});
+		removeMovingPoint();
+		map.options.animate.set(previouseAnimateState);
+
+		map.refresh();
+	}
+
+	enableMeasurement.subscribe((enable) => {
+		if (!enable) {
+			deactivate();
+		} else {
+			activate();
+		}
 	});
-
 </script>
 
-
-{#if !$floodLayerLoaded}
-	<div class="loading-wrapper">
-		<Loading withOverlay={false} small />
+<div class="control-section">
+	<div class="wrapper">
+		<Slider 
+			value={$opacity}
+			labelText={$_('tools.layerManager.opacity') + ' ' + $opacity + '%'} 
+			fullWidth={true} 
+			on:input={(e) => {
+				layer.opacity.set(e.detail);
+			}}
+			hideTextInput={true} 
+			min={0} 
+			max={100} 
+			step={1} 
+			minLabel={"0"} 
+			maxLabel={"100"}
+		/>
 	</div>
-{:else if $error}
-	<div class="loading-wrapper">
-		<ErrorMessage message={$_("tools.flooding.errorCouldNotLoad")} />
+	<div class="label-01">Time slider</div>
+	<div class="wrapper">
+		<Slider 
+			value={$timeSliderValue}
+			labelText={String($timeSliderValue) + " uur sinds bres"} 
+			fullWidth={true} 
+			on:input={(e) => {
+				layer.timeSliderValue.set(e.detail);
+			}}
+			hideTextInput={true} 
+			min={$timeSliderMin} 
+			max={$timeSliderMax} 
+			step={$timeSliderStep} 
+			minLabel={String($timeSliderMin)} 
+			maxLabel={String($timeSliderMax)}
+		/>
 	</div>
-{:else}
-	<div class="control-section">
-		<div class="wrapper">
-			{#if showGlobeOpacitySlider}
-				<Slider
-					bind:value={$globeOpacity}
-					hideTextInput
-					labelText={$_("tools.backgroundControls.opacity") + " " + $globeOpacity + "%"}
-					min={0}
-					max={100}
-					step={1}
-				/>
-			{/if}
-		</div>
-		<div class="wrapper">
-			<Slider 
-				bind:value={$floodOpacity}
-				labelText={$_('tools.flooding.waterTransparency') + ' ' + $floodOpacity + '%'} 
-				fullWidth={true} 
-				hideTextInput={true} 
-				min={0} 
-				max={100} 
-				step={1} 
-				minLabel={"0"} 
-				maxLabel={"100"}
-			/>
-		</div>
-		<div class="label-01">{$_('tools.flooding.timeSlider')}</div>
-		<div class="wrapper">
-			<Slider 
-				bind:value={$time}
-				labelText={`${Math.round($time)}` + ' ' + $_('tools.flooding.hourSinceBreach')}
-				fullWidth={true}
-				hideTextInput={true}
-				min={$minTime}
-				max={$maxTime}
-				step={$stepInterval}
-				minLabel={$minTime.toString()}
-				maxLabel={$maxTime.toString()}
-				on:input={stopPlaying}
-			/>
-		</div>
-		<div class="wrapper" style="display: flex; justify-content: center; gap: 4px;">
-			<!-- Decrease time slider value by step -->
-			<Button 
-				kind="secondary" 
-				size="small" 
-				icon="{ArrowLeft}"
-				iconDescription={$_('tools.animation.previous')}
-				on:click={() => {
-					time.update((value) => Math.max(0, Math.round(value - 1)));
-					stopPlaying();
-				}}
-			/>
+	<div class="wrapper" style="display: flex; justify-content: center; gap: 4px;">
+		<!-- Decrease time slider value by step -->
+		<Button 
+			kind="secondary" 
+			size="small" 
+			icon="{ArrowLeft}"
+			iconDescription={$_('tools.animation.previous')}
+			on:click={() => {
+				layer.timeSliderValue.update((value) => value - $timeSliderStep);
+			}}
+		/>
+		{#if !playing}
 			<Button 
 				kind="secondary"
 				size="small" 
-				icon={playing ? Pause : Play}
-				iconDescription={playing ? $_('tools.animation.pause') : $_('tools.animation.play')}
+				icon="{Play}"
+				iconDescription={$_('tools.animation.play')}
 				on:click={() => {
 					togglePlay();
 				}}
 			/>
+		{:else}
 			<Button 
 				kind="secondary"
 				size="small" 
-				icon="{ArrowRight}"
-				iconDescription={$_('tools.animation.next')}
+				icon="{Pause}"
+				iconDescription={$_('tools.animation.pause')}
 				on:click={() => {
-					// After switching scenario or breach, the Slider no longer listens to layer.timeSliderValue, so #timeSliderValue must be updated manually
-					time.update((value) => Math.min($maxTime, Math.round(value +1)));
-					stopPlaying();
+					togglePlay();
 				}}
-			/>
-		</div>
+			/>	
+		{/if}
+		<!-- Increase time slider value by step -->
+		<Button 
+			kind="secondary"
+			size="small" 
+			icon="{ArrowRight}"
+			iconDescription={$_('tools.animation.next')}
+			on:click={() => {
+				layer.timeSliderValue.update((value) => value + $timeSliderStep);
+			}}
+		/>
 	</div>
-	<div class="measure">
-		<div class="measure-checkbox">
-			<span class="label-02">{$_("tools.flooding.measureDepth")}</span>
-			<Toggle
-				bind:toggled={depthGaugeEnabled}
-				hideLabel={true}
-				labelA={$_("general.off")}
-				labelB={$_("general.on")}
-			/>
-		</div>
+</div>
+<div class="measure">
+	<div class="measure-checkbox">
+		<span class="label-02">Measure</span>
+		<Toggle
+			toggled={$enableMeasurement}
+			hideLabel={true}
+			on:toggle={() => {
+				$enableMeasurement = !$enableMeasurement;
+			}}
+			labelA={$_("general.off")}
+			labelB={$_("general.on")}
+		/>
 	</div>
-{/if}
-
+</div>
 
 <style>
 
-	.loading-wrapper {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		height: 100%;
-		margin: var(--cds-spacing-05) 0;
-	}
 	.wrapper {
 		margin-bottom: 8px;
 	}
@@ -179,12 +248,12 @@
 		margin: 10px 0 15px;
 		background-color: var(--cds-ui-01);
 		border-radius: 5px;
-		border: 1px solid var(--cds-ui-03);
 	}
 	.measure-checkbox {
 		display: flex;
 		align-items: center;
 		column-gap: 20px;
+		margin-bottom: 10px;
 		padding-left: 10px;
 	}
 	.label-02 {

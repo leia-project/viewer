@@ -33,7 +33,6 @@ export class MapOptions {
 	public selectedTerrainProvider: Writable<{ title: string, url: string, vertexNormals: boolean }> = writable<{ title: string, url: string, vertexNormals: boolean }>(undefined);
 	public terrainSwitchReady: Writable<boolean> = writable(false);
 	public selectedProject: Writable<string | undefined> = writable(undefined);
-	public use3DMode: Writable<boolean> = writable(true);
 
 	public pointCloudAttenuation: Writable<boolean> = writable<boolean>(true);
 	public pointCloudAttenuationMaximum: Writable<number> = writable<number>(0);
@@ -269,16 +268,11 @@ export class MapOptions {
 	public setGlobeOpacity(value: number): void {
 		var alpha = Math.max(0, value) / 100;
 
-		if (alpha > 0) {
-			this.map.viewer.scene.globe.show = true;
-			if (alpha >= 1.0) {
-				alpha = 1.0;
-				this.map.viewer.scene.globe.translucency.enabled = false;
-			} else {
-				this.map.viewer.scene.globe.translucency.enabled = true;
-			}
+		if (alpha >= 1.0) {
+			alpha = 1.0;
+			this.map.viewer.scene.globe.translucency.enabled = false;
 		} else {
-			this.map.viewer.scene.globe.show = false;
+			this.map.viewer.scene.globe.translucency.enabled = true;
 		}
 
 		this.map.viewer.scene.globe.translucency.frontFaceAlpha = alpha;

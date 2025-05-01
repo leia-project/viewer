@@ -26,6 +26,7 @@
 		}
 		return items;
 	}
+	
 	let dropdownItems = getDropdownList();
 	let activeStyle = dropdownItems.find((item) => item.text === get(layer.style))?.id ?? 0;
 

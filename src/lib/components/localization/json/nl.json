@@ -13,8 +13,7 @@
         },
         "buttons": {
             "show": "Tonen",
-            "hide": "Verbergen",
-            "reset": "Resetten"
+            "hide": "Verbergen"
         }
     },
     "tools": {
@@ -31,7 +30,7 @@
         "info": {
             "info": "Informatie",
             "close": "Sluiten",
-            "general": "Open 3D viewer, een product door Sogelink (voorheen Geodan) en Provincie Zeeland.",
+            "general": "Open 3D viewer, een product door Geodan en Provincie Zeeland.",
             "attribution": "Naamsvermelding"
         },
         "help": {
@@ -147,12 +146,6 @@
                 "default": "Geen",
                 "legend": "Legenda",
                 "reset": "Reset legenda"
-            },
-            "clipper": {
-                "label": "Laag knippen",
-                "rotationVerticalAxis": "Rotatie verticale as",
-                "rotationHorizontalAxis": "Rotatie horizontale as",
-                "sliceModeLabel": "Doorsnede maken"
             }
         },
         "backgroundControls": {
@@ -253,20 +246,6 @@
             "trackModel": "Model volgen",
             "stopTracking": "Stop met volgen",
             "zoomToModel": "Zoom naar model"
-        },
-        "flooding": {
-            "label": "Overstromingen",
-            "measureDepth": "Diepte meten",
-            "waterTransparency": "Water Transparantie",
-            "scenario": "Scenario",
-            "errorCouldNotLoad": "Kan overstromingsdata niet laden",
-            "hourSinceBreach": "uur na bres",
-            "chosenBreach": "Gekozen bres",
-            "otherBreaches": "Overige bressen",
-            "noResults": "Geen resultaten",
-            "noBreachSelected": "Geen bres geselecteerd",
-            "searchBreach": "Zoek bres",
-            "timeSlider": "Tijd slider"
         }
     }
 }

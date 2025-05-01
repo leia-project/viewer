@@ -19,7 +19,6 @@
 	import MapToolFeatureInfo from "$lib/components/ui/components/MapTools/MapToolFeatureInfo/MapToolFeatureInfo.svelte";
 	import MapToolBookmark from "$lib/components/ui/components/MapTools/MapToolBookmarks/MapToolBookmarks.svelte";
 	import MapControls from "$lib/components/ui/components/MapControls/MapControls.svelte";
-	import MapToolFlooding from "./map-cesium/MapToolFlooding/MapToolFlooding.svelte";
 	import MapToolInfo from "$lib/components/ui/components/MapTools/MapToolInfo/MapToolInfo.svelte";
 	import NotificationView from "$lib/components/ui/components/Notifications/NotificationView.svelte";
 	import MapToolHelp from "$lib/components/ui/components/MapTools/MapToolHelp/MapToolHelp.svelte";
@@ -30,7 +29,6 @@
 	import MapToolConfigSwitcher from "./ui/components/MapTools/MapToolConfigSwitcher/MapToolConfigSwitcher.svelte";
 	import { LogoGithub } from "carbon-icons-svelte";
 	import { HeaderActionLink } from "carbon-components-svelte";
-	import HeaderUtilityModeSwitcher from "./map-cesium/Header/HeaderUtilityModeSwitcher/HeaderUtilityModeSwitcher.svelte";
 
 	const settings = writable<any>({});
 	const enabledTools = writable<Array<string>>(new Array<string>());
@@ -106,9 +104,6 @@
 				{#if $enabledTools.includes("geocoder")}
 					<HeaderUtilityGeocoder />
 				{/if}
-				{#if $enabledTools.includes("modeswitcher")}
-					<HeaderUtilityModeSwitcher />
-				{/if}
 				<Language />
 				<HeaderActionLink title="Visit GitHub" icon={LogoGithub} href="https://github.com/leia-project" target="_blank"/>
 			</div>
@@ -145,17 +140,7 @@
 					</MapToolLayerManager>
 				{/if}
 
-				{#if $enabledTools.includes("flooding")}
-					<MapToolFlooding 
-						label={$_("tools.flooding.label")}
-						scenario={$_('tools.flooding.scenario')}
-						chosenBreach={$_('tools.flooding.chosenBreach')}
-						noBreachSelected={$_('tools.flooding.noBreachSelected')}
-						otherBreaches={$_('tools.flooding.otherBreaches')}
-						searchBreach={$_('tools.flooding.searchBreach')}
-						noResults={$_('tools.flooding.noResults')}
-					/>
-				{/if}
+					
 
 				{#if $enabledTools.includes("bookmarks")}
 					<MapToolBookmark

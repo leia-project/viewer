@@ -5,13 +5,11 @@ import { writable } from "svelte/store";
 
 import en from "./json/en.json";
 import nl from "./json/nl.json";
-import fr from "./json/fr.json";
 
 let selectedLanguage = writable<string>("en");
 const languages: Array<Language> = [
     new Language("English", "en", en),
     new Language("Nederlands", "nl", nl),
-    new Language("Français", "fr", fr)
 ];
 
 function setupLocalization(defaultLocale: string = "en", translations: Array<{ locale: string, translations: {} }> | undefined = undefined): void {

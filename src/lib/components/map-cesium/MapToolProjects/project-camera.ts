@@ -3,7 +3,7 @@ import * as turf from "@turf/turf";
 
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { CameraLocation } from "$lib/components/map-core/camera-location";
-import { getPolygonCenter } from "$lib/components/map-cesium/module/utils/geo-utils";
+import { getPolygonCenter } from "./project-helpers";
 
 
 class CameraLimits {

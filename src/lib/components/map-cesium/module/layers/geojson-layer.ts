@@ -99,8 +99,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			this.style.set("custom");
 		}
 		this.hatchConditions = this.config.settings.hatchConditions ?? {};
-		config.transparent = true;
-		this.alpha = this.getOpacity(this.config.opacity);
+		config.transparent = true; // --> add opacity slider
 		this.addControl();
 
 		// check what tools should be included in the layer manager based on config.json
@@ -452,18 +451,12 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	}
 
 	public opacityChanged(opacity: number): void {
-		this.alpha = (opacity > 100 ? 1.0 : opacity < 0 ? 0 : opacity / 100);
+		this.alpha = opacity / 100;
 		if (this.source) {
 			this.setStyle(get(this.style));
 			this.updateOutlineOpacity();
 			this.map.refresh();
 		}
-	}
-
-	public getOpacity(opacity: number | undefined): number {
-		if (opacity === undefined) return 1.0;
-		opacity = opacity / 100;
-		return opacity > 1 ? 1.0 : opacity < 0 ? 0 : opacity;
 	}
 
 	public zoomTo(): void {

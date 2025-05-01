@@ -233,7 +233,7 @@ Colors for the GUI. The black header cannot be changed currently, this is an ope
 
 ### Groups configuration ("groups: {}")
 
-List of groups, these groups are used for grouping layers in the layer library, there is no limit on how many child groups there can be. The root parent should be on top.
+List of groups, these groups are used for grouping layers in the layer library, there is no limit on how many child groups there can be.
 
 |value|description|type|
 |-|-|-|
@@ -280,7 +280,7 @@ Layer definition
 |attribution|attribution for the layer data, to be displayed at at layer information page|string|
 |metadata|an array of {"key":"somekey","value":"somevalue"} pairs, to store custom metadata which is shown in the layer library|array[KeyValue]|
 |transparent|true if layer can be transparent|boolean|
-|opacity|number between 0 (opaque) and 100 (transparent)|number|
+|opacity|number between 0 (transparent) and 1 (opaque)|number|
 |cameraPosition|Default camera position, when set a zoom to icon is displayed for the layer in the layer manager|cameraPosition, same as parameters for [startPosition](###startPosition)|
 |settings|technical settings for the layer, this can differ between layer types, see LayerSettings below|LayerSettings|
 
@@ -335,9 +335,9 @@ LayerSettings
 |-|-|-|-|
 |url|base url for the layer service||string|
 |featureName|name of feature of wmts layer, can be found in WMTS GetCapabilities||string|
-|contentType|the http content type for the map data to be retrieved|image/png|string|
+|contenttype|the http content type for the map data to be retrieved|image/png|string|
 |matrixids|list matrix ids to be used by this wmts layer|EPSG:3857:0...EPSG:3857:19|array of string|
-|tileMatrixSetID|name of the matrixset|EPSG:3857|string|
+|matrixset|name of the matrixset|EPSG:3857|string|
 |tileWidth|Pixel width of tile|256|number|
 |tileHeigth|Pixel height of tile|256|number|
 |maximumLevel|Maximum zoom levers of layer|amount items in matrixids - 1|number|
@@ -358,9 +358,9 @@ LayerSettings
 		"settings": {
 			"url": "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0",
 			"featureName": "Actueel_orthoHR",
-			"contentType": "image/jpeg",
+			"contenttype": "image/jpeg",
 			"matrixids": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"],
-			"tileMatrixSetID": "EPSG:3857"
+			"matrixset": "EPSG:3857"
         }
     }
 ]
@@ -703,7 +703,7 @@ The info tool will display attribution from used libraries in the viewer and som
 
 #### geocoder
 
-Geocoder tool, located at the right corner of the header instead of the toolbar, the user can search for locations using and zoom to locations using this tool. For geocoding the PDOK geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. No additional settings are required for this tool
+Geocoder tool,  located at the right corner of the header instead of the toolbar, the user can search for locations using and zoom to locations using this tool. For geocoding the PDOK geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. No additional settings are required for this tool
 
 ```json
 {
@@ -712,20 +712,6 @@ Geocoder tool, located at the right corner of the header instead of the toolbar,
 	"settings": {}
 }
 ```
-
-#### modeswitcher
-
-Mode switcher tool, located at the right corner of the header instead of the toolbar, the user can toggle between 3D and 2D mode using this tool. This disables tilting in the viewer, locks the pitch angle at -90, and turns the terrain off. Defaults to 3D mode.
-
-```json
-{
-	"id": "modeswitcher",
-	"enabled": true,
-	"settings": {}
-}
-```
-
-
 
 #### cesium
 

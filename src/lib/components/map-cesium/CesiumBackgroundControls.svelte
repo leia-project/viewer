@@ -28,7 +28,6 @@
 					checked={selected === tp.title}
 					on:change={() => {
 						changeTerrainProvider(tp);
-						//FINN TODO: terrain provider visuals dont update even though the provider is changed
 					}}
 				/>
 			{/each}

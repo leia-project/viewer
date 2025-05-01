@@ -23,7 +23,6 @@
     }
 
     function mapCenter() {
-        map.options.use3DMode.set(true);
         map.home();
     }
 
