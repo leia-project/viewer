@@ -28,6 +28,7 @@ export class IconLayer<F> extends CustomLayer {
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
 		this.source = new Cesium.CustomDataSource(config.id);
+
 		this.addListeners();
 		this.addMouseEvents();
 	}
