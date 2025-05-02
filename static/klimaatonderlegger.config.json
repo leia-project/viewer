@@ -1905,32 +1905,281 @@
             "settings": {
                 "stories": [
                     {
-                        "name": "My story",
-                        "description": "Description of my story",
+                        "name": "Klimaatonderlegger",
+                        "description": "Kaarten voor de klimaatonderlegger",
                         "width": "600px",
-                        "steps": [
+                        "chapters": [
                             {
-                                "title": "Gebouwen gekleurd naar bouwjaar",
-                                "html": "<div>Dit zijn gebouwen gekleurd naar bouwjaar.</div>",
-                                "globeOpacity": 100,
-                                "terrain": "PDOK Terrain",
-                                "camera": {
-                                    "x": 5.23907,
-                                    "y": 52.20004,
-                                    "z": 13130.05823,
-                                    "heading": 335.10694,
-                                    "pitch": -30.69127,
-                                    "duration": 1.5
-                                },
-                                "layers": [
+                                "id": "1",
+                                "steps": [
                                     {
-                                        "id": "1"
+                                        "title": "Bodemdaling: Bebouwing",
+                                        "html": "<div>Indicatoren voor bodemdaling in de categorie bebouwing. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 5.23907,
+                                            "y": 52.20004,
+                                            "z": 13130.05823,
+                                            "heading": 335.10694,
+                                            "pitch": -30.69127,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            }
+                                        ]
                                     },
                                     {
-                                        "id": "3",
-                                        "style": "Bouwjaar"
+                                        "title": "Bodemdaling: Vitale Infrastructuur",
+                                        "html": "<div>Indicatoren voor bodemdaling in de categorie infrastructuur.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 5.23907,
+                                            "y": 52.20004,
+                                            "z": 13130.05823,
+                                            "heading": 335.10694,
+                                            "pitch": -40.69127,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Bodemdaling: Recreatie",
+                                        "html": "<div>Indicatoren voor bodemdaling in de categorie recreatie.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 5.23907,
+                                            "y": 52.20004,
+                                            "z": 13130.05823,
+                                            "heading": 335.10694,
+                                            "pitch": -40.69127,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Bodemdaling: Landbouw",
+                                        "html": "<div>Indicatoren voor bodemdaling in de categorie landbouw.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 5.23907,
+                                            "y": 52.20004,
+                                            "z": 13130.05823,
+                                            "heading": 335.10694,
+                                            "pitch": -40.69127,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Bodemdaling: Natuur",
+                                        "html": "<div>Indicatoren voor bodemdaling in de categorie natuur.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 5.23907,
+                                            "y": 52.20004,
+                                            "z": 13130.05823,
+                                            "heading": 335.10694,
+                                            "pitch": -40.69127,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            }
+                                        ]
+                                    }
+                                    
+                                ]
+                            },
+                            {
+                                "id": "2",
+                                "steps": [
+                                    {
+                                        "title": "Bodemcondities: ",
+                                        "html": "<div>Dit zijn gebouwen gekleurd naar bouwjaar (H2).</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 5.23907,
+                                            "y": 52.20004,
+                                            "z": 13130.05823,
+                                            "heading": 335.10694,
+                                            "pitch": -30.69127,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Stap 2: Gebouwen gekleurd naar bouwjaar (H2)",
+                                        "html": "<div>Dit zijn gebouwen gekleurd naar bouwjaar (H2).</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 5.23907,
+                                            "y": 52.20004,
+                                            "z": 13130.05823,
+                                            "heading": 335.10694,
+                                            "pitch": -40.69127,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            }
+                                        ]
                                     }
                                 ]
+                            },
+                            {
+                                "id": "3",
+                                "steps": [
+                                    {
+                                        "title": "Gebouwen gekleurd naar bouwjaar (H3)",
+                                        "html": "<div>Dit zijn gebouwen gekleurd naar bouwjaar (H3).</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 5.23907,
+                                            "y": 52.20004,
+                                            "z": 13130.05823,
+                                            "heading": 335.10694,
+                                            "pitch": -30.69127,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Stap 2: Gebouwen gekleurd naar bouwjaar (H3)",
+                                        "html": "<div>Dit zijn gebouwen gekleurd naar bouwjaar (H3).</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 5.23907,
+                                            "y": 52.20004,
+                                            "z": 13130.05823,
+                                            "heading": 335.10694,
+                                            "pitch": -40.69127,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "4",
+                                "steps": [
+                                    {
+                                        "title": "Gebouwen gekleurd naar bouwjaar (H4)",
+                                        "html": "<div>Dit zijn gebouwen gekleurd naar bouwjaar (H4).</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 5.23907,
+                                            "y": 52.20004,
+                                            "z": 13130.05823,
+                                            "heading": 335.10694,
+                                            "pitch": -30.69127,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Stap 2: Gebouwen gekleurd naar bouwjaar (H4)",
+                                        "html": "<div>Dit zijn gebouwen gekleurd naar bouwjaar (H4).</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 5.23907,
+                                            "y": 52.20004,
+                                            "z": 13130.05823,
+                                            "heading": 335.10694,
+                                            "pitch": -40.69127,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "chapterGroups": [
+                            {
+                                "id": "1",
+                                "title": "H1: Bodemdaling",
+                                "buttonText": "Bodemdaling"
+                            },
+                            {
+                                "id": "2",
+                                "title": "H2: Bodemcondities",
+                                "buttonText": "Bodemcondities"
+                            },
+                            {
+                                "id": "3",
+                                "title": "H3: Wateroverlast",
+                                "buttonText": "Wateroverlast"
+                            },
+                            {
+                                "id": "4",
+                                "title": "H4: Waterveiligheid",
+                                "buttonText": "Waterveiligheid"
+                            },
+                            {
+                                "id": "5",
+                                "title": "H5: Waterbeschikbaarheid",
+                                "buttonText": "Waterbeschikbaarheid"
+                            },
+                            {
+                                "id": "6",
+                                "title": "H6: Waterkwaliteit",
+                                "buttonText": "Waterkwaliteit"
+                            },
+                            {
+                                "id": "7",
+                                "title": "H7: Hitte",
+                                "buttonText": "Hitte"
+                            },
+                            {
+                                "id": "8",
+                                "title": "H8: Sedimentatie",
+                                "buttonText": "Sedimentatie"
                             }
                         ]
                     }
@@ -1947,6 +2196,10 @@
         },
         {
             "id": "geocoder",
+            "enabled": true
+        },
+        {
+            "id": "modeswitcher",
             "enabled": true
         }
     ]

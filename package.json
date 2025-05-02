@@ -36,6 +36,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@carbon/charts-svelte": "^1.22.18",
 		"@fontsource/fira-mono": "^5.2.5",
 		"@fontsource/open-sans": "^5.2.5",
 		"@lukeed/uuid": "^2.0.1",

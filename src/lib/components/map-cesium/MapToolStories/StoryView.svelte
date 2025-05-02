@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, getContext, onDestroy, createEventDispatcher } from "svelte";
 	import { writable, get } from "svelte/store";
-	import { Button, PaginationNav, Tag } from "carbon-components-svelte";
+	import { Button, ButtonSet, PaginationNav, Tag } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
 
 	import type { Story } from "./Story";
@@ -13,6 +13,8 @@
 	import type { MapCore } from "$lib/components/map-core/map-core";
 	import { CesiumLayer } from "../module/layers/cesium-layer";
 	import type { StoryLayer } from "./StoryLayer";
+	import type { StoryChapter } from "./StoryChapter";
+	import { MeterChart } from "@carbon/charts-svelte";
 
 	export let map: Map;
 	export let story: Story;
@@ -42,6 +44,35 @@
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
 
 	$: shown = Math.floor(width / 70);
+
+	let mockData = [
+		{
+			group: "A",
+			value: 200,
+		},
+		{
+			group: "B",
+			value: 250,
+		},
+		{
+			group: "C",
+			value: 300,
+		}
+	];
+
+	let mockOptions = {
+		title: 'Proportional Meter Chart - peak and statuses',
+  		height: '130px',
+	};
+	
+
+	// Flatten the steps across all chapters so we can access the correct step based on the index
+	let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
+		story.storyChapters.forEach((chapter) => {
+			chapter.steps.forEach((step) => {
+				flattenedSteps.push({ step, chapter });
+			});
+		});
 
 	onMount(() => {
 		startCameraLocation = cesiumMap.getPosition();
@@ -87,7 +118,17 @@
 		//Check if processing
 
 		const index = page - 1;
-		activeStep = story.steps[index];
+		// activeStep = story.steps[index];
+
+		// Flatten the steps across all chapters so we can access the correct step based on the index
+		const flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
+		story.storyChapters.forEach((chapter) => {
+			chapter.steps.forEach((step) => {
+				flattenedSteps.push({ step, chapter });
+			});
+		});
+		const activeEntry = flattenedSteps[index];
+		activeStep = activeEntry.step;
 
 		// if clicked on nav index, scroll to step automatically
 		if (lastInputType === "click") {
@@ -295,8 +336,26 @@
 		<div class="heading-01">
 			{story.name}
 		</div>
-		<div class="story-description body-compact-01">
+		<!-- <div class="story-description body-compact-01">
 			{story.description}
+		</div> -->
+
+		<div class="chapter-buttons">
+			{#each story.storyChapters as chapter, index}
+				<Button
+					size="small"
+					style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 20px;"
+					on:click={() => {
+						const firstStepIndex = flattenedSteps.findIndex(({ chapter: c }) => c === chapter);
+						if (firstStepIndex !== -1) {
+							lastInputType = "click";
+							currentPage.set(firstStepIndex + 1);
+						}
+					}}
+				>
+				{chapter.buttonText}
+				</Button>
+			{/each}
 		</div>
 
 		<div>
@@ -304,7 +363,7 @@
 				forwardText={textStepForward}
 				backwardText={textStepBack}
 				bind:page={$currentPage}
-				total={story.steps.length}
+				total={flattenedSteps.length}
 				{shown}
 				loop
 				onmousedown={() => {
@@ -316,7 +375,7 @@
 
 	<div class="content" bind:this={content}>
 		<div style="height:{navHeigth}px" />
-		{#each story.steps as step, index}
+		{#each flattenedSteps as { step, chapter }, index}
 			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
 				<div class="step-heading heading-03">
 					{step.title}
@@ -324,6 +383,9 @@
 				{@html step.html}
 				<div class="tag">
 					<Tag>{index + 1}</Tag>
+				</div>
+				<div class="step-stats">
+					<MeterChart data={mockData} options={mockOptions} style="padding:2rem;" />
 				</div>
 			</div>
 		{/each}
@@ -337,6 +399,7 @@
 		max-height: 100%;
 		width: inherit;
 		position: relative;
+		scroll-behavior: smooth;
 	}
 
 	.nav {
@@ -359,6 +422,11 @@
 		right: 0;
 	}
 
+	.chapter-buttons {
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
 	.story-description {
 		text-align: center;
 	}
@@ -370,7 +438,7 @@
 	.content {
 		z-index: 1;
 		display: flex;
-		flex-direction: column;		
+		flex-direction: column;	
 	}
 
 	.step {
@@ -380,7 +448,7 @@
 		padding-left: var(--cds-spacing-05);
 		padding-right: var(--cds-spacing-05);
 		opacity: 0.8;
-		filter: blur(1.5px);
+		filter: blur(4px);
 		box-sizing: border-box;
 
 		background: var(--cds-ui-01);
@@ -391,10 +459,15 @@
 		padding-bottom: var(--cds-spacing-03);
 	}
 
+	.step-stats {
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
 	.step--active {
 		opacity: 1;
 		filter: blur(0px);
-		transition: 0.8s filter linear;
+		transition: 0.4s filter linear;
 		background: var(--cds-ui-02);
 	}
 

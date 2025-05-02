@@ -13,6 +13,7 @@
 	import { StoryLayer } from "./StoryLayer";
 
 	import { page } from "$app/stores";
+	import { StoryChapter } from "./StoryChapter";
 	
 	
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
@@ -66,41 +67,53 @@
 		const loadedStories = new Array<Story>();
 
 		if (configStories) {
+			// Load all stories
 			for (let i = 0; i < configStories.length; i++) {
 				const story = configStories[i];
 				const storyName = story.name;
 				const storyDescription = story.description;
 				const storyWidth = story.width;
-				const storySteps = story.steps;
+				const storyChapters = new Array<StoryChapter>();
 
-				const steps = new Array<StoryStep>();
+				// Load all chapter groups
+				const chapterGroups = story.chapterGroups;
 
-				for (let j = 0; j < storySteps.length; j++) {
-					const step = storySteps[j];
-					const cl = new CameraLocation(
-						step.camera["x"],
-						step.camera["y"],
-						step.camera["z"],
-						step.camera["heading"],
-						step.camera["pitch"],
-						step.camera["duration"]
-					);
-
-					const stepLayers = new Array<StoryLayer>();
-					for (let k = 0; k < step.layers.length; k++) {
-						stepLayers.push(
-							new StoryLayer(step.layers[k].id, step.layers[k].opacity, step.layers[k].style)
+				// Load all chapters
+				for (let j = 0; j < story.chapters.length; j++) {
+					const chapter = story.chapters[j];
+					const chapterGroup = chapterGroups.find((chapterGroup: any) => chapter.id === chapterGroup.id);
+					const chapterTitle: string = chapterGroup.title;
+					const chapterButtonText: string = chapterGroup.buttonText;
+					const storySteps = new Array<StoryStep>();
+					
+					// Load all chapter steps
+					for (let k = 0; k < chapter.steps.length; k++) {
+						const step = chapter.steps[k];
+						const cl = new CameraLocation(
+							step.camera["x"],
+							step.camera["y"],
+							step.camera["z"],
+							step.camera["heading"],
+							step.camera["pitch"],
+							step.camera["duration"]
 						);
+
+						// Load all story layers
+						const storyLayers = new Array<StoryLayer>();
+						for (let l = 0; l < step.layers.length; l++) {
+							storyLayers.push(
+								new StoryLayer(step.layers[l].id, step.layers[l].opacity, step.layers[l].style)
+							);
+						}
+						const globeOpacity = step.globeOpacity ?? 100;
+
+						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent));
 					}
-
-					const globeOpacity = step.globeOpacity ?? 100;		
-					steps.push(new StoryStep(step.title, step.html, cl, stepLayers, globeOpacity, step.terrain, step.customComponent));
+					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}
-
-				loadedStories.push(new Story(storyName, storyDescription, steps, storyWidth));
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth));
 			}
 		}
-
 		stories = loadedStories;
 	}
 
