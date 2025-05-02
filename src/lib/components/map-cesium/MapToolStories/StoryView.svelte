@@ -3,6 +3,7 @@
 	import { writable, get } from "svelte/store";
 	import { Button, ButtonSet, PaginationNav, Tag } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
+	import "@carbon/charts-svelte/styles.css";
 
 	import type { Story } from "./Story";
 	import type { StoryStep } from "./StoryStep";
@@ -14,7 +15,7 @@
 	import { CesiumLayer } from "../module/layers/cesium-layer";
 	import type { StoryLayer } from "./StoryLayer";
 	import type { StoryChapter } from "./StoryChapter";
-	import { MeterChart } from "@carbon/charts-svelte";
+	import { DonutChart } from "@carbon/charts-svelte";
 
 	export let map: Map;
 	export let story: Story;
@@ -45,24 +46,20 @@
 
 	$: shown = Math.floor(width / 70);
 
+
 	let mockData = [
-		{
-			group: "A",
-			value: 200,
-		},
-		{
-			group: "B",
-			value: 250,
-		},
-		{
-			group: "C",
-			value: 300,
-		}
+		{ group: "A", value: 20 },
+		{ group: "B", value: 25 },
+		{ group: "C", value: 40 },
+		{ group: "D", value: 10 },
+		{ group: "E", value: 5 }
 	];
 
 	let mockOptions = {
-		title: 'Proportional Meter Chart - peak and statuses',
-  		height: '130px',
+		title: "Klassenverdeling",
+		resizable: true,
+		height: "100%",
+		width: "100%",
 	};
 	
 
@@ -384,8 +381,11 @@
 				<div class="tag">
 					<Tag>{index + 1}</Tag>
 				</div>
+				<div class="step-heading-sub heading-03">
+					Statistics
+				</div>
 				<div class="step-stats">
-					<MeterChart data={mockData} options={mockOptions} style="padding:2rem;" />
+					<DonutChart data={mockData} options={mockOptions} style="margin:0.5rem" />
 				</div>
 			</div>
 		{/each}
@@ -459,9 +459,12 @@
 		padding-bottom: var(--cds-spacing-03);
 	}
 
+	.step-heading-sub {
+		padding-top: var(--cds-spacing-05);
+	}
+
 	.step-stats {
-		justify-content: center;
-		flex-wrap: wrap;
+		background-color: var(--cds-ui-01);
 	}
 
 	.step--active {
