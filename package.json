@@ -44,7 +44,7 @@
 		"3d-viewer": "file:",
 		"carbon-preprocess-svelte": "^0.11.11",
 		"cesium": "^1.121.1",
-		"cookie": "^0.7.0",
+		"cookie": "^1.0.2",
 		"d3-delaunay": "^6.0.4",
 		"dotenv": "^16.4.5",
 		"fuzzysort": "^3.0.2",
