@@ -71,6 +71,15 @@
 		},
 		toolbar: {
 			enabled: false
+		},
+		color: {
+			scale: {
+				A: "#28a745", // Green
+				B: "#85c240", // Light Green
+				C: "#f0ad4e", // Yellow
+				D: "#d9534f", // Orange
+				E: "#dc3545"  // Red
+			}
 		}
 	};
 	
