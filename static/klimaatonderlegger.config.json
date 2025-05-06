@@ -1566,11 +1566,11 @@
         "subTitle": "3D viewer",
         "logo": "images/leia_logo.png",
         "startPosition": {
-            "x": 3.96280,
-            "y": 51.49285,
-            "z": 108025.35868,
-            "heading": 360.00000,
-            "pitch": -90.00000,
+            "x": 3.8844,
+            "y": 51.5986,
+            "z": 105618.7,
+            "heading": 0.0,
+            "pitch": -89.9,
             "duration": 1.50
         },
         "colors": {
@@ -1913,7 +1913,7 @@
                                 "id": "1",
                                 "steps": [
                                     {
-                                        "title": "Bodemdaling: Bebouwing",
+                                        "title": "Bebouwing",
                                         "html": "<div>Indicatoren voor bodemdaling in de categorie bebouwing. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
@@ -1932,7 +1932,7 @@
                                         ]
                                     },
                                     {
-                                        "title": "Bodemdaling: Vitale Infrastructuur",
+                                        "title": "Vitale Infrastructuur",
                                         "html": "<div>Indicatoren voor bodemdaling in de categorie infrastructuur.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
@@ -1951,7 +1951,7 @@
                                         ]
                                     },
                                     {
-                                        "title": "Bodemdaling: Recreatie",
+                                        "title": "Recreatie",
                                         "html": "<div>Indicatoren voor bodemdaling in de categorie recreatie.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
@@ -1970,7 +1970,7 @@
                                         ]
                                     },
                                     {
-                                        "title": "Bodemdaling: Landbouw",
+                                        "title": "Landbouw",
                                         "html": "<div>Indicatoren voor bodemdaling in de categorie landbouw.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
@@ -1989,7 +1989,7 @@
                                         ]
                                     },
                                     {
-                                        "title": "Bodemdaling: Natuur",
+                                        "title": "Natuur",
                                         "html": "<div>Indicatoren voor bodemdaling in de categorie natuur.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",

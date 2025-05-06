@@ -29,6 +29,7 @@
 
 	let currentPage = writable<number>(1);
 	let activeStep: StoryStep | undefined;
+	let activeChapter: StoryChapter | undefined;
 	let cesiumMap = map as MapCore;
 	let width: number;
 	let height: number;
@@ -125,6 +126,7 @@
 			});
 		});
 		const activeEntry = flattenedSteps[index];
+		activeChapter = activeEntry.chapter;
 		activeStep = activeEntry.step;
 
 		// if clicked on nav index, scroll to step automatically
@@ -340,6 +342,7 @@
 		<div class="chapter-buttons">
 			{#each story.storyChapters as chapter, index}
 				<Button
+					kind={activeChapter === chapter ? "primary" : "ghost"}
 					size="small"
 					style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 20px;"
 					on:click={() => {
@@ -375,7 +378,10 @@
 		{#each flattenedSteps as { step, chapter }, index}
 			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
 				<div class="step-heading heading-03">
-					{step.title}
+					{chapter.title} | {step.title}
+				</div>
+				<div class="step-heading-sub heading-03">
+					Statistics
 				</div>
 				{@html step.html}
 				<div class="tag">
@@ -455,7 +461,7 @@
 	}
 
 	.step-heading {
-		text-decoration: underline;
+		font-weight: bold;
 		padding-bottom: var(--cds-spacing-03);
 	}
 
