@@ -364,7 +364,7 @@
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}
 					size="small"
-					style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 20px;"
+					style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
 					on:click={() => {
 						const firstStepIndex = flattenedSteps.findIndex(({ chapter: c }) => c === chapter);
 						if (firstStepIndex !== -1) {
@@ -405,13 +405,14 @@
 				</div>
 				{@html step.html}
 				<div class="tag">
+					<Tag>{chapter.title}</Tag>
 					<Tag>{index + 1}</Tag>
 				</div>
 				<div class="step-heading-sub heading-03">
 					{$_("tools.stories.statistics")}
 				</div>
 				<div class="step-stats">
-					<DonutChart data={mockData} options={mockOptions} style="margin:0.5rem;justify-content:center" />
+					<DonutChart data={mockData} options={mockOptions} style="justify-content:center" />
 				</div>
 			</div>
 		{/each}
