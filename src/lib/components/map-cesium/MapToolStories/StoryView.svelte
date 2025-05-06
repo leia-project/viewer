@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import { onMount, getContext, onDestroy, createEventDispatcher } from "svelte";
 	import { writable, get } from "svelte/store";
 	import { Button, ButtonSet, PaginationNav, Tag } from "carbon-components-svelte";
@@ -57,10 +58,20 @@
 	];
 
 	let mockOptions = {
-		title: "Klassenverdeling",
+		showTable: false,
 		resizable: true,
-		height: "100%",
-		width: "100%",
+		height: "400px",
+		width: "400px",
+		donut: {
+			alignment: "center"
+		},
+		legend: {
+			alignment: 'center',
+			order: ["A", "B", "C", "D", "E"]
+		},
+		toolbar: {
+			enabled: false
+		}
 	};
 	
 
@@ -381,17 +392,17 @@
 					{chapter.title} | {step.title}
 				</div>
 				<div class="step-heading-sub heading-03">
-					Statistics
+					{$_("tools.stories.description")}
 				</div>
 				{@html step.html}
 				<div class="tag">
 					<Tag>{index + 1}</Tag>
 				</div>
 				<div class="step-heading-sub heading-03">
-					Statistics
+					{$_("tools.stories.statistics")}
 				</div>
 				<div class="step-stats">
-					<DonutChart data={mockData} options={mockOptions} style="margin:0.5rem" />
+					<DonutChart data={mockData} options={mockOptions} style="margin:0.5rem;justify-content:center" />
 				</div>
 			</div>
 		{/each}
