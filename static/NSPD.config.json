@@ -70,22 +70,22 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "description": "",
-            "attribution": "",
             "settings": {
-              "url": "./NSPDbegrenzing.geojson",
-              "format": "application/json",
-              "cluster": false,
-              "style": {
-                "color": "#FF0000",
-                "weight": 10000,
-                "fillColor": "#FF0000",
-                "fillOpacity": 1
-              },
-              "popup": {
-                "fields": ["id", "naam"],
-                "template": "<strong>{naam}</strong><br/>ID: {id}"
-              }
+            "url": "./NSPDbegrenzing.geojson",
+            "style": {
+                "stroke": "#0000ff",
+                "strokeWidth": 10,
+                "fill": "#ff0000"
+            },
+            "clampToGround": false,
+            "tools": {
+                "extrude": {
+                    "slider_min": 0,
+                    "slider_max": 10,
+                    "slider_step": 1
+                }
             }
+	        }
           },          
         {
             "id": "003",
