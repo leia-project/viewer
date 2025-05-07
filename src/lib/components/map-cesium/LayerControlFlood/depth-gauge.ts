@@ -11,8 +11,11 @@ export class DepthGauge {
 	private measurementId: number;
 	private movingPoint: Cesium.Entity | undefined;
 	private previouseAnimateState: boolean = false;
+	public isDisabled: Writable<boolean> = writable(true);
 
+	//TODO: for some reason turboclicking auto-zooms to the point. No idea why.
 	private leftClickHandle = (m: any) => {
+		if (get(this.isDisabled)) return;
 		this.createFloodMeasurement(this.getCartesian2(m));
 	}
 
@@ -28,6 +31,20 @@ export class DepthGauge {
 	constructor(map: Map) {
 		this.map = map;
 		this.measurementId = 0;
+
+		// Subscribe to camera position changes
+		this.map.viewer.scene.camera.changed.addEventListener(() => {
+			const cameraDistanceToGround = this.getCameraDistanceToGround();
+			this.isDisabled.set(cameraDistanceToGround > 1000); // 1km zoom level or closer needed
+		});
+	}
+
+	// Adapted from hannah at https://community.cesium.com/t/get-users-current-zoom-level/3946
+	private getCameraDistanceToGround(): number {
+		let cameraPositionWC = this.map.viewer.scene.camera.positionWC;
+		let ellipsoidPosition = this.map.viewer.scene.globe.ellipsoid.scaleToGeodeticSurface(cameraPositionWC);
+		let cameraDistanceToGround = Cesium.Cartesian3.magnitude(Cesium.Cartesian3.subtract(cameraPositionWC, ellipsoidPosition, new Cesium.Cartesian3()));
+		return cameraDistanceToGround;
 	}
 
 	private getCartesian2(m: any): Cesium.Cartesian2 {

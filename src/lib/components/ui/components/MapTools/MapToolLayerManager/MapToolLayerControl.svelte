@@ -13,8 +13,7 @@
 
     export let layer: Layer;
     export let active: boolean = false;
-    export let textOpacity: string = "Opacity:";
-    export let textLegend: string = "Legend";
+    export let textOpacity: string;
     //export let textInfo: string = "Info";
 
     let open: boolean;
@@ -23,6 +22,7 @@
     $: visible = layer.visible;
     $: opacity = layer.opacity;
     $: customControls = layer.customControls;
+    $: textOpacity = `${$_("tools.layerManager.opacity")} ` + $opacity + "%";
 
     function removeLayer() {
         layer.remove();
@@ -72,11 +72,11 @@
             {/each}
         {/if}
         {#if layer.config.opacitySupported}
-            <Slider hideTextInput labelText={textOpacity + " " + $opacity + "%"} min={0} max={100} bind:value={$opacity} />
+            <Slider hideTextInput labelText={textOpacity} min={0} max={100} bind:value={$opacity} />
         {/if}
         {#if layer.config.legendSupported}
             <div class="label-01 legend-header">
-                {textLegend}
+                {$_("tools.layerManager.legend")}
             </div>
             {#if imageValid}
                 <img class="legend" src={layer.config.legendUrl} alt="legend" on:error="{()=>{imageValid = false}}" />
