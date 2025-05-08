@@ -17,7 +17,6 @@ export default class FlyCamera {
 	public groundPOV: boolean;
 	public requestingRender: boolean;
 	public POVActive: boolean;
-	public coolingDown: boolean;
 	public clickHandler: Cesium.ScreenSpaceEventHandler;
 	public movementHandler: Cesium.ScreenSpaceEventHandler;
 
@@ -44,7 +43,6 @@ export default class FlyCamera {
 		this.moveSpeed = moveSpeed;
 		this.speedModifier = this.speedModOff;
 		this.enabled = false;
-		this.coolingDown = false;
 		this.groundPOV = false;
 		this.POVActive = false;
 		this.clickHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
@@ -184,6 +182,8 @@ export default class FlyCamera {
 
 	public enablePositionSelection() {
 		this.groundPOV = true;
+
+		//povactive differs from enabled variable in order to block stacking position marker
 		this.POVActive = true;
 		document.body.style.cursor = "grab";
 		if (this.requestingRender) {
