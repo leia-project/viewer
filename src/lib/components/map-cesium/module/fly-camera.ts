@@ -367,6 +367,18 @@ export default class FlyCamera {
 		return forward;
 	}
 
+	private applyGravity() {
+		if(this.groundPOV) {
+			const groundHeight =
+			  this.scene.globe.getHeight(this.camera.positionCartographic);
+		   
+  
+			  if(groundHeight) {
+		  this.camera.moveDown((this.camera.positionCartographic.height - 1) - groundHeight)
+			  }
+		  }
+	}
+
 	private moveHorizontally(ahead: boolean) {
 		let speed;
 
@@ -378,26 +390,23 @@ export default class FlyCamera {
 		let forward = this.getForwardFromPosition(this.camera.position);
 		this.camera.move(forward, speed);
 
-
-		if(this.groundPOV) {
-		  const groundHeight =
-			this.scene.globe.getHeight(this.camera.positionCartographic);
-		 
-
-			if(groundHeight) {
-		this.camera.moveDown((this.camera.positionCartographic.height - 1) - groundHeight)
-			}
-		}
+		this.applyGravity();
 	}
 
 	private moveLeft() {
 		const speed = this.getMoveSpeed();
 		this.camera.moveLeft(speed);
+
+		this.applyGravity();
+
 	}
 
 	private moveRight() {
 		const speed = this.getMoveSpeed();
 		this.camera.moveRight(speed);
+
+		this.applyGravity();
+
 	}
 
 	private moveUp() {
@@ -418,6 +427,11 @@ export default class FlyCamera {
 		this.mouseLook();
 		for (const property in this.keys) {
 			const key = this.keys[property];
+
+                if(!this.enabled) {
+					key.state = "up";
+					key.updated = false;
+				}
 
 			if (key.downAction && key.state == "down" && (key.continuesly || key.updated) && this.enabled) {
 				key.downAction();
