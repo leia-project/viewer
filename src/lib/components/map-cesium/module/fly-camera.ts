@@ -130,6 +130,7 @@ export default class FlyCamera {
 			this.lockPointer();
 		} else {
 			this.unlockPointer();
+			
 		}
 	}
 
@@ -137,10 +138,6 @@ export default class FlyCamera {
 		document.addEventListener("pointerlockchange", (event) => {
 			if (document.pointerLockElement === null) {
 				this.switchPointerCamera();
-				//wait out the pointerlock restriction without errors
-				setTimeout(() => {
-					document.getElementById("navfooter").style.visibility = "visible";
-				}, 1000);
 			}
 		});
 	}
@@ -154,10 +151,18 @@ export default class FlyCamera {
 	}
 
 	public unlockPointer() {
+		this.enabled = false;
 		this.scene.globe.depthTestAgainstTerrain = false;
 		this.scene.screenSpaceCameraController.enableCollisionDetection = false;
 		this.POVActive = false;
-		this.enabled = false;
+		  
+		//wait out the pointerlock restriction without errors
+		setTimeout(() => {
+			document.getElementById("navfooter").style.visibility = "visible";
+		}, 1000);
+
+    
+
 	}
 
 	private addClockTickEvent() {
@@ -413,12 +418,13 @@ export default class FlyCamera {
 		this.mouseLook();
 		for (const property in this.keys) {
 			const key = this.keys[property];
-			if (key.downAction && key.state == "down" && (key.continuesly || key.updated)) {
+
+			if (key.downAction && key.state == "down" && (key.continuesly || key.updated) && this.enabled) {
 				key.downAction();
 				key.updated = false;
 			}
 
-			if (key.upAction && key.state == "up" && key.updated) {
+			if (key.upAction && key.state == "up" && key.updated && this.enabled) {
 				key.upAction();
 				key.updated = false;
 			}
