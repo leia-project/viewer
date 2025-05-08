@@ -372,6 +372,17 @@ export default class FlyCamera {
 		}
 		let forward = this.getForwardFromPosition(this.camera.position);
 		this.camera.move(forward, speed);
+
+
+		if(this.groundPOV) {
+		  const groundHeight =
+			this.scene.globe.getHeight(this.camera.positionCartographic);
+		 
+
+			if(groundHeight) {
+		this.camera.moveDown((this.camera.positionCartographic.height - 1) - groundHeight)
+			}
+		}
 	}
 
 	private moveLeft() {
