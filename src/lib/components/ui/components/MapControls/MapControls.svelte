@@ -83,7 +83,7 @@
                 mapZoomOut();
             }}
             tooltipPosition="top"
-            iconDescription={$_("tools.help.movement.buttonsZoomIn")}
+            iconDescription={$_("tools.help.movement.buttonsZoomOut")}
         />
         <Button
             kind="secondary"
@@ -93,7 +93,7 @@
             }}
             tooltipAlignment="end"
             tooltipPosition="top"
-            iconDescription={$_("tools.help.movement.buttonsZoomOut")}
+            iconDescription={$_("tools.help.movement.buttonsZoomIn")}
         />
 </div>
 
