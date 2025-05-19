@@ -18,6 +18,8 @@ export default class FlyCamera {
 	public requestingRender: boolean;
 	public POVActive: boolean;
 	public clickHandler: Cesium.ScreenSpaceEventHandler;
+	public base = process.env.APP_URL;
+
 	public movementHandler: Cesium.ScreenSpaceEventHandler;
 
 	private keys: any;
@@ -53,12 +55,19 @@ export default class FlyCamera {
 
 	private setupKeys() {
 		this.keys = {
-			a: { downAction: () => this.moveLeft() },
-			d: { downAction: () => this.moveRight() },
-			q: { downAction: () => this.moveUp() },
 			w: { downAction: () => this.moveHorizontally(true) },
+			a: { downAction: () => this.moveLeft() },
 			s: { downAction: () => this.moveHorizontally(false) },
+			d: { downAction: () => this.moveRight() },
+
+			arrowup: { downAction: () => this.moveHorizontally(true) },
+			arrowleft: { downAction: () => this.moveLeft() },
+			arrowdown: { downAction: () => this.moveHorizontally(false) },
+			arrowright: { downAction: () => this.moveRight() },
+
+			q: { downAction: () => this.moveUp() },
 			e: { downAction: () => this.moveDown() },
+
 			r: {
 				continuesly: false,
 				downAction: () => this.slowModifierOn(),
@@ -280,9 +289,9 @@ export default class FlyCamera {
 			id: "CursorBoard",
 			billboard: {
 				image:
-					"https://cdn.iconscout.com/icon/free/png-256/free-aim-logo-icon-download-in-svg-png-gif-file-formats--logos-pack-icons-722670.png",
-				width: 32,
-				height: 32,
+				this.base + "/images/pov_man.png",
+				width: 42,
+				height: 42,
 				verticalOrigin: Cesium.VerticalOrigin.BOTTOM
 			}
 		});
