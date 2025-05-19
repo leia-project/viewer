@@ -2,6 +2,8 @@
     "general": {
         "goTo": "Go to",
         "loading": "Loading...",
+        "on": "On",
+        "off": "Off",
         "notifications": {
             "error": "Error",
             "warning": "Warning",
@@ -129,7 +131,9 @@
             "gradient": "Gradient",
             "applyGradient": "Apply gradient",
             "btnShowAll": "Show All",
-            "btnHideAll": "Hide All"
+            "btnHideAll": "Hide All",
+            "filterPointCloudClasses": "Filter Point Cloud classes",
+            "heightControlLabel": "Tileset height offset (m)"
         },
         "layerTools": {
             "theme": {
@@ -228,6 +232,8 @@
             "speed": "Speed",
             "play": "Play",
             "pause": "Pause",
+            "previous": "Previous",
+            "next": "Next",
             "currentTime": "Current time",
             "animationControls": "Animation controls",
             "showWayPoints": "Show waypoints",
@@ -235,6 +241,20 @@
             "trackModel": "Track model",
             "stopTracking": "Stop tracking",
             "zoomToModel": "Zoom to model"
+        },
+        "flooding": {
+            "label": "Flooding",
+            "measureDepth": "Measure depth",
+            "waterTransparency": "Water Opacity",
+            "scenario": "Scenario",
+            "errorCouldNotLoad": "Could not load flooding data",
+            "hourSinceBreach": "hours since breach",
+            "chosenBreach": "Chosen breach",
+            "otherBreaches": "Other breaches",
+            "noResults": "No results",
+            "noBreachSelected": "No breach selected",
+            "searchBreach": "Search breach",
+            "timeSlider": "Time slider"
         }
     }
 }

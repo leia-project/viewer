@@ -2,6 +2,8 @@
     "general": {
         "goTo": "Ga naar",
         "loading": "Laden...",
+        "on": "Aan",
+        "off": "Uit",
         "notifications": {
             "error": "Error",
             "warning": "Waarschuwing",
@@ -136,7 +138,9 @@
             "gradient": "Kleurverloop",
             "applyGradient": "Kleurverloop instellen",
             "btnShowAll": "Alles tonen",
-            "btnHideAll": "Alles verbergen"
+            "btnHideAll": "Alles verbergen",
+            "filterPointCloudClasses": "Filter puntenwolk klasses",
+            "heightControlLabel": "Hoogtecorrectie Tileset (m)"
         },
         "layerTools": {
             "theme": {
@@ -235,6 +239,8 @@
             "speed": "Snelheid",
             "play": "Play",
             "pause": "Pauze",
+            "previous": "Vorige",
+            "next": "Volgende",
             "currentTime": "Huidige tijd",
             "animationControls": "Animatie-widget",
             "showWayPoints": "Toon waypoints",
@@ -242,6 +248,20 @@
             "trackModel": "Model volgen",
             "stopTracking": "Stop met volgen",
             "zoomToModel": "Zoom naar model"
+        },
+        "flooding": {
+            "label": "Overstromingen",
+            "measureDepth": "Diepte meten",
+            "waterTransparency": "Water Transparantie",
+            "scenario": "Scenario",
+            "errorCouldNotLoad": "Kan overstromingsdata niet laden",
+            "hourSinceBreach": "uur na bres",
+            "chosenBreach": "Gekozen bres",
+            "otherBreaches": "Overige bressen",
+            "noResults": "Geen resultaten",
+            "noBreachSelected": "Geen bres geselecteerd",
+            "searchBreach": "Zoek bres",
+            "timeSlider": "Tijd slider"
         }
     }
 }

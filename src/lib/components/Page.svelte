@@ -19,6 +19,7 @@
 	import MapToolFeatureInfo from "$lib/components/ui/components/MapTools/MapToolFeatureInfo/MapToolFeatureInfo.svelte";
 	import MapToolBookmark from "$lib/components/ui/components/MapTools/MapToolBookmarks/MapToolBookmarks.svelte";
 	import MapControls from "$lib/components/ui/components/MapControls/MapControls.svelte";
+	import MapToolFlooding from "./map-cesium/MapToolFlooding/MapToolFlooding.svelte";
 	import MapToolInfo from "$lib/components/ui/components/MapTools/MapToolInfo/MapToolInfo.svelte";
 	import NotificationView from "$lib/components/ui/components/Notifications/NotificationView.svelte";
 	import MapToolHelp from "$lib/components/ui/components/MapTools/MapToolHelp/MapToolHelp.svelte";
@@ -140,7 +141,17 @@
 					</MapToolLayerManager>
 				{/if}
 
-					
+				{#if $enabledTools.includes("flooding")}
+					<MapToolFlooding 
+						label={$_("tools.flooding.label")}
+						scenario={$_('tools.flooding.scenario')}
+						chosenBreach={$_('tools.flooding.chosenBreach')}
+						noBreachSelected={$_('tools.flooding.noBreachSelected')}
+						otherBreaches={$_('tools.flooding.otherBreaches')}
+						searchBreach={$_('tools.flooding.searchBreach')}
+						noResults={$_('tools.flooding.noResults')}
+					/>
+				{/if}
 
 				{#if $enabledTools.includes("bookmarks")}
 					<MapToolBookmark

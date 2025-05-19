@@ -3,7 +3,7 @@ import * as Cesium from "cesium";
 import * as turf from "@turf/turf";
 
 import type { Map } from "$lib/components/map-cesium/module/map";
-import { getCartesian2, getPolygonCenter, turfPolygonToCartesians } from "./project-helpers";
+import { getCartesian2, getPolygonCenter, turfPolygonToCartesians } from "$lib/components/map-cesium/module/utils/geo-utils";
 import type { CesiumProject } from "./project";
 import { writable, type Unsubscriber, type Writable, get } from "svelte/store";
 

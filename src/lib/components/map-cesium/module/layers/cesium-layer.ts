@@ -27,6 +27,7 @@ export abstract class CesiumLayer<T> extends Layer {
 	public set source(newSource: T) {
 		newSource["config_id"] = this.config.id;
 		newSource["title"] = this.config.title;
+		newSource["type"] = this.config.type;
 		this._source.set(newSource);
 	}
 

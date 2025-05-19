@@ -62,7 +62,7 @@ Output of the static build can be found in the ./build directory.
 
 With the static build there are 2 ways to load a configuration.
 
-1) Start the viewer with ```?url=(http://host/)some_config.json, the viewer will try to load the configuration from url
+1) Start the viewer with `?url=http://host.com/some_config.json`, the viewer will try to load the configuration from url
 2) Place a file named config.json in the root directory of the build. When ?url is supplied the local file will not be used.
 
 An example config is stored in `./static/example.config.json`.
@@ -73,8 +73,8 @@ Base configuration for the viewer such as start position, UI colors.
 
 |value|description|type|
 |-|-|-|
-|startPosition|Startposition of the camera|(startPosition)[###startPosition]|
-|colors|Colors to use in de app, for more info check Carbon Design|[colors](###colors)|
+|startPosition|Startposition of the camera|[startPosition](#startposition)|
+|colors|Colors to use in de app, for more info check Carbon Design|[colors](#colors)|
 |title|The title shown in the top bar of the viewer|string|
 |subTitle|Subtitle shown in the top bar after the title|string|
 |logo|Url for the image to show in the top left corner of the header|string|
@@ -91,7 +91,7 @@ Base configuration for the viewer such as start position, UI colors.
 }
 ```
 
-#### StartPosition
+#### startPosition
 The start position of the camera. Since we are using a 3D viewer we need more than just an x, y and z position. An easy way to interactively get all the parameters for your preferred startPosition is by using the dt-generic-viewer. Open the settings from the left menu bar and enable the option ```Camera position```. When moving the view you will see the camera settings appear in a box. You can copy these settings to the startPosition configuration.
 
 |value|description|type|
@@ -335,9 +335,9 @@ LayerSettings
 |-|-|-|-|
 |url|base url for the layer service||string|
 |featureName|name of feature of wmts layer, can be found in WMTS GetCapabilities||string|
-|contenttype|the http content type for the map data to be retrieved|image/png|string|
+|contentType|the http content type for the map data to be retrieved|image/png|string|
 |matrixids|list matrix ids to be used by this wmts layer|EPSG:3857:0...EPSG:3857:19|array of string|
-|matrixset|name of the matrixset|EPSG:3857|string|
+|tileMatrixSetID|name of the matrixset|EPSG:3857|string|
 |tileWidth|Pixel width of tile|256|number|
 |tileHeigth|Pixel height of tile|256|number|
 |maximumLevel|Maximum zoom levers of layer|amount items in matrixids - 1|number|
@@ -358,9 +358,9 @@ LayerSettings
 		"settings": {
 			"url": "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0",
 			"featureName": "Actueel_orthoHR",
-			"contenttype": "image/jpeg",
+			"contentType": "image/jpeg",
 			"matrixids": ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"],
-			"matrixset": "EPSG:3857"
+			"tileMatrixSetID": "EPSG:3857"
         }
     }
 ]
@@ -373,9 +373,11 @@ LayerSettings
 |url|Url to tileset.json for the 3D Tiles layer||string|
 |shadows|If shadows casting & receiving is enabled or disabled|true|boolean|
 |tilesetHeight|3D tiles layer height (z position) can be changed, supply the change in meters here|0|number|
+|enableHeightControl|Allows the user to set the tilesetHeight using an input element. The tileset height is taken as the input element's initial value.|false|boolean|
 |defaultTheme|If a layer has themes, you can set the default theme to use here|First in the list if not set|string|
-|style|A cesium 3D Tiles style object as defined in [the documentation](https://cesium.com/learn/cesiumjs/ref-doc/Cesium3DTileStyle.html)||Object|
-|themes|List of type theme, themes can be used to style features in 3D Tiles||Array<[Theme](#####Theme)>|
+|style|A cesium 3D Tiles style object as defined in [the documentation](https://cesium.com/learn/cesiumjs/ref-doc/Cesium3DTileStyle.html). For pointclouds, this is where you set the `pointSize` attribute. ||Object|
+|themes|List of type theme, themes can be used to style features in 3D Tiles||Array<[Theme](#themes-for-3d-tiles)>|
+|filter|Filter to apply to the 3D Tiles layer.||[3D Tiles Filter](#filtering-3d-tiles)|
 
 ```json
 {
@@ -400,7 +402,7 @@ LayerSettings
 ```
 
 
-#### Theme
+##### Themes for 3D Tiles
 It is possible to style 3D tiles based on properties of a feature, we call this a theme. It's possible to add multiple themes for a 3D Tiles layer, the themes will be displayed when a 3D tiles layer is expanded from the layer manager. See the Cesium documentation on Conditions [here](https://github.com/CesiumGS/3d-tiles/tree/main/specification/Styling#conditions) on how to use a condition. There is currently only support for color conditions.
 
 |value|description|type|
@@ -455,6 +457,24 @@ In the next example we have a layer with building features containing a ```label
 ]
 ```
 
+##### Filtering 3D Tiles
+It is possible to filter 3D tiles based on properties of a feature. The value of the "filter" in the settings of a 3D Tiles layer should have the following structure: 
+
+|value|description|default|type|
+|-|-|-|-|
+|filterAttribute|The attribute in the 3D Tiles to filter on||string|
+|classMapping|The class mapping, mapping the attribute values to the corresponding class labels. See the example below.||Object|
+
+```json
+"filter": {
+	"filterAttribute": "Classification",
+	"classMapping": {
+		"0": "Class 0",
+		"1": "Class 1",
+		"2": "Class 2"
+	}
+}
+```
 
 #### LayerSettings for type GeoJSON
 
