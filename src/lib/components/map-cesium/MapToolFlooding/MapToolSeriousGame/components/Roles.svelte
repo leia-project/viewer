@@ -1,30 +1,31 @@
 <script lang="ts">
-	export let map;
+	import type { Map } from "$lib/components/map-cesium/module/map";
 	import RoleData from "./RoleData.svelte";
+	import type { IRole } from "../module/models";
+	export let map: Map;
+	
 
-	const layerConfig = map.layerLibrary.findLayer("1");
-
-	const roles = [
+	const roles: Array<IRole> = [
 		{
-			role: "Army",
+			role: "Defensie",
 			image: "./images/tank-war-svgrepo-com.svg",
-			layersIds: [
+			layerIds: [
 				"4",
 				"5"
 			]
 		},
 		{
-			role: "Firefighter",
+			role: "Brandweer",
 			image: "./images/fire-station-svgrepo-com.svg",
-			layersIds: [
+			layerIds: [
 				"6",
 				"7"
 			]
 		},
 		{
-			role: "Police",
+			role: "Politie",
 			image: "./images/police-car-svgrepo-com.svg",
-			layersIds: [
+			layerIds: [
 				"8",
 				"9"
 			]
@@ -32,7 +33,7 @@
 		{
 			role: "GHOR",
 			image: "./images/ambulance-svgrepo-com.svg",
-			layersIds: [
+			layerIds: [
 				"10",
 				"11"
 			]
@@ -40,19 +41,18 @@
 	]
 
 	const mainLayerIds = ["1", "2", "3"]
-	let selectedRole: any = null;
+	let selectedRole: IRole;
 	
 	function changeRole(index: number) {
 		selectedRole = roles[index];
 	}
-
 </script>
 
 
 <div class="role-menu">
 	{#if selectedRole}
 		<div class="role-data">
-			<RoleData roleData={selectedRole} mainLayerData={mainLayerIds}/>
+			<RoleData roleData={selectedRole} {mainLayerIds} {map}/>
 		</div>
 	{/if}
 

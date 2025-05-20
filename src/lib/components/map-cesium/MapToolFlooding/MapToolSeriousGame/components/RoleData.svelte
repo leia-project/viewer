@@ -1,30 +1,46 @@
 <script lang="ts">
-    export let roleData;
-    export let mainLayerData;
+    import type { Map } from "$lib/components/map-cesium/module/map";
+	import type { Layer } from "$lib/components/map-core/layer";
+	import { get } from "svelte/store";
+    import type { IRole } from "../module/models";
+    import { Checkbox } from "carbon-components-svelte";
 
-    // const layerConfig = this.map.layerLibrary.findLayer("1");
+    export let roleData: IRole;
+    export let mainLayerIds;
+    export let map: Map;
+
+    const layers = map.layers;
+    $: mainLayers = $layers.filter((l) => mainLayerIds.includes(l.id));
+    $: roleLayers = $layers.filter((l) => roleData.layerIds.includes(l.id)); 
+
 </script>
 
 <section>
     <span><strong>{roleData.role}</strong></span>
     <br><br>
     <div>
-        <span>Main layers</span>
-        {#each mainLayerData as mainLayer}
-            <p>
-                <input type="checkbox" id="myCheckbox">
-                <label for="myCheckbox">{mainLayer}</label>
-            </p>
+        <span>Gedeelde kaartlagen</span>
+        {#each mainLayers as mL}
+            <div>
+                <Checkbox
+                    checked={get(mL.visible)}
+                    on:change={() => mL.visible.set(!get(mL.visible))}
+                    labelText = {mL.title}
+                />
+            </div>
         {/each}
     </div>
     <br><br>
     <div>
-        <span>Role specific layers</span>
-        {#each roleData.layersIds as layerId}
-            <p>
-                <input type="checkbox" id="myCheckbox">
-                <label for="myCheckbox">{layerId}</label>
-            </p>
+        <span>Rol specifieke kaartlagen</span>
+        {#each roleLayers as rL}
+            <div>
+                <Checkbox
+                    checked={get(rL.visible)}
+                    on:change={() => rL.visible.set(!get(rL.visible))}
+                    labelText = {rL.title}
+                />
+            </div>
         {/each}
     </div>
 </section>

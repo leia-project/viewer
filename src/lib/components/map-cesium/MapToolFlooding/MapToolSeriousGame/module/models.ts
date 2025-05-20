@@ -11,3 +11,9 @@ export interface IGameConfig {
     breach: Breach;
     scenario: string;
 }
+
+export interface IRole {
+    role: string, 
+    image: string, 
+    layerIds: Array<string>
+}

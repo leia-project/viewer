@@ -73,7 +73,6 @@
 {/if}
 
 <style>
-
 	#game-container {
 		--game-bg: #212121;
 	}
@@ -118,5 +117,4 @@
 		display: flex;
 		justify-content: flex-end;
 	}
-
 </style>
