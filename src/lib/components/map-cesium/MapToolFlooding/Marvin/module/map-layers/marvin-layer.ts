@@ -109,8 +109,7 @@ export class MarvinLayer {
 				values.add(value);
 			}
 		}
-
-		return Array.from(values);
+		return Array.from(values).sort((a, b) => a - b);
 	}
 
 	protected createColorMap(category: string): Array<{ value: number; color: string }> | undefined {
@@ -118,7 +117,7 @@ export class MarvinLayer {
 		if (values.length < 2) {
 			return undefined;
 		}
-		const colorRange = getColorRange(this.color, values.length);
+		const colorRange = getColorRange(this.color, values.length).reverse();
 
 		return values.map((value, index) => {
 			return {

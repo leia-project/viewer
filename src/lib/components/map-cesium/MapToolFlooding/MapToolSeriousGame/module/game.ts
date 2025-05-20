@@ -3,6 +3,7 @@ import { FloodLayerController, type Breach } from "../../layer-controller";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { NotificationLog } from "./notification-log";
 import { CameraLocation } from "$lib/components/map-core/camera-location";
+import { EvacuationController } from "./game-elements/evacuation-controller";
 
 
 interface IGameStats {
@@ -59,6 +60,8 @@ export class Game {
 	public elapsedTime: Writable<number> = writable(0);
 	private interval: NodeJS.Timeout | undefined;
 
+	public evacuationController: EvacuationController;
+
 	public stats: IGameStats;
 
 	constructor(map: Map, breach: Breach, scenario: string) {
@@ -76,6 +79,7 @@ export class Game {
 		this.floodLayerController.loadNewScenario(breach, scenario).then(() => {
 			this.load();
 		});
+		this.evacuationController = new EvacuationController(scenario, this.elapsedTime)			
 	}
 
 	public load(): void {

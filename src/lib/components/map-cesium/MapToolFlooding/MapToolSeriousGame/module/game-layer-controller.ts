@@ -5,10 +5,19 @@ import type { FloodLayerController } from "../../layer-controller";
 
 export class GameLayerController {
 
-    public selectedROle: Writable<Array<string>> = writable([]);
+	public selectedRole: Writable<Array<string>> = writable([]);
 
-    private backgroudLayer: Writable<string> = writable("satellite");
-    private floodLayerController?: FloodLayerController;
+	private backgroudLayer: Writable<string> = writable("1");
+	private floodLayerController?: FloodLayerController;
 
 
+	constructor() {
+
+	}
+
+	private setRole(role: string) {
+		// remove role specific layers from unselected roles
+		
+		// add layers from selected role
+	}
 }

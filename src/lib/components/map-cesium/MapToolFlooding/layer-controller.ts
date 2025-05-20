@@ -3,7 +3,7 @@ import { LayerConfig } from "$lib/components/map-core/layer-config";
 import { IconLayer } from "../module/layers/icon-layer";
 import { FloodLayer } from "../module/layers/flood-layer";
 import { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
-import { get, writable, type Writable } from "svelte/store";
+import { get, writable, type Unsubscriber, type Writable } from "svelte/store";
 import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
 import type { OgcStyleCondition } from "../module/providers/ogc-features-provider";
 
@@ -35,6 +35,7 @@ export interface Breach {
 export class FloodLayerController {
 
 	private map: Map;
+	private settings: FloodToolSettings;
 	public activeBreach: Writable<Breach | undefined>;
 	public selectedScenario: Writable<string | undefined> = writable(undefined);
 	
@@ -42,6 +43,7 @@ export class FloodLayerController {
 	public minTime: Writable<number> = writable(0);
 	public maxTime: Writable<number> = writable(1);
 	public stepInterval: Writable<number> = writable(0.05);
+	private unsubscribers: Array<Unsubscriber> = [];
 
 	public layerConfigGroup: LayerConfigGroup | undefined;
 	public iconLayer: IconLayer<Breach>;
@@ -51,6 +53,7 @@ export class FloodLayerController {
 
 	constructor(map: Map, settings: FloodToolSettings, activeBreach: Writable<Breach | undefined>, selectedScenario: Writable<string | undefined>, layerGroupName?: string) {
 		this.map = map;
+		this.settings = settings;
 		this.activeBreach = activeBreach;
 		this.selectedScenario = selectedScenario;
 		if (layerGroupName) {
@@ -60,38 +63,50 @@ export class FloodLayerController {
 		this.iconLayer = this.addIconLayer();
 		this.floodLayer = this.addFloodLayer(settings.scenariosBaseUrl);
 		this.floodedRoadsLayer = this.addFloodedRoadsLayer(settings.floodedRoadsUrl, settings.floodedRoadsStyle);
-		
-		this.activeBreach.subscribe(() => {
-			this.selectedScenario.set(undefined);
-			this.floodLayer.clear();
-			this.time.set(0);
-		});
-		this.selectedScenario.subscribe((scenario) => {
-			const breach = get(this.activeBreach);
-			if (breach && scenario) {
-				this.loadNewScenario(breach, scenario);
-			}
-		});
-		this.time.subscribe((time) => {
-			const breach = get(this.activeBreach);
-			const scenario = get(this.selectedScenario) || 'geen_scenario';
-			if (breach && scenario) {
-				const scenarioId = `${breach?.properties.dijkring}_${breach?.properties.name}_${scenario}`;
-				const timestring = (Math.round(time) * 6).toString().padStart(5, "0")
-				const parameters = {
-					scenario: scenarioId, 
-					timestep: timestring, 
-					limit: "666"
+	}
+
+	private addSubscribers(): void {
+		this.unsubscribers.push(
+			this.activeBreach.subscribe(() => {
+				this.selectedScenario.set(undefined);
+				this.floodLayer.clear();
+				this.time.set(0);
+			}),
+			this.selectedScenario.subscribe((scenario) => {
+				const breach = get(this.activeBreach);
+				if (breach && scenario) {
+					this.loadNewScenario(breach, scenario);
 				}
-				this.floodedRoadsLayer.source.switchUrl(settings.floodedRoadsUrl, parameters);
-			};
-		});
+			}),
+			this.time.subscribe((time) => {
+				const breach = get(this.activeBreach);
+				const scenario = get(this.selectedScenario) || 'geen_scenario';
+				if (breach && scenario) {
+					const scenarioId = `${breach?.properties.dijkring}_${breach?.properties.name}_${scenario}`;
+					const timestring = (Math.round(time) * 6).toString().padStart(5, "0")
+					const parameters = {
+						scenario: scenarioId, 
+						timestep: timestring, 
+						limit: "666"
+					}
+					this.floodedRoadsLayer.source.switchUrl(this.settings.floodedRoadsUrl, parameters);
+				};
+			})
+		)
 	}
 
 	public showAll(): void {
 		this.iconLayer?.visible.set(true);
 		this.floodLayer?.visible.set(true);
 		this.floodedRoadsLayer?.visible.set(true);
+		this.addSubscribers();
+	}
+
+	public hideAll(): void {
+		this.iconLayer?.visible.set(false);
+		this.floodLayer?.visible.set(false);
+		this.floodedRoadsLayer?.visible.set(false);
+		this.unsubscribers.forEach((unsub) => unsub());
 	}
 
 	
