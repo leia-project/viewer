@@ -3,11 +3,11 @@ import type { Map } from "$lib/components/map-cesium/module/map";
 import { Game } from "./game";
 import { MarvinApp } from "../../Marvin/marvin";
 import GameContainer from "../components/GameContainer.svelte";
-import type { IGameConfig, IGameSettings } from "./game-models";
+import type { IGameConfig, IGameSettings } from "./models";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
 
 
-const hidedElements = [
+const hiddenElements = [
 	{
 		name: "tosti-tool-menu", 
 		display: ""
@@ -93,11 +93,11 @@ export class GameController {
 	}
 
 	private toggleViewerUI(show: boolean): void {
-		for (const hidedElement of hidedElements) {
-			const el = document.getElementsByClassName(hidedElement.name)[0] 
+		for (const hiddenElement of hiddenElements) {
+			const el = document.getElementsByClassName(hiddenElement.name)[0] 
 			if (el instanceof HTMLElement) {
-				if (!show) hidedElement.display = el.style.display;
-				el.style.display = show ? hidedElement.display : "none";
+				if (!show) hiddenElement.display = el.style.display;
+				el.style.display = show ? hiddenElement.display : "none";
 			}
 		}
 		const main = document.getElementsByClassName("main")[0];
