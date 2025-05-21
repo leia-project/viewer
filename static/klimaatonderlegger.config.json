@@ -1559,7 +1559,19 @@
                 "featureName": "geokma_htteilndrst",
                 "contenttype": "image/png"
             }
-        }         
+        },
+        {
+            "id": "test",
+            "type": "arcgis",
+            "title": "Test layer",
+            "groupId": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://tiles.arcgis.com/tiles/7SEV6TvwRD5jzR74/arcgis/rest/services/Sturingskaart_slachtoffers_feb24/MapServer/"
+            }
+        }
     ],
     "viewer": {
         "title": "Klimaatonderlegger",
@@ -1913,97 +1925,156 @@
                                 "id": "1",
                                 "steps": [
                                     {
-                                        "title": "Bebouwing",
-                                        "html": "<div>Indicatoren voor bodemdaling in de categorie bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Bodemdaling",
+                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -30.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Vitale Infrastructuur",
-                                        "html": "<div>Indicatoren voor bodemdaling in de categorie infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Bodemcondities",
+                                        "html": "<div>Indicatoren voor Bodemcondities in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -40.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Recreatie",
-                                        "html": "<div>Indicatoren voor bodemdaling in de categorie recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -40.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Landbouw",
-                                        "html": "<div>Indicatoren voor bodemdaling in de categorie landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -40.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Natuur",
-                                        "html": "<div>Indicatoren voor bodemdaling in de categorie natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -40.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterkwaliteit",
+                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Hitte",
+                                        "html": "<div>Indicatoren voor Hitte in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     }
@@ -2014,178 +2085,316 @@
                                 "id": "2",
                                 "steps": [
                                     {
-                                        "title": "Bebouwing",
-                                        "html": "<div>Indicatoren voor bodemcondities in de categorie bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Bodemdaling",
+                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -30.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Vitale Infrastructuur",
-                                        "html": "<div>Indicatoren voor bodemcondities in de categorie vitale infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Bodemcondities",
+                                        "html": "<div>Indicatoren voor Bodemcondities in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -40.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Recreatie",
-                                        "html": "<div>Indicatoren voor bodemcondities in de categorie recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -30.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Landbouw",
-                                        "html": "<div>Indicatoren voor bodemcondities in de categorie landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -40.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Natuur",
-                                        "html": "<div>Indicatoren voor bodemcondities in de categorie natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -30.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterkwaliteit",
+                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Hitte",
+                                        "html": "<div>Indicatoren voor Hitte in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     }
+                                    
                                 ]
                             },
                             {
                                 "id": "3",
                                 "steps": [
                                     {
-                                        "title": "Bebouwing",
-                                        "html": "<div>Indicatoren voor wateroverlast in de categorie bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Bodemdaling",
+                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -30.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Vitale Infrastructuur",
-                                        "html": "<div>Indicatoren voor wateroverlast in de categorie vitale infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Bodemcondities",
+                                        "html": "<div>Indicatoren voor Bodemcondities in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -40.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Recreatie",
-                                        "html": "<div>Indicatoren voor wateroverlast in de categorie recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -40.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Landbouw",
-                                        "html": "<div>Indicatoren voor wateroverlast in de categorie landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -40.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterkwaliteit",
+                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Hitte",
+                                        "html": "<div>Indicatoren voor Hitte in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     }
@@ -2195,143 +2404,346 @@
                                 "id": "4",
                                 "steps": [
                                     {
-                                        "title": "Bebouwing",
-                                        "html": "<div>Indicatoren voor waterveiligheid in de categorie bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Bodemdaling",
+                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -30.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Vitale Infrastructuur",
-                                        "html": "<div>Indicatoren voor waterveiligheid in de categorie vitale infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Bodemcondities",
+                                        "html": "<div>Indicatoren voor Bodemcondities in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -30.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Recreatie",
-                                        "html": "<div>Indicatoren voor waterveiligheid in de categorie recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -30.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Landbouw",
-                                        "html": "<div>Indicatoren voor waterveiligheid in de categorie landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -30.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
                                     },
                                     {
-                                        "title": "Natuur",
-                                        "html": "<div>Indicatoren voor waterveiligheid in de categorie natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
-                                            "x": 5.23907,
-                                            "y": 52.20004,
-                                            "z": 13130.05823,
-                                            "heading": 335.10694,
-                                            "pitch": -30.69127,
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
                                             "duration": 1.5
                                         },
                                         "layers": [
                                             {
                                                 "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
                                             }
                                         ]
-                                    }                                    
+                                    },
+                                    {
+                                        "title": "Waterkwaliteit",
+                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Hitte",
+                                        "html": "<div>Indicatoren voor Hitte in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    }
                                 ]
-                            }
+                            },
+                            {
+                                "id": "5",
+                                "steps": [
+                                    {
+                                        "title": "Bodemdaling",
+                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Bodemcondities",
+                                        "html": "<div>Indicatoren voor Bodemcondities in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterkwaliteit",
+                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Hitte",
+                                        "html": "<div>Indicatoren voor Hitte in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "test"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }                            
                         ],
                         "chapterGroups": [
                             {
                                 "id": "1",
-                                "title": "H1: Bodemdaling",
-                                "buttonText": "Bodemdaling"
+                                "title": "H1: Bebouwing",
+                                "buttonText": "Bebouwing"
                             },
                             {
                                 "id": "2",
-                                "title": "H2: Bodemcondities",
-                                "buttonText": "Bodemcondities"
+                                "title": "H2: Vitale Infrastructuur",
+                                "buttonText": "Vitale Infrastructuur"
                             },
                             {
                                 "id": "3",
-                                "title": "H3: Wateroverlast",
-                                "buttonText": "Wateroverlast"
+                                "title": "H3: Recreatie",
+                                "buttonText": "Recreatie"
                             },
                             {
                                 "id": "4",
-                                "title": "H4: Waterveiligheid",
-                                "buttonText": "Waterveiligheid"
+                                "title": "H4: Landbouw",
+                                "buttonText": "Landbouw"
                             },
                             {
                                 "id": "5",
-                                "title": "H5: Waterbeschikbaarheid",
-                                "buttonText": "Waterbeschikbaarheid"
-                            },
-                            {
-                                "id": "6",
-                                "title": "H6: Waterkwaliteit",
-                                "buttonText": "Waterkwaliteit"
-                            },
-                            {
-                                "id": "7",
-                                "title": "H7: Hitte",
-                                "buttonText": "Hitte"
-                            },
-                            {
-                                "id": "8",
-                                "title": "H8: Sedimentatie",
-                                "buttonText": "Sedimentatie"
+                                "title": "H5: Natuur",
+                                "buttonText": "Natuur"
                             }
                         ]
                     }
