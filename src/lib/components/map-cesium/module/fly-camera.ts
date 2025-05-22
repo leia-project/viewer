@@ -16,6 +16,7 @@ export default class FlyCamera {
 	public enabled: boolean;
 	public groundPOV: boolean;
 	public requestingRender: boolean;
+	public prevDepthTesting: boolean;
 	public POVActive: boolean;
 	public clickHandler: Cesium.ScreenSpaceEventHandler;
 	public base = process.env.APP_URL;
@@ -27,7 +28,7 @@ export default class FlyCamera {
 	constructor(
 		viewer: Cesium.Viewer,
 		mouseSpeed = 0.003,
-		moveSpeed = 1.0,
+		moveSpeed = 0.5,
 		speedModOn = 6.5,
 		slowModOn = 6.5
 	) {
@@ -39,6 +40,7 @@ export default class FlyCamera {
 		this.speedModOn = speedModOn;
 		this.speedSlowOn = slowModOn;
 		this.requestingRender = viewer.scene.requestRenderMode;
+		this.prevDepthTesting = viewer.scene.globe.depthTestAgainstTerrain;
 
 		this.mouseMoveX = 0;
 		this.mouseMoveY = 0;
@@ -149,8 +151,11 @@ export default class FlyCamera {
 		});
 	}
 	public lockPointer() {
+		this.prevDepthTesting = this.scene.globe.depthTestAgainstTerrain;
+
 		this.scene.globe.depthTestAgainstTerrain = true;
 		this.scene.screenSpaceCameraController.enableCollisionDetection = true;
+
 		this.scene.canvas.requestPointerLock();
 		this.POVActive = true;
 		this.enabled = true;
@@ -159,7 +164,9 @@ export default class FlyCamera {
 
 	public unlockPointer() {
 		this.enabled = false;
-		this.scene.globe.depthTestAgainstTerrain = false;
+
+		this.scene.globe.depthTestAgainstTerrain = this.prevDepthTesting;
+
 		this.scene.screenSpaceCameraController.enableCollisionDetection = false;
 		this.POVActive = false;
 		  
@@ -290,8 +297,8 @@ export default class FlyCamera {
 			billboard: {
 				image:
 				this.base + "/images/pov_man.png",
-				width: 42,
-				height: 42,
+				width: 35,
+				height: 35,
 				verticalOrigin: Cesium.VerticalOrigin.BOTTOM
 			}
 		});
