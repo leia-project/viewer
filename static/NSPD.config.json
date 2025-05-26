@@ -52,7 +52,6 @@
             "defaultAddToManager": true,
             "defaultOn": true,
             "description": "",
-            "attribution": "",
             "settings": {
                 "url": "https://geo.api.vlaanderen.be/OFW/wms?service=wms&version=1.3.0",
                 "featureName": "OFW",
@@ -71,13 +70,9 @@
             "defaultOn": false,
             "description": "",
             "settings": {
-            "url": "./NSPDbegrenzing.geojson",
-            "style": {
-                "stroke": "#0000ff",
-                "strokeWidth": 10,
-                "fill": "#ff0000"
-            },
+            "url": "http://localhost:8000/NSPDGrens0.geojson",
             "clampToGround": false,
+            "enableHeightControl": true,
             "tools": {
                 "extrude": {
                     "slider_min": 0,
@@ -86,7 +81,23 @@
                 }
             }
 	        }
-          },          
+          },      
+        {
+            "id": "019",
+            "type": "3dtiles",
+            "groupId": "1",
+            "title": "GEOTOP tiles",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "settings": {
+            "url": "http://localhost:8000/3dtiles/tileset.json",
+            "clampToGround": false
+            } 
+        },              
         {
             "id": "003",
             "type": "wmts",
@@ -113,12 +124,13 @@
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
+            "enableHeightControl": true,
             "settings": {
                 "url": "https://virtueel.zeeland.nl/tiles_other/spotinfo_panden_nl/tileset.json"
             }
         },
         {
-            "id": "006",
+            "id": "6",
             "type": "3dtiles",
             "title": "3D Gebouwen (BE)",
             "groupId": "12",
@@ -126,6 +138,8 @@
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
+            "enableHeightControl": true,
+            "transparent": false,
             "settings": {
                 "url": "https://virtueel.zeeland.nl/tiles_other/gebouwen_vlaanderen/tileset.json"
             }
@@ -188,9 +202,9 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "description": "",
-            "attribution": "",
+            "transparent": false,
             "settings": {
-                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_grenspark/tileset.json",
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_nspd/3dtiles/tileset.json",
                 "shadows": false,
                 "style": {
                     "pointSize": "15"
