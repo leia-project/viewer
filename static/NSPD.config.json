@@ -60,28 +60,30 @@
         },
         {
             "id": "010",
-            "type": "geojson",
+            "type": "wms",
             "title": "Begrenzing NSPD",
             "groupId": "",
             "imageUrl": "",
-            "legendUrl": "",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin/wms?request=GetLegendGraphic&format=image/png&layer=digitaltwin:ext_dit_nspgrz",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
-            "description": "",
+            "description": "Begrenzing NSPD uit Digital Twin Zeeland",
             "settings": {
-            "url": "http://localhost:8000/NSPDGrens0.geojson",
-            "clampToGround": false,
-            "enableHeightControl": true,
-            "tools": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin/wms?",
+                "featureName": "digitaltwin:ext_dit_nspgrz",
+                "contenttype": "image/png",
+                "clampToGround": true,
+                "tools": {
                 "extrude": {
                     "slider_min": 0,
                     "slider_max": 10,
                     "slider_step": 1
                 }
+                }
             }
-	        }
-          },      
+        },
+    
         {
             "id": "019",
             "type": "3dtiles",
@@ -97,7 +99,24 @@
             "url": "http://localhost:8000/3dtiles/tileset.json",
             "clampToGround": false
             } 
-        },              
+        },     
+{
+  "id": "1665483575374",
+  "type": "wms",
+  "title": "Gewaspercelen",
+  "groupId": "",
+  "legendUrl": "https://service.pdok.nl/rvo/brpgewaspercelen/wms/v1_0/legend/BrpGewas/Default.png",
+  "isBackground": false,
+  "defaultAddToManager": true,
+  "defaultOn": false,
+  "transparent": true,
+  "opacity": 100,
+  "settings": {
+    "url": "https://service.pdok.nl/rvo/brpgewaspercelen/wms/v1_0?",
+    "featureName": "BrpGewas",
+    "contenttype": "image/png"
+  }
+},  
         {
             "id": "003",
             "type": "wmts",
