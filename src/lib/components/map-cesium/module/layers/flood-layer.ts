@@ -591,6 +591,7 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 	public _time: Writable<number> = writable(0);
 
 	private timeUnsubscriber!: Unsubscriber;
+	private boundingSphere: Cesium.BoundingSphere | undefined;
 	public loaded: Writable<boolean> = writable(false);
 	public error: Writable<boolean> = writable(false);
 
@@ -604,8 +605,17 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 			alpha: get(this.opacity) / 100
 		});
 
-		this.addControl()
-		this.setTimeListener()
+		this.addControl();
+		this.addListeners();
+	}
+
+	private addListeners(): void {
+		this.setTimeListener();
+
+		let use3DModeUnsubsciber = this.map.options.use3DMode.subscribe((b) => {
+			if (!this.source || !this.boundingSphere) return;
+			this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, b);
+		});
 	}
 
 	private setTimeListener(): void {
@@ -631,11 +641,11 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 			this.clear();
 			const endpoint = `${breach.properties.dijkring}_${breach.properties.name}_${scenario}`;
 			await this.source.load(endpoint);
-			if (!this.config.cameraPosition && this.source.contents) {
+			if (this.source.contents) {
 				const { ne, sw } = this.source.contents;
 				const rectangle = Cesium.Rectangle.fromDegrees(sw[0], sw[1], ne[0], ne[1]);
-				const sphere = Cesium.BoundingSphere.fromRectangle3D(rectangle);
-				this.config.cameraPosition = getCameraPositionFromBoundingSphere(sphere);
+				this.boundingSphere = Cesium.BoundingSphere.fromRectangle3D(rectangle);
+				this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, get(this.map.options.use3DMode));
 			}
 			this.loaded.set(true);
 			this.addToMap();

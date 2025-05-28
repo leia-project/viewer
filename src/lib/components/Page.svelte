@@ -31,6 +31,7 @@
 	import { LogoGithub } from "carbon-icons-svelte";
 	import { HeaderActionLink } from "carbon-components-svelte";
 	import POVMapControls from "./ui/components/MapControls/POVMapControls.svelte";
+	import HeaderUtilityModeSwitcher from "./map-cesium/Header/HeaderUtilityModeSwitcher/HeaderUtilityModeSwitcher.svelte";
 
 	const settings = writable<any>({});
 	const enabledTools = writable<Array<string>>(new Array<string>());
@@ -105,6 +106,9 @@
 			<div class="header-utilities">
 				{#if $enabledTools.includes("geocoder")}
 					<HeaderUtilityGeocoder />
+				{/if}
+				{#if $enabledTools.includes("modeswitcher")}
+					<HeaderUtilityModeSwitcher />
 				{/if}
 				<Language />
 				<HeaderActionLink title="Visit GitHub" icon={LogoGithub} href="https://github.com/leia-project" target="_blank"/>

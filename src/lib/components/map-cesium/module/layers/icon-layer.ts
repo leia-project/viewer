@@ -17,6 +17,7 @@ export class IconLayer<F> extends CustomLayer {
 	public hoveredFeature: Writable<F | undefined> = writable(undefined);
 	public activeFeature: Writable<F | undefined> = writable(undefined);
 	public mapIcons: Array<CesiumIcon<F>> = [];
+	private boundingSphere: Cesium.BoundingSphere | undefined;
 	private unsubscribers: Array<Unsubscriber> = new Array<Unsubscriber>();
 
 	public colorProperties = {
@@ -27,6 +28,7 @@ export class IconLayer<F> extends CustomLayer {
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
 		this.source = new Cesium.CustomDataSource(config.id);
+
 		this.addListeners();
 		this.addMouseEvents();
 	}
@@ -42,6 +44,10 @@ export class IconLayer<F> extends CustomLayer {
 				this.mapIcons.forEach((i) => i.active.set(i.feature === feature));
 				this.map.refresh();
 				if (feature) this.flyToFeature(feature);
+			}),
+			this.map.options.use3DMode.subscribe((b) => {
+				if (!this.source || !this.boundingSphere) return;
+				this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, b);
 			})
 		);
 	}
@@ -121,8 +127,8 @@ export class IconLayer<F> extends CustomLayer {
 
 	public setCameraPosition(): void {
 		const cartesians = this.mapIcons.map(i => i.billboard.position?.getValue()).filter(c => c !== undefined);
-		const sphere = Cesium.BoundingSphere.fromPoints(cartesians);
-		this.config.cameraPosition = getCameraPositionFromBoundingSphere(sphere);
+		this.boundingSphere = Cesium.BoundingSphere.fromPoints(cartesians);
+		this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere);
 	}
 
 	public show(): void {
@@ -142,9 +148,10 @@ export class IconLayer<F> extends CustomLayer {
 	public flyToFeature(feature: F): void {
 		const icon = this.mapIcons.find((i) => i.feature === feature);
 		if (!icon) return;
+		let pitch = get(this.map.options.use3DMode) ? -60 : -89.9;
 		this.map.viewer.flyTo(icon.billboard, {
 			duration: 1,
-			offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 5000)
+			offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(pitch), 5000)
 		});
 	}
 }

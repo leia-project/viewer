@@ -233,7 +233,7 @@ Colors for the GUI. The black header cannot be changed currently, this is an ope
 
 ### Groups configuration ("groups: {}")
 
-List of groups, these groups are used for grouping layers in the layer library, there is no limit on how many child groups there can be.
+List of groups, these groups are used for grouping layers in the layer library, there is no limit on how many child groups there can be. The root parent should be on top.
 
 |value|description|type|
 |-|-|-|
@@ -280,7 +280,7 @@ Layer definition
 |attribution|attribution for the layer data, to be displayed at at layer information page|string|
 |metadata|an array of {"key":"somekey","value":"somevalue"} pairs, to store custom metadata which is shown in the layer library|array[KeyValue]|
 |transparent|true if layer can be transparent|boolean|
-|opacity|number between 0 (transparent) and 1 (opaque)|number|
+|opacity|number between 0 (opaque) and 100 (transparent)|number|
 |cameraPosition|Default camera position, when set a zoom to icon is displayed for the layer in the layer manager|cameraPosition, same as parameters for [startPosition](###startPosition)|
 |settings|technical settings for the layer, this can differ between layer types, see LayerSettings below|LayerSettings|
 
@@ -703,7 +703,7 @@ The info tool will display attribution from used libraries in the viewer and som
 
 #### geocoder
 
-Geocoder tool,  located at the right corner of the header instead of the toolbar, the user can search for locations using and zoom to locations using this tool. For geocoding the PDOK geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. No additional settings are required for this tool
+Geocoder tool, located at the right corner of the header instead of the toolbar, the user can search for locations using and zoom to locations using this tool. For geocoding the PDOK geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. No additional settings are required for this tool
 
 ```json
 {
@@ -712,6 +712,20 @@ Geocoder tool,  located at the right corner of the header instead of the toolbar
 	"settings": {}
 }
 ```
+
+#### modeswitcher
+
+Mode switcher tool, located at the right corner of the header instead of the toolbar, the user can toggle between 3D and 2D mode using this tool. This disables tilting in the viewer, locks the pitch angle at -90, and turns the terrain off. Defaults to 3D mode.
+
+```json
+{
+	"id": "modeswitcher",
+	"enabled": true,
+	"settings": {}
+}
+```
+
+
 
 #### cesium
 
