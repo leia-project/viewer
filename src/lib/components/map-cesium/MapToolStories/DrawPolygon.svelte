@@ -1,0 +1,208 @@
+<script lang="ts">
+    import * as Cesium from "cesium";
+
+    export let viewer: Cesium.Viewer;
+    export let hasDrawnPolygon: boolean = false;
+
+    let handler: Cesium.ScreenSpaceEventHandler;
+    let activeShapePoints: Cesium.Cartesian3[] = [];
+    let activeShape: Cesium.Entity | undefined;
+    let floatingPoint: Cesium.Entity | undefined;
+    let polygonEntity: Cesium.Entity | undefined;
+    let redPoints: Cesium.Entity[] = [];
+    let selectedAction: 'draw' | 'delete' | null = null;
+    let geojson: any;
+
+    function drawShape(positionData: Cesium.Cartesian3[]) {
+        return viewer.entities.add({
+        polygon: {
+            hierarchy: new Cesium.CallbackProperty(() => {
+            return new Cesium.PolygonHierarchy(positionData);
+            }, false),
+            material: Cesium.Color.YELLOW.withAlpha(0.6),
+        },
+        });
+    }
+
+    function draw() {
+        if (hasDrawnPolygon) {
+            console.log("Already drawn a polygon, first delete the old one");
+            return;
+        }
+        handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+
+        handler.setInputAction((event: any) => {
+            const earthPosition = viewer.scene.pickPosition(event.position);
+            if (!earthPosition) return;
+            
+            const pointEntity = viewer.entities.add({
+                position: earthPosition,
+                point: {
+                    pixelSize: 6,
+                    color: Cesium.Color.RED,
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                },
+            });
+            redPoints.push(pointEntity);
+
+            if (activeShapePoints.length === 0) {
+                floatingPoint = viewer.entities.add({
+                    position: earthPosition,
+                    point: {
+                        pixelSize: 5,
+                        color: Cesium.Color.RED,
+                        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                    },
+                });
+
+                activeShapePoints.push(earthPosition);
+                activeShape = drawShape(activeShapePoints);
+            }
+
+            activeShapePoints.push(earthPosition);
+            viewer.scene.requestRender();
+
+        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+        handler.setInputAction(() => {
+        handler.destroy();
+        if (floatingPoint) viewer.entities.remove(floatingPoint);
+        if (activeShape) viewer.entities.remove(activeShape);
+
+        const coords = activeShapePoints.map((cartesian) => {
+            const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+            return [
+            Cesium.Math.toDegrees(cartographic.longitude),
+            Cesium.Math.toDegrees(cartographic.latitude)
+            ];
+        });
+
+        if  (
+            coords.length > 0 &&
+            (coords[0][0] !== coords[coords.length - 1][0] ||
+            coords[0][1] !== coords[coords.length - 1][1])
+        )   {
+            coords.push(coords[0]);
+        }
+
+        geojson = {
+            type: "Feature",
+            geometry: {
+            type: "Polygon",
+            coordinates: [coords]
+            },
+            properties: {}
+        };
+
+        console.log("GeoJSON Polygon:", JSON.stringify(geojson, null, 2));
+
+        // Now draw and clear
+        polygonEntity = viewer.entities.add({
+            polygon: {
+            hierarchy: activeShapePoints,
+            material: Cesium.Color.BLUE.withAlpha(0.2),
+            },
+        });
+
+        activeShapePoints = [];
+        activeShape = undefined;
+
+        viewer.scene.requestRender();
+        hasDrawnPolygon = true;
+        // sendAPIUpResponse();
+        sendAnalysisRequest(geojson, "https://service.pdok.nl/rws/ahn/atom/downloads/dtm_05m/M_65CZ2.tif");
+        }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+        };
+    
+    function deletePolygon() {
+        if (!hasDrawnPolygon) {
+            console.log("First draw a polygon before you can delete one");
+            return;
+        }
+
+        if (floatingPoint) viewer.entities.remove(floatingPoint);
+        if (activeShape) viewer.entities.remove(activeShape);
+        if (polygonEntity) viewer.entities.remove(polygonEntity);
+        redPoints.forEach((point) => viewer.entities.remove(point));
+        redPoints = [];
+        viewer.scene.requestRender();
+        hasDrawnPolygon = false;
+    }
+
+    async function sendAnalysisRequest(geojson: any, url: string) {
+    // Extract the inner geometry part from the GeoJSON Feature for the "geom" field
+        const geom = {
+            geometry: geojson.geometry
+        };
+        
+        try {
+            const response = await fetch("http://localhost:8000/analyze", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    raster_url: url,
+                    geom: geom,  // match the backend expected structure here
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Response from server:", data);
+        } catch (error) {
+            console.error("Failed to send request:", error);
+        }
+    }
+
+    async function sendAPIUpResponse() {
+        try {
+            const response = await fetch("http://localhost:8000", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            }
+            });
+
+            if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Response from server:", data);
+        } catch (error) {
+            console.error("Failed to send request:", error);
+        }
+    }
+</script>
+
+<div>
+    <button on:click={() => {
+        draw(); 
+        selectedAction = "draw";
+    }} 
+    class="{selectedAction === 'draw' ? 'button-selected' : 'button-normal'}">Draw new polygon</button>
+
+    <button on:click={() => {
+        deletePolygon();
+        selectedAction = 'delete';
+    }}
+    class="button-normal">Delete polygon</button>
+</div>
+
+<style>
+    button {
+        width: 49%;
+        margin-bottom: 1rem;
+    }
+    .button-normal {
+        background-color: grey;
+    }
+
+    .button-selected {
+        background-color: lightslategray;
+    }
+</style>
