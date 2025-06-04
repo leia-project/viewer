@@ -1571,6 +1571,96 @@
             "settings": {
                 "url": "https://tiles.arcgis.com/tiles/7SEV6TvwRD5jzR74/arcgis/rest/services/Sturingskaart_slachtoffers_feb24/MapServer/"
             }
+        },
+        {
+            "id": "8001",
+            "type": "wms",
+            "title": "Bodemdaling Signaalkaart",
+            "groupId": "signaalkaarten",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "bodemdaling_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "8002",
+            "type": "wms",
+            "title": "Regenwateroverlast Signaalkaart",
+            "groupId": "signaalkaarten",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "regenwateroverlast_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "8003",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid Signaalkaart",
+            "groupId": "signaalkaarten",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "8004",
+            "type": "wms",
+            "title": "Waterkwaliteit Signaalkaart",
+            "groupId": "signaalkaarten",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterkwaliteit_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "8005",
+            "type": "wms",
+            "title": "Waterveiligheid Signaalkaart",
+            "groupId": "signaalkaarten",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "8006",
+            "type": "wms",
+            "title": "Hitte Signaalkaart",
+            "groupId": "signaalkaarten",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "hitte_aggregated",
+                "contenttype": "image/png"
+            }
         }
     ],
     "viewer": {
@@ -1750,6 +1840,11 @@
         {
             "id": "hitte",
             "title": "Hitte",
+            "parentId": ""
+        },
+        {
+            "id": "signaalkaarten",
+            "title": "Signaalkaarten",
             "parentId": ""
         }
     ],
