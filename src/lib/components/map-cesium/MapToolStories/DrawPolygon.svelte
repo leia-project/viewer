@@ -1,7 +1,11 @@
 <script lang="ts">
     import * as Cesium from "cesium";
+    import { polygonPositions } from "./PolygonStore";
+    import { onMount } from "svelte";
+    import { page } from '$app/stores';
+	import { Map } from "../module/map";
 
-    export let viewer: Cesium.Viewer;
+    export let map: Map;
     export let hasDrawnPolygon: boolean = false;
 
     let handler: Cesium.ScreenSpaceEventHandler;
@@ -13,8 +17,9 @@
     let selectedAction: 'draw' | 'delete' | null = null;
     let geojson: any;
 
+
     function drawShape(positionData: Cesium.Cartesian3[]) {
-        return viewer.entities.add({
+        return map.viewer.entities.add({
         polygon: {
             hierarchy: new Cesium.CallbackProperty(() => {
             return new Cesium.PolygonHierarchy(positionData);
@@ -29,13 +34,13 @@
             console.log("Already drawn a polygon, first delete the old one");
             return;
         }
-        handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+        handler = new Cesium.ScreenSpaceEventHandler(map.viewer.canvas);
 
         handler.setInputAction((event: any) => {
-            const earthPosition = viewer.scene.pickPosition(event.position);
+            const earthPosition = map.viewer.scene.pickPosition(event.position);
             if (!earthPosition) return;
             
-            const pointEntity = viewer.entities.add({
+            const pointEntity = map.viewer.entities.add({
                 position: earthPosition,
                 point: {
                     pixelSize: 6,
@@ -46,7 +51,7 @@
             redPoints.push(pointEntity);
 
             if (activeShapePoints.length === 0) {
-                floatingPoint = viewer.entities.add({
+                floatingPoint = map.viewer.entities.add({
                     position: earthPosition,
                     point: {
                         pixelSize: 5,
@@ -60,20 +65,20 @@
             }
 
             activeShapePoints.push(earthPosition);
-            viewer.scene.requestRender();
+            map.viewer.scene.requestRender();
 
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
         handler.setInputAction(() => {
         handler.destroy();
-        if (floatingPoint) viewer.entities.remove(floatingPoint);
-        if (activeShape) viewer.entities.remove(activeShape);
+        if (floatingPoint) map.viewer.entities.remove(floatingPoint);
+        if (activeShape) map.viewer.entities.remove(activeShape);
 
         const coords = activeShapePoints.map((cartesian) => {
             const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
             return [
-            Cesium.Math.toDegrees(cartographic.longitude),
-            Cesium.Math.toDegrees(cartographic.latitude)
+                Cesium.Math.toDegrees(cartographic.longitude),
+                Cesium.Math.toDegrees(cartographic.latitude)
             ];
         });
 
@@ -94,10 +99,8 @@
             properties: {}
         };
 
-        console.log("GeoJSON Polygon:", JSON.stringify(geojson, null, 2));
-
         // Now draw and clear
-        polygonEntity = viewer.entities.add({
+        polygonEntity = map.viewer.entities.add({
             polygon: {
             hierarchy: activeShapePoints,
             material: Cesium.Color.BLUE.withAlpha(0.2),
@@ -107,8 +110,10 @@
         activeShapePoints = [];
         activeShape = undefined;
 
-        viewer.scene.requestRender();
+        polygonPositions.set(activeShapePoints);
+        map.viewer.scene.requestRender();
         hasDrawnPolygon = true;
+        
         // sendAPIUpResponse();
         sendAnalysisRequest(geojson, "https://service.pdok.nl/rws/ahn/atom/downloads/dtm_05m/M_65CZ2.tif");
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -120,12 +125,16 @@
             return;
         }
 
-        if (floatingPoint) viewer.entities.remove(floatingPoint);
-        if (activeShape) viewer.entities.remove(activeShape);
-        if (polygonEntity) viewer.entities.remove(polygonEntity);
-        redPoints.forEach((point) => viewer.entities.remove(point));
+        if (floatingPoint) map.viewer.entities.remove(floatingPoint);
+        if (activeShape) map.viewer.entities.remove(activeShape);
+        if (polygonEntity) {
+            map.viewer.entities.remove(polygonEntity);
+            polygonEntity = undefined;
+        }
+        redPoints.forEach((point) => map.viewer.entities.remove(point));
         redPoints = [];
-        viewer.scene.requestRender();
+        polygonPositions.set([]); // Clear stored points
+        map.viewer.scene.requestRender();
         hasDrawnPolygon = false;
     }
 

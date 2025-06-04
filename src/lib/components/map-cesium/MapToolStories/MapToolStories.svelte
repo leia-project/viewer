@@ -15,11 +15,10 @@
 	import { page } from "$app/stores";
 	import { StoryChapter } from "./StoryChapter";
 	import DrawPolygon from "./DrawPolygon.svelte";
-	import { draw } from "svelte/transition";
 	
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-	let drawn: boolean = false;
+	let hasDrawnPolygon: boolean = false;
 	let id: string = "stories";
 	export let icon: any = Catalog;
 	export let label: string = "Stories";
@@ -33,6 +32,7 @@
 	let stepNumber: number;
 
 	let tool = new MapToolMenuOption(id, icon, label);
+	const layers = cesiumMap.layers;
 
 	$: { tool.label.set(label); }
 	registerTool(tool);
@@ -48,7 +48,11 @@
 
 	tool.settings.subscribe((settings) => {
 		if (settings) {
-			loadStoriesFromSettings(settings);
+			cesiumMap.ready.subscribe((ready)=> {
+				if(ready) {
+					loadStoriesFromSettings(settings);
+				}
+			})
 
 			// Directly activate story from searchParams
 			const queriedStory = $page.data.story;
@@ -63,6 +67,20 @@
 		}
 	});
 
+	function getUrlAndFeatureNameForLayer(id: string): { url: string | undefined; featureName: string | undefined } {
+		for (let i = 0; i < $layers.length; i++) {
+			if ($layers[i].config.id === id) {
+				return { 
+					url: $layers[i].config.settings.url,
+					featureName: $layers[i].config.settings.featureName
+				};
+			}
+		}
+		return {
+			url: undefined,
+			featureName: undefined
+		}
+	}
 
 	function loadStoriesFromSettings(settings: any) {
 		const configStories = settings.stories;
@@ -103,8 +121,9 @@
 						// Load all story layers
 						const storyLayers = new Array<StoryLayer>();
 						for (let l = 0; l < step.layers.length; l++) {
+							const {url, featureName} = getUrlAndFeatureNameForLayer(step.layers[l].id);
 							storyLayers.push(
-								new StoryLayer(step.layers[l].id, step.layers[l].opacity, step.layers[l].style)
+								new StoryLayer(step.layers[l].id, step.layers[l].opacity, step.layers[l].style, url, featureName)
 							);
 						}
 						const globeOpacity = step.globeOpacity ?? 100;
@@ -138,8 +157,8 @@
 {#if $selectedTool === tool}
 	<div class="wrapper">
 		{#if selectedStory}
-			<DrawPolygon bind:hasDrawnPolygon={drawn} viewer = {map.viewer}/>
-			{#if drawn}
+			<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} map = {map}/>
+			{#if hasDrawnPolygon}
 				<StoryView
 					map={cesiumMap}
 					story={selectedStory}
