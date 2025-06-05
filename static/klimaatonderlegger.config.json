@@ -1647,6 +1647,21 @@
             }
         },
         {
+            "id": "9000",
+            "type": "wms",
+            "title": "Bebouwing Signaalkaart (Totaal)",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bebouwing_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "bebouwing_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
             "id": "9001",
             "type": "wms",
             "title": "Bodemdaling - Bebouwing",
@@ -1722,6 +1737,21 @@
             }
         },
         {
+            "id": "10000",
+            "type": "wms",
+            "title": "Vitale Infrastructuur Signaalkaart (Totaal)",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:vitaleinfra_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
             "id": "10001",
             "type": "wms",
             "title": "Bodemdaling - Vitale Infrastructuur",
@@ -1778,6 +1808,21 @@
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
                 "featureName": "waterveiligheid_vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11000",
+            "type": "wms",
+            "title": "Recreatie Signaalkaart (Totaal)",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "recreatie_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1872,6 +1917,21 @@
             }
         },
         {
+            "id": "12000",
+            "type": "wms",
+            "title": "Landbouw Signaalkaart (Totaal)",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
             "id": "12001",
             "type": "wms",
             "title": "Hitte - Landbouw",
@@ -1947,6 +2007,21 @@
             }
         },
         {
+            "id": "13000",
+            "type": "wms",
+            "title": "Natuur Signaalkaart (Totaal)",
+            "groupId": "natuur",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
             "id": "13001",
             "type": "wms",
             "title": "Waterbeschikbaarheid - Natuur",
@@ -1988,81 +2063,6 @@
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
                 "featureName": "waterveiligheid_natuur_aggregated",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "14001",
-            "type": "wms",
-            "title": "Bebouwing Signaalkaart",
-            "groupId": "signaalkaarten_per_gebruiksfunctie",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bebouwing_aggregated&format=image/png",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "bebouwing_aggregated",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "14002",
-            "type": "wms",
-            "title": "Vitale Infrastructuur Signaalkaart",
-            "groupId": "signaalkaarten_per_gebruiksfunctie",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:vitaleinfra_aggregated&format=image/png",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "vitaleinfra_aggregated",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "14003",
-            "type": "wms",
-            "title": "Recreatie Signaalkaart",
-            "groupId": "signaalkaarten_per_gebruiksfunctie",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:recreatie_aggregated&format=image/png",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "recreatie_aggregated",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "14004",
-            "type": "wms",
-            "title": "Landbouw Signaalkaart",
-            "groupId": "signaalkaarten_per_gebruiksfunctie",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:landbouw_aggregated&format=image/png",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "landbouw_aggregated",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "14005",
-            "type": "wms",
-            "title": "Natuur Signaalkaart",
-            "groupId": "signaalkaarten_per_gebruiksfunctie",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:natuur_aggregated&format=image/png",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "natuur_aggregated",
                 "contenttype": "image/png"
             }
         }
@@ -2136,6 +2136,38 @@
         }
     },
     "groups": [
+        {
+            "id": "gebruiksfuncties",
+            "title": "Gebruiksfuncties",
+            "parentId": ""
+        },
+        {
+            "id": "bebouwing",
+            "title": "Bebouwing",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "vitaleinfra",
+            "title": "Vitale Infrastructuur",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "recreatie",
+            "title": "Recreatie",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "landbouw",
+            "title": "Landbouw",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "natuur",
+            "title": "Natuur",
+            "parentId": "gebruiksfuncties"
+        },
+
+
         {
             "id": "2",
             "title": "Administratieve grenzen",
@@ -2249,41 +2281,6 @@
         {
             "id": "signaalkaarten_per_thema",
             "title": "Signaalkaarten Per Thema",
-            "parentId": ""
-        },
-        {
-            "id": "gebruiksfuncties",
-            "title": "Gebruiksfuncties",
-            "parentId": ""
-        },
-        {
-            "id": "bebouwing",
-            "title": "Bebouwing",
-            "parentId": "gebruiksfuncties"
-        },
-        {
-            "id": "vitaleinfra",
-            "title": "Vitale Infrastructuur",
-            "parentId": "gebruiksfuncties"
-        },
-        {
-            "id": "recreatie",
-            "title": "Recreatie",
-            "parentId": "gebruiksfuncties"
-        },
-        {
-            "id": "landbouw",
-            "title": "Landbouw",
-            "parentId": "gebruiksfuncties"
-        },
-        {
-            "id": "natuur",
-            "title": "Natuur",
-            "parentId": "gebruiksfuncties"
-        },
-        {
-            "id": "signaalkaarten_per_gebruiksfunctie",
-            "title": "Signaalkaarten Per Gebruiksfunctie",
             "parentId": ""
         }
     ],
