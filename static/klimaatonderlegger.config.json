@@ -710,22 +710,6 @@
             }
         },
         {
-            "id": "4008",
-            "type": "wfs",
-            "title": "Normering dijktrajecten: Signaleringswaarde (NBPW)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/wvp/gwc/service/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=wvp:dijktrajecten&styles=wvp:NBPW_signaleringswaarde",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://geo.rijkswaterstaat.nl/services/ogc/wvp/wfs",
-                "featureType": "wvp:dijktrajecten",
-                "version": "1.1.0",
-                "allowPicking": true
-            }
-        },
-        {
             "id": "4009",
             "type": "wms",
             "title": "Normering dijktrajecten: Ondergrens (NBPW)",
@@ -1576,8 +1560,8 @@
             "id": "8001",
             "type": "wms",
             "title": "Bodemdaling Signaalkaart",
-            "groupId": "signaalkaarten",
-            "legendUrl": "",
+            "groupId": "signaalkaarten_per_thema",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bodemdaling_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
@@ -1591,8 +1575,8 @@
             "id": "8002",
             "type": "wms",
             "title": "Regenwateroverlast Signaalkaart",
-            "groupId": "signaalkaarten",
-            "legendUrl": "",
+            "groupId": "signaalkaarten_per_thema",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
@@ -1606,8 +1590,8 @@
             "id": "8003",
             "type": "wms",
             "title": "Waterbeschikbaarheid Signaalkaart",
-            "groupId": "signaalkaarten",
-            "legendUrl": "",
+            "groupId": "signaalkaarten_per_thema",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
@@ -1621,8 +1605,8 @@
             "id": "8004",
             "type": "wms",
             "title": "Waterkwaliteit Signaalkaart",
-            "groupId": "signaalkaarten",
-            "legendUrl": "",
+            "groupId": "signaalkaarten_per_thema",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterkwaliteit_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
@@ -1636,8 +1620,8 @@
             "id": "8005",
             "type": "wms",
             "title": "Waterveiligheid Signaalkaart",
-            "groupId": "signaalkaarten",
-            "legendUrl": "",
+            "groupId": "signaalkaarten_per_thema",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
@@ -1651,14 +1635,434 @@
             "id": "8006",
             "type": "wms",
             "title": "Hitte Signaalkaart",
-            "groupId": "signaalkaarten",
-            "legendUrl": "",
+            "groupId": "signaalkaarten_per_thema",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
                 "featureName": "hitte_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "9001",
+            "type": "wms",
+            "title": "Bodemdaling - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "9002",
+            "type": "wms",
+            "title": "Hitte - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_bebouwing_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "hitte_bebouwing_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "9003",
+            "type": "wms",
+            "title": "Regenwateroverlast - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_bebouwing_vitaleinfra_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "regenwateroverlast_bebouwing_vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "9004",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_bebouwing_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_bebouwing_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "9005",
+            "type": "wms",
+            "title": "Waterveiligheid - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_bebouwing_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_bebouwing_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "10001",
+            "type": "wms",
+            "title": "Bodemdaling - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "10002",
+            "type": "wms",
+            "title": "Regenwateroverlast - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_bebouwing_vitaleinfra_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "regenwateroverlast_bebouwing_vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "10003",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_vitaleinfra_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "10004",
+            "type": "wms",
+            "title": "Waterveiligheid - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_vitaleinfra_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11001",
+            "type": "wms",
+            "title": "Bodemdaling - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11002",
+            "type": "wms",
+            "title": "Hitte - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_reacreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "hitte_reacreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11003",
+            "type": "wms",
+            "title": "Regenwateroverlast - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "regenwateroverlast_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11004",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11005",
+            "type": "wms",
+            "title": "Waterkwaliteit - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterkwaliteit_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterkwaliteit_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11006",
+            "type": "wms",
+            "title": "Waterveiligheid - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12001",
+            "type": "wms",
+            "title": "Hitte - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "hitte_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12002",
+            "type": "wms",
+            "title": "Regenwateroverlast - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "regenwateroverlast_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12003",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12004",
+            "type": "wms",
+            "title": "Waterkwaliteit - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterkwaliteit_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterkwaliteit_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12005",
+            "type": "wms",
+            "title": "Waterveiligheid - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13001",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Natuur",
+            "groupId": "natuur",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13002",
+            "type": "wms",
+            "title": "Waterkwaliteit - Natuur",
+            "groupId": "natuur",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterkwaliteit_natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterkwaliteit_natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13003",
+            "type": "wms",
+            "title": "Waterveiligheid - Natuur",
+            "groupId": "natuur",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "14001",
+            "type": "wms",
+            "title": "Bebouwing Signaalkaart",
+            "groupId": "signaalkaarten_per_gebruiksfunctie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bebouwing_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "bebouwing_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "14002",
+            "type": "wms",
+            "title": "Vitale Infrastructuur Signaalkaart",
+            "groupId": "signaalkaarten_per_gebruiksfunctie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:vitaleinfra_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "14003",
+            "type": "wms",
+            "title": "Recreatie Signaalkaart",
+            "groupId": "signaalkaarten_per_gebruiksfunctie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "14004",
+            "type": "wms",
+            "title": "Landbouw Signaalkaart",
+            "groupId": "signaalkaarten_per_gebruiksfunctie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "14005",
+            "type": "wms",
+            "title": "Natuur Signaalkaart",
+            "groupId": "signaalkaarten_per_gebruiksfunctie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "natuur_aggregated",
                 "contenttype": "image/png"
             }
         }
@@ -1843,8 +2247,43 @@
             "parentId": ""
         },
         {
-            "id": "signaalkaarten",
-            "title": "Signaalkaarten",
+            "id": "signaalkaarten_per_thema",
+            "title": "Signaalkaarten Per Thema",
+            "parentId": ""
+        },
+        {
+            "id": "gebruiksfuncties",
+            "title": "Gebruiksfuncties",
+            "parentId": ""
+        },
+        {
+            "id": "bebouwing",
+            "title": "Bebouwing",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "vitaleinfra",
+            "title": "Vitale Infrastructuur",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "recreatie",
+            "title": "Recreatie",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "landbouw",
+            "title": "Landbouw",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "natuur",
+            "title": "Natuur",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "signaalkaarten_per_gebruiksfunctie",
+            "title": "Signaalkaarten Per Gebruiksfunctie",
             "parentId": ""
         }
     ],
@@ -2037,7 +2476,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "9002"
                                             }
                                         ]
                                     },
@@ -2056,10 +2495,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "9002"
                                             }
                                         ]
                                     },

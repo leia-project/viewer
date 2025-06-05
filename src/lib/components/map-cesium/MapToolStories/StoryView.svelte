@@ -17,6 +17,7 @@
 	import type { StoryLayer } from "./StoryLayer";
 	import type { StoryChapter } from "./StoryChapter";
 	import { DonutChart } from "@carbon/charts-svelte";
+	import CustomPaginationNav from "./CustomPaginationNav.svelte";
 
 	export let map: Map;
 	export let story: Story;
@@ -31,6 +32,7 @@
 	let currentPage = writable<number>(1);
 	let activeStep: StoryStep | undefined;
 	let activeChapter: StoryChapter | undefined;
+	let activeChapterSteps: Array<StoryStep> | undefined;
 	let cesiumMap = map as MapCore;
 	let width: number;
 	let height: number;
@@ -114,6 +116,7 @@
 		setTimeout(() => { scrollToStep(savedStepNumber-1) }, 150); // Timeout when height of images is not explicitly set
 	});
 
+
 	onDestroy(() => {
 		map.autoCheckBackground = startAutocheckBackground;
 		container.removeEventListener("scroll", onScroll);
@@ -122,15 +125,18 @@
 		dispatch("closeModule", {n: $currentPage});
 	});
 
+
 	function onScroll() {
 		if (lastInputType === "scroll") {
 			checkStep();
 		}
 	}
 
+
 	function onWheel() {
 		lastInputType = "scroll";
 	}
+
 
 	currentPage.subscribe((page) => {
 		//Check if processing
@@ -147,6 +153,8 @@
 		});
 		const activeEntry = flattenedSteps[index];
 		activeChapter = activeEntry.chapter;
+		activeChapterSteps = activeChapter.steps;
+		console.log("activeChapterSteps", activeChapterSteps);
 		activeStep = activeEntry.step;
 
 		// if clicked on nav index, scroll to step automatically
@@ -379,7 +387,16 @@
 		</div>
 
 		<div>
-			<PaginationNav
+			<CustomPaginationNav
+				bind:page={$currentPage}
+				labels={activeChapterSteps ? activeChapterSteps.map(step => step.title) : []}
+				shown={3}
+				loop={false}
+				forwardText={textStepForward}
+				backwardText={textStepBack}
+			/>
+
+			<!-- <PaginationNav
 				forwardText={textStepForward}
 				backwardText={textStepBack}
 				bind:page={$currentPage}
@@ -389,7 +406,7 @@
 				onmousedown={() => {
 					lastInputType = "click";
 				}}
-			/>
+			/> -->
 		</div>
 	</div>
 
@@ -404,6 +421,10 @@
 					{$_("tools.stories.description")}
 				</div>
 				{@html step.html}
+				{#each step.layers ?? [] as layer}
+					Layers: {layer.featureName}
+				{/each}
+
 				<div class="tag">
 					<Tag>{chapter.title}</Tag>
 					<Tag>{index + 1}</Tag>
