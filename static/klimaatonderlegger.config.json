@@ -75,6 +75,7 @@
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
+            "description" : "description",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/bodem/wms?SERVICE=WMS&VERSION=1.3.0",
                 "featureName": "geogwd_bdmkrtzldvvl",
