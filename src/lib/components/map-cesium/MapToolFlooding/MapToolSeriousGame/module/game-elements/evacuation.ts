@@ -1,5 +1,5 @@
-import type { BottleNeck, ExtractionPoint } from "./bottle-neck";
-import type { Hexagon } from "./hexagon";
+import type { BottleNeck, ExtractionPoint } from "./roads/bottle-neck";
+import type { Hexagon } from "./hexagons/hexagon";
 
 
 export class Evacuation {

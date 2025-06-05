@@ -151,96 +151,96 @@ class DynamicWaterLevel {
 
 	private async setUniforms(reset: boolean = false): Promise<void> {
 		if (reset) {
-		this.floodTextureMapping = [
-	        { slot: 1, time: undefined, image: undefined },
-	        { slot: 2, time: undefined, image: undefined },
-	        { slot: 3, time: undefined, image: undefined },
-	        { slot: 4, time: undefined, image: undefined }
-	      ];
-	    }
-	    const setTextureSlot = (slot: number, image: any) => {
-	      if (!this.material) return;
-	      if (slot === 1) this.material.uniforms.u_flood_slot_1 = image;
-	      if (slot === 2) this.material.uniforms.u_flood_slot_2 = image;
-	      if (slot === 3) this.material.uniforms.u_flood_slot_3 = image;
-	      if (slot === 4) this.material.uniforms.u_flood_slot_4 = image;
-	    }
+			this.floodTextureMapping = [
+				{ slot: 1, time: undefined, image: undefined },
+				{ slot: 2, time: undefined, image: undefined },
+				{ slot: 3, time: undefined, image: undefined },
+				{ slot: 4, time: undefined, image: undefined }
+			];
+		}
+		const setTextureSlot = (slot: number, image: any) => {
+			if (!this.material) return;
+			if (slot === 1) this.material.uniforms.u_flood_slot_1 = image;
+			if (slot === 2) this.material.uniforms.u_flood_slot_2 = image;
+			if (slot === 3) this.material.uniforms.u_flood_slot_3 = image;
+			if (slot === 4) this.material.uniforms.u_flood_slot_4 = image;
+		}
 	
-	    // Remove any duplicates in the flood texture mapping
-	    const uniqueTimes = new Set<number | undefined>();
-	    for (const mapping of this.floodTextureMapping) {
-	      if (uniqueTimes.has(mapping.time)) {
-	        mapping.time = undefined;
-	        mapping.image = undefined;
-	      } else {
-	        uniqueTimes.add(mapping.time);
-	      }
-	    }
+		// Remove any duplicates in the flood texture mapping
+		const uniqueTimes = new Set<number | undefined>();
+		for (const mapping of this.floodTextureMapping) {
+			if (uniqueTimes.has(mapping.time)) {
+				mapping.time = undefined;
+				mapping.image = undefined;
+			} else {
+				uniqueTimes.add(mapping.time);
+			}
+		}
 	
-	    const [lowerLowerBound, lowerBound, upperBound, upperUpperBound] = this.findClosestWaterLevels();
-	    if (lowerBound === undefined || !upperBound === undefined) return;
+		const [lowerLowerBound, lowerBound, upperBound, upperUpperBound] = this.findClosestWaterLevels();
+		if (lowerBound === undefined || !upperBound === undefined) return;
 	
-	    let slotTextureT1: number;
-	    const textureT1 = this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time);
-	    if (!textureT1) {
-	      for (const mapping of this.floodTextureMapping) {
-	        if (mapping.time !== lowerBound.time && mapping.time !== upperBound.time) {
-	          mapping.time = lowerBound.time;
-	          mapping.image = lowerBound.image;
-	          break;
-	        }
-	      }
-	      slotTextureT1 = this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time)?.slot || 1;
-	      setTextureSlot(slotTextureT1, lowerBound.image);
-	      setTimeout(() => this.map.refresh(), 100); // Because of small delay in setting the texture
-	    } else {
-	      slotTextureT1 = textureT1.slot;
-	    }
+		let slotTextureT1: number;
+		const textureT1 = this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time);
+		if (!textureT1) {
+			for (const mapping of this.floodTextureMapping) {
+				if (mapping.time !== lowerBound.time && mapping.time !== upperBound.time) {
+					mapping.time = lowerBound.time;
+					mapping.image = lowerBound.image;
+					break;
+				}
+			}
+			slotTextureT1 = this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time)?.slot || 1;
+			setTextureSlot(slotTextureT1, lowerBound.image);
+			setTimeout(() => this.map.refresh(), 100); // Because of small delay in setting the texture
+		} else {
+			slotTextureT1 = textureT1.slot;
+		}
 	
-	    let slotTextureT2: number;
-	    const textureT2 = this.floodTextureMapping.find((mapping) => mapping.time === upperBound.time);
-	    if (!textureT2) {
-	      for (const mapping of this.floodTextureMapping) {
-	        if (mapping.time !== lowerBound.time && mapping.time !== upperBound.time) {
-	          mapping.time = upperBound.time;
-	          mapping.image = upperBound.image;
-	          break;
-	        }
-	      }
-	      slotTextureT2 = this.floodTextureMapping.find((mapping) => mapping.time === upperBound.time)?.slot || 2;
-	      setTextureSlot(slotTextureT2, upperBound.image);
-	      setTimeout(() => this.map.refresh(), 100); // Because of small delay in setting the texture
-	    } else {
-	      slotTextureT2 = textureT2.slot;
-	    }
+		let slotTextureT2: number;
+		const textureT2 = this.floodTextureMapping.find((mapping) => mapping.time === upperBound.time);
+		if (!textureT2) {
+			for (const mapping of this.floodTextureMapping) {
+				if (mapping.time !== lowerBound.time && mapping.time !== upperBound.time) {
+					mapping.time = upperBound.time;
+					mapping.image = upperBound.image;
+					break;
+				}
+			}
+			slotTextureT2 = this.floodTextureMapping.find((mapping) => mapping.time === upperBound.time)?.slot || 2;
+			setTextureSlot(slotTextureT2, upperBound.image);
+			setTimeout(() => this.map.refresh(), 100); // Because of small delay in setting the texture
+		} else {
+			slotTextureT2 = textureT2.slot;
+		}
 	
-	    const availableSlots = this.floodTextureMapping.filter((mapping) => mapping.time !== lowerBound.time && mapping.time !== upperBound.time);
-	    availableSlots[0].time = lowerLowerBound.time; availableSlots[0].image = lowerLowerBound.image;
-	    availableSlots[1].time = upperUpperBound.time; availableSlots[1].image = upperUpperBound.image;
+		const availableSlots = this.floodTextureMapping.filter((mapping) => mapping.time !== lowerBound.time && mapping.time !== upperBound.time);
+		availableSlots[0].time = lowerLowerBound.time; availableSlots[0].image = lowerLowerBound.image;
+		availableSlots[1].time = upperUpperBound.time; availableSlots[1].image = upperUpperBound.image;
 	
-	    setTextureSlot(availableSlots[0].slot, availableSlots[0].image);
-	    setTextureSlot(availableSlots[1].slot, availableSlots[1].image);
+		setTextureSlot(availableSlots[0].slot, availableSlots[0].image);
+		setTextureSlot(availableSlots[1].slot, availableSlots[1].image);
 	
-	    this.uniformMap.uFloodSlot1.value = this.floodTextureMapping[0].image;
-	    this.uniformMap.uFloodSlot2.value = this.floodTextureMapping[1].image;
-	    this.uniformMap.uFloodSlot3.value = this.floodTextureMapping[2].image;
-	    this.uniformMap.uFloodSlot4.value = this.floodTextureMapping[3].image;
+		this.uniformMap.uFloodSlot1.value = this.floodTextureMapping[0].image;
+		this.uniformMap.uFloodSlot2.value = this.floodTextureMapping[1].image;
+		this.uniformMap.uFloodSlot3.value = this.floodTextureMapping[2].image;
+		this.uniformMap.uFloodSlot4.value = this.floodTextureMapping[3].image;
 	
-	    let progress: number = 1;
-	    if (upperBound.time !== lowerBound.time) {
-	      progress = (get(this.time) - lowerBound.time) / (upperBound.time - lowerBound.time);
-	      progress = Math.max(0, Math.min(1, progress));
-	    }
+		let progress: number = 1;
+		if (upperBound.time !== lowerBound.time) {
+			progress = (get(this.time) - lowerBound.time) / (upperBound.time - lowerBound.time);
+			progress = Math.max(0, Math.min(1, progress));
+		}
 	
-	    if (this.material) {
-	      this.material.uniforms.u_terrain = this.uniformMap.uTerrain.value;
-	      this.material.uniforms.u_progress = progress;
-	      this.material.uniforms.u_flood_t1 = slotTextureT1;
-	      this.material.uniforms.u_flood_t2 = slotTextureT2;
-	      this.material.uniforms.u_alpha = get(this.alpha);
-	    }
-	    this.map.refresh();
-	  }
+		if (this.material) {
+			this.material.uniforms.u_terrain = this.uniformMap.uTerrain.value;
+			this.material.uniforms.u_progress = progress;
+			this.material.uniforms.u_flood_t1 = slotTextureT1;
+			this.material.uniforms.u_flood_t2 = slotTextureT2;
+			this.material.uniforms.u_alpha = get(this.alpha);
+		}
+		this.map.refresh();
+	}
 
 	private findClosestWaterLevels(): [WaterLevel, WaterLevel, WaterLevel, WaterLevel] {
 		let lowerBound = this.waterLevels[0];

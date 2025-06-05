@@ -1,7 +1,9 @@
 import type { Writable } from "svelte/store";
-import { HexagonLayer, type Hexagon } from "./hexagon";
-import { RoadNetwork } from "./road-network";
+import type { Hexagon } from "./hexagons/hexagon";
+import { HexagonLayer } from "./hexagons/hexagon-layer";
+import { RoadNetwork } from "./roads/road-network";
 import { notifications } from "$lib/components/map-core/notifications/notifications";
+import type { Map } from "$lib/components/map-cesium/module/map";
 
 
 
@@ -15,8 +17,8 @@ export class EvacuationController {
 		return this.hexagonLayer.hexagons;
 	}
 	
-	constructor(scenario: string, elapsedTime: Writable<number>) {
-		this.roadNetwork = new RoadNetwork();
+	constructor(map: Map, scenario: string, elapsedTime: Writable<number>) {
+		this.roadNetwork = new RoadNetwork(map);
 		this.hexagonLayer = new HexagonLayer(scenario);
 		this.elapsedTime = elapsedTime;
 		this.elapsedTime.subscribe((time: number) => {
@@ -24,7 +26,7 @@ export class EvacuationController {
 		});
 	}
 
-	public evacuate(): void {
+	public evacuateAll(): void {
 		const destination = this.roadNetwork.selectedExtractionPoint;
 		for (const hex of this.hexagons) {
 			const evacuation = this.roadNetwork.createEvacuation(hex, destination);
