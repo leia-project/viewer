@@ -272,6 +272,7 @@ Layer definition
 |type|layer type, supported layer types:<br /> ```basiskaart```, ```wms```, ```wmts```, ```tms```, ```vectortiles```, ```3dtiles```, ```geojson```, ```modelanimation```, ```custom```|string|
 |title|layer title|string|
 |groupId|id of the group where this layer belongs to or empty string, will be placed under uncategorized in library|string|
+|description|simple text field in which a layer description can be provided|string|
 |imageUrl|url of an example image of layer, will be shown in layer library|string|
 |legendUrl|url of legend image or empty string|string|
 |isBackground|set to true to use this as a background layer, background layers are separated from the thematic layers in the layer manager and only 1 background layer can be active at a time|boolean|
@@ -298,6 +299,7 @@ Layer definition
 	"type": "wms",
 	"title": "Beheer vlakken RWS (WMS)",
 	"groupId": "1658756230497",
+	"description": "Ook wel bekend als KernGIS Nat"
 	"legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/beheerkaart_nat/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=beheer_vlakken",
 	"isBackground": false,
 	"defaultAddToManager": true,
