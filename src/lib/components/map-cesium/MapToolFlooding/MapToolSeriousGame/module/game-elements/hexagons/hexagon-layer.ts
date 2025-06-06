@@ -79,6 +79,10 @@ export class HexagonLayer {
 			return acc;
 		}, { evacuated: 0 });
 	}
+
+	public onLeftClick(picked: any): void {
+		// highlight hexagon, and show info
+	}
 }
 
 
