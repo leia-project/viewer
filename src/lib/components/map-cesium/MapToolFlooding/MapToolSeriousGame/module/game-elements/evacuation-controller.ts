@@ -1,4 +1,4 @@
-import { get, writable, type Writable } from "svelte/store";
+import { writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Hexagon } from "./hexagons/hexagon";
 import { HexagonLayer } from "./hexagons/hexagon-layer";
@@ -6,7 +6,6 @@ import { RoadNetwork } from "./roads/road-network";
 import { notifications } from "$lib/components/map-core/notifications/notifications";
 import { Map } from "$lib/components/map-cesium/module/map";
 import { Evacuation } from "./evacuation";
-import type { ExtractionPoint } from "./roads/bottle-neck";
 
 
 export class EvacuationController {
@@ -18,7 +17,7 @@ export class EvacuationController {
 
 	private hoveredFeature: Writable<any> = writable(undefined);
 
-	public evacuations: Array<any> = [];
+	public evacuations: Writable<Array<Evacuation>> = writable([]);
 
 	get hexagons(): Array<Hexagon> {
 		return this.hexagonLayer.hexagons;
@@ -26,7 +25,7 @@ export class EvacuationController {
 	
 	constructor(map: Map, scenario: string, elapsedTime: Writable<number>, outline: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}) {
 		this.map = map;
-		this.roadNetwork = new RoadNetwork(map);
+		this.roadNetwork = new RoadNetwork(map, this.evacuations);
 		this.hexagonLayer = new HexagonLayer(map, scenario, outline);
 		this.elapsedTime = elapsedTime;
 		this.elapsedTime.subscribe((time: number) => {
@@ -35,19 +34,19 @@ export class EvacuationController {
 		this.addMouseEvents();
 	}
 
-	public async createEvacuation(hexagon: Hexagon): Promise<Evacuation | undefined> {
+	public async createEvacuation(hexagon: Hexagon): Promise<void> {
 		const routeResult = await this.roadNetwork.createEvacuationRoute(hexagon.center);
 		if (routeResult === undefined) {
 			// handle no route found
 			return;
 		}
 		const evacuation = new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint);
-		this.evacuations.push(evacuation);
-		return evacuation;
+		hexagon.addEvacuation(evacuation);
+		this.evacuations.update((evacs) => [...evacs, evacuation]);
 	}
 
 	public removeEvacuation(evacuation: Evacuation): void {
-		this.evacuations = this.evacuations.filter((e) => e !== evacuation);
+		//this.evacuations = this.evacuations.filter((e) => e !== evacuation);
 		// update bottleneck capacities
 	}
 

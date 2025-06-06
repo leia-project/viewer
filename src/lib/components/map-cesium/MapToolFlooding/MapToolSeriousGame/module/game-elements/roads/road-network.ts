@@ -1,8 +1,9 @@
+import * as Cesium from "cesium";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { ExtractionPoint, BottleNeck, RoadNetworkLayer } from "./bottle-neck";
 import { Evacuation } from "../evacuation";
-import type { Hexagon } from "../hexagons/hexagon";
 import { RoutingAPI, type RouteFeature } from "../api/routing-api";
+import type { Writable } from "svelte/store";
 
 
 const extractionPointsConfig = [
@@ -37,6 +38,7 @@ const bottlenecksConfig = [
 export class RoadNetwork {
 
 	private routingAPI: RoutingAPI;
+	private evacuations: Writable<Array<Evacuation>>;
 	private extractionPoints: Array<ExtractionPoint> = [];
 	private exctractionPointLayer: RoadNetworkLayer<ExtractionPoint>;
 	public selectedExtractionPoint: ExtractionPoint | undefined;
@@ -44,8 +46,9 @@ export class RoadNetwork {
 	private bottleneckLayer: RoadNetworkLayer<BottleNeck>;
 	private blockedSegments: Array<any> = [];
 
-	constructor(map: Map) {
+	constructor(map: Map, evacuations: Writable<Array<Evacuation>>) {
 		this.routingAPI = new RoutingAPI();
+		this.evacuations = evacuations;
 		this.exctractionPointLayer = new RoadNetworkLayer<ExtractionPoint>(map);
 		this.bottleneckLayer = new RoadNetworkLayer<BottleNeck>(map);
 		this.init();
@@ -54,6 +57,10 @@ export class RoadNetwork {
 	private init(): void {
 		this.loadExtractionPoints();
 		this.loadBottlenecks();
+		this.evacuations.subscribe((evacuations: Array<Evacuation>) => {
+			// get active evacuations (in progress) const activeEvacuations = evacuations.filter((e) => e.step > currentStep);
+			this.updateBottleneckCapacities(evacuations);
+		});
 	}
 
 	private loadExtractionPoints(): void {
@@ -104,12 +111,18 @@ export class RoadNetwork {
 		};
 	}
 
-	public updateBottleneckCapacities(): void {
+	public updateBottleneckCapacities(evacuations: Array<Evacuation>): void {
 
 	}
 
 
 	public onLeftClick(picked: any): void {
 		// if extraction point is clicked, set it as the selected extraction point
+		if (picked.id instanceof Cesium.Entity) {
+			const extractionPoint = this.extractionPoints.find((ep) => ep.entity === picked.id);
+			if (extractionPoint) {
+				this.selectedExtractionPoint = extractionPoint;
+			}
+		}
 	}
 }

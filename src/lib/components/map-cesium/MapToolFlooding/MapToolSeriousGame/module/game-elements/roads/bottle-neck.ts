@@ -1,8 +1,7 @@
-import type { Map } from "$lib/components/map-cesium/module/map";
-import { getCartesian2 } from "$lib/components/map-cesium/module/utils/geo-utils";
-import { CameraLocation } from "$lib/components/map-core/camera-location";
+import { writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
-import { get, writable, type Writable } from "svelte/store";
+import type { Map } from "$lib/components/map-cesium/module/map";
+
 
 
 abstract class RoutingNode {
@@ -35,12 +34,14 @@ export class ExtractionPoint extends RoutingNode {
 
 	protected createEntity(): Cesium.Entity {
 		return new Cesium.Entity({
-			id: this.id,
+			id: this.id + "_cone",
 			position: this.position,
-			billboard: {
-				image: "/images/leia_logo.png",
-				scale: 0.2,
-				disableDepthTestDistance: Number.POSITIVE_INFINITY
+			cylinder: {
+				length: 3500,
+				topRadius: 1000,
+				bottomRadius: 10,
+				material: Cesium.Color.GREEN.withAlpha(0.7),
+				heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
 			}
 		});
 	}

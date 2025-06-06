@@ -101,6 +101,10 @@ export class Hexagon {
 		this.status = status;
 	}
 
+	public addEvacuation(evacuation: Evacuation): void {
+
+	}
+
 	public select(): void {
 		// highlight hexagon
 		// this.evacuation?.show();
