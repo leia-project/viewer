@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { Map } from "$lib/components/map-cesium/module/map";
-	import type { Layer } from "$lib/components/map-core/layer";
 	import { get } from "svelte/store";
     import type { IRole } from "../module/models";
     import { Checkbox } from "carbon-components-svelte";

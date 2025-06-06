@@ -82,7 +82,7 @@ export class Hexagon {
 	private valueToColor(value: number): Cesium.Color {
 		const colors = this.cesiumColors;
 		const index = Math.min(Math.floor((value / 10) * colors.length), colors.length - 1);
-		return colors[index];
+		return colors[0];
 	}
 
 	private getHexagonHeight = (population: number) => {

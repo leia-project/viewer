@@ -36,16 +36,16 @@ export class PGRestAPI {
 	}
 
 	// Default hexagon resolution from datacore table is 10
-	public async getHexagons(polygon?: Array<[lon: number, lat: number]>, resolution: number = 6): Promise<Array<HexagonEntry>> {
+	public async getHexagons(polygon: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}, resolution: number): Promise<Array<HexagonEntry>> {
 		let query = `
-			SELECT h3, number_of_inhabitants FROM datacore.zeeland_h3 LIMIT 10;
+			SELECT h3, number_of_inhabitants FROM datacore.zeeland_h3
 		`;
 
 		if (polygon) {
 			query += `
 				WHERE ST_Intersects(
-					geom,
-					ST_MakeEnvelope(${polygon}, 4326)
+					centroid,
+					ST_GeomFromGeoJSON('${JSON.stringify(polygon)}')
 				)
 			`;
 		}

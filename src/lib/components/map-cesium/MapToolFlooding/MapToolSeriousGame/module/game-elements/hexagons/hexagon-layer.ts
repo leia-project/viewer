@@ -9,6 +9,7 @@ export class HexagonLayer {
 
 	private map: Map;
 	private primitive?: Cesium.Primitive;
+	private outline: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}
 	public hexagons: Array<Hexagon> = [];
 	public selectedHexagon: Writable<Array<Hexagon>> = writable([]);
 	private pgRestAPI = new PGRestAPI();
@@ -25,8 +26,9 @@ export class HexagonLayer {
 		translucent: false
 	});
 
-	constructor(map: Map, scenario: string) {
+	constructor(map: Map, scenario: string, outline: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}) {
 		this.map = map;
+		this.outline = outline;
 		this.loadHexagons(scenario);
 		this.selectedHexagon.subscribe((hexagons: Array<Hexagon>) => {
 
@@ -35,7 +37,7 @@ export class HexagonLayer {
 
 	private async loadHexagons(scenario: string): Promise<void> {
 		// load hexagons from server
-		const hexagons = await this.pgRestAPI.getHexagons(undefined, 6);
+		const hexagons = await this.pgRestAPI.getHexagons(this.outline, 7);
 
 		// Add to map
 		hexagons.forEach((hex: HexagonEntry) => {

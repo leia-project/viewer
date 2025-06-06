@@ -19,10 +19,10 @@ export class EvacuationController {
 		return this.hexagonLayer.hexagons;
 	}
 	
-	constructor(map: Map, scenario: string, elapsedTime: Writable<number>) {
+	constructor(map: Map, scenario: string, elapsedTime: Writable<number>, outline: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}) {
 		this.map = map;
 		this.roadNetwork = new RoadNetwork(map);
-		this.hexagonLayer = new HexagonLayer(map, scenario);
+		this.hexagonLayer = new HexagonLayer(map, scenario, outline);
 		this.elapsedTime = elapsedTime;
 		this.elapsedTime.subscribe((time: number) => {
 			this.hexagons.forEach((hex: Hexagon) => hex.timeUpdated(time));
