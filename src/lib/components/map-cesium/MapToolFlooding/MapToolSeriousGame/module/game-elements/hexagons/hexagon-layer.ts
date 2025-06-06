@@ -42,7 +42,6 @@ export class HexagonLayer {
 			const newHex = new Hexagon(hex.hex, hex.population);
 			this.hexagons.push(newHex);
 		});
-		console.log("Creatin passsssssss:");
 
 		this.createPrimitive();
 	}
