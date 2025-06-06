@@ -20,7 +20,7 @@ export class HexagonLayer {
 			uniforms: {
 				custom_alpha: 1,
 				progress: 1,
-				exag: 1
+				exag: 0.01
 			} 
 		},
 		translucent: false

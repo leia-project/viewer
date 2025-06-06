@@ -3,6 +3,7 @@
 	import { get } from "svelte/store";
     import type { IRole } from "../module/models";
     import { Checkbox } from "carbon-components-svelte";
+    import HexagonLayerControl from "./HexagonLayerControl.svelte";
 
     export let roleData: IRole;
     export let mainLayerIds;
@@ -18,6 +19,12 @@
     <span><strong>{roleData.role}</strong></span>
     <br><br>
     <div>
+        <Checkbox
+                    checked={true}
+                    on:change={() => console.log("")}
+                    labelText = {"CBS Zeshoeksstatistieken"}
+        />
+        <HexagonLayerControl></HexagonLayerControl>
         <span>Gedeelde kaartlagen</span>
         {#each mainLayers as mL}
             <div>

@@ -39,17 +39,18 @@ export class PGRestAPI {
 	public async getHexagons(polygon: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}, resolution: number): Promise<Array<HexagonEntry>> {
 		let query = `
 			SELECT h3, number_of_inhabitants FROM datacore.zeeland_h3
+			WHERE number_of_inhabitants > 0
 		`;
 
 		if (polygon) {
 			query += `
-				WHERE ST_Intersects(
+				AND ST_Intersects(
 					centroid,
 					ST_GeomFromGeoJSON('${JSON.stringify(polygon)}')
 				)
 			`;
 		}
-
+		
 		const queryResult: any = await this.client.query(query, {
 			format: "jsonDataArray"
 		});
@@ -58,14 +59,14 @@ export class PGRestAPI {
 		const aggregation = new Map<string, number>();
 
 		for (const row of rows) {
-			const cell = row[0];
+			const h3 = row[0];
 			const population = row[1] ?? 0;
-			const cellRes = getResolution(cell);
+			const cellRes = getResolution(h3);
 			let parentCell: string;
 			if (resolution < cellRes) {
-				parentCell = cellToParent(cell, resolution);
+				parentCell = cellToParent(h3, resolution);
 			} else if (resolution === cellRes) {
-				parentCell = cell;
+				parentCell = h3;
 			} else {
 				// If target resolution is higher (finer), skip for now (unlikely case)
 				continue;
@@ -75,7 +76,12 @@ export class PGRestAPI {
 		}
 
 		const hexagons: Array<HexagonEntry> = Array.from(aggregation, ([hex, population]) => ({ hex, population }));
-
+		let maxPopulation = 0;
+		for (let i = 0; i < hexagons.length; i++) {
+			maxPopulation = Math.max(maxPopulation, hexagons[i].population);
+		}
+		console.log(`Max value is: ${maxPopulation}`);
+	
 		return hexagons;
 	}
 

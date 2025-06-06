@@ -18,17 +18,17 @@ export class Hexagon {
 
 	public geometryInstance: Cesium.GeometryInstance;
 	public colorScale = [
-		"#CACACA",
-		"#40004b",
-		"#762a83",
-		"#9970ab",
-		"#c2a5cf",
-		"#e7d4e8",
-		"#d9f0d3",
-		"#a6dba0",
-		"#5aae61",
-		"#1b7837",
-		"#00441b"
+		"#1a9850", // dark green
+		"#66bd63", // green
+		"#a6d96a", // yellow-green
+		"#d9ef8b", // light yellow
+		"#ffffbf", // pale yellow
+		"#fee08b", // light orange
+		"#fdae61", // orange
+		"#f46d43", // reddish orange
+		"#d73027", // red
+		"#a50026", // dark red
+		"#800026"  // deeper red
 	]; //https://colordesigner.io/gradient-generator    -  https://uigradients.com/#TheBlueLagoon
 	private cesiumColors = this.colorScale.map((color, i) => {
 		const col = Cesium.Color.fromCssColorString(color);
@@ -83,8 +83,8 @@ export class Hexagon {
 
 	private valueToColor(value: number): Cesium.Color {
 		const colors = this.cesiumColors;
-		const index = Math.min(Math.floor((value / 10) * colors.length), colors.length - 1);
-		return colors[0];
+		const index = Math.min(Math.floor((value / 19270) * colors.length), colors.length - 1);
+		return colors[index];
 	}
 
 	private getHexagonHeight = (population: number) => {
