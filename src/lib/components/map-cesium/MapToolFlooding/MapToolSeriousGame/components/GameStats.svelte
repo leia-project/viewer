@@ -21,11 +21,11 @@
 		value={game.stats.evacuated}
 		color="green"
 	/>
-	
 </div>
 
 
 <style>
+
 	.game-stats {
 		display: flex;
 		flex-direction: row;
@@ -33,4 +33,5 @@
 		column-gap: 0.5rem;
 		padding: 1rem;
 	}
+	
 </style>

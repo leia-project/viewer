@@ -54,7 +54,8 @@
 		"sass": "^1.86.0",
 		"tile-kiln": "^0.1.6",
 		"vite-plugin-static-copy": "^2.3.0",
-		"wicket": "^1.3.8"
+		"wicket": "^1.3.8",
+		"rbush-knn": "^4.0.0"
 	},
 	"optionalDependencies": {
 		"@rollup/rollup-linux-x64-gnu": "^4.22.0"

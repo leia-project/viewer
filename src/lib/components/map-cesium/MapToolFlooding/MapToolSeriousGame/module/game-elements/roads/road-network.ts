@@ -2,6 +2,7 @@ import type { Map } from "$lib/components/map-cesium/module/map";
 import { ExtractionPoint, BottleNeck, RoadNetworkLayer } from "./bottle-neck";
 import { Evacuation } from "../evacuation";
 import type { Hexagon } from "../hexagons/hexagon";
+import { RoutingAPI, type RouteFeature } from "../api/routing-api";
 
 
 const extractionPointsConfig = [
@@ -35,18 +36,16 @@ const bottlenecksConfig = [
 
 export class RoadNetwork {
 
-	private graph: any;
+	private routingAPI: RoutingAPI;
 	private extractionPoints: Array<ExtractionPoint> = [];
 	private exctractionPointLayer: RoadNetworkLayer<ExtractionPoint>;
-	public selectedExtractionPoint: any;
+	public selectedExtractionPoint: ExtractionPoint | undefined;
 	private bottlenecks: Array<BottleNeck> = [];
 	private bottleneckLayer: RoadNetworkLayer<BottleNeck>;
 	private blockedSegments: Array<any> = [];
 
-	public evacuations: Array<any> = [];
-
 	constructor(map: Map) {
-		this.graph = this.createGraph();
+		this.routingAPI = new RoutingAPI();
 		this.exctractionPointLayer = new RoadNetworkLayer<ExtractionPoint>(map);
 		this.bottleneckLayer = new RoadNetworkLayer<BottleNeck>(map);
 		this.init();
@@ -64,6 +63,7 @@ export class RoadNetwork {
 			this.extractionPoints.push(extractionPoint);
 			this.exctractionPointLayer.add(extractionPoint);
 		});
+		this.selectedExtractionPoint = this.extractionPoints[0]; // Set default extraction point
 	}
 
 	private loadBottlenecks(): void {
@@ -80,33 +80,36 @@ export class RoadNetwork {
 		// Create a graph from the map data
 	}
 
-	private route(start: any, end: any): Array<any> {
-		// determine the route
-
-		// check for bottlenecks
-
-		// if impossible, update the graph, and recalculate the route (??)
-		return [];
+	private updateGraph(time: number): any {
+		// Check which road segments are flooded (or blocked) and update the graph
 	}
 
-	public createEvacuation(hexagon: Hexagon, extractionPoint: ExtractionPoint): Evacuation | undefined {
-		const route = this.route(hexagon.center, extractionPoint);
-		if (route.length === undefined) {
-			// handle no route found
+	public async createEvacuationRoute(origin: [lon: number, lat: number]): Promise<{ route: Array<RouteFeature>, extractionPoint: ExtractionPoint } | undefined> {
+		if (!this.selectedExtractionPoint) {
 			return;
 		}
-		const evacuation = new Evacuation(route, hexagon, extractionPoint);
-		this.evacuations.push(evacuation);
-		return evacuation;
-	}
+		const extractionLocation: [lon: number, lat: number] = [
+			this.selectedExtractionPoint.lon,
+			this.selectedExtractionPoint.lat
+		]
+		const route = await this.routingAPI.getRoute(origin, extractionLocation);
+		// determine the route
 
-	public removeEvacuation(evacuation: Evacuation): void {
-		this.evacuations = this.evacuations.filter((e) => e !== evacuation);
-		// update bottleneck capacities
+		// check for bottlenecks, and update the capacity of overlapping bottlenecks
+
+		// if impossible, update the graph, and recalculate the route (??)
+		return {
+			route: route.features,
+			extractionPoint: this.selectedExtractionPoint
+		};
 	}
 
 	public updateBottleneckCapacities(): void {
 
 	}
 
+
+	public onLeftClick(picked: any): void {
+		// if extraction point is clicked, set it as the selected extraction point
+	}
 }

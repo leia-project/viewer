@@ -1,11 +1,12 @@
-import { get, type Writable } from "svelte/store";
+import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Hexagon } from "./hexagons/hexagon";
 import { HexagonLayer } from "./hexagons/hexagon-layer";
 import { RoadNetwork } from "./roads/road-network";
 import { notifications } from "$lib/components/map-core/notifications/notifications";
 import { Map } from "$lib/components/map-cesium/module/map";
-
+import { Evacuation } from "./evacuation";
+import type { ExtractionPoint } from "./roads/bottle-neck";
 
 
 export class EvacuationController {
@@ -14,6 +15,10 @@ export class EvacuationController {
 	private elapsedTime: Writable<number>;
 	public roadNetwork: RoadNetwork;
 	public hexagonLayer: HexagonLayer;
+
+	private hoveredFeature: Writable<any> = writable(undefined);
+
+	public evacuations: Array<any> = [];
 
 	get hexagons(): Array<Hexagon> {
 		return this.hexagonLayer.hexagons;
@@ -27,63 +32,56 @@ export class EvacuationController {
 		this.elapsedTime.subscribe((time: number) => {
 			this.hexagons.forEach((hex: Hexagon) => hex.timeUpdated(time));
 		});
+		this.addMouseEvents();
 	}
 
-	public evacuateAll(): void {
-		const destination = this.roadNetwork.selectedExtractionPoint;
-		for (const hex of this.hexagons) {
-			const evacuation = this.roadNetwork.createEvacuation(hex, destination);
-			if (!evacuation) {
-				//notifications.dispatch( ERROR )
-			}
+	public async createEvacuation(hexagon: Hexagon): Promise<Evacuation | undefined> {
+		const routeResult = await this.roadNetwork.createEvacuationRoute(hexagon.center);
+		if (routeResult === undefined) {
+			// handle no route found
+			return;
 		}
+		const evacuation = new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint);
+		this.evacuations.push(evacuation);
+		return evacuation;
+	}
+
+	public removeEvacuation(evacuation: Evacuation): void {
+		this.evacuations = this.evacuations.filter((e) => e !== evacuation);
+		// update bottleneck capacities
 	}
 
 	public cancelEvacuation(hexagon: Hexagon): void {
 		if (hexagon.evacuation) {
-			this.roadNetwork.removeEvacuation(hexagon.evacuation);
+			this.removeEvacuation(hexagon.evacuation);
 			hexagon.evacuation = undefined;
 		}
 	}
 
-	
-/* 	private addEvents(): void {
-		// make hexagons selectable
-		this.map.on("mouseLeftClick", this.leftClickHandle);
-	}
-
-	private getObjectFromMouseLocation(m: any): F | undefined {
-		const location = getCartesian2(m);
-		if (!location) return undefined;
-		const picked = this.map.viewer.scene.pick(location);
-		if (picked?.id?.billboard !== undefined) {
-			const billboard = picked.id.billboard as Cesium.BillboardGraphics;
-			for (const icon of this.mapIcons) {
-				if (billboard === icon.billboard.billboard) {
-					return icon.feature;
-				}
-			}
-			return undefined;
-		}
-	}
-
-	private moveHandle = (m: any) => {
-		const obj = this.getObjectFromMouseLocation(m);
-		if (obj !== get(this.hoveredFeature)) this.hoveredFeature.set(obj);
-		this.map.container.style.cursor = obj ? "pointer" : "default";
-	}
-	private leftClickHandle = (m: any) => {
-		const obj = this.getObjectFromMouseLocation(m);
-		if (obj !== get(this.activeFeature) && obj !== undefined) this.activeFeature.set(obj);
-	}
-
-	private addMouseEvents(): void {
+ 	private addMouseEvents(): void {
 		this.map.on("mouseLeftClick", this.leftClickHandle);
 		this.map.on("mouseMove", this.moveHandle);
 	}
+
 	private removeMouseEvents(): void {
 		this.map.off("mouseLeftClick", this.leftClickHandle);
 		this.map.off("mouseMove", this.moveHandle);
 	}
- */
+
+	private getObjectFromMouseLocation(m: any): any {
+		const location = new Cesium.Cartesian2(m.x, m.y);
+		if (!location) return undefined;
+		return this.map.viewer.scene.pick(location);
+	}
+
+	private moveHandle = (m: any): void => {
+		const obj = this.getObjectFromMouseLocation(m);
+	}
+
+	private leftClickHandle = (m: any): void => {
+		const picked = this.getObjectFromMouseLocation(m);
+		this.hexagonLayer.onLeftClick(picked);
+		this.roadNetwork.onLeftClick(picked);
+	}
+
 }
