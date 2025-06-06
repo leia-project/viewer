@@ -1,14 +1,16 @@
-import type { Writable } from "svelte/store";
+import { get, type Writable } from "svelte/store";
+import * as Cesium from "cesium";
 import type { Hexagon } from "./hexagons/hexagon";
 import { HexagonLayer } from "./hexagons/hexagon-layer";
 import { RoadNetwork } from "./roads/road-network";
 import { notifications } from "$lib/components/map-core/notifications/notifications";
-import type { Map } from "$lib/components/map-cesium/module/map";
+import { Map } from "$lib/components/map-cesium/module/map";
 
 
 
 export class EvacuationController {
 
+	private map: Map;
 	private elapsedTime: Writable<number>;
 	public roadNetwork: RoadNetwork;
 	public hexagonLayer: HexagonLayer;
@@ -18,8 +20,9 @@ export class EvacuationController {
 	}
 	
 	constructor(map: Map, scenario: string, elapsedTime: Writable<number>) {
+		this.map = map;
 		this.roadNetwork = new RoadNetwork(map);
-		this.hexagonLayer = new HexagonLayer(scenario);
+		this.hexagonLayer = new HexagonLayer(map, scenario);
 		this.elapsedTime = elapsedTime;
 		this.elapsedTime.subscribe((time: number) => {
 			this.hexagons.forEach((hex: Hexagon) => hex.timeUpdated(time));
@@ -43,4 +46,44 @@ export class EvacuationController {
 		}
 	}
 
+	
+/* 	private addEvents(): void {
+		// make hexagons selectable
+		this.map.on("mouseLeftClick", this.leftClickHandle);
+	}
+
+	private getObjectFromMouseLocation(m: any): F | undefined {
+		const location = getCartesian2(m);
+		if (!location) return undefined;
+		const picked = this.map.viewer.scene.pick(location);
+		if (picked?.id?.billboard !== undefined) {
+			const billboard = picked.id.billboard as Cesium.BillboardGraphics;
+			for (const icon of this.mapIcons) {
+				if (billboard === icon.billboard.billboard) {
+					return icon.feature;
+				}
+			}
+			return undefined;
+		}
+	}
+
+	private moveHandle = (m: any) => {
+		const obj = this.getObjectFromMouseLocation(m);
+		if (obj !== get(this.hoveredFeature)) this.hoveredFeature.set(obj);
+		this.map.container.style.cursor = obj ? "pointer" : "default";
+	}
+	private leftClickHandle = (m: any) => {
+		const obj = this.getObjectFromMouseLocation(m);
+		if (obj !== get(this.activeFeature) && obj !== undefined) this.activeFeature.set(obj);
+	}
+
+	private addMouseEvents(): void {
+		this.map.on("mouseLeftClick", this.leftClickHandle);
+		this.map.on("mouseMove", this.moveHandle);
+	}
+	private removeMouseEvents(): void {
+		this.map.off("mouseLeftClick", this.leftClickHandle);
+		this.map.off("mouseMove", this.moveHandle);
+	}
+ */
 }

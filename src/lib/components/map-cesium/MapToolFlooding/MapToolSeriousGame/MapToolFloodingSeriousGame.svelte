@@ -2,11 +2,12 @@
 	import { getContext } from "svelte";
 	import { writable, type Writable } from "svelte/store";
 	import { GameConsole } from "carbon-icons-svelte";
-	import Button from "$lib/components/ui/components/Button/Button.svelte";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import { GameController } from "./module/game-controller";
 	import { addMarvini18n } from "../Marvin/module/i18n/i18n-marvin";
-	import type { IGameConfig, IGameSettings } from "./module/game-models";
+	import type { IGameConfig, IGameSettings } from "./module/models";
+	import { PGRestAPI } from "./module/game-elements/api/pg-rest-api";
+	import { Button } from "carbon-components-svelte";
 
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
@@ -28,6 +29,11 @@
 
 	
 	let cachedGame: Writable<boolean> = writable(false);
+
+
+	const pgrestAPI = new PGRestAPI();
+	
+	pgrestAPI.getHexagons(undefined, 6);
 
 
 	/*
@@ -96,7 +102,6 @@
 		{#if cachedGame}
 			<span>Current game: <strong>Game 1</strong></span>
 			<Button
-				label="Play"
 				on:click={() => {
 					gameController.play(levels[0]);
 				}}
@@ -115,7 +120,6 @@
 		{/each}
 
 		<Button
-			label="Play"
 			on:click={() => {
 				gameController.play(levels[0]);
 			}}

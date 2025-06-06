@@ -1,50 +1,48 @@
 import * as Cesium from "cesium";
 import { writable, type Writable } from "svelte/store";
 import { Hexagon } from "./hexagon";
-
-
-interface IHexagonFetch {
-	hex: string;
-	center: { lat: number; lon: number };
-	population: number;
-	floodedAfter: number;
-}
+import { PGRestAPI, type HexagonEntry } from "../api/pg-rest-api";
+import type { Map } from "$lib/components/map-cesium/module/map";
 
 
 export class HexagonLayer {
 
+	private map: Map;
 	private primitive?: Cesium.Primitive;
 	public hexagons: Array<Hexagon> = [];
 	public selectedHexagon: Writable<Array<Hexagon>> = writable([]);
+	private pgRestAPI = new PGRestAPI();
 
 	private material: Cesium.Material = new Cesium.Material({
 		fabric: {
-			type: 'Color',
+			type: 'HexagonMaterial',
 			uniforms: {
 				custom_alpha: 1,
 				progress: 1,
 				exag: 1
-			}
+			} 
 		},
 		translucent: false
 	});
 
-	constructor(scenario: string) {
+	constructor(map: Map, scenario: string) {
+		this.map = map;
 		this.loadHexagons(scenario);
 		this.selectedHexagon.subscribe((hexagons: Array<Hexagon>) => {
-			
+
 		});
 	}
 
 	private async loadHexagons(scenario: string): Promise<void> {
 		// load hexagons from server
-		const hexagons = [] as Array<IHexagonFetch>;
+		const hexagons = await this.pgRestAPI.getHexagons(undefined, 6);
 
 		// Add to map
-		hexagons.forEach((hex: IHexagonFetch) => {
-			const newHex = new Hexagon(hex.hex, hex.center, hex.population);
+		hexagons.forEach((hex: HexagonEntry) => {
+			const newHex = new Hexagon(hex.hex, hex.population);
 			this.hexagons.push(newHex);
 		});
+		console.log("Creatin passsssssss:");
 
 		this.createPrimitive();
 	}
@@ -71,11 +69,9 @@ export class HexagonLayer {
 			show: true
 		});
 
-		this.primitive = primitive;
-	}
+		this.map.viewer.scene.primitives.add(primitive);
 
-	private addEvents(): void {
-		// make hexagons selectable
+		this.primitive = primitive;
 	}
 
 	private setTotals(): { evacuated: number } {

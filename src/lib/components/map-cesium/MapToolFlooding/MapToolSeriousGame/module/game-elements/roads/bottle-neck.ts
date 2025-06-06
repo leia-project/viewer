@@ -73,8 +73,7 @@ export class BottleNeck extends RoutingNode {
 				image: "/images/Geodan_logo.png",
 				scale: 0.12,
 				disableDepthTestDistance: Number.POSITIVE_INFINITY
-			},
-			
+			}
 		});
 	}
 
@@ -112,51 +111,4 @@ export class RoadNetworkLayer<T extends RoutingNode> {
 	public clear(): void {
 		this.map.viewer.dataSources.remove(this.dataSource);
 	}
-
-	private addEventsListeners(): void {
-
-	}
-
-	private getObjectFromMouseLocation(m: any): T | undefined {
-		const location = getCartesian2(m);
-		if (!location) return undefined;
-		const picked = this.map.viewer.scene.pick(location);
-		
-		if (picked?.id?.billboard !== undefined) {
-			const billboard = picked.id.billboard as Cesium.BillboardGraphics;
-			for (const item of this.items) {
-				if (billboard === item.entity.billboard) {
-					return item;
-				}
-			}
-		}
-		return undefined;
-	}
-
-	private moveHandle = (m: any) => {
-		const obj = this.getObjectFromMouseLocation(m);
-		if (obj) clearTimeout(this.infoboxTimeOut);
-		if (obj !== get(this.hovered)) this.hovered.set(obj);
-		this.map.container.style.cursor = obj ? "pointer" : "default";
-	}
-
-	private leftClickHandle = (m: any) => {
-		const obj = this.getObjectFromMouseLocation(m);
-		// show capacity?
-		
-		/* const active = get(this.active);
-		const loc = get(obj.pointLocation);
-		const cameraLocation = new CameraLocation(loc[0], loc[1] - 0.008, 500 + heightOffset, 0, -30, 1.5);
-		this.map.flyTo(cameraLocation); */
-	}
-
-	private addMouseEvents(): void {
-		this.map.on("mouseLeftClick", this.leftClickHandle);
-		this.map.on("mouseMove", this.moveHandle);
-	}
-	private removeMouseEvents(): void {
-		this.map.off("mouseLeftClick", this.leftClickHandle);
-		this.map.off("mouseMove", this.moveHandle);
-	}
-
 }

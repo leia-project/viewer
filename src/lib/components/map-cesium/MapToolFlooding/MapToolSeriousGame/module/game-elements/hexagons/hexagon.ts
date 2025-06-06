@@ -1,5 +1,5 @@
 import * as Cesium from "cesium";
-import { cellToBoundary } from "h3-js";
+import { cellToBoundary, getResolution } from "h3-js";
 import { Evacuation } from "../evacuation";
 import PolygonGeometry from "./polygon-geometry";
 
@@ -7,7 +7,6 @@ import PolygonGeometry from "./polygon-geometry";
 export class Hexagon {
 
 	public hex: string;
-	public center: { lat: number; lon: number };
 	public population: number;
 	public evacuated: number = 0;
 	public floodedAfter: number = 0;
@@ -38,9 +37,8 @@ export class Hexagon {
 
 	public evacuation?: Evacuation;
 
-	constructor(hex: string, center: { lat: number; lon: number }, population: number) {
+	constructor(hex: string, population: number) {
 		this.hex = hex;
-		this.center = center;
 		this.population = population;
 		this.geometryInstance = this.createGeometryInstance(hex, population);
 	}
