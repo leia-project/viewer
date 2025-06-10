@@ -90,13 +90,6 @@ export class HexagonLayer {
 		}
 		this.map.viewer.dataSources.add(this.hexagonEntities);
 	}
-
-	private setTotals(): { evacuated: number } {
-		return this.hexagons.reduce((acc: { evacuated: number }, hex: Hexagon) => {
-			acc.evacuated += hex.evacuated;
-			return acc;
-		}, { evacuated: 0 });
-	}
 	
 	public highlight(hexagon: Hexagon, event: "click" | "hover"): void {
 		if (event === "hover" && hexagon === get(this.selectedHexagon)) return;
@@ -111,12 +104,14 @@ export class HexagonLayer {
 		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(hexagon.valueToColor(hexagon.population), attributes.color);
 	}
 	
-	
 	public onLeftClick(picked: any): void {
 		let pickedHexagon: Hexagon | undefined;
 		const selectedHexagon = get(this.selectedHexagon);
 		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
 			pickedHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
+		}
+		if (!pickedHexagon && picked?.id !== undefined) {
+			return; // Something else was clicked, not a hexagon, so do nothing
 		}
 		if (selectedHexagon && selectedHexagon !== pickedHexagon) {
 			this.unhighlight(selectedHexagon, "click");
@@ -134,7 +129,7 @@ export class HexagonLayer {
 			this.hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
 			if (this.hoveredHexagon) this.highlight(this.hoveredHexagon, "hover");
 			this.map.viewer.scene.canvas.style.cursor = "pointer";
-		} else {
+		} else if (picked?.id === undefined) {
 			if (this.hoveredHexagon && this.hoveredHexagon !== get(this.selectedHexagon)) {
 				this.unhighlight(this.hoveredHexagon, "hover");
 				this.hoveredHexagon = undefined;

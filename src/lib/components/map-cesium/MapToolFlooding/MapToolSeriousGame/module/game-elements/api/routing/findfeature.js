@@ -57,7 +57,7 @@ function getIndex(geojson) {
 }
 
 /* find nearest features in geojson to point, maxDistance defined in degrees(?) */
-export function findFeature(geoJson, point, maxDistance = 0.005) {
+export function findFeature(geoJson, point, maxDistance = 0.01) {
     const index = getIndex(geoJson);
     const nearestFeatures = knn(index, point[0], point[1], 0, null, maxDistance);
     let minDistance = Infinity;

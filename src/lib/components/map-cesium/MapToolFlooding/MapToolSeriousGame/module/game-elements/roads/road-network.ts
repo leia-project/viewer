@@ -24,12 +24,12 @@ const extractionPointsConfig = [
 const bottlenecksConfig = [
 	{
 		id: "bottleneck1",
-		position: { lat: 51.64899, lon: 4.01277 },
+		position: { lat: 51.60048, lon: 3.68215 },
 		capacity: 10000
 	},
 	{
 		id: "bottleneck2",
-		position: { lat: 51.70712, lon: 3.85497 },
+		position: { lat: 51.48279, lon: 3.87022 },
 		capacity: 5000
 	}
 ];
@@ -40,7 +40,7 @@ export class RoadNetwork {
 	private routingAPI: RoutingAPI;
 	private extractionPoints: Array<ExtractionPoint> = [];
 	private exctractionPointLayer: RoadNetworkLayer<ExtractionPoint>;
-	public selectedExtractionPoint: ExtractionPoint | undefined;
+	public selectedExtractionPoint: Writable<ExtractionPoint  | undefined> = writable(undefined);
 	private bottlenecks: Array<BottleNeck> = [];
 	private bottleneckLayer: RoadNetworkLayerP<BottleNeck>;
 	private floodedSegments: Array<any> = [];
@@ -72,11 +72,10 @@ export class RoadNetwork {
 	private loadExtractionPoints(): void {
 		const extractionPoints = extractionPointsConfig;
 		extractionPoints.forEach((point) => {
-			const extractionPoint = new ExtractionPoint(point.id, point.position.lon, point.position.lat);
+			const extractionPoint = new ExtractionPoint(point.id, point.position.lon, point.position.lat, this.selectedExtractionPoint);
 			this.extractionPoints.push(extractionPoint);
 			this.exctractionPointLayer.add(extractionPoint);
 		});
-		this.selectedExtractionPoint = this.extractionPoints[0]; // Set default extraction point
 	}
 
 	private loadBottlenecks(): void {
@@ -89,13 +88,14 @@ export class RoadNetwork {
 	}
 
 	public async createEvacuationRoute(origin: [lon: number, lat: number]): Promise<{ route: Array<RouteFeature>, extractionPoint: ExtractionPoint, bottlenecks: Array<BottleNeck> } | undefined> {
-		if (!this.selectedExtractionPoint) {
+		const selectedExtractionPoint = get(this.selectedExtractionPoint);
+		if (!selectedExtractionPoint) {
 			return;
 		}
 		const extractionLocation: [lon: number, lat: number] = [
-			this.selectedExtractionPoint.lon,
-			this.selectedExtractionPoint.lat
-		]
+			selectedExtractionPoint.lon,
+			selectedExtractionPoint.lat
+		];
 		const route = await this.routingAPI.getRoute(origin, extractionLocation);
 
 		// check for bottlenecks, and update the capacity of overlapping bottlenecks
@@ -106,7 +106,7 @@ export class RoadNetwork {
 
 		return {
 			route: route.features,
-			extractionPoint: this.selectedExtractionPoint,
+			extractionPoint: selectedExtractionPoint,
 			bottlenecks: hasCapacity.filter((item) => item.hasCapacity).map((item) => item.bottleneck)
 		};
 	}
@@ -116,7 +116,7 @@ export class RoadNetwork {
 	}
 
 	private getBottlenecksOnRoute(route: Array<RouteFeature>): Array<BottleNeck> {
-		const distanceThreshold = 100;
+		const distanceThreshold = 1000;
 		return this.bottlenecks.filter((bottleneck) => {
 			return route.some((routeFeature) => {
 				return Cesium.Cartesian3.distance(
@@ -148,7 +148,8 @@ export class RoadNetwork {
 				evacuation.includedBottlenecks.forEach((bottleneck) => {
 					const currentBottleneck = this.bottlenecks.find((bn) => bn.id === bottleneck.id);
 					if (currentBottleneck) {
-						currentBottleneck.currentLoad += evacuation.hexagon.population; // Increment the load for each evacuation
+						const newLoad = currentBottleneck.currentLoad + evacuation.hexagon.population; // Increment the load for each evacuation
+						currentBottleneck.updateLoad(newLoad);
 					}
 				});
 		});
@@ -160,7 +161,7 @@ export class RoadNetwork {
 		if (picked?.id instanceof Cesium.Entity) {
 			const extractionPoint = this.extractionPoints.find((ep) => ep.entity === picked.id);
 			if (extractionPoint) {
-				this.selectedExtractionPoint = extractionPoint;
+				this.selectedExtractionPoint.set(extractionPoint);
 			}
 		}
 	}
