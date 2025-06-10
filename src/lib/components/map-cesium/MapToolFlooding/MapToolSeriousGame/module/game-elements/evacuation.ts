@@ -6,24 +6,42 @@ import type { RouteFeature } from "./api/routing-api";
 export class Evacuation {
 
 	private route: Array<RouteFeature>;
-	private hexagon: Hexagon;
+	public hexagon: Hexagon;
 	private extractionPoint: ExtractionPoint;
-	private includedBottlenecks: Array<BottleNeck> = [];
-	private step: number = 0;
+	public includedBottlenecks: Array<BottleNeck>;
+	public time: number;
 
-	constructor(route: Array<RouteFeature>, hexagon: Hexagon, extractionPoint: ExtractionPoint) {
+	private shown: boolean = false;
+
+	constructor(route: Array<RouteFeature>, hexagon: Hexagon, extractionPoint: ExtractionPoint, includedBottlenecks: Array<BottleNeck>, time: number) {
 		this.route = route;
 		this.hexagon = hexagon;
 		this.extractionPoint = extractionPoint;
+		this.includedBottlenecks = includedBottlenecks;
+		this.time = time;
 	}
 
 	public destroy(): void {
 		this.hexagon.evacuation = undefined;
-		
+	}
+
+	private animate(): void {
+
 	}
 	
-	private displayEvacuation(): void {
+	public display(): void {
+		if (this.shown) {
+			return;
+		}
 		// display evacuation on map
+	}
+
+	public hide(): void {
+		if (!this.shown) {
+			return;
+		}
+		// hide evacuation on map
+		this.shown = false;
 	}
 
 }

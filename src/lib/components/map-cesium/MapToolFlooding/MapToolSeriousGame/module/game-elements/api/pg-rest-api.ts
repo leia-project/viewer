@@ -36,7 +36,10 @@ export class PGRestAPI {
 	}
 
 	// Default hexagon resolution from datacore table is 10
-	public async getHexagons(polygon: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}, resolution: number): Promise<Array<HexagonEntry>> {
+	public async getHexagons(polygon: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}, resolution: number, scenarios: Array<string>): Promise<Array<HexagonEntry>> {
+
+		// based on scenarios, join the flood table, and determine the time when the hexagon is flooded
+
 		let query = `
 			SELECT h3, number_of_inhabitants FROM datacore.zeeland_h3
 			WHERE number_of_inhabitants > 0
@@ -79,9 +82,7 @@ export class PGRestAPI {
 		let maxPopulation = 0;
 		for (let i = 0; i < hexagons.length; i++) {
 			maxPopulation = Math.max(maxPopulation, hexagons[i].population);
-		}
-		console.log(`Max value is: ${maxPopulation}`);
-	
+		}	
 		return hexagons;
 	}
 
