@@ -38,8 +38,8 @@ export class RoutingAPI extends PGRestAPI {
 	}
 
 	public async getRoute(startPoint: [lon: number, lat: number], endPoint: [lon: number, lat: number]): Promise<{ type: string, features: Array<RouteFeature> }> {
-		const route = await calculateRoute('zeeland', 'car', startPoint, endPoint);
-		console.log("Route:", route);
+		const maxDistance = 5000; // meters
+		const route = await calculateRoute('zeeland', 'car', startPoint, endPoint, maxDistance);
 		return route;
 	}
 

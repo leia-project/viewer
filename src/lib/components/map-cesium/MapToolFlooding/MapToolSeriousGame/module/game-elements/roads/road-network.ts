@@ -24,12 +24,12 @@ const extractionPointsConfig = [
 const bottlenecksConfig = [
 	{
 		id: "bottleneck1",
-		position: { lat: 51.64899, lon: 4.01277 },
+		position: { lat: 51.60048, lon: 3.68215 },
 		capacity: 10000
 	},
 	{
 		id: "bottleneck2",
-		position: { lat: 51.70712, lon: 3.85497 },
+		position: { lat: 51.48279, lon: 3.87022 },
 		capacity: 5000
 	}
 ];
@@ -116,7 +116,7 @@ export class RoadNetwork {
 	}
 
 	private getBottlenecksOnRoute(route: Array<RouteFeature>): Array<BottleNeck> {
-		const distanceThreshold = 100;
+		const distanceThreshold = 1000;
 		return this.bottlenecks.filter((bottleneck) => {
 			return route.some((routeFeature) => {
 				return Cesium.Cartesian3.distance(
@@ -148,7 +148,8 @@ export class RoadNetwork {
 				evacuation.includedBottlenecks.forEach((bottleneck) => {
 					const currentBottleneck = this.bottlenecks.find((bn) => bn.id === bottleneck.id);
 					if (currentBottleneck) {
-						currentBottleneck.currentLoad += evacuation.hexagon.population; // Increment the load for each evacuation
+						const newLoad = currentBottleneck.currentLoad + evacuation.hexagon.population; // Increment the load for each evacuation
+						currentBottleneck.updateLoad(newLoad);
 					}
 				});
 		});

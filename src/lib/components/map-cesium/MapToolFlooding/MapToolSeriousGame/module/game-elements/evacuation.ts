@@ -35,7 +35,7 @@ export class Evacuation {
 		const numberOfCoordinates = cartesians.length;
 		const stepInterval = Math.max(1, Math.round(numberOfCoordinates / 40)); // 40 steps, minimum step size of 1
 		let i = 0;
-		while(i < numberOfCoordinates + stepInterval) {
+		while (i < numberOfCoordinates + stepInterval) {
 			const lastPositionIndex = Math.min(i+stepInterval, numberOfCoordinates);
 			const line = this.makeLineEntity(cartesians.slice(i, lastPositionIndex + 1));
 			this.dataSource.entities.add(line);
@@ -52,15 +52,11 @@ export class Evacuation {
 	}
 
 	private makeLineEntity(route: RouteFeature): Cesium.Entity {
-		const linePositions = route.geometry.coordinates.map((p) => Cesium.Cartesian3.fromDegrees(p[0], p[1]));
+		const linePositions = route.geometry.coordinates.map((p) => Cesium.Cartesian3.fromDegrees(p[0], p[1], 1000));
 		return new Cesium.Entity({
-			polyline: {
+			wall: {
 				positions: linePositions,
-				width: 10,
-				material: Cesium.Color.ORANGERED,
-				clampToGround: true,
-				zIndex: 10000,
-				depthFailMaterial: Cesium.Color.ORANGERED.withAlpha(0.5)
+				material: Cesium.Color.ORANGERED
 			},
 			properties: route.properties,
 			show: false

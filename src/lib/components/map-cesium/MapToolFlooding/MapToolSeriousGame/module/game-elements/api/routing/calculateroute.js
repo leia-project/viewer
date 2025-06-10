@@ -221,7 +221,7 @@ function addVirtualNodes(network, startFeature, startPoint, endFeature, endPoint
   return endFeature;
 }
 
-export async function calculateRoute(networkArea, mode, startPoint, endPoint, modeCosts = null) {
+export async function calculateRoute(networkArea, mode, startPoint, endPoint, maxDistance = 50, modeCosts = null) {
   let message = '';
   try {
     const network = await getNetwork(networkArea, mode);
@@ -229,10 +229,10 @@ export async function calculateRoute(networkArea, mode, startPoint, endPoint, mo
       const startFeature = findFeature(network.edges, startPoint);
       // check if start and end points are on a line (within 10 meters of the line)
       const startDistance = startFeature ? turfPointToLineDistance(startPoint, startFeature, {units: 'meters'}) : Infinity;
-      if (startDistance < 50) {
+      if (startDistance < maxDistance) {
         const endFeature = findFeature(network.edges, endPoint);
         const endDistance = endFeature ? turfPointToLineDistance(endPoint, endFeature) : Infinity;
-        if (endDistance < 50) {
+        if (endDistance < maxDistance) {
           const lastFeature = addVirtualNodes(network, startFeature, startPoint, endFeature, endPoint);
           const routefeature = await calculateRouteBetweenNodes(network.graph, networkArea, mode, network.edges, [{node:'start', cost: 0}], [{node:'end', cost: 0}], modeCosts);
           addTotlalLengthAndCost(routefeature, network.graph, mode, modeCosts);

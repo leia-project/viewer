@@ -78,7 +78,7 @@ export class BottleNeck extends RoutingNode {
 
 	public measures: Array<IMeasure> = [];
 	public capacity: number; // Extraction capacity per time step
-	public currentLoad: number = 2000;
+	public currentLoad: number = 0;
 	public geometryInstances: Array<Cesium.GeometryInstance>;
 
 	public parentPrimitive?: Cesium.Primitive;
@@ -88,11 +88,6 @@ export class BottleNeck extends RoutingNode {
 		super(id, lon, lat);
 		this.capacity = capacity;
 		this.geometryInstances = this.createGeometryInstance();
-		/*
-		setInterval(() => {
-			this.updateLoad(Math.random() * this.capacity);
-		}, 2000);
-		*/
 	}
 
 	protected createEntity(): Cesium.Entity {
