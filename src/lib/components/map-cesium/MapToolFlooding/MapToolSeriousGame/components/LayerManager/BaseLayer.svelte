@@ -1,14 +1,15 @@
 <script lang="ts">
 	import type { Layer } from "$lib/components/map-core/layer";
     import { Checkbox } from "carbon-components-svelte";
-	import { get } from "svelte/store";
-    export let layer: Layer;
+	import type { HexagonLayer } from "../../module/game-elements/hexagons/hexagon-layer";
+    export let layer: Layer | HexagonLayer ;
+
+    const visible = layer?.visible;
 </script>
 
 <div>
     <Checkbox
-        checked={get(layer.visible)}
-        on:change={() => layer.visible.set(!get(layer.visible))}
+        bind:checked={$visible}
         labelText = {layer.title}
     />
 </div>

@@ -1,8 +1,5 @@
 <script lang="ts">
-    import type { Map } from "$lib/components/map-cesium/module/map";
-	import { get } from "svelte/store";
     import type { IRole } from "../module/models";
-    import { Checkbox } from "carbon-components-svelte";
     import HexagonLayerControl from "./LayerManager/HexagonLayerControl.svelte";
     import BaseLayer from "./LayerManager/BaseLayer.svelte";
 	import type { GameController } from "../module/game-controller";
@@ -14,6 +11,7 @@
     const layers = gameController.map.layers;
     $: mainLayers = $layers.filter((l) => mainLayerIds.includes(l.id));
     $: roleLayers = $layers.filter((l) => roleData.layerIds.includes(l.id)); 
+    const activeGame = gameController.active;
 
 </script>
 
@@ -22,7 +20,9 @@
     <br><br>
     <div>
         <span>Hexagon kaartlagen</span>
-        <HexagonLayerControl layer={mainLayers[0]} {gameController}></HexagonLayerControl>
+        {#if $activeGame}
+            <HexagonLayerControl layer={$activeGame?.evacuationController.hexagonLayer}></HexagonLayerControl>
+        {/if}
     </div>
     <br><br>
     <div>

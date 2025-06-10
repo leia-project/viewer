@@ -13,6 +13,10 @@ export class HexagonLayer {
 	public hexagons: Array<Hexagon> = [];
 	public selectedHexagon: Writable<Hexagon | undefined> = writable();
 	private pgRestAPI = new PGRestAPI();
+	public visible: Writable<boolean> = writable<boolean>(true);
+	public use2DMode: Writable<boolean> = writable<boolean>(false);
+	private hexagonEntities: Cesium.CustomDataSource = new Cesium.CustomDataSource();
+	public title: string = "CBS Hexagons";
 
 	private material: Cesium.Material = new Cesium.Material({
 		fabric: {
@@ -37,6 +41,8 @@ export class HexagonLayer {
 		elapsedTime.subscribe((time: number) => {
 			this.hexagons.forEach((hex: Hexagon) => hex.timeUpdated(time));
 		});
+		this.visible.subscribe((b) => {this.toggleHexagons(b)});
+		this.use2DMode.subscribe((b) => {this.toggle2D3DModeHexagons(b)});
 	}
 
 	private async loadHexagons(scenario: string): Promise<void> {
@@ -48,6 +54,7 @@ export class HexagonLayer {
 		});
 
 		this.createPrimitive();
+		this.addHexagonEntities();
 	}
 
 	private createPrimitive(): void {
@@ -75,6 +82,13 @@ export class HexagonLayer {
 		this.map.viewer.scene.primitives.add(primitive);
 
 		this.primitive = primitive;
+	}
+
+	private addHexagonEntities(): void {
+		for (let i = 0; i < this.hexagons.length; i++) {
+			this.hexagonEntities.entities.add(this.hexagons[i].entityInstance);
+		}
+		this.map.viewer.dataSources.add(this.hexagonEntities);
 	}
 
 	private setTotals(): { evacuated: number } {
@@ -128,15 +142,33 @@ export class HexagonLayer {
 		}
 		this.map.refresh();
 	}
-
-	public togglePrimitive(): void {
-		if (this.primitive) {
-			this.primitive.show = !this.primitive.show;
+	
+	public toggle2D3DModeHexagons(show: boolean): void {
+		if(!get(this.visible)) {
+			return;
 		}
+		this.hexagonEntities.show = show;
+		if(this.primitive) {
+			this.primitive.show = !show;
+		}
+		this.map.refresh();
+	}
+
+	public toggleHexagons(show: boolean): void {
+		if (show) {
+			this.hexagonEntities.show = get(this.use2DMode);
+			if(this.primitive) {
+				this.primitive.show = !get(this.use2DMode);
+			}
+		} else {
+			this.hexagonEntities.show = false;
+			if(this.primitive) {
+				this.primitive.show = false;
+			}
+		}
+		this.map.refresh();
 	}
 }
-
-
 
 
 /**

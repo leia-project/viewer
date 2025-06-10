@@ -17,6 +17,8 @@ export class Hexagon {
 	public status: "accessible" |  "inaccessible" | "flooded" | "evacuated" = "accessible";
 
 	public geometryInstance: Cesium.GeometryInstance;
+	public entityInstance: Cesium.Entity;
+	
 	public colorScale = [
 		"#1a9850", // dark green
 		"#66bd63", // green
@@ -44,6 +46,7 @@ export class Hexagon {
 		this.population = population;
 		this.floodedAfter = floodedAfter;
 		this.geometryInstance = this.createGeometryInstance(hex, population);
+		this.entityInstance = this.createEntityInstance(hex, population);
 	}
 
 	private createGeometryInstance(cell: string, population: number): Cesium.GeometryInstance {
@@ -75,6 +78,27 @@ export class Hexagon {
 			}
 		});
 		return geometryInstance;
+	}
+
+	private createEntityInstance(cell: string, population: number): Cesium.Entity {
+		const boundary = cellToBoundary(cell, true);
+		const degreesArray = new Array<number>();
+		for (let i = 0; i < boundary.length; i++) {
+			degreesArray.push(boundary[i][0], boundary[i][1]);
+		}
+
+		const color = this.valueToColor(population);
+		const positions = Cesium.Cartesian3.fromDegreesArray(degreesArray);
+		const entity = new Cesium.Entity({
+			polygon: {
+				hierarchy: positions,
+				material: color.withAlpha(1.0),
+				fill: true,
+				heightReference: Cesium.HeightReference.RELATIVE_TO_TERRAIN
+			},
+		});
+		
+		return entity;
 	}
 
 	public valueToColor(value: number): Cesium.Color {
