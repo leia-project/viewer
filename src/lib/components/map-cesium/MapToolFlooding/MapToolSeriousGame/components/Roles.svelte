@@ -2,7 +2,8 @@
 	import type { Map } from "$lib/components/map-cesium/module/map";
 	import RoleData from "./RoleData.svelte";
 	import type { IRole } from "../module/models";
-	export let map: Map;
+	import type { GameController } from "../module/game-controller";
+	export let gameController: GameController;
 	
 
 	const roles: Array<IRole> = [
@@ -52,7 +53,7 @@
 <div class="role-menu">
 	{#if selectedRole}
 		<div class="role-data">
-			<RoleData roleData={selectedRole} {mainLayerIds} {map}/>
+			<RoleData roleData={selectedRole} {mainLayerIds} {gameController}/>
 		</div>
 	{/if}
 

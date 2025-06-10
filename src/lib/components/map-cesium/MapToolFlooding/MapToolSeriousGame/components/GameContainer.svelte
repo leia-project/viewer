@@ -60,7 +60,7 @@
 			<MarvinMenu app={marvinApp} />
 		</div>
 		<div id="bottom-left">
-			<Roles map={gameController.map} />
+			<Roles {gameController}/>
 		</div>
 		<div id="bottom-right">
 			<TimeControl game={$activeGame} />

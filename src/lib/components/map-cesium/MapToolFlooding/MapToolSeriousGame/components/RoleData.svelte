@@ -3,13 +3,15 @@
 	import { get } from "svelte/store";
     import type { IRole } from "../module/models";
     import { Checkbox } from "carbon-components-svelte";
-    import HexagonLayerControl from "./HexagonLayerControl.svelte";
+    import HexagonLayerControl from "./LayerManager/HexagonLayerControl.svelte";
+    import BaseLayer from "./LayerManager/BaseLayer.svelte";
+	import type { GameController } from "../module/game-controller";
 
     export let roleData: IRole;
     export let mainLayerIds;
-    export let map: Map;
+    export let gameController: GameController;
 
-    const layers = map.layers;
+    const layers = gameController.map.layers;
     $: mainLayers = $layers.filter((l) => mainLayerIds.includes(l.id));
     $: roleLayers = $layers.filter((l) => roleData.layerIds.includes(l.id)); 
 
@@ -19,34 +21,21 @@
     <span><strong>{roleData.role}</strong></span>
     <br><br>
     <div>
-        <Checkbox
-                    checked={true}
-                    on:change={() => console.log("")}
-                    labelText = {"CBS Zeshoeksstatistieken"}
-        />
-        <HexagonLayerControl></HexagonLayerControl>
+        <span>Hexagon kaartlagen</span>
+        <HexagonLayerControl layer={mainLayers[0]} {gameController}></HexagonLayerControl>
+    </div>
+    <br><br>
+    <div>
         <span>Gedeelde kaartlagen</span>
         {#each mainLayers as mL}
-            <div>
-                <Checkbox
-                    checked={get(mL.visible)}
-                    on:change={() => mL.visible.set(!get(mL.visible))}
-                    labelText = {mL.title}
-                />
-            </div>
+            <BaseLayer layer={mL}></BaseLayer>
         {/each}
     </div>
     <br><br>
     <div>
         <span>Rol specifieke kaartlagen</span>
         {#each roleLayers as rL}
-            <div>
-                <Checkbox
-                    checked={get(rL.visible)}
-                    on:change={() => rL.visible.set(!get(rL.visible))}
-                    labelText = {rL.title}
-                />
-            </div>
+            <BaseLayer layer={rL}></BaseLayer>
         {/each}
     </div>
 </section>

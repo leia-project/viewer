@@ -85,6 +85,12 @@ export class HexagonLayer {
 	public onLeftClick(picked: any): void {
 		// highlight hexagon, and show info
 	}
+
+	public togglePrimitive(): void {
+		if (this.primitive) {
+			this.primitive.show = !this.primitive.show;
+		}
+	}
 }
 
 
