@@ -10,7 +10,7 @@ export class Hexagon {
 	public center: [lon: number, lat: number];
 	public population: number;
 	public evacuated: number = 0;
-	public floodedAfter: number = 0;
+	public floodedAfter?: number;
 
 	public selectedRoute: Array<number> = [];
 
@@ -38,10 +38,11 @@ export class Hexagon {
 
 	public evacuation?: Evacuation;
 
-	constructor(hex: string, population: number) {
+	constructor(hex: string, population: number, floodedAfter: number | undefined) {
 		this.hex = hex;
 		this.center = cellToLatLng(hex);
 		this.population = population;
+		this.floodedAfter = floodedAfter;
 		this.geometryInstance = this.createGeometryInstance(hex, population);
 	}
 
@@ -70,18 +71,13 @@ export class Hexagon {
 					componentDatatype: Cesium.ComponentDatatype.FLOAT,
 					componentsPerAttribute: 1,
 					value: [this.getHexagonHeight(population)]
-				}),
-				previousPopulation: new Cesium.GeometryInstanceAttribute({
-					componentDatatype: Cesium.ComponentDatatype.FLOAT,
-					componentsPerAttribute: 1,
-					value: [this.getHexagonHeight(0)]
-				}),
+				})
 			}
 		});
 		return geometryInstance;
 	}
 
-	private valueToColor(value: number): Cesium.Color {
+	public valueToColor(value: number): Cesium.Color {
 		const colors = this.cesiumColors;
 		const index = Math.min(Math.floor((value / 19270) * colors.length), colors.length - 1);
 		return colors[index];
@@ -92,6 +88,7 @@ export class Hexagon {
 	}
 
 	public timeUpdated(time: number): void {
+		if (!this.floodedAfter) return;
 		if (this.floodedAfter > 0 && this.floodedAfter <= time) {
 			this.updateStatus("flooded");
 		}
@@ -102,17 +99,8 @@ export class Hexagon {
 	}
 
 	public addEvacuation(evacuation: Evacuation): void {
-
-	}
-
-	public select(): void {
-		// highlight hexagon
-		// this.evacuation?.show();
-	}
-
-	public deselect(): void {
-		// remove highlight
-		// this.evacuation?.show();
+		// gsap update population
+		const evacuees = evacuation.hexagon.population;
 	}
 
 }

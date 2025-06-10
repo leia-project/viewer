@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { getContext } from "svelte";
 	import { writable, type Writable } from "svelte/store";
+	import { Button } from "carbon-components-svelte";
 	import { GameConsole } from "carbon-icons-svelte";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import { GameController } from "./module/game-controller";
 	import { addMarvini18n } from "../Marvin/module/i18n/i18n-marvin";
 	import type { IGameConfig, IGameSettings } from "./module/models";
-	import { PGRestAPI } from "./module/game-elements/api/pg-rest-api";
-	import { Button } from "carbon-components-svelte";
 
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");

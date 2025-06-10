@@ -54,12 +54,11 @@ export class Game {
 	public notificationLog: NotificationLog;
 	private forwarding: Writable<boolean> = writable(false);
 	private step: Writable<number> = writable(0);
-
-	private floodLayerController: FloodLayerController;
 	public startTime: Writable<number> = writable(0);
 	public elapsedTime: Writable<number> = writable(0);
 	private interval: NodeJS.Timeout | undefined;
 
+	private floodLayerController: FloodLayerController;
 	public evacuationController: EvacuationController;
 
 	public stats: IGameStats;
@@ -79,8 +78,7 @@ export class Game {
 		this.floodLayerController.loadNewScenario(breach, scenario).then(() => {
 			this.load();
 		});	
-		this.evacuationController = new EvacuationController(map, scenario, this.elapsedTime, breach.outline);	
-
+		this.evacuationController = new EvacuationController(map, scenario, this.elapsedTime, breach.outline);
 	}
 
 	public load(): void {

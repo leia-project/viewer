@@ -1,4 +1,4 @@
-import { writable, type Writable } from "svelte/store";
+import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Hexagon } from "./hexagons/hexagon";
 import { HexagonLayer } from "./hexagons/hexagon-layer";
@@ -15,32 +15,40 @@ export class EvacuationController {
 	public roadNetwork: RoadNetwork;
 	public hexagonLayer: HexagonLayer;
 
-	private hoveredFeature: Writable<any> = writable(undefined);
-
 	public evacuations: Writable<Array<Evacuation>> = writable([]);
-
-	get hexagons(): Array<Hexagon> {
-		return this.hexagonLayer.hexagons;
-	}
 	
 	constructor(map: Map, scenario: string, elapsedTime: Writable<number>, outline: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}) {
 		this.map = map;
-		this.roadNetwork = new RoadNetwork(map, this.evacuations);
-		this.hexagonLayer = new HexagonLayer(map, scenario, outline);
 		this.elapsedTime = elapsedTime;
-		this.elapsedTime.subscribe((time: number) => {
-			this.hexagons.forEach((hex: Hexagon) => hex.timeUpdated(time));
+		this.roadNetwork = new RoadNetwork(map, elapsedTime, this.evacuations);
+		this.hexagonLayer = new HexagonLayer(map, elapsedTime, scenario, outline);
+
+		this.hexagonLayer.selectedHexagon.subscribe((hex: Hexagon | undefined) => {
+			get(this.evacuations).forEach((evacuation: Evacuation) => {
+				if (evacuation.hexagon === hex) {
+					evacuation.display();
+				} else {
+					evacuation.hide();
+				}
+			});
 		});
+
 		this.addMouseEvents();
 	}
 
-	public async createEvacuation(hexagon: Hexagon): Promise<void> {
+	public async createEvacuation(): Promise<void> {
+		const hexagon = get(this.hexagonLayer.selectedHexagon);
+		if (!hexagon) {
+			//notifications.error("No hexagon selected for evacuation.");
+			return;
+		}
 		const routeResult = await this.roadNetwork.createEvacuationRoute(hexagon.center);
 		if (routeResult === undefined) {
 			// handle no route found
+			// notifications.error("No capacity left for this evacuation!");
 			return;
 		}
-		const evacuation = new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint);
+		const evacuation = new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint, routeResult.bottlenecks, get(this.elapsedTime));
 		hexagon.addEvacuation(evacuation);
 		this.evacuations.update((evacs) => [...evacs, evacuation]);
 	}

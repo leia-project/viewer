@@ -43,7 +43,11 @@ export class RoutingAPI extends PGRestAPI {
 		return route;
 	}
 
-	/* private getFloodedSegments(): Array<any> {
+	public updateFloodedSegments(time: number): void {
+
+	}
+
+	/* private setFloodedSegments(): Array<any> {
 		let query = `
 			SELECT h3, number_of_inhabitants FROM datacore.zeeland_h3 LIMIT 10;
 		`;

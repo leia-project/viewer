@@ -53,7 +53,7 @@ class DynamicWaterLevel {
 	private material?: Cesium.Material;
 	private timeUnsubscriber?: Unsubscriber;
 	private alphaUnsubscriber?: Unsubscriber;
-	private verticalExaggeration: Writable<number>;
+	public verticalExaggeration: Writable<number>;
 	private verticalExaggerationUnsubscriber?: Unsubscriber;
 	private uniformMap: any = {
 		uTerrain: {
@@ -100,6 +100,7 @@ class DynamicWaterLevel {
 		this.alphaUnsubscriber = this.alpha.subscribe(() => this.setUniforms());
 		this.verticalExaggerationUnsubscriber = this.verticalExaggeration.subscribe((value) => {
 			if (this.material) this.material.uniforms.u_vertical_exaggeration = value;
+			this.map.refresh();
 		});
 	}
 
@@ -441,7 +442,8 @@ class DynamicWaterLevel {
 
 			void main() {
 				vec4 p = czm_computePosition();
-				float terrain_height = texture(u_terrain_1, st).r * (u_terrain_scaling_max_14 - u_terrain_scaling_min_13) + u_terrain_scaling_min_13;
+				float terrain_scale = u_terrain_scaling_max_14 - u_terrain_scaling_min_13;
+				float terrain_height = texture(u_terrain_1, st).r * terrain_scale + u_terrain_scaling_min_13;
 				float depth = computeDepth(st);
 			   
 				// Height exaggeration relative to terrain:
