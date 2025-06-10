@@ -25,6 +25,8 @@ export class HexagonLayer {
 		translucent: false
 	});
 
+	private hoveredHexagon: Hexagon | undefined;
+
 	constructor(map: Map, elapsedTime: Writable<number>, scenario: string, outline: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}) {
 		this.map = map;
 		this.outline = outline;
@@ -81,7 +83,21 @@ export class HexagonLayer {
 			return acc;
 		}, { evacuated: 0 });
 	}
+	
+	public highlight(hexagon: Hexagon, event: "click" | "hover"): void {
+		if (event === "hover" && hexagon === get(this.selectedHexagon)) return;
+		const color = event === "hover" ? Cesium.Color.LIGHTPINK : Cesium.Color.HOTPINK;
+		const attributes = this.primitive?.getGeometryInstanceAttributes(hexagon.hex);
+		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(color, attributes.color);
+	}
 
+	public unhighlight(hexagon: Hexagon, event: "click" | "hover"): void {
+		if (event === "hover" && hexagon === get(this.selectedHexagon)) return;
+		const attributes = this.primitive?.getGeometryInstanceAttributes(hexagon.hex);
+		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(hexagon.valueToColor(hexagon.population), attributes.color);
+	}
+	
+	
 	public onLeftClick(picked: any): void {
 		let pickedHexagon: Hexagon | undefined;
 		const selectedHexagon = get(this.selectedHexagon);
@@ -89,22 +105,28 @@ export class HexagonLayer {
 			pickedHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
 		}
 		if (selectedHexagon && selectedHexagon !== pickedHexagon) {
-			this.unhighlight(selectedHexagon);
+			this.unhighlight(selectedHexagon, "click");
 		}
 		this.selectedHexagon.set(pickedHexagon);
-		if (pickedHexagon) this.highlight(pickedHexagon);
+		if (pickedHexagon) this.highlight(pickedHexagon, "click");
 		this.map.refresh();
 	}
 
-	
-	public highlight(hexagon: Hexagon): void {
-		const attributes = this.primitive?.getGeometryInstanceAttributes(hexagon.hex);
-		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.HOTPINK, attributes.color);
-	}
-
-	public unhighlight(hexagon: Hexagon): void {
-		const attributes = this.primitive?.getGeometryInstanceAttributes(hexagon.hex);
-		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(hexagon.valueToColor(hexagon.population), attributes.color);
+	public onMouseMove(picked: any): void {
+		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
+			if (this.hoveredHexagon && this.hoveredHexagon.hex !== picked.id) {
+				this.unhighlight(this.hoveredHexagon, "hover");
+			}
+			this.hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
+			if (this.hoveredHexagon) this.highlight(this.hoveredHexagon, "hover");
+			this.map.viewer.scene.canvas.style.cursor = "pointer";
+		} else {
+			if (this.hoveredHexagon && this.hoveredHexagon !== get(this.selectedHexagon)) {
+				this.unhighlight(this.hoveredHexagon, "hover");
+				this.hoveredHexagon = undefined;
+			}
+		}
+		this.map.refresh();
 	}
 }
 

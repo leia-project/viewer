@@ -66,13 +66,13 @@ export class EvacuationController {
 	}
 
  	private addMouseEvents(): void {
-		this.map.on("mouseLeftClick", this.leftClickHandle);
 		this.map.on("mouseMove", this.moveHandle);
+		this.map.on("mouseLeftClick", this.leftClickHandle);
 	}
 
 	private removeMouseEvents(): void {
-		this.map.off("mouseLeftClick", this.leftClickHandle);
 		this.map.off("mouseMove", this.moveHandle);
+		this.map.off("mouseLeftClick", this.leftClickHandle);
 	}
 
 	private getObjectFromMouseLocation(m: any): any {
@@ -83,6 +83,10 @@ export class EvacuationController {
 
 	private moveHandle = (m: any): void => {
 		const obj = this.getObjectFromMouseLocation(m);
+		this.hexagonLayer.onMouseMove(obj);
+		if (!obj) {
+			this.map.viewer.scene.canvas.style.cursor = "default";
+		}
 	}
 
 	private leftClickHandle = (m: any): void => {
