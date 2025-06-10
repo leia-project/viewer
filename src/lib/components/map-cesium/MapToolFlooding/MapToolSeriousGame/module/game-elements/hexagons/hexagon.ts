@@ -40,7 +40,8 @@ export class Hexagon {
 
 	constructor(hex: string, population: number, floodedAfter: number | undefined) {
 		this.hex = hex;
-		this.center = cellToLatLng(hex);
+		const latLon = cellToLatLng(hex);
+		this.center = [latLon[1], latLon[0]];
 		this.population = population;
 		this.floodedAfter = floodedAfter;
 		this.geometryInstance = this.createGeometryInstance(hex, population);

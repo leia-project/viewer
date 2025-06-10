@@ -48,8 +48,9 @@ export class EvacuationController {
 			// notifications.error("No capacity left for this evacuation!");
 			return;
 		}
-		const evacuation = new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint, routeResult.bottlenecks, get(this.elapsedTime));
+		const evacuation = new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint, routeResult.bottlenecks, get(this.elapsedTime), this.map);
 		hexagon.addEvacuation(evacuation);
+		evacuation.display();
 		this.evacuations.update((evacs) => [...evacs, evacuation]);
 	}
 

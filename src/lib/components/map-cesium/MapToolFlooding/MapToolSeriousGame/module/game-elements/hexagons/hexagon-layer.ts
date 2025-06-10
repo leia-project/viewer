@@ -77,13 +77,6 @@ export class HexagonLayer {
 		this.primitive = primitive;
 	}
 
-	private setTotals(): { evacuated: number } {
-		return this.hexagons.reduce((acc: { evacuated: number }, hex: Hexagon) => {
-			acc.evacuated += hex.evacuated;
-			return acc;
-		}, { evacuated: 0 });
-	}
-	
 	public highlight(hexagon: Hexagon, event: "click" | "hover"): void {
 		if (event === "hover" && hexagon === get(this.selectedHexagon)) return;
 		const color = event === "hover" ? Cesium.Color.LIGHTPINK : Cesium.Color.HOTPINK;

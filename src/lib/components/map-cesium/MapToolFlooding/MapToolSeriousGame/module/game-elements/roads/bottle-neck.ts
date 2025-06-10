@@ -29,23 +29,40 @@ abstract class RoutingNode {
 export class ExtractionPoint extends RoutingNode {
 
 	public totalExtracted: number = 0;
+	private selectedExtractionPoint: Writable<ExtractionPoint | undefined>;
 
-	constructor(id: string, lon: number, lat: number) {
+	private colorMaterial = new Cesium.ColorMaterialProperty(Cesium.Color.LIMEGREEN.withAlpha(0.7));
+	private highlightMaterial = new Cesium.ColorMaterialProperty(Cesium.Color.LIME.withAlpha(1.0));
+
+	constructor(id: string, lon: number, lat: number, selectedExtractionPoint: Writable<ExtractionPoint | undefined>) {
 		super(id, lon, lat);
+		this.selectedExtractionPoint = selectedExtractionPoint;
+		this.selectedExtractionPoint.subscribe((ep) => {
+			ep === this ? this.highlight() : this.unhighlight();
+		});
 	}
 
 	protected createEntity(): Cesium.Entity {
-		return new Cesium.Entity({
+		const entity = new Cesium.Entity({
 			id: this.id + "_cone",
 			position: this.position,
 			cylinder: {
 				length: 3500,
 				topRadius: 1000,
 				bottomRadius: 10,
-				material: Cesium.Color.GREEN.withAlpha(0.7),
-				heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+				heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+				material: Cesium.Color.LIMEGREEN.withAlpha(0.7)
 			}
 		});
+		return entity;
+	}
+
+	private highlight(): void  {
+		if (this.entity.cylinder?.material) this.entity.cylinder.material = this.highlightMaterial;
+	}
+
+	private unhighlight(): void {
+		if (this.entity.cylinder?.material) this.entity.cylinder.material = this.colorMaterial;
 	}
 }
 
@@ -71,13 +88,14 @@ export class BottleNeck extends RoutingNode {
 		super(id, lon, lat);
 		this.capacity = capacity;
 		this.geometryInstances = this.createGeometryInstance();
+		/*
 		setInterval(() => {
 			this.updateLoad(Math.random() * this.capacity);
 		}, 2000);
+		*/
 	}
 
 	protected createEntity(): Cesium.Entity {
-		// Create a cylinder which fills up as the capacity is being used up
 		return new Cesium.Entity({
 			id: this.id,
 			position: this.position,
