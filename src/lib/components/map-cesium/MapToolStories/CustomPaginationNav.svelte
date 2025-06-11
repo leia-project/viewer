@@ -3,26 +3,39 @@
 	import { Button } from "carbon-components-svelte";
   import CaretLeft from "carbon-icons-svelte/lib/CaretLeft.svelte";
   import { CaretRight } from "carbon-icons-svelte";
+	import type { StoryStep } from "./StoryStep";
+	import type { StoryChapter } from "./StoryChapter";
 
-  export let labels: string[] = [];
-  export let page: number = 1; // 1-based index for consistency with PaginationNav
-  export let shown: number = 10; // How many buttons to show at once (optional)
-  export let loop: boolean = false;
-  export let forwardText: string = "Next";
-  export let backwardText: string = "Previous";
+  export let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }>;
+  export let page: number; // same 'page' as in StoryView
+  let index: number = page - 1;
+  let activeChapterIndex: number = 0; // first index of the active chapter in flattenedSteps
+  let labels: string[] = [];
+
+  // When page changes...
+  $: {
+    index = page - 1;
+    let activeEntry = flattenedSteps[index];
+    let activeChapter = activeEntry.chapter;
+    activeChapterIndex = flattenedSteps.findIndex(
+      (entry) => entry.chapter.id === activeChapter.id
+    );
+    let activeChapterSteps = activeChapter.steps;
+
+    // Get titles of steps
+    labels = activeChapterSteps.map(step => step.title);
+  }
 
   const dispatch = createEventDispatcher();
 
   function goTo(idx: number) {
     if (idx < 1) {
-      if (loop) idx = labels.length;
-      else return;
+      return;
     }
     if (idx > labels.length) {
-      if (loop) idx = 1;
-      else return;
+      return;
     }
-    page = idx;
+    page = activeChapterIndex + idx;
     dispatch("change", { page });
   }
 
@@ -36,11 +49,20 @@
 
   function shouldShowButton(idx: number): boolean {
     // If current page is the first step, show steps 1, 2, 3 (if they exist)
-    if (page === 1 && idx < Math.min(3, labels.length)) return true;
+    if (index === activeChapterIndex && idx < Math.min(3, labels.length)) {
+      return true;
+    }
+
     // If current page is the last step, show last 3 steps (if they exist)
-    if (page === labels.length && idx >= Math.max(labels.length - 3, 0)) return true;
+    if (index === activeChapterIndex + labels.length - 1 && idx >= Math.max(labels.length - 3, 0)) {
+      return true;
+    }
+
     // Otherwise, show one before, current, and one after (default)
-    if (idx >= page - 2 && idx <= page) return true;
+    if (activeChapterIndex + idx >= index - 1 && activeChapterIndex + idx <= index + 1) {
+      return true;
+    }
+
     return false;
   }
 </script>
@@ -53,11 +75,12 @@
   >
     <CaretLeft />
   </Button>
-  {#each labels as label, idx (label)}
+  {#each labels as label, idx (idx)}
     {#if shouldShowButton(idx)}
       <Button
-        kind={page === idx + 1 ? "tertiary" : "ghost"}
+        kind={page === activeChapterIndex + idx + 1 ? "tertiary" : "ghost"}
         size="small"
+        style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
         on:click={() => goTo(idx + 1)}
       >
         {label}
@@ -77,10 +100,9 @@
 .custom-pagination-nav {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.125rem;
-    font-family: inherit;
+    justify-content: center;
     margin-top: 4px;
 }
+
 
 </style>

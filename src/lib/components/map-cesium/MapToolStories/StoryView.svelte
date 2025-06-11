@@ -36,7 +36,7 @@
 	let cesiumMap = map as MapCore;
 	let width: number;
 	let height: number;
-	let navHeigth: number;
+	let navHeight: number;
 	let container: HTMLElement;
 	let content: HTMLElement;
 	let lastInputType: string;
@@ -139,8 +139,6 @@
 
 
 	currentPage.subscribe((page) => {
-		//Check if processing
-
 		const index = page - 1;
 		// activeStep = story.steps[index];
 
@@ -208,7 +206,7 @@
 				top:
 					stepElement.getBoundingClientRect().top -
 					content.getBoundingClientRect().top -
-					navHeigth
+					navHeight
 			});
 		}
 	}
@@ -322,7 +320,7 @@
 
 	function checkStep() {
 		const steps = content.getElementsByClassName("step");
-		const intersectLine = navHeigth + 200;
+		const intersectLine = navHeight + 200; //TODO: make this dynamic
 
 		for (let i = 0; i < steps.length; i++) {
 			const rect = steps[i].getBoundingClientRect();
@@ -346,7 +344,7 @@
 	<div
 		class="nav"
 		style="width:{width}px"
-		bind:clientHeight={navHeigth}
+		bind:clientHeight={navHeight}
 		on:scroll={(e) => {
 			e.preventDefault();
 			e.stopPropagation();
@@ -389,11 +387,7 @@
 		<div>
 			<CustomPaginationNav
 				bind:page={$currentPage}
-				labels={activeChapterSteps ? activeChapterSteps.map(step => step.title) : []}
-				shown={3}
-				loop={false}
-				forwardText={textStepForward}
-				backwardText={textStepBack}
+				{flattenedSteps}
 			/>
 
 			<!-- <PaginationNav
@@ -411,7 +405,7 @@
 	</div>
 
 	<div class="content" bind:this={content}>
-		<div style="height:{navHeigth}px" />
+		<div style="height:{navHeight}px" />
 		{#each flattenedSteps as { step, chapter }, index}
 			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
 				<div class="step-heading heading-03">
@@ -495,7 +489,7 @@
 		padding-bottom: var(--cds-spacing-12);
 		padding-left: var(--cds-spacing-05);
 		padding-right: var(--cds-spacing-05);
-		opacity: 0.8;
+		opacity: 0.5;
 		box-sizing: border-box;
 
 		background: var(--cds-ui-01);
