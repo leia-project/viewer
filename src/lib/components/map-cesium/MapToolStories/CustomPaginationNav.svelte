@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+	import { Button } from "carbon-components-svelte";
   import CaretLeft from "carbon-icons-svelte/lib/CaretLeft.svelte";
   import { CaretRight } from "carbon-icons-svelte";
 
@@ -45,78 +46,41 @@
 </script>
 
 <nav class="custom-pagination-nav">
-  <button class="nav-btn prev" on:click={prev}>
+  <Button 
+    kind="ghost" 
+    size="small" 
+    on:click={prev}
+  >
     <CaretLeft />
-  </button>
+  </Button>
   {#each labels as label, idx (label)}
     {#if shouldShowButton(idx)}
-      <button
-        class:selected={page === idx + 1}
+      <Button
+        kind={page === idx + 1 ? "tertiary" : "ghost"}
+        size="small"
         on:click={() => goTo(idx + 1)}
-        aria-current={page === idx + 1 ? "page" : undefined}
       >
         {label}
-      </button>
+      </Button>
     {/if}
   {/each}
-  <button class="nav-btn next" on:click={next}>
+  <Button
+    kind="ghost"
+    size="small"
+    on:click={next}
+  >
     <CaretRight />
-  </button>
+  </Button>
 </nav>
 
 <style>
 .custom-pagination-nav {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: 0.125rem;
     font-family: inherit;
     margin-top: 4px;
 }
 
-.custom-pagination-nav button {
-    min-width: 2rem;
-    height: 2rem;
-    padding: 0 0.5rem;
-    margin: 0 0.125rem;
-    border: none;
-    border-radius: 0.125rem;
-    background: transparent;
-    color: var(--cds-text-01, #161616);
-    font-size: 0.8rem;
-    font-weight: 400;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    outline: none;
-}
-
-.custom-pagination-nav button.selected,
-.custom-pagination-nav button[aria-current="page"] {
-    background: var(--cds-interactive-01, #0f62fe);
-    color: var(--cds-ui-01, #fff);
-    font-weight: 600;
-}
-
-.custom-pagination-nav button:hover:not([aria-current="page"]):not(:disabled) {
-    background: var(--cds-hover-ui, #e5e5e5);
-}
-
-.custom-pagination-nav .nav-btn {
-    background: transparent;
-    color: var(--cds-interactive-01, #0f62fe);
-    font-weight: 600;
-    min-width: 2.5rem;
-    transition: background 0.15s, color 0.15s;
-}
-
-.custom-pagination-nav .nav-btn:disabled {
-    color: var(--cds-disabled-02, #c6c6c6);
-    cursor: not-allowed;
-    background: transparent;
-}
-
-.custom-pagination-nav button:focus {
-    outline: 2px solid var(--cds-focus, #0f62fe);
-    outline-offset: 2px;
-}
 </style>

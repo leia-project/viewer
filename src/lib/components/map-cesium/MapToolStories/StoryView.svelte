@@ -385,7 +385,7 @@
 				</Button>
 			{/each}
 		</div>
-
+		<hr style="width: 100%;"/>
 		<div>
 			<CustomPaginationNav
 				bind:page={$currentPage}
@@ -496,7 +496,6 @@
 		padding-left: var(--cds-spacing-05);
 		padding-right: var(--cds-spacing-05);
 		opacity: 0.8;
-		filter: blur(4px);
 		box-sizing: border-box;
 
 		background: var(--cds-ui-01);
@@ -517,8 +516,6 @@
 
 	.step--active {
 		opacity: 1;
-		filter: blur(0px);
-		transition: 0.4s filter linear;
 		background: var(--cds-ui-02);
 	}
 
