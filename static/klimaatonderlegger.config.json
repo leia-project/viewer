@@ -1582,7 +1582,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "bodemdaling_aggregated",
                 "contenttype": "image/png"
             }
@@ -1597,7 +1597,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "regenwateroverlast_aggregated",
                 "contenttype": "image/png"
             }
@@ -2034,10 +2034,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2056,10 +2056,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2078,10 +2078,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2100,10 +2100,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2122,10 +2122,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2144,10 +2144,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2166,10 +2166,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     }
@@ -2194,10 +2194,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2216,10 +2216,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2238,10 +2238,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2260,10 +2260,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2282,10 +2282,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2304,10 +2304,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2326,10 +2326,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     }
@@ -2354,10 +2354,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2376,10 +2376,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2398,10 +2398,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2420,10 +2420,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2442,10 +2442,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2464,10 +2464,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2486,10 +2486,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     }
@@ -2513,10 +2513,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2535,10 +2535,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2557,10 +2557,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2579,10 +2579,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2601,10 +2601,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2623,10 +2623,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2645,10 +2645,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     }
@@ -2672,10 +2672,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2694,10 +2694,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2716,10 +2716,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2738,10 +2738,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2760,10 +2760,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2782,10 +2782,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     },
@@ -2804,10 +2804,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
+                                                "id": "8002"
                                             },
                                             {
-                                                "id": "test"
+                                                "id": "8002"
                                             }
                                         ]
                                     }
