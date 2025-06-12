@@ -71,6 +71,7 @@
   <Button 
     kind="ghost" 
     size="small" 
+    style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
     on:click={prev}
   >
     <CaretLeft />
@@ -90,6 +91,7 @@
   <Button
     kind="ghost"
     size="small"
+    style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
     on:click={next}
   >
     <CaretRight />

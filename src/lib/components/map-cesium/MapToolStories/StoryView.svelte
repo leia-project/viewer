@@ -152,7 +152,6 @@
 		const activeEntry = flattenedSteps[index];
 		activeChapter = activeEntry.chapter;
 		activeChapterSteps = activeChapter.steps;
-		console.log("activeChapterSteps", activeChapterSteps);
 		activeStep = activeEntry.step;
 
 		// if clicked on nav index, scroll to step automatically
@@ -416,7 +415,7 @@
 				</div>
 				{@html step.html}
 				{#each step.layers ?? [] as layer}
-					Layers: {layer.featureName}
+					Layer {layer.id}: {layer.featureName}
 				{/each}
 
 				<div class="tag">
