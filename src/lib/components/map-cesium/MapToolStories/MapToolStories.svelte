@@ -70,8 +70,10 @@
 	function getUrlAndFeatureNameForLayer(id: string): { url: string | undefined; featureName: string | undefined } {
 		for (let i = 0; i < $layers.length; i++) {
 			if ($layers[i].config.id === id) {
+				let originalUrl = $layers[i].config.settings.url;
+				let updatedUrl = originalUrl?.replace(/wms/i, 'wcs');
 				return { 
-					url: $layers[i].config.settings.url,
+					url: updatedUrl,
 					featureName: $layers[i].config.settings.featureName
 				};
 			}
@@ -157,7 +159,7 @@
 {#if $selectedTool === tool}
 	<div class="wrapper">
 		{#if selectedStory}
-			<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} map = {map}/>
+			<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} map = {cesiumMap} story = {selectedStory}/>
 			{#if hasDrawnPolygon}
 				<StoryView
 					map={cesiumMap}
