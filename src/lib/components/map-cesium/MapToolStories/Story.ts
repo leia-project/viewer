@@ -1,5 +1,6 @@
-import type { StoryStep } from "./StoryStep";
-import type { StoryChapter } from "./StoryChapter";
+import { StoryStep } from "./StoryStep";
+import { StoryChapter } from "./StoryChapter";
+import { StoryLayer } from "./StoryLayer";
 
 export class Story {
     public name: string;
@@ -12,5 +13,27 @@ export class Story {
         this.description = description;
         this.storyChapters = storyChapters;
         this.width = width;
+    }
+
+    getStoryLayers(): Array<StoryLayer> {
+        let storyLayers: Array<StoryLayer> = [];
+
+        for (let i = 0; i < this.storyChapters.length; i++) {
+            let storyChapter: StoryChapter = this.storyChapters[i];
+
+            for (let j = 0; j < storyChapter.steps.length; j++) {
+                let step: StoryStep = storyChapter.steps[j];
+                
+                if (step.layers) {
+                    for (let k = 0; k < step.layers?.length; k++) {
+                        let storyLayer: StoryLayer = step.layers[k];
+                        storyLayers.push(storyLayer);
+                    }
+                }
+                
+            }
+        }
+
+        return storyLayers;
     }
 }
