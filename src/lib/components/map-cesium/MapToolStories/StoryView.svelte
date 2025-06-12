@@ -17,6 +17,7 @@
 	import type { StoryLayer } from "./StoryLayer";
 	import type { StoryChapter } from "./StoryChapter";
 	import { DonutChart } from "@carbon/charts-svelte";
+	import CustomPaginationNav from "./CustomPaginationNav.svelte";
 
 	export let map: Map;
 	export let story: Story;
@@ -31,10 +32,11 @@
 	let currentPage = writable<number>(1);
 	let activeStep: StoryStep | undefined;
 	let activeChapter: StoryChapter | undefined;
+	let activeChapterSteps: Array<StoryStep> | undefined;
 	let cesiumMap = map as MapCore;
 	let width: number;
 	let height: number;
-	let navHeigth: number;
+	let navHeight: number;
 	let container: HTMLElement;
 	let content: HTMLElement;
 	let lastInputType: string;
@@ -114,6 +116,7 @@
 		setTimeout(() => { scrollToStep(savedStepNumber-1) }, 150); // Timeout when height of images is not explicitly set
 	});
 
+
 	onDestroy(() => {
 		map.autoCheckBackground = startAutocheckBackground;
 		container.removeEventListener("scroll", onScroll);
@@ -122,19 +125,20 @@
 		dispatch("closeModule", {n: $currentPage});
 	});
 
+
 	function onScroll() {
 		if (lastInputType === "scroll") {
 			checkStep();
 		}
 	}
 
+
 	function onWheel() {
 		lastInputType = "scroll";
 	}
 
-	currentPage.subscribe((page) => {
-		//Check if processing
 
+	currentPage.subscribe((page) => {
 		const index = page - 1;
 		// activeStep = story.steps[index];
 
@@ -147,6 +151,8 @@
 		});
 		const activeEntry = flattenedSteps[index];
 		activeChapter = activeEntry.chapter;
+		activeChapterSteps = activeChapter.steps;
+		console.log("activeChapterSteps", activeChapterSteps);
 		activeStep = activeEntry.step;
 
 		// if clicked on nav index, scroll to step automatically
@@ -200,7 +206,7 @@
 				top:
 					stepElement.getBoundingClientRect().top -
 					content.getBoundingClientRect().top -
-					navHeigth
+					navHeight
 			});
 		}
 	}
@@ -314,7 +320,7 @@
 
 	function checkStep() {
 		const steps = content.getElementsByClassName("step");
-		const intersectLine = navHeigth + 200;
+		const intersectLine = navHeight + 200; //TODO: make this dynamic
 
 		for (let i = 0; i < steps.length; i++) {
 			const rect = steps[i].getBoundingClientRect();
@@ -338,7 +344,7 @@
 	<div
 		class="nav"
 		style="width:{width}px"
-		bind:clientHeight={navHeigth}
+		bind:clientHeight={navHeight}
 		on:scroll={(e) => {
 			e.preventDefault();
 			e.stopPropagation();
@@ -377,9 +383,14 @@
 				</Button>
 			{/each}
 		</div>
-
+		<hr style="width: 100%;"/>
 		<div>
-			<PaginationNav
+			<CustomPaginationNav
+				bind:page={$currentPage}
+				{flattenedSteps}
+			/>
+
+			<!-- <PaginationNav
 				forwardText={textStepForward}
 				backwardText={textStepBack}
 				bind:page={$currentPage}
@@ -389,12 +400,12 @@
 				onmousedown={() => {
 					lastInputType = "click";
 				}}
-			/>
+			/> -->
 		</div>
 	</div>
 
 	<div class="content" bind:this={content}>
-		<div style="height:{navHeigth}px" />
+		<div style="height:{navHeight}px" />
 		{#each flattenedSteps as { step, chapter }, index}
 			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
 				<div class="step-heading heading-03">
@@ -404,6 +415,10 @@
 					{$_("tools.stories.description")}
 				</div>
 				{@html step.html}
+				{#each step.layers ?? [] as layer}
+					Layers: {layer.featureName}
+				{/each}
+
 				<div class="tag">
 					<Tag>{chapter.title}</Tag>
 					<Tag>{index + 1}</Tag>
@@ -474,8 +489,7 @@
 		padding-bottom: var(--cds-spacing-12);
 		padding-left: var(--cds-spacing-05);
 		padding-right: var(--cds-spacing-05);
-		opacity: 0.8;
-		filter: blur(4px);
+		opacity: 0.5;
 		box-sizing: border-box;
 
 		background: var(--cds-ui-01);
@@ -496,8 +510,6 @@
 
 	.step--active {
 		opacity: 1;
-		filter: blur(0px);
-		transition: 0.4s filter linear;
 		background: var(--cds-ui-02);
 	}
 
