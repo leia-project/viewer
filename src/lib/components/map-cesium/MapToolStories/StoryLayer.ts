@@ -10,7 +10,7 @@ export class StoryLayer {
         this.id = id;
         this.opacity = opacity;
         this.style = style;
-        this.url = url;
+        this.url = url; // URL for wcs request, NOT for fetching the WMS layer
         this.featureName = featureName;
     }
 }

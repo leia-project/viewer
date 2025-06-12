@@ -2470,32 +2470,10 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "9002"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "title": "Bodemcondities",
-                                        "html": "<div>Indicatoren voor Bodemcondities in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                                        "globeOpacity": 100,
-                                        "terrain": "PDOK Terrain",
-                                        "camera": {
-                                            "x": 3.8655,
-                                            "y": 51.4765,
-                                            "z": 68957.5785,
-                                            "heading": 360.0,
-                                            "pitch": -89.9,
-                                            "duration": 1.5
-                                        },
-                                        "layers": [
-                                            {
-                                                "id": "002"
-                                            },
-                                            {
-                                                "id": "1002"
                                             }
                                         ]
                                     },
@@ -2514,7 +2492,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2536,7 +2514,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2558,29 +2536,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
-                                            },
-                                            {
-                                                "id": "8002"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "title": "Waterkwaliteit",
-                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                                        "globeOpacity": 100,
-                                        "terrain": "PDOK Terrain",
-                                        "camera": {
-                                            "x": 3.8655,
-                                            "y": 51.4765,
-                                            "z": 68957.5785,
-                                            "heading": 360.0,
-                                            "pitch": -89.9,
-                                            "duration": 1.5
-                                        },
-                                        "layers": [
-                                            {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2602,7 +2558,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2630,29 +2586,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
-                                            },
-                                            {
-                                                "id": "8002"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "title": "Bodemcondities",
-                                        "html": "<div>Indicatoren voor Bodemcondities in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                                        "globeOpacity": 100,
-                                        "terrain": "PDOK Terrain",
-                                        "camera": {
-                                            "x": 3.8655,
-                                            "y": 51.4765,
-                                            "z": 68957.5785,
-                                            "heading": 360.0,
-                                            "pitch": -89.9,
-                                            "duration": 1.5
-                                        },
-                                        "layers": [
-                                            {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2674,7 +2608,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2696,7 +2630,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2718,58 +2652,13 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
-                                            },
-                                            {
-                                                "id": "8002"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "title": "Waterkwaliteit",
-                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                                        "globeOpacity": 100,
-                                        "terrain": "PDOK Terrain",
-                                        "camera": {
-                                            "x": 3.8655,
-                                            "y": 51.4765,
-                                            "z": 68957.5785,
-                                            "heading": 360.0,
-                                            "pitch": -89.9,
-                                            "duration": 1.5
-                                        },
-                                        "layers": [
-                                            {
-                                                "id": "8002"
-                                            },
-                                            {
-                                                "id": "8002"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "title": "Hitte",
-                                        "html": "<div>Indicatoren voor Hitte in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                                        "globeOpacity": 100,
-                                        "terrain": "PDOK Terrain",
-                                        "camera": {
-                                            "x": 3.8655,
-                                            "y": 51.4765,
-                                            "z": 68957.5785,
-                                            "heading": 360.0,
-                                            "pitch": -89.9,
-                                            "duration": 1.5
-                                        },
-                                        "layers": [
-                                            {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
                                             }
                                         ]
                                     }
-                                    
                                 ]
                             },
                             {
@@ -2790,29 +2679,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
-                                            },
-                                            {
-                                                "id": "8002"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "title": "Bodemcondities",
-                                        "html": "<div>Indicatoren voor Bodemcondities in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                                        "globeOpacity": 100,
-                                        "terrain": "PDOK Terrain",
-                                        "camera": {
-                                            "x": 3.8655,
-                                            "y": 51.4765,
-                                            "z": 68957.5785,
-                                            "heading": 360.0,
-                                            "pitch": -89.9,
-                                            "duration": 1.5
-                                        },
-                                        "layers": [
-                                            {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2834,7 +2701,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2856,7 +2723,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2878,7 +2745,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2900,7 +2767,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2922,7 +2789,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -2934,50 +2801,6 @@
                             {
                                 "id": "4",
                                 "steps": [
-                                    {
-                                        "title": "Bodemdaling",
-                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                                        "globeOpacity": 100,
-                                        "terrain": "PDOK Terrain",
-                                        "camera": {
-                                            "x": 3.8655,
-                                            "y": 51.4765,
-                                            "z": 68957.5785,
-                                            "heading": 360.0,
-                                            "pitch": -89.9,
-                                            "duration": 1.5
-                                        },
-                                        "layers": [
-                                            {
-                                                "id": "8002"
-                                            },
-                                            {
-                                                "id": "8002"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "title": "Bodemcondities",
-                                        "html": "<div>Indicatoren voor Bodemcondities in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                                        "globeOpacity": 100,
-                                        "terrain": "PDOK Terrain",
-                                        "camera": {
-                                            "x": 3.8655,
-                                            "y": 51.4765,
-                                            "z": 68957.5785,
-                                            "heading": 360.0,
-                                            "pitch": -89.9,
-                                            "duration": 1.5
-                                        },
-                                        "layers": [
-                                            {
-                                                "id": "8002"
-                                            },
-                                            {
-                                                "id": "8002"
-                                            }
-                                        ]
-                                    },
                                     {
                                         "title": "Regenwateroverlast",
                                         "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
@@ -2993,7 +2816,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -3015,7 +2838,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -3037,7 +2860,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -3059,7 +2882,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -3081,7 +2904,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -3093,72 +2916,6 @@
                             {
                                 "id": "5",
                                 "steps": [
-                                    {
-                                        "title": "Bodemdaling",
-                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                                        "globeOpacity": 100,
-                                        "terrain": "PDOK Terrain",
-                                        "camera": {
-                                            "x": 3.8655,
-                                            "y": 51.4765,
-                                            "z": 68957.5785,
-                                            "heading": 360.0,
-                                            "pitch": -89.9,
-                                            "duration": 1.5
-                                        },
-                                        "layers": [
-                                            {
-                                                "id": "8002"
-                                            },
-                                            {
-                                                "id": "8002"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "title": "Bodemcondities",
-                                        "html": "<div>Indicatoren voor Bodemcondities in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                                        "globeOpacity": 100,
-                                        "terrain": "PDOK Terrain",
-                                        "camera": {
-                                            "x": 3.8655,
-                                            "y": 51.4765,
-                                            "z": 68957.5785,
-                                            "heading": 360.0,
-                                            "pitch": -89.9,
-                                            "duration": 1.5
-                                        },
-                                        "layers": [
-                                            {
-                                                "id": "8002"
-                                            },
-                                            {
-                                                "id": "8002"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "title": "Regenwateroverlast",
-                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                                        "globeOpacity": 100,
-                                        "terrain": "PDOK Terrain",
-                                        "camera": {
-                                            "x": 3.8655,
-                                            "y": 51.4765,
-                                            "z": 68957.5785,
-                                            "heading": 360.0,
-                                            "pitch": -89.9,
-                                            "duration": 1.5
-                                        },
-                                        "layers": [
-                                            {
-                                                "id": "8002"
-                                            },
-                                            {
-                                                "id": "8002"
-                                            }
-                                        ]
-                                    },
                                     {
                                         "title": "Waterveiligheid",
                                         "html": "<div>Indicatoren voor Waterveiligheid in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
@@ -3174,7 +2931,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -3196,7 +2953,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
@@ -3218,29 +2975,7 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "8002"
-                                            },
-                                            {
-                                                "id": "8002"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "title": "Hitte",
-                                        "html": "<div>Indicatoren voor Hitte in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                                        "globeOpacity": 100,
-                                        "terrain": "PDOK Terrain",
-                                        "camera": {
-                                            "x": 3.8655,
-                                            "y": 51.4765,
-                                            "z": 68957.5785,
-                                            "heading": 360.0,
-                                            "pitch": -89.9,
-                                            "duration": 1.5
-                                        },
-                                        "layers": [
-                                            {
-                                                "id": "8002"
+                                                "id": "001"
                                             },
                                             {
                                                 "id": "8002"
