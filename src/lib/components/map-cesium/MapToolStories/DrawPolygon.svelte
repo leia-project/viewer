@@ -4,9 +4,12 @@
     import { onMount } from "svelte";
     import { page } from '$app/stores';
 	import { Map } from "../module/map";
+	import type { Story } from "./Story";
+	import { StoryLayer } from "./StoryLayer";
 
-    export let map: Map;
     export let hasDrawnPolygon: boolean = false;
+    export let map: Map;
+    export let story: Story;
 
     let handler: Cesium.ScreenSpaceEventHandler;
     let activeShapePoints: Cesium.Cartesian3[] = [];
@@ -117,13 +120,18 @@
             activeShapePoints = [];
             activeShape = undefined;
 
-            polygonPositions.set(activeShapePoints);
-            map.viewer.scene.requestRender();
-            hasDrawnPolygon = true;
-            
-            // sendAPIUpResponse();
-            sendAnalysisRequest(geojson, "https://service.pdok.nl/rws/ahn/atom/downloads/dtm_05m/M_65CZ2.tif");
-            }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+        polygonPositions.set(activeShapePoints);
+        map.viewer.scene.requestRender();
+        hasDrawnPolygon = true;
+        
+        // sendAPIUpResponse();
+        let storyLayers: Array<StoryLayer> = story.getStoryLayers();
+        
+        for (let i = 0; i < storyLayers.length; i++) {
+            let kaas = sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson);
+        }
+
+        }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
         };
     
     function deletePolygon() {
@@ -145,7 +153,11 @@
         hasDrawnPolygon = false;
     }
 
-    async function sendAnalysisRequest(geojson: any, url: string) {
+    async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any) {
+        if (!url || !featureName) {
+            console.warn("url or featureName undefined, not able to get the analysis request");
+            return;
+        }
         // Extract the inner geometry part from the GeoJSON Feature for the "geom" field
         const geom = {
             geometry: geojson.geometry
@@ -158,7 +170,8 @@
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    raster_url: url,
+                    rasterUrl: url,
+                    featureName: featureName,
                     geom: geom,  // match the backend expected structure here
                 }),
             });
