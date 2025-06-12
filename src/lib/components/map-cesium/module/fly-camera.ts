@@ -1,5 +1,4 @@
 import * as Cesium from "cesium";
-import type { CesiumProject } from "../MapToolProjects/project";
 
 export default class FlyCamera {
 	private viewer: Cesium.Viewer;
@@ -61,6 +60,7 @@ export default class FlyCamera {
 			a: { downAction: () => this.moveLeft() },
 			s: { downAction: () => this.moveHorizontally(false) },
 			d: { downAction: () => this.moveRight() },
+			h: { upAction: () => this.toggleGuide() },
 
 			arrowup: { downAction: () => this.moveHorizontally(true) },
 			arrowleft: { downAction: () => this.moveLeft() },
@@ -159,7 +159,9 @@ export default class FlyCamera {
 		this.scene.canvas.requestPointerLock();
 		this.POVActive = true;
 		this.enabled = true;
+		
 		document.getElementById("navfooter").style.visibility = "hidden";
+		this.createGuide();
 	}
 
 	public unlockPointer() {
@@ -173,6 +175,7 @@ export default class FlyCamera {
 		//wait out the pointerlock restriction without errors
 		setTimeout(() => {
 			document.getElementById("navfooter").style.visibility = "visible";
+			document.getElementById("povGuide")?.remove();
 		}, 1000);
 
     
@@ -205,6 +208,44 @@ export default class FlyCamera {
 		if (this.requestingRender) {
 			this.viewer.scene.requestRenderMode = false;
 		}
+	}
+
+	public toggleGuide() {
+		if(document.getElementById("povGuide") && document.getElementById("povGuide")?.style.visibility == "visible") {
+			document.getElementById("povGuide").style.visibility = "hidden";
+		} else {
+			document.getElementById("povGuide").style.visibility = "visible";
+		}
+		
+	}
+
+	public createGuide() {
+     let guide = document.createElement("row");
+		guide.id = "povGuide";
+		guide.style.backgroundColor = "white";
+
+		let escDiv = document.createElement("div");
+		let movementDiv = document.createElement("div");
+		let hideDiv = document.createElement("div");
+		let verticalMovementDiv = document.createElement("div");
+
+
+		escDiv.textContent = "Press ESC to exit";
+		movementDiv.textContent = "Use WASD or arrow keys to move";
+		verticalMovementDiv.textContent = "Use Q/E to go up/down";
+		hideDiv.textContent = "Press H to hide this menu";
+
+		guide.appendChild(escDiv);
+        guide.appendChild(movementDiv);
+
+		if(!this.groundPOV) {
+		guide.appendChild(verticalMovementDiv);
+		}
+		
+		guide.appendChild(hideDiv);
+
+		document.getElementById("navfooter")?.appendChild(guide);
+		guide.style.visibility = "visible";
 	}
 
 	public handleMovement(movingEntity: Cesium.Entity) {
