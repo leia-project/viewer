@@ -7,6 +7,7 @@
 	import type { StoryChapter } from "./StoryChapter";
 
   export let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }>;
+  export let lastInputType: string;
   export let page: number; // same 'page' as in StoryView
   let index: number = page - 1;
   let activeChapterIndex: number = 0; // first index of the active chapter in flattenedSteps
@@ -72,7 +73,10 @@
     kind="ghost" 
     size="small" 
     style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
-    on:click={prev}
+    on:click={() => {
+      lastInputType = "click";
+      prev();
+    }}
   >
     <CaretLeft />
   </Button>
@@ -82,7 +86,10 @@
         kind={page === activeChapterIndex + idx + 1 ? "tertiary" : "ghost"}
         size="small"
         style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
-        on:click={() => page = activeChapterIndex + idx + 1}
+        on:click={() => {
+          lastInputType = "click";
+          page = activeChapterIndex + idx + 1;
+        }}
       >
         {label}
       </Button>
@@ -92,7 +99,10 @@
     kind="ghost"
     size="small"
     style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
-    on:click={next}
+    on:click={() => {
+      lastInputType = "click";
+      next();
+    }}
   >
     <CaretRight />
   </Button>
