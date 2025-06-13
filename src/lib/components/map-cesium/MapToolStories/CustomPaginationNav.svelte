@@ -28,14 +28,14 @@
 
   const dispatch = createEventDispatcher();
 
-  function goTo(idx: number) {
-    if (idx < 1) {
+  function goTo(newPage: number) {
+    if (newPage - activeChapterIndex < 1) {
       return;
     }
-    if (idx > labels.length) {
+    if (newPage > activeChapterIndex + labels.length) {
       return;
     }
-    page = activeChapterIndex + idx;
+    page = newPage;
     dispatch("change", { page });
   }
 
@@ -82,7 +82,7 @@
         kind={page === activeChapterIndex + idx + 1 ? "tertiary" : "ghost"}
         size="small"
         style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
-        on:click={() => goTo(idx + 1)}
+        on:click={() => page = activeChapterIndex + idx + 1}
       >
         {label}
       </Button>

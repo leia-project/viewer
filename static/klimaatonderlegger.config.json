@@ -1679,21 +1679,6 @@
         {
             "id": "9002",
             "type": "wms",
-            "title": "Hitte - Bebouwing",
-            "groupId": "bebouwing",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_bebouwing_aggregated&format=image/png",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "hitte_bebouwing_aggregated",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "9003",
-            "type": "wms",
             "title": "Regenwateroverlast - Bebouwing",
             "groupId": "bebouwing",
             "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_bebouwing_vitaleinfra_aggregated&format=image/png",
@@ -1703,6 +1688,21 @@
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
                 "featureName": "regenwateroverlast_bebouwing_vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "9003",
+            "type": "wms",
+            "title": "Waterveiligheid - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_bebouwing_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_bebouwing_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1724,15 +1724,15 @@
         {
             "id": "9005",
             "type": "wms",
-            "title": "Waterveiligheid - Bebouwing",
+            "title": "Hitte - Bebouwing",
             "groupId": "bebouwing",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_bebouwing_aggregated&format=image/png",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_bebouwing_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "waterveiligheid_bebouwing_aggregated",
+                "featureName": "hitte_bebouwing_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1784,21 +1784,6 @@
         {
             "id": "10003",
             "type": "wms",
-            "title": "Waterbeschikbaarheid - Vitale Infrastructuur",
-            "groupId": "vitaleinfra",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_vitaleinfra_aggregated&format=image/png",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "waterbeschikbaarheid_vitaleinfra_aggregated",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "10004",
-            "type": "wms",
             "title": "Waterveiligheid - Vitale Infrastructuur",
             "groupId": "vitaleinfra",
             "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_vitaleinfra_aggregated&format=image/png",
@@ -1808,6 +1793,21 @@
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
                 "featureName": "waterveiligheid_vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "10004",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_vitaleinfra_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_vitaleinfra_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1844,21 +1844,6 @@
         {
             "id": "11002",
             "type": "wms",
-            "title": "Hitte - Recreatie",
-            "groupId": "recreatie",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_reacreatie_aggregated&format=image/png",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "hitte_reacreatie_aggregated",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "11003",
-            "type": "wms",
             "title": "Regenwateroverlast - Recreatie",
             "groupId": "recreatie",
             "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_recreatie_aggregated&format=image/png",
@@ -1868,6 +1853,21 @@
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
                 "featureName": "regenwateroverlast_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11003",
+            "type": "wms",
+            "title": "Waterveiligheid - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_recreatie_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1904,15 +1904,15 @@
         {
             "id": "11006",
             "type": "wms",
-            "title": "Waterveiligheid - Recreatie",
+            "title": "Hitte - Recreatie",
             "groupId": "recreatie",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_recreatie_aggregated&format=image/png",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_reacreatie_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "waterveiligheid_recreatie_aggregated",
+                "featureName": "hitte_reacreatie_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1934,21 +1934,6 @@
         {
             "id": "12001",
             "type": "wms",
-            "title": "Hitte - Landbouw",
-            "groupId": "landbouw",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_landbouw_aggregated&format=image/png",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "hitte_landbouw_aggregated",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "12002",
-            "type": "wms",
             "title": "Regenwateroverlast - Landbouw",
             "groupId": "landbouw",
             "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_landbouw_aggregated&format=image/png",
@@ -1958,6 +1943,21 @@
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
                 "featureName": "regenwateroverlast_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12002",
+            "type": "wms",
+            "title": "Waterveiligheid - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_landbouw_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1994,15 +1994,15 @@
         {
             "id": "12005",
             "type": "wms",
-            "title": "Waterveiligheid - Landbouw",
+            "title": "Hitte - Landbouw",
             "groupId": "landbouw",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_landbouw_aggregated&format=image/png",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_landbouw_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "waterveiligheid_landbouw_aggregated",
+                "featureName": "hitte_landbouw_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -2024,6 +2024,21 @@
         {
             "id": "13001",
             "type": "wms",
+            "title": "Waterveiligheid - Natuur",
+            "groupId": "natuur",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13002",
+            "type": "wms",
             "title": "Waterbeschikbaarheid - Natuur",
             "groupId": "natuur",
             "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_natuur_aggregated&format=image/png",
@@ -2037,7 +2052,7 @@
             }
         },
         {
-            "id": "13002",
+            "id": "13003",
             "type": "wms",
             "title": "Waterkwaliteit - Natuur",
             "groupId": "natuur",
@@ -2048,21 +2063,6 @@
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
                 "featureName": "waterkwaliteit_natuur_aggregated",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "13003",
-            "type": "wms",
-            "title": "Waterveiligheid - Natuur",
-            "groupId": "natuur",
-            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_natuur_aggregated&format=image/png",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
-                "featureName": "waterveiligheid_natuur_aggregated",
                 "contenttype": "image/png"
             }
         }
@@ -2456,6 +2456,28 @@
                                 "id": "1",
                                 "steps": [
                                     {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "9000"
+                                            },
+                                            {
+                                                "id": "9005"
+                                            }
+                                        ]
+                                    },
+                                    {
                                         "title": "Bodemdaling",
                                         "html": "<div>Indicatoren voor Bodemdaling in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                                         "globeOpacity": 100,
@@ -2473,7 +2495,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "9002"
+                                                "id": "9001"
                                             }
                                         ]
                                     },
@@ -2495,7 +2517,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "9002"
                                             }
                                         ]
                                     },
@@ -2517,7 +2539,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "9003"
                                             }
                                         ]
                                     },
@@ -2539,7 +2561,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "9004"
                                             }
                                         ]
                                     },
@@ -2561,7 +2583,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "9005"
                                             }
                                         ]
                                     }
@@ -2571,6 +2593,28 @@
                             {
                                 "id": "2",
                                 "steps": [
+                                    {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "10000"
+                                            }
+                                        ]
+                                    },
                                     {
                                         "title": "Bodemdaling",
                                         "html": "<div>Indicatoren voor Bodemdaling in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
@@ -2589,7 +2633,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "10001"
                                             }
                                         ]
                                     },
@@ -2611,7 +2655,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "10002"
                                             }
                                         ]
                                     },
@@ -2633,7 +2677,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "10003"
                                             }
                                         ]
                                     },
@@ -2655,7 +2699,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "10004"
                                             }
                                         ]
                                     }
@@ -2664,6 +2708,28 @@
                             {
                                 "id": "3",
                                 "steps": [
+                                    {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "11000"
+                                            }
+                                        ]
+                                    },
                                     {
                                         "title": "Bodemdaling",
                                         "html": "<div>Indicatoren voor Bodemdaling in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
@@ -2682,7 +2748,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "11001"
                                             }
                                         ]
                                     },
@@ -2704,7 +2770,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "11002"
                                             }
                                         ]
                                     },
@@ -2726,7 +2792,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "11003"
                                             }
                                         ]
                                     },
@@ -2748,7 +2814,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "11004"
                                             }
                                         ]
                                     },
@@ -2770,7 +2836,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "11005"
                                             }
                                         ]
                                     },
@@ -2792,7 +2858,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "11006"
                                             }
                                         ]
                                     }
@@ -2801,6 +2867,28 @@
                             {
                                 "id": "4",
                                 "steps": [
+                                    {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "12000"
+                                            }
+                                        ]
+                                    },
                                     {
                                         "title": "Regenwateroverlast",
                                         "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
@@ -2819,7 +2907,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "12001"
                                             }
                                         ]
                                     },
@@ -2841,7 +2929,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "12002"
                                             }
                                         ]
                                     },
@@ -2863,7 +2951,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "12003"
                                             }
                                         ]
                                     },
@@ -2885,7 +2973,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "12004"
                                             }
                                         ]
                                     },
@@ -2907,7 +2995,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "12005"
                                             }
                                         ]
                                     }
@@ -2916,6 +3004,28 @@
                             {
                                 "id": "5",
                                 "steps": [
+                                    {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "13000"
+                                            }
+                                        ]
+                                    },
                                     {
                                         "title": "Waterveiligheid",
                                         "html": "<div>Indicatoren voor Waterveiligheid in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
@@ -2934,7 +3044,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "13001"
                                             }
                                         ]
                                     },
@@ -2956,7 +3066,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "13002"
                                             }
                                         ]
                                     },
@@ -2978,7 +3088,7 @@
                                                 "id": "001"
                                             },
                                             {
-                                                "id": "8002"
+                                                "id": "13003"
                                             }
                                         ]
                                     }
