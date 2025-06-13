@@ -9,7 +9,7 @@ export class HexagonLayer {
 
 	private map: Map;
 	private primitive?: Cesium.Primitive;
-	private outline: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}
+	private outline: Array<[lon: number, lat: number]>;
 	public hexagons: Array<Hexagon> = [];
 	public selectedHexagon: Writable<Hexagon | undefined> = writable();
 	private pgRestAPI = new PGRestAPI();
@@ -31,7 +31,7 @@ export class HexagonLayer {
 
 	private hoveredHexagon: Hexagon | undefined;
 
-	constructor(map: Map, elapsedTime: Writable<number>, scenario: string, outline: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}) {
+	constructor(map: Map, elapsedTime: Writable<number>, scenario: string, outline: Array<[lon: number, lat: number]>) {
 		this.map = map;
 		this.outline = outline;
 		this.loadHexagons(scenario);

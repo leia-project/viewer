@@ -28,10 +28,6 @@ export interface Breach {
 		name: string;
 		dijkring: string;
 		scenarios: Array<string>;
-	};
-	outline: {
-		type: string;
-		coordinates: Array<Array<[lon: number, lat: number]>>;
 	}
 }
 

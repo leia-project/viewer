@@ -63,7 +63,7 @@ export class Game {
 
 	public stats: IGameStats;
 
-	constructor(map: Map, breach: Breach, scenario: string) {
+	constructor(map: Map, breach: Breach, scenario: string, outline: Array<[lon: number, lat: number]>) {
 		this.map = map;
 		this.breach = breach;
 		this.scenario = scenario;
@@ -78,7 +78,7 @@ export class Game {
 		this.floodLayerController.loadNewScenario(breach, scenario).then(() => {
 			this.load();
 		});	
-		this.evacuationController = new EvacuationController(map, scenario, this.elapsedTime, breach.outline);
+		this.evacuationController = new EvacuationController(map, scenario, this.elapsedTime, outline);
 	}
 
 	public load(): void {

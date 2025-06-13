@@ -6,18 +6,20 @@ import { CylinderGeometry } from "./cylinder-geometry";
 
 
 
-abstract class RoutingNode {
+abstract class RoutingNode<F = any> {
 
 	public id: string;
 	public lon: number;
 	public lat: number;
+	public feature: F;
 	public position: Cesium.Cartesian3;
 	public entity: Cesium.Entity;
 
-	constructor(id: string, lon: number, lat: number) {
+	constructor(id: string, lon: number, lat: number, feature?: F) {
 		this.id = id;
 		this.lon = lon;
 		this.lat = lat;
+		this.feature = feature || {} as F;
 		this.position = Cesium.Cartesian3.fromDegrees(lon, lat);
 		this.entity = this.createEntity();
 	}
@@ -73,6 +75,47 @@ export interface IMeasure {
 	impact: any;
 }
 
+export interface IRoadSegmentFeature {
+	type: "Feature";
+	geometry: {
+		type: "LineString";
+		coordinates: Array<[lon: number, lat: number]>;
+	};
+	properties: {
+		fid: string;
+		maximum_snelheid: number;
+		capaciteit: number;
+
+		wvk_id: number;
+	};
+}
+
+export class RouteSegment extends RoutingNode<IRoadSegmentFeature> {
+
+	public measures: Array<IMeasure> = [];
+	public capacity: number; // Extraction capacity per time step
+	public currentLoad: number = 0;
+
+	constructor(feature: IRoadSegmentFeature) {
+		const lon = feature.geometry.coordinates[0][0];
+		const lat = feature.geometry.coordinates[0][1];
+		super(feature.properties.wvk_id.toString(), lon, lat, feature);
+		this.capacity = feature.properties.capaciteit;
+	}
+
+	protected createEntity(): Cesium.Entity {
+		const cartesians = this.feature.geometry.coordinates.map((coord) => Cesium.Cartesian3.fromDegrees(coord[0], coord[1]));
+		return new Cesium.Entity({
+			id: this.id,
+			polyline: {
+				positions: cartesians,
+				width: 5,
+				material: Cesium.Color.ORANGE.withAlpha(0.5),
+				clampToGround: true
+			}
+		});
+	}
+}
 
 export class BottleNeck extends RoutingNode {
 

@@ -17,10 +17,10 @@ export class EvacuationController {
 
 	public evacuations: Writable<Array<Evacuation>> = writable([]);
 	
-	constructor(map: Map, scenario: string, elapsedTime: Writable<number>, outline: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}) {
+	constructor(map: Map, scenario: string, elapsedTime: Writable<number>, outline: Array<[lon: number, lat: number]>) {
 		this.map = map;
 		this.elapsedTime = elapsedTime;
-		this.roadNetwork = new RoadNetwork(map, elapsedTime, this.evacuations);
+		this.roadNetwork = new RoadNetwork(map, elapsedTime, this.evacuations, outline);
 		this.hexagonLayer = new HexagonLayer(map, elapsedTime, scenario, outline);
 
 		this.hexagonLayer.selectedHexagon.subscribe((hex: Hexagon | undefined) => {

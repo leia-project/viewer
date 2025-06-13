@@ -1,9 +1,10 @@
 import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Map } from "$lib/components/map-cesium/module/map";
-import { ExtractionPoint, BottleNeck, RoadNetworkLayer, RoadNetworkLayerP } from "./bottle-neck";
+import { ExtractionPoint, BottleNeck, RoadNetworkLayer, RoadNetworkLayerP, type IRoadSegmentFeature, RouteSegment } from "./bottle-neck";
 import { Evacuation } from "../evacuation";
 import { RoutingAPI, type RouteFeature } from "../api/routing-api";
+import NodeHoverBox from "../../../components/infobox/NodeHoverBox.svelte";
 
 
 const extractionPointsConfig = [
@@ -37,29 +38,56 @@ const bottlenecksConfig = [
 
 export class RoadNetwork {
 
+	public map: Map;
 	private routingAPI: RoutingAPI;
 	private extractionPoints: Array<ExtractionPoint> = [];
 	private exctractionPointLayer: RoadNetworkLayer<ExtractionPoint>;
 	public selectedExtractionPoint: Writable<ExtractionPoint  | undefined> = writable(undefined);
 	private bottlenecks: Array<BottleNeck> = [];
 	private bottleneckLayer: RoadNetworkLayerP<BottleNeck>;
+
+	private outline: Array<[lon: number, lat: number]>;
+	private roadSegmentsLayer: RoadNetworkLayer<RouteSegment>;
 	private floodedSegments: Array<any> = [];
 
 	private elapsedTime: Writable<number> = writable(0);
 	public evacuations: Writable<Array<Evacuation>> = writable([]);
 
-	constructor(map: Map, elapsedTime: Writable<number>, evacuations: Writable<Array<Evacuation>>) {
+	private hoveredNode: Writable<ExtractionPoint | BottleNeck | undefined> = writable(undefined);
+	private nodeHoverBox: NodeHoverBox | undefined;
+	public sensorHoverBoxTimeOut: NodeJS.Timeout | undefined;
+
+	constructor(map: Map, elapsedTime: Writable<number>, evacuations: Writable<Array<Evacuation>>, outline: Array<[lon: number, lat: number]>) {
+		this.map = map;
 		this.elapsedTime = elapsedTime;
 		this.evacuations = evacuations;
 		this.routingAPI = new RoutingAPI();
 		this.exctractionPointLayer = new RoadNetworkLayer<ExtractionPoint>(map);
 		this.bottleneckLayer = new RoadNetworkLayerP<BottleNeck>(map);
+		this.outline = outline;
+		this.roadSegmentsLayer = new RoadNetworkLayer<RouteSegment>(map);
 		this.init();
+
+		this.hoveredNode.subscribe((node) => {
+			if (node instanceof BottleNeck) {
+				this.nodeHoverBox?.$destroy();
+				this.nodeHoverBox = new NodeHoverBox({
+					target: map.getContainer(),
+					props: {
+						node: node,
+						roadNetwork: this
+					}
+				});
+			} else {
+				this.sensorHoverBoxTimeOut = setTimeout(() => this.nodeHoverBox?.$destroy(), 400);
+			}
+		});
 	}
 
 	private init(): void {
 		this.loadExtractionPoints();
-		this.loadBottlenecks();
+		//this.loadBottlenecks();
+		//this.loadRoadNetwork();
 		this.elapsedTime.subscribe((currentTime: number) => {
 			this.routingAPI.updateFloodedSegments(currentTime);
 			// set capacities for the next step connected to the current step
@@ -87,6 +115,21 @@ export class RoadNetwork {
 		});
 	}
 
+	private async loadRoadNetwork(): Promise<void> {
+		const res = await fetch("/data/zeeland/car/edges.geojson");
+		const geojson = await res.json();
+		geojson.features.forEach((feature: IRoadSegmentFeature) => {
+			//@ts-ignore
+			if (feature.geometry.type === "MultiLineString") {
+				feature.geometry.type = "LineString";
+				//@ts-ignore
+				feature.geometry.coordinates = feature.geometry.coordinates.flat();
+			}
+			const routeSegment = new RouteSegment(feature);
+			this.roadSegmentsLayer.add(routeSegment);
+		});
+	}
+
 	public async createEvacuationRoute(origin: [lon: number, lat: number]): Promise<{ route: Array<RouteFeature>, extractionPoint: ExtractionPoint, bottlenecks: Array<BottleNeck> } | undefined> {
 		const selectedExtractionPoint = get(this.selectedExtractionPoint);
 		if (!selectedExtractionPoint) {
@@ -97,6 +140,12 @@ export class RoadNetwork {
 			selectedExtractionPoint.lat
 		];
 		const route = await this.routingAPI.getRoute(origin, extractionLocation);
+
+		// update capacities
+
+		// remove nodes that are full
+
+
 
 		// check for bottlenecks, and update the capacity of overlapping bottlenecks
 		const hasCapacity = this.routeHasSufficientCapacity(route.features, 100);
