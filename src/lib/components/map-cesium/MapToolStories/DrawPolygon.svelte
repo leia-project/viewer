@@ -1,6 +1,7 @@
 <script lang="ts">
     import * as Cesium from "cesium";
     import { polygonPositions } from "./PolygonStore";
+	import { Button } from "carbon-components-svelte";
 	import { Map } from "../module/map";
 	import type { Story } from "./Story";
 	import { StoryLayer } from "./StoryLayer";
@@ -16,18 +17,19 @@
     let floatingPoint: Cesium.Entity | undefined;
     let polygonEntity: Cesium.Entity | undefined;
     let redPoints: Cesium.Entity[] = [];
-    let selectedAction: 'draw' | 'delete' | null = null;
+    let selectedAction: 'draw' | 'delete' | undefined = undefined;
     let geojson: any;
 
 
     function drawShape(positionData: Cesium.Cartesian3[]) {
         return map.viewer.entities.add({
-        polygon: {
-            hierarchy: new Cesium.CallbackProperty(() => {
-            return new Cesium.PolygonHierarchy(positionData);
-            }, false),
-            material: Cesium.Color.YELLOW.withAlpha(0.6),
-        },
+            polygon: {
+                hierarchy: new Cesium.CallbackProperty(() => {
+                return new Cesium.PolygonHierarchy(positionData);
+                }, false),
+                material: Cesium.Color.YELLOW.withAlpha(0.6),
+                heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN
+            },
         });
     }
 
@@ -36,6 +38,7 @@
             console.log("Already drawn a polygon, first delete the old one");
             return;
         }
+        selectedAction = "draw";
         handler = new Cesium.ScreenSpaceEventHandler(map.viewer.canvas);
 
         // Handle left click to create polygon points
@@ -49,6 +52,7 @@
                     pixelSize: 6,
                     color: Cesium.Color.RED,
                     disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN,
                 },
             });
             redPoints.push(pointEntity);
@@ -138,15 +142,17 @@
             );
             
         }
+        selectedAction = undefined;
 
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-        };
+    };
     
     function deletePolygon() {
         if (!hasDrawnPolygon) {
             console.log("First draw a polygon before you can delete one");
             return;
         }
+        selectedAction = 'delete';
 
         if (floatingPoint) map.viewer.entities.remove(floatingPoint);
         if (activeShape) map.viewer.entities.remove(activeShape);
@@ -217,29 +223,40 @@
 </script>
 
 <div>
-    <button on:click={() => {
-        draw(); 
-        selectedAction = "draw";
-    }} 
-    class="{selectedAction === 'draw' ? 'button-selected' : 'button-normal'}">Draw new polygon</button>
+    <h4>Teken Projectgebied</h4>
+    <p>
+        Teken een projectgebied in. Klik op de 'Draw new polygon' knop om te beginnen met tekenen op de kaart.
+        Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.
+    </p>
+</div>
 
-    <button on:click={() => {
-        deletePolygon();
-        selectedAction = 'delete';
-    }}
-    class="button-normal">Delete polygon</button>
+<div class="buttons">
+    <Button 
+        kind={selectedAction === "draw" ? "primary" : "tertiary"}
+        on:click={() => {
+            draw(); 
+        }}
+    >
+        Draw new polygon
+    </Button>
+
+    <Button 
+        kind="danger"
+        on:click={() => {
+            deletePolygon();
+        }}
+    >
+        Delete polygon
+    </Button>
 </div>
 
 <style>
-    button {
-        width: 49%;
-        margin-bottom: 1rem;
-    }
-    .button-normal {
-        background-color: grey;
-    }
 
-    .button-selected {
-        background-color: lightslategray;
+    .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin: 1rem;
     }
+    
 </style>

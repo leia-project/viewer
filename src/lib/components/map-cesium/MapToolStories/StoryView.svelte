@@ -2,7 +2,7 @@
 	import { _ } from "svelte-i18n";
 	import { onMount, getContext, onDestroy, createEventDispatcher } from "svelte";
 	import { writable, get } from "svelte/store";
-	import { Button, ButtonSet, PaginationNav, Tag } from "carbon-components-svelte";
+	import { Button, PaginationNav, Tag } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
 	import "@carbon/charts-svelte/styles.css";
 
@@ -51,6 +51,8 @@
 
 	let hasDrawnPolygon: boolean = false;
 	let distributions: Array<number> = [5];
+
+	$: {console.log(hasDrawnPolygon, "has drawn polygon")}
 
 	$: shown = Math.floor(width / 70);
 
@@ -343,6 +345,9 @@
 </script>
 
 <div class="story" bind:clientWidth={width}>
+	{#if !hasDrawnPolygon}
+		<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} {map} {story} bind:distributions={distributions}/>
+	{:else}
 	<div
 		class="nav"
 		style="width:{width}px"
@@ -408,7 +413,6 @@
 	</div>
 
 	<div class="content" bind:this={content}>
-		<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} {map} {story} bind:distributions={distributions}/>
 		<div style="height:{navHeight}px" />
 		{#each flattenedSteps as { step, chapter }, index}
 			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
@@ -437,6 +441,7 @@
 		{/each}
 		<!-- <div style="height:{height}px" /> -->
 	</div>
+	{/if}
 </div>
 
 <style>
