@@ -17,6 +17,8 @@ export default class FlyCamera {
 	public requestingRender: boolean;
 	public prevDepthTesting: boolean;
 	public POVActive: boolean;
+	public lastTime: number;
+	public deltaTime: number;
 	public clickHandler: Cesium.ScreenSpaceEventHandler;
 	public base = process.env.APP_URL;
 
@@ -27,7 +29,7 @@ export default class FlyCamera {
 	constructor(
 		viewer: Cesium.Viewer,
 		mouseSpeed = 0.003,
-		moveSpeed = 0.5,
+		moveSpeed = 0.05,
 		speedModOn = 6.5,
 		slowModOn = 6.5
 	) {
@@ -46,6 +48,8 @@ export default class FlyCamera {
 		this.moveSpeed = moveSpeed;
 		this.speedModifier = this.speedModOff;
 		this.enabled = false;
+		this.lastTime = performance.now();
+		this.deltaTime = 1;
 		this.groundPOV = false;
 		this.POVActive = false;
 		this.clickHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
@@ -201,10 +205,20 @@ export default class FlyCamera {
 
 	public enablePositionSelection() {
 		this.groundPOV = true;
+		let walkModeButton = document.getElementById("walkModeButton");
 
 		//povactive differs from enabled variable in order to block stacking position marker
 		this.POVActive = true;
 		document.body.style.cursor = "grab";
+
+		walkModeButton.style.backgroundColor = "#4c4c4c";
+		walkModeButton.style.borderTop = "1px solid white";
+		walkModeButton.style.borderBottom = "1px solid white";
+
+
+
+
+
 		if (this.requestingRender) {
 			this.viewer.scene.requestRenderMode = false;
 		}
@@ -222,7 +236,9 @@ export default class FlyCamera {
 	public createGuide() {
      let guide = document.createElement("row");
 		guide.id = "povGuide";
-		guide.style.backgroundColor = "white";
+		guide.style.backgroundColor = "var(--cds-interactive-02, #393939)";
+		guide.style.color = "white";
+		guide.style.border = "0.5mm ridge white";
 
 		let escDiv = document.createElement("div");
 		let movementDiv = document.createElement("div");
@@ -319,6 +335,11 @@ export default class FlyCamera {
 		this.viewer.entities.removeById("CursorBoard");
 		this.viewer.scene.requestRenderMode = this.requestingRender;
 		this.viewer.scene.requestRender();
+		document.getElementById("walkModeButton").style.backgroundColor = document.getElementById("navfooter")?.style.backgroundColor;
+		document.getElementById("walkModeButton").style.border = document.getElementById("navfooter")?.style.border;
+
+
+
 		this.POVActive = false;
 		document.body.style.cursor = "auto";
 	}
@@ -379,7 +400,7 @@ export default class FlyCamera {
 	}
 
 	private getMoveSpeed() {
-		return this.moveSpeed * this.speedModifier * this.getHeightSpeedModifier();
+		return this.deltaTime * (this.moveSpeed * this.speedModifier * this.getHeightSpeedModifier()) ;
 	}
 
 	private getMouseSpeed() {
@@ -480,7 +501,12 @@ export default class FlyCamera {
 		}
 	}
 
+
 	private viewerUpdate() {
+ let now = performance.now();
+this.deltaTime = now - this.lastTime;
+ this.lastTime = now;
+ 
 		this.mouseLook();
 		for (const property in this.keys) {
 			const key = this.keys[property];

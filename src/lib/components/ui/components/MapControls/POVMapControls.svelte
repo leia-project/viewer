@@ -59,6 +59,7 @@
                 map.flyCamera.bringToGroundPOV()
             }}
             tooltipPosition="top"
+            id="walkModeButton"
             iconDescription={$_("tools.help.movement.buttonsWalkMode")}
         />
         <!-- {/if} -->
