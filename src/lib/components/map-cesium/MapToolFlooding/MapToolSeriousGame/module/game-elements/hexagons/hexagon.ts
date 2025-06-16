@@ -34,7 +34,7 @@ export class Hexagon {
 	]; //https://colordesigner.io/gradient-generator    -  https://uigradients.com/#TheBlueLagoon
 	private cesiumColors = this.colorScale.map((color, i) => {
 		const col = Cesium.Color.fromCssColorString(color);
-		col.alpha = Math.min(1, i / this.colorScale.length + 0.1);
+		col.alpha = 1;
 		return col;
 	});
 

@@ -3,6 +3,7 @@ import { get, writable, type Writable } from "svelte/store";
 import { Hexagon } from "./hexagon";
 import { PGRestAPI, type HexagonEntry } from "../api/pg-rest-api";
 import type { Map } from "$lib/components/map-cesium/module/map";
+import type { Breach } from "$lib/components/map-cesium/MapToolFlooding/layer-controller";
 
 
 export class HexagonLayer {
@@ -31,10 +32,10 @@ export class HexagonLayer {
 
 	private hoveredHexagon: Hexagon | undefined;
 
-	constructor(map: Map, elapsedTime: Writable<number>, scenario: string, outline: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}) {
+	constructor(map: Map, elapsedTime: Writable<number>, breach: Breach) {
 		this.map = map;
-		this.outline = outline;
-		this.loadHexagons(scenario);
+		this.outline = breach.outline;
+		this.loadHexagons(breach);
 		this.selectedHexagon.subscribe((hex: Hexagon | undefined) => {
 			// highlight the accompanied evacuation
 		});
@@ -45,11 +46,11 @@ export class HexagonLayer {
 		this.use2DMode.subscribe((b) => {this.toggle2D3DModeHexagons(b)});
 	}
 
-	private async loadHexagons(scenario: string): Promise<void> {
-		const hexagons = await this.pgRestAPI.getHexagons(this.outline, 7, [scenario]);
+	private async loadHexagons(breach: Breach): Promise<void> {
+		const hexagons = await this.pgRestAPI.getFloodHexagons(this.outline, 7, breach);
 
 		hexagons.forEach((hex: HexagonEntry) => {
-			const newHex = new Hexagon(hex.hex, hex.population, undefined); // hex.flooded_after);
+			const newHex = new Hexagon(hex.hex, hex.firstFlooded, hex.firstFlooded); // hex.flooded_after);
 			this.hexagons.push(newHex);
 		});
 
@@ -96,12 +97,19 @@ export class HexagonLayer {
 		const color = event === "hover" ? Cesium.Color.LIGHTPINK : Cesium.Color.HOTPINK;
 		const attributes = this.primitive?.getGeometryInstanceAttributes(hexagon.hex);
 		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(color, attributes.color);
+		if (hexagon.entityInstance.polygon) {
+			hexagon.entityInstance.polygon.material = new Cesium.ColorMaterialProperty(color);
+		}
 	}
 
 	public unhighlight(hexagon: Hexagon, event: "click" | "hover"): void {
 		if (event === "hover" && hexagon === get(this.selectedHexagon)) return;
 		const attributes = this.primitive?.getGeometryInstanceAttributes(hexagon.hex);
 		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(hexagon.valueToColor(hexagon.population), attributes.color);
+		if (hexagon.entityInstance.polygon) {
+			const color = hexagon.valueToColor(hexagon.population);
+			hexagon.entityInstance.polygon.material = new Cesium.ColorMaterialProperty(color);
+		}
 	}
 	
 	public onLeftClick(picked: any): void {
@@ -122,11 +130,17 @@ export class HexagonLayer {
 	}
 
 	public onMouseMove(picked: any): void {
-		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
+		if ((picked?.primitive instanceof Cesium.Primitive || picked?.id instanceof Cesium.Entity) && picked?.id) {
 			if (this.hoveredHexagon && this.hoveredHexagon.hex !== picked.id) {
 				this.unhighlight(this.hoveredHexagon, "hover");
 			}
-			this.hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
+
+			if(picked?.id instanceof Cesium.Entity) {
+				this.hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.entityInstance === picked.id)
+			} else if (picked?.primitive instanceof Cesium.Primitive) {
+				this.hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
+			} 
+			
 			if (this.hoveredHexagon) this.highlight(this.hoveredHexagon, "hover");
 			this.map.viewer.scene.canvas.style.cursor = "pointer";
 		} else if (picked?.id === undefined) {
@@ -134,16 +148,16 @@ export class HexagonLayer {
 				this.unhighlight(this.hoveredHexagon, "hover");
 				this.hoveredHexagon = undefined;
 			}
-		}
+		} 
 		this.map.refresh();
 	}
 	
 	public toggle2D3DModeHexagons(show: boolean): void {
-		if(!get(this.visible)) {
+		if (!get(this.visible)) {
 			return;
 		}
 		this.hexagonEntities.show = show;
-		if(this.primitive) {
+		if (this.primitive) {
 			this.primitive.show = !show;
 		}
 		this.map.refresh();
@@ -190,13 +204,18 @@ const vertexShader = `
 	void main() {
 		vec4 p = czm_computePosition();
 
-		if (vectorUp.z != 0.0) {
+		vec3 up = normalize(vectorUp);
+		if (abs(up.z) > 0.0) {  // Only if vectorUp is not zero length
+			if (up.z < 0.0) {
+				up = -up; // Ensure it points up
+			}
 			float population = czm_batchTable_population(batchId);
-			p -= vec4(vectorUp * population * exag_1, 0.0);
+			p = p + 40.0 * vec4(up, 0.0) + vec4(up * population * exag_1, 0.0); 
 			v_color = color;
 		} else {
 			v_color = vec4(color.rgb * 0.5, 1.0);
 		}
+
 		v_color.a = custom_alpha_0;
 			
 		v_positionEC = (czm_modelViewRelativeToEye * p).xyz;      // position in eye coordinates

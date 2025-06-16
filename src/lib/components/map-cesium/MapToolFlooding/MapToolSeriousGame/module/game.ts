@@ -48,8 +48,6 @@ const steps: Array<IGameStep> = [
 export class Game {
 
 	private map: Map;
-	private breach: Breach;
-	private scenario: string;
 
 	public notificationLog: NotificationLog;
 	private forwarding: Writable<boolean> = writable(false);
@@ -65,8 +63,6 @@ export class Game {
 
 	constructor(map: Map, breach: Breach, scenario: string) {
 		this.map = map;
-		this.breach = breach;
-		this.scenario = scenario;
 		this.notificationLog = new NotificationLog();
 		this.stats = {
 			victims: 92,
@@ -78,7 +74,7 @@ export class Game {
 		this.floodLayerController.loadNewScenario(breach, scenario).then(() => {
 			this.load();
 		});	
-		this.evacuationController = new EvacuationController(map, scenario, this.elapsedTime, breach.outline);
+		this.evacuationController = new EvacuationController(map, scenario, this.elapsedTime, breach);
 	}
 
 	public load(): void {

@@ -3,6 +3,7 @@ import { writable } from "svelte/store";
 import { cellToParent, getResolution } from "h3-js";
 
 import type { Writable } from "svelte/store";
+import type { Breach } from "$lib/components/map-cesium/MapToolFlooding/layer-controller";
 
 const PGREST_URL = "https://datacore.beta.geodan.nl/pgrest/";
 const PGREST_CLIENT_ID = "";
@@ -11,7 +12,7 @@ const PGREST_CONNECTION = "default";
 
 export interface HexagonEntry {
 	hex: string;
-	population: number;
+	firstFlooded: number;
 }
 
 interface Bbox {
@@ -36,34 +37,91 @@ export class PGRestAPI {
 	}
 
 	// Default hexagon resolution from datacore table is 10
-	public async getHexagons(polygon: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}, resolution: number, scenarios: Array<string>): Promise<Array<HexagonEntry>> {
+	// public async getHexagons(polygon: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}, resolution: number, scenarios: Array<string>): Promise<Array<HexagonEntry>> {
 
+	// 	// based on scenarios, join the flood table, and determine the time when the hexagon is flooded
+
+	// 	let query = `
+	// 		SELECT h3, number_of_inhabitants FROM datacore.cbs_h3
+	// 		WHERE number_of_inhabitants > 0
+	// 	`;
+
+	// 	if (polygon) {
+	// 		query += `
+	// 			AND ST_Intersects(
+	// 				centroid,
+	// 				ST_GeomFromGeoJSON('${JSON.stringify(polygon)}')
+	// 			)
+	// 		`;
+	// 	}
+		
+	// 	const queryResult: any = await this.client.query(query, {
+	// 		format: "jsonDataArray"
+	// 	});
+
+	//     const rows = queryResult.data.rows;
+	// 	const aggregation = new Map<string, number>();
+
+	// 	for (const row of rows) {
+	// 		const h3 = row[0];
+	// 		const population = row[1] ?? 0;
+	// 		const cellRes = getResolution(h3);
+	// 		let parentCell: string;
+	// 		if (resolution < cellRes) {
+	// 			parentCell = cellToParent(h3, resolution);
+	// 		} else if (resolution === cellRes) {
+	// 			parentCell = h3;
+	// 		} else {
+	// 			// If target resolution is higher (finer), skip for now (unlikely case)
+	// 			continue;
+	// 		}
+
+	// 		aggregation.set(parentCell, (aggregation.get(parentCell) ?? 0) + population);
+	// 	}
+
+	// 	const hexagons: Array<HexagonEntry> = Array.from(aggregation, ([hex, population]) => ({ hex, population }));
+	// 	// let maxPopulation = 0;
+	// 	// for (let i = 0; i < hexagons.length; i++) {
+	// 	// 	maxPopulation = Math.max(maxPopulation, hexagons[i].population);
+	// 	// }	
+	// 	return hexagons;
+	// }
+
+	public async getFloodHexagons(polygon: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}, resolution: number, breach: Breach): Promise<Array<HexagonEntry>> {
+		const scenario = `${breach.properties.dijkring}_${breach.properties.name}_${breach.properties.scenarios[0]}`;
+		console.log(`Scenario: `, scenario);
 		// based on scenarios, join the flood table, and determine the time when the hexagon is flooded
 
 		let query = `
-			SELECT h3, number_of_inhabitants FROM datacore.zeeland_h3
-			WHERE number_of_inhabitants > 0
+		SELECT DISTINCT ON (h3) h3, timestep AS first_flood_timestep
+		FROM datacore.zeeland_flood_h3
+		WHERE scenario = '${scenario}'
+			AND flood_depth > 0.03
+		ORDER BY h3, timestep ASC;
 		`;
 
-		if (polygon) {
-			query += `
-				AND ST_Intersects(
-					centroid,
-					ST_GeomFromGeoJSON('${JSON.stringify(polygon)}')
-				)
-			`;
-		}
+		console.log(`Query: ${query}`);
+		// if (polygon) {
+		// 	query += `
+		// 		AND ST_Intersects(
+		// 			centroid,
+		// 			ST_GeomFromGeoJSON('${JSON.stringify(polygon)}')
+		// 		)
+		// 	`;
+		// }
 		
 		const queryResult: any = await this.client.query(query, {
 			format: "jsonDataArray"
 		});
 
 	    const rows = queryResult.data.rows;
-		const aggregation = new Map<string, number>();
+		const firstFloodedMap = new Map<string, number>(); 
 
 		for (const row of rows) {
 			const h3 = row[0];
-			const population = row[1] ?? 0;
+			const floodDepth = row[1] ?? 0;
+			const firstFlooded = row[2] ?? 0;
+
 			const cellRes = getResolution(h3);
 			let parentCell: string;
 			if (resolution < cellRes) {
@@ -75,15 +133,19 @@ export class PGRestAPI {
 				continue;
 			}
 
-			aggregation.set(parentCell, (aggregation.get(parentCell) ?? 0) + population);
+			firstFloodedMap.set(parentCell, (firstFloodedMap.get(parentCell) ?? 0) + floodDepth);
+
 		}
 
-		const hexagons: Array<HexagonEntry> = Array.from(aggregation, ([hex, population]) => ({ hex, population }));
-		let maxPopulation = 0;
-		for (let i = 0; i < hexagons.length; i++) {
-			maxPopulation = Math.max(maxPopulation, hexagons[i].population);
-		}	
+		const hexagons: Array<HexagonEntry> = Array.from(firstFloodedMap, ([hex, firstFlooded]) => ({
+			hex,
+			firstFlooded,
+		}));
+		
+		// let maxPopulation = 0;
+		// for (let i = 0; i < hexagons.length; i++) {
+		// 	maxPopulation = Math.max(maxPopulation, hexagons[i].population);
+		// }	
 		return hexagons;
 	}
-
 }

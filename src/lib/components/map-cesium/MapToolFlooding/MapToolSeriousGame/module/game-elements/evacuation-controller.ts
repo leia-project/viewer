@@ -6,6 +6,7 @@ import { RoadNetwork } from "./roads/road-network";
 import { notifications } from "$lib/components/map-core/notifications/notifications";
 import { Map } from "$lib/components/map-cesium/module/map";
 import { Evacuation } from "./evacuation";
+import type { Breach } from "../../../layer-controller";
 
 
 export class EvacuationController {
@@ -17,11 +18,11 @@ export class EvacuationController {
 
 	public evacuations: Writable<Array<Evacuation>> = writable([]);
 	
-	constructor(map: Map, scenario: string, elapsedTime: Writable<number>, outline: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}) {
+	constructor(map: Map, scenario: string, elapsedTime: Writable<number>, breach: Breach) {
 		this.map = map;
 		this.elapsedTime = elapsedTime;
 		this.roadNetwork = new RoadNetwork(map, elapsedTime, this.evacuations);
-		this.hexagonLayer = new HexagonLayer(map, elapsedTime, scenario, outline);
+		this.hexagonLayer = new HexagonLayer(map, elapsedTime, breach);
 
 		this.hexagonLayer.selectedHexagon.subscribe((hex: Hexagon | undefined) => {
 			get(this.evacuations).forEach((evacuation: Evacuation) => {
