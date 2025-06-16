@@ -23,7 +23,6 @@
     }
 
     function mapCenter() {
-        map.options.use3DMode.set(true);
         map.home();
     }
 
@@ -40,6 +39,30 @@
     class:top-right={place === "top-right"}
     class:top-left={place === "top-right"}
 >
+
+<!-- {#if map} -->
+        <Button
+            kind="secondary"
+            icon={Plane}
+            on:click={(e) => {
+                map.addFlyCamera();
+                map.flyCamera.bringToFlyingPOV()
+            }}
+            tooltipPosition="top"
+            iconDescription={map.flyCamera?.enabled ? undefined : $_("tools.help.movement.buttonsFlyMode")}
+        />
+        <Button
+            kind="secondary"
+            icon={Pedestrian}
+            on:click={(e) => {
+                map.addFlyCamera();
+                map.flyCamera.bringToGroundPOV()
+            }}
+            tooltipPosition="top"
+            id="walkModeButton"
+            iconDescription={$_("tools.help.movement.buttonsWalkMode")}
+        />
+        <!-- {/if} -->
         <Button
             kind="secondary"
             icon={Home}

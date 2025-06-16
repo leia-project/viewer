@@ -58,6 +58,8 @@
             "rotatePitchOption2": "2) Hold down the <help-key>ctrl</help-key> key on your keyboard and your left mouse button and move the mouse around.",
             "headingButtons": "Map Buttons",
             "buttonsDescription": "On the bottom right some map buttons can be found.",
+            "buttonsFlyMode": "Activate FlyMode",
+            "buttonsWalkMode": "Activate WalkMode",
             "buttonsHome": "Reset the view to the start position",
             "buttonsCompass": "Reset the heading to North",
             "buttonsZoomIn": "Zoom in",
