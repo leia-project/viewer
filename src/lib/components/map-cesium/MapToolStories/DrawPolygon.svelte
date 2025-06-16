@@ -27,7 +27,7 @@
                 hierarchy: new Cesium.CallbackProperty(() => {
                 return new Cesium.PolygonHierarchy(positionData);
                 }, false),
-                material: Cesium.Color.YELLOW.withAlpha(0.6),
+                material: Cesium.Color.RED.withAlpha(0.4),
                 heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN
             },
         });
