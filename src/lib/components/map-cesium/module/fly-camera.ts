@@ -242,6 +242,7 @@ export default class FlyCamera {
 
 		let escDiv = document.createElement("div");
 		let movementDiv = document.createElement("div");
+		let modifierDiv = document.createElement("div");
 		let hideDiv = document.createElement("div");
 		let verticalMovementDiv = document.createElement("div");
 
@@ -249,14 +250,16 @@ export default class FlyCamera {
 		escDiv.textContent = "Press ESC to exit";
 		movementDiv.textContent = "Use WASD or arrow keys to move";
 		verticalMovementDiv.textContent = "Use Q/E to go up/down";
+		modifierDiv.textContent = "Use R/SHIFT to go slower/faster";
 		hideDiv.textContent = "Press H to hide this menu";
 
 		guide.appendChild(escDiv);
         guide.appendChild(movementDiv);
-
 		if(!this.groundPOV) {
 		guide.appendChild(verticalMovementDiv);
 		}
+		guide.appendChild(modifierDiv);
+
 		
 		guide.appendChild(hideDiv);
 
