@@ -7,6 +7,7 @@
 	import type { StoryChapter } from "./StoryChapter";
 
   export let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }>;
+  export let lastInputType: string;
   export let page: number; // same 'page' as in StoryView
   let index: number = page - 1;
   let activeChapterIndex: number = 0; // first index of the active chapter in flattenedSteps
@@ -28,14 +29,14 @@
 
   const dispatch = createEventDispatcher();
 
-  function goTo(idx: number) {
-    if (idx < 1) {
+  function goTo(newPage: number) {
+    if (newPage - activeChapterIndex < 1) {
       return;
     }
-    if (idx > labels.length) {
+    if (newPage > activeChapterIndex + labels.length) {
       return;
     }
-    page = activeChapterIndex + idx;
+    page = newPage;
     dispatch("change", { page });
   }
 
@@ -71,7 +72,11 @@
   <Button 
     kind="ghost" 
     size="small" 
-    on:click={prev}
+    style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
+    on:click={() => {
+      lastInputType = "click";
+      prev();
+    }}
   >
     <CaretLeft />
   </Button>
@@ -81,7 +86,10 @@
         kind={page === activeChapterIndex + idx + 1 ? "tertiary" : "ghost"}
         size="small"
         style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
-        on:click={() => goTo(idx + 1)}
+        on:click={() => {
+          lastInputType = "click";
+          page = activeChapterIndex + idx + 1;
+        }}
       >
         {label}
       </Button>
@@ -90,7 +98,11 @@
   <Button
     kind="ghost"
     size="small"
-    on:click={next}
+    style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
+    on:click={() => {
+      lastInputType = "click";
+      next();
+    }}
   >
     <CaretRight />
   </Button>

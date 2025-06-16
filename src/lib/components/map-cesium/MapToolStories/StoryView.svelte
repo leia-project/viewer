@@ -144,7 +144,6 @@
 
 	currentPage.subscribe((page) => {
 		const index = page - 1;
-		// activeStep = story.steps[index];
 
 		// Flatten the steps across all chapters so we can access the correct step based on the index
 		const flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
@@ -156,7 +155,6 @@
 		const activeEntry = flattenedSteps[index];
 		activeChapter = activeEntry.chapter;
 		activeChapterSteps = activeChapter.steps;
-		console.log("activeChapterSteps", activeChapterSteps);
 		activeStep = activeEntry.step;
 
 		// if clicked on nav index, scroll to step automatically
@@ -391,6 +389,7 @@
 		<div>
 			<CustomPaginationNav
 				bind:page={$currentPage}
+				bind:lastInputType ={lastInputType}
 				{flattenedSteps}
 			/>
 
@@ -421,7 +420,7 @@
 				</div>
 				{@html step.html}
 				{#each step.layers ?? [] as layer}
-					Layers: {layer.featureName}
+					Layer {layer.id}: {layer.featureName}
 				{/each}
 
 				<div class="tag">

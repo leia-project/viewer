@@ -38,6 +38,7 @@
         }
         handler = new Cesium.ScreenSpaceEventHandler(map.viewer.canvas);
 
+        // Handle left click to create polygon points
         handler.setInputAction((event: any) => {
             const earthPosition = map.viewer.scene.pickPosition(event.position);
             if (!earthPosition) return;
@@ -71,46 +72,52 @@
 
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
+        // Handle right click to finish drawing
         handler.setInputAction(() => {
-        handler.destroy();
-        if (floatingPoint) map.viewer.entities.remove(floatingPoint);
-        if (activeShape) map.viewer.entities.remove(activeShape);
+            if (activeShapePoints.length < 4) {
+                console.log("Need to draw at least 3 points (4 total) to form a polygon!");
+                return;
+            }
+            handler.destroy();
+            if (floatingPoint) map.viewer.entities.remove(floatingPoint);
+            if (activeShape) map.viewer.entities.remove(activeShape);
 
-        const coords = activeShapePoints.map((cartesian) => {
-            const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-            return [
-                Cesium.Math.toDegrees(cartographic.longitude),
-                Cesium.Math.toDegrees(cartographic.latitude)
-            ];
-        });
+            const coords = activeShapePoints.map((cartesian) => {
+                const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+                return [
+                    Cesium.Math.toDegrees(cartographic.longitude),
+                    Cesium.Math.toDegrees(cartographic.latitude)
+                ];
+            });
 
-        if  (
-            coords.length > 0 &&
-            (coords[0][0] !== coords[coords.length - 1][0] ||
-            coords[0][1] !== coords[coords.length - 1][1])
-        )   {
-            coords.push(coords[0]);
-        }
+            // Ensure the polygon is closed
+            if  (
+                coords.length > 0 &&
+                (coords[0][0] !== coords[coords.length - 1][0] ||
+                coords[0][1] !== coords[coords.length - 1][1])
+            )   {
+                coords.push(coords[0]);
+            }
 
-        geojson = {
-            type: "Feature",
-            geometry: {
-            type: "Polygon",
-            coordinates: [coords]
-            },
-            properties: {}
-        };
+            geojson = {
+                type: "Feature",
+                geometry: {
+                type: "Polygon",
+                coordinates: [coords]
+                },
+                properties: {}
+            };
 
-        // Now draw and clear
-        polygonEntity = map.viewer.entities.add({
-            polygon: {
-            hierarchy: activeShapePoints,
-            material: Cesium.Color.BLUE.withAlpha(0.2),
-            },
-        });
+            // Now draw and clear
+            polygonEntity = map.viewer.entities.add({
+                polygon: {
+                hierarchy: activeShapePoints,
+                material: Cesium.Color.BLUE.withAlpha(0.2),
+                },
+            });
 
-        activeShapePoints = [];
-        activeShape = undefined;
+            activeShapePoints = [];
+            activeShape = undefined;
 
         polygonPositions.set(activeShapePoints);
         map.viewer.scene.requestRender();
