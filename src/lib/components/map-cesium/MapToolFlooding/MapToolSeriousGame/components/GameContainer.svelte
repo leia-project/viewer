@@ -9,6 +9,7 @@
 	import TimeControl from "./TimeControl.svelte";
 	import Notifications from "./notifications/Notifications.svelte";
 	import StartMenu from "./StartMenu.svelte";
+	import EvacuationOverview from "./EvacuationOverview.svelte";
 
 	export let gameController: GameController;
 	export let marvinApp: MarvinApp;
@@ -48,7 +49,6 @@
 								on:click={() => showStartMenu = !showStartMenu}
 							/>
 						</svelte:fragment>
-
 					</Notifications>
 				{/if}
 			{/key}
@@ -60,10 +60,13 @@
 			<MarvinMenu app={marvinApp} />
 		</div>
 		<div id="bottom-left">
-			<Roles {gameController}/>
+			<Roles {gameController} />
+		</div>
+		<div id="bottom-center">
+			<TimeControl game={$activeGame} />
 		</div>
 		<div id="bottom-right">
-			<TimeControl game={$activeGame} />
+			<EvacuationOverview game={$activeGame} />
 		</div>
 	</div>
 
@@ -109,6 +112,14 @@
 		left: 0;
 		display: flex;
 		justify-content: flex-start;
+	}
+	 #bottom-center {
+		position: absolute;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		justify-content: center;
 	}
 	#bottom-right {
 		position: absolute;

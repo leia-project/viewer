@@ -1,70 +1,88 @@
-import { get, writable, type Writable } from "svelte/store";
+import { derived, get, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Hexagon } from "./hexagons/hexagon";
 import { HexagonLayer } from "./hexagons/hexagon-layer";
 import { RoadNetwork } from "./roads/road-network";
-import { notifications } from "$lib/components/map-core/notifications/notifications";
-import { Map } from "$lib/components/map-cesium/module/map";
+import { Map as CesiumMap } from "$lib/components/map-cesium/module/map";
 import { Evacuation } from "./evacuation";
-import type { Breach } from "../../../layer-controller";
+import type { Game } from "../game";
 
 
 export class EvacuationController {
 
-	private map: Map;
+	private game: Game;
+	private map: CesiumMap;
 	private elapsedTime: Writable<number>;
 	public roadNetwork: RoadNetwork;
 	public hexagonLayer: HexagonLayer;
-
-	public evacuations: Writable<Array<Evacuation>> = writable([]);
+	public evacuations: Readable<Array<Evacuation>>;
 	
-	constructor(map: Map, scenario: string, elapsedTime: Writable<number>, breach: Breach) {
+	constructor(game: Game, map: CesiumMap, scenario: string, outline: Array<[lon: number, lat: number]>) {
+		this.game = game;
 		this.map = map;
-		this.elapsedTime = elapsedTime;
-		this.roadNetwork = new RoadNetwork(map, elapsedTime, this.evacuations);
-		this.hexagonLayer = new HexagonLayer(map, elapsedTime, breach);
-
-		this.hexagonLayer.selectedHexagon.subscribe((hex: Hexagon | undefined) => {
-			get(this.evacuations).forEach((evacuation: Evacuation) => {
-				if (evacuation.hexagon === hex) {
-					evacuation.display();
-				} else {
-					evacuation.hide();
-				}
-			});
-		});
-
+		this.elapsedTime = game.elapsedTime;
+		this.hexagonLayer = new HexagonLayer(map, this.elapsedTime, scenario, outline, this);
+		this.evacuations = derived(
+			this.hexagonLayer.hexagons.map((h) => h.evacuations),
+			($evacuations, set) => {
+				const allEvacuations = $evacuations.flat();
+				set(allEvacuations);
+			}
+		);
+		this.roadNetwork = new RoadNetwork(map, this.elapsedTime, outline);
 		this.addMouseEvents();
 	}
 
-	public async createEvacuation(): Promise<void> {
-		const hexagon = get(this.hexagonLayer.selectedHexagon);
+	public async evacuate(hexagon: Hexagon | undefined = get(this.hexagonLayer.selectedHexagon)): Promise<void> {
 		if (!hexagon) {
-			//notifications.error("No hexagon selected for evacuation.");
+			this.game.notificationLog.send({
+				type: "error",
+				title: "Evacuation Error",
+				message: "No hexagon selected for evacuation.",
+			})
 			return;
 		}
-		const routeResult = await this.roadNetwork.createEvacuationRoute(hexagon.center);
-		if (routeResult === undefined) {
-			// handle no route found
-			// notifications.error("No capacity left for this evacuation!");
+		const routeResults = await this.roadNetwork.evacuateHexagon(hexagon);
+		if (routeResults === undefined) {
+			   this.game.notificationLog.send({
+					type: "error",
+					title: "Evacuation Error",
+					message: "No route found for evacuation.",
+				});
 			return;
 		}
-		const evacuation = new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint, routeResult.bottlenecks, get(this.elapsedTime), this.map);
-		hexagon.addEvacuation(evacuation);
-		evacuation.display();
-		this.evacuations.update((evacs) => [...evacs, evacuation]);
+		const newEvacuations = routeResults.map((routeResult) => {
+			return new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint, routeResult.numberOfPersons, get(this.elapsedTime), this.map);
+  		});
+		const aggregatedEvacuations = this.aggregateEvacuations(newEvacuations);
+		hexagon.addEvacuations(aggregatedEvacuations);
 	}
 
-	public removeEvacuation(evacuation: Evacuation): void {
-		//this.evacuations = this.evacuations.filter((e) => e !== evacuation);
-		// update bottleneck capacities
-	}
-
-	public cancelEvacuation(hexagon: Hexagon): void {
-		if (hexagon.evacuation) {
-			this.removeEvacuation(hexagon.evacuation);
-			hexagon.evacuation = undefined;
+	private aggregateEvacuations(evacuations: Array<Evacuation>): Array<Evacuation> {
+		const map = new Map<string, Evacuation>();
+		for (const evac of evacuations) {
+			const fidConcat = evac.route.map((r) => r.feature.properties.fid).join(",");
+			const key = `${evac.hexagon.hex}|${fidConcat}|${evac.extractionPoint.id}`;
+			if (map.has(key)) {
+				const aggEvac = map.get(key);
+				if (aggEvac) aggEvac.numberOfPersons += evac.numberOfPersons;
+			} else {
+				map.set(key, evac);
+			}
 		}
+		return Array.from(map.values());
+	}
+
+	public deleteEvacuation(evacuation: Evacuation): void {
+		this.roadNetwork.onEvacuationDelete(evacuation);
+		evacuation.hexagon.removeEvacuation(evacuation);
+	}
+
+	public cancelHexagonEvacuation(hexagon: Hexagon, time: number = get(this.elapsedTime)): void {
+		get(hexagon.evacuations).forEach((evacuation: Evacuation) => {
+			this.roadNetwork.onEvacuationDelete(evacuation);
+			hexagon.removeEvacuation(evacuation);
+		});
 	}
 
  	private addMouseEvents(): void {

@@ -87,8 +87,8 @@ export class PGRestAPI {
 	// 	return hexagons;
 	// }
 
-	public async getFloodHexagons(polygon: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}, resolution: number, breach: Breach): Promise<Array<HexagonEntry>> {
-		const scenario = `${breach.properties.dijkring}_${breach.properties.name}_${breach.properties.scenarios[0]}`;
+	public async getFloodHexagons(polygon: Array<[lon: number, lat: number]>, resolution: number, scenario: string): Promise<Array<HexagonEntry>> {
+		//const scenario = `${breach.properties.dijkring}_${breach.properties.name}_${breach.properties.scenarios[0]}`;
 		console.log(`Scenario: `, scenario);
 		// based on scenarios, join the flood table, and determine the time when the hexagon is flooded
 
@@ -148,4 +148,25 @@ export class PGRestAPI {
 		// }	
 		return hexagons;
 	}
+
+
+	
+	public async getFloodedRoadSegments(time: number): Promise<Array<string>> {
+		return [];
+		// use outline, scenario and time step
+		let query = `
+			SELECT fid FROM datacore.zeeland_roads a
+				LEFT JOIN datacore.flood_h3 b ON ST_Intersects(
+					a.geom,
+					b.geom
+				)
+			;
+		`;
+		const queryResult: any = await this.client.query(query, {
+		   format: "jsonDataArray"
+  		});
+
+		return  queryResult.data.rows.map((row: any) => row[0]); 
+	}
+
 }

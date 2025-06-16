@@ -1,76 +1,74 @@
-import { writable, type Writable } from "svelte/store";
 import { calculateRoute } from "./routing/calculateroute";
 import { PGRestAPI } from "./pg-rest-api";
+import { disableGraphEdges, resetGraphToDefault } from "./routing/graph";
+//import { Network } from "./routing/network";
 
 
 export interface RouteFeature {
 	type: "Feature";
 	geometry: {
 		type: "LineString";
-		coordinates: Array<[number, number]>; // [lon, lat]
+		coordinates: Array<[lon: number, lat: number]>;
 	};
 	properties: {
-		id: string;
+		fid: string;
+		maximum_snelheid: number;
+		capaciteit: number;
+		cost: number;
 		length: number;
 		routeCost: number;
-		routeFrom: string;
+		routeFrom: string | number;
 		routeLength: number;
-		routeMode: string;
 		routeTo: string | number;
-		source: string;
+		source: string | number;
 		sourceIndex: number;
 		target: string | number;
 		targetIndex: number;
-		wvk_id: number;
 	};
+	bbox: [number, number, number, number];
 }
 
 export class RoutingAPI extends PGRestAPI {
 
-	private time: Writable<number> = writable(0);
+	private floodedSegments: Array<string> = [];
+	private overloadedSegments: Array<string> = [];
 
 	constructor() {
 		super();
-		/* this.time.subscribe((time: number) => {
-			// Update the routing API with the current time
-			this.updateGraph(time);
-		}); */
+		//fetch("/network"); // Create grapj2.json
 	}
 
 	public async getRoute(startPoint: [lon: number, lat: number], endPoint: [lon: number, lat: number]): Promise<{ type: string, features: Array<RouteFeature> }> {
-		const maxDistance = 5000; // meters
-		const route = await calculateRoute('zeeland', 'car', startPoint, endPoint, maxDistance);
+		const maxDistance = 15000; // meters
+		const route = await calculateRoute("zeeland_2", "car", startPoint, endPoint, [...this.floodedSegments, ...this.overloadedSegments], maxDistance);
 		return route;
 	}
 
-	public updateFloodedSegments(time: number): void {
-
-	}
-
-	/* private setFloodedSegments(): Array<any> {
-		let query = `
-			SELECT h3, number_of_inhabitants FROM datacore.zeeland_h3 LIMIT 10;
-		`;
-
-		if (polygon) {
-			query += `
-				WHERE ST_Intersects(
-					geom,
-					ST_MakeEnvelope(${polygon}, 4326)
-				)
-			`;
+	public removeSegments(segments: Array<string>): void {
+		disableGraphEdges("zeeland_2", "car", segments, "fid");
+		for (const segment of segments) {
+			if (!this.overloadedSegments.includes(segment)) {
+				this.overloadedSegments.push(segment);
+			}
 		}
-
-		const queryResult: any = await this.client.query(query, {
-			format: "jsonDataArray"
-		});
-
 	}
- */
-	// get flooded segments, and remove them
 
-	// remove node
+	public resetGraph(): void {
+		resetGraphToDefault("zeeland_2", "car");
+	}
 
+	public async createGraph(geojson: string): Promise<void> {
+		//const network = new Network("zeeland_new", "car");
+		
+	}
 
+	public onTimeUpdate(floodedSegments: Array<string>, overloadedSegments: Array<string>): void {
+		this.floodedSegments = floodedSegments;
+		this.overloadedSegments = overloadedSegments;
+		// Update the graph with the new flooded and overloaded segments
+		this.resetGraph();
+		this.removeSegments(floodedSegments);
+		this.removeSegments(overloadedSegments);
+	}
 	
 }

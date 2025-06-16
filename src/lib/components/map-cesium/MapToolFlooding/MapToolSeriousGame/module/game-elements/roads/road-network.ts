@@ -1,93 +1,116 @@
 import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
+import * as turf from "@turf/turf";
 import type { Map } from "$lib/components/map-cesium/module/map";
-import { ExtractionPoint, BottleNeck, RoadNetworkLayer, RoadNetworkLayerP } from "./bottle-neck";
 import { Evacuation } from "../evacuation";
 import { RoutingAPI, type RouteFeature } from "../api/routing-api";
+import NodeHoverBox from "../../../components/infobox/NodeHoverBox.svelte";
+import type { Hexagon } from "../hexagons/hexagon";
+import { RoadNetworkLayer, RouteSegment } from "./route-segments";
+import { PGRestAPI } from "../api/pg-rest-api";
 
-
-const extractionPointsConfig = [
-	{
-		id: "extraction1",
-		position: { lat: 51.32847, lon: 3.79669 }
-	},
-	{
-		id: "extraction2",
-		position: { lat: 51.67628, lon: 3.72604 }
-	},
-	{
-		id: "extraction3",
-		position: { lat: 51.64000, lon: 3.93750 }
-	}
-];
-
-const bottlenecksConfig = [
-	{
-		id: "bottleneck1",
-		position: { lat: 51.60048, lon: 3.68215 },
-		capacity: 10000
-	},
-	{
-		id: "bottleneck2",
-		position: { lat: 51.48279, lon: 3.87022 },
-		capacity: 5000
-	}
-];
 
 
 export class RoadNetwork {
 
+	public map: Map;
 	private routingAPI: RoutingAPI;
-	private extractionPoints: Array<ExtractionPoint> = [];
-	private exctractionPointLayer: RoadNetworkLayer<ExtractionPoint>;
-	public selectedExtractionPoint: Writable<ExtractionPoint  | undefined> = writable(undefined);
-	private bottlenecks: Array<BottleNeck> = [];
-	private bottleneckLayer: RoadNetworkLayerP<BottleNeck>;
-	private floodedSegments: Array<any> = [];
+	private extractionPointIds: Array<string> = ["42377", "83224", "77776"];
+	public selectedExtractionPoint: Writable<RouteSegment  | undefined> = writable(undefined);
 
-	private elapsedTime: Writable<number> = writable(0);
-	public evacuations: Writable<Array<Evacuation>> = writable([]);
+	private outline: Array<[lon: number, lat: number]>;
+	private roadNetworkLayer: RoadNetworkLayer;
 
-	constructor(map: Map, elapsedTime: Writable<number>, evacuations: Writable<Array<Evacuation>>) {
+	private pgRestAPI = new PGRestAPI();
+	private elapsedTime: Writable<number>;
+
+	private hoveredNode: Writable<RouteSegment | undefined> = writable(undefined);
+	private nodeHoverBox: NodeHoverBox | undefined;
+	public sensorHoverBoxTimeOut: NodeJS.Timeout | undefined;
+
+	constructor(map: Map, elapsedTime: Writable<number>, outline: Array<[lon: number, lat: number]>) {
+		this.map = map;
 		this.elapsedTime = elapsedTime;
-		this.evacuations = evacuations;
 		this.routingAPI = new RoutingAPI();
-		this.exctractionPointLayer = new RoadNetworkLayer<ExtractionPoint>(map);
-		this.bottleneckLayer = new RoadNetworkLayerP<BottleNeck>(map);
+
+		this.outline = outline;
+		this.roadNetworkLayer = new RoadNetworkLayer(map, elapsedTime, this.extractionPointIds);
 		this.init();
+
+		this.hoveredNode.subscribe((node) => {
+			if (node instanceof RouteSegment) {
+				this.nodeHoverBox?.$destroy();
+				this.nodeHoverBox = new NodeHoverBox({
+					target: map.getContainer(),
+					props: {
+						node: node,
+						roadNetwork: this
+					}
+				});
+			} else {
+				this.sensorHoverBoxTimeOut = setTimeout(() => this.nodeHoverBox?.$destroy(), 400);
+			}
+		});
 	}
 
 	private init(): void {
-		this.loadExtractionPoints();
-		this.loadBottlenecks();
-		this.elapsedTime.subscribe((currentTime: number) => {
-			this.routingAPI.updateFloodedSegments(currentTime);
-			// set capacities for the next step connected to the current step
+		this.loadRoadNetwork();
+		this.elapsedTime.subscribe((time: number) => this.cleanSetRoutingGraph(time));
+	}
+
+	private async cleanSetRoutingGraph(time: number): Promise<void> {
+		const floodedSegments = await this.pgRestAPI.getFloodedRoadSegments(time);
+		const overloadedSegments = this.roadNetworkLayer.segments.filter((segment) => segment.overloaded(time)).map((segment) => segment.id);
+		this.routingAPI.onTimeUpdate(floodedSegments, overloadedSegments);
+	}
+
+	private async loadRoadNetwork(): Promise<void> {
+		const res = await fetch("/data/zeeland_2/car/edges.geojson");
+		const geojson = await res.json();
+		const outline =  turf.polygon([this.outline.map((coord) => [coord[0], coord[1]])]);
+		const filteredFeatures = geojson.features.filter((feature: RouteFeature) => {
+			//@ts-ignore
+			if (feature.geometry.type === "MultiLineString") {
+				feature.geometry.type = "LineString";
+				//@ts-ignore
+				feature.geometry.coordinates = feature.geometry.coordinates.flat();
+			}
+			return feature.geometry.coordinates.some((coord: [number, number]) => {
+				const pt = turf.point(coord);
+				return turf.booleanPointInPolygon(pt, outline) && feature.properties.fid !== undefined;
+			});
 		});
-		this.evacuations.subscribe(() => {
-			this.updateBottleneckCapacities();
+		geojson.features/* .slice(0, 5000) */.forEach((feature: RouteFeature) => {
+			this.roadNetworkLayer.add(feature);
 		});
 	}
 
-	private loadExtractionPoints(): void {
-		const extractionPoints = extractionPointsConfig;
-		extractionPoints.forEach((point) => {
-			const extractionPoint = new ExtractionPoint(point.id, point.position.lon, point.position.lat, this.selectedExtractionPoint);
-			this.extractionPoints.push(extractionPoint);
-			this.exctractionPointLayer.add(extractionPoint);
-		});
+	public async evacuateHexagon(hexagon: Hexagon): Promise<Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, numberOfPersons: number }> | undefined> {
+		const chunkSize = 1000; // Number of persons to evacuate in one go
+		const totalPersons = hexagon.population;
+		const evacuationRoutes: Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, numberOfPersons: number }> = [];
+		let remainingPersons = totalPersons;
+		while (remainingPersons > 0) {
+			const numberOfPersons = Math.min(remainingPersons, chunkSize);
+			const evacuationRoute = await this.createEvacuationRoute(hexagon.center, numberOfPersons);
+			if (!evacuationRoute) {
+				console.error("No evacuation route found or route is empty.");
+				return;
+			}
+			evacuationRoutes.push({
+				...evacuationRoute,
+				numberOfPersons: numberOfPersons
+			});
+			remainingPersons -= numberOfPersons;
+		}
+		if (evacuationRoutes.length === 0) {
+			console.error("No evacuation routes created.");
+			return;
+		}
+		return evacuationRoutes;
 	}
 
-	private loadBottlenecks(): void {
-		const bottlenecks = bottlenecksConfig;
-		bottlenecks.forEach((bottleneck) => {
-			const newBottleneck = new BottleNeck(bottleneck.id, bottleneck.position.lon, bottleneck.position.lat, bottleneck.capacity);
-			this.bottlenecks.push(newBottleneck);
-			this.bottleneckLayer.add(newBottleneck);
-		});
-	}
-
-	public async createEvacuationRoute(origin: [lon: number, lat: number]): Promise<{ route: Array<RouteFeature>, extractionPoint: ExtractionPoint, bottlenecks: Array<BottleNeck> } | undefined> {
+	public async createEvacuationRoute(origin: [lon: number, lat: number], numberOfPersons: number): Promise<{ route: Array<RouteSegment>, extractionPoint: RouteSegment } | undefined> {
 		const selectedExtractionPoint = get(this.selectedExtractionPoint);
 		if (!selectedExtractionPoint) {
 			return;
@@ -98,23 +121,61 @@ export class RoadNetwork {
 		];
 		const route = await this.routingAPI.getRoute(origin, extractionLocation);
 
-		// check for bottlenecks, and update the capacity of overlapping bottlenecks
-		const hasCapacity = this.routeHasSufficientCapacity(route.features, 100);
-		if (hasCapacity.some((item) => !item.hasCapacity)) {
-			return undefined;
+		if (!route || route.features.length === 0) {
+			console.error("No route found or route is empty.");
+   			return;
 		}
 
+		// Update capacities
+		const routeSegments: Array<RouteSegment> = [];
+		route.features.forEach((feature: RouteFeature) => {
+			const routeSegment = this.roadNetworkLayer.getItemById(feature.properties.fid.toString());
+			if (routeSegment) {
+				routeSegment.addLoad(numberOfPersons, get(this.elapsedTime));
+				routeSegments.push(routeSegment);
+			}
+		});
+
+		// Update graph
+		const currentStep = get(this.elapsedTime);
+		const overloadedSegments = routeSegments.filter((segment) => (segment.loadPerTimeStep.get(currentStep) || 0) > segment.capacity);
+		this.routingAPI.removeSegments(overloadedSegments.map((segment) => segment.id));
+
 		return {
-			route: route.features,
-			extractionPoint: selectedExtractionPoint,
-			bottlenecks: hasCapacity.filter((item) => item.hasCapacity).map((item) => item.bottleneck)
+			route: routeSegments,
+			extractionPoint: selectedExtractionPoint
 		};
 	}
 
-	private displayFloodedSegments(): void {
-		
+	public onEvacuationDelete(evacuation: Evacuation): void {
+		// remove loads from road segments
+		evacuation.route.forEach((routeSegment) => {
+			routeSegment.removeLoad(evacuation.numberOfPersons, get(this.elapsedTime));
+     	});
+
+		// update graph
 	}
 
+	public onLeftClick(picked: any): void {
+		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
+			if (typeof picked?.id === "string" && picked.id.endsWith("-top")) {
+				picked.id = picked.id.slice(0, -4); // Remove "-top" suffix to get the hexagon id when clicking top hexagons
+			}
+			const extractionPointId = this.extractionPointIds.find((id) => id === picked.id);
+			if (extractionPointId) {
+				const extractionPoint = this.roadNetworkLayer.getItemById(extractionPointId);
+				if (extractionPoint) this.selectedExtractionPoint.set(extractionPoint);
+			}
+		}
+	}
+}
+
+
+
+
+
+
+/* 
 	private getBottlenecksOnRoute(route: Array<RouteFeature>): Array<BottleNeck> {
 		const distanceThreshold = 1000;
 		return this.bottlenecks.filter((bottleneck) => {
@@ -154,15 +215,4 @@ export class RoadNetwork {
 				});
 		});
 	}
-
-
-	public onLeftClick(picked: any): void {
-		// if extraction point is clicked, set it as the selected extraction point
-		if (picked?.id instanceof Cesium.Entity) {
-			const extractionPoint = this.extractionPoints.find((ep) => ep.entity === picked.id);
-			if (extractionPoint) {
-				this.selectedExtractionPoint.set(extractionPoint);
-			}
-		}
-	}
-}
+*/

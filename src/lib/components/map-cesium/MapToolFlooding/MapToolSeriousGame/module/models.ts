@@ -10,6 +10,7 @@ export interface IGameConfig {
     thumbnail: string;
     breach: Breach;
     scenario: string;
+    outline: Array<[lon: number, lat: number]>;
 }
 
 export interface IRole {

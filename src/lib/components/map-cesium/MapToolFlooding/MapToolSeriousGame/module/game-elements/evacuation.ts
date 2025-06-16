@@ -1,16 +1,15 @@
 import * as Cesium from "cesium";
-import type { BottleNeck, ExtractionPoint } from "./roads/bottle-neck";
 import type { Hexagon } from "./hexagons/hexagon";
-import type { RouteFeature } from "./api/routing-api";
 import type { Map } from "$lib/components/map-cesium/module/map";
+import type { RouteSegment } from "./roads/route-segments";
 
 
 export class Evacuation {
 
-	private route: Array<RouteFeature>;
+	public route: Array<RouteSegment>;
 	public hexagon: Hexagon;
-	private extractionPoint: ExtractionPoint;
-	public includedBottlenecks: Array<BottleNeck>;
+	public extractionPoint: RouteSegment;
+	public numberOfPersons: number;
 	public time: number;
 	private map: Map;
 
@@ -18,11 +17,11 @@ export class Evacuation {
 	private interval?: NodeJS.Timeout;
 	private shown: boolean = false;
 
-	constructor(route: Array<RouteFeature>, hexagon: Hexagon, extractionPoint: ExtractionPoint, includedBottlenecks: Array<BottleNeck>, time: number, map: Map) {
+	constructor(route: Array<RouteSegment>, hexagon: Hexagon, extractionPoint: RouteSegment, numberOfPersons: number, time: number, map: Map) {
 		this.route = route;
 		this.hexagon = hexagon;
 		this.extractionPoint = extractionPoint;
-		this.includedBottlenecks = includedBottlenecks;
+		this.numberOfPersons = numberOfPersons;
 		this.time = time;
 		this.map = map;
 		this.dataSource = new Cesium.CustomDataSource();
@@ -44,21 +43,21 @@ export class Evacuation {
 	}
 	*/
 
-	private makeEntities(route: Array<RouteFeature>): void {
+	private makeEntities(route: Array<RouteSegment>): void {
 		for (const routeFeature of route) {
-			const entity = this.makeLineEntity(routeFeature);
+			const entity = this.makeWallEntity(routeFeature);
 			this.dataSource.entities.add(entity);
 		}
 	}
 
-	private makeLineEntity(route: RouteFeature): Cesium.Entity {
-		const linePositions = route.geometry.coordinates.map((p) => Cesium.Cartesian3.fromDegrees(p[0], p[1], 1000));
+	private makeWallEntity(route: RouteSegment): Cesium.Entity {
+		const linePositions = route.feature.geometry.coordinates.map((p) => Cesium.Cartesian3.fromDegrees(p[0], p[1], 1000));
 		return new Cesium.Entity({
 			wall: {
 				positions: linePositions,
 				material: Cesium.Color.ORANGERED
 			},
-			properties: route.properties,
+			properties: route.feature.properties,
 			show: false
 		});
 	} 
@@ -102,7 +101,7 @@ export class Evacuation {
 	}
 	
 	public destroy(): void {
-		this.hexagon.evacuation = undefined;
+		this.hexagon.removeEvacuation(this);
 	}
 
 }
