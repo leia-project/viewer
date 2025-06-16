@@ -114,10 +114,12 @@
 
             // Now draw and clear
             polygonEntity = map.viewer.entities.add({
-                polygon: {
-                hierarchy: activeShapePoints,
-                material: Cesium.Color.BLUE.withAlpha(0.2),
-                },
+                polyline: {
+                    positions: activeShapePoints.concat([activeShapePoints[0]]), // close the polygon
+                    width: 2,
+                    material: Cesium.Color.RED,
+                    clampToGround: true
+                }
             });
 
             activeShapePoints = [];
@@ -152,7 +154,6 @@
             console.log("First draw a polygon before you can delete one");
             return;
         }
-        selectedAction = 'delete';
 
         if (floatingPoint) map.viewer.entities.remove(floatingPoint);
         if (activeShape) map.viewer.entities.remove(activeShape);

@@ -52,8 +52,6 @@
 	let hasDrawnPolygon: boolean = false;
 	let distributions: Array<number> = [5];
 
-	$: {console.log(hasDrawnPolygon, "has drawn polygon")}
-
 	$: shown = Math.floor(width / 70);
 
 
