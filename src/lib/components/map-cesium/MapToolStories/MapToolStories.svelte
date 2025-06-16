@@ -14,11 +14,9 @@
 
 	import { page } from "$app/stores";
 	import { StoryChapter } from "./StoryChapter";
-	import DrawPolygon from "./DrawPolygon.svelte";
 	
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-	let hasDrawnPolygon: boolean = false;
 	let id: string = "stories";
 	export let icon: any = Catalog;
 	export let label: string = "Stories";
@@ -159,23 +157,20 @@
 {#if $selectedTool === tool}
 	<div class="wrapper">
 		{#if selectedStory}
-			<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} map = {cesiumMap} story = {selectedStory}/>
-			{#if hasDrawnPolygon}
-				<StoryView
-					map={cesiumMap}
-					story={selectedStory}
-					{textBack}
-					{textStepBack}
-					{textStepForward}
-					savedStepNumber={stepNumber}
-					on:closeStory={() => {
-						closeStory();
-					}}
-					on:closeModule={(e) => {
-						closeModule(e);
-					}}
-				/>
-			{/if}
+			<StoryView
+				map={cesiumMap}
+				story={selectedStory}
+				{textBack}
+				{textStepBack}
+				{textStepForward}
+				savedStepNumber={stepNumber}
+				on:closeStory={() => {
+					closeStory();
+				}}
+				on:closeModule={(e) => {
+					closeModule(e);
+				}}
+			/>
 		{:else}
 			{#each stories as story}
 				<!-- svelte-ignore a11y-click-events-have-key-events -->

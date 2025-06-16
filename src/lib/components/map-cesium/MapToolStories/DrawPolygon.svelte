@@ -1,8 +1,6 @@
 <script lang="ts">
     import * as Cesium from "cesium";
     import { polygonPositions } from "./PolygonStore";
-    import { onMount } from "svelte";
-    import { page } from '$app/stores';
 	import { Map } from "../module/map";
 	import type { Story } from "./Story";
 	import { StoryLayer } from "./StoryLayer";
@@ -10,6 +8,7 @@
     export let hasDrawnPolygon: boolean = false;
     export let map: Map;
     export let story: Story;
+    export let distributions: Array<any>;
 
     let handler: Cesium.ScreenSpaceEventHandler;
     let activeShapePoints: Cesium.Cartesian3[] = [];
@@ -121,7 +120,16 @@
         let storyLayers: Array<StoryLayer> = story.getStoryLayers();
         
         for (let i = 0; i < storyLayers.length; i++) {
-            let kaas = sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson);
+            sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson)
+            .then(kaas => {
+                distributions[i] = kaas;
+                console.log("This is the response:", kaas);
+
+            })
+            .catch(error => 
+                console.error("Error: ", error)
+            );
+            
         }
 
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -146,7 +154,7 @@
         hasDrawnPolygon = false;
     }
 
-    async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any) {
+    async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any): Promise<any> {
         if (!url || !featureName) {
             console.warn("url or featureName undefined, not able to get the analysis request");
             return;
@@ -174,7 +182,7 @@
             }
 
             const data = await response.json();
-            console.log("Response from server:", data);
+            return data;
         } catch (error) {
             console.error("Failed to send request:", error);
         }

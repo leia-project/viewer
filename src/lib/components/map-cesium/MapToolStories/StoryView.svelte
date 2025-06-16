@@ -18,6 +18,7 @@
 	import type { StoryChapter } from "./StoryChapter";
 	import { DonutChart } from "@carbon/charts-svelte";
 	import CustomPaginationNav from "./CustomPaginationNav.svelte";
+	import DrawPolygon from "./DrawPolygon.svelte";
 
 	export let map: Map;
 	export let story: Story;
@@ -47,6 +48,9 @@
 	let startVisibleLayers = new Array<string>();
 	let startGlobeOpacity: number;
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
+
+	let hasDrawnPolygon: boolean = false;
+	let distributions: Array<number> = [5];
 
 	$: shown = Math.floor(width / 70);
 
@@ -405,6 +409,7 @@
 	</div>
 
 	<div class="content" bind:this={content}>
+		<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} {map} {story} bind:distributions={distributions}/>
 		<div style="height:{navHeight}px" />
 		{#each flattenedSteps as { step, chapter }, index}
 			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
