@@ -1,4 +1,4 @@
-import { get, writable, type Writable } from "svelte/store";
+import { derived, get, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Hexagon } from "./hexagons/hexagon";
 import { HexagonLayer } from "./hexagons/hexagon-layer";
@@ -15,14 +15,21 @@ export class EvacuationController {
 	private elapsedTime: Writable<number>;
 	public roadNetwork: RoadNetwork;
 	public hexagonLayer: HexagonLayer;
-	public evacuations: Writable<Array<Evacuation>> = writable([]);
+	public evacuations: Readable<Array<Evacuation>>;
 	
 	constructor(game: Game, map: CesiumMap, scenario: string, outline: Array<[lon: number, lat: number]>) {
 		this.game = game;
 		this.map = map;
 		this.elapsedTime = game.elapsedTime;
-		this.roadNetwork = new RoadNetwork(map, this.elapsedTime, outline);
 		this.hexagonLayer = new HexagonLayer(map, this.elapsedTime, scenario, outline, this);
+		this.evacuations = derived(
+			this.hexagonLayer.hexagons.map((h) => h.evacuations),
+			($evacuations, set) => {
+				const allEvacuations = $evacuations.flat();
+				set(allEvacuations);
+			}
+		);
+		this.roadNetwork = new RoadNetwork(map, this.elapsedTime, outline);
 		this.addMouseEvents();
 	}
 
@@ -49,7 +56,6 @@ export class EvacuationController {
   		});
 		const aggregatedEvacuations = this.aggregateEvacuations(newEvacuations);
 		hexagon.addEvacuations(aggregatedEvacuations);
-		this.evacuations.set([...get(this.evacuations), ...aggregatedEvacuations]);
 	}
 
 	private aggregateEvacuations(evacuations: Array<Evacuation>): Array<Evacuation> {
@@ -69,11 +75,13 @@ export class EvacuationController {
 
 	public deleteEvacuation(evacuation: Evacuation): void {
 		this.roadNetwork.onEvacuationDelete(evacuation);
+		evacuation.hexagon.removeEvacuation(evacuation);
 	}
 
 	public cancelHexagonEvacuation(hexagon: Hexagon, time: number = get(this.elapsedTime)): void {
 		get(hexagon.evacuations).forEach((evacuation: Evacuation) => {
 			this.roadNetwork.onEvacuationDelete(evacuation);
+			hexagon.removeEvacuation(evacuation);
 		});
 	}
 

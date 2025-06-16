@@ -1,5 +1,4 @@
 import * as Cesium from "cesium";
-import type { ExtractionPoint } from "./roads/extraction-points";
 import type { Hexagon } from "./hexagons/hexagon";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import type { RouteSegment } from "./roads/route-segments";
@@ -9,7 +8,7 @@ export class Evacuation {
 
 	public route: Array<RouteSegment>;
 	public hexagon: Hexagon;
-	public extractionPoint: ExtractionPoint;
+	public extractionPoint: RouteSegment;
 	public numberOfPersons: number;
 	public time: number;
 	private map: Map;
@@ -18,7 +17,7 @@ export class Evacuation {
 	private interval?: NodeJS.Timeout;
 	private shown: boolean = false;
 
-	constructor(route: Array<RouteSegment>, hexagon: Hexagon, extractionPoint: ExtractionPoint, numberOfPersons: number, time: number, map: Map) {
+	constructor(route: Array<RouteSegment>, hexagon: Hexagon, extractionPoint: RouteSegment, numberOfPersons: number, time: number, map: Map) {
 		this.route = route;
 		this.hexagon = hexagon;
 		this.extractionPoint = extractionPoint;
