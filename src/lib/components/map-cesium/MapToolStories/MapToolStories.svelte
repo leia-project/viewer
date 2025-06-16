@@ -123,13 +123,13 @@
 						// Load all story layers
 						const storyLayers = new Array<StoryLayer>();
 						for (let l = 0; l < step.layers.length; l++) {
+							const opacity = step.layers[l].opacity ?? 100;
 							const {url, featureName} = getUrlAndFeatureNameForLayer(step.layers[l].id);
 							storyLayers.push(
-								new StoryLayer(step.layers[l].id, step.layers[l].opacity, step.layers[l].style, url, featureName)
+								new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName)
 							);
 						}
 						const globeOpacity = step.globeOpacity ?? 100;
-
 						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent));
 					}
 					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
