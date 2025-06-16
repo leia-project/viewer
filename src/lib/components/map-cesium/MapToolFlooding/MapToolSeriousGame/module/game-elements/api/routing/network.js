@@ -2,11 +2,11 @@
 import fs from 'fs';
 import { createReadStream, createWriteStream } from 'fs';
 import JSONStream from 'JSONStream';
-import geobuf from 'geobuf';
-import Pbf from 'pbf';
+//import geobuf from 'geobuf';
+//import Pbf from 'pbf';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { geojson } from 'flatgeobuf';
+//import { geojson } from 'flatgeobuf';
 import { graphObjectToArrays as indexGraph } from './graphtoarray.js';
 
 
@@ -42,6 +42,9 @@ export class Network {
       graph: false
     };
     this.dataPath = path.resolve(__dirname, '.', '.', `data/${area}/${mode}`);
+
+    this.dataPath = 'C:/Users/Stefan.de.Graaf/git/FIER/leia/static/data/' + area + '/' + mode;
+    console.log(`Network initialized with data path: ${this.dataPath}`);
   }
 
   /** 
@@ -401,12 +404,12 @@ export class Network {
    */
   async _loadFeatures(filePath) {
     const ext = path.extname(filePath).toLowerCase();
-    if (ext === '.fgb') {
+/*     if (ext === '.fgb') {
       return this._loadFromFlatGeobuf(filePath);
     }
     if (ext === '.pbf') {
       return this._loadFromPbf(filePath);
-    }
+    } */
     return this._loadFromGeoJSON(filePath);
   }
 
@@ -419,10 +422,10 @@ export class Network {
     const ext = path.extname(basename);
   
     switch (ext.toLocaleLowerCase()) {
-      case '.fgb':
+/*       case '.fgb':
         return this._saveToFlatGeobuf(filename, data);
       case '.pbf':
-        return this._saveToPbf(filename, data);
+        return this._saveToPbf(filename, data); */
       case '.geojson':
         try {
           await this._saveToGeoJSON(filename, data);
@@ -509,7 +512,7 @@ export class Network {
    * @returns {boolean} - true if successful, false otherwise
    * @private
    */
-  async _saveToFlatGeobuf(filePath, data) {
+/*   async _saveToFlatGeobuf(filePath, data) {
     try {
       const buffer = geojson.serialize(data);
       await fs.promises.writeFile(filePath, buffer);
@@ -518,7 +521,7 @@ export class Network {
       console.error(`_saveToFlatGeobuf: Error saving FlatGeobuf: ${filePath}: ${error}`);
       return false;
     }
-  }
+  } */
 
   /**
    * Load from FlatGeobuf file
@@ -526,7 +529,7 @@ export class Network {
    * @returns {object} - GeoJSON object from file or null if not possible
    * @private
    */
-  async _loadFromFlatGeobuf(filePath) {
+/*   async _loadFromFlatGeobuf(filePath) {
     try {
       console.log('Reading FlatGeobuf file...');
       const buffer = await fs.promises.readFile(filePath);
@@ -535,13 +538,13 @@ export class Network {
       console.error(`_loadFromFlatGeobuf: Error loading FlatGeobuf: ${filePath}: ${error}`);
       return null;
     }
-  }
+  } */
 
   /**
    * Load from PBF file
    * @private
    */
-  async _loadFromPbf(filePath) {
+/*   async _loadFromPbf(filePath) {
     try {
       console.log(`Reading ${filePath} ...`)
       const buffer = await fs.promises.readFile(filePath);
@@ -551,12 +554,12 @@ export class Network {
       throw error;
     }
   }
-
+ */
   /**
    * Save to PBF file
    * @private
    */
-  async _saveToPbf(filePath, data) {
+/*   async _saveToPbf(filePath, data) {
     try {
       // Encode using the exact same method as Geobuf class
       const buffer = geobuf.encode(data, new Pbf());
@@ -566,7 +569,7 @@ export class Network {
       console.error(`_saveToPbf:  Error saving PBF: ${filePath}: ${error.message || error}`);
       return false;
     }
-  }
+  } */
 
   /**
    * Load from GeoJSON file
@@ -799,7 +802,41 @@ export async function createNetwork(area, mode) {
   return network;
 }
 
-if (process.argv[1] === __filename) {
+export async function createGraph(area, mode) {
+  console.log(`Creating graph for area: ${area}, mode: ${mode}`);
+    const network = new Network(area, mode);
+    const edges = await network.getFeatureCollection('edges');
+    if (edges) {
+      console.log(`Number of edges: ${edges.features.length}`);
+    }
+/*     const nodes = await network.getFeatureCollection('nodes');
+    if (nodes) {
+      console.log(`Number of nodes: ${nodes.features.length}`);
+      let result = await network.saveFeatureCollection('edges.fgb');
+      console.log(`Saved: ${result}`);
+    
+    } */
+  
+    const basicGraph = await network.getBasicGraph();
+    if (basicGraph) {
+      console.log(`Number of ids in graph: ${Object.keys(basicGraph).length}`);
+    }
+    const graph = await network.getGraph();
+    if (graph) {
+      console.log(`Number of ids in graph: ${graph.idArray.length}`);
+    }
+    if (edges && graph) {
+      
+      //result = await network.saveBasicGraph(basicGraph);
+      //console.log(`SaveBasicGaph: ${result}`);
+      let result = await network.saveGraph(graph);
+      console.log(`SaveGraph: ${result}`);
+      result = await network.saveFeatureCollection('edges', edges);
+      console.log(`Save edges: ${result}`);
+    }
+}
+
+/* if (process.argv[1] === __filename) {
   const network = new Network('zeeland', 'car');
   const edges = await network.getFeatureCollection('edges');
   if (edges) {
@@ -830,4 +867,4 @@ if (process.argv[1] === __filename) {
     result = await network.saveFeatureCollection('edges', edges);
     console.log(`Save edges: ${result}`);
   }
-}
+} */

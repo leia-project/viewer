@@ -1,12 +1,12 @@
 import { writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import gsap from "gsap";
-import type { Map } from "$lib/components/map-cesium/module/map";
+import type { Map as CesiumMap } from "$lib/components/map-cesium/module/map";
 import { CylinderGeometry } from "./cylinder-geometry";
 
 
 
-abstract class RoutingNode<F = any> {
+export abstract class RoutingNode<F = any> {
 
 	public id: string;
 	public lon: number;
@@ -34,7 +34,7 @@ export class ExtractionPoint extends RoutingNode {
 	private selectedExtractionPoint: Writable<ExtractionPoint | undefined>;
 
 	private colorMaterial = new Cesium.ColorMaterialProperty(Cesium.Color.LIMEGREEN.withAlpha(0.7));
-	private highlightMaterial = new Cesium.ColorMaterialProperty(Cesium.Color.LIME.withAlpha(1.0));
+	private highlightMaterial = new Cesium.ColorMaterialProperty(Cesium.Color.RED.withAlpha(1.0));
 
 	constructor(id: string, lon: number, lat: number, selectedExtractionPoint: Writable<ExtractionPoint | undefined>) {
 		super(id, lon, lat);
@@ -54,7 +54,7 @@ export class ExtractionPoint extends RoutingNode {
 				bottomRadius: 10,
 				heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
 				material: Cesium.Color.LIMEGREEN.withAlpha(0.7)
-			}
+			},
 		});
 		return entity;
 	}
@@ -75,7 +75,7 @@ export interface IMeasure {
 	impact: any;
 }
 
-export interface IRoadSegmentFeature {
+export interface IEdgeFeature {
 	type: "Feature";
 	geometry: {
 		type: "LineString";
@@ -85,37 +85,12 @@ export interface IRoadSegmentFeature {
 		fid: string;
 		maximum_snelheid: number;
 		capaciteit: number;
-
-		wvk_id: number;
+		cost: number;
+		source: string | number;
+		target: string | number;
 	};
 }
 
-export class RouteSegment extends RoutingNode<IRoadSegmentFeature> {
-
-	public measures: Array<IMeasure> = [];
-	public capacity: number; // Extraction capacity per time step
-	public currentLoad: number = 0;
-
-	constructor(feature: IRoadSegmentFeature) {
-		const lon = feature.geometry.coordinates[0][0];
-		const lat = feature.geometry.coordinates[0][1];
-		super(feature.properties.wvk_id.toString(), lon, lat, feature);
-		this.capacity = feature.properties.capaciteit;
-	}
-
-	protected createEntity(): Cesium.Entity {
-		const cartesians = this.feature.geometry.coordinates.map((coord) => Cesium.Cartesian3.fromDegrees(coord[0], coord[1]));
-		return new Cesium.Entity({
-			id: this.id,
-			polyline: {
-				positions: cartesians,
-				width: 5,
-				material: Cesium.Color.ORANGE.withAlpha(0.5),
-				clampToGround: true
-			}
-		});
-	}
-}
 
 export class BottleNeck extends RoutingNode {
 
@@ -125,7 +100,7 @@ export class BottleNeck extends RoutingNode {
 	public geometryInstances: Array<Cesium.GeometryInstance>;
 
 	public parentPrimitive?: Cesium.Primitive;
-	public map?: Map;
+	public map?: CesiumMap;
 
 	constructor(id: string, lon: number, lat: number, capacity: number) {
 		super(id, lon, lat);
@@ -242,16 +217,16 @@ export class BottleNeck extends RoutingNode {
 
 export class RoadNetworkLayer<T extends RoutingNode> {
 
-	private map: Map;
+	private map: CesiumMap;
 	private dataSource: Cesium.CustomDataSource;
-	private items: Array<T> = [];
+	public items: Array<T> = [];
 
 	//private infobox: InfoBox | undefined;
 	private hovered: Writable<T | undefined> = writable(undefined);
 
 	public infoboxTimeOut: NodeJS.Timeout  | undefined;
 
-	constructor(map: Map) {
+	constructor(map: CesiumMap) {
 		this.map = map;
 		this.dataSource = new Cesium.CustomDataSource();
 		this.map.viewer.dataSources.add(this.dataSource);
@@ -271,13 +246,15 @@ export class RoadNetworkLayer<T extends RoutingNode> {
 		this.map.viewer.dataSources.remove(this.dataSource);
 	}
 
+	public getItemById(id: string): T | undefined {
+		return this.items.find((item) => item.id === id);
+	}
 }
-
 
 
 export class RoadNetworkLayerP<T extends BottleNeck> {
 
-	private map: Map;
+	private map: CesiumMap;
 	private primitive?: Cesium.Primitive;
 	private items: Array<T> = [];
 	private timeout: NodeJS.Timeout | undefined;
@@ -287,10 +264,9 @@ export class RoadNetworkLayerP<T extends BottleNeck> {
 
 	public infoboxTimeOut: NodeJS.Timeout  | undefined;
 
-	constructor(map: Map) {
+	constructor(map: CesiumMap) {
 		this.map = map;
 	}
-
 	
 	private createPrimitive(): Cesium.Primitive {
 		const geometryInstances = this.items.map((b) => b.geometryInstances).flat();
@@ -375,4 +351,7 @@ export class RoadNetworkLayerP<T extends BottleNeck> {
 		this.items = [];
 	}
 
+	public getItemById(id: string): T | undefined {
+		return this.items.find((item) => item.id === id);
+	}
 }

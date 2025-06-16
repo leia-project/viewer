@@ -130,7 +130,6 @@ function addTotlalLengthAndCost(routefeature, graph, mode, modeCosts) {
     to = (nextFeature?.properties.source === from ? nextFeature?.properties.target : nextFeature?.properties.source);
     toIndex = (nextFeature?.properties.source === from ? nextFeature?.properties.targetIndex : nextFeature?.properties.sourceIndex);
   } 
-  console.log('total length and cost', performance.now() - totalLengthAndCostStart);
 }
 
 function removeVirtualNodes(network, startFeature, endFeature) {
@@ -221,16 +220,21 @@ function addVirtualNodes(network, startFeature, startPoint, endFeature, endPoint
   return endFeature;
 }
 
-export async function calculateRoute(networkArea, mode, startPoint, endPoint, maxDistance = 50, modeCosts = null) {
+export async function calculateRoute(networkArea, mode, startPoint, endPoint, disabledEdges, maxDistance = 50, modeCosts = null) {
   let message = '';
   try {
     const network = await getNetwork(networkArea, mode);
     if (network) {
-      const startFeature = findFeature(network.edges, startPoint);
+      const availableEdges = network.edges.features.filter(feature => !disabledEdges.includes(feature.properties.fid.toString()));
+      const geojsonEdges = {
+        type: "FeatureCollection",
+        features: availableEdges
+      };
+      const startFeature = findFeature(geojsonEdges, startPoint);
       // check if start and end points are on a line (within 10 meters of the line)
       const startDistance = startFeature ? turfPointToLineDistance(startPoint, startFeature, {units: 'meters'}) : Infinity;
       if (startDistance < maxDistance) {
-        const endFeature = findFeature(network.edges, endPoint);
+        const endFeature = findFeature(geojsonEdges, endPoint);
         const endDistance = endFeature ? turfPointToLineDistance(endPoint, endFeature) : Infinity;
         if (endDistance < maxDistance) {
           const lastFeature = addVirtualNodes(network, startFeature, startPoint, endFeature, endPoint);

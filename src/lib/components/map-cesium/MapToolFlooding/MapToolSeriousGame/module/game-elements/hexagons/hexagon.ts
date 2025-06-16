@@ -1,5 +1,7 @@
+import { derived, get, writable, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import { cellToBoundary, cellToLatLng } from "h3-js";
+import { gsap } from "gsap";
 import { Evacuation } from "../evacuation";
 import PolygonGeometry from "./polygon-geometry";
 
@@ -8,15 +10,17 @@ export class Hexagon {
 
 	public hex: string;
 	public center: [lon: number, lat: number];
+	public centerCartesian3: Cesium.Cartesian3;
 	public population: number;
-	public evacuated: number = 0;
 	public floodedAfter?: number;
 
+	private selectedHexagon: Writable<Hexagon | undefined>;
 	public selectedRoute: Array<number> = [];
 
 	public status: "accessible" |  "inaccessible" | "flooded" | "evacuated" = "accessible";
 
-	public geometryInstance: Cesium.GeometryInstance;
+	public geometryInstances: Array<Cesium.GeometryInstance>;
+	public parentPrimitive: Cesium.Primitive | undefined;
 	public entityInstance: Cesium.Entity;
 	
 	public colorScale = [
@@ -34,23 +38,47 @@ export class Hexagon {
 	]; //https://colordesigner.io/gradient-generator    -  https://uigradients.com/#TheBlueLagoon
 	private cesiumColors = this.colorScale.map((color, i) => {
 		const col = Cesium.Color.fromCssColorString(color);
-		col.alpha = Math.min(1, i / this.colorScale.length + 0.1);
+		//col.alpha = Math.min(1, i / this.colorScale.length + 0.1);
 		return col;
 	});
 
-	public evacuation?: Evacuation;
+	public evacuations: Writable<Array<Evacuation>> = writable([]);
+	public totalEvacuated: Readable<number> = derived(this.evacuations, ($evacuations) => {
+  		return $evacuations.reduce((total, evac) => total + evac.numberOfPersons, 0);
+	});
+	private evacuatedCount: number = 0; // Only for animation
 
-	constructor(hex: string, population: number, floodedAfter: number | undefined) {
+	constructor(hex: string, population: number, floodedAfter: number | undefined, selectedHexagon: Writable<Hexagon | undefined>) {
 		this.hex = hex;
 		const latLon = cellToLatLng(hex);
 		this.center = [latLon[1], latLon[0]];
+		this.centerCartesian3 = Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.getHexagonHeight(population) * 0.01); // 0.01 is exag_1 uniform
 		this.population = population;
 		this.floodedAfter = floodedAfter;
-		this.geometryInstance = this.createGeometryInstance(hex, population);
+		this.selectedHexagon = selectedHexagon;
+		this.geometryInstances = this.createGeometryInstance(hex, population);
 		this.entityInstance = this.createEntityInstance(hex, population);
+
+		this.selectedHexagon.subscribe((selected: Hexagon | undefined) => {
+			selected === this ? this.displayEvacuations() : this.hideEvacuations();
+		});
+
+		this.totalEvacuated.subscribe((evacuated: number) => {
+			if (evacuated > 0) {
+				this.updateStatus("evacuated");
+			} else {
+				this.updateStatus("accessible");
+			}
+			//this.centerCartesian3 = Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.getHexagonHeight(this.population - eva) * 0.01);  // 0.01 is exag_1 uniform
+			gsap.to(this, {
+				evacuatedCount: evacuated,
+				duration: 0.7,
+				onUpdate: () => this.updateAttributes()
+			});
+		});
 	}
 
-	private createGeometryInstance(cell: string, population: number): Cesium.GeometryInstance {
+	private createGeometryInstance(cell: string, population: number): Array<Cesium.GeometryInstance> {
 		const boundary = cellToBoundary(cell, true);
 		const degreesArray = new Array<number>();
 		for (let j = 0; j < boundary.length; j++) {
@@ -61,24 +89,70 @@ export class Hexagon {
 		//@ts-ignore
 		const polygonGeometry = new PolygonGeometry({
 			polygonHierarchy: new Cesium.PolygonHierarchy(positions),
-			height: 60,
-			extrudedHeight: 100
+			height: 0,
+			extrudedHeight: 1
 		});
 		const geom = PolygonGeometry.createGeometry(polygonGeometry, []) as Cesium.Geometry;
-		const geometryInstance = new Cesium.GeometryInstance({
+
+		const base = 5500;
+		const populationHeight = this.getHexagonHeight(this.population) + base;
+		const remaingPopulationHeight = this.getHexagonHeight(this.population - this.evacuatedCount) + base;
+
+		const bottom = new Cesium.GeometryInstance({
 			geometry: geom,
 			modelMatrix: Cesium.Matrix4.IDENTITY,
 			id: cell,
 			attributes: {
 				color: Cesium.ColorGeometryInstanceAttribute.fromColor(this.valueToColor(population)),
-				population: new Cesium.GeometryInstanceAttribute({
+				offsetBottom: new Cesium.GeometryInstanceAttribute({
 					componentDatatype: Cesium.ComponentDatatype.FLOAT,
 					componentsPerAttribute: 1,
-					value: [this.getHexagonHeight(population)]
-				})
+					value: [base]
+				}),
+				offsetTop: new Cesium.GeometryInstanceAttribute({
+					componentDatatype: Cesium.ComponentDatatype.FLOAT,
+					componentsPerAttribute: 1,
+					value: [remaingPopulationHeight]
+				}),
+				show: new Cesium.ShowGeometryInstanceAttribute(true)
 			}
 		});
-		return geometryInstance;
+		const top = new Cesium.GeometryInstance({
+			geometry: geom,
+			modelMatrix: Cesium.Matrix4.IDENTITY,
+			id: `${cell}-top`,
+			attributes: {
+				color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.WHITE.withAlpha(0.5)),
+				offsetBottom: new Cesium.GeometryInstanceAttribute({
+					componentDatatype: Cesium.ComponentDatatype.FLOAT,
+					componentsPerAttribute: 1,
+					value: [remaingPopulationHeight] // 0.01 is exag_1 uniform
+				}),
+				offsetTop: new Cesium.GeometryInstanceAttribute({
+					componentDatatype: Cesium.ComponentDatatype.FLOAT,
+					componentsPerAttribute: 1,
+					value: [populationHeight]
+				}),
+				show: new Cesium.ShowGeometryInstanceAttribute(populationHeight !== remaingPopulationHeight),
+			}
+		});
+		return [bottom, top]; 
+	}
+
+	private updateAttributes(): void {
+		if (this.parentPrimitive) {
+			const base = 5500;
+			const populationHeight = this.getHexagonHeight(this.population) + base;
+			const remaingPopulationHeight = this.getHexagonHeight(this.population - this.evacuatedCount) + base;
+			const attributesBottom = this.parentPrimitive?.getGeometryInstanceAttributes(this.hex);
+			const attributesTop = this.parentPrimitive?.getGeometryInstanceAttributes(`${this.hex}-top`);
+			attributesBottom.offsetBottom = [base];
+			attributesBottom.offsetTop = [remaingPopulationHeight]; // 0.01 is exag_1 uniform
+			attributesTop.offsetBottom = [remaingPopulationHeight];
+			attributesTop.offsetTop = [populationHeight];
+			attributesTop.show = Cesium.ShowGeometryInstanceAttribute.toValue(populationHeight !== remaingPopulationHeight, attributesTop.show);
+
+		}
 	}
 
 	private createEntityInstance(cell: string, population: number): Cesium.Entity {
@@ -123,9 +197,26 @@ export class Hexagon {
 		this.status = status;
 	}
 
-	public addEvacuation(evacuation: Evacuation): void {
-		// gsap update population
-		const evacuees = evacuation.hexagon.population;
+	public addEvacuations(evacuations: Array<Evacuation>): void {
+		this.evacuations.update((c) => [...c, ...evacuations]);
+		if (get(this.selectedHexagon) === this) {
+			this.displayEvacuations();
+  	  	}
 	}
 
+	public removeEvacuation(evacuation: Evacuation): void {
+		this.evacuations.update((c) => c.filter((e) => e !== evacuation));
+	}
+
+	public displayEvacuations(): void {
+		get(this.evacuations).forEach((evacuation) => {
+			evacuation.display();
+		});
+	}
+
+	 public hideEvacuations(): void {
+		get(this.evacuations).forEach((evacuation) => {
+			evacuation.hide();
+		});
+	}
 }

@@ -312,6 +312,12 @@ import {
 			extrudeNormals[attrIndex + bottomOffset] = -normal.x;
 			extrudeNormals[attrIndex1 + bottomOffset] = -normal.y;
 			extrudeNormals[attrIndex2 + bottomOffset] = -normal.z;
+
+
+// SDG: For offsets, I also want an extrude direction for the bottom (inverse direction...)
+			extrudeNormals[attrIndex] = normal.x;
+			extrudeNormals[attrIndex1] = normal.y;
+			extrudeNormals[attrIndex2] = normal.z;
 		  }
   
 		  if (vertexFormat.tangent) {

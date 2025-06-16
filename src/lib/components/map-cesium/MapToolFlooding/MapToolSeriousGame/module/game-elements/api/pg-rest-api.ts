@@ -36,12 +36,11 @@ export class PGRestAPI {
 	}
 
 	// Default hexagon resolution from datacore table is 10
-	public async getHexagons(polygon: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}, resolution: number, scenarios: Array<string>): Promise<Array<HexagonEntry>> {
-
+	public async getHexagons(polygon: Array<[lon: number, lat: number]>, resolution: number, scenarios: Array<string>): Promise<Array<HexagonEntry>> {
 		// based on scenarios, join the flood table, and determine the time when the hexagon is flooded
 
 		let query = `
-			SELECT h3, number_of_inhabitants FROM datacore.zeeland_h3
+			SELECT h3, number_of_inhabitants FROM datacore.cbs_h3
 			WHERE number_of_inhabitants > 0
 		`;
 
@@ -49,7 +48,10 @@ export class PGRestAPI {
 			query += `
 				AND ST_Intersects(
 					centroid,
-					ST_GeomFromGeoJSON('${JSON.stringify(polygon)}')
+					ST_GeomFromGeoJSON('{
+						"type": "Polygon",
+						"coordinates": [[${polygon.map(coord => `[${coord[0]}, ${coord[1]}]`).join(", ")}]]
+					}')
 				)
 			`;
 		}
@@ -84,6 +86,26 @@ export class PGRestAPI {
 			maxPopulation = Math.max(maxPopulation, hexagons[i].population);
 		}	
 		return hexagons;
+	}
+
+
+	
+	public async getFloodedRoadSegments(time: number): Promise<Array<string>> {
+		return [];
+		// use outline, scenario and time step
+		let query = `
+			SELECT fid FROM datacore.zeeland_roads a
+				LEFT JOIN datacore.flood_h3 b ON ST_Intersects(
+					a.geom,
+					b.geom
+				)
+			;
+		`;
+		const queryResult: any = await this.client.query(query, {
+		   format: "jsonDataArray"
+  		});
+
+		return  queryResult.data.rows.map((row: any) => row[0]); 
 	}
 
 }

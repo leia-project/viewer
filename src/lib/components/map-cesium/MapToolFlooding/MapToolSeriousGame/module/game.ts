@@ -53,9 +53,10 @@ export class Game {
 
 	public notificationLog: NotificationLog;
 	private forwarding: Writable<boolean> = writable(false);
-	private step: Writable<number> = writable(0);
 	public startTime: Writable<number> = writable(0);
+	private step: Writable<number> = writable(0);
 	public elapsedTime: Writable<number> = writable(0);
+	public elapsedTimeDynamic: Writable<number>;
 	private interval: NodeJS.Timeout | undefined;
 
 	private floodLayerController: FloodLayerController;
@@ -74,11 +75,14 @@ export class Game {
 		}
 		const floodTool = map.toolSettings.find((tool: { id: string, settings: any}) => tool.id === "flooding");
 		this.floodLayerController = new FloodLayerController(map, floodTool.settings, writable(undefined), writable(undefined));
-		this.elapsedTime = this.floodLayerController.time;
+		this.elapsedTimeDynamic = this.floodLayerController.time;
 		this.floodLayerController.loadNewScenario(breach, scenario).then(() => {
 			this.load();
 		});	
-		this.evacuationController = new EvacuationController(map, scenario, this.elapsedTime, outline);
+		this.evacuationController = new EvacuationController(this, map, scenario, outline);
+		this.step.subscribe((value) => {
+			this.elapsedTime.set(steps[value].time);
+		});
 	}
 
 	public load(): void {
@@ -130,7 +134,7 @@ export class Game {
 		}
 	
 		this.interval = setInterval(() => {
-			this.elapsedTime.update((value) => {
+			this.elapsedTimeDynamic.update((value) => {
 				if (direction === "next") {
 					return value + 0.1;
 				} else if (value > newTime) {
@@ -138,8 +142,9 @@ export class Game {
 				}
 				return value;
 			});
-			if (get(this.elapsedTime) >= newTime) {
+			if (get(this.elapsedTimeDynamic) >= newTime) {
 				this.forwarding.set(false);
+				this.elapsedTimeDynamic.set(newTime);
 				clearInterval(this.interval);
 				this.interval = undefined;
 			}
