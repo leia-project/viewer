@@ -1,17 +1,38 @@
 # DuckDB hexagons to database
 
-Install duckdb and make sure it is added in your PATH.
+Install duckdb and make sure it is added in your PATH. Open a file via the following command.
 
 ```
 duckdb database.duckdb
 ```
 
+Enable geospatial capabilities and support for geometry columns:
 ```
 INSTALL SPATIAL;
 LOAD SPATIAL;
 ```
 
-# Preparing the routing network
+To check which tables are available, you can use:
+
+```
+show tables;
+```
+
+To transfer a table to PostgreSQL database, you can first make an export to CSV:
+
+```
+COPY (SELECT * FROM cbs) TO 'cbs_data.csv' (HEADER, DELIMITER ',');
+```
+
+Then you create an empty table in the database with the approriate column names and types. This tables can be filled with the values from the CSV:
+And then use psql to transfer it to the database:
+
+```
+\COPY datacore.cbs FROM 'cbs_data.csv' DELIMITER ',' CSV HEADER;
+```
+
+
+# Routing network to database
 
 Follow this guide to use the processed network of Sweco in the game.
 
@@ -98,4 +119,4 @@ ogr2ogr -f GeoJSON edges2.geojson PG:"host=localhost dbname=postgres user=postgr
 
 ## Routing
 
-The edges and derived graph are imported into the Serious Game front-end using PGRest.
+The edges and derived graph are imported into the Serious Game front-end dynamically using PGRest.
