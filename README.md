@@ -737,7 +737,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |-|-|-|-|
 |dateTime|Date and time, determines the sun position|1657450800 (10-07-2022 11:00:00)|unix timestamp|
 |shadows|Shadows enabled/disabled|false|boolean|
-|showMousuCoordinates|Debug window in viewer to show coordinates for mouse position|false|boolean|
+|showMouseCoordinates|Debug window in viewer to show coordinates for mouse position|false|boolean|
 |showCameraPosition|Debug window to show the current camera position, updates on move|false|boolean|
 |showLoadingWidget|Show a small bar on the bottom of the viewer showing the loading progress of layers|false|boolean|
 |fxaa|FXAA enabled|false|Boolean|
@@ -1004,5 +1004,16 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 			//etc. You can add as many stories as you want
 		]
 	}
+}
+```
+
+#### flycamera
+
+Tool for navigation. With this tool the user is able to have free roam around the map by selecting either an aerial POV or ground POV.
+
+```json
+{
+	"id": "flyCamera",
+	"enabled": true
 }
 ```
