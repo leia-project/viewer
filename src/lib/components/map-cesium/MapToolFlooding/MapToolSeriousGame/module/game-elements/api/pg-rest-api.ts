@@ -3,8 +3,8 @@ import { writable, type Writable } from "svelte/store";
 
 
 const PGREST_URL = "https://datacore.beta.geodan.nl/pgrest/";
-const PGREST_CLIENT_ID = "";
-const PGREST_CLIENT_SECRET = "";
+const PGREST_CLIENT_ID = "dream";
+const PGREST_CLIENT_SECRET = "3cef84c1-75c6-41d5-a31a-4443024a311c";
 const PGREST_CONNECTION = "default";
 
 
@@ -129,7 +129,6 @@ export class PGRestAPI {
 		const queryResult: any = await this.client.query(query, {
 			format: "json"
 		});
-		console.log("Road network edges query result:", queryResult);
 		return queryResult.data[0].jsonb_build_object;
 	}
 

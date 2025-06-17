@@ -16,7 +16,7 @@ export class RoadNetwork {
 
 	public map: Map;
 	private routingAPI: RoutingAPI;
-	private extractionPointIds: Array<string> = ["42377", "83224", "77776"];
+	private extractionPointIds: Array<string> = ["42376", "83224", "77776"];
 	public selectedExtractionPoint: Writable<RouteSegment  | undefined> = writable(undefined);
 
 	private outline: Array<[lon: number, lat: number]>;
