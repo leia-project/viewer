@@ -74,8 +74,9 @@ export class Game {
 		this.elapsedTimeDynamic = this.floodLayerController.time;
 		this.floodLayerController.loadNewScenario(breach, scenario).then(() => {
 			this.load();
-		});	
-		this.evacuationController = new EvacuationController(this, map, scenario, outline);
+		});
+		const scenarioName = `${breach.properties.dijkring}_${breach.properties.name}_${scenario}`;
+		this.evacuationController = new EvacuationController(this, map, [scenarioName], outline);
 		this.step.subscribe((value) => {
 			this.elapsedTime.set(steps[value].time);
 		});

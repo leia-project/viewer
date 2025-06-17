@@ -17,11 +17,11 @@ export class EvacuationController {
 	public hexagonLayer: HexagonLayer;
 	public evacuations: Readable<Array<Evacuation>>;
 	
-	constructor(game: Game, map: CesiumMap, scenario: string, outline: Array<[lon: number, lat: number]>) {
+	constructor(game: Game, map: CesiumMap, scenarios: Array<string>, outline: Array<[lon: number, lat: number]>) {
 		this.game = game;
 		this.map = map;
 		this.elapsedTime = game.elapsedTime;
-		this.hexagonLayer = new HexagonLayer(map, this.elapsedTime, scenario, outline, this);
+		this.hexagonLayer = new HexagonLayer(map, this.elapsedTime, scenarios, outline, this);
 		this.evacuations = derived(
 			this.hexagonLayer.hexagons.map((h) => h.evacuations),
 			($evacuations, set) => {

@@ -28,21 +28,6 @@ export class Evacuation {
 		this.makeEntities(route);
 	}
 
-	/*	
-	private makeEntities(positions: Array<[lon: number, lat: number]>): void {
-		const cartesians = positions.map((p) => Cesium.Cartesian3.fromDegrees(p[0], p[1]));
-		const numberOfCoordinates = cartesians.length;
-		const stepInterval = Math.max(1, Math.round(numberOfCoordinates / 40)); // 40 steps, minimum step size of 1
-		let i = 0;
-		while (i < numberOfCoordinates + stepInterval) {
-			const lastPositionIndex = Math.min(i+stepInterval, numberOfCoordinates);
-			const line = this.makeLineEntity(cartesians.slice(i, lastPositionIndex + 1));
-			this.dataSource.entities.add(line);
-			i+=stepInterval;
-		}
-	}
-	*/
-
 	private makeEntities(route: Array<RouteSegment>): void {
 		for (const routeFeature of route) {
 			const entity = this.makeWallEntity(routeFeature);

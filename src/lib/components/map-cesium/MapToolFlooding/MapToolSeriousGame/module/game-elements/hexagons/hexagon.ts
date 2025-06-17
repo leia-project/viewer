@@ -12,12 +12,13 @@ export class Hexagon {
 	public center: [lon: number, lat: number];
 	public centerCartesian3: Cesium.Cartesian3;
 	public population: number;
-	public floodedAfter?: number;
+	public floodDepth: Writable<number> = writable(0);
+	public floodedAt: Writable<number | undefined> = writable(undefined);
 
 	private selectedHexagon: Writable<Hexagon | undefined>;
 	public selectedRoute: Array<number> = [];
 
-	public status: "accessible" |  "inaccessible" | "flooded" | "evacuated" = "accessible";
+	public status: "accessible" | "flooded" | "evacuated" = "accessible";
 
 	public geometryInstances: Array<Cesium.GeometryInstance>;
 	public parentPrimitive: Cesium.Primitive | undefined;
@@ -48,13 +49,12 @@ export class Hexagon {
 	});
 	private evacuatedCount: number = 0; // Only for animation
 
-	constructor(hex: string, population: number, floodedAfter: number | undefined, selectedHexagon: Writable<Hexagon | undefined>) {
+	constructor(hex: string, population: number, selectedHexagon: Writable<Hexagon | undefined>) {
 		this.hex = hex;
 		const latLon = cellToLatLng(hex);
 		this.center = [latLon[1], latLon[0]];
 		this.centerCartesian3 = Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.getHexagonHeight(population) * 0.01); // 0.01 is exag_1 uniform
 		this.population = population;
-		this.floodedAfter = floodedAfter;
 		this.selectedHexagon = selectedHexagon;
 		this.geometryInstances = this.createGeometryInstance(hex, population);
 		this.entityInstance = this.createEntityInstance(hex, population);
@@ -62,6 +62,13 @@ export class Hexagon {
 		this.selectedHexagon.subscribe((selected: Hexagon | undefined) => {
 			selected === this ? this.displayEvacuations() : this.hideEvacuations();
 		});
+
+		this.floodDepth.subscribe((depth: number) => {
+			if (depth > 0.5) {
+				//this.floodedAt.set(get(elapsedTime));
+			}
+		});
+
 
 		this.totalEvacuated.subscribe((evacuated: number) => {
 			if (evacuated > 0) {
@@ -186,14 +193,7 @@ export class Hexagon {
 		return population * 10 + 50;
 	}
 
-	public timeUpdated(time: number): void {
-		if (!this.floodedAfter) return;
-		if (this.floodedAfter > 0 && this.floodedAfter <= time) {
-			this.updateStatus("flooded");
-		}
-	}
-
-	public updateStatus(status: "accessible" |  "inaccessible" | "flooded" | "evacuated"): void {
+	public updateStatus(status: "accessible" | "flooded" | "evacuated"): void {
 		this.status = status;
 	}
 

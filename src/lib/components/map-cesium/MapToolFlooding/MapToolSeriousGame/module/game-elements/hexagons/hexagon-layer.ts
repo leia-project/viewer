@@ -1,7 +1,7 @@
 import * as Cesium from "cesium";
 import { get, writable, type Writable } from "svelte/store";
 import { Hexagon } from "./hexagon";
-import { PGRestAPI, type HexagonEntry } from "../api/pg-rest-api";
+import { PGRestAPI, type CBSHexagon, type FloodHexagon } from "../api/pg-rest-api";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import HexagonInfoBox from "../../../components/infobox/HexagonInfoBox.svelte";
 import type { EvacuationController } from "../evacuation-controller";
@@ -38,10 +38,10 @@ export class HexagonLayer {
 	private hexagonInfoBox: HexagonInfoBox | undefined;
 	public infoBoxTimeOut: NodeJS.Timeout | undefined;
 
-	constructor(map: Map, elapsedTime: Writable<number>, scenario: string, outline: Array<[lon: number, lat: number]>, evacuationController: EvacuationController) {
+	constructor(map: Map, elapsedTime: Writable<number>, scenarios: Array<string>, outline: Array<[lon: number, lat: number]>, evacuationController: EvacuationController) {
 		this.map = map;
 		this.outline = outline;
-		this.loadHexagons(scenario);
+		this.loadHexagons();
 		this.selectedHexagon.subscribe((hexagon: Hexagon | undefined) => {
 			// highlight the accompanied evacuation
 			if (hexagon instanceof Hexagon) {
@@ -77,23 +77,29 @@ export class HexagonLayer {
 				this.hoverBoxTimeOut = setTimeout(() => this.hexagonHoverBox?.$destroy(), 400);
 			}
 		});
-		elapsedTime.subscribe((time: number) => {
-			this.hexagons.forEach((hex: Hexagon) => hex.timeUpdated(time));
-		});
-		this.visible.subscribe((b) => {this.toggleHexagons(b)});
-		this.use2DMode.subscribe((b) => {this.toggle2D3DModeHexagons(b)});
+		elapsedTime.subscribe((time: number) => this.updateFloodDepths(scenarios, time));
+		this.visible.subscribe((b) => this.toggleHexagons(b));
+		this.use2DMode.subscribe((b) => this.toggle2D3DModeHexagons(b));
 	}
 
-	private async loadHexagons(breach: Breach): Promise<void> {
-		const hexagons = await this.pgRestAPI.getFloodHexagons(this.outline, 7, breach);
-
-		hexagons.forEach((hex: HexagonEntry) => {
-			const newHex = new Hexagon(hex.hex, hex.population, undefined, this.selectedHexagon); // hex.flooded_after);
+	private async loadHexagons(): Promise<void> {
+		const hexagons = await this.pgRestAPI.getCBSHexagons(this.outline, 7);
+		hexagons.forEach((hex: CBSHexagon) => {
+			const newHex = new Hexagon(hex.hex, hex.population, this.selectedHexagon);
 			this.hexagons.push(newHex);
 		});
-
 		this.createPrimitive();
 		this.addHexagonEntities();
+	}
+
+	private async updateFloodDepths(scenarios: Array<string>, time: number): Promise<void> {
+		const h3FloodDepths = await this.pgRestAPI.getFloodHexagons(this.outline, 7, scenarios, time);
+		h3FloodDepths.forEach((floodHex: FloodHexagon) => {
+			const hex = this.hexagons.find((h: Hexagon) => h.hex === floodHex.hex);
+			if (hex) {
+				hex.floodDepth.set(floodHex.maxFloodDepth);
+			}
+		});
 	}
 
 	private createPrimitive(): void {

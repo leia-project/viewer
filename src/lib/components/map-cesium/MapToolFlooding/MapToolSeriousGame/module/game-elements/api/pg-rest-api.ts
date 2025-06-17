@@ -1,26 +1,23 @@
 import { PGRestClient } from "@sogelink-research/pgrest-client";
-import { writable } from "svelte/store";
-import { cellToParent, getResolution } from "h3-js";
+import { writable, type Writable } from "svelte/store";
 
-import type { Writable } from "svelte/store";
-import type { Breach } from "$lib/components/map-cesium/MapToolFlooding/layer-controller";
 
 const PGREST_URL = "https://datacore.beta.geodan.nl/pgrest/";
 const PGREST_CLIENT_ID = "";
 const PGREST_CLIENT_SECRET = "";
 const PGREST_CONNECTION = "default";
 
-export interface HexagonEntry {
+
+export interface CBSHexagon {
 	hex: string;
-	firstFlooded: number;
+	population: number;
 }
 
-interface Bbox {
-	minLon: number,
-	minLat: number,
-	maxLon: number,
-	maxLat: number
+export interface FloodHexagon {
+	hex: string;
+	maxFloodDepth: number;
 }
+
 
 export class PGRestAPI {
 
@@ -37,115 +34,63 @@ export class PGRestAPI {
 	}
 
 	// Default hexagon resolution from datacore table is 10
-	// public async getHexagons(polygon: {type: string, coordinates: Array<Array<[lon: number, lat: number]>>}, resolution: number, scenarios: Array<string>): Promise<Array<HexagonEntry>> {
-
-	// 	// based on scenarios, join the flood table, and determine the time when the hexagon is flooded
-
-	// 	let query = `
-	// 		SELECT h3, number_of_inhabitants FROM datacore.cbs_h3
-	// 		WHERE number_of_inhabitants > 0
-	// 	`;
-
-	// 	if (polygon) {
-	// 		query += `
-	// 			AND ST_Intersects(
-	// 				centroid,
-	// 				ST_GeomFromGeoJSON('${JSON.stringify(polygon)}')
-	// 			)
-	// 		`;
-	// 	}
-		
-	// 	const queryResult: any = await this.client.query(query, {
-	// 		format: "jsonDataArray"
-	// 	});
-
-	//     const rows = queryResult.data.rows;
-	// 	const aggregation = new Map<string, number>();
-
-	// 	for (const row of rows) {
-	// 		const h3 = row[0];
-	// 		const population = row[1] ?? 0;
-	// 		const cellRes = getResolution(h3);
-	// 		let parentCell: string;
-	// 		if (resolution < cellRes) {
-	// 			parentCell = cellToParent(h3, resolution);
-	// 		} else if (resolution === cellRes) {
-	// 			parentCell = h3;
-	// 		} else {
-	// 			// If target resolution is higher (finer), skip for now (unlikely case)
-	// 			continue;
-	// 		}
-
-	// 		aggregation.set(parentCell, (aggregation.get(parentCell) ?? 0) + population);
-	// 	}
-
-	// 	const hexagons: Array<HexagonEntry> = Array.from(aggregation, ([hex, population]) => ({ hex, population }));
-	// 	// let maxPopulation = 0;
-	// 	// for (let i = 0; i < hexagons.length; i++) {
-	// 	// 	maxPopulation = Math.max(maxPopulation, hexagons[i].population);
-	// 	// }	
-	// 	return hexagons;
-	// }
-
-	public async getFloodHexagons(polygon: Array<[lon: number, lat: number]>, resolution: number, scenario: string): Promise<Array<HexagonEntry>> {
-		//const scenario = `${breach.properties.dijkring}_${breach.properties.name}_${breach.properties.scenarios[0]}`;
-		console.log(`Scenario: `, scenario);
-		// based on scenarios, join the flood table, and determine the time when the hexagon is flooded
-
-		let query = `
-		SELECT DISTINCT ON (h3) h3, timestep AS first_flood_timestep
-		FROM datacore.zeeland_flood_h3
-		WHERE scenario = '${scenario}'
-			AND flood_depth > 0.03
-		ORDER BY h3, timestep ASC;
+	public async getCBSHexagons(polygon: Array<[lon: number, lat: number]>, resolution: number): Promise<Array<CBSHexagon>> {
+		const query = `
+			SELECT
+				h3_cell_to_parent(h3::h3index, ${resolution}) AS parent_h3,
+				SUM(number_of_inhabitants) AS population
+			FROM
+				datacore.cbs_h3
+			WHERE number_of_inhabitants > 0
+			AND ST_Intersects(
+				centroid,
+				ST_GeomFromGeoJSON('{
+					"type":"Polygon",
+					"coordinates": [${JSON.stringify(polygon)}]
+				}')
+			)
+			GROUP BY parent_h3;
 		`;
-
-		console.log(`Query: ${query}`);
-		// if (polygon) {
-		// 	query += `
-		// 		AND ST_Intersects(
-		// 			centroid,
-		// 			ST_GeomFromGeoJSON('${JSON.stringify(polygon)}')
-		// 		)
-		// 	`;
-		// }
-		
 		const queryResult: any = await this.client.query(query, {
 			format: "jsonDataArray"
 		});
-
-	    const rows = queryResult.data.rows;
-		const firstFloodedMap = new Map<string, number>(); 
-
-		for (const row of rows) {
-			const h3 = row[0];
-			const floodDepth = row[1] ?? 0;
-			const firstFlooded = row[2] ?? 0;
-
-			const cellRes = getResolution(h3);
-			let parentCell: string;
-			if (resolution < cellRes) {
-				parentCell = cellToParent(h3, resolution);
-			} else if (resolution === cellRes) {
-				parentCell = h3;
-			} else {
-				// If target resolution is higher (finer), skip for now (unlikely case)
-				continue;
+		const hexagons: Array<CBSHexagon> = queryResult.data.rows.map((rows: any) => {
+			return {
+				hex: rows[0],
+				population: rows[1] ?? 0
 			}
+		});
+		return hexagons;
+	}
 
-			firstFloodedMap.set(parentCell, (firstFloodedMap.get(parentCell) ?? 0) + floodDepth);
-
-		}
-
-		const hexagons: Array<HexagonEntry> = Array.from(firstFloodedMap, ([hex, firstFlooded]) => ({
-			hex,
-			firstFlooded,
-		}));
-		
-		// let maxPopulation = 0;
-		// for (let i = 0; i < hexagons.length; i++) {
-		// 	maxPopulation = Math.max(maxPopulation, hexagons[i].population);
-		// }	
+	public async getFloodHexagons(polygon: Array<[lon: number, lat: number]>, resolution: number, scenarios: Array<string>, time: number): Promise<Array<FloodHexagon>> {
+		const query = `
+			SELECT
+				h3_cell_to_parent(h3, ${resolution}) AS parent_h3,
+				MAX(flood_depth) AS max_flood_depth
+			FROM
+				datacore.zeeland_flood_h3
+				WHERE scenario = ANY(ARRAY[${scenarios.map(s => `'${s}'`).join(',')}])
+				AND timestep = ${time * 6}
+				AND flood_depth > 0.03
+				AND ST_Intersects(
+					ST_SetSRID(centroid, 4326),
+					ST_GeomFromGeoJSON('{
+						"type":"Polygon",
+						"coordinates": [${JSON.stringify(polygon)}]
+					}')
+				)
+			GROUP BY parent_h3;
+		`;
+		const queryResult: any = await this.client.query(query, {
+			format: "jsonDataArray"
+		});
+		const hexagons: Array<FloodHexagon> = queryResult.data.rows.map((rows: any) => {
+			return {
+				hex: rows[0],
+				maxFloodDepth: rows[1] ?? 0
+			}
+		});
 		return hexagons;
 	}
 
