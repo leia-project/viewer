@@ -952,44 +952,53 @@ Measuring tool accessible through the toolbar, with this tool the user can add 3
 
 #### stories
 
-Tool for storymapping. Create and show multiple stories in the viewer. Each story contains multiple steps which the user can click through. Each step has a title and description (HTML), a fly-to location, and a set of layers with their settings. A story can be opened directly in the viewer through the 'story' search parameter, for example: "https://some-site.nl/?story=mystoryname".
+Tool for storymapping. Create and show multiple stories in the viewer. Each story can contain multiple chapters with steps which the user can click through. Each chapter has an id, title, button text (shorthand for longer titles) and steps. Each step has a title and description (HTML), a fly-to location, and a set of layers with their settings (id, style, opacity). A story can be opened directly in the viewer through the 'story' search parameter, for example: "https://some-site.nl/?story=mystoryname".
 
 ```json
+
 {
 	"id": "stories",
 	"enabled": true,
 	"settings": {
 		"stories": [
 			{
-				"name": "My story",
+				"name": "My Story",
 				"description": "Description of my story",
 				"width": "600px",
-				"steps": [
+				"chapters": [
 					{
-						"title": "Title of step",
-						"html": "<div>Content of the step.</div>",
-						"globeOpacity": 100,
-						"terrain": "Uit",
-						"camera": {
-							"x": 5.23907,
-							"y": 52.20004,
-							"z": 13130.05823,
-							"heading": 335.10694,
-							"pitch": -30.69127,
-							"duration": 1.5
-						},
-						"layers": [
+						"id": "1",
+						"steps": [
 							{
-								"id": "8352260480948"
+								"title": "Signaalkaart",
+								"html": "<div>Content of the step.</div>",
+								"globeOpacity": 100,
+								"terrain": "PDOK Terrain",
+								"camera": {
+									"x": 5.23907,
+									"y": 52.20004,
+									"z": 13130.05823,
+									"heading": 335.10694,
+									"pitch": -30.69127,
+									"duration": 1.5
+								},
+								"layers": [
+									{
+										"id": "001",
+										"opacity": 50
+									},
+									{
+										"id": "19747667-ddb2-4162-99f6-a37d5aaa15ea",
+										"style": "Bouwjaar"
+									},
+									//etc. You can add as many layers as you want per step
+
+								]
 							},
-							{
-								"id": "19747667-ddb2-4162-99f6-a37d5aaa15ea",
-								"style": "Bouwjaar"
-							},
-							//etc. You can add as many layers as you want per step
+							//etc. You can add as many steps as you want per chapter
 						]
 					},
-					//etc. You can add as many steps as you want per story
+					//etc. You can add as many chapters as you want per story
 				]
 			},
 			//etc. You can add as many stories as you want

@@ -711,22 +711,6 @@
             }
         },
         {
-            "id": "4008",
-            "type": "wfs",
-            "title": "Normering dijktrajecten: Signaleringswaarde (NBPW)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/wvp/gwc/service/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=wvp:dijktrajecten&styles=wvp:NBPW_signaleringswaarde",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://geo.rijkswaterstaat.nl/services/ogc/wvp/wfs",
-                "featureType": "wvp:dijktrajecten",
-                "version": "1.1.0",
-                "allowPicking": true
-            }
-        },
-        {
             "id": "4009",
             "type": "wms",
             "title": "Normering dijktrajecten: Ondergrens (NBPW)",
@@ -1560,18 +1544,540 @@
                 "featureName": "geokma_htteilndrst",
                 "contenttype": "image/png"
             }
-        }         
+        },
+        {
+            "id": "test",
+            "type": "arcgis",
+            "title": "Test layer",
+            "groupId": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://tiles.arcgis.com/tiles/7SEV6TvwRD5jzR74/arcgis/rest/services/Sturingskaart_slachtoffers_feb24/MapServer/"
+            }
+        },
+        {
+            "id": "8001",
+            "type": "wms",
+            "title": "Bodemdaling Signaalkaart",
+            "groupId": "signaalkaarten_per_thema",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bodemdaling_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "bodemdaling_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "8002",
+            "type": "wms",
+            "title": "Regenwateroverlast Signaalkaart",
+            "groupId": "signaalkaarten_per_thema",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "regenwateroverlast_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "8003",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid Signaalkaart",
+            "groupId": "signaalkaarten_per_thema",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "8004",
+            "type": "wms",
+            "title": "Waterkwaliteit Signaalkaart",
+            "groupId": "signaalkaarten_per_thema",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterkwaliteit_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterkwaliteit_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "8005",
+            "type": "wms",
+            "title": "Waterveiligheid Signaalkaart",
+            "groupId": "signaalkaarten_per_thema",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "8006",
+            "type": "wms",
+            "title": "Hitte Signaalkaart",
+            "groupId": "signaalkaarten_per_thema",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "hitte_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "9000",
+            "type": "wms",
+            "title": "Bebouwing Signaalkaart (Totaal)",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bebouwing_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "bebouwing_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "9001",
+            "type": "wms",
+            "title": "Bodemdaling - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "9002",
+            "type": "wms",
+            "title": "Regenwateroverlast - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_bebouwing_vitaleinfra_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "regenwateroverlast_bebouwing_vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "9003",
+            "type": "wms",
+            "title": "Waterveiligheid - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_bebouwing_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_bebouwing_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "9004",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_bebouwing_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_bebouwing_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "9005",
+            "type": "wms",
+            "title": "Hitte - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_bebouwing_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "hitte_bebouwing_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "10000",
+            "type": "wms",
+            "title": "Vitale Infrastructuur Signaalkaart (Totaal)",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:vitaleinfra_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "10001",
+            "type": "wms",
+            "title": "Bodemdaling - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "10002",
+            "type": "wms",
+            "title": "Regenwateroverlast - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_bebouwing_vitaleinfra_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "regenwateroverlast_bebouwing_vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "10003",
+            "type": "wms",
+            "title": "Waterveiligheid - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_vitaleinfra_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "10004",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_vitaleinfra_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_vitaleinfra_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11000",
+            "type": "wms",
+            "title": "Recreatie Signaalkaart (Totaal)",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11001",
+            "type": "wms",
+            "title": "Bodemdaling - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11002",
+            "type": "wms",
+            "title": "Regenwateroverlast - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "regenwateroverlast_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11003",
+            "type": "wms",
+            "title": "Waterveiligheid - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11004",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11005",
+            "type": "wms",
+            "title": "Waterkwaliteit - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterkwaliteit_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterkwaliteit_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11006",
+            "type": "wms",
+            "title": "Hitte - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_reacreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "hitte_reacreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12000",
+            "type": "wms",
+            "title": "Landbouw Signaalkaart (Totaal)",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12001",
+            "type": "wms",
+            "title": "Regenwateroverlast - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "regenwateroverlast_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12002",
+            "type": "wms",
+            "title": "Waterveiligheid - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12003",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12004",
+            "type": "wms",
+            "title": "Waterkwaliteit - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterkwaliteit_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterkwaliteit_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12005",
+            "type": "wms",
+            "title": "Hitte - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "hitte_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13000",
+            "type": "wms",
+            "title": "Natuur Signaalkaart (Totaal)",
+            "groupId": "natuur",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13001",
+            "type": "wms",
+            "title": "Waterveiligheid - Natuur",
+            "groupId": "natuur",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterveiligheid_natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13002",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Natuur",
+            "groupId": "natuur",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterbeschikbaarheid_natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13003",
+            "type": "wms",
+            "title": "Waterkwaliteit - Natuur",
+            "groupId": "natuur",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterkwaliteit_natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "featureName": "waterkwaliteit_natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        }
     ],
     "viewer": {
         "title": "Klimaatonderlegger",
         "subTitle": "3D viewer",
         "logo": "images/leia_logo.png",
         "startPosition": {
-            "x": 3.96280,
-            "y": 51.49285,
-            "z": 108025.35868,
-            "heading": 360.00000,
-            "pitch": -90.00000,
+            "x": 3.8844,
+            "y": 51.5986,
+            "z": 105618.7,
+            "heading": 0.0,
+            "pitch": -89.9,
             "duration": 1.50
         },
         "colors": {
@@ -1631,6 +2137,38 @@
         }
     },
     "groups": [
+        {
+            "id": "gebruiksfuncties",
+            "title": "Gebruiksfuncties",
+            "parentId": ""
+        },
+        {
+            "id": "bebouwing",
+            "title": "Bebouwing",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "vitaleinfra",
+            "title": "Vitale Infrastructuur",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "recreatie",
+            "title": "Recreatie",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "landbouw",
+            "title": "Landbouw",
+            "parentId": "gebruiksfuncties"
+        },
+        {
+            "id": "natuur",
+            "title": "Natuur",
+            "parentId": "gebruiksfuncties"
+        },
+
+
         {
             "id": "2",
             "title": "Administratieve grenzen",
@@ -1739,6 +2277,11 @@
         {
             "id": "hitte",
             "title": "Hitte",
+            "parentId": ""
+        },
+        {
+            "id": "signaalkaarten_per_thema",
+            "title": "Signaalkaarten Per Thema",
             "parentId": ""
         }
     ],
@@ -1906,32 +2449,678 @@
             "settings": {
                 "stories": [
                     {
-                        "name": "My story",
-                        "description": "Description of my story",
+                        "name": "Klimaatonderlegger",
+                        "description": "Kaarten voor de klimaatonderlegger",
                         "width": "600px",
-                        "steps": [
+                        "chapters": [
                             {
-                                "title": "Gebouwen gekleurd naar bouwjaar",
-                                "html": "<div>Dit zijn gebouwen gekleurd naar bouwjaar.</div>",
-                                "globeOpacity": 100,
-                                "terrain": "PDOK Terrain",
-                                "camera": {
-                                    "x": 5.23907,
-                                    "y": 52.20004,
-                                    "z": 13130.05823,
-                                    "heading": 335.10694,
-                                    "pitch": -30.69127,
-                                    "duration": 1.5
-                                },
-                                "layers": [
+                                "id": "1",
+                                "steps": [
                                     {
-                                        "id": "1"
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "9000"
+                                            }
+                                        ]
                                     },
                                     {
-                                        "id": "3",
-                                        "style": "Bouwjaar"
+                                        "title": "Bodemdaling",
+                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "9001"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "9002"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "9003"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "9004"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Hitte",
+                                        "html": "<div>Indicatoren voor Hitte in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "9005"
+                                            }
+                                        ]
+                                    }
+                                    
+                                ]
+                            },
+                            {
+                                "id": "2",
+                                "steps": [
+                                    {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "10000"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Bodemdaling",
+                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "10001"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "10002"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "10003"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "10004"
+                                            }
+                                        ]
                                     }
                                 ]
+                            },
+                            {
+                                "id": "3",
+                                "steps": [
+                                    {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "11000"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Bodemdaling",
+                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "11001"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "11002"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "11003"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "11004"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterkwaliteit",
+                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "11005"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Hitte",
+                                        "html": "<div>Indicatoren voor Hitte in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "11006"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "4",
+                                "steps": [
+                                    {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "12000"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "12001"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "12002"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "12003"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterkwaliteit",
+                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "12004"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Hitte",
+                                        "html": "<div>Indicatoren voor Hitte in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "12005"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "5",
+                                "steps": [
+                                    {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "13000"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "13001"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "13002"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterkwaliteit",
+                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "001"
+                                            },
+                                            {
+                                                "id": "13003"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }                            
+                        ],
+                        "chapterGroups": [
+                            {
+                                "id": "1",
+                                "title": "H1: Bebouwing",
+                                "buttonText": "Bebouwing"
+                            },
+                            {
+                                "id": "2",
+                                "title": "H2: Vitale Infrastructuur",
+                                "buttonText": "Vitale Infrastructuur"
+                            },
+                            {
+                                "id": "3",
+                                "title": "H3: Recreatie",
+                                "buttonText": "Recreatie"
+                            },
+                            {
+                                "id": "4",
+                                "title": "H4: Landbouw",
+                                "buttonText": "Landbouw"
+                            },
+                            {
+                                "id": "5",
+                                "title": "H5: Natuur",
+                                "buttonText": "Natuur"
                             }
                         ]
                     }
@@ -1948,6 +3137,10 @@
         },
         {
             "id": "geocoder",
+            "enabled": true
+        },
+        {
+            "id": "modeswitcher",
             "enabled": true
         }
     ]

@@ -240,7 +240,9 @@
             "label": "Verhalen",
             "back": "Terug naar overzicht",
             "stepBack": "Stap terug",
-            "stepForward": "Stap vooruit                                                                                                                                       "
+            "stepForward": "Stap vooruit",
+            "description": "Beschrijving",
+            "statistics": "Statistieken"
         },
         "animation": {
             "speed": "Snelheid",

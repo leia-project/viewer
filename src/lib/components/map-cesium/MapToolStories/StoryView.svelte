@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import { onMount, getContext, onDestroy, createEventDispatcher } from "svelte";
 	import { writable, get } from "svelte/store";
 	import { Button, PaginationNav, Tag } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
+	import "@carbon/charts-svelte/styles.css";
 
 	import type { Story } from "./Story";
 	import type { StoryStep } from "./StoryStep";
@@ -13,6 +15,10 @@
 	import type { MapCore } from "$lib/components/map-core/map-core";
 	import { CesiumLayer } from "../module/layers/cesium-layer";
 	import type { StoryLayer } from "./StoryLayer";
+	import type { StoryChapter } from "./StoryChapter";
+	import { DonutChart } from "@carbon/charts-svelte";
+	import CustomPaginationNav from "./CustomPaginationNav.svelte";
+	import DrawPolygon from "./DrawPolygon.svelte";
 
 	export let map: Map;
 	export let story: Story;
@@ -26,10 +32,12 @@
 
 	let currentPage = writable<number>(1);
 	let activeStep: StoryStep | undefined;
+	let activeChapter: StoryChapter | undefined;
+	let activeChapterSteps: Array<StoryStep> | undefined;
 	let cesiumMap = map as MapCore;
 	let width: number;
 	let height: number;
-	let navHeigth: number;
+	let navHeight: number;
 	let container: HTMLElement;
 	let content: HTMLElement;
 	let lastInputType: string;
@@ -41,7 +49,54 @@
 	let startGlobeOpacity: number;
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
 
+	let hasDrawnPolygon: boolean = false;
+	let distributions: Array<number> = [5];
+
 	$: shown = Math.floor(width / 70);
+
+
+	let mockData = [
+		{ group: "A", value: 20 },
+		{ group: "B", value: 25 },
+		{ group: "C", value: 40 },
+		{ group: "D", value: 10 },
+		{ group: "E", value: 5 }
+	];
+
+	let mockOptions = {
+		showTable: false,
+		resizable: true,
+		height: "400px",
+		width: "400px",
+		donut: {
+			alignment: "center"
+		},
+		legend: {
+			alignment: 'center',
+			order: ["A", "B", "C", "D", "E"]
+		},
+		toolbar: {
+			enabled: false
+		},
+		color: {
+			scale: {
+				A: "#28a745", // Green
+				B: "#85c240", // Light Green
+				C: "#f0ad4e", // Yellow
+				D: "#d9534f", // Orange
+				E: "#dc3545"  // Red
+			}
+		}
+	};
+	
+
+	// Flatten the steps across all chapters so we can access the correct step based on the index
+	let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
+		story.storyChapters.forEach((chapter) => {
+			chapter.steps.forEach((step) => {
+				flattenedSteps.push({ step, chapter });
+			});
+		});
 
 	onMount(() => {
 		startCameraLocation = cesiumMap.getPosition();
@@ -65,6 +120,7 @@
 		setTimeout(() => { scrollToStep(savedStepNumber-1) }, 150); // Timeout when height of images is not explicitly set
 	});
 
+
 	onDestroy(() => {
 		map.autoCheckBackground = startAutocheckBackground;
 		container.removeEventListener("scroll", onScroll);
@@ -73,21 +129,33 @@
 		dispatch("closeModule", {n: $currentPage});
 	});
 
+
 	function onScroll() {
 		if (lastInputType === "scroll") {
 			checkStep();
 		}
 	}
 
+
 	function onWheel() {
 		lastInputType = "scroll";
 	}
 
-	currentPage.subscribe((page) => {
-		//Check if processing
 
+	currentPage.subscribe((page) => {
 		const index = page - 1;
-		activeStep = story.steps[index];
+
+		// Flatten the steps across all chapters so we can access the correct step based on the index
+		const flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
+		story.storyChapters.forEach((chapter) => {
+			chapter.steps.forEach((step) => {
+				flattenedSteps.push({ step, chapter });
+			});
+		});
+		const activeEntry = flattenedSteps[index];
+		activeChapter = activeEntry.chapter;
+		activeChapterSteps = activeChapter.steps;
+		activeStep = activeEntry.step;
 
 		// if clicked on nav index, scroll to step automatically
 		if (lastInputType === "click") {
@@ -140,7 +208,7 @@
 				top:
 					stepElement.getBoundingClientRect().top -
 					content.getBoundingClientRect().top -
-					navHeigth
+					navHeight
 			});
 		}
 	}
@@ -254,7 +322,7 @@
 
 	function checkStep() {
 		const steps = content.getElementsByClassName("step");
-		const intersectLine = navHeigth + 200;
+		const intersectLine = navHeight + 200; //TODO: make this dynamic
 
 		for (let i = 0; i < steps.length; i++) {
 			const rect = steps[i].getBoundingClientRect();
@@ -275,10 +343,13 @@
 </script>
 
 <div class="story" bind:clientWidth={width}>
+	{#if !hasDrawnPolygon}
+		<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} {map} {story} bind:distributions={distributions}/>
+	{:else}
 	<div
 		class="nav"
 		style="width:{width}px"
-		bind:clientHeight={navHeigth}
+		bind:clientHeight={navHeight}
 		on:scroll={(e) => {
 			e.preventDefault();
 			e.stopPropagation();
@@ -295,40 +366,80 @@
 		<div class="heading-01">
 			{story.name}
 		</div>
-		<div class="story-description body-compact-01">
+		<!-- <div class="story-description body-compact-01">
 			{story.description}
-		</div>
+		</div> -->
 
+		<div class="chapter-buttons">
+			{#each story.storyChapters as chapter, index}
+				<Button
+					kind={activeChapter === chapter ? "primary" : "ghost"}
+					size="small"
+					style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
+					on:click={() => {
+						const firstStepIndex = flattenedSteps.findIndex(({ chapter: c }) => c === chapter);
+						if (firstStepIndex !== -1) {
+							lastInputType = "click";
+							currentPage.set(firstStepIndex + 1);
+						}
+					}}
+				>
+				{chapter.buttonText}
+				</Button>
+			{/each}
+		</div>
+		<hr style="width: 100%;"/>
 		<div>
-			<PaginationNav
+			<CustomPaginationNav
+				bind:page={$currentPage}
+				bind:lastInputType ={lastInputType}
+				{flattenedSteps}
+			/>
+
+			<!-- <PaginationNav
 				forwardText={textStepForward}
 				backwardText={textStepBack}
 				bind:page={$currentPage}
-				total={story.steps.length}
+				total={flattenedSteps.length}
 				{shown}
 				loop
 				onmousedown={() => {
 					lastInputType = "click";
 				}}
-			/>
+			/> -->
 		</div>
 	</div>
 
 	<div class="content" bind:this={content}>
-		<div style="height:{navHeigth}px" />
-		{#each story.steps as step, index}
+		<div style="height:{navHeight}px" />
+		{#each flattenedSteps as { step, chapter }, index}
 			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
 				<div class="step-heading heading-03">
-					{step.title}
+					{chapter.title} | {step.title}
+				</div>
+				<div class="step-heading-sub heading-03">
+					{$_("tools.stories.description")}
 				</div>
 				{@html step.html}
+				{#each step.layers ?? [] as layer}
+					Layer {layer.id}: {layer.featureName}
+				{/each}
+
 				<div class="tag">
+					<Tag>{chapter.title}</Tag>
 					<Tag>{index + 1}</Tag>
+				</div>
+				<div class="step-heading-sub heading-03">
+					{$_("tools.stories.statistics")}
+				</div>
+				<div class="step-stats">
+					<DonutChart data={mockData} options={mockOptions} style="justify-content:center" />
 				</div>
 			</div>
 		{/each}
 		<!-- <div style="height:{height}px" /> -->
 	</div>
+	{/if}
 </div>
 
 <style>
@@ -337,6 +448,7 @@
 		max-height: 100%;
 		width: inherit;
 		position: relative;
+		scroll-behavior: smooth;
 	}
 
 	.nav {
@@ -359,6 +471,11 @@
 		right: 0;
 	}
 
+	.chapter-buttons {
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
 	.story-description {
 		text-align: center;
 	}
@@ -370,7 +487,7 @@
 	.content {
 		z-index: 1;
 		display: flex;
-		flex-direction: column;		
+		flex-direction: column;	
 	}
 
 	.step {
@@ -379,22 +496,27 @@
 		padding-bottom: var(--cds-spacing-12);
 		padding-left: var(--cds-spacing-05);
 		padding-right: var(--cds-spacing-05);
-		opacity: 0.8;
-		filter: blur(1.5px);
+		opacity: 0.5;
 		box-sizing: border-box;
 
 		background: var(--cds-ui-01);
 	}
 
 	.step-heading {
-		text-decoration: underline;
+		font-weight: bold;
 		padding-bottom: var(--cds-spacing-03);
+	}
+
+	.step-heading-sub {
+		padding-top: var(--cds-spacing-05);
+	}
+
+	.step-stats {
+		background-color: var(--cds-ui-01);
 	}
 
 	.step--active {
 		opacity: 1;
-		filter: blur(0px);
-		transition: 0.8s filter linear;
 		background: var(--cds-ui-02);
 	}
 

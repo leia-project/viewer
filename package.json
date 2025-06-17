@@ -36,6 +36,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@carbon/charts-svelte": "^1.22.18",
 		"@fontsource/fira-mono": "^5.2.5",
 		"@fontsource/open-sans": "^5.2.5",
 		"@lukeed/uuid": "^2.0.1",
@@ -47,6 +48,7 @@
 		"cookie": "^0.7.0",
 		"d3-delaunay": "^6.0.4",
 		"dotenv": "^16.4.5",
+		"echarts": "^5.6.0",
 		"fuzzysort": "^3.0.2",
 		"jsonwebtoken": "^9.0.2",
 		"sass": "^1.86.0",
