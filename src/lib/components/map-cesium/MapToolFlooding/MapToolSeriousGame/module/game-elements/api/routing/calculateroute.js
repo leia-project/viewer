@@ -3,7 +3,7 @@ import {  pointToLineDistance as turfPointToLineDistance,
           lineSlice as turfLineSlice, 
           length as turfLength } from '@turf/turf'
 import { findFeature } from './findfeature.js';
-import { getNetwork, getEdgeIndex } from './graph.js';
+import { getNetwork, getEdgeIndex, getNetworkPGRest } from './graph.js';
 
 function getStartEndFeature(edges, source, target) {
   for (let i = edges.features.length - 1; i >= 0 && i > edges.features.length - 5; i--) {
@@ -223,7 +223,7 @@ function addVirtualNodes(network, startFeature, startPoint, endFeature, endPoint
 export async function calculateRoute(networkArea, mode, startPoint, endPoint, disabledEdges, maxDistance = 50, modeCosts = null) {
   let message = '';
   try {
-    const network = await getNetwork(networkArea, mode);
+    const network = await getNetworkPGRest(networkArea, mode);
     if (network) {
       const availableEdges = network.edges.features.filter(feature => !disabledEdges.includes(feature.properties.fid.toString()));
       const geojsonEdges = {

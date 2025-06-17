@@ -4,6 +4,7 @@ import type { Map } from "$lib/components/map-cesium/module/map";
 import { NotificationLog } from "./notification-log";
 import { CameraLocation } from "$lib/components/map-core/camera-location";
 import { EvacuationController } from "./game-elements/evacuation-controller";
+import type { IGameConfig } from "./models";
 
 
 interface IGameStats {
@@ -62,7 +63,7 @@ export class Game {
 
 	public stats: IGameStats;
 
-	constructor(map: Map, breach: Breach, scenario: string, outline: Array<[lon: number, lat: number]>) {
+	constructor(map: Map, gameConfig: IGameConfig) {
 		this.map = map;
 		this.notificationLog = new NotificationLog();
 		this.stats = {
@@ -72,11 +73,10 @@ export class Game {
 		const floodTool = map.toolSettings.find((tool: { id: string, settings: any}) => tool.id === "flooding");
 		this.floodLayerController = new FloodLayerController(map, floodTool.settings, writable(undefined), writable(undefined));
 		this.elapsedTimeDynamic = this.floodLayerController.time;
-		this.floodLayerController.loadNewScenario(breach, scenario).then(() => {
+		this.floodLayerController.loadNewScenario(gameConfig.breach, gameConfig.scenario).then(() => {
 			this.load();
 		});
-		const scenarioName = `${breach.properties.dijkring}_${breach.properties.name}_${scenario}`;
-		this.evacuationController = new EvacuationController(this, map, [scenarioName], outline);
+		this.evacuationController = new EvacuationController(this, map, gameConfig);
 		this.step.subscribe((value) => {
 			this.elapsedTime.set(steps[value].time);
 		});

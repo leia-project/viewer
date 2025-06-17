@@ -1,4 +1,6 @@
 import { length as turfLength } from '@turf/turf'
+import { graphObjectToArrays } from './graphtoarray';
+import { PGRestAPI } from '../pg-rest-api';
 
 const dataPath = './data';
 
@@ -57,6 +59,36 @@ export async function getNetwork(networkArea, networkType) {
   }
   return networks[networkArea + networkType];
 }
+
+export async function getNetworkPGRest(networkArea, networkType, polgyon) {
+  const pgRestAPI = new PGRestAPI();
+  if (networks[networkArea + networkType] === undefined) {
+    networks[networkArea + networkType] = {};
+    const basePath = `${dataPath}/${networkArea}/${networkType}`;
+
+    const edges = await pgRestAPI.getRoadNetworkEdges(polgyon);
+    const graph = await pgRestAPI.getRoadNetworkGraph(polgyon);
+    networks[networkArea + networkType].edges = edges;
+    networks[networkArea + networkType].graph = graphObjectToArrays(graph);
+
+    
+    for (const edge of networks[networkArea + networkType].edges.features) {
+      if (edge.geometry.type === "MultiLineString") {
+        // convert MultiLineStrings to LineStrings when possible
+        if (edge.geometry.coordinates.length > 1) {
+            console.log(`edge ${edge.properties.id} is a multiline string`);
+        } else {
+          edge.geometry.type = 'LineString';
+          edge.geometry.coordinates = edge.geometry.coordinates[0];
+        }
+      }
+      edge.properties.length = turfLength(edge, {units: 'meters'});
+    }
+    networks[networkArea + networkType].loaded = true;
+  }
+  return networks[networkArea + networkType];
+}
+
 
 
 function getEdgeById(network, id, idField) {

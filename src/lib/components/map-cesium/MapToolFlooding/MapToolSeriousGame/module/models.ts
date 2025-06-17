@@ -11,6 +11,7 @@ export interface IGameConfig {
     breach: Breach;
     scenario: string;
     outline: Array<[lon: number, lat: number]>;
+    outlineRoadNetwork: Array<[lon: number, lat: number]>;
 }
 
 export interface IRole {

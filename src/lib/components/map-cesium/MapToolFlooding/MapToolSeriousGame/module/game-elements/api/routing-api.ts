@@ -35,17 +35,16 @@ export class RoutingAPI extends PGRestAPI {
 
 	constructor() {
 		super();
-		//fetch("/network"); // Create grapj2.json
 	}
 
 	public async getRoute(startPoint: [lon: number, lat: number], endPoint: [lon: number, lat: number]): Promise<{ type: string, features: Array<RouteFeature> }> {
 		const maxDistance = 15000; // meters
-		const route = await calculateRoute("zeeland_2", "car", startPoint, endPoint, [...this.floodedSegments, ...this.overloadedSegments], maxDistance);
+		const route = await calculateRoute("zeeland_datacore", "car", startPoint, endPoint, [...this.floodedSegments, ...this.overloadedSegments], maxDistance);
 		return route;
 	}
 
 	public removeSegments(segments: Array<string>): void {
-		disableGraphEdges("zeeland_2", "car", segments, "fid");
+		disableGraphEdges("zeeland_datacore", "car", segments, "fid");
 		for (const segment of segments) {
 			if (!this.overloadedSegments.includes(segment)) {
 				this.overloadedSegments.push(segment);
@@ -54,7 +53,7 @@ export class RoutingAPI extends PGRestAPI {
 	}
 
 	public resetGraph(): void {
-		resetGraphToDefault("zeeland_2", "car");
+		resetGraphToDefault("zeeland_datacore", "car");
 	}
 
 	public async createGraph(geojson: string): Promise<void> {

@@ -39,7 +39,7 @@ export class GameController {
 	}
 
 	public loadGame(gameConfig: IGameConfig): void {
-		const game = new Game(this.map, gameConfig.breach, gameConfig.scenario, gameConfig.outline);
+		const game = new Game(this.map, gameConfig);
 		this.active.set(game);
 	}
 

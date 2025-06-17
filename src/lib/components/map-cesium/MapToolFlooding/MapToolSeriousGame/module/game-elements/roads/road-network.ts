@@ -8,6 +8,7 @@ import NodeHoverBox from "../../../components/infobox/NodeHoverBox.svelte";
 import type { Hexagon } from "../hexagons/hexagon";
 import { RoadNetworkLayer, RouteSegment } from "./route-segments";
 import { PGRestAPI } from "../api/pg-rest-api";
+import { getNetworkPGRest } from "../api/routing/graph";
 
 
 
@@ -65,10 +66,9 @@ export class RoadNetwork {
 	}
 
 	private async loadRoadNetwork(): Promise<void> {
-		const res = await fetch("/data/zeeland_2/car/edges.geojson");
-		const geojson = await res.json();
+		const network = await getNetworkPGRest("zeeland_datacore", "car", this.outline); //await fetch("/data/zeeland_2/car/edges.geojson");
 		const outline =  turf.polygon([this.outline.map((coord) => [coord[0], coord[1]])]);
-		const filteredFeatures = geojson.features.filter((feature: RouteFeature) => {
+		const filteredFeatures = network.edges.features.filter((feature: RouteFeature) => {
 			//@ts-ignore
 			if (feature.geometry.type === "MultiLineString") {
 				feature.geometry.type = "LineString";
@@ -80,7 +80,7 @@ export class RoadNetwork {
 				return turf.booleanPointInPolygon(pt, outline) && feature.properties.fid !== undefined;
 			});
 		});
-		geojson.features/* .slice(0, 5000) */.forEach((feature: RouteFeature) => {
+		network.edges.features/* .slice(0, 5000) */.forEach((feature: RouteFeature) => {
 			this.roadNetworkLayer.add(feature);
 		});
 	}

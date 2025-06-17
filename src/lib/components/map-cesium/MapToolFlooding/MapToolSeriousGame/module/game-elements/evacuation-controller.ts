@@ -6,6 +6,7 @@ import { RoadNetwork } from "./roads/road-network";
 import { Map as CesiumMap } from "$lib/components/map-cesium/module/map";
 import { Evacuation } from "./evacuation";
 import type { Game } from "../game";
+import type { IGameConfig } from "../models";
 
 
 export class EvacuationController {
@@ -17,11 +18,12 @@ export class EvacuationController {
 	public hexagonLayer: HexagonLayer;
 	public evacuations: Readable<Array<Evacuation>>;
 	
-	constructor(game: Game, map: CesiumMap, scenarios: Array<string>, outline: Array<[lon: number, lat: number]>) {
+	constructor(game: Game, map: CesiumMap, gameConfig: IGameConfig) {
 		this.game = game;
 		this.map = map;
 		this.elapsedTime = game.elapsedTime;
-		this.hexagonLayer = new HexagonLayer(map, this.elapsedTime, scenarios, outline, this);
+		const scenarioName = `${gameConfig.breach.properties.dijkring}_${gameConfig.breach.properties.name}_${gameConfig.scenario}`;
+		this.hexagonLayer = new HexagonLayer(map, this.elapsedTime, [scenarioName], gameConfig.outline, this);
 		this.evacuations = derived(
 			this.hexagonLayer.hexagons.map((h) => h.evacuations),
 			($evacuations, set) => {
@@ -29,7 +31,7 @@ export class EvacuationController {
 				set(allEvacuations);
 			}
 		);
-		this.roadNetwork = new RoadNetwork(map, this.elapsedTime, outline);
+		this.roadNetwork = new RoadNetwork(map, this.elapsedTime, gameConfig.outlineRoadNetwork);
 		this.addMouseEvents();
 	}
 
