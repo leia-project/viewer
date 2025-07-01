@@ -50,7 +50,7 @@
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
 
 	let hasDrawnPolygon: boolean = false;
-	let distributions: Array<number> = [5];
+	let distributions: Array<{ group: string; value: number }[]>;
 
 	$: shown = Math.floor(width / 70);
 
@@ -62,6 +62,9 @@
 		{ group: "D", value: 10 },
 		{ group: "E", value: 5 }
 	];
+
+
+	
 
 	let mockOptions = {
 		showTable: false,
@@ -80,11 +83,11 @@
 		},
 		color: {
 			scale: {
-				A: "#28a745", // Green
-				B: "#85c240", // Light Green
-				C: "#f0ad4e", // Yellow
-				D: "#d9534f", // Orange
-				E: "#dc3545"  // Red
+				A: "#339966", // Green
+				B: "#99ffcc", // Light Green
+				C: "#ffff99", // Yellow
+				D: "#ffcc66", // Orange
+				E: "#9c4110"  // Red
 			}
 		}
 	};
@@ -433,7 +436,9 @@
 					{$_("tools.stories.statistics")}
 				</div>
 				<div class="step-stats">
-					<DonutChart data={mockData} options={mockOptions} style="justify-content:center" />
+					{#if distributions[index]}
+						<DonutChart data={distributions[index]} options={mockOptions} style="justify-content:center" />
+					{/if}
 				</div>
 			</div>
 		{/each}

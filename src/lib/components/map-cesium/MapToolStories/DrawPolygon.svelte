@@ -9,7 +9,7 @@
     export let hasDrawnPolygon: boolean = false;
     export let map: Map;
     export let story: Story;
-    export let distributions: Array<any>;
+    export let distributions: Array<{ group: string; value: number }[]> = [];
 
     let handler: Cesium.ScreenSpaceEventHandler;
     let activeShapePoints: Cesium.Cartesian3[] = [];
@@ -19,7 +19,18 @@
     let redPoints: Cesium.Entity[] = [];
     let selectedAction: 'draw' | 'delete' | undefined = undefined;
     let geojson: any;
+    
+    function transformDistribution(distribution: Record<string, number>): { group: string; value: number }[] {
+		const result: { group: string; value: number }[] = [];
 
+		for (let i = 1; i <= 5; i++) {
+			const letter = String.fromCharCode(64 + i); // 65 = 'A'
+			const value = distribution[i.toString()] ?? 0;
+			result.push({ group: letter, value });
+		}
+
+		return result;
+	}
 
     function drawShape(positionData: Cesium.Cartesian3[]) {
         return map.viewer.entities.add({
@@ -134,10 +145,10 @@
         
         for (let i = 0; i < storyLayers.length; i++) {
             sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson)
-            .then(kaas => {
-                distributions.push(kaas);
-                console.log("This is the response:", kaas);
-
+            .then(apiResponse => {
+                const transformed = transformDistribution(apiResponse.distribution);
+                distributions.push(transformed);
+                console.log("Transformed distribution:", transformed);
             })
             .catch(error => 
                 console.error("Error: ", error)
@@ -187,7 +198,7 @@
                 body: JSON.stringify({
                     rasterUrl: url,
                     featureName: featureName,
-                    geom: geom,  // match the backend expected structure here
+                    geom: geom,  
                 }),
             });
 
