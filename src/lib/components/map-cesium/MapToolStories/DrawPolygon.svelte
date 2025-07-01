@@ -129,7 +129,7 @@
         for (let i = 0; i < storyLayers.length; i++) {
             sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson)
             .then(kaas => {
-                distributions[i] = kaas;
+                distributions.push(kaas);
                 console.log("This is the response:", kaas);
 
             })
