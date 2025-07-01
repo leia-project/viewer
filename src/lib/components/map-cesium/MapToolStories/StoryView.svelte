@@ -50,6 +50,7 @@
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
 
 	let hasDrawnPolygon: boolean = false;
+	let polygonArea: number = 0;
 	let distributions: Array<{ group: string; value: number }[]>;
 
 	$: shown = Math.floor(width / 70);
@@ -66,13 +67,18 @@
 
 	
 
-	let mockOptions = {
+	$: mockOptions = {
 		showTable: false,
 		resizable: true,
 		height: "400px",
 		width: "400px",
 		donut: {
-			alignment: "center"
+			alignment: "center",
+			center: {
+				label: "km2",
+				number: polygonArea / 1000000.0, // Convert from m2 to km2
+				numberFormatter: (num: number) => num.toFixed(2)
+			}
 		},
 		legend: {
 			alignment: 'center',
@@ -347,7 +353,7 @@
 
 <div class="story" bind:clientWidth={width}>
 	{#if !hasDrawnPolygon}
-		<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} {map} {story} bind:distributions={distributions}/>
+		<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea}/>
 	{:else}
 	<div
 		class="nav"

@@ -5,11 +5,13 @@
 	import { Map } from "../module/map";
 	import type { Story } from "./Story";
 	import { StoryLayer } from "./StoryLayer";
+    import area from '@turf/area';
 
     export let hasDrawnPolygon: boolean = false;
     export let map: Map;
     export let story: Story;
     export let distributions: Array<{ group: string; value: number }[]> = [];
+    export let polygonArea: number;
 
     let handler: Cesium.ScreenSpaceEventHandler;
     let activeShapePoints: Cesium.Cartesian3[] = [];
@@ -156,7 +158,7 @@
             
         }
         selectedAction = undefined;
-
+        polygonArea = area(geojson)
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     };
     
