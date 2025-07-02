@@ -9,6 +9,7 @@ import type { Hexagon } from "../hexagons/hexagon";
 import { RoadNetworkLayer, RouteSegment } from "./route-segments";
 import { PGRestAPI } from "../api/pg-rest-api";
 import { getNetworkPGRest } from "../api/routing/graph";
+import { CapacityMeasure, HeightMeasure, Measure, type IMeasureConfig } from "./measure";
 
 
 
@@ -21,6 +22,7 @@ export class RoadNetwork {
 
 	private outline: Array<[lon: number, lat: number]>;
 	private roadNetworkLayer: RoadNetworkLayer;
+	public measures: Array<Measure> = [];
 
 	private pgRestAPI = new PGRestAPI();
 	private elapsedTime: Writable<number>;
@@ -56,13 +58,21 @@ export class RoadNetwork {
 
 	private init(): void {
 		this.loadRoadNetwork();
+		this.loadMeasures();
 		this.elapsedTime.subscribe((time: number) => this.cleanSetRoutingGraph(time));
 	}
 
 	private async cleanSetRoutingGraph(time: number): Promise<void> {
-		const floodedSegments = await this.pgRestAPI.getFloodedRoadSegments(time);
+		const floodedSegments: Array<[string, number]> = await this.pgRestAPI.getFloodedRoadSegments(time);
+		const floodedSegmentsWithMeasures = floodedSegments.filter(([id, floodHeight]) => {
+			const segment = this.roadNetworkLayer.getItemById(id);
+			if (segment) {
+				floodHeight -= segment?.raisedBy;
+			}
+			return segment && floodHeight > 0;
+		}).map(([id, floodHeight]) => id);
 		const overloadedSegments = this.roadNetworkLayer.segments.filter((segment) => segment.overloaded(time)).map((segment) => segment.id);
-		this.routingAPI.onTimeUpdate(floodedSegments, overloadedSegments);
+		this.routingAPI.onTimeUpdate(floodedSegmentsWithMeasures, overloadedSegments);
 	}
 
 	private async loadRoadNetwork(): Promise<void> {
@@ -83,6 +93,18 @@ export class RoadNetwork {
 		network.edges.features/* .slice(0, 5000) */.forEach((feature: RouteFeature) => {
 			this.roadNetworkLayer.add(feature);
 		});
+	}
+
+	private loadMeasures(): void {
+		const measureConfig: Array<IMeasureConfig> = [];
+		const measures = measureConfig.map((c) => {
+			if (c.type === "capacity") {
+				return new CapacityMeasure(c, this.map);
+			} else if (c.type === "height") {
+				return new HeightMeasure(c, this.map);
+			} 
+		});
+		this.measures = measures.filter((m) => m !== undefined) as Array<Measure>;
 	}
 
 	public async evacuateHexagon(hexagon: Hexagon): Promise<Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, numberOfPersons: number }> | undefined> {

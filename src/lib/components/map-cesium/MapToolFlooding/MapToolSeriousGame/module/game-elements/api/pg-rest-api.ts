@@ -3,8 +3,8 @@ import { writable, type Writable } from "svelte/store";
 
 
 const PGREST_URL = "https://datacore.beta.geodan.nl/pgrest/";
-const PGREST_CLIENT_ID = "dream";
-const PGREST_CLIENT_SECRET = "3cef84c1-75c6-41d5-a31a-4443024a311c";
+const PGREST_CLIENT_ID = "";
+const PGREST_CLIENT_SECRET = "";
 const PGREST_CONNECTION = "default";
 
 
@@ -196,11 +196,11 @@ export class PGRestAPI {
 		return queryResult.data[0].network;
 	}
 	
-	public async getFloodedRoadSegments(time: number): Promise<Array<string>> {
+	public async getFloodedRoadSegments(time: number): Promise<Array<[string, number]>> {
 		return [];
 		// use outline, scenario and time step
 		let query = `
-			SELECT fid FROM datacore.zeeland_roads a
+			SELECT fid, flood_height FROM datacore.zeeland_roads a
 				LEFT JOIN datacore.flood_h3 b ON ST_Intersects(
 					a.geom,
 					b.geom

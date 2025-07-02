@@ -2,7 +2,6 @@ import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import gsap  from "gsap";
 import type { Map as CesiumMap } from "$lib/components/map-cesium/module/map";
-import { RoutingNode, type IEdgeFeature, type IMeasure } from "./extraction-points";
 import type { RouteFeature } from "../api/routing-api";
 import { CylinderGeometry } from "./cylinder-geometry";
 
@@ -122,19 +121,57 @@ export class RoadNetworkLayer {
 }
 
 
+export interface IEdgeFeature {
+	type: "Feature";
+	geometry: {
+		type: "LineString";
+		coordinates: Array<[lon: number, lat: number]>;
+	};
+	properties: {
+		fid: string;
+		maximum_snelheid: number;
+		capaciteit: number;
+		cost: number;
+		source: string | number;
+		target: string | number;
+	};
+}
+
+
+abstract class RoutingNode<F = any> {
+
+	public id: string;
+	public lon: number;
+	public lat: number;
+	public feature: F;
+	public position: Cesium.Cartesian3;
+	public entity: Cesium.Entity;
+
+	constructor(id: string, lon: number, lat: number, feature?: F) {
+		this.id = id;
+		this.lon = lon;
+		this.lat = lat;
+		this.feature = feature || {} as F;
+		this.position = Cesium.Cartesian3.fromDegrees(lon, lat);
+		this.entity = this.createEntity();
+	}
+
+	protected abstract createEntity(): Cesium.Entity;
+}
 
 export class RouteSegment extends RoutingNode<IEdgeFeature> {
 
-	public measures: Array<IMeasure> = [];
 	public capacity: number; // Extraction capacity per time step
 	private elapsedTime: Writable<number>;
 	public loadPerTimeStep: Map<number, number> = new Map(); // Load per time step
 	public isOverloaded: Writable<boolean> = writable(false);
 
 	private map: CesiumMap;
-	private lineEntity: RouteSegmentLine;
+	public lineEntity: RouteSegmentLine;
 	public extractionPoint: ExtractionPoint | undefined;
 	private displayedLoad: number = 0;
+
+	public raisedBy: number = 0;
 
 	constructor(feature: IEdgeFeature, elapsedTime: Writable<number>, dataSource: Cesium.CustomDataSource, map: CesiumMap, isExtractionPoint: boolean) {
 		const lon = feature.geometry.coordinates[0][0];
@@ -200,16 +237,17 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 		});
 	}
 
-	// Add/remove measures
-	/*
 	public updateCapacity(newCapacity: number): void {
 		gsap.to(this, {
 			capacity: newCapacity,
 			duration: 0.7,
-			onUpdate: () => this.updateAttributes()
+			onUpdate: () => {
+				this.extractionPoint?.updateAttributes(this.displayedLoad, this.capacity);
+				this.lineEntity.update(this.displayedLoad, this.capacity);
+				this.map.refresh();
+			}
 		});
 	}
-	*/
 }
 
 
@@ -219,7 +257,7 @@ class RouteSegmentLine {
 	private routeSegmentID: string;
 	private positions: Array<[lon: number, lat: number]>;
 	private dataSource: Cesium.CustomDataSource;
-	private entity: Cesium.Entity;
+	public entity: Cesium.Entity;
 
 	constructor(routeSegmentID: string, positions: Array<[lon: number, lat: number]>, dataSource: Cesium.CustomDataSource) {
 		this.routeSegmentID = routeSegmentID;
