@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
+	import * as Cesium from "cesium";
 	import { onMount, getContext, onDestroy, createEventDispatcher } from "svelte";
 	import { writable, get } from "svelte/store";
-	import { Button, PaginationNav, Tag } from "carbon-components-svelte";
+	import { Button, PaginationNav, Tag, Loading } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
 	import "@carbon/charts-svelte/styles.css";
 
@@ -19,6 +20,7 @@
 	import { DonutChart } from "@carbon/charts-svelte";
 	import CustomPaginationNav from "./CustomPaginationNav.svelte";
 	import DrawPolygon from "./DrawPolygon.svelte";
+	import { getCameraPositionFromBoundingSphere } from "../module/utils/layer-utils";
 
 	export let map: Map;
 	export let story: Story;
@@ -26,6 +28,9 @@
 	export let textBack: string;
 	export let textStepBack: string;
 	export let textStepForward: string;
+	export let drawnPolygon: Cesium.Entity | undefined = undefined;
+
+	//TODO: move draw polygon stuff here so the component remembers the polygon when the story is closed
 
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
 	const dispatch = createEventDispatcher();
@@ -51,9 +56,28 @@
 
 	let hasDrawnPolygon: boolean = false;
 	let polygonArea: number = 0;
+	let polygonCameraLocation: CameraLocation | undefined = undefined; // Used instead of CL if project area is drawn by user
 	let distributions: Array<{ group: string; value: number }[]>;
 
 	$: shown = Math.floor(width / 70);
+
+	$: {
+		if (drawnPolygon !== undefined) {
+			const use3DMode = get(map.options.use3DMode);
+			const vertices: Array<number> = [];
+			const positions = drawnPolygon.polyline?.positions?.getValue(map.viewer.clock.currentTime);
+				for (let j = 0; j < positions.length; j++) {
+					vertices.push(positions[j].x);
+					vertices.push(positions[j].y);
+					vertices.push(positions[j].z);
+				}
+			if (vertices.length !== 0) {
+				const boundingSphere = Cesium.BoundingSphere.fromVertices(vertices, Cesium.Cartesian3.ZERO, 3);
+				polygonCameraLocation = getCameraPositionFromBoundingSphere(boundingSphere, use3DMode);
+				cesiumMap.flyTo(polygonCameraLocation);
+			}
+		}
+	}
 
 
 	let mockData = [
@@ -64,21 +88,13 @@
 		{ group: "E", value: 5 }
 	];
 
-
-	
-
-	$: mockOptions = {
+	let options = {
 		showTable: false,
 		resizable: true,
 		height: "400px",
 		width: "400px",
 		donut: {
-			alignment: "center",
-			center: {
-				label: "km2",
-				number: polygonArea / 1000000.0, // Convert from m2 to km2
-				numberFormatter: (num: number) => num.toFixed(2)
-			}
+			alignment: "center"
 		},
 		legend: {
 			alignment: 'center',
@@ -89,11 +105,11 @@
 		},
 		color: {
 			scale: {
-				A: "#339966", // Green
-				B: "#99ffcc", // Light Green
-				C: "#ffff99", // Yellow
-				D: "#ffcc66", // Orange
-				E: "#9c4110"  // Red
+				A: "#28a745", // Green
+				B: "#85c240", // Light Green
+				C: "#f0ad4e", // Yellow
+				D: "#d9534f", // Orange
+				E: "#dc3545"  // Red
 			}
 		}
 	};
@@ -172,26 +188,26 @@
 		}
 
 		if (activeStep) {
-			cesiumMap.flyTo(activeStep.cameraLocation);
-				if (activeStep.layers) {
-					hideInactiveLayers(activeStep.layers);
-					for (let i = 0; i < activeStep.layers?.length; i++) {
-						const layerId = activeStep.layers[i].id.toString();
-						const added = getAdded(layerId);
+			cesiumMap.flyTo(polygonCameraLocation ?? activeStep.cameraLocation);
+			if (activeStep.layers) {
+				hideInactiveLayers(activeStep.layers);
+				for (let i = 0; i < activeStep.layers?.length; i++) {
+					const layerId = activeStep.layers[i].id.toString();
+					const added = getAdded(layerId);
 
-						if (added) {
-							added.visible.set(true);
-							continue
-						}
+					if (added) {
+						added.visible.set(true);
+						continue
+					}
 
-						const libraryLayer = getLibraryLayer(layerId);
-						if (libraryLayer) {
-							const layerConfig = storyLayerToLayerConfig(activeStep.layers[i], libraryLayer);
-							const layer = map.addLayer(layerConfig);
-							storyLayers.push(layer);
-						}
+					const libraryLayer = getLibraryLayer(layerId);
+					if (libraryLayer) {
+						const layerConfig = storyLayerToLayerConfig(activeStep.layers[i], libraryLayer);
+						const layer = map.addLayer(layerConfig);
+						storyLayers.push(layer);
 					}
 				}
+			}
 
 			if (activeStep.globeOpacity) {
 				map.options.globeOpacity.set(activeStep.globeOpacity);
@@ -353,103 +369,105 @@
 
 <div class="story" bind:clientWidth={width}>
 	{#if !hasDrawnPolygon}
-		<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea}/>
+		<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} {map} {story} bind:distributions={distributions} bind:polygonEntity={drawnPolygon} bind:polygonArea={polygonArea}/>
 	{:else}
-	<div
-		class="nav"
-		style="width:{width}px"
-		bind:clientHeight={navHeight}
-		on:scroll={(e) => {
-			e.preventDefault();
-			e.stopPropagation();
-		}}
-	>
-		<div class="close">
-			<Button
-				iconDescription={textBack}
-				tooltipPosition="left"
-				icon={Exit}
-				on:click={backToOverview} 
-			/>
-		</div>
-		<div class="heading-01">
-			{story.name}
-		</div>
-		<!-- <div class="story-description body-compact-01">
-			{story.description}
-		</div> -->
-
-		<div class="chapter-buttons">
-			{#each story.storyChapters as chapter, index}
+		<div
+			class="nav"
+			style="width:{width}px"
+			bind:clientHeight={navHeight}
+			on:scroll={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+			}}
+		>
+			<div class="close">
 				<Button
-					kind={activeChapter === chapter ? "primary" : "ghost"}
-					size="small"
-					style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
-					on:click={() => {
-						const firstStepIndex = flattenedSteps.findIndex(({ chapter: c }) => c === chapter);
-						if (firstStepIndex !== -1) {
-							lastInputType = "click";
-							currentPage.set(firstStepIndex + 1);
-						}
-					}}
-				>
-				{chapter.buttonText}
-				</Button>
-			{/each}
-		</div>
-		<hr style="width: 100%;"/>
-		<div>
-			<CustomPaginationNav
-				bind:page={$currentPage}
-				bind:lastInputType ={lastInputType}
-				{flattenedSteps}
-			/>
-
-			<!-- <PaginationNav
-				forwardText={textStepForward}
-				backwardText={textStepBack}
-				bind:page={$currentPage}
-				total={flattenedSteps.length}
-				{shown}
-				loop
-				onmousedown={() => {
-					lastInputType = "click";
-				}}
-			/> -->
-		</div>
-	</div>
-
-	<div class="content" bind:this={content}>
-		<div style="height:{navHeight}px" />
-		{#each flattenedSteps as { step, chapter }, index}
-			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
-				<div class="step-heading heading-03">
-					{chapter.title} | {step.title}
-				</div>
-				<div class="step-heading-sub heading-03">
-					{$_("tools.stories.description")}
-				</div>
-				{@html step.html}
-				{#each step.layers ?? [] as layer}
-					Layer {layer.id}: {layer.featureName}
-				{/each}
-
-				<div class="tag">
-					<Tag>{chapter.title}</Tag>
-					<Tag>{index + 1}</Tag>
-				</div>
-				<div class="step-heading-sub heading-03">
-					{$_("tools.stories.statistics")}
-				</div>
-				<div class="step-stats">
-					{#if distributions[index]}
-						<DonutChart data={distributions[index]} options={mockOptions} style="justify-content:center" />
-					{/if}
-				</div>
+					iconDescription={textBack}
+					tooltipPosition="left"
+					icon={Exit}
+					on:click={backToOverview} 
+				/>
 			</div>
-		{/each}
-		<!-- <div style="height:{height}px" /> -->
-	</div>
+			<div class="heading-01">
+				{story.name}
+			</div>
+			<!-- <div class="story-description body-compact-01">
+				{story.description}
+			</div> -->
+
+			<div class="chapter-buttons">
+				{#each story.storyChapters as chapter, index}
+					<Button
+						kind={activeChapter === chapter ? "primary" : "ghost"}
+						size="small"
+						style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
+						on:click={() => {
+							const firstStepIndex = flattenedSteps.findIndex(({ chapter: c }) => c === chapter);
+							if (firstStepIndex !== -1) {
+								lastInputType = "click";
+								currentPage.set(firstStepIndex + 1);
+							}
+						}}
+					>
+					{chapter.buttonText}
+					</Button>
+				{/each}
+			</div>
+			<hr style="width: 100%;"/>
+			<div>
+				<CustomPaginationNav
+					bind:page={$currentPage}
+					bind:lastInputType ={lastInputType}
+					{flattenedSteps}
+				/>
+
+				<!-- <PaginationNav
+					forwardText={textStepForward}
+					backwardText={textStepBack}
+					bind:page={$currentPage}
+					total={flattenedSteps.length}
+					{shown}
+					loop
+					onmousedown={() => {
+						lastInputType = "click";
+					}}
+				/> -->
+			</div>
+		</div>
+
+		<div class="content" bind:this={content}>
+			<div style="height:{navHeight}px" />
+			{#each flattenedSteps as { step, chapter }, index}
+				<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
+					<div class="step-heading heading-03">
+						{chapter.title} | {step.title}
+					</div>
+					<div class="step-heading-sub heading-03">
+						{$_("tools.stories.description")}
+					</div>
+					{@html step.html}
+					{#each step.layers ?? [] as layer}
+						Layer {layer.id}: {layer.featureName}
+					{/each}
+
+					<div class="tag">
+						<Tag>{chapter.title}</Tag>
+						<Tag>{index + 1}</Tag>
+					</div>
+					<div class="step-heading-sub heading-03">
+						{$_("tools.stories.statistics")}
+					</div>
+					<div class="step-stats">
+						{#if distributions[index]}
+							<DonutChart data={distributions[index]} {options} style="justify-content:center" />
+						{:else}
+							<Loading withOverlay={false} />
+						{/if}
+					</div>
+				</div>
+			{/each}
+			<!-- <div style="height:{height}px" /> -->
+		</div>
 	{/if}
 </div>
 

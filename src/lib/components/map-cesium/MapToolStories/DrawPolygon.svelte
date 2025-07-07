@@ -1,5 +1,6 @@
 <script lang="ts">
     import * as Cesium from "cesium";
+	import { onMount, getContext, onDestroy, createEventDispatcher } from "svelte";
     import { polygonPositions } from "./PolygonStore";
 	import { Button } from "carbon-components-svelte";
 	import { Map } from "../module/map";
@@ -12,15 +13,36 @@
     export let story: Story;
     export let distributions: Array<{ group: string; value: number }[]> = [];
     export let polygonArea: number;
+    export let polygonEntity: Cesium.Entity | undefined;
 
     let handler: Cesium.ScreenSpaceEventHandler;
     let activeShapePoints: Cesium.Cartesian3[] = [];
     let activeShape: Cesium.Entity | undefined;
     let floatingPoint: Cesium.Entity | undefined;
-    let polygonEntity: Cesium.Entity | undefined;
     let redPoints: Cesium.Entity[] = [];
     let selectedAction: 'draw' | 'delete' | undefined = undefined;
     let geojson: any;
+    let savedPolygonEntity: Cesium.Entity | undefined;
+
+    //TODO: This polygon is not remembered. Should be saved in storyview. See comment there
+    onMount(() => {
+        console.log("DrawPolygon component mounted");
+
+        if (polygonEntity) {
+            map.viewer.entities.remove(polygonEntity);
+        }
+        if (savedPolygonEntity) {
+            polygonEntity = savedPolygonEntity;
+            map.viewer.entities.add(polygonEntity);
+            debugger;
+        }
+	});
+
+    //Note: component also destroys when polygon is drawn
+    onDestroy(() => {
+        console.log("DrawPolygon component destroyed");
+        savedPolygonEntity = polygonEntity;
+    });
     
     function transformDistribution(distribution: Record<string, number>): { group: string; value: number }[] {
 		const result: { group: string; value: number }[] = [];
@@ -48,7 +70,6 @@
 
     function draw() {
         if (hasDrawnPolygon) {
-            console.log("Already drawn a polygon, first delete the old one");
             return;
         }
         selectedAction = "draw";
@@ -92,7 +113,6 @@
         // Handle right click to finish drawing
         handler.setInputAction(() => {
             if (activeShapePoints.length < 4) {
-                console.log("Need to draw at least 3 points (4 total) to form a polygon!");
                 return;
             }
             handler.destroy();
@@ -138,6 +158,10 @@
             activeShapePoints = [];
             activeShape = undefined;
 
+        // Clear the drawing points
+        redPoints.forEach((point) => map.viewer.entities.remove(point));
+        redPoints = [];
+
         polygonPositions.set(activeShapePoints);
         map.viewer.scene.requestRender();
         hasDrawnPolygon = true;
@@ -162,20 +186,29 @@
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     };
     
+    // Note: also resets if the polygon is still being drawn
     function deletePolygon() {
-        if (!hasDrawnPolygon) {
-            console.log("First draw a polygon before you can delete one");
-            return;
+        activeShapePoints = [];
+
+        if (redPoints) {
+            redPoints.forEach((point) => map.viewer.entities.remove(point));
+            redPoints = [];
         }
 
-        if (floatingPoint) map.viewer.entities.remove(floatingPoint);
-        if (activeShape) map.viewer.entities.remove(activeShape);
+        if (floatingPoint) {
+            map.viewer.entities.remove(floatingPoint);
+            floatingPoint = undefined;
+        }
+
+        if (activeShape) {
+            map.viewer.entities.remove(activeShape);
+            activeShape = undefined;
+        }
+
         if (polygonEntity) {
             map.viewer.entities.remove(polygonEntity);
             polygonEntity = undefined;
         }
-        redPoints.forEach((point) => map.viewer.entities.remove(point));
-        redPoints = [];
         polygonPositions.set([]); // Clear stored points
         map.viewer.scene.requestRender();
         hasDrawnPolygon = false;
@@ -260,7 +293,7 @@
             deletePolygon();
         }}
     >
-        Delete polygon
+        Delete Polygon
     </Button>
 </div>
 
