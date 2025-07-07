@@ -12,15 +12,9 @@ export class RoadNetworkLayer {
 	private dataSource: Cesium.CustomDataSource;
 	public segments: Array<RouteSegment> = [];
 	private extractionPointIds: Array<string>;
-	private elapsedTime: Writable<number>;
-
 	private extractionPointPrimitive: Cesium.Primitive | undefined;
+	private elapsedTime: Writable<number>;
 	private timeout: NodeJS.Timeout | undefined;
-
-	//private infobox: InfoBox | undefined;
-	private hovered: Writable<RouteSegment | undefined> = writable(undefined);
-
-	public infoboxTimeOut: NodeJS.Timeout  | undefined;
 
 	constructor(map: CesiumMap, elapsedTime: Writable<number>, extractionPointIds: Array<string>) {
 		this.map = map;
@@ -30,11 +24,12 @@ export class RoadNetworkLayer {
 		this.map.viewer.dataSources.add(this.dataSource);
 	}
 
-	public add(item: RouteFeature): void {
+	public add(item: RouteFeature): RouteSegment {
 		const isExtractionPoint = this.extractionPointIds.includes(item.properties.fid.toString());
 		const routeSegment = new RouteSegment(item, this.elapsedTime, this.dataSource, this.map, isExtractionPoint);
 		this.segments.push(routeSegment);
 		this.updatePrimitive();
+		return routeSegment;
 	}
 
 	public remove(item: RouteSegment): void {
@@ -162,13 +157,14 @@ abstract class RoutingNode<F = any> {
 export class RouteSegment extends RoutingNode<IEdgeFeature> {
 
 	public capacity: number; // Extraction capacity per time step
-	private elapsedTime: Writable<number>;
+	public elapsedTime: Writable<number>;
 	public loadPerTimeStep: Map<number, number> = new Map(); // Load per time step
 	public isOverloaded: Writable<boolean> = writable(false);
 
 	private map: CesiumMap;
 	public lineEntity: RouteSegmentLine;
 	public extractionPoint: ExtractionPoint | undefined;
+	private isActiveExtractionPoint: boolean = false;
 	private displayedLoad: number = 0;
 
 	public raisedBy: number = 0;
@@ -248,30 +244,41 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 			}
 		});
 	}
+
+	public highlight(b: boolean): void {
+		if (this.isActiveExtractionPoint) b = true;
+		this.lineEntity.highlight(b);
+		this.extractionPoint?.highlight(b);
+	}
+
+	set activeExtractionPoint(active: boolean) {
+		this.isActiveExtractionPoint = active;
+		this.highlight(active);
+	}
 }
 
 
 
-class RouteSegmentLine {
+export class RouteSegmentLine {
 
 	private routeSegmentID: string;
-	private positions: Array<[lon: number, lat: number]>;
+	public positions: Array<Cesium.Cartesian3>;
 	private dataSource: Cesium.CustomDataSource;
 	public entity: Cesium.Entity;
+	private color: Cesium.Color = Cesium.Color.GRAY.withAlpha(0.5);
 
-	constructor(routeSegmentID: string, positions: Array<[lon: number, lat: number]>, dataSource: Cesium.CustomDataSource) {
+	constructor(routeSegmentID: string, cartoPositions: Array<[lon: number, lat: number]>, dataSource: Cesium.CustomDataSource) {
 		this.routeSegmentID = routeSegmentID;
-		this.positions = positions;
+		this.positions = cartoPositions.map((coord) => Cesium.Cartesian3.fromDegrees(coord[0], coord[1]));
 		this.dataSource = dataSource;
 		this.entity = this.createLineEntity();
 	}
 
 	private createLineEntity(): Cesium.Entity {
-		const positions = this.positions.map((coord) => Cesium.Cartesian3.fromDegrees(coord[0], coord[1]));
 		const entity = new Cesium.Entity({
-			id: this.routeSegmentID,
+			id: `segment-${this.routeSegmentID}`,
 			polyline: {
-				positions: positions,
+				positions: this.positions,
 				width: 15,
 				material: Cesium.Color.ORANGE.withAlpha(0.5),
 				clampToGround: true
@@ -283,8 +290,8 @@ class RouteSegmentLine {
 	public update(load: number, capacity: number): void {
 		if (load) {
 			if (!this.dataSource.entities.contains(this.entity)) this.dataSource.entities.add(this.entity);
-			const color = this.getColor(load, capacity);
-			if (this.entity.polyline?.material) this.entity.polyline.material = new Cesium.ColorMaterialProperty(color);
+			this.color = this.getColor(load, capacity);
+			if (this.entity.polyline?.material) this.entity.polyline.material = new Cesium.ColorMaterialProperty(this.color);
 		} else {
 			this.dataSource.entities.removeById(this.routeSegmentID);
 		}
@@ -298,6 +305,14 @@ class RouteSegmentLine {
 			return Cesium.Color.YELLOW.withAlpha(1);
 		} else {
 			return Cesium.Color.RED.withAlpha(1);
+		}
+	}
+
+	public highlight(b: boolean): void {
+		if (b) {
+			this.entity.polyline!.material = new Cesium.ColorMaterialProperty(Cesium.Color.HOTPINK.withAlpha(0.8));
+		} else {
+			this.entity.polyline!.material = new Cesium.ColorMaterialProperty(this.color);
 		}
 	}
 }
@@ -386,6 +401,20 @@ class ExtractionPoint {
 			attributesBottom.offsetTop = [load];
 			attributesTop.offsetBottom = [load];
 			attributesTop.offsetTop = [capacity];
+		}
+	}
+
+	public highlight(b: boolean): void {
+		if (this.parentPrimitive) {
+			const attributesBottom = this.parentPrimitive.getGeometryInstanceAttributes(this.routeSegmentID);
+			const attributesTop = this.parentPrimitive.getGeometryInstanceAttributes(this.routeSegmentID + "-top");
+			if (b) {
+				attributesBottom.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.RED.withAlpha(1), attributesBottom.color);
+				attributesTop.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.GREEN.withAlpha(1), attributesTop.color);
+			} else {
+				attributesBottom.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.RED.withAlpha(0.5), attributesBottom.color);
+				attributesTop.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.GREEN.withAlpha(0.5), attributesTop.color);
+			}
 		}
 	}
 

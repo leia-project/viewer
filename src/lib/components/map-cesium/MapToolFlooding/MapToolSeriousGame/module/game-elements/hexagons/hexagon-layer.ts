@@ -18,6 +18,7 @@ export class HexagonLayer {
 	public use2DMode: Writable<boolean> = writable<boolean>(false);
 	private hexagonEntities: Cesium.CustomDataSource = new Cesium.CustomDataSource();
 	public title: string = "CBS Hexagons";
+	public alpha: Writable<number> = writable(1);
 
 	private material: Cesium.Material = new Cesium.Material({
 		fabric: {
@@ -33,10 +34,9 @@ export class HexagonLayer {
 	private hoveredHexagon: Writable<Hexagon | undefined> = writable();
 	private hexagonHoverBox: HexagonInfoBox | undefined;
 	public hoverBoxTimeOut: NodeJS.Timeout | undefined;
-
 	public selectedHexagon: Writable<Hexagon | undefined> = writable();
-	private hexagonInfoBox: HexagonInfoBox | undefined;
-	public infoBoxTimeOut: NodeJS.Timeout | undefined;
+	private hexagonSelectBox: HexagonInfoBox | undefined;
+	private selectBoxTimeOut: NodeJS.Timeout | undefined;
 
 	constructor(map: Map, elapsedTime: Writable<number>, scenarios: Array<string>, outline: Array<[lon: number, lat: number]>, evacuationController: EvacuationController) {
 		this.map = map;
@@ -45,19 +45,21 @@ export class HexagonLayer {
 		this.selectedHexagon.subscribe((hexagon: Hexagon | undefined) => {
 			// highlight the accompanied evacuation
 			if (hexagon instanceof Hexagon) {
-				this.hexagonInfoBox?.$destroy();
-				this.hexagonInfoBox = new HexagonInfoBox({
+				this.hexagonHoverBox?.$destroy();
+				this.hexagonSelectBox?.$destroy();
+				this.hexagonSelectBox = new HexagonInfoBox({
 					target: map.getContainer(),
 					props: {
 						hexagon,
 						store: this.selectedHexagon,
+						timeout: this.selectBoxTimeOut,
 						map: this.map,
 						type: "selected",
 						evacuationController
 					}
 				});
 			} else {
-				this.infoBoxTimeOut = setTimeout(() => this.hexagonInfoBox?.$destroy(), 400);
+				this.selectBoxTimeOut = setTimeout(() => this.hexagonSelectBox?.$destroy(), 400);
 			}
 		});
 		this.hoveredHexagon.subscribe((hexagon: Hexagon | undefined) => {
@@ -68,6 +70,7 @@ export class HexagonLayer {
 					props: {
 						hexagon,
 						store: this.hoveredHexagon,
+						timeout: this.hoverBoxTimeOut,
 						map: this.map,
 						type: "hover",
 						evacuationController
@@ -80,6 +83,10 @@ export class HexagonLayer {
 		elapsedTime.subscribe((time: number) => this.updateFloodDepths(scenarios, time));
 		this.visible.subscribe((b) => this.toggleHexagons(b));
 		this.use2DMode.subscribe((b) => this.toggle2D3DModeHexagons(b));
+		this.alpha.subscribe((alpha: number) => {
+			this.material.uniforms.custom_alpha = alpha;
+			this.map.refresh();
+		});
 	}
 
 	private async loadHexagons(): Promise<void> {
@@ -108,7 +115,7 @@ export class HexagonLayer {
 		const appearance = new Cesium.MaterialAppearance({
 			material: this.material,
 			flat: true,
-			translucent: false,
+			translucent: true,
 			vertexShaderSource: vertexShader,
 			fragmentShaderSource: fragmentShader,
 			renderState: {
@@ -205,7 +212,7 @@ export class HexagonLayer {
 		} 
 		this.map.refresh();
 	}
-	
+
 	public toggle2D3DModeHexagons(show: boolean): void {
 		if (!get(this.visible)) {
 			return;

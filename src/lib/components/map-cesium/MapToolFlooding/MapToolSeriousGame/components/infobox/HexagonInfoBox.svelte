@@ -10,6 +10,7 @@
 
 	export let hexagon: Hexagon;
 	export let store: Writable<Hexagon | undefined>;
+	export let timeout: NodeJS.Timeout | undefined;
 	export let map: Map;
 	export let type: "hover" | "selected";
 	export let evacuationController: EvacuationController;
@@ -28,8 +29,8 @@
 	});
 
 	let opacity: number = 100;
-	const switchUnsubscriber = store.subscribe((focussed: Hexagon | undefined) => {
-		if (focussed !== hexagon) opacity = 0;
+	const switchUnsubscriber = store.subscribe((focused: Hexagon | undefined) => {
+		if (focused !== hexagon) opacity = 0;
 	});
 
 	let left: number = 0;
@@ -49,20 +50,18 @@
 		else if (display === 'block') display = 'none';
 	}
 
-
 	function onMouseEnter(event: MouseEvent): void {
 		if (get(store) !== hexagon) store.set(hexagon);
-		clearTimeout(evacuationController.hexagonLayer.hoverBoxTimeOut);
+		clearTimeout(timeout);
 		opacity = 100;
 		event.stopPropagation();
 	}
 
-
 </script>
 
 
-
 <!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="infobox" style="
 		left:{left}px; 
 		bottom:{bottom}px; 
@@ -73,7 +72,10 @@
 	"
 	on:mouseenter={(e) => { if (type === "hover") onMouseEnter(e) }}
 	on:mouseleave={() => { if (type === "hover") opacity = 0; }}
-	
+	on:click={() => {
+		const selected = evacuationController.hexagonLayer.selectedHexagon;
+		if (get(selected) !== hexagon) selected.set(hexagon);
+	}}
 >
 	<div class="infobox-content">
 		<div class="icon">
@@ -131,10 +133,5 @@
 		justify-content: center;
 		row-gap: 4px;
 	}
-
-	.title {
-		font-size: 0.75rem;
-	}
-
 
 </style>

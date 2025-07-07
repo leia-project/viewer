@@ -6,7 +6,7 @@ import type { Map } from "$lib/components/map-cesium/module/map";
 
 
 export interface IMeasureConfig {
-	type: "capacity" | "height";
+	type: string; //"capacity" | "height" | "blockage";
 	name: string;
 	description: string;
 	routeSegmentFids: Array<string>;
@@ -21,6 +21,8 @@ export abstract class Measure {
 	private map: Map;
 	public routeSegments: Array<RouteSegment> = [];
 	public applied: Writable<boolean> = writable(false);
+
+	public position: Cesium.Cartesian3 = new Cesium.Cartesian3(0, 0, 0);
 	private billboard: Cesium.Entity;
 	private lines: Cesium.CustomDataSource = new Cesium.CustomDataSource();
 
@@ -51,6 +53,13 @@ export abstract class Measure {
 		}
 	}
 
+	public empty(): void {
+		if (this.routeSegments.length > 0) {
+			this.routeSegments = [];
+			this.updateEntities();
+		}
+	}
+
 	public hasRouteSegment(id: string): boolean {
 		return this.routeSegments.some((segment) => segment.id === id);
 	}
@@ -61,16 +70,18 @@ export abstract class Measure {
 
 	private createBillboard(): Cesium.Entity {
 		const billboard = new Cesium.Entity({
+			id: `measure-${this.config.name}`,
 			name: this.config.name,
-			description: this.config.description,
 			billboard: {
 				image: "https://companieslogo.com/img/orig/SWEC-A.ST.D-85947743.png?t=1720244494",
-				color: Cesium.Color.RED,
-				scale: 0.5,
+				color: Cesium.Color.BLUE,
+				height: 64,
+				width: 64,
 				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
 				verticalOrigin: Cesium.VerticalOrigin.BOTTOM
 			},
-			position: Cesium.Cartesian3.fromDegrees(0, 0)
+			position: this.position,
+			show: false
 		});
 		this.map.viewer.entities.add(billboard);
 		return billboard;
@@ -78,24 +89,55 @@ export abstract class Measure {
 
 	private updateEntities(): void {
 		this.updateBillboardPosition();
+		this.billboard.show = this.routeSegments.length > 0;
 		this.updateLine();
 	}
 
 	private updateBillboardPosition(): void {
 		if (this.routeSegments.length > 0) {
 			const coordinates = this.routeSegments.map((segment) => [segment.lon, segment.lat]);
-			const center = turf.center(turf.lineString(coordinates));
-			const centerC3 = Cesium.Cartesian3.fromDegrees(center.geometry.coordinates[0], center.geometry.coordinates[1]);
-			this.billboard.position = new Cesium.ConstantPositionProperty(centerC3);
+			const center = coordinates.length === 1 
+				? coordinates[0] 
+				: turf.center(turf.lineString(coordinates)).geometry.coordinates;
+			this.position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+			this.billboard.position = new Cesium.ConstantPositionProperty(this.position);
 		}
 	}
 
 	private updateLine(): void {
 		this.lines.entities.removeAll();
-		const lines = this.routeSegments.map((segment) => segment.lineEntity.entity);
-		const copies: Array<Cesium.Entity> = lines.map((line) => Cesium.clone(line, true));
-		copies.forEach((line) => {
-			this.lines.entities.add(line);
+		this.routeSegments.forEach((line) => {
+			const entity = new Cesium.Entity({
+				id: `measure-${line.id}-${this.config.name}}`,
+				name: this.config.name,
+				polyline: {
+					positions: line.lineEntity.positions,
+					width: 15,
+					material: Cesium.Color.BLUE.withAlpha(0.5),
+					clampToGround: true,
+					zIndex: 2,
+				},
+				show: false
+			});
+			this.lines.entities.add(entity);
+		});
+	}
+
+	public isPicked(picked: any): boolean {
+		if (!picked || !this.billboard) return false;
+		if (picked && picked.id === this.billboard.id) {
+			return true;
+		}
+		return this.lines.entities.values.some((line) => line.id === picked?.id);
+	}
+
+	public highlight(b: boolean): void {
+		if (!this.billboard?.billboard) return;
+		this.lines.entities.values.forEach((line) => line.show = b);
+		const color = b ? Cesium.Color.BLUE : Cesium.Color.DARKBLUE;
+		this.billboard.billboard.color = new Cesium.ColorMaterialProperty(color);
+		this.lines.entities.values.forEach((line) => {
+			if (line.polyline) line.polyline.material = new Cesium.ColorMaterialProperty(color.withAlpha(0.8));
 		});
 	}
 }
@@ -130,5 +172,18 @@ export class HeightMeasure extends Measure {
 
 	public removeFrom(routeSegment: RouteSegment): void {
 		routeSegment.raisedBy -= this.config.value;
+	}
+}
+
+export class BlockageMeasure extends Measure {
+
+	constructor(config: IMeasureConfig, map: Map) {
+		super(config, map);
+	}
+
+	public applyTo(routeSegment: RouteSegment): void {
+	}
+
+	public removeFrom(routeSegment: RouteSegment): void {
 	}
 }

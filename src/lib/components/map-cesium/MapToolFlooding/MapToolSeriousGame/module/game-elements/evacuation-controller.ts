@@ -106,6 +106,7 @@ export class EvacuationController {
 	private moveHandle = (m: any): void => {
 		const obj = this.getObjectFromMouseLocation(m);
 		this.hexagonLayer.onMouseMove(obj);
+		this.roadNetwork.onMouseMove(obj);
 		if (!obj) {
 			this.map.viewer.scene.canvas.style.cursor = "default";
 		}

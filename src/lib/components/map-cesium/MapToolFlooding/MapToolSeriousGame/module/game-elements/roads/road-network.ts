@@ -9,27 +9,31 @@ import type { Hexagon } from "../hexagons/hexagon";
 import { RoadNetworkLayer, RouteSegment } from "./route-segments";
 import { PGRestAPI } from "../api/pg-rest-api";
 import { getNetworkPGRest } from "../api/routing/graph";
-import { CapacityMeasure, HeightMeasure, Measure, type IMeasureConfig } from "./measure";
+import { BlockageMeasure, CapacityMeasure, HeightMeasure, Measure, type IMeasureConfig } from "./measure";
 
+import measuresJSON from "./measure-config.json";
 
 
 export class RoadNetwork {
 
 	public map: Map;
 	private routingAPI: RoutingAPI;
+	private outline: Array<[lon: number, lat: number]>;
+
+	private roadNetworkLayer: RoadNetworkLayer;
 	private extractionPointIds: Array<string> = ["42376", "83224", "77776"];
 	public selectedExtractionPoint: Writable<RouteSegment  | undefined> = writable(undefined);
-
-	private outline: Array<[lon: number, lat: number]>;
-	private roadNetworkLayer: RoadNetworkLayer;
 	public measures: Array<Measure> = [];
 
 	private pgRestAPI = new PGRestAPI();
 	private elapsedTime: Writable<number>;
 
-	private hoveredNode: Writable<RouteSegment | undefined> = writable(undefined);
-	private nodeHoverBox: NodeHoverBox | undefined;
-	public sensorHoverBoxTimeOut: NodeJS.Timeout | undefined;
+	private selectedNode: Writable<RouteSegment | Measure | undefined> = writable(undefined);
+	private selectBox: NodeHoverBox | undefined;
+	public selectTimeOut: NodeJS.Timeout | undefined;
+	public hoveredNode: Writable<RouteSegment | Measure | undefined> = writable(undefined);
+	private hoverBox: NodeHoverBox | undefined;
+	public hoverTimeOut: NodeJS.Timeout | undefined;
 
 	constructor(map: Map, elapsedTime: Writable<number>, outline: Array<[lon: number, lat: number]>) {
 		this.map = map;
@@ -38,28 +42,54 @@ export class RoadNetwork {
 
 		this.outline = outline;
 		this.roadNetworkLayer = new RoadNetworkLayer(map, elapsedTime, this.extractionPointIds);
+		this.selectedExtractionPoint.subscribe((selectedExtractionPoint) => {
+			this.roadNetworkLayer.segments.forEach((segment) => {
+				if (segment.extractionPoint) segment.activeExtractionPoint = segment === selectedExtractionPoint;
+			})
+		});
 		this.init();
 
-		this.hoveredNode.subscribe((node) => {
-			if (node instanceof RouteSegment) {
-				this.nodeHoverBox?.$destroy();
-				this.nodeHoverBox = new NodeHoverBox({
-					target: map.getContainer(),
+		this.selectedNode.subscribe((node) => {
+			if (node instanceof RouteSegment || node instanceof Measure) {
+				this.hoverBox?.$destroy();
+				this.selectBox?.$destroy();
+				this.selectBox = new NodeHoverBox({
+					target: this.map.getContainer(),
 					props: {
 						node: node,
+						store: this.selectedNode,
+						timeout: this.selectTimeOut,
 						roadNetwork: this
 					}
 				});
 			} else {
-				this.sensorHoverBoxTimeOut = setTimeout(() => this.nodeHoverBox?.$destroy(), 400);
+				this.selectTimeOut = setTimeout(() => this.selectBox?.$destroy(), 400);
+			}
+		});
+		this.hoveredNode.subscribe((node) => {
+			if ((node instanceof RouteSegment || node instanceof Measure) && node !== get(this.selectedNode)) {
+				this.hoverBox?.$destroy();
+				this.hoverBox = new NodeHoverBox({
+					target: this.map.getContainer(),
+					props: {
+						node: node,
+						store: this.hoveredNode,
+						timeout: this.hoverTimeOut,
+						roadNetwork: this
+					}
+				});
+			} else {
+				this.hoverTimeOut = setTimeout(() => this.hoverBox?.$destroy(), 400);
 			}
 		});
 	}
 
 	private init(): void {
-		this.loadRoadNetwork();
 		this.loadMeasures();
-		this.elapsedTime.subscribe((time: number) => this.cleanSetRoutingGraph(time));
+		this.loadRoadNetwork().then(() => {
+			//this.assignSegmentsToMeasures();
+			this.elapsedTime.subscribe((time: number) => this.cleanSetRoutingGraph(time));
+		});
 	}
 
 	private async cleanSetRoutingGraph(time: number): Promise<void> {
@@ -71,6 +101,7 @@ export class RoadNetwork {
 			}
 			return segment && floodHeight > 0;
 		}).map(([id, floodHeight]) => id);
+		const blockedSegments = this.measures.filter((measure) => measure instanceof BlockageMeasure);
 		const overloadedSegments = this.roadNetworkLayer.segments.filter((segment) => segment.overloaded(time)).map((segment) => segment.id);
 		this.routingAPI.onTimeUpdate(floodedSegmentsWithMeasures, overloadedSegments);
 	}
@@ -90,19 +121,26 @@ export class RoadNetwork {
 				return turf.booleanPointInPolygon(pt, outline) && feature.properties.fid !== undefined;
 			});
 		});
-		network.edges.features/* .slice(0, 5000) */.forEach((feature: RouteFeature) => {
-			this.roadNetworkLayer.add(feature);
+		network.edges.features.forEach((feature: RouteFeature) => {
+			const segment = this.roadNetworkLayer.add(feature);
+			for (const measure of this.measures) {
+				if (measure.config.routeSegmentFids.includes(segment.id)) {
+					measure.addRouteSegment(segment);
+				}
+			}
 		});
 	}
 
 	private loadMeasures(): void {
-		const measureConfig: Array<IMeasureConfig> = [];
+		const measureConfig: Array<IMeasureConfig> = measuresJSON;
 		const measures = measureConfig.map((c) => {
 			if (c.type === "capacity") {
 				return new CapacityMeasure(c, this.map);
 			} else if (c.type === "height") {
 				return new HeightMeasure(c, this.map);
-			} 
+			} else if (c.type === "blockage") {
+				return new BlockageMeasure(c, this.map);
+			}
 		});
 		this.measures = measures.filter((m) => m !== undefined) as Array<Measure>;
 	}
@@ -179,6 +217,7 @@ export class RoadNetwork {
 	}
 
 	public onLeftClick(picked: any): void {
+		let pickedItem: RouteSegment | Measure | undefined;
 		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
 			if (typeof picked?.id === "string" && picked.id.endsWith("-top")) {
 				picked.id = picked.id.slice(0, -4); // Remove "-top" suffix to get the hexagon id when clicking top hexagons
@@ -188,8 +227,56 @@ export class RoadNetwork {
 				const extractionPoint = this.roadNetworkLayer.getItemById(extractionPointId);
 				if (extractionPoint) this.selectedExtractionPoint.set(extractionPoint);
 			}
+			pickedItem = this.roadNetworkLayer.getItemById(picked.id);
+		} else if (picked?.id instanceof Cesium.Entity) {
+			const entity = picked.id as Cesium.Entity;
+			if (entity.id.startsWith("measure-")) {
+				const measureName = entity.id.replace("measure-", "").replace("line-", "");
+				pickedItem = this.measures.find((m) => m.config.name === measureName);
+			} else if (entity.id.startsWith("segment-")) {
+				const segmentId = entity.id.replace("segment-", "");
+				const segment = this.roadNetworkLayer.getItemById(segmentId);
+				pickedItem = segment;
+			}
 		}
+
+		const currentlyHovered = get(this.hoveredNode);
+		if (currentlyHovered && currentlyHovered !== pickedItem) {
+			currentlyHovered.highlight(false);
+		}
+		pickedItem?.highlight(true);
+
+		if (pickedItem) this.map.viewer.scene.canvas.style.cursor = "pointer";
+		this.selectedNode.set(pickedItem);
 	}
+
+	public onMouseMove(picked: any): void {
+		let pickedItem: RouteSegment | Measure | undefined;
+		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
+			if (typeof picked?.id === "string" && picked.id.endsWith("-top")) {
+				picked.id = picked.id.slice(0, -4); // Remove "-top" suffix to get the hexagon id when clicking top hexagons
+			}
+			pickedItem = this.roadNetworkLayer.getItemById(picked.id);
+		} else if (picked?.id instanceof Cesium.Entity) {
+			const entity = picked.id as Cesium.Entity;
+			if (entity.id.startsWith("segment-")) {
+				const entityID = entity.id.replace("segment-", "");
+				pickedItem = this.roadNetworkLayer.getItemById(entityID);
+			} else if (entity.id.startsWith("measure-")) {
+				pickedItem = this.measures.find((m) => m.config.name === entity.name);					
+			}
+		}
+
+		const currentlyHovered = get(this.hoveredNode);
+		if (currentlyHovered && currentlyHovered !== pickedItem && currentlyHovered !== get(this.selectedNode)) {
+			currentlyHovered.highlight(false);
+		}
+		pickedItem?.highlight(true);
+
+		if (pickedItem) this.map.viewer.scene.canvas.style.cursor = "pointer";
+		this.hoveredNode.set(pickedItem);
+	}
+	
 }
 
 

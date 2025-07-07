@@ -1,0 +1,35 @@
+[
+	{
+		"type": "blockage",
+		"name": "Schietbaan",
+		"description": "Afsluiten Schietbaan tussen rotonde met Mozartweg en rotonde Waldammeweg om te voorkomen dat verkeer de N57 op kan.",
+		"routeSegmentFids": [
+			"38614"
+		],
+		"cost": 1000,
+		"value": 0
+	},
+	{
+		"type": "blockage",
+		"name": "A58 hmp 167,0 Li en Re",
+		"description": "Afsluiten A58 ter hoogte van hectometer 167,0 in beide richtingen. Verkeer vanuit Vlissingen moet niet verder kunnen rijden richting Brabant en verkeer vanuit Middelburg moet niet de mogelijkheid hebben om via de Westerscheldetunnel te rijden.",
+		"routeSegmentFids": [
+			"13934",
+			"13938"
+		],
+		"cost": 1000,
+		"value": 0
+	},
+	{
+		"type": "height",
+		"name": "N57 - Nabij Burgh-Haamstede",
+		"description": "Ophoging van het deel van de weg dat overstroomt, met minimaal 1.2 meter.",
+		"routeSegmentFids": [
+			"11795",
+			"11804",
+			"12478"
+		],
+		"cost": 1000,
+		"value": 1.2
+	}
+]

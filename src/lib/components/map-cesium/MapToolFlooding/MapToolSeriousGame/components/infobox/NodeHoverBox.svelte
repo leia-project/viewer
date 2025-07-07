@@ -1,11 +1,15 @@
 <script lang="ts">
 	import { onDestroy, onMount } from "svelte";
-	import { get } from "svelte/store";
+	import { get, type Writable } from "svelte/store";
 	import * as Cesium from "cesium";
 	import type { RoadNetwork } from "../../module/game-elements/roads/road-network";
-	import type { RouteSegment } from "../../module/game-elements/roads/route-segments";
+	import { RouteSegment } from "../../module/game-elements/roads/route-segments";
+	import { Measure } from "../../module/game-elements/roads/measure";
+	import RouteSegmentInfo from "./RouteSegmentInfo.svelte";
 
-	export let node: RouteSegment;
+	export let node: RouteSegment | Measure;
+	export let store: Writable<RouteSegment | Measure | undefined>;
+	export let timeout: NodeJS.Timeout | undefined;
 	export let roadNetwork: RoadNetwork;
 
 
@@ -15,13 +19,13 @@
 	});
 	onDestroy(() => {
 		roadNetwork.map.viewer.clock.onTick.removeEventListener(updatePosition);
-		if (hoveredSensorUnsubscriber) hoveredSensorUnsubscriber();
+		if (switchUnsubscriber) switchUnsubscriber();
 		//iconLayer.map.viewer.clock.onTick.removeEventListener(updateSkewAngle);
 	});
 
 	let opacity: number = 100;
-	const hoveredSensorUnsubscriber = roadNetwork.hovered.subscribe((hoveredSensor: RouteSegment | undefined) => {
-		if (hoveredSensor !== sensor) opacity = 0;
+	const switchUnsubscriber = store.subscribe((focused: RouteSegment | Measure | undefined) => {
+		if (focused !== node) opacity = 0;
 	});
 
 	let left: number = 0;
@@ -30,7 +34,7 @@
 	let display: string = "none";
 	let windowPosition = new Cesium.Cartesian2();
 	function updatePosition() {
-		Cesium.SceneTransforms.worldToWindowCoordinates(handler.map.viewer.scene, sensor.cartesian3, windowPosition);
+		Cesium.SceneTransforms.worldToWindowCoordinates(roadNetwork.map.viewer.scene, node.position, windowPosition);
 		if (windowPosition) {
 			left = windowPosition.x;
 			top = windowPosition.y;
@@ -43,13 +47,12 @@
 
 
 	function onMouseEnter(event: MouseEvent): void {
-		if (get(handler.hoveredSensor) !== sensor) handler.hoveredSensor.set(sensor);
-		clearTimeout(handler.sensorHoverBoxTimeOut);
+		if (get(roadNetwork.hoveredNode) !== node) roadNetwork.hoveredNode.set(node);
+		clearTimeout(timeout);
 		opacity = 100;
 		event.stopPropagation();
 	}
 
-	const featureInfo = sensor.getFeatureInfo();
 
 </script>
 
@@ -61,15 +64,11 @@
 	on:mouseleave={() => opacity = 0}
 >
 	<div class="infobox-content">
-		<div class="icon">
-			<svelte:component this={sensor.parentLayer.settings.svgIcon} />
-		</div>
-		<div class="text">
-			<span class="title">{sensor.name}</span>
-			{#each featureInfo as entry}
-				<span>{@html entry.value}</span>
-			{/each}
-		</div>
+		{#if node instanceof RouteSegment}
+			<RouteSegmentInfo segment={node} />
+		{:else if node instanceof Measure}
+			<div>Explanations on the measure</div>
+		{/if}
 	</div>
 </div>
 
@@ -92,25 +91,5 @@
 		border-radius: 30px 30px 30px 30px;
 		background-color: rgb(var(--ark-rgb-bg-alt));
 	}
-
-	.icon {
-		position: relative;
-		width: 30px;
-		padding: 5px 0 5px 10px;
-		color: var(--ark-rgb-highlight);
-	}
-
-	.text {
-		padding: 6px 15px 6px 12px;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		row-gap: 4px;
-	}
-
-	.title {
-		font-size: 0.75rem;
-	}
-
 
 </style>
