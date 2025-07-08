@@ -545,7 +545,7 @@ class DynamicWaterLevel {
 					u_depth_value_max: 255.0
 				}
 			},
-			translucent: true,
+			translucent: false,
 			minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
 			magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
 		});
@@ -554,13 +554,9 @@ class DynamicWaterLevel {
 		const renderState = Cesium.RenderState.fromCache({
 			depthTest: {
 				enabled: true,
+				func: Cesium.DepthFunction.LESS
 			},
-			blending: Cesium.BlendingState.ALPHA_BLEND,
-			//frontFace: Cesium.WindingOrder.CLOCKWISE,
-			cull: {
-				enabled: false,
-				face: Cesium.CullFace.BACK
-			}
+			blending: Cesium.BlendingState.ALPHA_BLEND
 		});
 
 		const appearance = new Cesium.MaterialAppearance({
@@ -656,6 +652,7 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 
 	public async addToMap(): Promise<void> {
 		if (this.source.primitive && !this.map.viewer.scene.primitives.contains(this.source.primitive)) {
+			console.log("Adding flood layer primitive to map");
 			this.map.viewer.scene.primitives.add(this.source.primitive);
 		}
 		if (get(this.visible) === true) {

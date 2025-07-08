@@ -119,7 +119,16 @@ export class HexagonLayer {
 			vertexShaderSource: vertexShader,
 			fragmentShaderSource: fragmentShader,
 			renderState: {
-				blending: Cesium.BlendingState.ALPHA_BLEND
+				blending: Cesium.BlendingState.ALPHA_BLEND,
+				depthTest: {
+					enabled: true,
+					func: Cesium.DepthFunction.LESS
+				},
+				depthMask: true,
+				cull: {
+					enabled: true,
+					face: Cesium.CullFace.FRONT
+				}
 			}
 		});
 		const primitive = new Cesium.Primitive({
@@ -129,7 +138,6 @@ export class HexagonLayer {
 			allowPicking: true,
 			asynchronous: false
 		});
-
 		this.map.viewer.scene.primitives.add(primitive);
 		this.hexagons.forEach((hex: Hexagon) => hex.parentPrimitive = primitive);
 		this.primitive = primitive;
