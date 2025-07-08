@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from "carbon-components-svelte";
-	import { Compass, Menu } from "carbon-icons-svelte";
+	import { Compass, Home, Exit } from "carbon-icons-svelte";
 	import type { MarvinApp } from "../../Marvin/marvin";
 	import type { GameController } from "../module/game-controller";
 	import GameStats from "./GameStats.svelte";
@@ -9,7 +9,7 @@
 	import TimeControl from "./TimeControl.svelte";
 	import Notifications from "./notifications/Notifications.svelte";
 	import StartMenu from "./StartMenu.svelte";
-	import EvacuationOverview from "./EvacuationOverview.svelte";
+	import EvacuationOverview from "./logging/EvacuationOverview.svelte";
 
 	export let gameController: GameController;
 	export let marvinApp: MarvinApp;
@@ -33,7 +33,7 @@
 					<Notifications {notificationLog}>
 						<svelte:fragment slot="extra-buttons">
 							<Button
-								icon={Compass}
+								icon={Home}
 								iconDescription="Start Position"
 								tooltipPosition="right"
 								size="default"
@@ -41,7 +41,15 @@
 								on:click={() => $activeGame.flyHome()}
 							/>
 							<Button
-								icon={Menu}
+								icon={Compass}
+								iconDescription="Zoom to North"
+								tooltipPosition="right"
+								size="default"
+								kind="secondary"
+								on:click={() => $activeGame.flyHome()}
+							/>
+							<Button
+								icon={Exit}
 								iconDescription="Menu"
 								tooltipPosition="right"
 								size="default"
@@ -68,16 +76,21 @@
 		<div id="bottom-right">
 			<EvacuationOverview game={$activeGame} />
 		</div>
-	</div>
 
-	{#if showStartMenu}
-		<StartMenu {gameController} bind:open={showStartMenu} />
-	{/if}
+		{#if showStartMenu}
+			<StartMenu {gameController} bind:open={showStartMenu} />
+		{/if}
+	</div>
 {/if}
 
+
 <style>
+	
 	#game-container {
-		--game-bg: #212121;
+		--game-color-bg: #212121;
+		--game-color-contrast: #f0f0f0;
+		--game-color-highlight: #ff9800;
+		--game-color-text: #ffffff;
 	}
 
 	#top-left {

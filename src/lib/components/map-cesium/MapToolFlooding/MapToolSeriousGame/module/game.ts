@@ -60,6 +60,7 @@ export class Game {
 
 	private floodLayerController: FloodLayerController;
 	public evacuationController: EvacuationController;
+	public loaded: Writable<boolean> = writable(false);
 
 	public stats: IGameStats;
 
@@ -84,6 +85,7 @@ export class Game {
 
 	public load(): void {
 		this.addLayers();
+		this.loaded.set(true);
 	}
 
 	public exit(): void {

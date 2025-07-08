@@ -13,7 +13,7 @@ export class HexagonLayer {
 	private primitive?: Cesium.Primitive;
 	private outline: Array<[lon: number, lat: number]>;
 	public hexagons: Array<Hexagon> = [];
-	public loaded: Promise<void>;
+	public loaded: Writable<boolean> = writable(false);
 
 	private pgRestAPI = new PGRestAPI();
 	public visible: Writable<boolean> = writable<boolean>(true);
@@ -43,7 +43,7 @@ export class HexagonLayer {
 	constructor(map: Map, elapsedTime: Writable<number>, scenarios: Array<string>, outline: Array<[lon: number, lat: number]>, evacuationController: EvacuationController) {
 		this.map = map;
 		this.outline = outline;
-		this.loaded = this.loadHexagons();
+		this.loadHexagons();
 		this.selectedHexagon.subscribe((hexagon: Hexagon | undefined) => {
 			// highlight the accompanied evacuation
 			if (hexagon instanceof Hexagon) {
@@ -99,6 +99,7 @@ export class HexagonLayer {
 		});
 		this.createPrimitive();
 		this.addHexagonEntities();
+		this.loaded.set(true);
 	}
 
 	private async updateFloodDepths(scenarios: Array<string>, time: number): Promise<void> {

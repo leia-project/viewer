@@ -12,9 +12,9 @@
 
 	const hexagonsLoaded = game.evacuationController.hexagonLayer.loaded;
 
-	hexagonsLoaded.then(() => {
+	$: if ($hexagonsLoaded) {
 		evacuations = game.evacuationController.evacuations;
-	});
+	}
 
 	let openOverview = false;
 
@@ -22,20 +22,18 @@
 
 <div class="evacuations">
 	{#if openOverview}
-		{#await hexagonsLoaded then}
-			<div class="evacuation-overview">
-				<div>Evacuaties</div>
-				{#if $evacuations.length > 0}
-					<ul>
-						{#each $evacuations as evacuation}
-							<HexagonEvacuationEntries {evacuation} />
-						{/each}
-					</ul>
-				{:else}
-					<p>No evacuations in progress.</p>
-				{/if}
-			</div>
-		{/await}
+		<div class="evacuation-overview">
+			<div>Evacuaties</div>
+			{#if $evacuations.length > 0}
+				<ul>
+					{#each $evacuations as evacuation}
+						<HexagonEvacuationEntries {evacuation} />
+					{/each}
+				</ul>
+			{:else}
+				<p>No evacuations in progress.</p>
+			{/if}
+		</div>
 	{/if}
 
 	<div class="buttons">

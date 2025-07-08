@@ -35,6 +35,8 @@ export class RoadNetwork {
 	private hoverBox: NodeHoverBox | undefined;
 	public hoverTimeOut: NodeJS.Timeout | undefined;
 
+	public loaded: Writable<boolean> = writable(false);
+
 	constructor(map: Map, elapsedTime: Writable<number>, outline: Array<[lon: number, lat: number]>) {
 		this.map = map;
 		this.elapsedTime = elapsedTime;
@@ -89,6 +91,7 @@ export class RoadNetwork {
 		this.loadRoadNetwork().then(() => {
 			//this.assignSegmentsToMeasures();
 			this.elapsedTime.subscribe((time: number) => this.cleanSetRoutingGraph(time));
+			this.loaded.set(true);
 		});
 	}
 

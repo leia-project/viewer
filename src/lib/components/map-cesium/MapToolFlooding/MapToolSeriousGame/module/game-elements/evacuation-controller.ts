@@ -17,14 +17,14 @@ export class EvacuationController {
 	public roadNetwork: RoadNetwork;
 	public hexagonLayer: HexagonLayer;
 	public evacuations!: Readable<Array<Evacuation>>;
-	
+
 	constructor(game: Game, map: CesiumMap, gameConfig: IGameConfig) {
 		this.game = game;
 		this.map = map;
 		this.elapsedTime = game.elapsedTime;
 		const scenarioName = `${gameConfig.breach.properties.dijkring}_${gameConfig.breach.properties.name}_${gameConfig.scenario}`;
 		this.hexagonLayer = new HexagonLayer(map, this.elapsedTime, [scenarioName], gameConfig.outline, this);
-		this.hexagonLayer.loaded.then(() => {
+		this.hexagonLayer.loaded.subscribe(() => {
 			this.evacuations = derived(
 				this.hexagonLayer.hexagons.map((h) => h.evacuations),
 				($evacuations, set) => {
