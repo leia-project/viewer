@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from "carbon-components-svelte";
 	import type { Game } from "../module/game";
-	import { SkipForwardSolidFilled, TimeFilled, Timer } from "carbon-icons-svelte";
+	import { SkipBackSolidFilled, SkipForwardSolidFilled, TimeFilled, Timer } from "carbon-icons-svelte";
 	import Pill from "./Pill.svelte";
 
 	export let game: Game;
@@ -24,6 +24,14 @@
 
 
 <div class="time-control">
+	<Button
+		kind="primary"
+		size="small"
+		iconDescription="Terugspoelen (xx minuten)"
+		tooltipPosition="top"
+		icon={SkipBackSolidFilled}
+		on:click={() => game.changeStep("previous")}
+	/>
 	<Pill 
 		icon={TimeFilled} 
 		label="Time" 
@@ -38,9 +46,11 @@
 	<Button
 		kind="primary"
 		size="small"
+		iconDescription="Ga Verder (xx minuten)"
+		tooltipPosition="top"
 		icon={SkipForwardSolidFilled}
 		on:click={() => game.changeStep("next")}
-	>Forward</Button>
+	/>
 </div>
 
 
