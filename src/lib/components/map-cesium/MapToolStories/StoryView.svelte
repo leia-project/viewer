@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
+	import * as Cesium from "cesium";
 	import { onMount, getContext, onDestroy, createEventDispatcher } from "svelte";
 	import { writable, get } from "svelte/store";
-	import { Button, PaginationNav, Tag } from "carbon-components-svelte";
+	import { Button, PaginationNav, Tag, Loading } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
 	import "@carbon/charts-svelte/styles.css";
 
@@ -19,6 +20,7 @@
 	import { DonutChart } from "@carbon/charts-svelte";
 	import CustomPaginationNav from "./CustomPaginationNav.svelte";
 	import DrawPolygon from "./DrawPolygon.svelte";
+	import { getCameraPositionFromBoundingSphere } from "../module/utils/layer-utils";
 
 	export let map: Map;
 	export let story: Story;
@@ -26,6 +28,9 @@
 	export let textBack: string;
 	export let textStepBack: string;
 	export let textStepForward: string;
+	export let drawnPolygon: Cesium.Entity | undefined = undefined;
+
+	//TODO: move draw polygon stuff here so the component remembers the polygon when the story is closed
 
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
 	const dispatch = createEventDispatcher();
@@ -50,9 +55,28 @@
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
 
 	let polygonArea: number = 0;
+	let polygonCameraLocation: CameraLocation | undefined = undefined; // Used instead of CL if project area is drawn by user
 	let distributions: Array<{ group: string; value: number }[]>;
 
 	$: shown = Math.floor(width / 70);
+
+	$: {
+		if (drawnPolygon !== undefined) {
+			const use3DMode = get(map.options.use3DMode);
+			const vertices: Array<number> = [];
+			const positions = drawnPolygon.polyline?.positions?.getValue(map.viewer.clock.currentTime);
+				for (let j = 0; j < positions.length; j++) {
+					vertices.push(positions[j].x);
+					vertices.push(positions[j].y);
+					vertices.push(positions[j].z);
+				}
+			if (vertices.length !== 0) {
+				const boundingSphere = Cesium.BoundingSphere.fromVertices(vertices, Cesium.Cartesian3.ZERO, 3);
+				polygonCameraLocation = getCameraPositionFromBoundingSphere(boundingSphere, use3DMode);
+				cesiumMap.flyTo(polygonCameraLocation);
+			}
+		}
+	}
 
 
 	let mockData = [
@@ -69,12 +93,7 @@
 		height: "400px",
 		width: "400px",
 		donut: {
-			alignment: "center",
-			center: {
-				label: "km2",
-				number: polygonArea / 1000000.0, // Convert from m2 to km2
-				numberFormatter: (num: number) => num.toFixed(2)
-			}
+			alignment: "center"
 		},
 		legend: {
 			alignment: 'center',
@@ -85,11 +104,11 @@
 		},
 		color: {
 			scale: {
-				A: "#339966", // Green
-				B: "#99ffcc", // Light Green
-				C: "#ffff99", // Yellow
-				D: "#ffcc66", // Orange
-				E: "#9c4110"  // Red
+				A: "#28a745", // Green
+				B: "#85c240", // Light Green
+				C: "#f0ad4e", // Yellow
+				D: "#d9534f", // Orange
+				E: "#dc3545"  // Red
 			}
 		},
 		tooltip: {
@@ -171,26 +190,26 @@
 		}
 
 		if (activeStep) {
-			cesiumMap.flyTo(activeStep.cameraLocation);
-				if (activeStep.layers) {
-					hideInactiveLayers(activeStep.layers);
-					for (let i = 0; i < activeStep.layers?.length; i++) {
-						const layerId = activeStep.layers[i].id.toString();
-						const added = getAdded(layerId);
+			cesiumMap.flyTo(polygonCameraLocation ?? activeStep.cameraLocation);
+			if (activeStep.layers) {
+				hideInactiveLayers(activeStep.layers);
+				for (let i = 0; i < activeStep.layers?.length; i++) {
+					const layerId = activeStep.layers[i].id.toString();
+					const added = getAdded(layerId);
 
-						if (added) {
-							added.visible.set(true);
-							continue
-						}
+					if (added) {
+						added.visible.set(true);
+						continue
+					}
 
-						const libraryLayer = getLibraryLayer(layerId);
-						if (libraryLayer) {
-							const layerConfig = storyLayerToLayerConfig(activeStep.layers[i], libraryLayer);
-							const layer = map.addLayer(layerConfig);
-							storyLayers.push(layer);
-						}
+					const libraryLayer = getLibraryLayer(layerId);
+					if (libraryLayer) {
+						const layerConfig = storyLayerToLayerConfig(activeStep.layers[i], libraryLayer);
+						const layer = map.addLayer(layerConfig);
+						storyLayers.push(layer);
 					}
 				}
+			}
 
 			if (activeStep.globeOpacity) {
 				map.options.globeOpacity.set(activeStep.globeOpacity);
@@ -351,9 +370,6 @@
 </script>
 
 <div class="story" bind:clientWidth={width}>
-
-	
-
 	<div
 		class="nav"
 		style="width:{width}px"

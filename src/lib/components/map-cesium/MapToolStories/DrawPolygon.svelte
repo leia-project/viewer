@@ -76,7 +76,6 @@
 
     function draw() {
         if (hasDrawnPolygon) {
-            console.log("Already drawn a polygon, first delete the old one");
             return;
         }
         selectedAction = "draw";
@@ -111,7 +110,6 @@
         // Handle right click to finish drawing
         handler.setInputAction(() => {
             if (activeShapePoints.length < 4) {
-                console.log("Need to draw at least 3 points (4 total) to form a polygon!");
                 return;
             }            
 
