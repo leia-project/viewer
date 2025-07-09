@@ -49,7 +49,6 @@
 	let startGlobeOpacity: number;
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
 
-	let hasDrawnPolygon: boolean = false;
 	let polygonArea: number = 0;
 	let distributions: Array<{ group: string; value: number }[]>;
 
@@ -64,10 +63,7 @@
 		{ group: "E", value: 5 }
 	];
 
-
-	
-
-	$: mockOptions = {
+	$: donutOptions = {
 		showTable: false,
 		resizable: true,
 		height: "400px",
@@ -95,6 +91,9 @@
 				D: "#ffcc66", // Orange
 				E: "#9c4110"  // Red
 			}
+		},
+		tooltip: {
+			enabled: false
 		}
 	};
 	
@@ -352,9 +351,9 @@
 </script>
 
 <div class="story" bind:clientWidth={width}>
-	{#if !hasDrawnPolygon}
-		<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea}/>
-	{:else}
+
+	
+
 	<div
 		class="nav"
 		style="width:{width}px"
@@ -380,6 +379,7 @@
 		</div> -->
 
 		<div class="chapter-buttons">
+			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea}/>
 			{#each story.storyChapters as chapter, index}
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}
@@ -442,15 +442,14 @@
 					{$_("tools.stories.statistics")}
 				</div>
 				<div class="step-stats">
-					{#if distributions[index]}
-						<DonutChart data={distributions[index]} options={mockOptions} style="justify-content:center" />
+					{#if distributions && distributions[index]}
+						<DonutChart data={distributions[index]} options={donutOptions} style="justify-content:center" />
 					{/if}
 				</div>
 			</div>
 		{/each}
 		<!-- <div style="height:{height}px" /> -->
 	</div>
-	{/if}
 </div>
 
 <style>

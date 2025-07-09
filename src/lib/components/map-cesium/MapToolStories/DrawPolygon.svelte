@@ -6,21 +6,49 @@
 	import type { Story } from "./Story";
 	import { StoryLayer } from "./StoryLayer";
     import area from '@turf/area';
-
-    export let hasDrawnPolygon: boolean = false;
+    import * as turf from '@turf/turf';
+	import { get } from "svelte/store";
+    import { onMount, onDestroy } from 'svelte';
+    import { polygonStore } from './PolygonEntityStore';
+ 
     export let map: Map;
     export let story: Story;
     export let distributions: Array<{ group: string; value: number }[]> = [];
     export let polygonArea: number;
-
+        
+    let polygonEntity: Cesium.Entity | null = null;
+    let hasDrawnPolygon: boolean;
     let handler: Cesium.ScreenSpaceEventHandler;
     let activeShapePoints: Cesium.Cartesian3[] = [];
     let activeShape: Cesium.Entity | undefined;
-    let floatingPoint: Cesium.Entity | undefined;
-    let polygonEntity: Cesium.Entity | undefined;
     let redPoints: Cesium.Entity[] = [];
     let selectedAction: 'draw' | 'delete' | undefined = undefined;
     let geojson: any;
+    
+
+    onMount(() => {
+        const storedPolygonData = get(polygonStore);
+        if (storedPolygonData.polygonEntity) {
+            // Re-add the polygonEntity to the viewer if it was saved
+            polygonEntity = storedPolygonData.polygonEntity;
+            map.viewer.entities.add(polygonEntity);
+
+            redPoints = storedPolygonData.redPoints;
+            redPoints.forEach((point) => map.viewer.entities.add(point));
+
+            hasDrawnPolygon = true;
+        }
+    });
+
+
+    function checkPolygonForSelfIntersection(): boolean {
+        const kinks = turf.kinks(geojson);
+        if (kinks.features.length > 1) {
+            return false;
+        } else {
+            return true;
+        }
+    }
     
     function transformDistribution(distribution: Record<string, number>): { group: string; value: number }[] {
 		const result: { group: string; value: number }[] = [];
@@ -71,15 +99,6 @@
             redPoints.push(pointEntity);
 
             if (activeShapePoints.length === 0) {
-                floatingPoint = map.viewer.entities.add({
-                    position: earthPosition,
-                    point: {
-                        pixelSize: 5,
-                        color: Cesium.Color.RED,
-                        disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                    },
-                });
-
                 activeShapePoints.push(earthPosition);
                 activeShape = drawShape(activeShapePoints);
             }
@@ -94,10 +113,7 @@
             if (activeShapePoints.length < 4) {
                 console.log("Need to draw at least 3 points (4 total) to form a polygon!");
                 return;
-            }
-            handler.destroy();
-            if (floatingPoint) map.viewer.entities.remove(floatingPoint);
-            if (activeShape) map.viewer.entities.remove(activeShape);
+            }            
 
             const coords = activeShapePoints.map((cartesian) => {
                 const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
@@ -124,6 +140,15 @@
                 },
                 properties: {}
             };
+            
+            if (!checkPolygonForSelfIntersection()) {
+                return;
+            }
+
+            handler.destroy();
+            if (activeShape) { 
+                map.viewer.entities.remove(activeShape);
+            }
 
             // Now draw and clear
             polygonEntity = map.viewer.entities.add({
@@ -159,6 +184,11 @@
         }
         selectedAction = undefined;
         polygonArea = area(geojson)
+        polygonStore.set({
+            polygonEntity,
+            redPoints
+        });
+
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     };
     
@@ -168,11 +198,14 @@
             return;
         }
 
-        if (floatingPoint) map.viewer.entities.remove(floatingPoint);
         if (activeShape) map.viewer.entities.remove(activeShape);
         if (polygonEntity) {
             map.viewer.entities.remove(polygonEntity);
-            polygonEntity = undefined;
+            polygonEntity = null;
+            polygonStore.set({
+                polygonEntity: null,
+                redPoints: [],
+            });
         }
         redPoints.forEach((point) => map.viewer.entities.remove(point));
         redPoints = [];
@@ -234,34 +267,58 @@
             console.error("Failed to send request:", error);
         }
     }
+
+    onDestroy(() => {
+        if (handler && !handler.isDestroyed()) {
+            handler.destroy(); 
+        }
+
+        activeShapePoints = [];
+        if (activeShape) {
+            map.viewer.entities.remove(activeShape);
+        }
+        activeShape = undefined;
+        
+        if (polygonEntity) {
+            map.viewer.entities.remove(polygonEntity);
+        }
+        redPoints.forEach((point) => map.viewer.entities.remove(point));
+        redPoints = [];
+    });
+
 </script>
 
-<div>
-    <h4>Teken Projectgebied</h4>
-    <p>
-        Teken een projectgebied in. Klik op de 'Draw new polygon' knop om te beginnen met tekenen op de kaart.
-        Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.
-    </p>
-</div>
+{#if !hasDrawnPolygon}
+    <div>
+        <h4>Teken Projectgebied</h4>
+        <p>
+            Teken een projectgebied in. Klik op de 'Teken nieuw vlak' knop om te beginnen met tekenen op de kaart.
+            Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.
+        </p>
+    </div>
+{/if}
 
 <div class="buttons">
+    {#if !hasDrawnPolygon}
     <Button 
         kind={selectedAction === "draw" ? "primary" : "tertiary"}
         on:click={() => {
             draw(); 
         }}
     >
-        Draw new polygon
+        Teken nieuw vlak
     </Button>
-
+    {/if}
+    {#if hasDrawnPolygon}
     <Button 
         kind="danger"
         on:click={() => {
             deletePolygon();
         }}
     >
-        Delete polygon
+        Verwijder vlak
     </Button>
+    {/if}
 </div>
 
 <style>
