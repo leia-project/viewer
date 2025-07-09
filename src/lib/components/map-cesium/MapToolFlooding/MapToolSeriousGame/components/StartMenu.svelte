@@ -22,6 +22,7 @@
 	passiveModal={true}
 	modalHeading={""}
 	id="start-menu-modal"
+	preventCloseOnClickOutside={true}
 >
 	<div class="start-menu-content">
 		<h1>Serious Game - Floods</h1>
@@ -29,7 +30,7 @@
 		<p>
 			Explanations about the game...
 		</p>
-		{#if !gameLoaded}
+		{#if gameLoaded}
 			<div class="start-menu-actions">
 				<Button
 					kind="danger"
@@ -59,13 +60,15 @@
 	</div>
 </Modal>
 
-
 <style>
 
 	:global(#start-menu-modal .bx--modal-container) {
 		background-color: var(--game-color-bg);
 	}
-
+	:global(#start-menu-modal .bx--modal-close) {
+		display: none;
+	}
+	
 	.start-menu-content {
 		text-align: center;
 		padding: 1rem;

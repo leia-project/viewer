@@ -153,26 +153,6 @@ export class HexagonLayer {
 		this.map.viewer.dataSources.add(this.hexagonEntities);
 	}
 	
-	public highlight(hexagon: Hexagon, event: "click" | "hover"): void {
-		if (event === "hover" && hexagon === get(this.selectedHexagon)) return;
-		const color = event === "hover" ? Cesium.Color.LIGHTPINK : Cesium.Color.HOTPINK;
-		const attributes = this.primitive?.getGeometryInstanceAttributes(hexagon.hex);
-		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(color, attributes.color);
-		if (hexagon.entityInstance.polygon) {
-			hexagon.entityInstance.polygon.material = new Cesium.ColorMaterialProperty(color);
-		}
-	}
-
-	public unhighlight(hexagon: Hexagon, event: "click" | "hover"): void {
-		if (event === "hover" && hexagon === get(this.selectedHexagon)) return;
-		const attributes = this.primitive?.getGeometryInstanceAttributes(hexagon.hex);
-		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(hexagon.valueToColor(hexagon.population), attributes.color);
-		if (hexagon.entityInstance.polygon) {
-			const color = hexagon.valueToColor(hexagon.population);
-			hexagon.entityInstance.polygon.material = new Cesium.ColorMaterialProperty(color);
-		}
-	}
-	
 	public onLeftClick(picked: any): void {
 		let pickedHexagon: Hexagon | undefined;
 		const selectedHexagon = get(this.selectedHexagon);
@@ -183,10 +163,10 @@ export class HexagonLayer {
 			return; // Something else was clicked, not a hexagon, so do nothing
 		}
 		if (selectedHexagon && selectedHexagon !== pickedHexagon) {
-			this.unhighlight(selectedHexagon, "click");
+			selectedHexagon.unhighlight("click");
 		}
 		this.selectedHexagon.set(pickedHexagon);
-		if (pickedHexagon) this.highlight(pickedHexagon, "click");
+		if (pickedHexagon) pickedHexagon.highlight("click");
 		this.map.refresh();
 	}
 
@@ -209,15 +189,15 @@ export class HexagonLayer {
 		let hoveredHexagon = get(this.hoveredHexagon);
 		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
 			if (hoveredHexagon && hoveredHexagon.hex !== picked.id) {
-				this.unhighlight(hoveredHexagon, "hover");
+				hoveredHexagon.unhighlight("hover");
 			}
 			hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
 			this.hoveredHexagon.set(hoveredHexagon);
-			if (hoveredHexagon) this.highlight(hoveredHexagon, "hover");
+			if (hoveredHexagon) hoveredHexagon.highlight("hover");
 			this.map.viewer.scene.canvas.style.cursor = "pointer";
 		} else if (picked?.id === undefined) {
 			if (hoveredHexagon && hoveredHexagon !== get(this.selectedHexagon)) {
-				this.unhighlight(hoveredHexagon, "hover");
+				hoveredHexagon.unhighlight("hover");
 				this.hoveredHexagon.set(undefined);
 			}
 		} 

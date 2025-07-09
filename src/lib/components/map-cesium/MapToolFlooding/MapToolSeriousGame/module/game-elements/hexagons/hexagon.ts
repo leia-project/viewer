@@ -42,6 +42,7 @@ export class Hexagon {
 		col.alpha = 1;
 		return col;
 	});
+	private color: Cesium.Color = this.cesiumColors[0];
 
 	public evacuations: Writable<Array<Evacuation>> = writable([]);
 	public totalEvacuated: Readable<number> = derived(this.evacuations, ($evacuations) => {
@@ -64,6 +65,7 @@ export class Hexagon {
 		});
 
 		this.floodDepth.subscribe((depth: number) => {
+			this.setColor(depth);
 			if (depth > 0.5) {
 				//this.floodedAt.set(get(elapsedTime));
 			}
@@ -110,7 +112,7 @@ export class Hexagon {
 			modelMatrix: Cesium.Matrix4.IDENTITY,
 			id: cell,
 			attributes: {
-				color: Cesium.ColorGeometryInstanceAttribute.fromColor(this.valueToColor(population)),
+				color: Cesium.ColorGeometryInstanceAttribute.fromColor(this.color),
 				offsetBottom: new Cesium.GeometryInstanceAttribute({
 					componentDatatype: Cesium.ComponentDatatype.FLOAT,
 					componentsPerAttribute: 1,
@@ -219,4 +221,33 @@ export class Hexagon {
 			evacuation.hide();
 		});
 	}
+
+	public highlight(event: "click" | "hover"): void {
+		if (event === "hover" && this === get(this.selectedHexagon)) return;
+		if (!this.parentPrimitive?.ready) return;
+		const color = event === "hover" ? Cesium.Color.LIGHTPINK : Cesium.Color.HOTPINK;
+		const attributes = this.parentPrimitive?.getGeometryInstanceAttributes(this.hex);
+		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(color, attributes.color); // this.valueToColor(this.population);
+		if (this.entityInstance.polygon) {
+			this.entityInstance.polygon.material = new Cesium.ColorMaterialProperty(color);
+		}
+	}
+
+	public unhighlight(event: "click" | "hover"): void {
+		if (event === "hover" && this === get(this.selectedHexagon)) return;
+		if (!this.parentPrimitive?.ready) return;
+		const attributes = this.parentPrimitive?.getGeometryInstanceAttributes(this.hex);
+		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(this.color, attributes.color);
+		if (this.entityInstance.polygon) {
+			const color = this.valueToColor(this.population);
+			this.entityInstance.polygon.material = new Cesium.ColorMaterialProperty(color);
+		}
+	}
+
+	private setColor(depth: number): void {
+		const colorIndex = Math.min(Math.floor(depth * 2.5), this.colorScale.length - 1);
+		this.color = Cesium.Color.fromCssColorString(this.colorScale[colorIndex]);
+		if (this !== get(this.selectedHexagon)) this.unhighlight("click");
+	}
+		
 }

@@ -445,7 +445,7 @@ class DynamicWaterLevel {
 				float terrain_scale = u_terrain_scaling_max_14 - u_terrain_scaling_min_13;
 				float terrain_height = texture(u_terrain_1, st).r * terrain_scale + u_terrain_scaling_min_13;
 				float depth = computeDepth(st);
-			   
+
 				// Height exaggeration relative to terrain:
 				p.xyz += u_model_normal_8 * (terrain_height + depth * u_vertical_exaggeration_11);
  
@@ -475,7 +475,7 @@ class DynamicWaterLevel {
 				material.shininess = 0.0;
 				return material;
 			}
-		   
+
 			void main() {
 
 				float terrain_height = texture(u_terrain_1, v_st).r * (u_terrain_scaling_max_14 - u_terrain_scaling_min_13) + u_terrain_scaling_min_13;
