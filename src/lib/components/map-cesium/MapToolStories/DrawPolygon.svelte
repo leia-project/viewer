@@ -14,9 +14,9 @@
     export let story: Story;
     export let distributions: Array<{ group: string; value: number }[]> = [];
     export let polygonArea: number;
+    export let hasDrawnPolygon: boolean;
         
     let polygonEntity: Cesium.Entity | null = null;
-    let hasDrawnPolygon: boolean;
     let isDrawing = false;
     let handler: Cesium.ScreenSpaceEventHandler;
     let activeShapePoints: Cesium.Cartesian3[] = [];

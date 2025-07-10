@@ -29,7 +29,6 @@
 	let stories = new Array<Story>();
 	let selectedStory: Story | undefined;
 	let stepNumber: number;
-	let drawnPolygon: Cesium.Entity | undefined = undefined;
 
 	let tool = new MapToolMenuOption(id, icon, label);
 	const layers = cesiumMap.layers;
@@ -166,7 +165,6 @@
 				{textStepBack}
 				{textStepForward}
 				savedStepNumber={stepNumber}
-				drawnPolygon={drawnPolygon}
 				on:closeStory={() => {
 					closeStory();
 				}}
