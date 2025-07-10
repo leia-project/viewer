@@ -1,74 +1,58 @@
 <script lang="ts">
-	//Note: all still unused, Continue integrating ECharts into Svelte!
-	import * as echarts from 'echarts/core';
+	import { echarts } from './echarts';
+	import { _ } from "svelte-i18n";
+	
+	export let data: Array<{ group: string; value: number }>;
 
-    // var chartDom = document.getElementById('main')!;
-	interface IChartData {
-		value: number;
-		name: string;
-	}
-
-	let chartDataArray: Array<IChartData> = [];
-	let charts = [];
-
-
-	onMount(() => {
-		charts = chartDataArray.map((data, index) => {
-		const chart = echarts.init(document.getElementById(`donutChart${index}`));
-		chart.setOption(option);
-		return chart;
-		});
-	});
-
-    let option = {
+	//change name 'group' to 'name' for compatibility with echarts
+	let cleanData = data.map(item => ({ name: item.group, value: item.value }));
+	
+	let option = {
+		title: {
+			text: 'Verdeling per klasse',
+			left: 0
+		},
 		tooltip: {
-			trigger: 'item'
+			trigger: 'item',
+			formatter: '{b}: {d}%'
 		},
 		legend: {
-			top: '5%',
-			left: 'center'
+			orient: 'vertical',
+			left: 0, // Increased from 0 to 20 for more space on the right
+			padding: 10,
+			top: 'center',
+			formatter: '{name}' // Show group name
 		},
 		series: [
 			{
-			name: 'Access From',
-			type: 'pie',
-			radius: ['40%', '70%'],
-			avoidLabelOverlap: false,
-			label: {
-				show: false,
-				position: 'center'
-			},
-			emphasis: {
+				type: 'pie',
+				radius: ['50%', '90%'], // Increased inner and outer radius
+				avoidLabelOverlap: false,
 				label: {
-				show: true,
-				fontSize: 40,
-				fontWeight: 'bold'
-				}
-			},
-			labelLine: {
-				show: false
-			},
-			data: [
-				{ value: 1048, name: 'Search Engine' },
-				{ value: 735, name: 'Direct' },
-				{ value: 580, name: 'Email' },
-				{ value: 484, name: 'Union Ads' },
-				{ value: 300, name: 'Video Ads' }
-			]
+					show: false,
+					position: 'center'
+				},
+				emphasis: {
+					label: {
+						show: true,
+						fontSize: 20,
+						fontWeight: 'bold'
+					}
+				},
+				labelLine: {
+					show: false
+				},
+				data: cleanData
 			}
 		]
 	};
-
-    option && myChart.setOption(option);
-    
 </script>
 
-
-<div>
-    Chart goes here
-</div>
-
+<div class={"container"} use:echarts={option} />
 
 <style>
-
+	.container {
+		width: 100%;
+		height: 300px;
+	}
 </style>
