@@ -21,6 +21,7 @@
 	import CustomPaginationNav from "./CustomPaginationNav.svelte";
 	import DrawPolygon from "./DrawPolygon.svelte";
 	import { getCameraPositionFromBoundingSphere } from "../module/utils/layer-utils";
+	import { polygonStore } from './PolygonEntityStore';
 
 	export let map: Map;
 	export let story: Story;
@@ -60,25 +61,30 @@
 
 	$: shown = Math.floor(width / 70);
 
-	$: {
-		if (drawnPolygon !== undefined) {
+	const unsubscribePolygonEntity = polygonStore.subscribe(polygon => {
+		if (polygon?.polygonEntity) {
 			const use3DMode = get(map.options.use3DMode);
 			const vertices: Array<number> = [];
-			const positions = drawnPolygon.polyline?.positions?.getValue(map.viewer.clock.currentTime);
+
+			// Assuming the entity has a polygon or polyline geometry
+			const entity = polygon.polygonEntity;
+
+			// You probably mean polygon geometry, not polyline — adjust as needed
+			const positions = entity.polygon?.hierarchy?.getValue(map.viewer.clock.currentTime)?.positions
+				|| entity.polyline?.positions?.getValue(map.viewer.clock.currentTime);
+
+			if (positions && positions.length > 0) {
 				for (let j = 0; j < positions.length; j++) {
-					vertices.push(positions[j].x);
-					vertices.push(positions[j].y);
-					vertices.push(positions[j].z);
+					vertices.push(positions[j].x, positions[j].y, positions[j].z);
 				}
-			if (vertices.length !== 0) {
+
 				const boundingSphere = Cesium.BoundingSphere.fromVertices(vertices, Cesium.Cartesian3.ZERO, 3);
-				polygonCameraLocation = getCameraPositionFromBoundingSphere(boundingSphere, use3DMode);
+				const polygonCameraLocation = getCameraPositionFromBoundingSphere(boundingSphere, use3DMode);
 				cesiumMap.flyTo(polygonCameraLocation);
 			}
 		}
-	}
-
-
+	});
+	
 	let mockData = [
 		{ group: "A", value: 20 },
 		{ group: "B", value: 25 },
@@ -460,6 +466,8 @@
 				<div class="step-stats">
 					{#if distributions && distributions[index]}
 						<DonutChart data={distributions[index]} options={donutOptions} style="justify-content:center" />
+					{:else}
+						<Loading withOverlay={false} />
 					{/if}
 				</div>
 			</div>

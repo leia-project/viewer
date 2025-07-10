@@ -1,6 +1,5 @@
 <script lang="ts">
     import * as Cesium from "cesium";
-    import { polygonPositions } from "./PolygonStore";
 	import { Button } from "carbon-components-svelte";
 	import { Map } from "../module/map";
 	import type { Story } from "./Story";
@@ -161,7 +160,6 @@
             activeShapePoints = [];
             activeShape = undefined;
 
-        polygonPositions.set(activeShapePoints);
         map.viewer.scene.requestRender();
         hasDrawnPolygon = true;
         
@@ -172,8 +170,8 @@
             sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson)
             .then(apiResponse => {
                 const transformed = transformDistribution(apiResponse.distribution);
-                distributions.push(transformed);
-                console.log("Transformed distribution:", transformed);
+                distributions[i] = transformed;
+                map.viewer.scene.requestRender();
             })
             .catch(error => 
                 console.error("Error: ", error)
@@ -191,12 +189,9 @@
     };
     
     function deletePolygon() {
-        if (!hasDrawnPolygon) {
-            console.log("First draw a polygon before you can delete one");
-            return;
-        }
-
         if (activeShape) map.viewer.entities.remove(activeShape);
+        activeShape = undefined;
+
         if (polygonEntity) {
             map.viewer.entities.remove(polygonEntity);
             polygonEntity = null;
@@ -205,11 +200,15 @@
                 redPoints: [],
             });
         }
+        activeShapePoints = [];
         redPoints.forEach((point) => map.viewer.entities.remove(point));
         redPoints = [];
-        polygonPositions.set([]); // Clear stored points
-        map.viewer.scene.requestRender();
+        
+        if (handler && !handler.isDestroyed()) {
+            handler.destroy(); 
+        }
         hasDrawnPolygon = false;
+        map.viewer.scene.requestRender();
     }
 
     async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any): Promise<any> {
@@ -307,7 +306,7 @@
         Teken nieuw vlak
     </Button>
     {/if}
-    {#if hasDrawnPolygon}
+
     <Button 
         kind="danger"
         on:click={() => {
@@ -316,7 +315,7 @@
     >
         Verwijder vlak
     </Button>
-    {/if}
+
 </div>
 
 <style>
