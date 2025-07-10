@@ -21,6 +21,7 @@
 	import CustomPaginationNav from "./CustomPaginationNav.svelte";
 	import DrawPolygon from "./DrawPolygon.svelte";
 	import { getCameraPositionFromBoundingSphere } from "../module/utils/layer-utils";
+	import { polygonStore } from './PolygonEntityStore';
 
 	export let map: Map;
 	export let story: Story;
@@ -54,32 +55,36 @@
 	let startGlobeOpacity: number;
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
 
-	let hasDrawnPolygon: boolean = false;
 	let polygonArea: number = 0;
 	let polygonCameraLocation: CameraLocation | undefined = undefined; // Used instead of CL if project area is drawn by user
 	let distributions: Array<{ group: string; value: number }[]>;
 
 	$: shown = Math.floor(width / 70);
 
-	$: {
-		if (drawnPolygon !== undefined) {
+	const unsubscribePolygonEntity = polygonStore.subscribe(polygon => {
+		if (polygon?.polygonEntity) {
 			const use3DMode = get(map.options.use3DMode);
 			const vertices: Array<number> = [];
-			const positions = drawnPolygon.polyline?.positions?.getValue(map.viewer.clock.currentTime);
+
+			// Assuming the entity has a polygon or polyline geometry
+			const entity = polygon.polygonEntity;
+
+			// You probably mean polygon geometry, not polyline — adjust as needed
+			const positions = entity.polygon?.hierarchy?.getValue(map.viewer.clock.currentTime)?.positions
+				|| entity.polyline?.positions?.getValue(map.viewer.clock.currentTime);
+
+			if (positions && positions.length > 0) {
 				for (let j = 0; j < positions.length; j++) {
-					vertices.push(positions[j].x);
-					vertices.push(positions[j].y);
-					vertices.push(positions[j].z);
+					vertices.push(positions[j].x, positions[j].y, positions[j].z);
 				}
-			if (vertices.length !== 0) {
+
 				const boundingSphere = Cesium.BoundingSphere.fromVertices(vertices, Cesium.Cartesian3.ZERO, 3);
-				polygonCameraLocation = getCameraPositionFromBoundingSphere(boundingSphere, use3DMode);
+				const polygonCameraLocation = getCameraPositionFromBoundingSphere(boundingSphere, use3DMode);
 				cesiumMap.flyTo(polygonCameraLocation);
 			}
 		}
-	}
-
-
+	});
+	
 	let mockData = [
 		{ group: "A", value: 20 },
 		{ group: "B", value: 25 },
@@ -88,7 +93,7 @@
 		{ group: "E", value: 5 }
 	];
 
-	let options = {
+	$: donutOptions = {
 		showTable: false,
 		resizable: true,
 		height: "400px",
@@ -105,12 +110,15 @@
 		},
 		color: {
 			scale: {
-				A: "#28a745", // Green
-				B: "#85c240", // Light Green
-				C: "#f0ad4e", // Yellow
-				D: "#d9534f", // Orange
-				E: "#dc3545"  // Red
+				A: "#339966", // Green
+				B: "#99ffcc", // Light Green
+				C: "#ffff99", // Yellow
+				D: "#ffcc66", // Orange
+				E: "#9c4110"  // Red
 			}
+		},
+		tooltip: {
+			enabled: false
 		}
 	};
 	
@@ -368,107 +376,104 @@
 </script>
 
 <div class="story" bind:clientWidth={width}>
-	{#if !hasDrawnPolygon}
-		<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} {map} {story} bind:distributions={distributions} bind:polygonEntity={drawnPolygon} bind:polygonArea={polygonArea}/>
-	{:else}
-		<div
-			class="nav"
-			style="width:{width}px"
-			bind:clientHeight={navHeight}
-			on:scroll={(e) => {
-				e.preventDefault();
-				e.stopPropagation();
-			}}
-		>
-			<div class="close">
+	<div
+		class="nav"
+		style="width:{width}px"
+		bind:clientHeight={navHeight}
+		on:scroll={(e) => {
+			e.preventDefault();
+			e.stopPropagation();
+		}}
+	>
+		<div class="close">
+			<Button
+				iconDescription={textBack}
+				tooltipPosition="left"
+				icon={Exit}
+				on:click={backToOverview} 
+			/>
+		</div>
+		<div class="heading-01">
+			{story.name}
+		</div>
+		<!-- <div class="story-description body-compact-01">
+			{story.description}
+		</div> -->
+
+		<div class="chapter-buttons">
+			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea}/>
+			{#each story.storyChapters as chapter, index}
 				<Button
-					iconDescription={textBack}
-					tooltipPosition="left"
-					icon={Exit}
-					on:click={backToOverview} 
-				/>
-			</div>
-			<div class="heading-01">
-				{story.name}
-			</div>
-			<!-- <div class="story-description body-compact-01">
-				{story.description}
-			</div> -->
-
-			<div class="chapter-buttons">
-				{#each story.storyChapters as chapter, index}
-					<Button
-						kind={activeChapter === chapter ? "primary" : "ghost"}
-						size="small"
-						style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
-						on:click={() => {
-							const firstStepIndex = flattenedSteps.findIndex(({ chapter: c }) => c === chapter);
-							if (firstStepIndex !== -1) {
-								lastInputType = "click";
-								currentPage.set(firstStepIndex + 1);
-							}
-						}}
-					>
-					{chapter.buttonText}
-					</Button>
-				{/each}
-			</div>
-			<hr style="width: 100%;"/>
-			<div>
-				<CustomPaginationNav
-					bind:page={$currentPage}
-					bind:lastInputType ={lastInputType}
-					{flattenedSteps}
-				/>
-
-				<!-- <PaginationNav
-					forwardText={textStepForward}
-					backwardText={textStepBack}
-					bind:page={$currentPage}
-					total={flattenedSteps.length}
-					{shown}
-					loop
-					onmousedown={() => {
-						lastInputType = "click";
+					kind={activeChapter === chapter ? "primary" : "ghost"}
+					size="small"
+					style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
+					on:click={() => {
+						const firstStepIndex = flattenedSteps.findIndex(({ chapter: c }) => c === chapter);
+						if (firstStepIndex !== -1) {
+							lastInputType = "click";
+							currentPage.set(firstStepIndex + 1);
+						}
 					}}
-				/> -->
-			</div>
-		</div>
-
-		<div class="content" bind:this={content}>
-			<div style="height:{navHeight}px" />
-			{#each flattenedSteps as { step, chapter }, index}
-				<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
-					<div class="step-heading heading-03">
-						{chapter.title} | {step.title}
-					</div>
-					<div class="step-heading-sub heading-03">
-						{$_("tools.stories.description")}
-					</div>
-					{@html step.html}
-					{#each step.layers ?? [] as layer}
-						Layer {layer.id}: {layer.featureName}
-					{/each}
-
-					<div class="tag">
-						<Tag>{chapter.title}</Tag>
-						<Tag>{index + 1}</Tag>
-					</div>
-					<div class="step-heading-sub heading-03">
-						{$_("tools.stories.statistics")}
-					</div>
-					<div class="step-stats">
-						{#if distributions[index]}
-							<DonutChart data={distributions[index]} {options} style="justify-content:center" />
-						{:else}
-							<Loading withOverlay={false} />
-						{/if}
-					</div>
-				</div>
+				>
+				{chapter.buttonText}
+				</Button>
 			{/each}
-			<!-- <div style="height:{height}px" /> -->
 		</div>
-	{/if}
+		<hr style="width: 100%;"/>
+		<div>
+			<CustomPaginationNav
+				bind:page={$currentPage}
+				bind:lastInputType ={lastInputType}
+				{flattenedSteps}
+			/>
+
+			<!-- <PaginationNav
+				forwardText={textStepForward}
+				backwardText={textStepBack}
+				bind:page={$currentPage}
+				total={flattenedSteps.length}
+				{shown}
+				loop
+				onmousedown={() => {
+					lastInputType = "click";
+				}}
+			/> -->
+		</div>
+	</div>
+
+	<div class="content" bind:this={content}>
+		<div style="height:{navHeight}px" />
+		{#each flattenedSteps as { step, chapter }, index}
+			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
+				<div class="step-heading heading-03">
+					{chapter.title} | {step.title}
+				</div>
+				<div class="step-heading-sub heading-03">
+					{$_("tools.stories.description")}
+				</div>
+				{@html step.html}
+				{#each step.layers ?? [] as layer}
+					Layer {layer.id}: {layer.featureName}
+				{/each}
+
+				<div class="tag">
+					<Tag>{chapter.title}</Tag>
+					<Tag>{index + 1}</Tag>
+				</div>
+				<div class="step-heading-sub heading-03">
+					{$_("tools.stories.statistics")}
+				</div>
+				<div class="step-stats">
+					{#if distributions && distributions[index]}
+						<DonutChart data={distributions[index]} options={donutOptions} style="justify-content:center" />
+					{:else}
+						<Loading withOverlay={false} />
+					{/if}
+				</div>
+			</div>
+		{/each}
+		<!-- <div style="height:{height}px" /> -->
+	</div>
 </div>
 
 <style>
