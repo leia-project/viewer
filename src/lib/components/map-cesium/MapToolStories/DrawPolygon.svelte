@@ -17,6 +17,7 @@
         
     let polygonEntity: Cesium.Entity | null = null;
     let hasDrawnPolygon: boolean;
+    let isDrawing = false;
     let handler: Cesium.ScreenSpaceEventHandler;
     let activeShapePoints: Cesium.Cartesian3[] = [];
     let activeShape: Cesium.Entity | undefined;
@@ -74,9 +75,10 @@
     }
 
     function draw() {
-        if (hasDrawnPolygon) {
+        if (hasDrawnPolygon || isDrawing) {
             return;
         }
+        isDrawing = true;
         selectedAction = "draw";
         handler = new Cesium.ScreenSpaceEventHandler(map.viewer.canvas);
 
@@ -160,54 +162,52 @@
             activeShapePoints = [];
             activeShape = undefined;
 
-        map.viewer.scene.requestRender();
-        hasDrawnPolygon = true;
-        
-        // sendAPIUpResponse();
-        let storyLayers: Array<StoryLayer> = story.getStoryLayers();
-        
-        for (let i = 0; i < storyLayers.length; i++) {
-            sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson)
-            .then(apiResponse => {
-                const transformed = transformDistribution(apiResponse.distribution);
-                distributions[i] = transformed;
-                map.viewer.scene.requestRender();
-            })
-            .catch(error => 
-                console.error("Error: ", error)
-            );
+            map.viewer.scene.requestRender();
+            hasDrawnPolygon = true;
+            isDrawing = false;
             
-        }
-        selectedAction = undefined;
-        polygonArea = area(geojson)
-        polygonStore.set({
-            polygonEntity,
-            redPoints
-        });
+            // sendAPIUpResponse();
+            let storyLayers: Array<StoryLayer> = story.getStoryLayers();
+            
+            for (let i = 0; i < storyLayers.length; i++) {
+                sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson)
+                .then(apiResponse => {
+                    const transformed = transformDistribution(apiResponse.distribution);
+                    distributions[i] = transformed;
+                    map.viewer.scene.requestRender();
+                })
+                .catch(error => 
+                    console.error("Error: ", error)
+                );
+                
+            }
+            selectedAction = undefined;
+            polygonArea = area(geojson)
+            polygonStore.set({
+                polygonEntity,
+                redPoints
+            });
 
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     };
     
     function deletePolygon() {
+        if (handler && !handler.isDestroyed()) {
+            handler.destroy(); 
+        }
+
+        activeShapePoints = [];
         if (activeShape) map.viewer.entities.remove(activeShape);
         activeShape = undefined;
 
         if (polygonEntity) {
             map.viewer.entities.remove(polygonEntity);
             polygonEntity = null;
-            polygonStore.set({
-                polygonEntity: null,
-                redPoints: [],
-            });
         }
-        activeShapePoints = [];
+        
         redPoints.forEach((point) => map.viewer.entities.remove(point));
         redPoints = [];
         
-        if (handler && !handler.isDestroyed()) {
-            handler.destroy(); 
-        }
-        hasDrawnPolygon = false;
         map.viewer.scene.requestRender();
     }
 
@@ -266,21 +266,7 @@
     }
 
     onDestroy(() => {
-        if (handler && !handler.isDestroyed()) {
-            handler.destroy(); 
-        }
-
-        activeShapePoints = [];
-        if (activeShape) {
-            map.viewer.entities.remove(activeShape);
-        }
-        activeShape = undefined;
-        
-        if (polygonEntity) {
-            map.viewer.entities.remove(polygonEntity);
-        }
-        redPoints.forEach((point) => map.viewer.entities.remove(point));
-        redPoints = [];
+        deletePolygon();
     });
 
 </script>
@@ -311,6 +297,11 @@
         kind="danger"
         on:click={() => {
             deletePolygon();
+            polygonStore.set({
+                polygonEntity: null,
+                redPoints: [],
+            });
+            hasDrawnPolygon = false;
         }}
     >
         Verwijder vlak
