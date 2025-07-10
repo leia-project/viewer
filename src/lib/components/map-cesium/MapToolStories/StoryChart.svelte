@@ -8,6 +8,7 @@
 	let cleanData = data.map(item => ({ name: item.group, value: item.value }));
 	
 	let option = {
+		color: ['#339966', '#99ffcc', '#ffff99', '#ffcc66', '#9c4110'], 
 		title: {
 			text: 'Verdeling per klasse',
 			left: 0
