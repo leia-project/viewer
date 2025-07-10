@@ -17,7 +17,6 @@
 	import { CesiumLayer } from "../module/layers/cesium-layer";
 	import type { StoryLayer } from "./StoryLayer";
 	import type { StoryChapter } from "./StoryChapter";
-	import { DonutChart } from "@carbon/charts-svelte";
 	import CustomPaginationNav from "./CustomPaginationNav.svelte";
 	import DrawPolygon from "./DrawPolygon.svelte";
 	import { getCameraPositionFromBoundingSphere } from "../module/utils/layer-utils";
@@ -85,44 +84,6 @@
 			}
 		}
 	});
-	
-	let mockData = [
-		{ group: "A", value: 20 },
-		{ group: "B", value: 25 },
-		{ group: "C", value: 40 },
-		{ group: "D", value: 10 },
-		{ group: "E", value: 5 }
-	];
-
-	$: donutOptions = {
-		showTable: false,
-		resizable: true,
-		height: "400px",
-		width: "400px",
-		donut: {
-			alignment: "center"
-		},
-		legend: {
-			alignment: 'center',
-			order: ["A", "B", "C", "D", "E"]
-		},
-		toolbar: {
-			enabled: false
-		},
-		color: {
-			scale: {
-				A: "#339966", // Green
-				B: "#99ffcc", // Light Green
-				C: "#ffff99", // Yellow
-				D: "#ffcc66", // Orange
-				E: "#9c4110"  // Red
-			}
-		},
-		tooltip: {
-			enabled: false
-		}
-	};
-	
 
 	// Flatten the steps across all chapters so we can access the correct step based on the index
 	let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
