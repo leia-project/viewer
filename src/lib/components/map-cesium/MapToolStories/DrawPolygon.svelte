@@ -36,6 +36,7 @@
             redPoints = storedPolygonData.redPoints;
             redPoints.forEach((point) => map.viewer.entities.add(point));
 
+            distributions = storedPolygonData.distributions;
             hasDrawnPolygon = true;
         }
     });
@@ -185,7 +186,8 @@
             polygonArea = area(geojson)
             polygonStore.set({
                 polygonEntity,
-                redPoints
+                redPoints,
+                distributions
             });
 
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -300,6 +302,7 @@
             polygonStore.set({
                 polygonEntity: null,
                 redPoints: [],
+                distributions: []
             });
             hasDrawnPolygon = false;
         }}
