@@ -4,7 +4,7 @@
 	
 	export let data: Array<{ group: string; value: number }>;
 
-	//change name 'group' to 'name' for compatibility with echarts
+	// Change name 'group' to 'name' for compatibility with echarts
 	let cleanData = data.map(item => ({ name: item.group, value: item.value }));
 	
 	let option = {

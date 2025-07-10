@@ -22,6 +22,7 @@
 	import DrawPolygon from "./DrawPolygon.svelte";
 	import { getCameraPositionFromBoundingSphere } from "../module/utils/layer-utils";
 	import { polygonStore } from './PolygonEntityStore';
+	import StoryChart from "./StoryChart.svelte";
 
 	export let map: Map;
 	export let story: Story;
@@ -465,10 +466,15 @@
 				</div>
 				<div class="step-stats">
 					{#if distributions && distributions[index]}
-						<DonutChart data={distributions[index]} options={donutOptions} style="justify-content:center" />
+						<StoryChart data={distributions[index]} />
 					{:else}
 						<Loading withOverlay={false} />
 					{/if}
+					<!-- {#if distributions && distributions[index]}
+						<DonutChart data={distributions[index]} options={donutOptions} style="justify-content:center" />
+					{:else}
+						<Loading withOverlay={false} />
+					{/if} -->
 				</div>
 			</div>
 		{/each}
