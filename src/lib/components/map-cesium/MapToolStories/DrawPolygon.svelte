@@ -210,6 +210,7 @@
         redPoints.forEach((point) => map.viewer.entities.remove(point));
         redPoints = [];
         
+        distributions = [];
         map.viewer.scene.requestRender();
     }
 
