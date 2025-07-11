@@ -29,7 +29,6 @@
 	export let textBack: string;
 	export let textStepBack: string;
 	export let textStepForward: string;
-	export let drawnPolygon: Cesium.Entity | undefined = undefined;
 
 	//TODO: move draw polygon stuff here so the component remembers the polygon when the story is closed
 
@@ -56,6 +55,7 @@
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
 
 	let polygonArea: number = 0;
+	let hasDrawnPolygon: boolean;
 	let polygonCameraLocation: CameraLocation | undefined = undefined; // Used instead of CL if project area is drawn by user
 	let distributions: Array<{ group: string; value: number }[]>;
 
@@ -363,7 +363,7 @@
 		</div> -->
 
 		<div class="chapter-buttons">
-			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea}/>
+			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={hasDrawnPolygon}/>
 			{#each story.storyChapters as chapter, index}
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}
@@ -428,8 +428,10 @@
 				<div class="step-stats">
 					{#if distributions && distributions[index]}
 						<StoryChart data={distributions[index]} />
-					{:else}
+					{:else if hasDrawnPolygon}
 						<Loading withOverlay={false} />
+					{:else}
+						<strong>Teken een vlak in om data op te halen</strong>
 					{/if}
 					<!-- {#if distributions && distributions[index]}
 						<DonutChart data={distributions[index]} options={donutOptions} style="justify-content:center" />

@@ -14,9 +14,9 @@
     export let story: Story;
     export let distributions: Array<{ group: string; value: number }[]> = [];
     export let polygonArea: number;
+    export let hasDrawnPolygon: boolean;
         
     let polygonEntity: Cesium.Entity | null = null;
-    let hasDrawnPolygon: boolean;
     let isDrawing = false;
     let handler: Cesium.ScreenSpaceEventHandler;
     let activeShapePoints: Cesium.Cartesian3[] = [];
@@ -36,6 +36,7 @@
             redPoints = storedPolygonData.redPoints;
             redPoints.forEach((point) => map.viewer.entities.add(point));
 
+            distributions = storedPolygonData.distributions;
             hasDrawnPolygon = true;
         }
     });
@@ -185,7 +186,8 @@
             polygonArea = area(geojson)
             polygonStore.set({
                 polygonEntity,
-                redPoints
+                redPoints,
+                distributions
             });
 
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -208,6 +210,7 @@
         redPoints.forEach((point) => map.viewer.entities.remove(point));
         redPoints = [];
         
+        distributions = [];
         map.viewer.scene.requestRender();
     }
 
@@ -300,6 +303,7 @@
             polygonStore.set({
                 polygonEntity: null,
                 redPoints: [],
+                distributions: []
             });
             hasDrawnPolygon = false;
         }}
