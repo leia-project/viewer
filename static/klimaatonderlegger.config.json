@@ -2451,6 +2451,7 @@
                         "name": "Klimaatonderlegger",
                         "description": "Kaarten voor de klimaatonderlegger",
                         "width": "600px",
+                        "disableModeSwitcher": true,
                         "chapters": [
                             {
                                 "id": "1",

@@ -11,6 +11,7 @@
 
 	$: map = get(app.map) as Map;
 	$: use3Dmode = map.options.use3DMode;
+	$: disableModeSwitcher = map.options.disableModeSwitcher;
 	let ready = false;
 
 	onMount(() => {
@@ -103,6 +104,7 @@
 		id="toggle-3d-mode"
 		size="sm"
 		bind:toggled={$use3Dmode}
+		disabled={$disableModeSwitcher}
 	>
 		<span slot="labelA" style="color: white">2D</span>
 		<span slot="labelB" style="color: green">3D</span>

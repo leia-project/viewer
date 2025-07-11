@@ -19,7 +19,7 @@ export function getCameraPositionFromBoundingSphere(boundingSphere: Cesium.Bound
 			cartographicRotated.height + boundingSphere.radius,
 			0,      // heading
 			-45,    // pitch
-			1     // duration
+			1     	// duration
 		);
 	} else {
 		const boundingSphereCartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center);
@@ -29,8 +29,8 @@ export function getCameraPositionFromBoundingSphere(boundingSphere: Cesium.Bound
 			Cesium.Math.toDegrees(boundingSphereCartographic.latitude),
 			cartographicRotated.height + boundingSphere.radius,
 			0,      // heading
-			-89.9,    // pitch
-			1     // duration
+			-89.9,  // pitch
+			1     	// duration
 		);
 	}
 }

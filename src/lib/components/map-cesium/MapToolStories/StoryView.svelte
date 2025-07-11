@@ -30,7 +30,7 @@
 	export let textStepBack: string;
 	export let textStepForward: string;
 
-	//TODO: move draw polygon stuff here so the component remembers the polygon when the story is closed
+	$: use3Dmode = map.options.use3DMode;
 
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
 	const dispatch = createEventDispatcher();
@@ -94,6 +94,9 @@
 		});
 
 	onMount(() => {
+		if (use3Dmode) map.options.use3DMode.set(false);
+		if (story.disableModeSwitcher) map.options.disableModeSwitcher.set(true);
+
 		startCameraLocation = cesiumMap.getPosition();
 
 		let toolContainer = getToolContainer();
@@ -117,6 +120,8 @@
 
 
 	onDestroy(() => {
+		if (story.disableModeSwitcher) map.options.disableModeSwitcher.set(false);
+
 		map.autoCheckBackground = startAutocheckBackground;
 		container.removeEventListener("scroll", onScroll);
 		container.removeEventListener("wheel", onWheel);

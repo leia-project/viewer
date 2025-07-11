@@ -94,6 +94,7 @@
 				const storyName = story.name;
 				const storyDescription = story.description;
 				const storyWidth = story.width;
+				const storyDisableModeSwitcher = story.disableModeSwitcher ?? false;
 				const storyChapters = new Array<StoryChapter>();
 
 				// Load all chapter groups
@@ -133,7 +134,7 @@
 					}
 					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth));
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyDisableModeSwitcher));
 			}
 		}
 		stories = loadedStories;
