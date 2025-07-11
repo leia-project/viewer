@@ -19,7 +19,7 @@
 		},
 		legend: {
 			orient: 'vertical',
-			left: 0, // Increased from 0 to 20 for more space on the right
+			left: 0,
 			padding: 10,
 			top: 'center',
 			formatter: '{name}' // Show group name
@@ -27,7 +27,7 @@
 		series: [
 			{
 				type: 'pie',
-				radius: ['50%', '90%'], // Increased inner and outer radius
+				radius: ['50%', '90%'],
 				avoidLabelOverlap: false,
 				label: {
 					show: false,
