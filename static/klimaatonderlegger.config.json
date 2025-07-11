@@ -2490,7 +2490,12 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "9001"
+                                                "id": "9001",
+                                                "legendOptions": {
+                                                    "B": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm",
+                                                    "C": "25-50 cm: Kleigronden zijn gevoelig voor verslemping",
+                                                    "D": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden"
+                                                }
                                             }
                                         ]
                                     },
@@ -2610,7 +2615,12 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "10001"
+                                                "id": "10001",
+                                                "legendOptions": {
+                                                    "B": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm",
+                                                    "C": "25-50 cm: Kleigronden zijn gevoelig voor verslemping",
+                                                    "D": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden"
+                                                }
                                             }
                                         ]
                                     },
@@ -2710,7 +2720,12 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "11001"
+                                                "id": "11001",
+                                                "legendOptions": {
+                                                    "B": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm",
+                                                    "C": "25-50 cm: Kleigronden zijn gevoelig voor verslemping",
+                                                    "D": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden"
+                                                }
                                             }
                                         ]
                                     },

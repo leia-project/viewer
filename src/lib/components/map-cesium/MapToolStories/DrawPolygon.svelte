@@ -211,6 +211,7 @@
         redPoints = [];
         
         distributions = [];
+        isDrawing = false;
         map.viewer.scene.requestRender();
     }
 

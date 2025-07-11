@@ -33,6 +33,11 @@
 	let tool = new MapToolMenuOption(id, icon, label);
 	const layers = cesiumMap.layers;
 
+	type LegendOptions = {
+		[key: string]: string;
+	};
+	const layerLegends: Array<LegendOptions> = [];
+
 	$: { tool.label.set(label); }
 	registerTool(tool);
 
@@ -128,6 +133,7 @@
 							storyLayers.push(
 								new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName)
 							);
+							layerLegends.push(step.layers[l].legendOptions);
 						}
 						const globeOpacity = step.globeOpacity ?? 100;
 						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent));
@@ -166,6 +172,7 @@
 				{textStepBack}
 				{textStepForward}
 				savedStepNumber={stepNumber}
+				{layerLegends}
 				on:closeStory={() => {
 					closeStory();
 				}}

@@ -23,12 +23,17 @@
 	import { polygonStore } from './PolygonEntityStore';
 	import StoryChart from "./StoryChart.svelte";
 
+	type LegendOptions = {
+		[key: string]: string;
+	};
+
 	export let map: Map;
 	export let story: Story;
 	export let savedStepNumber: number;
 	export let textBack: string;
 	export let textStepBack: string;
 	export let textStepForward: string;
+	export let layerLegends: Array<LegendOptions>; 
 
 	$: use3Dmode = map.options.use3DMode;
 
@@ -58,6 +63,7 @@
 	let hasDrawnPolygon: boolean;
 	let polygonCameraLocation: CameraLocation | undefined = undefined; // Used instead of CL if project area is drawn by user
 	let distributions: Array<{ group: string; value: number }[]>;
+	
 
 	$: shown = Math.floor(width / 70);
 
@@ -433,6 +439,17 @@
 				<div class="step-stats">
 					{#if distributions && distributions[index]}
 						<StoryChart data={distributions[index]} />
+						<br><br><br>
+						<ul>
+							{#each distributions[index] as key}
+								{#if layerLegends[index] && key.value > 0 && layerLegends[index][key.group]} 
+									<li>
+										<strong>{key.group}: </strong>{layerLegends[index][key.group]}
+									</li>
+									<br>
+								{/if}
+							{/each}
+						</ul>
 					{:else if hasDrawnPolygon}
 						<Loading withOverlay={false} />
 					{:else}
