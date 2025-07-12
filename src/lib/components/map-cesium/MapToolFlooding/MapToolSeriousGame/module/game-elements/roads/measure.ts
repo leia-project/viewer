@@ -26,6 +26,10 @@ export abstract class Measure {
 	private billboard: Cesium.Entity;
 	private lines: Cesium.CustomDataSource = new Cesium.CustomDataSource();
 
+	get centerCartesian3(): Cesium.Cartesian3 {
+		return this.position;
+	}
+
 	constructor(config: IMeasureConfig, map: Map) {
 		this.config = config;
 		this.map = map;

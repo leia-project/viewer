@@ -1,13 +1,15 @@
 
 import { Dispatcher } from "$lib/components/map-core/event/dispatcher";
+import type { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 import { get, writable, type Writable, type Unsubscriber } from "svelte/store";
 
 
 export interface INotification {
+	type: NotificationType;
 	title: string;
 	message: string;
 	component?: any;
-	type: string;
+	duration?: number;
 }
 
 
@@ -43,7 +45,7 @@ export class NotificationLog extends Dispatcher {
 			const shifted = live.shift();
 			if (shifted) this.live.set(live);
 			this.timeoutIds = this.timeoutIds.filter(id => id !== timeoutId);
-		}, 10000);
+		}, notification.duration ?? 10000);
 		this.timeoutIds.push(timeoutId);
     }
 

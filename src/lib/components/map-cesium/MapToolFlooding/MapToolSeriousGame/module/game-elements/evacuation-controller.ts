@@ -6,24 +6,24 @@ import { RoadNetwork } from "./roads/road-network";
 import { Map as CesiumMap } from "$lib/components/map-cesium/module/map";
 import { Evacuation } from "./evacuation";
 import type { Game } from "../game";
-import type { IGameConfig } from "../models";
+import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 
 
 export class EvacuationController {
 
-	private game: Game;
-	private map: CesiumMap;
-	private elapsedTime: Writable<number>;
+	public game: Game;
+	public map: CesiumMap;
+	public elapsedTime: Writable<number>;
 	public roadNetwork: RoadNetwork;
 	public hexagonLayer: HexagonLayer;
 	public evacuations!: Readable<Array<Evacuation>>;
 
-	constructor(game: Game, map: CesiumMap, gameConfig: IGameConfig) {
+	constructor(game: Game) {
 		this.game = game;
-		this.map = map;
+		this.map = game.map;
 		this.elapsedTime = game.elapsedTime;
-		const scenarioName = `${gameConfig.breach.properties.dijkring}_${gameConfig.breach.properties.name}_${gameConfig.scenario}`;
-		this.hexagonLayer = new HexagonLayer(map, this.elapsedTime, [scenarioName], gameConfig.outline, this);
+		const scenarioName = `${game.gameConfig.breach.properties.dijkring}_${game.gameConfig.breach.properties.name}_${game.gameConfig.scenario}`;
+		this.hexagonLayer = new HexagonLayer(this, [scenarioName], game.gameConfig.outline);
 		this.hexagonLayer.loaded.subscribe(() => {
 			this.evacuations = derived(
 				this.hexagonLayer.hexagons.map((h) => h.evacuations),
@@ -33,7 +33,7 @@ export class EvacuationController {
 				}
 			);
 		});
-		this.roadNetwork = new RoadNetwork(map, this.elapsedTime, gameConfig.outlineRoadNetwork);
+		this.roadNetwork = new RoadNetwork(this.map, this.elapsedTime, game.gameConfig.outlineRoadNetwork, game.notificationLog);
 		this.addMouseEvents();
 	}
 
@@ -41,7 +41,7 @@ export class EvacuationController {
 	public async evacuate(hexagon: Hexagon | undefined = get(this.hexagonLayer.selectedHexagon)): Promise<void> {
 		if (!hexagon) {
 			this.game.notificationLog.send({
-				type: "error",
+				type: NotificationType.ERROR,
 				title: "Evacuation Error",
 				message: "No hexagon selected for evacuation.",
 			})
@@ -50,7 +50,7 @@ export class EvacuationController {
 		const routeResults = await this.roadNetwork.evacuateHexagon(hexagon);
 		if (routeResults === undefined) {
 			   this.game.notificationLog.send({
-					type: "error",
+					type: NotificationType.ERROR,
 					title: "Evacuation Error",
 					message: "No route found for evacuation.",
 				});

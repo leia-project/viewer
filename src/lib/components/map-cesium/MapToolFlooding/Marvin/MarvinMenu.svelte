@@ -14,7 +14,7 @@
 
 	const questions = app.qaManager.entries;
 
-	let openMenu: boolean = false;
+	const openMenu = app.openMenu;
 
 	let openModal: boolean = false;
 	let modalComponent: any;
@@ -29,11 +29,11 @@
 </script>
 
 
-<div class="menu-container" class:open={openMenu}>
+<div class="menu-container" class:open={$openMenu}>
 	<div class="menu-header">
 		<div class="menu-title">
 			<div class="avatar">
-				<MarvinAvatar animate={app.loading} bind:open={openMenu} />
+				<MarvinAvatar animate={app.loading} bind:open={$openMenu} />
 			</div>
 			<p class="menu-app-title">{$_("appTitle")}</p>
 			<p class="menu-app-subtitle">{$_("appSubtitle")}</p>

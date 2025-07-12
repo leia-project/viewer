@@ -46,13 +46,13 @@
 
 {#if !$showLog}
 	<div class="notifications live" bind:this={notificationsContainer}>
-		{#each $live as notification}
+		{#each $live as notification (notification.message)}
 			<Notification {notification} />
 		{/each}
 	</div>
 {:else}
 	<div class="notifications log" bind:this={notificationsContainer}>
-		{#each $log as notification}
+		{#each $log as notification (notification.message)}
 			<Notification {notification} />
 		{/each}
 	</div>
@@ -73,6 +73,7 @@
 		display: flex;
 		flex-direction: column;
 		row-gap: 0.5rem;
+		z-index: 3;
 	}
 	.notifications {
 		max-height: 50vh;
@@ -80,6 +81,7 @@
 		-ms-overflow-style: none; 
 		scrollbar-width: none; 
 		pointer-events: auto;
+		z-index: 3;
 	}
 	.notifications::-webkit-scrollbar {
 		display: none;

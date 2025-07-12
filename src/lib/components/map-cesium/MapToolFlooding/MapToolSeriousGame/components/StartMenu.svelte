@@ -46,15 +46,17 @@
 		{:else}
 			<div class="loading-container">
 				<Loading withOverlay={false} />
-				{#if !$roadsLoaded}
-					<p>Loading road network...</p>
-				{/if}
-				{#if !$hexagonsLoaded}
-					<p>Loading hexagons...</p>
-				{/if}
-				{#if !$layersLoaded}
-					<p>Loading flood layer...</p>
-				{/if}
+				<div class="loading-status">
+					{#if !$roadsLoaded}
+						<p>Loading road network...</p>
+					{/if}
+					{#if !$hexagonsLoaded}
+						<p>Loading hexagons...</p>
+					{/if}
+					{#if !$layersLoaded}
+						<p>Loading flood layer...</p>
+					{/if}
+				</div>
 			</div>
 		{/if}
 	</div>
@@ -63,7 +65,7 @@
 <style>
 
 	:global(#start-menu-modal .bx--modal-container) {
-		background-color: var(--game-color-bg);
+		background-color: rgb(var(--game-color-bg));
 	}
 	:global(#start-menu-modal .bx--modal-close) {
 		display: none;
@@ -81,9 +83,14 @@
 
 	.loading-container {
 		display: flex;
-		justify-content: center;
+		justify-content: fle;
 		align-items: center;
+		column-gap: 2rem;
 		height: 150px;
+	}
+
+	.loading-status {
+		text-align: left;
 	}
 
 </style>

@@ -41,6 +41,7 @@
 			name: "Middelburg",
 			description: "The city of Middelburg is under water. Can you save the city?",
 			thumbnail: "https://via.placeholder.com/150",
+			breachTimeDateString: "2023-10-01T12:00:00+02:00",
 			breach: {
 				type: "Feature",
 				properties: {
@@ -66,6 +67,7 @@
 			name: "Schouwen-Duiveland",
 			description: "The island of Schouwen-Duiveland is under water. Can you save the island?",
 			thumbnail: "https://via.placeholder.com/150",
+			breachTimeDateString: "2023-10-01T12:00:00+02:00",
 			breach: {
 				type: "Feature",
 				properties: {
@@ -93,6 +95,7 @@
 			name: "Middelburg-oost",
 			description: "The island of Middelburg-oost is under water. Can you save the island?",
 			thumbnail: "https://via.placeholder.com/150",
+			breachTimeDateString: "2023-10-01T12:00:00+02:00",
 			breach: {
 				type: "Feature",
 				properties: {
@@ -120,6 +123,7 @@
 			name: "Tholen",
 			description: "The island of Tholen is under water. Can you save the island?",
 			thumbnail: "https://via.placeholder.com/150",
+			breachTimeDateString: "2023-10-01T12:00:00+02:00",
 			breach: {
 				type: "Feature",
 				properties: {

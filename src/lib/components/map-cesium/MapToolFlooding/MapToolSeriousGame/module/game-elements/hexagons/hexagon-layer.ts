@@ -40,8 +40,8 @@ export class HexagonLayer {
 	private hexagonSelectBox: HexagonInfoBox | undefined;
 	private selectBoxTimeOut: NodeJS.Timeout | undefined;
 
-	constructor(map: Map, elapsedTime: Writable<number>, scenarios: Array<string>, outline: Array<[lon: number, lat: number]>, evacuationController: EvacuationController) {
-		this.map = map;
+	constructor(evacuationController: EvacuationController, scenarios: Array<string>, outline: Array<[lon: number, lat: number]>) {
+		this.map = evacuationController.map;
 		this.outline = outline;
 		this.loadHexagons();
 		this.selectedHexagon.subscribe((hexagon: Hexagon | undefined) => {
@@ -50,7 +50,7 @@ export class HexagonLayer {
 				this.hexagonHoverBox?.$destroy();
 				this.hexagonSelectBox?.$destroy();
 				this.hexagonSelectBox = new HexagonInfoBox({
-					target: map.getContainer(),
+					target: this.map.getContainer(),
 					props: {
 						hexagon,
 						store: this.selectedHexagon,
@@ -68,7 +68,7 @@ export class HexagonLayer {
 			if (hexagon instanceof Hexagon && hexagon !== get(this.selectedHexagon)) {
 				this.hexagonHoverBox?.$destroy();
 				this.hexagonHoverBox = new HexagonInfoBox({
-					target: map.getContainer(),
+					target: this.map.getContainer(),
 					props: {
 						hexagon,
 						store: this.hoveredHexagon,
@@ -82,7 +82,7 @@ export class HexagonLayer {
 				this.hoverBoxTimeOut = setTimeout(() => this.hexagonHoverBox?.$destroy(), 400);
 			}
 		});
-		elapsedTime.subscribe((time: number) => this.updateFloodDepths(scenarios, time));
+		evacuationController.elapsedTime.subscribe((time: number) => this.updateFloodDepths(scenarios, time));
 		this.visible.subscribe((b) => this.toggleHexagons(b));
 		this.use2DMode.subscribe((b) => this.toggle2D3DModeHexagons(b));
 		this.alpha.subscribe((alpha: number) => {

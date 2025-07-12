@@ -55,7 +55,7 @@
 	}
 	
 	.evacuation-overview {
-		background-color: var(--game-color-bg);
+		background-color: rgb(var(--game-color-bg));
 		color: var(--game-color-text);
 		padding: 0.5rem;
 		margin-bottom: 0.5rem;

@@ -12,6 +12,7 @@ import { CommandPalette } from "./module/command-center/command-palette";
 export class MarvinApp {
 	public map: Map;
 	public menu?: MarvinMenu;
+	public openMenu: Writable<boolean> = writable(false);
 
 	public ready: Writable<boolean>;
 	public qaManager: QAManager;

@@ -5,6 +5,8 @@ import { NotificationLog } from "./notification-log";
 import { CameraLocation } from "$lib/components/map-core/camera-location";
 import { EvacuationController } from "./game-elements/evacuation-controller";
 import type { IGameConfig } from "./models";
+import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
+import type { MarvinApp } from "../../Marvin/marvin";
 
 
 interface IGameStats {
@@ -48,11 +50,13 @@ const steps: Array<IGameStep> = [
 
 export class Game {
 
-	private map: Map;
+	public map: Map;
+	public marvin?: MarvinApp;
+	public gameConfig: IGameConfig;
 
 	public notificationLog: NotificationLog;
 	private forwarding: Writable<boolean> = writable(false);
-	public startTime: Writable<number> = writable(0);
+	public startTime: number;
 	private step: Writable<number> = writable(0);
 	public elapsedTime: Writable<number> = writable(0);
 	public elapsedTimeDynamic: Writable<number>;
@@ -64,8 +68,10 @@ export class Game {
 
 	public stats: IGameStats;
 
-	constructor(map: Map, gameConfig: IGameConfig) {
+	constructor(map: Map, gameConfig: IGameConfig, marvin?: MarvinApp) {
 		this.map = map;
+		this.marvin = marvin;
+		this.gameConfig = gameConfig;
 		this.notificationLog = new NotificationLog();
 		this.stats = {
 			victims: 92,
@@ -77,9 +83,13 @@ export class Game {
 		this.floodLayerController.loadNewScenario(gameConfig.breach, gameConfig.scenario).then(() => {
 			this.load();
 		});
-		this.evacuationController = new EvacuationController(this, map, gameConfig);
+		this.evacuationController = new EvacuationController(this);
 		this.step.subscribe((value) => {
 			this.elapsedTime.set(steps[value].time);
+		});
+		this.startTime = new Date(gameConfig.breachTimeDateString).getTime();
+		this.elapsedTimeDynamic.subscribe((t) => {
+			this.map.options.dateTime.set(this.startTime + t * 1000);
 		});
 	}
 
@@ -114,7 +124,7 @@ export class Game {
 		this.notificationLog.send({
 			title: "Game",
 			message: `Time forwarded to ${steps[get(this.step)].title}`,
-			type: "info"
+			type: NotificationType.INFO
 		});
 	
 		this.step.update((value) => {

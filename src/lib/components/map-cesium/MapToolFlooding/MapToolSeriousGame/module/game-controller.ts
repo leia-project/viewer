@@ -27,6 +27,7 @@ export class GameController {
 
 	private backgroundLayer?: LayerConfig;
 	private cachedMapLayers: Array<any> = [];
+	private cachedTime: number = 0;
 
 	public inGame: Writable<boolean> = writable(false);
 	private savedGames: Array<Game> = [];
@@ -39,13 +40,14 @@ export class GameController {
 	}
 
 	public loadGame(gameConfig: IGameConfig): void {
-		const game = new Game(this.map, gameConfig);
+		const game = new Game(this.map, gameConfig, this.marvin);
 		this.active.set(game);
 	}
 
 	public play(gameConfig: IGameConfig): void {
 		this.inGame.set(true);
 		this.toggleViewerUI(false);
+		this.cachedTime = get(this.map.options.dateTime);
 		const marvin = this.initMarvin();
 		this.loadUserInterface(marvin);
 		this.addBackgroundLayer();
@@ -56,9 +58,11 @@ export class GameController {
 		this.inGame.set(false);
 		this.removeBackgroundLayer();
 		this.toggleViewerUI(true);
+		this.map.options.dateTime.set(this.cachedTime);
 		get(this.active)?.exit();
 		this.active.set(undefined);
 		this.gameContainer?.$destroy();
+		this.map.options.dateTime.set(this.cachedTime);
 	}
 
 	private loadUserInterface(marvin: MarvinApp): void {

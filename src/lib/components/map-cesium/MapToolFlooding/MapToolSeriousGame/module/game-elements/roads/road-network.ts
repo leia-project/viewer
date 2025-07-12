@@ -10,6 +10,7 @@ import { RoadNetworkLayer, RouteSegment } from "./route-segments";
 import { PGRestAPI } from "../api/pg-rest-api";
 import { getNetworkPGRest } from "../api/routing/graph";
 import { BlockageMeasure, CapacityMeasure, HeightMeasure, Measure, type IMeasureConfig } from "./measure";
+import type { NotificationLog } from "../../notification-log";
 
 import measuresJSON from "./measure-config.json";
 
@@ -37,7 +38,7 @@ export class RoadNetwork {
 
 	public loaded: Writable<boolean> = writable(false);
 
-	constructor(map: Map, elapsedTime: Writable<number>, outline: Array<[lon: number, lat: number]>) {
+	constructor(map: Map, elapsedTime: Writable<number>, outline: Array<[lon: number, lat: number]>, notificationLog: NotificationLog) {
 		this.map = map;
 		this.elapsedTime = elapsedTime;
 		this.routingAPI = new RoutingAPI();
@@ -61,7 +62,9 @@ export class RoadNetwork {
 						node: node,
 						store: this.selectedNode,
 						timeout: this.selectTimeOut,
-						roadNetwork: this
+						map: this.map,
+						type: "selected",
+						notificationLog: notificationLog
 					}
 				});
 			} else {
@@ -77,7 +80,9 @@ export class RoadNetwork {
 						node: node,
 						store: this.hoveredNode,
 						timeout: this.hoverTimeOut,
-						roadNetwork: this
+						map: this.map,
+						type: "hover",
+						notificationLog: notificationLog
 					}
 				});
 			} else {

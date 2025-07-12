@@ -6,10 +6,11 @@
 
 	export let game: Game;
 
-	const startTime = game.startTime;
 	const elapsedTimeDynamic = game.elapsedTimeDynamic;
 
-	$: currentTime = new Date($startTime + $elapsedTimeDynamic * 3600000).toLocaleTimeString("nl", {
+	$: currentTime = new Date(game.startTime + $elapsedTimeDynamic * 3600000).toLocaleTimeString("nl", {
+		day: "numeric",
+		month: "short",
 		hour: "2-digit",
 		minute: "2-digit"
 	});

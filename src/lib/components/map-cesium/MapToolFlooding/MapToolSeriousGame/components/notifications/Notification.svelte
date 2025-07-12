@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
     import type { INotification } from "../../module/notification-log";
-    import { UserAvatarFilled } from "carbon-icons-svelte";
+    import { CheckmarkFilled, ErrorFilled, InformationFilled, UserAvatarFilled, WarningHexFilled } from "carbon-icons-svelte";
     import { onMount } from "svelte";
 
 	export let notification: INotification;
@@ -14,12 +15,25 @@
 		}, 100);	
 	});
 
+	const icon = 
+		notification.type === NotificationType.ERROR ? ErrorFilled :
+		notification.type === NotificationType.INFO ? InformationFilled :
+		notification.type === NotificationType.SUCCESS ? CheckmarkFilled :
+		notification.type === NotificationType.WARN ? WarningHexFilled :
+		InformationFilled;
+	const color = 
+		notification.type === NotificationType.ERROR ? "red" :
+		notification.type === NotificationType.INFO ? "#ddf4ff" :
+		notification.type === NotificationType.SUCCESS ? "green" :
+		notification.type === NotificationType.WARN ? "orange" :
+		"ddf4ff";
+
 </script>
 
 
-<div class="notification" style="opacity:{opacity};transform:translate({translateX}%);">
+<div class="notification" style="opacity:{opacity}; transform:translate({translateX}%);">
 	<div class="gravatar">
-		<UserAvatarFilled />
+		<svelte:component this={icon} {...{color: color, size: 20}} />
 	</div>
 	<div class="content">
 		<span class="notification-title">{@html notification.title}</span>

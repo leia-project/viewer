@@ -15,10 +15,7 @@
 	export let marvinApp: MarvinApp;
 
 	const inGame = gameController.inGame;
-
 	const activeGame = gameController.active;
-
-	$: notificationLog = $activeGame?.notificationLog;
 
 	let showStartMenu = true;
 
@@ -26,68 +23,66 @@
 
 
 {#if $inGame && $activeGame}
-	<div id="game-container">
-		<div id="top-left">
-			{#key notificationLog}
-				{#if notificationLog}
-					<Notifications {notificationLog}>
-						<svelte:fragment slot="extra-buttons">
-							<Button
-								icon={Home}
-								iconDescription="Start Position"
-								tooltipPosition="right"
-								size="default"
-								kind="secondary"
-								on:click={() => $activeGame.flyHome()}
-							/>
-							<Button
-								icon={Compass}
-								iconDescription="Zoom to North"
-								tooltipPosition="right"
-								size="default"
-								kind="secondary"
-								on:click={() => $activeGame.flyHome()}
-							/>
-							<Button
-								icon={Exit}
-								iconDescription="Menu"
-								tooltipPosition="right"
-								size="default"
-								kind="secondary"
-								on:click={() => showStartMenu = !showStartMenu}
-							/>
-						</svelte:fragment>
-					</Notifications>
-				{/if}
-			{/key}
-		</div>
-		<div id="top-center">
-			<GameStats game={$activeGame} />
-		</div>
-		<div id="top-right">
-			<MarvinMenu app={marvinApp} />
-		</div>
-		<div id="bottom-left">
-			<Roles {gameController} />
-		</div>
-		<div id="bottom-center">
-			<TimeControl game={$activeGame} />
-		</div>
-		<div id="bottom-right">
-			<EvacuationOverview game={$activeGame} />
-		</div>
+	{#key $activeGame}
+		<div id="game-container">
+			<div id="top-left">
+				<Notifications notificationLog={$activeGame.notificationLog}>
+					<svelte:fragment slot="extra-buttons">
+						<Button
+							icon={Home}
+							iconDescription="Start Position"
+							tooltipPosition="right"
+							size="default"
+							kind="secondary"
+							on:click={() => $activeGame.flyHome()}
+						/>
+						<Button
+							icon={Compass}
+							iconDescription="Zoom to North"
+							tooltipPosition="right"
+							size="default"
+							kind="secondary"
+							on:click={() => $activeGame.flyHome()}
+						/>
+						<Button
+							icon={Exit}
+							iconDescription="Menu"
+							tooltipPosition="right"
+							size="default"
+							kind="secondary"
+							on:click={() => showStartMenu = !showStartMenu}
+						/>
+					</svelte:fragment>
+				</Notifications>
+			</div>
+			<div id="top-center">
+				<GameStats game={$activeGame} />
+			</div>
+			<div id="top-right">
+				<MarvinMenu app={marvinApp} />
+			</div>
+			<div id="bottom-left">
+				<Roles {gameController} />
+			</div>
+			<div id="bottom-center">
+				<TimeControl game={$activeGame} />
+			</div>
+			<div id="bottom-right">
+				<EvacuationOverview game={$activeGame} />
+			</div>
 
-		{#if showStartMenu}
-			<StartMenu {gameController} bind:open={showStartMenu} />
-		{/if}
-	</div>
+			{#if showStartMenu}
+				<StartMenu {gameController} bind:open={showStartMenu} />
+			{/if}
+		</div>
+	{/key}
 {/if}
 
 
 <style>
 	
 	#game-container {
-		--game-color-bg: #212121;
+		--game-color-bg: 33, 33, 33;
 		--game-color-contrast: #f0f0f0;
 		--game-color-highlight: #ff9800;
 		--game-color-text: #ffffff;

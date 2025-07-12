@@ -152,6 +152,11 @@ abstract class RoutingNode<F = any> {
 	}
 
 	protected abstract createEntity(): Cesium.Entity;
+	
+	get centerCartesian3(): Cesium.Cartesian3 {
+		return this.position;
+	}
+
 }
 
 export class RouteSegment extends RoutingNode<IEdgeFeature> {

@@ -87,13 +87,14 @@ export class Hexagon {
 		});
 	}
 
-	private createGeometryInstance(cell: string, population: number): Array<Cesium.GeometryInstance> {
+	public getHexVertices(cell: string = this.hex): Array<[lon: number, lat: number]> {
 		const boundary = cellToBoundary(cell, true);
-		const degreesArray = new Array<number>();
-		for (let j = 0; j < boundary.length; j++) {
-			degreesArray.push(boundary[j][0], boundary[j][1]);
-		}
-		const positions = Cesium.Cartesian3.fromDegreesArray(degreesArray);
+		return boundary.map((point) => [point[0], point[1]]);
+	}
+
+	private createGeometryInstance(cell: string, population: number): Array<Cesium.GeometryInstance> {
+		const boundary = this.getHexVertices(cell);
+		const positions = Cesium.Cartesian3.fromDegreesArray(boundary.flat());
 
 		//@ts-ignore
 		const polygonGeometry = new PolygonGeometry({
@@ -165,14 +166,9 @@ export class Hexagon {
 	}
 
 	private createEntityInstance(cell: string, population: number): Cesium.Entity {
-		const boundary = cellToBoundary(cell, true);
-		const degreesArray = new Array<number>();
-		for (let i = 0; i < boundary.length; i++) {
-			degreesArray.push(boundary[i][0], boundary[i][1]);
-		}
-
+		const boundary = this.getHexVertices(cell)
 		const color = this.valueToColor(population);
-		const positions = Cesium.Cartesian3.fromDegreesArray(degreesArray);
+		const positions = Cesium.Cartesian3.fromDegreesArray(boundary.flat());
 		const entity = new Cesium.Entity({
 			polygon: {
 				hierarchy: positions,

@@ -7,10 +7,19 @@
 
     export let layer: HexagonLayer;
     const use2DMode = layer?.use2DMode;
+    const opacity = layer.alpha;
+
 </script>
 
 <BaseLayer {layer}>
-    <Slider slot="Slider"/>
+    <Slider
+        slot="Slider"
+        bind:value={$opacity}
+        labelText="Opacity"
+        min={0}
+        max={1}
+        step={0.01}
+    />
     <Checkbox slot = "2DMode"
         bind:checked={$use2DMode}
         labelText = "2D Mode"
