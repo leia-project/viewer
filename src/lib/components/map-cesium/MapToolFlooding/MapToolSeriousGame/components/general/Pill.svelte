@@ -4,7 +4,7 @@
 	export let label: string;
 	export let value: string | number;
 	export let unit: string = "";
-	export let color: string = "var(--game-bg)";
+	export let color: string = "var(--game-color-text)";
 
 </script>
 

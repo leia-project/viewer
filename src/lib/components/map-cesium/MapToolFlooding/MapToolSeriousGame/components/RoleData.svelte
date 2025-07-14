@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { IRole } from "../module/models";
-    import HexagonLayerControl from "./LayerManager/HexagonLayerControl.svelte";
-    import BaseLayer from "./LayerManager/BaseLayer.svelte";
+    import HexagonLayerControl from "./layer-manager/HexagonLayerControl.svelte";
+    import BaseLayer from "./layer-manager/BaseLayer.svelte";
 	import type { GameController } from "../module/game-controller";
 
     export let roleData: IRole;

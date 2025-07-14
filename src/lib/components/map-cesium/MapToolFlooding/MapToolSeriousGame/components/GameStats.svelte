@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { FaceDizzyFilled, FaceWinkFilled } from "carbon-icons-svelte";
 	import type { Game } from "../module/game";
-	import Pill from "./Pill.svelte";
+	import Pill from "./general/Pill.svelte";
 
 	export let game: Game;
 

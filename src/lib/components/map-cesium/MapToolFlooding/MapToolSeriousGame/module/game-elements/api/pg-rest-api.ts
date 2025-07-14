@@ -50,7 +50,7 @@ export class PGRestAPI {
 				${this.schema}.${this.tables.cbs_h3}
 			WHERE number_of_inhabitants > 0
 			AND ST_Intersects(
-				centroid,
+				ST_SetSRID(centroid, 4326),
 				ST_GeomFromGeoJSON('{
 					"type":"Polygon",
 					"coordinates": [${JSON.stringify(polygon)}]
@@ -74,7 +74,8 @@ export class PGRestAPI {
 		const query = `
 			SELECT
 				h3_cell_to_parent(h3, ${resolution}) AS parent_h3,
-				MAX(flood_depth) AS max_flood_depth
+				MAX(flood_depth) AS max_flood_depth,
+				COUNT(*) AS pixel_count
 			FROM
 				${this.schema}.${this.tables.zeeland_flood_h3}
 				WHERE scenario = ANY(ARRAY[${scenarios.map(s => `'${s}'`).join(',')}])
@@ -87,7 +88,8 @@ export class PGRestAPI {
 						"coordinates": [${JSON.stringify(polygon)}]
 					}')
 				)
-			GROUP BY parent_h3;
+			GROUP BY parent_h3
+			HAVING COUNT(*) >= 100;
 		`;
 		const queryResult: any = await this.client.query(query, {
 			format: "jsonDataArray"

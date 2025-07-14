@@ -6,27 +6,7 @@ import { CylinderGeometry } from "./cylinder-geometry";
 
 
 
-export abstract class RoutingNode<F = any> {
-
-	public id: string;
-	public lon: number;
-	public lat: number;
-	public feature: F;
-	public position: Cesium.Cartesian3;
-	public entity: Cesium.Entity;
-
-	constructor(id: string, lon: number, lat: number, feature?: F) {
-		this.id = id;
-		this.lon = lon;
-		this.lat = lat;
-		this.feature = feature || {} as F;
-		this.position = Cesium.Cartesian3.fromDegrees(lon, lat);
-		this.entity = this.createEntity();
-	}
-
-	protected abstract createEntity(): Cesium.Entity;
-}
-
+/* 
 
 export class ExtractionPoint extends RoutingNode {
 
@@ -68,31 +48,11 @@ export class ExtractionPoint extends RoutingNode {
 	}
 }
 
+*/
 
 
-export interface IMeasure {
-	name: string;
-	impact: any;
-}
 
-export interface IEdgeFeature {
-	type: "Feature";
-	geometry: {
-		type: "LineString";
-		coordinates: Array<[lon: number, lat: number]>;
-	};
-	properties: {
-		fid: string;
-		maximum_snelheid: number;
-		capaciteit: number;
-		cost: number;
-		source: string | number;
-		target: string | number;
-	};
-}
-
-
-export class BottleNeck extends RoutingNode {
+/* class BottleNeck extends RoutingNode {
 
 	public measures: Array<IMeasure> = [];
 	public capacity: number; // Extraction capacity per time step
@@ -212,9 +172,9 @@ export class BottleNeck extends RoutingNode {
 	// display the capacity evolution through time
 
 }
+ */
 
-
-
+/* 
 export class RoadNetworkLayer<T extends RoutingNode> {
 
 	private map: CesiumMap;
@@ -250,8 +210,8 @@ export class RoadNetworkLayer<T extends RoutingNode> {
 		return this.items.find((item) => item.id === id);
 	}
 }
-
-
+ */
+/* 
 export class RoadNetworkLayerP<T extends BottleNeck> {
 
 	private map: CesiumMap;
@@ -355,3 +315,4 @@ export class RoadNetworkLayerP<T extends BottleNeck> {
 		return this.items.find((item) => item.id === id);
 	}
 }
+ */

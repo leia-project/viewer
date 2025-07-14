@@ -29,6 +29,7 @@
 </script>
 
 <div class="top-right-button" class:hide-tooltip={$showLog}>
+	<slot name="extra-buttons" />
 	<Button 
 		bind:ref={toggleButton}
 		kind={$showLog ? "secondary" : "tertiary"}
@@ -41,13 +42,12 @@
 			showLog.set(!$showLog)
 		}} 
 	/>
-	<slot name="extra-buttons" />
 </div>
 
 {#if !$showLog}
 	<div class="notifications live" bind:this={notificationsContainer}>
 		{#each $live as notification (notification.message)}
-			<Notification {notification} />
+			<Notification {notification} showProgress={true} />
 		{/each}
 	</div>
 {:else}

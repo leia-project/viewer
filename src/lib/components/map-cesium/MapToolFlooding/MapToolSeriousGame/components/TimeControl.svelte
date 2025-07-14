@@ -2,7 +2,7 @@
 	import { Button } from "carbon-components-svelte";
 	import type { Game } from "../module/game";
 	import { SkipBackSolidFilled, SkipForwardSolidFilled, TimeFilled, Timer } from "carbon-icons-svelte";
-	import Pill from "./Pill.svelte";
+	import Pill from "./general/Pill.svelte";
 
 	export let game: Game;
 

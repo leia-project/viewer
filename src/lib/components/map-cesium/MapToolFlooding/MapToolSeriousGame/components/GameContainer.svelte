@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { Button } from "carbon-components-svelte";
-	import { Compass, Home, Exit } from "carbon-icons-svelte";
+	import { Exit } from "carbon-icons-svelte";
 	import type { MarvinApp } from "../../Marvin/marvin";
 	import type { GameController } from "../module/game-controller";
 	import GameStats from "./GameStats.svelte";
 	import MarvinMenu from "../../Marvin/MarvinMenu.svelte";
-	import Roles from "./Roles.svelte";
 	import TimeControl from "./TimeControl.svelte";
 	import Notifications from "./notifications/Notifications.svelte";
 	import StartMenu from "./StartMenu.svelte";
-	import EvacuationOverview from "./logging/EvacuationOverview.svelte";
+	import MapControls from "./MapControls.svelte";
+	import DataMenu from "./data/DataMenu.svelte";
 
 	export let gameController: GameController;
 	export let marvinApp: MarvinApp;
@@ -29,22 +29,6 @@
 				<Notifications notificationLog={$activeGame.notificationLog}>
 					<svelte:fragment slot="extra-buttons">
 						<Button
-							icon={Home}
-							iconDescription="Start Position"
-							tooltipPosition="right"
-							size="default"
-							kind="secondary"
-							on:click={() => $activeGame.flyHome()}
-						/>
-						<Button
-							icon={Compass}
-							iconDescription="Zoom to North"
-							tooltipPosition="right"
-							size="default"
-							kind="secondary"
-							on:click={() => $activeGame.flyHome()}
-						/>
-						<Button
 							icon={Exit}
 							iconDescription="Menu"
 							tooltipPosition="right"
@@ -62,13 +46,13 @@
 				<MarvinMenu app={marvinApp} />
 			</div>
 			<div id="bottom-left">
-				<Roles {gameController} />
+				<DataMenu game={$activeGame} />
 			</div>
 			<div id="bottom-center">
 				<TimeControl game={$activeGame} />
 			</div>
 			<div id="bottom-right">
-				<EvacuationOverview game={$activeGame} />
+				<MapControls game={$activeGame} />
 			</div>
 
 			{#if showStartMenu}
