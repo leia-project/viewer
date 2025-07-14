@@ -16,6 +16,7 @@
 
 	onMount(() => {
 		const unsubscribe = use3Dmode.subscribe((b) => {
+			// Ignore first call because it is called when the map is initialized
 			if (ready) {
 				b ? to3D() : to2D();
 			} else {

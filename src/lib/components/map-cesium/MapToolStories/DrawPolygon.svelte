@@ -105,7 +105,6 @@
             }
 
             activeShapePoints.push(earthPosition);
-            map.viewer.scene.requestRender();
 
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -163,7 +162,6 @@
             activeShapePoints = [];
             activeShape = undefined;
 
-            map.viewer.scene.requestRender();
             hasDrawnPolygon = true;
             isDrawing = false;
             
@@ -175,7 +173,6 @@
                 .then(apiResponse => {
                     const transformed = transformDistribution(apiResponse.distribution);
                     distributions[i] = transformed;
-                    map.viewer.scene.requestRender();
                 })
                 .catch(error => 
                     console.error("Error: ", error)
@@ -212,7 +209,6 @@
         
         distributions = [];
         isDrawing = false;
-        map.viewer.scene.requestRender();
     }
 
     async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any): Promise<any> {
