@@ -360,13 +360,14 @@
 	>
 		<div class="close">
 			<Button
+				kind="tertiary"
 				iconDescription={textBack}
 				tooltipPosition="left"
 				icon={Exit}
 				on:click={backToOverview} 
 			/>
 		</div>
-		<div class="heading-01">
+		<div class="heading-03" style="font-weight: bold">
 			{story.name}
 		</div>
 		<!-- <div class="story-description body-compact-01">
@@ -418,8 +419,11 @@
 		<div style="height:{navHeight}px" />
 		{#each flattenedSteps as { step, chapter }, index}
 			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
-				<div class="step-heading heading-03">
-					{chapter.title} | {step.title}
+				<div class="step-heading heading-01">
+					{chapter.title}
+				</div>
+				<div class="step-heading heading-04">
+					{step.title}
 				</div>
 				<div class="step-heading-sub heading-03">
 					{$_("tools.stories.description")}
@@ -428,11 +432,7 @@
 				{#each step.layers ?? [] as layer}
 					Layer {layer.id}: {layer.featureName}
 				{/each}
-
-				<div class="tag">
-					<Tag>{chapter.title}</Tag>
-					<Tag>{index + 1}</Tag>
-				</div>
+				
 				<div class="step-heading-sub heading-03">
 					{$_("tools.stories.statistics")}
 				</div>
@@ -460,6 +460,10 @@
 					{:else}
 						<Loading withOverlay={false} />
 					{/if} -->
+				</div>
+				<div class="tag">
+					<Tag>{chapter.title}</Tag>
+					<Tag>{index + 1}</Tag>
 				</div>
 			</div>
 		{/each}
@@ -546,8 +550,8 @@
 	}
 
 	.tag {
-		position: absolute;
-		bottom: var(--cds-spacing-05);
-		right: var(--cds-spacing-05);
+		display: flex;
+		justify-content: flex-end;
 	}
+	
 </style>
