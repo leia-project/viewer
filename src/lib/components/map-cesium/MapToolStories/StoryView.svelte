@@ -381,7 +381,7 @@
 			<div class="draw-polygon">
 				<Button
 					kind="primary"
-					iconDescription="Teken projectgebied"
+					iconDescription="Projectgebied Tool"
 					tooltipPosition="left"
 					icon={Edit}
 					on:click={() => showPolygonMenu = !showPolygonMenu} 

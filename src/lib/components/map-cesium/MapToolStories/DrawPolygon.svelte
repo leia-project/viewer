@@ -292,7 +292,7 @@
                 draw(); 
             }}
         >
-            Teken nieuw vlak
+            Teken nieuw projectgebied
         </Button>
         {/if}
 
@@ -309,7 +309,7 @@
                     hasDrawnPolygon = false;
                 }}
             >
-                Verwijder vlak
+                Verwijder projectgebied
             </Button>
         {/if}
         
