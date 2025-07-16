@@ -29,6 +29,7 @@
 	let stories = new Array<Story>();
 	let selectedStory: Story | undefined;
 	let stepNumber: number;
+	let baseLayerId: string;
 
 	let tool = new MapToolMenuOption(id, icon, label);
 	const layers = cesiumMap.layers;
@@ -100,6 +101,7 @@
 				const storyDescription = story.description;
 				const storyWidth = story.width;
 				const storyDisableModeSwitcher = story.disableModeSwitcher ?? false;
+				baseLayerId = story.baseLayerId ?? "";
 				const storyChapters = new Array<StoryChapter>();
 
 				// Load all chapter groups
@@ -173,6 +175,7 @@
 				{textStepForward}
 				savedStepNumber={stepNumber}
 				{layerLegends}
+				{baseLayerId}
 				on:closeStory={() => {
 					closeStory();
 				}}

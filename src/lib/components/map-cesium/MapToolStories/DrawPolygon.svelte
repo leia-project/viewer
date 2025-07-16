@@ -15,6 +15,7 @@
     export let distributions: Array<{ group: string; value: number }[]> = [];
     export let polygonArea: number;
     export let hasDrawnPolygon: boolean;
+    export let showPolygonMenu: boolean;
         
     let polygonEntity: Cesium.Entity | null = null;
     let isDrawing = false;
@@ -271,44 +272,51 @@
 
 </script>
 
-{#if !hasDrawnPolygon}
-    <div>
-        <h4>Teken Projectgebied</h4>
-        <p>
-            Teken een projectgebied in. Klik op de 'Teken nieuw vlak' knop om te beginnen met tekenen op de kaart.
-            Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.
-        </p>
-    </div>
-{/if}
-
-<div class="buttons">
+{#if showPolygonMenu}
     {#if !hasDrawnPolygon}
-    <Button 
-        kind={selectedAction === "draw" ? "primary" : "tertiary"}
-        on:click={() => {
-            draw(); 
-        }}
-    >
-        Teken nieuw vlak
-    </Button>
+        <div>
+            <h4>Teken Projectgebied</h4>
+            <p>
+                Teken een projectgebied in. Klik op de 'Teken nieuw vlak' knop om te beginnen met tekenen op de kaart.
+                Met de linkermuisknop kun je punten op de kaart zetten om een vlak te creëren.
+                Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.
+            </p>
+        </div>
     {/if}
 
-    <Button 
-        kind="danger"
-        on:click={() => {
-            deletePolygon();
-            polygonStore.set({
-                polygonEntity: null,
-                redPoints: [],
-                distributions: []
-            });
-            hasDrawnPolygon = false;
-        }}
-    >
-        Verwijder vlak
-    </Button>
+    <div class="buttons">
+        {#if !hasDrawnPolygon}
+        <Button 
+            kind={selectedAction === "draw" ? "primary" : "tertiary"}
+            on:click={() => {
+                draw(); 
+            }}
+        >
+            Teken nieuw vlak
+        </Button>
+        {/if}
 
-</div>
+        {#if isDrawing || hasDrawnPolygon}
+            <Button 
+                kind="danger"
+                on:click={() => {
+                    deletePolygon();
+                    polygonStore.set({
+                        polygonEntity: null,
+                        redPoints: [],
+                        distributions: []
+                    });
+                    hasDrawnPolygon = false;
+                }}
+            >
+                Verwijder vlak
+            </Button>
+        {/if}
+        
+
+    </div>
+    <br><hr><br><br>
+{/if}
 
 <style>
 

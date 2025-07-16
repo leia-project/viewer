@@ -5,6 +5,7 @@
 	import { writable, get } from "svelte/store";
 	import { Button, PaginationNav, Tag, Loading } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
+	import Edit from "carbon-icons-svelte/lib/Edit.svelte";
 	import "@carbon/charts-svelte/styles.css";
 
 	import type { Story } from "./Story";
@@ -22,6 +23,7 @@
 	import { getCameraPositionFromBoundingSphere } from "../module/utils/layer-utils";
 	import { polygonStore } from './PolygonEntityStore';
 	import StoryChart from "./StoryChart.svelte";
+	import { Checkbox } from "carbon-components-svelte";
 
 	type LegendOptions = {
 		[key: string]: string;
@@ -34,6 +36,7 @@
 	export let textStepBack: string;
 	export let textStepForward: string;
 	export let layerLegends: Array<LegendOptions>; 
+	export let baseLayerId: string;
 
 	$: use3Dmode = map.options.use3DMode;
 
@@ -63,9 +66,12 @@
 	let hasDrawnPolygon: boolean;
 	let polygonCameraLocation: CameraLocation | undefined = undefined; // Used instead of CL if project area is drawn by user
 	let distributions: Array<{ group: string; value: number }[]>;
-	
+	let showPolygonMenu = false;
+	let baseLayer: Layer | undefined;
+	let baseMapVisible = writable(false);
 
 	$: shown = Math.floor(width / 70);
+	$: baseLayer?.visible.set($baseMapVisible);
 
 	const unsubscribePolygonEntity = polygonStore.subscribe(polygon => {
 		if (polygon?.polygonEntity) {
@@ -122,6 +128,7 @@
 		// Return to step where user left
 		currentPage.set(savedStepNumber);
 		setTimeout(() => { scrollToStep(savedStepNumber-1) }, 150); // Timeout when height of images is not explicitly set
+		baseLayer = getLayerById(baseLayerId);
 	});
 
 
@@ -135,6 +142,10 @@
 		dispatch("closeModule", {n: $currentPage});
 	});
 
+	function getLayerById(id: string): Layer | undefined {
+		const layers = get(map.layers);
+		return layers.find(layer => layer.id === id);
+	}
 
 	function onScroll() {
 		if (lastInputType === "scroll") {
@@ -357,25 +368,42 @@
 			e.preventDefault();
 			e.stopPropagation();
 		}}
-	>
-		<div class="close">
-			<Button
-				kind="tertiary"
-				iconDescription={textBack}
-				tooltipPosition="left"
-				icon={Exit}
-				on:click={backToOverview} 
-			/>
-		</div>
-		<div class="heading-03" style="font-weight: bold">
+	>	
+		<div class="heading-03" style="font-weight: bold; text-align: left; width: 100%;">
 			{story.name}
 		</div>
+		<div class="nav-controls">
+			<div class="toggle-basemap">
+				<Checkbox
+				bind:checked={$baseMapVisible}
+			/>
+			</div>
+			<div class="draw-polygon">
+				<Button
+					kind="primary"
+					iconDescription="Teken projectgebied"
+					tooltipPosition="left"
+					icon={Edit}
+					on:click={() => showPolygonMenu = !showPolygonMenu} 
+				/>
+			</div>
+			<div class="close">
+				<Button
+					kind="tertiary"
+					iconDescription={textBack}
+					tooltipPosition="left"
+					icon={Exit}
+					on:click={backToOverview} 
+				/>
+			</div>
+		</div>
+		
 		<!-- <div class="story-description body-compact-01">
 			{story.description}
 		</div> -->
 
 		<div class="chapter-buttons">
-			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={hasDrawnPolygon}/>
+			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
 			{#each story.storyChapters as chapter, index}
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}
@@ -498,6 +526,26 @@
 		position: absolute;
 		top: 0;
 		right: 0;
+	}
+
+	.nav .draw-polygon {
+		position: absolute;
+		top: 0;
+		right:5
+	}
+
+	.nav-controls {
+		position: absolute;
+		top: 0;
+		right: 0;
+		display: flex;
+		gap: 0.25rem; /* spacing between the buttons */
+		padding: 0.5rem;
+	}
+	
+	.nav-controls .draw-polygon,
+	.nav-controls .close {
+		position: static; /* Override absolute positioning from before */
 	}
 
 	.chapter-buttons {
