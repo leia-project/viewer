@@ -212,6 +212,7 @@
         
         distributions = [];
         isDrawing = false;
+        map.viewer.scene.requestRender();
     }
 
     async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any): Promise<any> {
