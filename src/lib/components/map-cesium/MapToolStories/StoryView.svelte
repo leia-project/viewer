@@ -68,7 +68,7 @@
 	let distributions: Array<{ group: string; value: number }[]>;
 	let showPolygonMenu = false;
 	let baseLayer: Layer | undefined;
-	let baseMapVisible = writable(false);
+	let baseMapVisible = writable(true);
 
 	$: shown = Math.floor(width / 70);
 	$: baseLayer?.visible.set($baseMapVisible);
@@ -128,7 +128,7 @@
 		// Return to step where user left
 		currentPage.set(savedStepNumber);
 		setTimeout(() => { scrollToStep(savedStepNumber-1) }, 150); // Timeout when height of images is not explicitly set
-		baseLayer = getLayerById(baseLayerId);
+		baseLayer = copyLayerById(baseLayerId);
 	});
 
 
@@ -140,7 +140,30 @@
 		container.removeEventListener("wheel", onWheel);
 		resetToStart();
 		dispatch("closeModule", {n: $currentPage});
+		
+		baseLayer?.visible.set(false);
+		baseLayer = undefined;
 	});
+
+	function copyLayerById(id: string): Layer | undefined {
+		const originalLayer = getLayerById(id);
+		const libraryLayer = getLibraryLayer(id);
+		if (!originalLayer || !libraryLayer) return;
+
+		const config = new LayerConfig({
+			id: `copy_of_${id}`,
+			title: `${libraryLayer.title} (Copy)`,
+			type: libraryLayer.type,
+			settings: { ...libraryLayer.settings }, // shallow copy; deep copy if necessary
+			isBackground: libraryLayer.isBackground,
+			defaultOn: true,
+			defaultAddToManager: true,
+			opacity: libraryLayer.opacity,
+		});
+
+		const newLayer = map.addLayer(config);
+		return newLayer;
+	}
 
 	function getLayerById(id: string): Layer | undefined {
 		const layers = get(map.layers);
