@@ -3052,27 +3052,27 @@
                         "chapterGroups": [
                             {
                                 "id": "1",
-                                "title": "H1: Bebouwing",
+                                "title": "Bebouwing",
                                 "buttonText": "Bebouwing"
                             },
                             {
                                 "id": "2",
-                                "title": "H2: Vitale Infrastructuur",
+                                "title": "Vitale Infrastructuur",
                                 "buttonText": "Vitale Infrastructuur"
                             },
                             {
                                 "id": "3",
-                                "title": "H3: Recreatie",
+                                "title": "Recreatie",
                                 "buttonText": "Recreatie"
                             },
                             {
                                 "id": "4",
-                                "title": "H4: Landbouw",
+                                "title": "Landbouw",
                                 "buttonText": "Landbouw"
                             },
                             {
                                 "id": "5",
-                                "title": "H5: Natuur",
+                                "title": "Natuur",
                                 "buttonText": "Natuur"
                             }
                         ]

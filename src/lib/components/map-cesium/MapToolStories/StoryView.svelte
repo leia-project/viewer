@@ -398,12 +398,13 @@
 		<div class="nav-controls">
 			<div class="toggle-basemap">
 				<Checkbox
+				labelText={$_("tools.stories.basemap")}
 				bind:checked={$baseMapVisible}
 			/>
 			</div>
 			<div class="draw-polygon">
 				<Button
-					kind="primary"
+					kind={showPolygonMenu ? "primary" : "secondary"}
 					iconDescription="Projectgebied Tool"
 					tooltipPosition="left"
 					icon={Edit}

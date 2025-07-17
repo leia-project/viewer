@@ -1,5 +1,6 @@
 <script lang="ts">
     import * as Cesium from "cesium";
+	import { _ } from "svelte-i18n";
 	import { Button } from "carbon-components-svelte";
 	import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import AreaCustom from "carbon-icons-svelte/lib/AreaCustom.svelte";
@@ -278,7 +279,7 @@
 {#if showPolygonMenu}
     {#if !hasDrawnPolygon}
         <div>
-            <h4>Teken Projectgebied</h4>
+            <h4>{$_("tools.stories.drawPolygon")}</h4>
             <p>
                 Klik op 'Teken nieuw projectgebied' knop om te beginnen met tekenen op de kaart.
                 Met de linkermuisknop kun je punten op de kaart zetten om een vlak te creëren.
@@ -296,7 +297,7 @@
                     draw(); 
                 }}
             >
-                Teken nieuw projectgebied
+                {$_("tools.stories.drawPolygon")}
             </Button>
         {/if}
 
@@ -315,7 +316,7 @@
             hasDrawnPolygon = false;
             }}
         >
-            Verwijder projectgebied
+            {$_("tools.stories.deletePolygon")}
         </Button>
 
     </div>

@@ -240,7 +240,10 @@
             "stepBack": "Stap terug",
             "stepForward": "Stap vooruit",
             "description": "Beschrijving",
-            "statistics": "Statistieken"
+            "statistics": "Statistieken",
+            "basemap": "Achtergrondkaart",
+            "drawPolygon": "Teken Projectgebied",
+            "deletePolygon": "Verwijder Projectgebied"
         },
         "animation": {
             "speed": "Snelheid",
