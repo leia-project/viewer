@@ -505,7 +505,7 @@
 					{:else if hasDrawnPolygon}
 						<Loading withOverlay={false} />
 					{:else}
-						<strong>Teken een vlak in om data op te halen</strong>
+						<strong>{$_("tools.stories.requestDrawPolygon")}</strong>
 					{/if}
 					<!-- {#if distributions && distributions[index]}
 						<DonutChart data={distributions[index]} options={donutOptions} style="justify-content:center" />

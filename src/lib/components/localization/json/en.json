@@ -235,6 +235,7 @@
             "description": "Description",
             "statistics": "Statistics",
             "basemap": "Basemap",
+            "requestDrawPolygon": "Draw a project area to retrieve data",
             "drawPolygon": "Draw Project Area",
             "deletePolygon": "Delete Project Area"
         },
