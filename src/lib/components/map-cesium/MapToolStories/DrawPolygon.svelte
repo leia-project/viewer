@@ -1,6 +1,8 @@
 <script lang="ts">
     import * as Cesium from "cesium";
 	import { Button } from "carbon-components-svelte";
+	import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
+    import AreaCustom from "carbon-icons-svelte/lib/AreaCustom.svelte";
 	import { Map } from "../module/map";
 	import type { Story } from "./Story";
 	import { StoryLayer } from "./StoryLayer";
@@ -277,7 +279,7 @@
         <div>
             <h4>Teken Projectgebied</h4>
             <p>
-                Teken een projectgebied in. Klik op de 'Teken nieuw vlak' knop om te beginnen met tekenen op de kaart.
+                Klik op 'Teken nieuw projectgebied' knop om te beginnen met tekenen op de kaart.
                 Met de linkermuisknop kun je punten op de kaart zetten om een vlak te creëren.
                 Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.
             </p>
@@ -286,33 +288,34 @@
 
     <div class="buttons">
         {#if !hasDrawnPolygon}
-        <Button 
-            kind={selectedAction === "draw" ? "primary" : "tertiary"}
-            on:click={() => {
-                draw(); 
-            }}
-        >
-            Teken nieuw projectgebied
-        </Button>
-        {/if}
-
-        {#if isDrawing || hasDrawnPolygon}
             <Button 
-                kind="danger"
+                icon={AreaCustom}
+                kind={selectedAction === "draw" ? "primary" : "tertiary"}
                 on:click={() => {
-                    deletePolygon();
-                    polygonStore.set({
-                        polygonEntity: null,
-                        redPoints: [],
-                        distributions: []
-                    });
-                    hasDrawnPolygon = false;
+                    draw(); 
                 }}
             >
-                Verwijder projectgebied
+                Teken nieuw projectgebied
             </Button>
         {/if}
-        
+
+        <Button 
+            kind="danger"
+            tooltipPosition="bottom"
+            icon={TrashCan}
+            disabled={!isDrawing && !hasDrawnPolygon}
+            on:click={() => {
+            deletePolygon();
+            polygonStore.set({
+                polygonEntity: null,
+                redPoints: [],
+                distributions: []
+            });
+            hasDrawnPolygon = false;
+            }}
+        >
+            Verwijder projectgebied
+        </Button>
 
     </div>
     <br><hr><br><br>
