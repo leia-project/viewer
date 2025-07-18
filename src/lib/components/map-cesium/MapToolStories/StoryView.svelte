@@ -26,7 +26,10 @@
 	import { Checkbox } from "carbon-components-svelte";
 
 	type LegendOptions = {
-		[key: string]: string;
+		generalLegendText: string;
+		legendOptions: {
+			[key: string]: string;
+		};
 	};
 
 	export let map: Map;
@@ -492,11 +495,15 @@
 					{#if distributions && distributions[index]}
 						<StoryChart data={distributions[index]} />
 						<br><br><br>
+						{#if layerLegends[index].generalLegendText}
+							<div><strong>{layerLegends[index].generalLegendText}</strong></div>
+							<br>
+							{/if}
 						<ul>
 							{#each distributions[index] as key}
-								{#if layerLegends[index] && key.value > 0 && layerLegends[index][key.group]} 
+								{#if layerLegends[index].legendOptions && key.value > 0 && layerLegends[index].legendOptions[key.group]} 
 									<li>
-										<strong>{key.group}: </strong>{layerLegends[index][key.group]}
+										<strong>{key.group}: </strong>{layerLegends[index].legendOptions[key.group]}
 									</li>
 									<br>
 								{/if}

@@ -35,7 +35,10 @@
 	const layers = cesiumMap.layers;
 
 	type LegendOptions = {
-		[key: string]: string;
+		generalLegendText: string;
+		legendOptions: {
+			[key: string]: string;
+		};
 	};
 	const layerLegends: Array<LegendOptions> = [];
 
@@ -135,7 +138,11 @@
 							storyLayers.push(
 								new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName)
 							);
-							layerLegends.push(step.layers[l].legendOptions);
+							const layerLegendInfo = {
+								generalLegendText: step.layers[l].generalLegendText,
+								legendOptions: step.layers[l].legendOptions
+							}
+							layerLegends.push(layerLegendInfo);
 						}
 						const globeOpacity = step.globeOpacity ?? 100;
 						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent));
