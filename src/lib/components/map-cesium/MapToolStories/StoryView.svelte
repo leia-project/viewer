@@ -484,13 +484,14 @@
 					{$_("tools.stories.description")}
 				</div>
 				{@html step.html}
-				{#each step.layers ?? [] as layer}
+				<!-- {#each step.layers ?? [] as layer}
 					Layer {layer.id}: {layer.featureName}
-				{/each}
+				{/each} -->
 				
-				<div class="step-heading-sub heading-03">
+				<!-- <div class="step-heading-sub heading-03">
 					{$_("tools.stories.statistics")}
-				</div>
+				</div> -->
+				<br><br>
 				<div class="step-stats">
 					{#if distributions && distributions[index]}
 						<StoryChart data={distributions[index]} />
