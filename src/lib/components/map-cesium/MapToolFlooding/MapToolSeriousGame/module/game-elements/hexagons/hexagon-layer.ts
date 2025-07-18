@@ -260,13 +260,20 @@ const vertexShader = `
 
 		// To distinguish between the top and bottom of the hexagon, we set the vectorUp positive for top and negative for bottom in polygon-geometry.ts...
 		if (vectorUp.z < 0.0) {
-			p -= vec4(vectorUp * (offsetTop - 1.0) * exag_1, 0.0);
+			p -= vec4(vectorUp * offsetTop * exag_1, 0.0);
 			v_color = color;
 		} else {
-		    p += vec4(vectorUp * offsetBottom * exag_1, 0.0);
+		    p += vec4(vectorUp * (offsetBottom - 1.0) * exag_1, 0.0);
 			v_color = vec4(color.rgb * 0.5, 1.0);
 		}
-		v_color.a *= custom_alpha_0;
+
+		float heightDiff = offsetTop - offsetBottom;
+		float fadeAlpha = custom_alpha_0;
+		if (heightDiff < 1.0) {
+			fadeAlpha *= smoothstep(0.0, 1.0, heightDiff);
+		}
+		v_color.a *= fadeAlpha;	
+		//v_color.a *= custom_alpha_0;
 			
 		v_positionEC = (czm_modelViewRelativeToEye * p).xyz;      // position in eye coordinates
 		v_normalEC = czm_normal * normal;                         // normal in eye coordinates

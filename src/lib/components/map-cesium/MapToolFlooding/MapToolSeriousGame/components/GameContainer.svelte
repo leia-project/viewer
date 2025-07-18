@@ -46,7 +46,7 @@
 				<MarvinMenu app={marvinApp} />
 			</div>
 			<div id="bottom-left">
-				<DataMenu game={$activeGame} />
+				<DataMenu {gameController} />
 			</div>
 			<div id="bottom-center">
 				<TimeControl game={$activeGame} />

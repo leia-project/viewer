@@ -1,13 +1,15 @@
 <script lang="ts">
 	import { Button } from "carbon-components-svelte";
-	import { Layers, VehicleInsights } from "carbon-icons-svelte";
-	import type { Game } from "../../module/game";
+	import { Layers, VehicleInsights, WaveHeight } from "carbon-icons-svelte";
+	import type { GameController } from "../../module/game-controller";
 	import Roles from "../Roles.svelte";
 	import EvacuationOverview from "./evacuation-overview/EvacuationOverview.svelte";
 	import FloodModelControl from "./FloodModelControl.svelte";
 	import { onDestroy, onMount } from "svelte";
 
-	export let game: Game;
+	export let gameController: GameController;
+
+	const activeGame = gameController.active;
 
 	let selectedMenu: number | undefined;
 
@@ -30,47 +32,52 @@
 
 
 <div class="data-menu" bind:this={menuRef}>
-	{#if selectedMenu !== undefined}
-		<div class="data-menu-content">
-			{#if selectedMenu === 0}
-				<!--<Roles {game} />-->
-			{:else if selectedMenu === 1}
-				<FloodModelControl />
-			{:else if selectedMenu === 2}
-				<EvacuationOverview {game} />
-			{/if}
+	{#if $activeGame}
+		{#if selectedMenu !== undefined}
+			<div class="data-menu-content">
+				{#if selectedMenu === 0}
+					<Roles {gameController} />
+				{:else if selectedMenu === 1}
+					<FloodModelControl />
+				{:else if selectedMenu === 2}
+					<EvacuationOverview game={$activeGame} />
+				{/if}
+			</div>
+		{/if}
+		<div class="data-menu-items">
+			<Button
+				kind="secondary"
+				size="default"
+				icon={Layers}
+				iconDescription="Layer Manager"
+				on:click={() => selectedMenu = selectedMenu === 0 ? undefined : 0}
+			/>
+			<Button
+				kind="secondary"
+				size="default"
+				icon={WaveHeight}
+				iconDescription="Flood Model"
+				on:click={() => selectedMenu = selectedMenu === 1 ? undefined : 1}
+			/>
+			<Button
+				kind="secondary"
+				size="default"
+				icon={VehicleInsights}
+				iconDescription="Evacuation Overview"
+				on:click={() => selectedMenu = selectedMenu === 2 ? undefined : 2}
+			/>
 		</div>
 	{/if}
-	<div class="data-menu-items">
-		<Button
-			kind="secondary"
-			size="default"
-			icon={Layers}
-			iconDescription="Layer Manager"
-			on:click={() => selectedMenu = 0}
-		/>
-		<Button
-			kind="secondary"
-			size="default"
-			icon={Layers}
-			iconDescription="Flood Model"
-			on:click={() => selectedMenu = 1}
-		/>
-		<Button
-			kind="secondary"
-			size="default"
-			icon={VehicleInsights}
-			iconDescription="Evacuation Overview"
-			on:click={() => selectedMenu = 2}
-		/>
-	</div>
 </div>
 
 
 <style>
 
+	.data-menu {
+		padding: 0.25rem;
+	}
 	.data-menu-content {
-		
+		max-width: 500px;
 	}
 
 </style>

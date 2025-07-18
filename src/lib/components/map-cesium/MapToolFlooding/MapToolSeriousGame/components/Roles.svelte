@@ -1,10 +1,9 @@
 <script lang="ts">
-	import type { Map } from "$lib/components/map-cesium/module/map";
 	import RoleData from "./RoleData.svelte";
 	import type { IRole } from "../module/models";
 	import type { GameController } from "../module/game-controller";
+
 	export let gameController: GameController;
-	
 
 	const roles: Array<IRole> = [
 		{

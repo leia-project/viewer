@@ -3,10 +3,12 @@ import * as Cesium from "cesium";
 import * as turf from "@turf/turf";
 import type { RouteSegment } from "./route-segments";
 import type { Map } from "$lib/components/map-cesium/module/map";
+import { iconMap, processSVG } from "../../asset-icons";
 
 
 export interface IMeasureConfig {
 	type: string; //"capacity" | "height" | "blockage";
+	asset: string;
 	name: string;
 	description: string;
 	routeSegmentFids: Array<string>;
@@ -73,18 +75,18 @@ export abstract class Measure {
 	public abstract removeFrom(routeSegment: RouteSegment): void;
 
 	private createBillboard(): Cesium.Entity {
+		const icon = iconMap[this.config.asset];
+		const svg = processSVG(icon, "12mm");
 		const billboard = new Cesium.Entity({
 			id: `measure-${this.config.name}`,
 			name: this.config.name,
-			billboard: {
-				image: "https://companieslogo.com/img/orig/SWEC-A.ST.D-85947743.png?t=1720244494",
-				color: Cesium.Color.BLUE,
-				height: 64,
-				width: 64,
-				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-				verticalOrigin: Cesium.VerticalOrigin.BOTTOM
-			},
 			position: this.position,
+			billboard: {
+				image: svg,
+				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+				verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+				scaleByDistance: new Cesium.NearFarScalar(5.0e4, 1.0, 3.0e6, 0.1)
+			},
 			show: false
 		});
 		this.map.viewer.entities.add(billboard);
@@ -103,7 +105,7 @@ export abstract class Measure {
 			const center = coordinates.length === 1 
 				? coordinates[0] 
 				: turf.center(turf.lineString(coordinates)).geometry.coordinates;
-			this.position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+			this.position = Cesium.Cartesian3.fromDegrees(center[0], center[1], 50);
 			this.billboard.position = new Cesium.ConstantPositionProperty(this.position);
 		}
 	}
