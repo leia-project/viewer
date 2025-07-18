@@ -497,9 +497,8 @@
 						<StoryChart data={distributions[index]} />
 						<br><br><br>
 						{#if layerLegends[index].generalLegendText}
-							<div><strong>{layerLegends[index].generalLegendText}</strong></div>
-							<br>
-							{/if}
+							{@html layerLegends[index].generalLegendText}
+						{/if}
 						<ul>
 							{#each distributions[index] as key}
 								{#if layerLegends[index].legendOptions && key.value > 0 && layerLegends[index].legendOptions[key.group]} 
