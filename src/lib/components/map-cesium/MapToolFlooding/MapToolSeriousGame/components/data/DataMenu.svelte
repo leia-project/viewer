@@ -15,7 +15,6 @@
 
 	let menuRef: HTMLDivElement;
 	function handleClickOutside(event: MouseEvent) {
-		console.log("Clicked outside menu", event.target);
 		if (!menuRef.contains(event.target as Node)) {
 			selectedMenu = undefined;
 		}

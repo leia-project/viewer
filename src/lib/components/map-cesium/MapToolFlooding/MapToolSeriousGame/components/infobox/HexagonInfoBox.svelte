@@ -12,6 +12,7 @@
 
 	export let hexagon: Hexagon;
 	export let store: Writable<Hexagon | undefined>;
+	export let selectStore: Writable<Hexagon | undefined> | undefined = undefined;
 	export let timeout: NodeJS.Timeout | undefined;
 	export let map: Map;
 	export let type: "hover" | "selected";
@@ -58,6 +59,7 @@
 	{map}
 	{type}
 	icon={HexagonVerticalOutline}
+	{selectStore}
 >		
 	
 	<div>Population: {hexagon.population}</div>

@@ -1,7 +1,7 @@
 [
 	{
 		"type": "blockage",
-		"asset": "brug",
+		"asset": "viaduct",
 		"name": "Schietbaan",
 		"description": "Afsluiten Schietbaan tussen rotonde met Mozartweg en rotonde Waldammeweg om te voorkomen dat verkeer de N57 op kan.",
 		"routeSegmentFids": [

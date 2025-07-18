@@ -13,6 +13,7 @@
 	export let map: Map;
 	export let type: "hover" | "selected";
 	export let icon: any;
+	export let selectStore: Writable<T | undefined> | undefined = undefined;
 
 
 	onMount(() => {
@@ -68,7 +69,7 @@
 	on:mouseenter={(e) => { if (type === "hover") onMouseEnter(e) }}
 	on:mouseleave={() => { if (type === "hover") opacity = 0; }}
 	on:click={() => {
-		if (get(store) !== item) store.set(item);
+		if (selectStore && get(selectStore) !== item) selectStore.set(item);
 	}}
 >
 	<div class="infobox-content">

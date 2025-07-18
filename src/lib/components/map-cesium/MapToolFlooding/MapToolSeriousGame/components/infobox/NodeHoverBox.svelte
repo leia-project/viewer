@@ -11,6 +11,7 @@
 
 	export let node: RouteSegment | Measure;
 	export let store: Writable<RouteSegment | Measure | undefined>;
+	export let selectStore: Writable<RouteSegment | Measure | undefined> | undefined = undefined;
 	export let timeout: NodeJS.Timeout | undefined;
 	export let map: Map;
 	export let type: "hover" | "selected";
@@ -26,6 +27,7 @@
 	{map}
 	{type}
 	icon={node instanceof RouteSegment ? Road : ToolKit}
+	{selectStore}
 >
 	{#if node instanceof RouteSegment}
 		<RouteSegmentInfo segment={node} />

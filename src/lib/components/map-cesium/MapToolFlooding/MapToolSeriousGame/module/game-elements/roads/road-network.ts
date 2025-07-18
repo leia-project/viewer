@@ -82,7 +82,8 @@ export class RoadNetwork {
 						timeout: this.hoverTimeOut,
 						map: this.map,
 						type: "hover",
-						notificationLog: notificationLog
+						notificationLog: notificationLog,
+						selectStore: this.selectedNode,
 					}
 				});
 			} else {

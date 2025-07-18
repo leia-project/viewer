@@ -150,12 +150,12 @@ export class Hexagon {
 	}
 
 	private updateAttributes(): void {
-		if (this.parentPrimitive) {
+		if (this.parentPrimitive?.ready) {
 			const base = 5500;
 			const populationHeight = this.getHexagonHeight(this.population) + base;
 			const remaingPopulationHeight = this.getHexagonHeight(this.population - this.evacuatedCount) + base;
-			const attributesBottom = this.parentPrimitive?.getGeometryInstanceAttributes(this.hex);
-			const attributesTop = this.parentPrimitive?.getGeometryInstanceAttributes(`${this.hex}-top`);
+			const attributesBottom = this.parentPrimitive.getGeometryInstanceAttributes(this.hex);
+			const attributesTop = this.parentPrimitive.getGeometryInstanceAttributes(`${this.hex}-top`);
 			attributesBottom.offsetBottom = [base];
 			attributesBottom.offsetTop = [remaingPopulationHeight]; // 0.01 is exag_1 uniform
 			attributesTop.offsetBottom = [remaingPopulationHeight];

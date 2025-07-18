@@ -75,7 +75,8 @@ export class HexagonLayer {
 						timeout: this.hoverBoxTimeOut,
 						map: this.map,
 						type: "hover",
-						evacuationController
+						evacuationController,
+						selectStore: this.selectedHexagon
 					}
 				});
 			} else {
