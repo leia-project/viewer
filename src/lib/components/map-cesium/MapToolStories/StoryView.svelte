@@ -510,15 +510,11 @@
 							{/each}
 						</ul>
 					{:else if hasDrawnPolygon}
-						<Loading withOverlay={false} />
+						<StoryChart data={undefined} loading={true} />
 					{:else}
+						<StoryChart data={undefined} />
 						<strong>{$_("tools.stories.requestDrawPolygon")}</strong>
 					{/if}
-					<!-- {#if distributions && distributions[index]}
-						<DonutChart data={distributions[index]} options={donutOptions} style="justify-content:center" />
-					{:else}
-						<Loading withOverlay={false} />
-					{/if} -->
 				</div>
 				<div class="tag">
 					<Tag>{chapter.title}</Tag>

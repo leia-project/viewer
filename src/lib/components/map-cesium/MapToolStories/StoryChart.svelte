@@ -1,14 +1,27 @@
 <script lang="ts">
-	import { echarts } from './echarts';
+	import { echarts, echartsLoading } from './echarts';
 	import { _ } from "svelte-i18n";
 	
-	export let data: Array<{ group: string; value: number }>;
+	export let data: Array<{ group: string; value: number }> | undefined;
+	export let loading: boolean = false;
 
-	// Change name 'group' to 'name' for compatibility with echarts
-	let cleanData = data.map(item => ({ name: item.group, value: item.value }));
-	
+	let cleanData: Array<{ name: string; value: number }> = [];
+	let color: Array<string>;
+
+	if (data) {
+		// Change name 'group' to 'name' for compatibility with echarts
+		cleanData = data.map(item => ({ name: item.group, value: item.value }));
+		color = ['#339966', '#99ffcc', '#ffff99', '#ffcc66', '#9c4110']; // A B C D E colors
+	}
+	else {
+		cleanData = [
+			{ name: "No Data", value: 0 }
+		];
+		color = ['#cccccc']; // Grey color for no data
+	}
+
 	let option = {
-		color: ['#339966', '#99ffcc', '#ffff99', '#ffcc66', '#9c4110'], 
+		color: color, 
 		title: {
 			text: 'Verdeling per klasse',
 			left: 0
@@ -49,7 +62,11 @@
 	};
 </script>
 
-<div class={"container"} use:echarts={option} />
+{#if loading}
+	<div class={"container"} use:echartsLoading={option} />
+{:else}
+	<div class={"container"} use:echarts={option} />
+{/if}
 
 <style>
 	.container {
