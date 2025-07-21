@@ -41,8 +41,6 @@
 	export let layerLegends: Array<LegendOptions>; 
 	export let baseLayerId: string;
 
-	$: use3Dmode = map.options.use3DMode;
-
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
 	const dispatch = createEventDispatcher();
 
@@ -109,8 +107,10 @@
 		});
 
 	onMount(() => {
-		if (use3Dmode) map.options.use3DMode.set(false);
-		if (story.disableModeSwitcher) map.options.disableModeSwitcher.set(true);
+		if (story.disableModeSwitcher) {
+			map.options.disableModeSwitcher.set(true);
+			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
+		}
 
 		startCameraLocation = cesiumMap.getPosition();
 
@@ -186,6 +186,9 @@
 
 
 	currentPage.subscribe((page) => {
+		if (story.disableModeSwitcher) {
+			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
+		} // Set this again because apparently OnMount is slower than a subscribe :/
 		const index = page - 1;
 
 		// Flatten the steps across all chapters so we can access the correct step based on the index
@@ -234,9 +237,14 @@
 			}
 
 			const activeTerrain = get(map.options.selectedTerrainProvider);
-			if (startTerrain === undefined) startTerrain = activeTerrain; // necessary when loading a story directly via a search param		
-			const stepTerrain = get(map.options.terrainProviders).find((t) => { return t.title === activeStep?.terrain });
-			if (stepTerrain) {		
+			if (startTerrain === undefined) startTerrain = activeTerrain; // necessary when loading a story directly via a search param	
+			
+			// Set the terrain provider based on the step. Use no terrain in 2D mode
+			const stepTerrain = get(map.options.terrainProviders).find((t) => { 
+				return t.title === (get(map.options.use3DMode) ? activeStep?.terrain : "Uit");
+			});
+
+			if (stepTerrain) {	
 				map.options.selectedTerrainProvider.set(stepTerrain);
 			} else if (activeTerrain !== startTerrain ) {
 				map.options.selectedTerrainProvider.set(startTerrain);
