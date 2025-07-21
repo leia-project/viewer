@@ -107,7 +107,7 @@
 		});
 
 	onMount(() => {
-		if (story.disableModeSwitcher) {
+		if (story.force2DMode) {
 			map.options.disableModeSwitcher.set(true);
 			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
 		}
@@ -136,7 +136,7 @@
 
 
 	onDestroy(() => {
-		if (story.disableModeSwitcher) map.options.disableModeSwitcher.set(false);
+		if (story.force2DMode) map.options.disableModeSwitcher.set(false);
 
 		map.autoCheckBackground = startAutocheckBackground;
 		container.removeEventListener("scroll", onScroll);
@@ -186,7 +186,7 @@
 
 
 	currentPage.subscribe((page) => {
-		if (story.disableModeSwitcher) {
+		if (story.force2DMode) {
 			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
 		} // Set this again because apparently OnMount is slower than a subscribe :/
 		const index = page - 1;

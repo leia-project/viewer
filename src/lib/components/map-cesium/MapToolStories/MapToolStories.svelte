@@ -103,7 +103,7 @@
 				const storyName = story.name;
 				const storyDescription = story.description;
 				const storyWidth = story.width;
-				const storyDisableModeSwitcher = story.disableModeSwitcher ?? false;
+				const storyForce2DMode = story.force2DMode ?? false;
 				baseLayerId = story.baseLayerId ?? "";
 				const storyChapters = new Array<StoryChapter>();
 
@@ -149,7 +149,7 @@
 					}
 					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyDisableModeSwitcher));
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForce2DMode));
 			}
 		}
 		stories = loadedStories;
