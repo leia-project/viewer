@@ -1226,7 +1226,7 @@
             "description": "Zie voor dekkende 2d kaarten https://kaarten.zeeland.nl/map/freshem ",
             "attribution": "",
             "settings": {
-                "url": "https://95.217.154.75/tiles_other/freshem_middelburg/tileset.json",
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_middelburg/tileset.json",
                 "shadows": false,
                 "style": {
                     "pointSize": "15"
@@ -2359,7 +2359,7 @@
                 "terrainProviders": [
                     {
                         "title": "Zeeland 1m",
-                        "url": "https://95.217.154.75/tiles_other/zeeland_1m",
+                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
                         "vertexNormals": true
                     },
                     {
