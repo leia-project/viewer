@@ -55,7 +55,7 @@ export class Game {
 	public gameConfig: IGameConfig;
 
 	public notificationLog: NotificationLog;
-	private forwarding: Writable<boolean> = writable(false);
+	public forwarding: Writable<boolean> = writable(false);
 	public startTime: number;
 	private step: Writable<number> = writable(0);
 	public elapsedTime: Writable<number> = writable(0);
