@@ -2,6 +2,8 @@
 	import * as Cesium from "cesium";
 	import { Button, Slider } from "carbon-components-svelte";
 	import type { Game } from "../../module/game";
+	import { onDestroy } from "svelte";
+	import { Reset } from "carbon-icons-svelte";
 
 	export let game: Game;
 
@@ -19,7 +21,11 @@
 		timeDelta === 0 ? floodLayer.source.defaultColor 
 		: timeDelta < 0 ? new Cesium.Cartesian3(0.5, 0, 0.5) // Past: purple
 		: new Cesium.Cartesian3(1, 0, 0)) // Future: red
- 
+	
+	onDestroy(() => {
+		selectedTime.set($simulationTime);
+		floodLayer.source.color.set(floodLayer.source.defaultColor);
+	});
 
 </script>
 
@@ -36,23 +42,45 @@
 			max={12}
 			step={0.1}
 			bind:value={$selectedTime}
+			hideLabel={true}
+			hideTextInput={true}
 		/>
 		<Button
-			kind="secondary"
+			kind="primary"
 			size="small"
-			on:click={() => selectedTime.set($simulationTime)}
 			disabled={timeDelta === 0}
-		>Reset</Button>
+			icon={Reset}
+			iconDescription="Reset Time"
+			on:click={() => selectedTime.set($simulationTime)}
+		/>
 	</div>
 </div>
 
 
 <style>
 
+	.slider-container :global(.bx--slider__thumb) {
+		background: var(--cds-interactive-03);
+		border-radius: 0;
+		border-top: solid 0.44rem transparent; 
+		border-bottom: solid 0.44rem transparent;
+	}
+	.slider-container :global(.bx--slider__track) {
+		background: var(--cds-interactive-03);
+	}
+	.slider-container :global(.bx--slider__filled-track) {
+		background: var(--cds-interactive-03);
+	}
+	.slider-container :global(.bx--slider__range-label) {
+		color: #fff;
+		font-size: 0.7rem;
+		margin-right: 0;
+	}
+
 	.flood-model-control {
 		background-color: rgb(var(--game-color-bg));
 		color: var(--game-color-text);
-		padding: 0.5rem;
+		padding: 1rem;
 	}
 
 	.data-menu-header {

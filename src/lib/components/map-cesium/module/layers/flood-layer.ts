@@ -663,7 +663,6 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 
 	public async addToMap(): Promise<void> {
 		if (this.source.primitive && !this.map.viewer.scene.primitives.contains(this.source.primitive)) {
-			console.log("Adding flood layer primitive to map");
 			this.map.viewer.scene.primitives.add(this.source.primitive);
 		}
 		if (get(this.visible) === true) {
