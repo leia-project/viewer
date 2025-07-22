@@ -227,7 +227,7 @@
         };
         
         try {
-            const response = await fetch("http://localhost:8000/analyze", {
+            const response = await fetch("https://virtueel.dev.zeeland.nl/ko_api/analyze", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
