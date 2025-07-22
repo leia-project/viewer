@@ -62,7 +62,7 @@ export class Game {
 	public elapsedTimeDynamic: Writable<number>;
 	private interval: NodeJS.Timeout | undefined;
 
-	private floodLayerController: FloodLayerController;
+	public floodLayerController: FloodLayerController;
 	public evacuationController: EvacuationController;
 	public loaded: Writable<boolean> = writable(false);
 
@@ -141,7 +141,8 @@ export class Game {
 		if (this.interval) {
 			clearInterval(this.interval);
 		}
-	
+		
+		this.elapsedTimeDynamic.set(newTime);
 		this.interval = setInterval(() => {
 			this.elapsedTimeDynamic.update((value) => {
 				if (direction === "next") {
