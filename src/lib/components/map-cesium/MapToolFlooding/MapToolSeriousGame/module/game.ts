@@ -147,7 +147,6 @@ export class Game {
 			clearInterval(this.interval);
 		}
 		
-		this.elapsedTimeDynamic.set(newTime);
 		this.interval = setInterval(() => {
 			this.elapsedTimeDynamic.update((value) => {
 				if (direction === "next") {
