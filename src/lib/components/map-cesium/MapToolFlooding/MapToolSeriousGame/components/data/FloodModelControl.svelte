@@ -1,16 +1,25 @@
 <script lang="ts">
-	import { Slider } from "carbon-components-svelte";
+	import * as Cesium from "cesium";
+	import { Button, Slider } from "carbon-components-svelte";
 	import type { Game } from "../../module/game";
 
-	// Make flood layer green if model is forwarded
 	export let game: Game;
-/* 
-	const startTIme = game.startTime;
-	const elapsed = game.elapsedTime;
-	const forwarding = game.forwarding;
- */
-	//const forwarded = setTime > currentTIme;
 
+/* 	const startTime = game.startTime;
+	const endTime = game.startTime + 12 * 60 * 60; // 12 hours in seconds */
+
+	const simulationTime = game.elapsedTime;
+	const selectedTime = game.elapsedTimeDynamic;
+
+	$: timeDelta = $selectedTime - $simulationTime;
+ 
+	const floodLayer = game.floodLayerController.floodLayer;
+
+	$: floodLayer.source.color.set(
+		timeDelta === 0 ? floodLayer.source.defaultColor 
+		: timeDelta < 0 ? new Cesium.Cartesian3(0.5, 0, 0.5) // Past: purple
+		: new Cesium.Cartesian3(1, 0, 0)) // Future: red
+ 
 
 </script>
 
@@ -20,13 +29,20 @@
 	<div>Explanation on the model</div>
 	<div>Data on expansion of the flood (area m2, number of hexagons, max flood depth, etc.)</div>
 	<!-- Slider to fast forward model -->
-	 <div class="slider-container">
+	<div class="slider-container">
 		<div class="slider-label">Fast Forward Model</div>
 		<Slider
 			min={0}
-			max={20}
-			step={1}
+			max={12}
+			step={0.1}
+			bind:value={$selectedTime}
 		/>
+		<Button
+			kind="secondary"
+			size="small"
+			on:click={() => selectedTime.set($simulationTime)}
+			disabled={timeDelta === 0}
+		>Reset</Button>
 	</div>
 </div>
 

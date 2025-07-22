@@ -399,7 +399,7 @@ class ExtractionPoint {
 	}
 
 	public updateAttributes(load: number, capacity: number): void {
-		if (this.parentPrimitive) {
+		if (this.parentPrimitive?.ready) {
 			const attributesBottom = this.parentPrimitive?.getGeometryInstanceAttributes(this.routeSegmentID);
 			const attributesTop = this.parentPrimitive?.getGeometryInstanceAttributes(this.routeSegmentID + "-top");
 			attributesBottom.offsetBottom = [0];
@@ -410,7 +410,7 @@ class ExtractionPoint {
 	}
 
 	public highlight(b: boolean): void {
-		if (this.parentPrimitive) {
+		if (this.parentPrimitive?.ready) {
 			const attributesBottom = this.parentPrimitive.getGeometryInstanceAttributes(this.routeSegmentID);
 			const attributesTop = this.parentPrimitive.getGeometryInstanceAttributes(this.routeSegmentID + "-top");
 			if (b) {

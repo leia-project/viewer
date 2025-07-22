@@ -37,7 +37,7 @@
 				{#if selectedMenu === 0}
 					<Roles {gameController} />
 				{:else if selectedMenu === 1}
-					<FloodModelControl />
+					<FloodModelControl game={$activeGame} />
 				{:else if selectedMenu === 2}
 					<EvacuationOverview game={$activeGame} />
 				{/if}

@@ -49,10 +49,13 @@ class DynamicWaterLevel {
 	public time: Writable<number>;
 	public primitive?: Cesium.Primitive;
 	public alpha: Writable<number>;
+	public defaultColor: Cesium.Cartesian3 = new Cesium.Cartesian3(0.522, 0.631, 0.737);
+	public color: Writable<Cesium.Cartesian3> = writable(this.defaultColor);
 	public contents?: FloodLayerContents;
 	private material?: Cesium.Material;
 	private timeUnsubscriber?: Unsubscriber;
 	private alphaUnsubscriber?: Unsubscriber;
+	private colorUnsubscriber?: Unsubscriber;
 	public verticalExaggeration: Writable<number>;
 	private verticalExaggerationUnsubscriber?: Unsubscriber;
 	private uniformMap: any = {
@@ -98,6 +101,7 @@ class DynamicWaterLevel {
 	public addListeners(): void {
 		this.timeUnsubscriber = this.time.subscribe(() => this.setUniforms());
 		this.alphaUnsubscriber = this.alpha.subscribe(() => this.setUniforms());
+		this.colorUnsubscriber = this.color.subscribe(() => this.setUniforms());
 		this.verticalExaggerationUnsubscriber = this.verticalExaggeration.subscribe((value) => {
 			if (this.material) this.material.uniforms.u_vertical_exaggeration = value;
 			this.map.refresh();
@@ -107,6 +111,7 @@ class DynamicWaterLevel {
 	public removeListeners(): void {
 		this.timeUnsubscriber?.();
 		this.alphaUnsubscriber?.();
+		this.colorUnsubscriber?.();
 		this.verticalExaggerationUnsubscriber?.();
 	}
 
@@ -239,6 +244,7 @@ class DynamicWaterLevel {
 			this.material.uniforms.u_flood_t1 = slotTextureT1;
 			this.material.uniforms.u_flood_t2 = slotTextureT2;
 			this.material.uniforms.u_alpha = get(this.alpha);
+			this.material.uniforms.u_color = get(this.color);
 		}
 		this.map.refresh();
 	}
@@ -413,6 +419,7 @@ class DynamicWaterLevel {
 			uniform float u_terrain_scaling_min_13;
 			uniform float u_terrain_scaling_max_14;
 			uniform float u_depth_value_max_15;
+			uniform vec3 u_color_16;
 
 			in vec3 position3DHigh;
 			in vec3 position3DLow;
@@ -454,6 +461,7 @@ class DynamicWaterLevel {
 				v_positionEC = (czm_modelViewRelativeToEye * p).xyz;
 				v_normalEC = czm_normal * computedNormal;
 				v_st = st;
+				v_color = u_color_16;
  
 				gl_Position = czm_modelViewProjectionRelativeToEye * p;
 			}
@@ -463,13 +471,15 @@ class DynamicWaterLevel {
 			in vec3 v_positionEC;
 			in vec3 v_normalEC;
 			in vec2 v_st;
-			vec3 v_color;
+			in vec3 v_color;
+
+			vec3 output_color;
  
 			${computeDepth}
 
 			czm_material sdg_czm_getMaterial(czm_materialInput materialInput) {
 				czm_material material = czm_getDefaultMaterial(materialInput);
-				material.diffuse = czm_gammaCorrect(v_color * vec3(1.0));
+				material.diffuse = czm_gammaCorrect(output_color * vec3(1.0));
 				material.alpha = u_alpha_12;
 				material.specular = 0.0;
 				material.shininess = 0.0;
@@ -499,7 +509,7 @@ class DynamicWaterLevel {
 				float max = flood_plane_class_mapping[${floodPlaneClassMapping.length - 1}];
 				float depth_normalized = (depth - min) / (max - min);
 				// use the normalized depth value to interpolate between two colors
-				v_color = mix(vec3(0.522, 0.631, 0.737), vec3(0.0, 0.0, 0.400), depth_normalized * 1.0);
+				output_color = mix(v_color, vec3(0.0, 0.0, 0.400), depth_normalized * 1.0);
  
 				vec3 positionToEyeEC = -v_positionEC;
  
@@ -542,7 +552,8 @@ class DynamicWaterLevel {
 					u_alpha: get(this.alpha),
 					u_terrain_scaling_min: terrainScalingMin,
 					u_terrain_scaling_max: terrainScalingMax,
-					u_depth_value_max: 255.0
+					u_depth_value_max: 255.0,
+					u_color: get(this.color)
 				}
 			},
 			translucent: false,
