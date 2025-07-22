@@ -77,8 +77,12 @@ export class Game {
 			victims: 92,
 			evacuated: 240
 		}
+		
+		const activeBreach: Writable<Breach | undefined> = writable(gameConfig.breach);
+		const selectedScenario: Writable<string | undefined> = writable(gameConfig.scenario);
+
 		const floodTool = map.toolSettings.find((tool: { id: string, settings: any}) => tool.id === "flooding");
-		this.floodLayerController = new FloodLayerController(map, floodTool.settings, writable(undefined), writable(undefined));
+		this.floodLayerController = new FloodLayerController(map, floodTool.settings, activeBreach, selectedScenario);
 		this.elapsedTimeDynamic = this.floodLayerController.time;
 		this.floodLayerController.loadNewScenario(gameConfig.breach, gameConfig.scenario).then(() => {
 			this.load();
@@ -110,6 +114,7 @@ export class Game {
 		this.floodLayerController.floodedRoadsLayer.addToMap();
 		this.floodLayerController.floodLayer.show();
 		this.floodLayerController.floodedRoadsLayer.show();
+		this.floodLayerController.addTimeSubscriber();
 	}
 
 	private removeLayers(): void {

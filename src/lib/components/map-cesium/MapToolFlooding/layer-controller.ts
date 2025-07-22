@@ -44,6 +44,7 @@ export class FloodLayerController {
 	public maxTime: Writable<number> = writable(1);
 	public stepInterval: Writable<number> = writable(0.05);
 	private unsubscribers: Array<Unsubscriber> = [];
+	private timeUnsubscriber?: Unsubscriber;
 
 	public layerConfigGroup: LayerConfigGroup | undefined;
 	public iconLayer: IconLayer<Breach>;
@@ -65,7 +66,10 @@ export class FloodLayerController {
 		this.floodedRoadsLayer = this.addFloodedRoadsLayer(settings.floodedRoadsUrl, settings.floodedRoadsStyle);
 	}
 
-	private addSubscribers(): void {
+	public addSubscribers(): void {
+		this.unsubscribers.forEach((sub) => sub());
+		this.unsubscribers = [];
+
 		this.unsubscribers.push(
 			this.activeBreach.subscribe(() => {
 				this.selectedScenario.set(undefined);
@@ -78,21 +82,26 @@ export class FloodLayerController {
 					this.loadNewScenario(breach, scenario);
 				}
 			}),
-			this.time.subscribe((time) => {
-				const breach = get(this.activeBreach);
-				const scenario = get(this.selectedScenario) || 'geen_scenario';
-				if (breach && scenario) {
-					const scenarioId = `${breach?.properties.dijkring}_${breach?.properties.name}_${scenario}`;
-					const timestring = (Math.round(time) * 6).toString().padStart(5, "0")
-					const parameters = {
-						scenario: scenarioId, 
-						timestep: timestring, 
-						limit: "666"
-					}
-					this.floodedRoadsLayer.source.switchUrl(this.settings.floodedRoadsUrl, parameters);
-				};
-			})
 		)
+		this.addTimeSubscriber();
+	}
+
+	public addTimeSubscriber(): void {
+		this.timeUnsubscriber?.();
+		this.timeUnsubscriber = this.time.subscribe((time) => {
+			const breach = get(this.activeBreach);
+			const scenario = get(this.selectedScenario) || 'geen_scenario';
+			if (breach && scenario) {
+				const scenarioId = `${breach?.properties.dijkring}_${breach?.properties.name}_${scenario}`;
+				const timestring = (Math.round(time) * 6).toString().padStart(5, "0")
+				const parameters = {
+					scenario: scenarioId, 
+					timestep: timestring, 
+					limit: "666"
+				}
+				this.floodedRoadsLayer.source.switchUrl(this.settings.floodedRoadsUrl, parameters);
+			};
+		})
 	}
 
 	public showAll(): void {
