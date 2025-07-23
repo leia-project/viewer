@@ -1,5 +1,6 @@
 import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
+import { lineString, length, along } from '@turf/turf';
 import gsap  from "gsap";
 import type { Map as CesiumMap } from "$lib/components/map-cesium/module/map";
 import type { RouteFeature } from "../api/routing-api";
@@ -187,6 +188,16 @@ abstract class RoutingNode<F = any> {
 
 }
 
+
+function getMidpoint(coords: Array<[lon: number, lat: number]>): { lon: number, lat: number } {
+	const line = lineString(coords);
+	const totalLength = length(line, { units: 'kilometers' });
+	const midpoint = along(line, totalLength / 2, { units: 'kilometers' });
+	const position = midpoint.geometry.coordinates;
+	return { lon: position[0], lat: position[1] };
+}
+
+
 export class RouteSegment extends RoutingNode<IEdgeFeature> {
 
 	public capacity: number; // Extraction capacity per time step
@@ -203,8 +214,7 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 	public raisedBy: number = 0;
 
 	constructor(feature: IEdgeFeature, elapsedTime: Writable<number>, dataSource: Cesium.CustomDataSource, map: CesiumMap, isExtractionPoint: boolean) {
-		const lon = feature.geometry.coordinates[0][0];
-		const lat = feature.geometry.coordinates[0][1];
+		const { lon , lat } = getMidpoint(feature.geometry.coordinates);
 		super(feature.properties.fid.toString(), lon, lat, feature);
 		this.capacity = feature.properties.capaciteit;
 		this.elapsedTime = elapsedTime;

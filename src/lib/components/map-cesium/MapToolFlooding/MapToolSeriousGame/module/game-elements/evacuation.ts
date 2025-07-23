@@ -83,7 +83,7 @@ export class Evacuation {
 				height += evac.numberOfPersons
 			}
 		}
-		return (height + 50) / 10;
+		return (height / 10) + 50;
 	}
 	
 	public display(evacuationGroup: Array<Evacuation>): void {
