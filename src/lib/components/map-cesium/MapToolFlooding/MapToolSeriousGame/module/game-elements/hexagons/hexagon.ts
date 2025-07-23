@@ -11,6 +11,7 @@ export class Hexagon {
 	public hex: string;
 	public center: [lon: number, lat: number];
 	public centerCartesian3: Cesium.Cartesian3;
+	public evacuationPoints: Array<[lon: number, lat: number]>;
 	public population: number;
 	public floodDepth: Writable<number> = writable(0);
 	public floodedAt: Writable<number | undefined> = writable(undefined);
@@ -55,6 +56,7 @@ export class Hexagon {
 		const latLon = cellToLatLng(hex);
 		this.center = [latLon[1], latLon[0]];
 		this.centerCartesian3 = Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.getHexagonHeight(population) * 0.01); // 0.01 is exag_1 uniform
+		this.evacuationPoints = this.getEvacuationPoints();
 		this.population = population;
 		this.selectedHexagon = selectedHexagon;
 		this.geometryInstances = this.createGeometryInstance(hex, population);
@@ -90,6 +92,15 @@ export class Hexagon {
 	public getHexVertices(cell: string = this.hex): Array<[lon: number, lat: number]> {
 		const boundary = cellToBoundary(cell, true);
 		return boundary.map((point) => [point[0], point[1]]);
+	}
+
+	private getEvacuationPoints(): Array<[lon: number, lat: number]> {
+		const boundary = this.getHexVertices();
+		const midpoints: Array<[number, number]> = boundary.map(([lon, lat]) => [
+			(this.center[0] + lon) / 2,
+			(this.center[1] + lat) / 2
+		]);
+		return [this.center, ...midpoints];
 	}
 
 	private createGeometryInstance(cell: string, population: number): Array<Cesium.GeometryInstance> {

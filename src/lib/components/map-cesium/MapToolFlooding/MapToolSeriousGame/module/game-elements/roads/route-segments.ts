@@ -201,6 +201,10 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 		});
 	}
 
+	public get availableLoad(): number {
+		return this.capacity - (this.loadPerTimeStep.get(get(this.elapsedTime)) || 0);
+	}
+
 	public overloaded(time: number = get(this.elapsedTime)): boolean {
 		return (this.loadPerTimeStep.get(time) || 0) > this.capacity;
 	}

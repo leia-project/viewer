@@ -7,9 +7,6 @@
 
 	export let game: Game;
 
-/* 	const startTime = game.startTime;
-	const endTime = game.startTime + 12 * 60 * 60; // 12 hours in seconds */
-
 	const simulationTime = game.elapsedTime;
 	const selectedTime = game.elapsedTimeDynamic;
 

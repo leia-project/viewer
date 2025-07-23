@@ -20,6 +20,7 @@ export class RoadNetwork {
 	public map: Map;
 	private routingAPI: RoutingAPI;
 	private outline: Array<[lon: number, lat: number]>;
+	private personsPerCar: number = 4;
 
 	private roadNetworkLayer: RoadNetworkLayer;
 	private extractionPointIds: Array<string> = ["42376", "83224", "77776"];
@@ -154,23 +155,23 @@ export class RoadNetwork {
 		this.measures = measures.filter((m) => m !== undefined) as Array<Measure>;
 	}
 
-	public async evacuateHexagon(hexagon: Hexagon): Promise<Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, numberOfPersons: number }> | undefined> {
-		const chunkSize = 1000; // Number of persons to evacuate in one go
+	public async evacuateHexagon(hexagon: Hexagon): Promise<Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment,  evacuatedCars: number, numberOfPersons: number }> | undefined> {
+		//const chunkSize = 500; // Number of people to evacuate in one go
 		const totalPersons = hexagon.population;
-		const evacuationRoutes: Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, numberOfPersons: number }> = [];
-		let remainingPersons = totalPersons;
+		const evacuationRoutes: Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, evacuatedCars: number, numberOfPersons: number }> = [];
+		let remainingPersons = totalPersons - get(hexagon.totalEvacuated);
 		while (remainingPersons > 0) {
-			const numberOfPersons = Math.min(remainingPersons, chunkSize);
-			const evacuationRoute = await this.createEvacuationRoute(hexagon.center, numberOfPersons);
+			const maxNumberOfCars = Math.ceil(remainingPersons / this.personsPerCar);
+			const evacuationRoute = await this.createEvacuationRoute(hexagon, maxNumberOfCars);
 			if (!evacuationRoute) {
-				console.error("No evacuation route found or route is empty.");
-				return;
+				break;
 			}
+			const evacuatedPersons = evacuationRoute.evacuatedCars * this.personsPerCar;
 			evacuationRoutes.push({
 				...evacuationRoute,
-				numberOfPersons: numberOfPersons
+				numberOfPersons: evacuatedPersons
 			});
-			remainingPersons -= numberOfPersons;
+			remainingPersons -= evacuatedPersons;
 		}
 		if (evacuationRoutes.length === 0) {
 			console.error("No evacuation routes created.");
@@ -179,7 +180,7 @@ export class RoadNetwork {
 		return evacuationRoutes;
 	}
 
-	public async createEvacuationRoute(origin: [lon: number, lat: number], numberOfPersons: number): Promise<{ route: Array<RouteSegment>, extractionPoint: RouteSegment } | undefined> {
+	public async createEvacuationRoute(hexagon: Hexagon, maxNumberOfCars: number): Promise<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, evacuatedCars: number } | undefined> {
 		const selectedExtractionPoint = get(this.selectedExtractionPoint);
 		if (!selectedExtractionPoint) {
 			return;
@@ -188,31 +189,51 @@ export class RoadNetwork {
 			selectedExtractionPoint.lon,
 			selectedExtractionPoint.lat
 		];
-		const route = await this.routingAPI.getRoute(origin, extractionLocation);
 
+		// 1. Get the shortest route to the extraction point
+		let route: { type: string; features: Array<RouteFeature>; } | undefined;
+		for (const evacuationPoint of hexagon.evacuationPoints) {
+			route = await this.routingAPI.getRoute(evacuationPoint, extractionLocation);
+			if (route && route.features.length > 0) break;
+		}
 		if (!route || route.features.length === 0) {
 			console.error("No route found or route is empty.");
-   			return;
+			return;
 		}
 
-		// Update capacities
+		const currentStep = get(this.elapsedTime);
+
+		// 2. Determine how many cars can be evacuated based on the route segments
+		let minAvailableCarLoad = Infinity;
 		const routeSegments: Array<RouteSegment> = [];
 		route.features.forEach((feature: RouteFeature) => {
 			const routeSegment = this.roadNetworkLayer.getItemById(feature.properties.fid.toString());
 			if (routeSegment) {
-				routeSegment.addLoad(numberOfPersons, get(this.elapsedTime));
+				if (routeSegment.availableLoad < minAvailableCarLoad) {
+					minAvailableCarLoad = routeSegment.availableLoad;
+				}
 				routeSegments.push(routeSegment);
 			}
 		});
+		if (minAvailableCarLoad === Infinity || minAvailableCarLoad <= 0) {
+			console.error("No available car load on the route segments.");
+			return;
+		}
+		if (minAvailableCarLoad > maxNumberOfCars) {
+			minAvailableCarLoad = maxNumberOfCars;
+		}
 
-		// Update graph
-		const currentStep = get(this.elapsedTime);
-		const overloadedSegments = routeSegments.filter((segment) => (segment.loadPerTimeStep.get(currentStep) || 0) > segment.capacity);
+		// 3. Update graph
+		routeSegments.forEach((segment) => {
+			segment.addLoad(minAvailableCarLoad, currentStep);
+		});
+		const overloadedSegments = routeSegments.filter((segment) => (segment.loadPerTimeStep.get(currentStep) || 0) >= segment.capacity);
 		this.routingAPI.removeSegments(overloadedSegments.map((segment) => segment.id));
 
 		return {
 			route: routeSegments,
-			extractionPoint: selectedExtractionPoint
+			extractionPoint: selectedExtractionPoint,
+			evacuatedCars: minAvailableCarLoad
 		};
 	}
 
