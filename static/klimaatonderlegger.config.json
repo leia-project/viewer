@@ -2493,12 +2493,20 @@
                                         "layers": [
                                             {
                                                 "id": "9001",
-                                                "generalLegendText": "<div><strong>Ontwikkel bodemdalingbestendig. Een gebouwde ontwikkeling in een gebied met sterke bodemdaling zoals (rest)zetting, wentelt af op de toekomst en het publieke domein.</strong><br><br><hr><br></div>",
-                                                "legendOptions": {
-                                                    "B": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
-                                                    "C": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
-                                                    "D": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
-                                                }
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    },
+                                                    {
+                                                        "labels": "D",
+                                                        "text": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    }
+                                                ]
                                             }
                                         ]
                                     },
@@ -2516,15 +2524,32 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-        
                                             {
                                                 "id": "9002",
-                                                "generalLegendText": "<div><strong>B en C: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).<br><br>D: In gebieden waar regenwater zich verzamelt, waterbestendig ontwikkelen en vitale en kwetsbare functies aangepast ontwikkelen of ontwikkelingen vermijden. Gebiedsontwikkelingen die integraal opgehoogd worden vragen een grote inspanning en wentelen af op andere gebieden.</strong><br><br><hr><br></div>",
-                                                "legendOptions": {
-                                                    "B": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
-                                                    "C": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
-                                                    "D": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
-                                                }
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "BCD",
+                                                        "text": "B, C en D: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).",
+                                                        "subLabels": {
+                                                            "B": {
+                                                                "text": "B: Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen. Bij nieuwbouw wordt al ingezet op het infiltreren, vasthouden of bergen van 40-70 mm in 1 uur, het beperkt verharden en het gebruik van waterdichte drempels van 20 cm (Convenant klimaatadaptief vouwen en Landelijke maatlat).",
+                                                                "hoverText": ""
+                                                            },
+                                                            "C": {
+                                                                "text": "C: Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm (door extra water vast te houden, te bergen of af te voeren), zodat er geen schade of risico's ontstaan bij waterstanden op het maaiveld tot circa 50 cm.",
+                                                                "hoverText": ""
+                                                            },
+                                                            "D": {
+                                                                "text": "D: ONtwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm, of er geen schade ontstaat bij waterstanden op het maaiveld van >50 cm.",
+                                                                "hoverText": ""
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        "labels": "D",
+                                                        "text": "D: In gebieden waar regenwater zich verzamelt, waterbestendig ontwikkelen en vitale en kwetsbare functies aangepast ontwikkelen of ontwikkelingen vermijden. Gebiedsontwikkelingen die integraal opgehoogd worden vragen een grote inspanning en wentelen af op andere gebieden."
+                                                    }
+                                                ]
                                             }
                                         ]
                                     },
@@ -2627,15 +2652,22 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-        
                                             {
                                                 "id": "10001",
-                                                "generalLegendText": "<div><strong>Ontwikkel bodemdalingbestendig. Een gebouwde ontwikkeling in een gebied met sterke bodemdaling zoals (rest)zetting, wentelt af op de toekomst en het publieke domein.</strong><br><br><hr><br></div>",
-                                                "legendOptions": {
-                                                    "B": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
-                                                    "C": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
-                                                    "D": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
-                                                }
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    },
+                                                    {
+                                                        "labels": "D",
+                                                        "text": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    }
+                                                ]
                                             }
                                         ]
                                     },
@@ -2653,15 +2685,32 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-        
                                             {
                                                 "id": "10002",
-                                                "generalLegendText": "<div><strong>B en C: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).<br><br>D: In gebieden waar regenwater zich verzamelt, waterbestendig ontwikkelen en vitale en kwetsbare functies aangepast ontwikkelen of ontwikkelingen vermijden. Gebiedsontwikkelingen die integraal opgehoogd worden vragen een grote inspanning en wentelen af op andere gebieden.</strong><br><br><hr><br></div>",
-                                                "legendOptions": {
-                                                    "B": "Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen. Bij nieuwbouw wordt al ingezet op het infiltreren, vasthouden of bergen van 40-70 mm in 1 uur, het beperkt verharden en het gebruik van waterdichte drempels van 20 cm (Convenant klimaatadaptief bouwen en Landelijke maatlat).",
-                                                    "C": "Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm (door extra water vast te houden, te bergen of af te voeren), zodat er geen schade of risico's ontstaan bij waterstanden op het maaiveld tot circa 50 cm.",
-                                                    "D": "Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm, of er geen schade ontstaat bij waterstanden op het maaiveld van > 50 cm."
-                                                }
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "BCD",
+                                                        "text": "B, C en D: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).",
+                                                        "subLabels": {
+                                                            "B": {
+                                                                "text": "B: Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen. Bij nieuwbouw wordt al ingezet op het infiltreren, vasthouden of bergen van 40-70 mm in 1 uur, het beperkt verharden en het gebruik van waterdichte drempels van 20 cm (Convenant klimaatadaptief vouwen en Landelijke maatlat).",
+                                                                "hoverText": ""
+                                                            },
+                                                            "C": {
+                                                                "text": "C: Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm (door extra water vast te houden, te bergen of af te voeren), zodat er geen schade of risico's ontstaan bij waterstanden op het maaiveld tot circa 50 cm.",
+                                                                "hoverText": ""
+                                                            },
+                                                            "D": {
+                                                                "text": "D: ONtwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm, of er geen schade ontstaat bij waterstanden op het maaiveld van >50 cm.",
+                                                                "hoverText": ""
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        "labels": "D",
+                                                        "text": "D: In gebieden waar regenwater zich verzamelt, waterbestendig ontwikkelen en vitale en kwetsbare functies aangepast ontwikkelen of ontwikkelingen vermijden. Gebiedsontwikkelingen die integraal opgehoogd worden vragen een grote inspanning en wentelen af op andere gebieden."
+                                                    }
+                                                ]
                                             }
                                         ]
                                     },
@@ -2744,15 +2793,22 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-        
                                             {
                                                 "id": "11001",
-                                                "generalLegendText": "<div><strong>Ontwikkel bodemdalingbestendig. Een gebouwde ontwikkeling in een gebied met sterke bodemdaling zoals (rest)zetting, wentelt af op de toekomst en het publieke domein.</strong><br><br><hr><br></div>",
-                                                "legendOptions": {
-                                                    "B": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
-                                                    "C": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
-                                                    "D": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
-                                                }
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    },
+                                                    {
+                                                        "labels": "D",
+                                                        "text": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    }
+                                                ]
                                             }
                                         ]
                                     },
@@ -2770,14 +2826,28 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-        
                                             {
                                                 "id": "11002",
-                                                "generalLegendText": "<div><strong>B en C: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).<br><br>C: Ontwikkel waterbestendig in gebieden waar regenwater zich verzamelt (geen water in de woning); denk aan tijdelijke (tot 15 jaar) of floodproof woningen, extra waterberging en voorkom afwenteling.</strong><br><br><hr><br></div>",
-                                                "legendOptions": {
-                                                    "B": "Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen.",
-                                                    "C": "Ontwikkel water bestendig bij >20cm wateroverlast; denk aan tijdelijke (tot 15 jaar) of floodproof woningen (geen water in de woning) en extra waterberging."
-                                                }
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "BC",
+                                                        "text": "B en C: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).",
+                                                        "subLabels": {
+                                                            "B": {
+                                                                "text": "B: Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen.",
+                                                                "hoverText": ""
+                                                            },
+                                                            "C": {
+                                                                "text": "C: Ontwikkel waterbestendig bij >20cm wateroverlast; denk aan tijdelijke (tot 1 jaar) of floodproof woningen (geen water in de woning) en extra waterberging.",
+                                                                "hoverText": ""
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "C: Ontwikkel waterbestending in gebieden waar regenwater zich verzamelt (geen water in de woning); denk aan tijdelijke (tot 15 jaar) of floodproof woningen, extra waterberging en voorkom afwenteling."
+                                                    }
+                                                ]
                                             }
                                         ]
                                     },
@@ -2900,14 +2970,26 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-        
                                             {
                                                 "id": "12001",
-                                                "generalLegendText": "",
-                                                "legendOptions": {
-                                                    "B": "Door extremere regenval kunnen landbouwpercelen voor een korte tijd snel inunderen. Houd rekening met wateroverlast van meer dan 5cm. Pas hierop de bedrijfsvoering aan indien nodig. Gebieden die van nature slempgevoelig (in relatie tot bodemtype) zijn krijgen bij overbelasting vaker te maken met water op het maaiveld. Door een andere bewerkingsvorm van de bodem (anders ploegen, etc.) of het toevoegen van organisch materiaal in de toplaag kan de bodemstructuur worden verbeterd. Gebieden die vallen onder de 1:25 wateroverlast norming waar het regenwater zich verzameld kunnen steeds vaker te maken krijgen met (regen)wateroverlast.",
-                                                    "C": "Lage gebieden waar het regenwater zich verzameld kunnen steeds vaker te maken krijgen met (regen)wateroverlast. Intensieve veeteelt in deze gebieden dient te worden vermeden. Houd rekening met korte periodes van inundatie van percelen. Pas de bedrijfsvoering hierop aan."
-                                                }
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "Door extremere regenval kunnen landbouwpercelen voor een korte tijd snel inunderen. Houd rekening met wateroverlast van meer dan 5 cm. Pas hierop de bedrijfsvoering aan indien nodig."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "Gebieden die van nature slempgevoelig (in relatie tot bodemtype) zijn, krijgen bij overbelasting vaker te maken met water op het maaiveld. Door een andere bewerkingsvorm van de bodem (anders ploegen, etc.) of het toevoegen van organisch materiaal in de toplaag kan de bodemstructuur worden verbeterd."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "Gebieden die vallen onder de 1:25 wateroverlast normering waar het regenwater zich verzameld, kunnen steeds vaker te maken krijgen met (regen)wateroverlast. Houd rekening met snellere wateroverlast."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "Lage gebieden waar het regenwater zich verzamelt, kunnen steeds vaker te maken rkijgen met (regen)wateroverlast. Intensieve veeteelt in deze gebieden dient te worden vermeden. Houd rekening met korte periodes van inundatie van percelen. Pas de bedrijfsvoering hierop aan."
+                                                    }
+                                                ]
                                             }
                                         ]
                                     },
