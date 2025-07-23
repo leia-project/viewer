@@ -38,7 +38,7 @@ export class Evacuation {
 	private makeWallEntity(route: RouteSegment): Cesium.Entity {
 		const linePositions = route.feature.geometry.coordinates.map((p) => Cesium.Cartesian3.fromDegrees(p[0], p[1], 1000));
 		return new Cesium.Entity({
-			name: route.feature.properties.fid,
+			name: route.feature.properties.fid.toString(),
 			wall: {
 				positions: linePositions,
 				material: Cesium.Color.ORANGERED
@@ -83,7 +83,7 @@ export class Evacuation {
 				height += evac.numberOfPersons
 			}
 		}
-		return (height + 50) / 5;
+		return (height + 50) / 10;
 	}
 	
 	public display(evacuationGroup: Array<Evacuation>): void {
