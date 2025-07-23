@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as Cesium from "cesium";
 	import { getContext } from "svelte";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 
@@ -28,9 +29,18 @@
 	let stories = new Array<Story>();
 	let selectedStory: Story | undefined;
 	let stepNumber: number;
+	let baseLayerId: string;
 
 	let tool = new MapToolMenuOption(id, icon, label);
 	const layers = cesiumMap.layers;
+
+	type LegendOptions = {
+		generalLegendText: string;
+		legendOptions: {
+			[key: string]: string;
+		};
+	};
+	const layerLegends: Array<LegendOptions> = [];
 
 	$: { tool.label.set(label); }
 	registerTool(tool);
@@ -93,6 +103,8 @@
 				const storyName = story.name;
 				const storyDescription = story.description;
 				const storyWidth = story.width;
+				const storyForce2DMode = story.force2DMode ?? false;
+				baseLayerId = story.baseLayerId ?? "";
 				const storyChapters = new Array<StoryChapter>();
 
 				// Load all chapter groups
@@ -126,13 +138,18 @@
 							storyLayers.push(
 								new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName)
 							);
+							const layerLegendInfo = {
+								generalLegendText: step.layers[l].generalLegendText,
+								legendOptions: step.layers[l].legendOptions
+							}
+							layerLegends.push(layerLegendInfo);
 						}
 						const globeOpacity = step.globeOpacity ?? 100;
 						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent));
 					}
 					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth));
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForce2DMode));
 			}
 		}
 		stories = loadedStories;
@@ -164,6 +181,8 @@
 				{textStepBack}
 				{textStepForward}
 				savedStepNumber={stepNumber}
+				{layerLegends}
+				{baseLayerId}
 				on:closeStory={() => {
 					closeStory();
 				}}

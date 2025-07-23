@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
+	import * as Cesium from "cesium";
 	import { onMount, getContext, onDestroy, createEventDispatcher } from "svelte";
 	import { writable, get } from "svelte/store";
-	import { Button, PaginationNav, Tag } from "carbon-components-svelte";
+	import { Button, PaginationNav, Tag, Loading } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
+	import Edit from "carbon-icons-svelte/lib/Edit.svelte";
 	import "@carbon/charts-svelte/styles.css";
 
 	import type { Story } from "./Story";
@@ -16,9 +18,19 @@
 	import { CesiumLayer } from "../module/layers/cesium-layer";
 	import type { StoryLayer } from "./StoryLayer";
 	import type { StoryChapter } from "./StoryChapter";
-	import { DonutChart } from "@carbon/charts-svelte";
 	import CustomPaginationNav from "./CustomPaginationNav.svelte";
 	import DrawPolygon from "./DrawPolygon.svelte";
+	import { getCameraPositionFromBoundingSphere } from "../module/utils/layer-utils";
+	import { polygonStore } from './PolygonEntityStore';
+	import StoryChart from "./StoryChart.svelte";
+	import { Checkbox } from "carbon-components-svelte";
+
+	type LegendOptions = {
+		generalLegendText: string;
+		legendOptions: {
+			[key: string]: string;
+		};
+	};
 
 	export let map: Map;
 	export let story: Story;
@@ -26,6 +38,8 @@
 	export let textBack: string;
 	export let textStepBack: string;
 	export let textStepForward: string;
+	export let layerLegends: Array<LegendOptions>; 
+	export let baseLayerId: string;
 
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
 	const dispatch = createEventDispatcher();
@@ -49,46 +63,40 @@
 	let startGlobeOpacity: number;
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
 
-	let hasDrawnPolygon: boolean = false;
-	let distributions: Array<number> = [5];
+	let polygonArea: number = 0;
+	let hasDrawnPolygon: boolean;
+	let polygonCameraLocation: CameraLocation | undefined = undefined; // Used instead of CL if project area is drawn by user
+	let distributions: Array<{ group: string; value: number }[]>;
+	let showPolygonMenu = false;
+	let baseLayer: Layer | undefined;
+	let baseMapVisible = writable(true);
 
 	$: shown = Math.floor(width / 70);
+	$: baseLayer?.visible.set($baseMapVisible);
 
+	const unsubscribePolygonEntity = polygonStore.subscribe(polygon => {
+		if (polygon?.polygonEntity) {
+			const use3DMode = get(map.options.use3DMode);
+			const vertices: Array<number> = [];
 
-	let mockData = [
-		{ group: "A", value: 20 },
-		{ group: "B", value: 25 },
-		{ group: "C", value: 40 },
-		{ group: "D", value: 10 },
-		{ group: "E", value: 5 }
-	];
+			// Assuming the entity has a polygon or polyline geometry
+			const entity = polygon.polygonEntity;
 
-	let mockOptions = {
-		showTable: false,
-		resizable: true,
-		height: "400px",
-		width: "400px",
-		donut: {
-			alignment: "center"
-		},
-		legend: {
-			alignment: 'center',
-			order: ["A", "B", "C", "D", "E"]
-		},
-		toolbar: {
-			enabled: false
-		},
-		color: {
-			scale: {
-				A: "#28a745", // Green
-				B: "#85c240", // Light Green
-				C: "#f0ad4e", // Yellow
-				D: "#d9534f", // Orange
-				E: "#dc3545"  // Red
+			// You probably mean polygon geometry, not polyline — adjust as needed
+			const positions = entity.polygon?.hierarchy?.getValue(map.viewer.clock.currentTime)?.positions
+				|| entity.polyline?.positions?.getValue(map.viewer.clock.currentTime);
+
+			if (positions && positions.length > 0) {
+				for (let j = 0; j < positions.length; j++) {
+					vertices.push(positions[j].x, positions[j].y, positions[j].z);
+				}
+
+				const boundingSphere = Cesium.BoundingSphere.fromVertices(vertices, Cesium.Cartesian3.ZERO, 3);
+				const polygonCameraLocation = getCameraPositionFromBoundingSphere(boundingSphere, use3DMode);
+				cesiumMap.flyTo(polygonCameraLocation);
 			}
 		}
-	};
-	
+	});
 
 	// Flatten the steps across all chapters so we can access the correct step based on the index
 	let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
@@ -99,6 +107,11 @@
 		});
 
 	onMount(() => {
+		if (story.force2DMode) {
+			map.options.disableModeSwitcher.set(true);
+			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
+		}
+
 		startCameraLocation = cesiumMap.getPosition();
 
 		let toolContainer = getToolContainer();
@@ -118,17 +131,47 @@
 		// Return to step where user left
 		currentPage.set(savedStepNumber);
 		setTimeout(() => { scrollToStep(savedStepNumber-1) }, 150); // Timeout when height of images is not explicitly set
+		baseLayer = copyLayerById(baseLayerId);
 	});
 
 
 	onDestroy(() => {
+		if (story.force2DMode) map.options.disableModeSwitcher.set(false);
+
 		map.autoCheckBackground = startAutocheckBackground;
 		container.removeEventListener("scroll", onScroll);
 		container.removeEventListener("wheel", onWheel);
 		resetToStart();
 		dispatch("closeModule", {n: $currentPage});
+		
+		baseLayer?.visible.set(false);
+		baseLayer = undefined;
 	});
 
+	function copyLayerById(id: string): Layer | undefined {
+		const originalLayer = getLayerById(id);
+		const libraryLayer = getLibraryLayer(id);
+		if (!originalLayer || !libraryLayer) return;
+
+		const config = new LayerConfig({
+			id: `copy_of_${id}`,
+			title: `${libraryLayer.title} (Copy)`,
+			type: libraryLayer.type,
+			settings: { ...libraryLayer.settings }, // shallow copy; deep copy if necessary
+			isBackground: libraryLayer.isBackground,
+			defaultOn: true,
+			defaultAddToManager: true,
+			opacity: libraryLayer.opacity,
+		});
+
+		const newLayer = map.addLayer(config);
+		return newLayer;
+	}
+
+	function getLayerById(id: string): Layer | undefined {
+		const layers = get(map.layers);
+		return layers.find(layer => layer.id === id);
+	}
 
 	function onScroll() {
 		if (lastInputType === "scroll") {
@@ -143,6 +186,9 @@
 
 
 	currentPage.subscribe((page) => {
+		if (story.force2DMode) {
+			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
+		} // Set this again because apparently OnMount is slower than a subscribe :/
 		const index = page - 1;
 
 		// Flatten the steps across all chapters so we can access the correct step based on the index
@@ -163,26 +209,26 @@
 		}
 
 		if (activeStep) {
-			cesiumMap.flyTo(activeStep.cameraLocation);
-				if (activeStep.layers) {
-					hideInactiveLayers(activeStep.layers);
-					for (let i = 0; i < activeStep.layers?.length; i++) {
-						const layerId = activeStep.layers[i].id.toString();
-						const added = getAdded(layerId);
+			cesiumMap.flyTo(polygonCameraLocation ?? activeStep.cameraLocation);
+			if (activeStep.layers) {
+				hideInactiveLayers(activeStep.layers);
+				for (let i = 0; i < activeStep.layers?.length; i++) {
+					const layerId = activeStep.layers[i].id.toString();
+					const added = getAdded(layerId);
 
-						if (added) {
-							added.visible.set(true);
-							continue
-						}
+					if (added) {
+						added.visible.set(true);
+						continue
+					}
 
-						const libraryLayer = getLibraryLayer(layerId);
-						if (libraryLayer) {
-							const layerConfig = storyLayerToLayerConfig(activeStep.layers[i], libraryLayer);
-							const layer = map.addLayer(layerConfig);
-							storyLayers.push(layer);
-						}
+					const libraryLayer = getLibraryLayer(layerId);
+					if (libraryLayer) {
+						const layerConfig = storyLayerToLayerConfig(activeStep.layers[i], libraryLayer);
+						const layer = map.addLayer(layerConfig);
+						storyLayers.push(layer);
 					}
 				}
+			}
 
 			if (activeStep.globeOpacity) {
 				map.options.globeOpacity.set(activeStep.globeOpacity);
@@ -191,9 +237,14 @@
 			}
 
 			const activeTerrain = get(map.options.selectedTerrainProvider);
-			if (startTerrain === undefined) startTerrain = activeTerrain; // necessary when loading a story directly via a search param		
-			const stepTerrain = get(map.options.terrainProviders).find((t) => { return t.title === activeStep?.terrain });
-			if (stepTerrain) {		
+			if (startTerrain === undefined) startTerrain = activeTerrain; // necessary when loading a story directly via a search param	
+			
+			// Set the terrain provider based on the step. Use no terrain in 2D mode
+			const stepTerrain = get(map.options.terrainProviders).find((t) => { 
+				return t.title === (get(map.options.use3DMode) ? activeStep?.terrain : "Uit");
+			});
+
+			if (stepTerrain) {	
 				map.options.selectedTerrainProvider.set(stepTerrain);
 			} else if (activeTerrain !== startTerrain ) {
 				map.options.selectedTerrainProvider.set(startTerrain);
@@ -343,9 +394,6 @@
 </script>
 
 <div class="story" bind:clientWidth={width}>
-	{#if !hasDrawnPolygon}
-		<DrawPolygon bind:hasDrawnPolygon={hasDrawnPolygon} {map} {story} bind:distributions={distributions}/>
-	{:else}
 	<div
 		class="nav"
 		style="width:{width}px"
@@ -354,23 +402,43 @@
 			e.preventDefault();
 			e.stopPropagation();
 		}}
-	>
-		<div class="close">
-			<Button
-				iconDescription={textBack}
-				tooltipPosition="left"
-				icon={Exit}
-				on:click={backToOverview} 
-			/>
-		</div>
-		<div class="heading-01">
+	>	
+		<div class="heading-03" style="font-weight: bold; text-align: left; width: 100%;">
 			{story.name}
 		</div>
+		<div class="nav-controls">
+			<div class="toggle-basemap">
+				<Checkbox
+				labelText={$_("tools.stories.basemap")}
+				bind:checked={$baseMapVisible}
+			/>
+			</div>
+			<div class="draw-polygon">
+				<Button
+					kind={showPolygonMenu ? "primary" : "secondary"}
+					iconDescription="Projectgebied Tool"
+					tooltipPosition="left"
+					icon={Edit}
+					on:click={() => showPolygonMenu = !showPolygonMenu} 
+				/>
+			</div>
+			<div class="close">
+				<Button
+					kind="tertiary"
+					iconDescription={textBack}
+					tooltipPosition="left"
+					icon={Exit}
+					on:click={backToOverview} 
+				/>
+			</div>
+		</div>
+		
 		<!-- <div class="story-description body-compact-01">
 			{story.description}
 		</div> -->
 
 		<div class="chapter-buttons">
+			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
 			{#each story.storyChapters as chapter, index}
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}
@@ -414,32 +482,56 @@
 		<div style="height:{navHeight}px" />
 		{#each flattenedSteps as { step, chapter }, index}
 			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
-				<div class="step-heading heading-03">
-					{chapter.title} | {step.title}
+				<div class="step-heading heading-01">
+					{chapter.title}
+				</div>
+				<div class="step-heading heading-04">
+					{step.title}
 				</div>
 				<div class="step-heading-sub heading-03">
 					{$_("tools.stories.description")}
 				</div>
 				{@html step.html}
-				{#each step.layers ?? [] as layer}
+				<!-- {#each step.layers ?? [] as layer}
 					Layer {layer.id}: {layer.featureName}
-				{/each}
-
+				{/each} -->
+				
+				<!-- <div class="step-heading-sub heading-03">
+					{$_("tools.stories.statistics")}
+				</div> -->
+				<br><br>
+				<div class="step-stats">
+					{#if distributions && distributions[index]}
+						<StoryChart data={distributions[index]} />
+						<br><br><br>
+						{#if layerLegends[index].generalLegendText}
+							{@html layerLegends[index].generalLegendText}
+						{/if}
+						<ul>
+							{#each distributions[index] as key}
+								{#if layerLegends[index].legendOptions && key.value > 0 && layerLegends[index].legendOptions[key.group]} 
+									<li>
+										<strong>{key.group}: </strong>{layerLegends[index].legendOptions[key.group]}
+									</li>
+									<br>
+								{/if}
+							{/each}
+						</ul>
+					{:else if hasDrawnPolygon}
+						<StoryChart data={undefined} loading={true} />
+					{:else}
+						<StoryChart data={undefined} />
+						<strong>{$_("tools.stories.requestDrawPolygon")}</strong>
+					{/if}
+				</div>
 				<div class="tag">
 					<Tag>{chapter.title}</Tag>
 					<Tag>{index + 1}</Tag>
-				</div>
-				<div class="step-heading-sub heading-03">
-					{$_("tools.stories.statistics")}
-				</div>
-				<div class="step-stats">
-					<DonutChart data={mockData} options={mockOptions} style="justify-content:center" />
 				</div>
 			</div>
 		{/each}
 		<!-- <div style="height:{height}px" /> -->
 	</div>
-	{/if}
 </div>
 
 <style>
@@ -469,6 +561,26 @@
 		position: absolute;
 		top: 0;
 		right: 0;
+	}
+
+	.nav .draw-polygon {
+		position: absolute;
+		top: 0;
+		right:5
+	}
+
+	.nav-controls {
+		position: absolute;
+		top: 0;
+		right: 0;
+		display: flex;
+		gap: 0.25rem; /* spacing between the buttons */
+		padding: 0.5rem;
+	}
+	
+	.nav-controls .draw-polygon,
+	.nav-controls .close {
+		position: static; /* Override absolute positioning from before */
 	}
 
 	.chapter-buttons {
@@ -521,8 +633,8 @@
 	}
 
 	.tag {
-		position: absolute;
-		bottom: var(--cds-spacing-05);
-		right: var(--cds-spacing-05);
+		display: flex;
+		justify-content: flex-end;
 	}
+	
 </style>

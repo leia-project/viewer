@@ -1657,7 +1657,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "bebouwing_aggregated",
                 "contenttype": "image/png"
             }
@@ -1672,7 +1672,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated",
                 "contenttype": "image/png"
             }
@@ -1687,7 +1687,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "regenwateroverlast_bebouwing_vitaleinfra_aggregated",
                 "contenttype": "image/png"
             }
@@ -1702,7 +1702,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterveiligheid_bebouwing_aggregated",
                 "contenttype": "image/png"
             }
@@ -1717,7 +1717,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterbeschikbaarheid_bebouwing_aggregated",
                 "contenttype": "image/png"
             }
@@ -1732,7 +1732,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "hitte_bebouwing_aggregated",
                 "contenttype": "image/png"
             }
@@ -1747,7 +1747,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "vitaleinfra_aggregated",
                 "contenttype": "image/png"
             }
@@ -1762,7 +1762,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated",
                 "contenttype": "image/png"
             }
@@ -1777,7 +1777,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "regenwateroverlast_bebouwing_vitaleinfra_aggregated",
                 "contenttype": "image/png"
             }
@@ -1792,7 +1792,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterveiligheid_vitaleinfra_aggregated",
                 "contenttype": "image/png"
             }
@@ -1807,7 +1807,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterbeschikbaarheid_vitaleinfra_aggregated",
                 "contenttype": "image/png"
             }
@@ -1822,7 +1822,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "recreatie_aggregated",
                 "contenttype": "image/png"
             }
@@ -1837,7 +1837,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated",
                 "contenttype": "image/png"
             }
@@ -1852,7 +1852,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "regenwateroverlast_recreatie_aggregated",
                 "contenttype": "image/png"
             }
@@ -1867,7 +1867,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterveiligheid_recreatie_aggregated",
                 "contenttype": "image/png"
             }
@@ -1882,7 +1882,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterbeschikbaarheid_recreatie_aggregated",
                 "contenttype": "image/png"
             }
@@ -1897,7 +1897,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterkwaliteit_recreatie_aggregated",
                 "contenttype": "image/png"
             }
@@ -1912,7 +1912,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "hitte_reacreatie_aggregated",
                 "contenttype": "image/png"
             }
@@ -1927,7 +1927,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "landbouw_aggregated",
                 "contenttype": "image/png"
             }
@@ -1942,7 +1942,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "regenwateroverlast_landbouw_aggregated",
                 "contenttype": "image/png"
             }
@@ -1957,7 +1957,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterveiligheid_landbouw_aggregated",
                 "contenttype": "image/png"
             }
@@ -1972,7 +1972,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterbeschikbaarheid_landbouw_aggregated",
                 "contenttype": "image/png"
             }
@@ -1987,7 +1987,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterkwaliteit_landbouw_aggregated",
                 "contenttype": "image/png"
             }
@@ -2002,7 +2002,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "hitte_landbouw_aggregated",
                 "contenttype": "image/png"
             }
@@ -2017,7 +2017,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "natuur_aggregated",
                 "contenttype": "image/png"
             }
@@ -2032,7 +2032,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterveiligheid_natuur_aggregated",
                 "contenttype": "image/png"
             }
@@ -2047,7 +2047,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterbeschikbaarheid_natuur_aggregated",
                 "contenttype": "image/png"
             }
@@ -2062,7 +2062,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?SERVICE=WMS&VERSION=1.1.1",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
                 "featureName": "waterkwaliteit_natuur_aggregated",
                 "contenttype": "image/png"
             }
@@ -2452,6 +2452,8 @@
                         "name": "Klimaatonderlegger",
                         "description": "Kaarten voor de klimaatonderlegger",
                         "width": "600px",
+                        "force2DMode": true,
+                        "baseLayerId": "001",
                         "chapters": [
                             {
                                 "id": "1",
@@ -2471,16 +2473,13 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
-                                            },
-                                            {
                                                 "id": "9000"
                                             }
                                         ]
                                     },
                                     {
                                         "title": "Bodemdaling",
-                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Zeeland bestaat deels uit slappe bodems met een pakket klei en op sommige plekken veen. Deze bodems zijn gevoelig voor inklinking, zetting en veenoxidatie. Dit kan tot schade en hogere beheerkosten leiden voor bebouwing, openbare ruimte, leidingen en tuinen. Daarnaast kan bodemdaling ervoor zorgen dat het oppervlaktewaterpeil (om voldoende drooglegging te behouden voor de bebouwing) moet worden verlaagd, wat tot extra beheerkosten leidt.<br><br> Bij gebouwde ontwikkeling in risicogebieden dient de draagkracht van de bodem te worden onderzocht. Draagkracht duidt op de mate waarin de ondergrond bij belasting gevoelig is voor zetting. Veen- en kleibodems kunnen worden samengedrukt door het gewicht van gebouwde ontwikkelingen (gebouwen en wegen), zeker als het maaiveld met zand wordt opgehoogd. Een deel van de bodemdaling treedt al op tijdens het voorbelasten van de bodem en dus vóór de oplevering van een gebouw. Na de oplevering kan er nog restzetting optreden die decennia kan doorgaan. Met name deze restzetting kan leiden tot hoge kosten voor beheer en onderhoud.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>Concentreer bebouwing voor zo veel mogelijk op draagkrachtige bodems. Zorg dat de bouwwijze is afgestemd op bodemtype en verwachte restzetting. Door het stellen van eisen aan het bouwen in bodemdalingsgevoelige gebieden wordt voorkomen dat kosten (onderhoud en beheer) worden afgewenteld op de toekomst. Bijvoorbeeld door het stellen van eisen aan de toegestane restzetting in een periode van 30 jaar. Vervolgens kan op basis van bodemonderzoek worden gekeken welke maatregelen nodig zijn om te kunnen voldoen aan deze restzettingseisen. Denk daarbij aan: <br><br>–Bebouwing kan bodemdalingbestendig worden gemaakt door deze (soms diep) te onderheien. <br><br>–Gebruik van lichtere bouwmaterialen (bijvoorbeeld composieten of houtbouw). <br><br>–Goede waterdichte afwerking en bebouwing zonder kruipruimte die bestand zijn voor stijgende grondwaterstanden. <br><br>–Lichtere ophoogmaterialen in plaats van het vaak gebruikte zand voor ophoging.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -2493,16 +2492,19 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
-                                            },
-                                            {
-                                                "id": "9001"
+                                                "id": "9001",
+                                                "generalLegendText": "<div><strong>Ontwikkel bodemdalingbestendig. Een gebouwde ontwikkeling in een gebied met sterke bodemdaling zoals (rest)zetting, wentelt af op de toekomst en het publieke domein.</strong><br><br><hr><br></div>",
+                                                "legendOptions": {
+                                                    "B": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
+                                                    "C": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
+                                                    "D": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                }
                                             }
                                         ]
                                     },
                                     {
                                         "title": "Regenwateroverlast",
-                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Regenwater kan gedeeltelijk worden vastgehouden of opgenomen door de bodem (infiltreren). In bebouwde gebieden met veel verharding of met hoge grondwaterstanden (weinig ruimte voor het water om te infiltreren), is de infiltratiecapaciteit beperkt. In Zeeland, dat grotendeels uit peilgereguleerde polders bestaat, moet regenwater dat niet kan worden vastgehouden, geïnfiltreerd of geborgen en op het maaiveld blijft staan, worden weggepompt.<br><br>Als gevolg van klimaatverandering neemt de hoeveelheid neerslag toe en zal wateroverlast in de toekomst vaker optreden. In gebouwde gebieden zal moeten worden ingezet op het extra infiltreren, vasthouden en bergen van water om wateroverlast te beperken. Daarnaast moet worden geaccepteerd dat er vaker water op straat zal staan, en moet worden voorkomen dat 20 cm water op straat tot schade leidt. Bij de aanleg van vitaal en kwetsbaar functies (zoals ziekenhuizen) is het extra belangrijk rekening te houden met regenwateroverlast, om schade en slachtoffers te voorkomen.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>Bij nieuwbouw wordt doorgaans al ingezet op het infiltreren, vasthouden of bergen van 40-70 mm in 1 uur, en het voorkomen van schade bij 20 cm water op straat.<br><br>-Het waterbestendig maken van kelders en souterrains door deze waterdicht uit te voeren of door er geen functies te plaatsen die gevoelig zijn voor waterschade.<br><br>-Waterdichte drempels voor woningen en garages zodat er tot 20 cm water op straat geen schade ontstaat (kan met drempels of een verhoogde rand in de openbare ruimte).<br><br>-Er kan worden ingezet op tijdelijke wateropvang en het verbeteren van het infiltratievermogen van de bodem (halfverharding, groenstroken, wadi's of infiltratiekratten).<br><br>-Afkoppelen van regenwater zorgt dat water makkelijker kan infiltreren (onbedekte bodem, groenstroken of waterdoorlatende bestrating) of vertraagd kan worden afgevoerd naar het oppervlaktewater.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -2514,17 +2516,21 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
+        
                                             {
-                                                "id": "001"
-                                            },
-                                            {
-                                                "id": "9002"
+                                                "id": "9002",
+                                                "generalLegendText": "<div><strong>B en C: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).<br><br>D: In gebieden waar regenwater zich verzamelt, waterbestendig ontwikkelen en vitale en kwetsbare functies aangepast ontwikkelen of ontwikkelingen vermijden. Gebiedsontwikkelingen die integraal opgehoogd worden vragen een grote inspanning en wentelen af op andere gebieden.</strong><br><br><hr><br></div>",
+                                                "legendOptions": {
+                                                    "B": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
+                                                    "C": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
+                                                    "D": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                }
                                             }
                                         ]
                                     },
                                     {
                                         "title": "Waterveiligheid",
-                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Binnendijkse gebieden worden door een stelsel van dijken, duinen en keringen beschermd tegen overstromingen. Bij het bepalen van de sterkte van de keringen is het belangrijk dat de gevolgen van een eventuele overstroming acceptabel zijn in relatie tot de kans van optreden. Daarbij is het belangrijk dat de reserveringszones rondom de keringen (zowel primair als regionaal) vrij worden gehouden om toekomstige versterkingen te kunnen waarborgen. De gevolgen van een overstroming kunnen extra groot zijn als er veel woningen zonder droge verdiepingen zijn of gebouwen met minder zelfredzame bevolkingsgroepen overstromen.<br><br>Er kan, naast het verkleinen van de overstromingskans (met keringen), ook worden ingezet op het beperken van de gevolgen van een overstroming. Dit heet meerlaagsveiligheid. Zo kan er worden ingezet op een goed noodplan en kunnen binnendijks extra voorzieningen worden getroffen die de kans op schade of slachtoffers in geval van een overstroming beperken. Het is belangrijk goed inzicht te hebben in verantwoordelijkheden, mogelijke vluchtroutes en nood- of evacuatiemogelijkheden voor vitale en kwetsbare functies.<br><br>In gebieden met een risico op hoge waterstanden en eventuele slachtoffers kan er ook worden besloten om ontwikkelingen te zoneren op basis van het risico.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>-Zorg dat bij de locatiekeuze van vitale of kwetsbare functies rekening wordt gehouden met het overstromingsrisico en de mogelijke waterdiepte van het gebied. Plaats vitale en kwetsbare functies (zoals ziekenhuizen of datacenters) niet op diep overstroombare plekken of locaties met een hogere overstromingskans.<br><br>-Zorg voor droge verdiepingen of lokale shelterlocaties in gebieden met hogere overstromingsdiepten (meer dan 2,5 m).<br><br>-Woningen in gebieden die kunnen overstromen, kunnen meer waterbestendig worden ingericht (deze worden ook wel 'wet proof'-gebouwen genoemd). Door gebruik te maken van materialen die bij wateroverlast niet beschadigen (denk aan een stenen vloer in plaats van een houten vloer en het hoger plaatsen van stopcontacten en installaties) kan schade worden beperkt.<br><br>-Op sommige locaties biedt het verhoogd wonen op terpen of op robuuste deltadijken kansen voor een klimaatbestendige oplossing. Bij het ontwerp moet echter worden voorkomen dat er wordt afgewenteld op omliggend gebied, doordat het water minder ruimte heeft.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -2536,9 +2542,6 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
                                             {
                                                 "id": "9003"
                                             }
@@ -2546,7 +2549,7 @@
                                     },
                                     {
                                         "title": "Waterbeschikbaarheid",
-                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. </div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -2558,9 +2561,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "9004"
                                             }
@@ -2580,9 +2581,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "9005"
                                             }
@@ -2608,9 +2607,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "10000"
                                             }
@@ -2618,7 +2615,7 @@
                                     },
                                     {
                                         "title": "Bodemdaling",
-                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Zeeland bestaat deels uit slappe bodems met een pakket klei en op sommige plekken veen. Deze bodems zijn gevoelig voor inklinking, zetting en veenoxidatie. Dit kan tot schade en hogere beheerkosten leiden voor infrastructuur, dijken, bebouwing, openbare ruimte en leidingen.<br><br> Bij de aanleg van vitale infrastructuur (wegennetwerk, kabels, energie opslaglocaties, transporthuisjes, zendmasten) dient de draagkracht van de bodem te worden onderzocht. Draagkracht duidt op de mate waarin de ondergrond bij belasting gevoelig is voor zetting. Bij de aanleg van nieuwe wegen en bovengrondse energie-infrastructuur wordt de bodem belast. Veen- en kleibodems kunnen worden samengedrukt door het gewicht van gebouwde ontwikkelingen, zeker als het maaiveld met zand wordt opgehoogd. Een deel van de bodemdaling treedt al op tijdens het voorbelasten van de bodem en dus vóór de oplevering. Na de oplevering kan er nog restzetting optreden die decennia kan doorgaan. Met name deze restzetting kan leiden tot hoge kosten voor beheer en onderhoud.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>Concentreer infrastructuur voor zo veel mogelijk op draagkrachtige bodems. Zorg dat de bouwwijze is afgestemd op bodemtype en verwachte restzetting. Denk daarbij aan:<br><br>-Gebruik voor wegen (die in bodemdalingsgebieden frequenter moeten worden opgehoogd) lichte ophoogmaterialen zoals EPS, schuimbeton of een lokaal gewonnen granulair materiaal.<br><br>-Kies voor bodemdalingbestendige leidingen. Gebruik flexibele buizen (riolering) die bestaan uit vervormbare materialen of versterkte leidingen met een dikkere doorsnede die drukvast zijn.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -2630,17 +2627,21 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
+        
                                             {
-                                                "id": "001"
-                                            },
-                                            {
-                                                "id": "10001"
+                                                "id": "10001",
+                                                "generalLegendText": "<div><strong>Ontwikkel bodemdalingbestendig. Een gebouwde ontwikkeling in een gebied met sterke bodemdaling zoals (rest)zetting, wentelt af op de toekomst en het publieke domein.</strong><br><br><hr><br></div>",
+                                                "legendOptions": {
+                                                    "B": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
+                                                    "C": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
+                                                    "D": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                }
                                             }
                                         ]
                                     },
                                     {
                                         "title": "Regenwateroverlast",
-                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Regenwater kan gedeeltelijk worden vastgehouden of opgenomen door de bodem (infiltreren). In gebieden met hoge grondwaterstanden (weinig ruimte voor het water om te infiltreren), een hoge ondergrondverdichting (doordat zware landbouwvoertuigen de grond samendrukken) of veel verharding (zoals in stedelijk gebied), is de infiltratiecapaciteit beperkt. In Zeeland, dat grotendeels uit peilgereguleerde polders bestaat, moet regenwater dat niet kan worden vastgehouden, geïnfiltreerd of geborgen en op het maaiveld blijft staan, worden weggepompt.<br><br>Als gevolg van klimaatverandering neemt de hoeveelheid neerslag toe en zal wateroverlast in de toekomst vaker optreden. Dit kan vooral in de lager gelegen gebieden voor langdurige wateroverlast zorgen. Bij de aanleg van wegen, bovengrondse elektriciteitsnetwerken en transformator- of conversiehuisjes moet rekening worden gehouden met de waterdiepte die kan ontstaan.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>-Vooral in lager gelegen gebieden kan gedacht worden aan het waterdicht uitvoeren van energie-infrastructuur, het verhoogd aanleggen van wegen en vitale schakels (o.a. transformatorhuisjes en zendmasten).<br><br>-In tunnels op hoofdwegen worden vanwege de grote schade die kan optreden (lange files, beperkte bereikbaarheid voor nooddiensten), vaak ook noodpompen geplaatst die water, dat de tunnel in loopt, kunnen wegpompen. In gebieden met hoge of toenemende grondwaterstanden door de beperktere ontwateringsdiepte kunnen leidingen of tunnels in beweging komen door ondergrondse stromingen of waterdruk. Door bijvoorbeeld gebruik te maken van buisleidingen kunnen meerdere kabels en leidingen worden gebundeld, waardoor het soortelijk gewicht wordt vergroot en er minder ondergrondse beweging kan ontstaan.<br><br>-Het waterbestendig maken van kelders, parkeergarages en tunnels door deze waterdicht uit te voeren.<br><br>-Door een waterdichte drempel aan te leggen voor parkeergarages en tunnels. De drempels kunnen een rand zijn van bijvoorbeeld 20 cm hoogte.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -2652,17 +2653,21 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
+        
                                             {
-                                                "id": "001"
-                                            },
-                                            {
-                                                "id": "10002"
+                                                "id": "10002",
+                                                "generalLegendText": "<div><strong>B en C: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).<br><br>D: In gebieden waar regenwater zich verzamelt, waterbestendig ontwikkelen en vitale en kwetsbare functies aangepast ontwikkelen of ontwikkelingen vermijden. Gebiedsontwikkelingen die integraal opgehoogd worden vragen een grote inspanning en wentelen af op andere gebieden.</strong><br><br><hr><br></div>",
+                                                "legendOptions": {
+                                                    "B": "Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen. Bij nieuwbouw wordt al ingezet op het infiltreren, vasthouden of bergen van 40-70 mm in 1 uur, het beperkt verharden en het gebruik van waterdichte drempels van 20 cm (Convenant klimaatadaptief bouwen en Landelijke maatlat).",
+                                                    "C": "Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm (door extra water vast te houden, te bergen of af te voeren), zodat er geen schade of risico's ontstaan bij waterstanden op het maaiveld tot circa 50 cm.",
+                                                    "D": "Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm, of er geen schade ontstaat bij waterstanden op het maaiveld van > 50 cm."
+                                                }
                                             }
                                         ]
                                     },
                                     {
                                         "title": "Waterveiligheid",
-                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>De gevolgen van een overstroming kunnen extra groot zijn als vitale netwerken uitvallen. Hierdoor kunnen vitale wegen niet meer begaanbaar zijn en kunnen elektriciteitsnetwerken uitvallen. Door waterbestendig te ontwikkelen in gebieden met een kans op schade bij overstromingsdiepten bij een kans van 1:4.000, kan worden voorkomen dat er schade optreedt.<br><br>In overstromingsgevoelige gebieden is het raadzaam elektrische installaties minimaal 50 cm boven het straatniveau te plaatsen of bij dreigende overstroming af te schermen met waterbestendige schotten. Ook bij belangrijke gas- en elektriciteitsnetwerken is het van belang rekening te houden met mogelijke overstromingsdiepten (door bijvoorbeeld de elektrische installaties die de druk in gasleidingen verzorgen verhoogd aan te leggen). Hiermee kan het risico op de uitval van vitale energienetwerken worden beperkt.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -2674,9 +2679,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "10003"
                                             }
@@ -2696,9 +2699,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "10004"
                                             }
@@ -2723,9 +2724,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "11000"
                                             }
@@ -2733,7 +2732,7 @@
                                     },
                                     {
                                         "title": "Bodemdaling",
-                                        "html": "<div>Indicatoren voor Bodemdaling in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Zeeland bestaat deels uit slappe bodems met een pakket klei en op sommige plekken veen. Deze bodems zijn gevoelig voor inklinking, zetting en veenoxidatie. Dit kan tot schade en hogere beheerkosten leiden voor bebouwing, openbare ruimte, leidingen en tuinen. Daarnaast kan bodemdaling ervoor zorgen dat het oppervlaktewaterpeil (om voldoende drooglegging te behouden voor de bebouwing) moet worden verlaagd, wat tot extra beheerkosten leidt.<br><br>Recreatiewoningen hebben een kortere levensduur (circa 25-30 jaar) dan vaste woningen, ze zijn vaak lichter en sluiten niet aan op een verharde openbare ruimte. Hierdoor zijn ze, mits goed ontworpen, minder gevoelig voor het veroorzaken van bodemdaling en de schade die daardoor ontstaat. Grootschalige nieuwbouwontwikkelingen, zoals vakantieparken, waarbij wordt opgehoogd en aangesloten op een verharde openbare ruimte, kennen dezelfde risico's als woningbouw.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>-Gebruik lichtere materialen (composieten of houtbouw) wat de woningen bodemdalingsbestendiger maakt.<br><br>-Kies voor demontabele of verplaatsbare tijdelijke gebouwen.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -2745,17 +2744,21 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
+        
                                             {
-                                                "id": "001"
-                                            },
-                                            {
-                                                "id": "11001"
+                                                "id": "11001",
+                                                "generalLegendText": "<div><strong>Ontwikkel bodemdalingbestendig. Een gebouwde ontwikkeling in een gebied met sterke bodemdaling zoals (rest)zetting, wentelt af op de toekomst en het publieke domein.</strong><br><br><hr><br></div>",
+                                                "legendOptions": {
+                                                    "B": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
+                                                    "C": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling.",
+                                                    "D": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                }
                                             }
                                         ]
                                     },
                                     {
                                         "title": "Regenwateroverlast",
-                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Regenwater kan gedeeltelijk worden vastgehouden of opgenomen door de bodem (infiltreren). In bebouwde gebieden met veel verharding of met hoge grondwaterstanden (weinig ruimte voor het water om te infiltreren), is de infiltratiecapaciteit beperkt. In Zeeland, dat grotendeels uit peilgereguleerde polders bestaat, moet regenwater dat niet kan worden vastgehouden, geïnfiltreerd of geborgen en op het maaiveld blijft staan, worden weggepompt.<br><br>Als gevolg van klimaatverandering neemt de hoeveelheid neerslag toe en zal wateroverlast in de toekomst vaker optreden. Er zal moeten worden ingezet op het extra infiltreren, vasthouden en bergen van water om wateroverlast te beperken. Daarnaast zal moeten worden geaccepteerd dat er (zeker in laaggelegen gebieden) vaker water op straat staat, en ervoor moet worden gezorgd dat hierbij geen schade optreedt. Bijvoorbeeld door recreatiewoningen waterbestendig te ontwerpen.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>-Het interieur aanpassen op mogelijke wateroverlast. Denk aan het plaatsen van vloertegels in plaats van houten vloeren.<br><br>-Drijvende en amfibische recreatiewoningen te plaatsen. Deze kunnen met het water mee omhoog drijven zonder dat ze schade oplopen. Hetzelfde geldt voor woningen die verhoogd op palen staan.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -2767,17 +2770,20 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
+        
                                             {
-                                                "id": "001"
-                                            },
-                                            {
-                                                "id": "11002"
+                                                "id": "11002",
+                                                "generalLegendText": "<div><strong>B en C: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).<br><br>C: Ontwikkel waterbestendig in gebieden waar regenwater zich verzamelt (geen water in de woning); denk aan tijdelijke (tot 15 jaar) of floodproof woningen, extra waterberging en voorkom afwenteling.</strong><br><br><hr><br></div>",
+                                                "legendOptions": {
+                                                    "B": "Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen.",
+                                                    "C": "Ontwikkel water bestendig bij >20cm wateroverlast; denk aan tijdelijke (tot 15 jaar) of floodproof woningen (geen water in de woning) en extra waterberging."
+                                                }
                                             }
                                         ]
                                     },
                                     {
                                         "title": "Waterveiligheid",
-                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>De gevolgen van een overstroming kunnen extra groot zijn als vitale netwerken uitvallen. Hierdoor kunnen vitale wegen niet meer begaanbaar zijn en kunnen elektriciteitsnetwerken uitvallen. Door waterbestendig te ontwikkelen in gebieden met een kans op schade bij overstromingsdiepten bij een kans van 1:4.000, kan worden voorkomen dat er schade optreedt. In overstromingsgevoelige gebieden is het raadzaam elektrische installaties minimaal 50 cm boven het straatniveau te plaatsen of bij dreigende overstroming af te schermen met waterbestendige schotten. Ook bij belangrijke gas- en elektriciteitsnetwerken is het van belang rekening te houden met mogelijke overstromingsdiepten (door bijvoorbeeld de elektrische installaties die de druk in gasleidingen verzorgen verhoogd aan te leggen). Hiermee kan het risico op de uitval van vitale energienetwerken worden beperkt.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -2789,9 +2795,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "11003"
                                             }
@@ -2811,9 +2815,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "11004"
                                             }
@@ -2833,9 +2835,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "11005"
                                             }
@@ -2855,9 +2855,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "11006"
                                             }
@@ -2882,9 +2880,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "12000"
                                             }
@@ -2892,7 +2888,7 @@
                                     },
                                     {
                                         "title": "Regenwateroverlast",
-                                        "html": "<div>Indicatoren voor Regenwateroverlast in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Regenwater kan gedeeltelijk worden vastgehouden of opgenomen door de bodem (infiltreren). In gebieden met hoge grondwaterstanden (weinig ruimte voor het water om te infiltreren), een hoge ondergrondverdichting of veel verharding, is de infiltratiecapaciteit beperkt. In Zeeland, dat grotendeels uit peilgereguleerde polders bestaat, moet regenwater dat niet kan worden vastgehouden, geïnfiltreerd of geborgen en op het maaiveld blijft staan, worden weggepompt.<br><br>Als gevolg van klimaatverandering neemt de hoeveelheid neerslag toe en zal wateroverlast in de toekomst vaker optreden. Er zal moeten worden ingezet op het extra infiltreren, vasthouden en bergen van water (in de bodem of het oppervlaktewatersysteem) om wateroverlast te beperken. Daarnaast zal moeten worden geaccepteerd dat er (zeker in laaggelegen gebieden) vaker water op het maaiveld blijft staan, en ervoor moet worden gezorgd dat er wordt aangepast aan nattere condities.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br<br><br>-In natte gebieden kan door te extensiveren, landbouw mogelijk blijven op gronden die vaker te maken krijgen met wateroverlast en verminderende draagkracht.<br><br>-In natte gebieden kunnen gewassen, die beter bestand zijn tegen hoge grondwaterstanden, worden overwogen.<br><br>-Bij niet-kerende grondbewerking (NKG) wordt de bodem niet dieper dan 12 cm bewerkt. Natuurlijke processen worden zo min mogelijk verstoord, het bodemleven blijft hiermee gespaard en er treedt minder bodemverdichting op.<br><br>-Het toepassen van vaste rijpaden heeft een positief effect op de bodemstructuur. Het kiezen voor een vaste werkbreedte is echter vanwege de grote variatie aan landbouwmachines en teelttechnieken vaak nog niet mogelijk.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -2904,11 +2900,14 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
+        
                                             {
-                                                "id": "001"
-                                            },
-                                            {
-                                                "id": "12001"
+                                                "id": "12001",
+                                                "generalLegendText": "",
+                                                "legendOptions": {
+                                                    "B": "Door extremere regenval kunnen landbouwpercelen voor een korte tijd snel inunderen. Houd rekening met wateroverlast van meer dan 5cm. Pas hierop de bedrijfsvoering aan indien nodig. Gebieden die van nature slempgevoelig (in relatie tot bodemtype) zijn krijgen bij overbelasting vaker te maken met water op het maaiveld. Door een andere bewerkingsvorm van de bodem (anders ploegen, etc.) of het toevoegen van organisch materiaal in de toplaag kan de bodemstructuur worden verbeterd. Gebieden die vallen onder de 1:25 wateroverlast norming waar het regenwater zich verzameld kunnen steeds vaker te maken krijgen met (regen)wateroverlast.",
+                                                    "C": "Lage gebieden waar het regenwater zich verzameld kunnen steeds vaker te maken krijgen met (regen)wateroverlast. Intensieve veeteelt in deze gebieden dient te worden vermeden. Houd rekening met korte periodes van inundatie van percelen. Pas de bedrijfsvoering hierop aan."
+                                                }
                                             }
                                         ]
                                     },
@@ -2926,9 +2925,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "12002"
                                             }
@@ -2948,9 +2945,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "12003"
                                             }
@@ -2970,9 +2965,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "12004"
                                             }
@@ -2992,9 +2985,7 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
+        
                                             {
                                                 "id": "12005"
                                             }
@@ -3020,9 +3011,6 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
-                                            },
-                                            {
                                                 "id": "13000"
                                             }
                                         ]
@@ -3041,9 +3029,6 @@
                                             "duration": 1.5
                                         },
                                         "layers": [
-                                            {
-                                                "id": "001"
-                                            },
                                             {
                                                 "id": "13001"
                                             }
@@ -3064,9 +3049,6 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
-                                            },
-                                            {
                                                 "id": "13002"
                                             }
                                         ]
@@ -3086,9 +3068,6 @@
                                         },
                                         "layers": [
                                             {
-                                                "id": "001"
-                                            },
-                                            {
                                                 "id": "13003"
                                             }
                                         ]
@@ -3099,27 +3078,27 @@
                         "chapterGroups": [
                             {
                                 "id": "1",
-                                "title": "H1: Bebouwing",
+                                "title": "Bebouwing",
                                 "buttonText": "Bebouwing"
                             },
                             {
                                 "id": "2",
-                                "title": "H2: Vitale Infrastructuur",
+                                "title": "Vitale Infrastructuur",
                                 "buttonText": "Vitale Infrastructuur"
                             },
                             {
                                 "id": "3",
-                                "title": "H3: Recreatie",
+                                "title": "Recreatie",
                                 "buttonText": "Recreatie"
                             },
                             {
                                 "id": "4",
-                                "title": "H4: Landbouw",
+                                "title": "Landbouw",
                                 "buttonText": "Landbouw"
                             },
                             {
                                 "id": "5",
-                                "title": "H5: Natuur",
+                                "title": "Natuur",
                                 "buttonText": "Natuur"
                             }
                         ]

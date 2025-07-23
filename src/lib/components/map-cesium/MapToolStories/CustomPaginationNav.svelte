@@ -12,6 +12,8 @@
   let index: number = page - 1;
   let activeChapterIndex: number = 0; // first index of the active chapter in flattenedSteps
   let labels: string[] = [];
+  let disableLeftArrow: boolean = false;
+  let disableRightArrow: boolean = false;
 
   // When page changes...
   $: {
@@ -25,6 +27,10 @@
 
     // Get titles of steps
     labels = activeChapterSteps.map(step => step.title);
+
+    // Disable arrows if at the start or end of the chapter
+    disableLeftArrow = (index === activeChapterIndex);
+    disableRightArrow = (index === activeChapterIndex + activeChapterSteps.length - 1);
   }
 
   const dispatch = createEventDispatcher();
@@ -72,6 +78,7 @@
   <Button 
     kind="ghost" 
     size="small" 
+    disabled={disableLeftArrow}
     style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
     on:click={() => {
       lastInputType = "click";
@@ -98,6 +105,7 @@
   <Button
     kind="ghost"
     size="small"
+    disabled={disableRightArrow}
     style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
     on:click={() => {
       lastInputType = "click";

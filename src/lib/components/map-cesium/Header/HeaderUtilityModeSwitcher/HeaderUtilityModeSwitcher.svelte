@@ -11,10 +11,12 @@
 
 	$: map = get(app.map) as Map;
 	$: use3Dmode = map.options.use3DMode;
+	$: disableModeSwitcher = map.options.disableModeSwitcher;
 	let ready = false;
 
 	onMount(() => {
 		const unsubscribe = use3Dmode.subscribe((b) => {
+			// Ignore first call because it is called when the map is initialized
 			if (ready) {
 				b ? to3D() : to2D();
 			} else {
@@ -103,6 +105,7 @@
 		id="toggle-3d-mode"
 		size="sm"
 		bind:toggled={$use3Dmode}
+		disabled={$disableModeSwitcher}
 	>
 		<span slot="labelA" style="color: white">2D</span>
 		<span slot="labelB" style="color: green">3D</span>

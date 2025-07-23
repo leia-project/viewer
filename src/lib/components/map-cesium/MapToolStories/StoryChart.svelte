@@ -1,74 +1,76 @@
 <script lang="ts">
-	//Note: all still unused, Continue integrating ECharts into Svelte!
-	import * as echarts from 'echarts/core';
+	import { echarts, echartsLoading } from './echarts';
+	import { _ } from "svelte-i18n";
+	
+	export let data: Array<{ group: string; value: number }> | undefined;
+	export let loading: boolean = false;
 
-    // var chartDom = document.getElementById('main')!;
-	interface IChartData {
-		value: number;
-		name: string;
+	let cleanData: Array<{ name: string; value: number }> = [];
+	let color: Array<string>;
+
+	if (data) {
+		// Change name 'group' to 'name' for compatibility with echarts
+		cleanData = data.map(item => ({ name: item.group, value: item.value }));
+		color = ['#339966', '#99ffcc', '#ffff99', '#ffcc66', '#9c4110']; // A B C D E colors
+	}
+	else {
+		cleanData = [
+			{ name: "No Data", value: 0 }
+		];
+		color = ['#cccccc']; // Grey color for no data
 	}
 
-	let chartDataArray: Array<IChartData> = [];
-	let charts = [];
-
-
-	onMount(() => {
-		charts = chartDataArray.map((data, index) => {
-		const chart = echarts.init(document.getElementById(`donutChart${index}`));
-		chart.setOption(option);
-		return chart;
-		});
-	});
-
-    let option = {
+	let option = {
+		color: color, 
+		title: {
+			text: 'Verdeling per klasse',
+			left: 0
+		},
 		tooltip: {
-			trigger: 'item'
+			trigger: 'item',
+			formatter: '{b}: {d}%'
 		},
 		legend: {
-			top: '5%',
-			left: 'center'
+			orient: 'vertical',
+			left: 0,
+			padding: 10,
+			top: 'center',
+			formatter: '{name}' // Show group name
 		},
 		series: [
 			{
-			name: 'Access From',
-			type: 'pie',
-			radius: ['40%', '70%'],
-			avoidLabelOverlap: false,
-			label: {
-				show: false,
-				position: 'center'
-			},
-			emphasis: {
+				type: 'pie',
+				radius: ['50%', '90%'],
+				avoidLabelOverlap: false,
 				label: {
-				show: true,
-				fontSize: 40,
-				fontWeight: 'bold'
-				}
-			},
-			labelLine: {
-				show: false
-			},
-			data: [
-				{ value: 1048, name: 'Search Engine' },
-				{ value: 735, name: 'Direct' },
-				{ value: 580, name: 'Email' },
-				{ value: 484, name: 'Union Ads' },
-				{ value: 300, name: 'Video Ads' }
-			]
+					show: false,
+					position: 'center'
+				},
+				emphasis: {
+					label: {
+						show: true,
+						fontSize: 20,
+						fontWeight: 'bold'
+					}
+				},
+				labelLine: {
+					show: false
+				},
+				data: cleanData
 			}
 		]
 	};
-
-    option && myChart.setOption(option);
-    
 </script>
 
-
-<div>
-    Chart goes here
-</div>
-
+{#if loading}
+	<div class={"container"} use:echartsLoading={option} />
+{:else}
+	<div class={"container"} use:echarts={option} />
+{/if}
 
 <style>
-
+	.container {
+		width: 100%;
+		height: 300px;
+	}
 </style>

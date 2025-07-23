@@ -226,7 +226,11 @@
             "stepBack": "Reculer",
             "stepForward": "Progresser",
             "description": "Description",
-            "statistics": "Statistiques"
+            "statistics": "Statistiques",
+            "basemap": "Calque d'arrière-plan",
+            "requestDrawPolygon": "Dessinez une zone de projet pour récupérer les données",
+            "drawPolygon": "Dessiner la Zone de Projet",
+            "deletePolygon": "Supprimer la Zone de Projet"
         },
         "animation": {
             "speed": "Vitesse",

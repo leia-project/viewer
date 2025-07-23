@@ -1,25 +1,71 @@
 <script lang="ts">
     import * as Cesium from "cesium";
-    import { polygonPositions } from "./PolygonStore";
+	import { _ } from "svelte-i18n";
 	import { Button } from "carbon-components-svelte";
+	import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
+    import AreaCustom from "carbon-icons-svelte/lib/AreaCustom.svelte";
 	import { Map } from "../module/map";
 	import type { Story } from "./Story";
 	import { StoryLayer } from "./StoryLayer";
-
-    export let hasDrawnPolygon: boolean = false;
+    import area from '@turf/area';
+    import * as turf from '@turf/turf';
+	import { get } from "svelte/store";
+    import { onMount, onDestroy } from 'svelte';
+    import { polygonStore } from './PolygonEntityStore';
+ 
     export let map: Map;
     export let story: Story;
-    export let distributions: Array<any>;
-
+    export let distributions: Array<{ group: string; value: number }[]> = [];
+    export let polygonArea: number;
+    export let hasDrawnPolygon: boolean;
+    export let showPolygonMenu: boolean;
+        
+    let polygonEntity: Cesium.Entity | null = null;
+    let isDrawing = false;
     let handler: Cesium.ScreenSpaceEventHandler;
     let activeShapePoints: Cesium.Cartesian3[] = [];
     let activeShape: Cesium.Entity | undefined;
-    let floatingPoint: Cesium.Entity | undefined;
-    let polygonEntity: Cesium.Entity | undefined;
     let redPoints: Cesium.Entity[] = [];
     let selectedAction: 'draw' | 'delete' | undefined = undefined;
     let geojson: any;
+    
 
+    onMount(() => {
+        const storedPolygonData = get(polygonStore);
+        if (storedPolygonData.polygonEntity) {
+            // Re-add the polygonEntity to the viewer if it was saved
+            polygonEntity = storedPolygonData.polygonEntity;
+            map.viewer.entities.add(polygonEntity);
+
+            redPoints = storedPolygonData.redPoints;
+            redPoints.forEach((point) => map.viewer.entities.add(point));
+
+            distributions = storedPolygonData.distributions;
+            hasDrawnPolygon = true;
+        }
+    });
+
+
+    function checkPolygonForSelfIntersection(): boolean {
+        const kinks = turf.kinks(geojson);
+        if (kinks.features.length > 1) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    
+    function transformDistribution(distribution: Record<string, number>): { group: string; value: number }[] {
+		const result: { group: string; value: number }[] = [];
+
+		for (let i = 1; i <= 5; i++) {
+			const letter = String.fromCharCode(64 + i); // 65 = 'A'
+			const value = distribution[i.toString()] ?? 0;
+			result.push({ group: letter, value });
+		}
+
+		return result;
+	}
 
     function drawShape(positionData: Cesium.Cartesian3[]) {
         return map.viewer.entities.add({
@@ -34,10 +80,10 @@
     }
 
     function draw() {
-        if (hasDrawnPolygon) {
-            console.log("Already drawn a polygon, first delete the old one");
+        if (hasDrawnPolygon || isDrawing) {
             return;
         }
+        isDrawing = true;
         selectedAction = "draw";
         handler = new Cesium.ScreenSpaceEventHandler(map.viewer.canvas);
 
@@ -58,33 +104,19 @@
             redPoints.push(pointEntity);
 
             if (activeShapePoints.length === 0) {
-                floatingPoint = map.viewer.entities.add({
-                    position: earthPosition,
-                    point: {
-                        pixelSize: 5,
-                        color: Cesium.Color.RED,
-                        disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                    },
-                });
-
                 activeShapePoints.push(earthPosition);
                 activeShape = drawShape(activeShapePoints);
             }
 
             activeShapePoints.push(earthPosition);
-            map.viewer.scene.requestRender();
 
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
         // Handle right click to finish drawing
         handler.setInputAction(() => {
             if (activeShapePoints.length < 4) {
-                console.log("Need to draw at least 3 points (4 total) to form a polygon!");
                 return;
-            }
-            handler.destroy();
-            if (floatingPoint) map.viewer.entities.remove(floatingPoint);
-            if (activeShape) map.viewer.entities.remove(activeShape);
+            }            
 
             const coords = activeShapePoints.map((cartesian) => {
                 const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
@@ -111,6 +143,15 @@
                 },
                 properties: {}
             };
+            
+            if (!checkPolygonForSelfIntersection()) {
+                return;
+            }
+
+            handler.destroy();
+            if (activeShape) { 
+                map.viewer.entities.remove(activeShape);
+            }
 
             // Now draw and clear
             polygonEntity = map.viewer.entities.add({
@@ -125,47 +166,54 @@
             activeShapePoints = [];
             activeShape = undefined;
 
-        polygonPositions.set(activeShapePoints);
-        map.viewer.scene.requestRender();
-        hasDrawnPolygon = true;
-        
-        // sendAPIUpResponse();
-        let storyLayers: Array<StoryLayer> = story.getStoryLayers();
-        
-        for (let i = 0; i < storyLayers.length; i++) {
-            sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson)
-            .then(kaas => {
-                distributions[i] = kaas;
-                console.log("This is the response:", kaas);
-
-            })
-            .catch(error => 
-                console.error("Error: ", error)
-            );
+            hasDrawnPolygon = true;
+            isDrawing = false;
             
-        }
-        selectedAction = undefined;
+            // sendAPIUpResponse();
+            let storyLayers: Array<StoryLayer> = story.getStoryLayers();
+            
+            for (let i = 0; i < storyLayers.length; i++) {
+                sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson)
+                .then(apiResponse => {
+                    const transformed = transformDistribution(apiResponse.distribution);
+                    distributions[i] = transformed;
+                })
+                .catch(error => 
+                    console.error("Error: ", error)
+                );
+                
+            }
+            selectedAction = undefined;
+            polygonArea = area(geojson)
+            polygonStore.set({
+                polygonEntity,
+                redPoints,
+                distributions
+            });
 
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     };
     
     function deletePolygon() {
-        if (!hasDrawnPolygon) {
-            console.log("First draw a polygon before you can delete one");
-            return;
+        if (handler && !handler.isDestroyed()) {
+            handler.destroy(); 
         }
 
-        if (floatingPoint) map.viewer.entities.remove(floatingPoint);
+        activeShapePoints = [];
         if (activeShape) map.viewer.entities.remove(activeShape);
+        activeShape = undefined;
+
         if (polygonEntity) {
             map.viewer.entities.remove(polygonEntity);
-            polygonEntity = undefined;
+            polygonEntity = null;
         }
+        
         redPoints.forEach((point) => map.viewer.entities.remove(point));
         redPoints = [];
-        polygonPositions.set([]); // Clear stored points
+        
+        distributions = [];
+        isDrawing = false;
         map.viewer.scene.requestRender();
-        hasDrawnPolygon = false;
     }
 
     async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any): Promise<any> {
@@ -179,7 +227,7 @@
         };
         
         try {
-            const response = await fetch("http://localhost:8000/analyze", {
+            const response = await fetch("https://virtueel.dev.zeeland.nl/ko_api/analyze", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -187,7 +235,7 @@
                 body: JSON.stringify({
                     rasterUrl: url,
                     featureName: featureName,
-                    geom: geom,  // match the backend expected structure here
+                    geom: geom,  
                 }),
             });
 
@@ -221,35 +269,59 @@
             console.error("Failed to send request:", error);
         }
     }
+
+    onDestroy(() => {
+        deletePolygon();
+    });
+
 </script>
 
-<div>
-    <h4>Teken Projectgebied</h4>
-    <p>
-        Teken een projectgebied in. Klik op de 'Draw new polygon' knop om te beginnen met tekenen op de kaart.
-        Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.
-    </p>
-</div>
+{#if showPolygonMenu}
+    {#if !hasDrawnPolygon}
+        <div>
+            <h4>{$_("tools.stories.drawPolygon")}</h4>
+            <p>
+                Klik op 'Teken nieuw projectgebied' knop om te beginnen met tekenen op de kaart.
+                Met de linkermuisknop kun je punten op de kaart zetten om een vlak te creëren.
+                Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.
+            </p>
+        </div>
+    {/if}
 
-<div class="buttons">
-    <Button 
-        kind={selectedAction === "draw" ? "primary" : "tertiary"}
-        on:click={() => {
-            draw(); 
-        }}
-    >
-        Draw new polygon
-    </Button>
+    <div class="buttons">
+        {#if !hasDrawnPolygon}
+            <Button 
+                icon={AreaCustom}
+                kind={selectedAction === "draw" ? "primary" : "tertiary"}
+                on:click={() => {
+                    draw(); 
+                }}
+            >
+                {$_("tools.stories.drawPolygon")}
+            </Button>
+        {/if}
 
-    <Button 
-        kind="danger"
-        on:click={() => {
+        <Button 
+            kind="danger"
+            tooltipPosition="bottom"
+            icon={TrashCan}
+            disabled={!isDrawing && !hasDrawnPolygon}
+            on:click={() => {
             deletePolygon();
-        }}
-    >
-        Delete polygon
-    </Button>
-</div>
+            polygonStore.set({
+                polygonEntity: null,
+                redPoints: [],
+                distributions: []
+            });
+            hasDrawnPolygon = false;
+            }}
+        >
+            {$_("tools.stories.deletePolygon")}
+        </Button>
+
+    </div>
+    <br><hr><br><br>
+{/if}
 
 <style>
 

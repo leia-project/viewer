@@ -235,7 +235,11 @@
             "stepBack": "Step back",
             "stepForward": "Step forward",
             "description": "Description",
-            "statistics": "Statistics"
+            "statistics": "Statistics",
+            "basemap": "Basemap",
+            "requestDrawPolygon": "Draw a project area to retrieve data",
+            "drawPolygon": "Draw Project Area",
+            "deletePolygon": "Delete Project Area"
         },
         "animation": {
             "speed": "Speed",
