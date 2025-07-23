@@ -218,8 +218,9 @@ export class Hexagon {
 	}
 
 	public displayEvacuations(): void {
-		get(this.evacuations).forEach((evacuation) => {
-			evacuation.display();
+		const evacuations = get(this.evacuations);
+		evacuations.forEach((evacuation) => {
+			evacuation.display(evacuations);
 		});
 	}
 

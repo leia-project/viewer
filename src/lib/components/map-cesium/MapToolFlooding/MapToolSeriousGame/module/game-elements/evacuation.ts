@@ -38,6 +38,7 @@ export class Evacuation {
 	private makeWallEntity(route: RouteSegment): Cesium.Entity {
 		const linePositions = route.feature.geometry.coordinates.map((p) => Cesium.Cartesian3.fromDegrees(p[0], p[1], 1000));
 		return new Cesium.Entity({
+			name: route.feature.properties.fid,
 			wall: {
 				positions: linePositions,
 				material: Cesium.Color.ORANGERED
@@ -47,10 +48,19 @@ export class Evacuation {
 		});
 	} 
 
-	private animate(): void {
+	private animate(evacuationGroup: Array<Evacuation>): void {
 		const lineSegments = this.dataSource.entities.values;
 		if (lineSegments.length === 0) return;
 		lineSegments.map((lineSegment) => lineSegment.show = false);
+		lineSegments.forEach((lineSegment) => {
+			const lineName = lineSegment.name as string;
+			const wallHeight = this.getWallHeight(lineName, evacuationGroup);
+			if (lineSegment.wall) {
+				const numberOfPositions = lineSegment.wall.positions?.getValue(Cesium.JulianDate.now()).length || 1;
+				lineSegment.wall.maximumHeights = new Cesium.ConstantProperty(Array(numberOfPositions).fill(wallHeight));
+			}
+		});
+
 		const timeInterval = 1000 / lineSegments.length;
 		if (this.interval) clearInterval(this.interval);
 		let i = 0;
@@ -63,15 +73,27 @@ export class Evacuation {
 			i++;
 		}, timeInterval)
 	}
+
+	private getWallHeight(lineName: string, evacuationGroup: Array<Evacuation>): number {
+		let height = this.numberOfPersons;
+		for (const evac of evacuationGroup) {
+			if (evac === this) break;
+			const lineMatch = evac.route.find((r) => r.id === lineName);
+			if (lineMatch) {
+				height += evac.numberOfPersons
+			}
+		}
+		return (height + 50) / 5;
+	}
 	
-	public display(): void {
+	public display(evacuationGroup: Array<Evacuation>): void {
 		if (this.shown) {
 			return;
 		}
 		if (!this.map.viewer.dataSources.contains(this.dataSource)) {
 			this.map.viewer.dataSources.add(this.dataSource);
 		}
-		this.animate();
+		this.animate(evacuationGroup);
 		this.shown = true;
 	}
 
