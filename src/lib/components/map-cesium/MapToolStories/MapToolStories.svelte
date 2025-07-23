@@ -104,6 +104,7 @@
 				const storyDescription = story.description;
 				const storyWidth = story.width;
 				const storyForce2DMode = story.force2DMode ?? false;
+				const storyRequestPolygonArea = story.requestPolygonArea ?? false;
 				baseLayerId = story.baseLayerId ?? "";
 				const storyChapters = new Array<StoryChapter>();
 
@@ -149,7 +150,7 @@
 					}
 					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForce2DMode));
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForce2DMode, storyRequestPolygonArea));
 			}
 		}
 		stories = loadedStories;

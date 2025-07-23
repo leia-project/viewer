@@ -2452,6 +2452,7 @@
                         "description": "Kaarten voor de klimaatonderlegger",
                         "width": "600px",
                         "force2DMode": true,
+                        "requestPolygonArea": true,
                         "baseLayerId": "001",
                         "chapters": [
                             {

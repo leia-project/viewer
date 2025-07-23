@@ -413,15 +413,17 @@
 				bind:checked={$baseMapVisible}
 			/>
 			</div>
-			<div class="draw-polygon">
-				<Button
-					kind={showPolygonMenu ? "primary" : "secondary"}
-					iconDescription="Projectgebied Tool"
-					tooltipPosition="left"
-					icon={Edit}
-					on:click={() => showPolygonMenu = !showPolygonMenu} 
-				/>
-			</div>
+			{#if story.requestPolygonArea}
+				<div class="draw-polygon">
+					<Button
+						kind={showPolygonMenu ? "primary" : "secondary"}
+						iconDescription="Projectgebied Tool"
+						tooltipPosition="left"
+						icon={Edit}
+						on:click={() => showPolygonMenu = !showPolygonMenu} 
+					/>
+				</div>
+			{/if}
 			<div class="close">
 				<Button
 					kind="tertiary"
@@ -438,8 +440,10 @@
 		</div> -->
 
 		<div class="chapter-buttons">
-			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
-			{#each story.storyChapters as chapter, index}
+			{#if story.requestPolygonArea}
+				<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
+			{/if}
+				{#each story.storyChapters as chapter, index}
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}
 					size="small"
@@ -501,27 +505,29 @@
 				</div> -->
 				<br><br>
 				<div class="step-stats">
-					{#if distributions && distributions[index]}
-						<StoryChart data={distributions[index]} />
-						<br><br><br>
-						{#if layerLegends[index].generalLegendText}
-							{@html layerLegends[index].generalLegendText}
+					{#if story.requestPolygonArea}
+						{#if distributions && distributions[index]}
+							<StoryChart data={distributions[index]} />
+							<br><br><br>
+							{#if layerLegends[index].generalLegendText}
+								{@html layerLegends[index].generalLegendText}
+							{/if}
+							<ul>
+								{#each distributions[index] as key}
+									{#if layerLegends[index].legendOptions && key.value > 0 && layerLegends[index].legendOptions[key.group]} 
+										<li>
+											<strong>{key.group}: </strong>{layerLegends[index].legendOptions[key.group]}
+										</li>
+										<br>
+									{/if}
+								{/each}
+							</ul>
+						{:else if hasDrawnPolygon}
+							<StoryChart data={undefined} loading={true} />
+						{:else}
+							<StoryChart data={undefined} />
+							<strong>{$_("tools.stories.requestDrawPolygon")}</strong>
 						{/if}
-						<ul>
-							{#each distributions[index] as key}
-								{#if layerLegends[index].legendOptions && key.value > 0 && layerLegends[index].legendOptions[key.group]} 
-									<li>
-										<strong>{key.group}: </strong>{layerLegends[index].legendOptions[key.group]}
-									</li>
-									<br>
-								{/if}
-							{/each}
-						</ul>
-					{:else if hasDrawnPolygon}
-						<StoryChart data={undefined} loading={true} />
-					{:else}
-						<StoryChart data={undefined} />
-						<strong>{$_("tools.stories.requestDrawPolygon")}</strong>
 					{/if}
 				</div>
 				<div class="tag">
