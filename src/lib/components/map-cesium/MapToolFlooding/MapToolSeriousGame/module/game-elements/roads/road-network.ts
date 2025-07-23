@@ -33,6 +33,7 @@ export class RoadNetwork {
 	private selectedNode: Writable<RouteSegment | Measure | undefined> = writable(undefined);
 	private selectBox: NodeHoverBox | undefined;
 	public selectTimeOut: NodeJS.Timeout | undefined;
+	private currentlyHovered: RouteSegment | Measure | undefined = undefined;
 	public hoveredNode: Writable<RouteSegment | Measure | undefined> = writable(undefined);
 	private hoverBox: NodeHoverBox | undefined;
 	public hoverTimeOut: NodeJS.Timeout | undefined;
@@ -54,9 +55,11 @@ export class RoadNetwork {
 		this.init();
 
 		this.selectedNode.subscribe((node) => {
+			this.selectSubscribe(node);
 			if (node instanceof RouteSegment || node instanceof Measure) {
 				this.hoverBox?.$destroy();
 				this.selectBox?.$destroy();
+				if (this.selectTimeOut) clearTimeout(this.selectTimeOut);
 				this.selectBox = new NodeHoverBox({
 					target: this.map.getContainer(),
 					props: {
@@ -73,8 +76,10 @@ export class RoadNetwork {
 			}
 		});
 		this.hoveredNode.subscribe((node) => {
+			this.hoverSubscribe(node);
 			if ((node instanceof RouteSegment || node instanceof Measure) && node !== get(this.selectedNode)) {
 				this.hoverBox?.$destroy();
+				if (this.hoverTimeOut) clearTimeout(this.hoverTimeOut);
 				this.hoverBox = new NodeHoverBox({
 					target: this.map.getContainer(),
 					props: {
@@ -166,7 +171,11 @@ export class RoadNetwork {
 			if (!evacuationRoute) {
 				break;
 			}
-			const evacuatedPersons = evacuationRoute.evacuatedCars * this.personsPerCar;
+			let evacuatedPersons = evacuationRoute.evacuatedCars * this.personsPerCar;
+			// Ensure we do not evacuate more than remaining persons. The last car may not be full.
+			if (evacuatedPersons > remainingPersons) {
+				evacuatedPersons = remainingPersons;
+			}
 			evacuationRoutes.push({
 				...evacuationRoute,
 				numberOfPersons: evacuatedPersons
@@ -241,70 +250,75 @@ export class RoadNetwork {
 		// remove loads from road segments
 		evacuation.route.forEach((routeSegment) => {
 			routeSegment.removeLoad(evacuation.numberOfPersons, get(this.elapsedTime));
-     	});
+		});
 
 		// update graph
 	}
 
-	public onLeftClick(picked: any): void {
+	private getPickedItem(picked: any): RouteSegment | Measure | undefined {
 		let pickedItem: RouteSegment | Measure | undefined;
-		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
-			if (typeof picked?.id === "string" && picked.id.endsWith("-top")) {
-				picked.id = picked.id.slice(0, -4); // Remove "-top" suffix to get the hexagon id when clicking top hexagons
+		if ((picked?.primitive instanceof Cesium.Primitive || picked?.primitive instanceof Cesium.GroundPolylinePrimitive) && picked?.id) {
+			if (typeof picked?.id === "string") {
+				if (picked.id.endsWith("-top")) {
+					const itemId = picked.id.slice(0, -4);
+					pickedItem = this.roadNetworkLayer.getItemById(itemId);
+				} else if (picked.id.startsWith("segment-")) {
+					const itemId = picked.id.replace("segment-", "");
+					pickedItem = this.roadNetworkLayer.getItemById(itemId);
+				} else if (picked.id.startsWith("measure-")) {
+					const measureName = picked.id.split("-")[2];
+					pickedItem = this.measures.find((m) => m.config.name === measureName);
+				}
 			}
+		} else if (picked?.id instanceof Cesium.Entity) {
+			const entity = picked.id as Cesium.Entity;
+			if (entity.id.startsWith("measure-")) {
+				pickedItem = this.measures.find((m) => m.config.name === entity.name);
+			}
+		}
+		return pickedItem;
+	}
+
+
+	public onLeftClick(picked: any): void {
+		const pickedItem = this.getPickedItem(picked);
+		this.selectedNode.set(pickedItem);
+
+		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
 			const extractionPointId = this.extractionPointIds.find((id) => id === picked.id);
 			if (extractionPointId) {
 				const extractionPoint = this.roadNetworkLayer.getItemById(extractionPointId);
 				if (extractionPoint) this.selectedExtractionPoint.set(extractionPoint);
 			}
-			pickedItem = this.roadNetworkLayer.getItemById(picked.id);
-		} else if (picked?.id instanceof Cesium.Entity) {
-			const entity = picked.id as Cesium.Entity;
-			if (entity.id.startsWith("measure-")) {
-				const measureName = entity.id.replace("measure-", "").replace("line-", "");
-				pickedItem = this.measures.find((m) => m.config.name === measureName);
-			} else if (entity.id.startsWith("segment-")) {
-				const segmentId = entity.id.replace("segment-", "");
-				const segment = this.roadNetworkLayer.getItemById(segmentId);
-				pickedItem = segment;
-			}
 		}
-
-		const currentlyHovered = get(this.hoveredNode);
-		if (currentlyHovered && currentlyHovered !== pickedItem) {
-			currentlyHovered.highlight(false);
-		}
-		pickedItem?.highlight(true);
-
-		if (pickedItem) this.map.viewer.scene.canvas.style.cursor = "pointer";
-		this.selectedNode.set(pickedItem);
 	}
 
 	public onMouseMove(picked: any): void {
-		let pickedItem: RouteSegment | Measure | undefined;
-		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
-			if (typeof picked?.id === "string" && picked.id.endsWith("-top")) {
-				picked.id = picked.id.slice(0, -4); // Remove "-top" suffix to get the hexagon id when clicking top hexagons
-			}
-			pickedItem = this.roadNetworkLayer.getItemById(picked.id);
-		} else if (picked?.id instanceof Cesium.Entity) {
-			const entity = picked.id as Cesium.Entity;
-			if (entity.id.startsWith("segment-")) {
-				const entityID = entity.id.replace("segment-", "");
-				pickedItem = this.roadNetworkLayer.getItemById(entityID);
-			} else if (entity.id.startsWith("measure-")) {
-				pickedItem = this.measures.find((m) => m.config.name === entity.name);					
-			}
-		}
-
-		const currentlyHovered = get(this.hoveredNode);
-		if (currentlyHovered && currentlyHovered !== pickedItem && currentlyHovered !== get(this.selectedNode)) {
-			currentlyHovered.highlight(false);
-		}
-		pickedItem?.highlight(true);
-
-		if (pickedItem) this.map.viewer.scene.canvas.style.cursor = "pointer";
+		const pickedItem = this.getPickedItem(picked);
 		this.hoveredNode.set(pickedItem);
+	}
+
+	private selectSubscribe(s: RouteSegment | Measure | undefined): void {
+		if (this.currentlyHovered && this.currentlyHovered !== s) {
+			this.currentlyHovered.highlight(false);
+		}
+		if (s) {
+			s.highlight(true);
+			this.map.viewer.scene.canvas.style.cursor = "pointer";
+		}
+		this.map.refresh();
+	}
+
+	private hoverSubscribe(h: RouteSegment | Measure | undefined): void {
+		if (this.currentlyHovered && this.currentlyHovered !== h && this.currentlyHovered !== get(this.selectedNode)) {
+			this.currentlyHovered.highlight(false);
+		}
+		if (h) {
+			h.highlight(true);
+			this.map.viewer.scene.canvas.style.cursor = "pointer";
+			this.currentlyHovered = h;
+		}
+		this.map.refresh();
 	}
 	
 }

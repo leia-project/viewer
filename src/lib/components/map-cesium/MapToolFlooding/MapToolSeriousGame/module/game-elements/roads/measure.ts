@@ -26,7 +26,7 @@ export abstract class Measure {
 
 	public position: Cesium.Cartesian3 = new Cesium.Cartesian3(0, 0, 0);
 	private billboard: Cesium.Entity;
-	private lines: Cesium.CustomDataSource = new Cesium.CustomDataSource();
+	private polylinePrimitive?: Cesium.GroundPolylinePrimitive;
 
 	get centerCartesian3(): Cesium.Cartesian3 {
 		return this.position;
@@ -35,7 +35,6 @@ export abstract class Measure {
 	constructor(config: IMeasureConfig, map: Map) {
 		this.config = config;
 		this.map = map;
-		this.map.viewer.dataSources.add(this.lines);
 		this.billboard = this.createBillboard();
 		this.applied.subscribe((applied) => {
 			if (applied) {
@@ -96,7 +95,7 @@ export abstract class Measure {
 	private updateEntities(): void {
 		this.updateBillboardPosition();
 		this.billboard.show = this.routeSegments.length > 0;
-		this.updateLine();
+		this.updatePrimitive();
 	}
 
 	private updateBillboardPosition(): void {
@@ -110,41 +109,38 @@ export abstract class Measure {
 		}
 	}
 
-	private updateLine(): void {
-		this.lines.entities.removeAll();
-		this.routeSegments.forEach((line) => {
-			const entity = new Cesium.Entity({
-				id: `measure-${line.id}-${this.config.name}}`,
-				name: this.config.name,
-				polyline: {
-					positions: line.lineEntity.positions,
-					width: 15,
-					material: Cesium.Color.BLUE.withAlpha(0.5),
-					clampToGround: true,
-					zIndex: 2,
-				},
-				show: false
-			});
-			this.lines.entities.add(entity);
-		});
-	}
-
-	public isPicked(picked: any): boolean {
-		if (!picked || !this.billboard) return false;
-		if (picked && picked.id === this.billboard.id) {
-			return true;
+	private updatePrimitive(): void {
+		if (this.polylinePrimitive) {
+			this.map.viewer.scene.primitives.remove(this.polylinePrimitive);
 		}
-		return this.lines.entities.values.some((line) => line.id === picked?.id);
+		const lineColor = Cesium.Color.BLUE.withAlpha(0.5);
+		if (this.routeSegments.length > 0) {
+			const geometryInstances = this.routeSegments.map((segment) => segment.lineInstance.createGeometryInstance(`measure-${segment.id}-${this.config.name}}`, lineColor, 24));
+			this.polylinePrimitive = new Cesium.GroundPolylinePrimitive({
+				geometryInstances: geometryInstances,
+				appearance: new Cesium.PolylineColorAppearance({
+					translucent: false
+				}),
+				allowPicking: true,
+				asynchronous: false
+			});
+			this.map.viewer.scene.primitives.add(this.polylinePrimitive);
+		}
 	}
 
 	public highlight(b: boolean): void {
 		if (!this.billboard?.billboard) return;
-		this.lines.entities.values.forEach((line) => line.show = b);
 		const color = b ? Cesium.Color.BLUE : Cesium.Color.DARKBLUE;
 		this.billboard.billboard.color = new Cesium.ColorMaterialProperty(color);
-		this.lines.entities.values.forEach((line) => {
-			if (line.polyline) line.polyline.material = new Cesium.ColorMaterialProperty(color.withAlpha(0.8));
-		});
+		if (this.polylinePrimitive && this.polylinePrimitive?.ready) {
+			for (const segment of this.routeSegments) {
+				const attributes = this.polylinePrimitive.getGeometryInstanceAttributes(`measure-${segment.id}-${this.config.name}}`);
+				if (attributes) {
+					attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(color, attributes.color);
+					attributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(b, attributes.show);
+				}
+			}
+		}
 	}
 }
 
