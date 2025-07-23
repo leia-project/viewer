@@ -442,15 +442,17 @@
 				bind:checked={$baseMapVisible}
 			/>
 			</div>
-			<div class="draw-polygon">
-				<Button
-					kind={showPolygonMenu ? "primary" : "secondary"}
-					iconDescription="Projectgebied Tool"
-					tooltipPosition="left"
-					icon={Edit}
-					on:click={() => showPolygonMenu = !showPolygonMenu} 
-				/>
-			</div>
+			{#if story.requestPolygonArea}
+				<div class="draw-polygon">
+					<Button
+						kind={showPolygonMenu ? "primary" : "secondary"}
+						iconDescription="Projectgebied Tool"
+						tooltipPosition="left"
+						icon={Edit}
+						on:click={() => showPolygonMenu = !showPolygonMenu} 
+					/>
+				</div>
+			{/if}
 			<div class="download-pdf">
 				<Button
 					kind={"tertiary"}
@@ -476,8 +478,10 @@
 		</div> -->
 
 		<div class="chapter-buttons">
-			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
-			{#each story.storyChapters as chapter, index}
+			{#if story.requestPolygonArea}
+				<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
+			{/if}
+				{#each story.storyChapters as chapter, index}
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}
 					size="small"
@@ -539,41 +543,43 @@
 				</div> -->
 				<br><br>
 				<div class="step-stats">
-					{#if distributions && distributions[index]}
-						<StoryChart data={distributions[index]} />
-						<br><br><br>
-						{#if layerLegends[index].generalLegendText}
-							{@html layerLegends[index].generalLegendText}
-						{/if}
-						<ul>
-							{#if layerLegends[index].legendOptions}
-								{#each layerLegends[index].legendOptions as legendEntry}
-									{#if shouldShowLegend(legendEntry, distributions[index])}
-										<li>
-											{legendEntry.text}
-											{#if legendEntry.subLabels}
-												<ul>
-													{#each Array.from(legendEntry.labels) as label}
-														{#if legendEntry.subLabels[label]}
-															{#if distributions[index].find(d => d.group === label && d.value > 0)}
-																<li title={legendEntry.subLabels[label].hoverText}>
-																	{legendEntry.subLabels[label].text}
-																</li>
-															{/if}
-														{/if}
-													{/each}
-												</ul>
-											{/if}
-										</li>
-									{/if}
-								{/each}
+					{#if story.requestPolygonArea}
+						{#if distributions && distributions[index]}
+							<StoryChart data={distributions[index]} />
+							<br><br><br>
+							{#if layerLegends[index].generalLegendText}
+								{@html layerLegends[index].generalLegendText}
 							{/if}
-						</ul>
-					{:else if hasDrawnPolygon}
-						<StoryChart data={undefined} loading={true} />
-					{:else}
-						<StoryChart data={undefined} />
-						<strong>{$_("tools.stories.requestDrawPolygon")}</strong>
+							<ul>
+								{#if layerLegends[index].legendOptions}
+									{#each layerLegends[index].legendOptions as legendEntry}
+										{#if shouldShowLegend(legendEntry, distributions[index])}
+											<li>
+												{legendEntry.text}
+												{#if legendEntry.subLabels}
+													<ul>
+														{#each Array.from(legendEntry.labels) as label}
+															{#if legendEntry.subLabels[label]}
+																{#if distributions[index].find(d => d.group === label && d.value > 0)}
+																	<li title={legendEntry.subLabels[label].hoverText}>
+																		{legendEntry.subLabels[label].text}
+																	</li>
+																{/if}
+															{/if}
+														{/each}
+													</ul>
+												{/if}
+											</li>
+										{/if}
+									{/each}
+								{/if}
+							</ul>
+						{:else if hasDrawnPolygon}
+							<StoryChart data={undefined} loading={true} />
+						{:else}
+							<StoryChart data={undefined} />
+							<strong>{$_("tools.stories.requestDrawPolygon")}</strong>
+						{/if}
 					{/if}
 				</div>
 				<div class="tag">

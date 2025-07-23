@@ -1672,7 +1672,7 @@
             "defaultOn": false,
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
-                "featureName": "bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated",
+                "featureName": "bodemdaling_bebouwing_vitaleinfra_recreatie_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1717,7 +1717,7 @@
             "defaultOn": false,
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
-                "featureName": "waterbeschikbaarheid_bebouwing_aggregated",
+                "featureName": "waterbeschikbaarheid_bebouwing_vitaleinfra_recreatie_landbouw_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1762,7 +1762,7 @@
             "defaultOn": false,
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
-                "featureName": "bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated",
+                "featureName": "bodemdaling_bebouwing_vitaleinfra_recreatie_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1807,7 +1807,7 @@
             "defaultOn": false,
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
-                "featureName": "waterbeschikbaarheid_vitaleinfra_aggregated",
+                "featureName": "waterbeschikbaarheid_bebouwing_vitaleinfra_recreatie_landbouw_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1837,7 +1837,7 @@
             "defaultOn": false,
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
-                "featureName": "bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated",
+                "featureName": "bodemdaling_bebouwing_vitaleinfra_recreatie_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1882,7 +1882,7 @@
             "defaultOn": false,
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
-                "featureName": "waterbeschikbaarheid_recreatie_aggregated",
+                "featureName": "waterbeschikbaarheid_bebouwing_vitaleinfra_recreatie_landbouw_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1912,7 +1912,7 @@
             "defaultOn": false,
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
-                "featureName": "hitte_reacreatie_aggregated",
+                "featureName": "hitte_recreatie_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -1972,7 +1972,7 @@
             "defaultOn": false,
             "settings": {
                 "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
-                "featureName": "waterbeschikbaarheid_landbouw_aggregated",
+                "featureName": "waterbeschikbaarheid_bebouwing_vitaleinfra_recreatie_landbouw_aggregated",
                 "contenttype": "image/png"
             }
         },
@@ -2452,6 +2452,7 @@
                         "description": "Kaarten voor de klimaatonderlegger",
                         "width": "600px",
                         "force2DMode": true,
+                        "requestPolygonArea": true,
                         "baseLayerId": "001",
                         "chapters": [
                             {
