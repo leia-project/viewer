@@ -2,7 +2,7 @@
 	import { _ } from "svelte-i18n";
 	import * as Cesium from "cesium";
 	import { onMount, getContext, onDestroy, createEventDispatcher } from "svelte";
-	import { writable, get } from "svelte/store";
+	import { writable, get, type Writable } from "svelte/store";
 	import { Button, PaginationNav, Tag, Loading } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
 	import Edit from "carbon-icons-svelte/lib/Edit.svelte";
@@ -76,7 +76,7 @@
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
 
 	let polygonArea: number = 0;
-	let hasDrawnPolygon: boolean;
+	let hasDrawnPolygon: Writable<boolean> = writable(false);
 	let polygonCameraLocation: CameraLocation | undefined = undefined; // Used instead of CL if project area is drawn by user
 	let distributions: Array<{ group: string; value: number }[]>;
 	let showPolygonMenu = false;
@@ -86,15 +86,39 @@
 	$: shown = Math.floor(width / 70);
 	$: baseLayer?.visible.set($baseMapVisible);
 
+
+	// Update layer visibility based on the polygon drawn state
+	const unsubscribeHasDrawnPolygon = hasDrawnPolygon.subscribe(polygonDrawn => {
+		if (story.requestPolygonArea && polygonDrawn) {
+			changeActiveLayersVisibility(activeStep, true);
+		}
+		else if (story.requestPolygonArea && !polygonDrawn) {
+			changeActiveLayersVisibility(activeStep, false);
+		}
+	});
+
+
+	// Change visibility of all active layers in the active step
+	function changeActiveLayersVisibility(activeStep: StoryStep | undefined, visible: boolean): void {
+		if (activeStep && activeStep.layers) {
+			for (let i = 0; i < activeStep.layers.length; i++) {
+				const layerId = activeStep.layers[i].id.toString();
+				const added = getAdded(layerId);
+				// Make the layer invisible if the polygon is not drawn but is required
+				if (added) {
+					added.visible.set(visible);
+				}
+			}
+		}
+	}
+	
+	// Fly to polygon entity when its drawn
 	const unsubscribePolygonEntity = polygonStore.subscribe(polygon => {
 		if (polygon?.polygonEntity) {
 			const use3DMode = get(map.options.use3DMode);
 			const vertices: Array<number> = [];
-
-			// Assuming the entity has a polygon or polyline geometry
 			const entity = polygon.polygonEntity;
 
-			// You probably mean polygon geometry, not polyline — adjust as needed
 			const positions = entity.polygon?.hierarchy?.getValue(map.viewer.clock.currentTime)?.positions
 				|| entity.polyline?.positions?.getValue(map.viewer.clock.currentTime);
 
@@ -203,13 +227,6 @@
 		} // Set this again because apparently OnMount is slower than a subscribe :/
 		const index = page - 1;
 
-		// Flatten the steps across all chapters so we can access the correct step based on the index
-		const flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
-		story.storyChapters.forEach((chapter) => {
-			chapter.steps.forEach((step) => {
-				flattenedSteps.push({ step, chapter });
-			});
-		});
 		const activeEntry = flattenedSteps[index];
 		activeChapter = activeEntry.chapter;
 		activeChapterSteps = activeChapter.steps;
@@ -223,20 +240,42 @@
 		if (activeStep) {
 			cesiumMap.flyTo(polygonCameraLocation ?? activeStep.cameraLocation);
 			if (activeStep.layers) {
-				hideInactiveLayers(activeStep.layers);
+				if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
+					storyLayers.forEach(layer => layer.visible.set(false));
+				}
+				else {
+					hideInactiveLayers(activeStep.layers);
+				}
 				for (let i = 0; i < activeStep.layers?.length; i++) {
 					const layerId = activeStep.layers[i].id.toString();
 					const added = getAdded(layerId);
 
 					if (added) {
-						added.visible.set(true);
+						if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
+							// Layer already added, polyon not drawn but is required
+							added.visible.set(false);
+						} else {
+							// Layer already added, no polygon required or already drawn
+							added.visible.set(true);
+						}
 						continue
 					}
 
+					// If the layer is not added yet, add it
 					const libraryLayer = getLibraryLayer(layerId);
 					if (libraryLayer) {
 						const layerConfig = storyLayerToLayerConfig(activeStep.layers[i], libraryLayer);
 						const layer = map.addLayer(layerConfig);
+						console.log("hiiding layer:", layer.id);
+
+						if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
+							// No polyon drawn but is required
+							layer.visible.set(false);
+						}
+						else {
+							// No polygon required or already drawn
+							layer.visible.set(true);
+						}
 						storyLayers.push(layer);
 					}
 				}
@@ -479,7 +518,7 @@
 
 		<div class="chapter-buttons">
 			{#if story.requestPolygonArea}
-				<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
+				<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
 			{/if}
 				{#each story.storyChapters as chapter, index}
 				<Button
@@ -574,7 +613,7 @@
 									{/each}
 								{/if}
 							</ul>
-						{:else if hasDrawnPolygon}
+						{:else if $hasDrawnPolygon}
 							<StoryChart data={undefined} loading={true} />
 						{:else}
 							<StoryChart data={undefined} />

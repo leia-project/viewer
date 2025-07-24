@@ -163,6 +163,9 @@
                 }
             });
 
+            redPoints.forEach((point) => map.viewer.entities.remove(point));
+            redPoints = [];
+
             activeShapePoints = [];
             activeShape = undefined;
 
