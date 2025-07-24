@@ -252,7 +252,7 @@
 
 					if (added) {
 						if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
-							// layer already added, polyon not drawn but is required
+							// Layer already added, polyon not drawn but is required
 							added.visible.set(false);
 						} else {
 							// Layer already added, no polygon required or already drawn
