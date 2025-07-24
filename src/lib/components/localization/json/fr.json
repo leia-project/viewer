@@ -4,6 +4,8 @@
         "loading": "Chargement...",
         "on": "Allumé",
         "off": "Éteint",
+        "open": "Ouvre",
+        "close": "Ferme",
         "notifications": {
             "error": "Erreur",
             "warning": "Avertissement",

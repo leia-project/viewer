@@ -4,6 +4,8 @@
         "loading": "Laden...",
         "on": "Aan",
         "off": "Uit",
+        "open": "Open",
+        "close": "Sluit",
         "notifications": {
             "error": "Error",
             "warning": "Waarschuwing",

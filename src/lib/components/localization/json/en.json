@@ -4,6 +4,8 @@
         "loading": "Loading...",
         "on": "On",
         "off": "Off",
+        "open": "Open",
+        "close": "Close",
         "notifications": {
             "error": "Error",
             "warning": "Warning",

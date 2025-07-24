@@ -5,7 +5,8 @@
 	import { writable, get, type Writable } from "svelte/store";
 	import { Button, PaginationNav, Tag, Loading } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
-	import Edit from "carbon-icons-svelte/lib/Edit.svelte";
+	import ChevronDown from "carbon-icons-svelte/lib/ChevronDown.svelte";
+	import ChevronUp from "carbon-icons-svelte/lib/ChevronUp.svelte";
 	import { DocumentDownload } from "carbon-icons-svelte";
 	import "@carbon/charts-svelte/styles.css";
 
@@ -484,10 +485,10 @@
 			{#if story.requestPolygonArea}
 				<div class="draw-polygon">
 					<Button
-						kind={showPolygonMenu ? "primary" : "secondary"}
-						iconDescription="Projectgebied Tool"
+						kind={"primary"}
+						iconDescription={showPolygonMenu ? `${$_("general.open")} Projectgebied Tool` : `${$_("general.open")} Projectgebied Tool`}
 						tooltipPosition="left"
-						icon={Edit}
+						icon={showPolygonMenu ? ChevronDown : ChevronUp}
 						on:click={() => showPolygonMenu = !showPolygonMenu} 
 					/>
 				</div>
@@ -515,11 +516,11 @@
 		<!-- <div class="story-description body-compact-01">
 			{story.description}
 		</div> -->
-
+		{#if story.requestPolygonArea}
+			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
+		{/if}
 		<div class="chapter-buttons">
-			{#if story.requestPolygonArea}
-				<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
-			{/if}
+			
 				{#each story.storyChapters as chapter, index}
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}

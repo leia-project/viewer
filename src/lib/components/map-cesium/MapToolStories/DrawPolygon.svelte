@@ -1,7 +1,7 @@
 <script lang="ts">
     import * as Cesium from "cesium";
 	import { _ } from "svelte-i18n";
-	import { Button } from "carbon-components-svelte";
+    import { Button, Tooltip } from "carbon-components-svelte";
 	import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import AreaCustom from "carbon-icons-svelte/lib/AreaCustom.svelte";
 	import { Map } from "../module/map";
@@ -282,27 +282,30 @@
 {#if showPolygonMenu}
     {#if !hasDrawnPolygon}
         <div>
-            <h4>{$_("tools.stories.drawPolygon")}</h4>
-            <p>
-                Klik op 'Teken nieuw projectgebied' knop om te beginnen met tekenen op de kaart.
-                Met de linkermuisknop kun je punten op de kaart zetten om een vlak te creëren.
-                Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.
-            </p>
+            <div class="title-with-tooltip">
+                <h4>{$_("tools.stories.drawPolygon")}</h4>
+                <Tooltip align="end">
+                    <p>
+                        Klik op 'Teken nieuw projectgebied' knop om te beginnen met tekenen op de kaart.
+                        Klik om een vlak te creëren.
+                        Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.
+                    </p>
+                </Tooltip>
+            </div>
         </div>
     {/if}
 
     <div class="buttons">
-        {#if !hasDrawnPolygon}
-            <Button 
-                icon={AreaCustom}
-                kind={selectedAction === "draw" ? "primary" : "tertiary"}
-                on:click={() => {
-                    draw(); 
-                }}
-            >
-                {$_("tools.stories.drawPolygon")}
-            </Button>
-        {/if}
+        <Button 
+            icon={AreaCustom}
+            kind={selectedAction === "draw" ? "primary" : "tertiary"}
+            disabled={hasDrawnPolygon}
+            on:click={() => {
+                draw(); 
+            }}
+        >
+            {$_("tools.stories.drawPolygon")}
+        </Button>
 
         <Button 
             kind="danger"
@@ -321,9 +324,8 @@
         >
             {$_("tools.stories.deletePolygon")}
         </Button>
-
     </div>
-    <br><hr><br><br>
+    <br><hr><br>
 {/if}
 
 <style>
@@ -333,6 +335,12 @@
         justify-content: center;
         gap: 1rem;
         margin: 1rem;
+    }
+
+    .title-with-tooltip {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
 </style>
