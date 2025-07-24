@@ -225,9 +225,9 @@
         const geom = {
             geometry: geojson.geometry
         };
-        
+        // https://virtueel.dev.zeeland.nl/ko_api/analyze
         try {
-            const response = await fetch("https://virtueel.dev.zeeland.nl/ko_api/analyze", {
+            const response = await fetch("Http://localhost:8000/analyze", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

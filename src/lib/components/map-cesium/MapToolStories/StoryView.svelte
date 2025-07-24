@@ -6,6 +6,7 @@
 	import { Button, PaginationNav, Tag, Loading } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
 	import Edit from "carbon-icons-svelte/lib/Edit.svelte";
+	import { DocumentDownload } from "carbon-icons-svelte";
 	import "@carbon/charts-svelte/styles.css";
 
 	import type { Story } from "./Story";
@@ -25,11 +26,22 @@
 	import StoryChart from "./StoryChart.svelte";
 	import { Checkbox } from "carbon-components-svelte";
 
+	type SubLabel = {
+		text: string;
+		hoverText: string;
+	};
+
+	type LegendItem = {
+		labels: string;
+		text: string;
+		subLabels?: {
+			[key: string]: SubLabel;
+		};
+	};
+
 	type LegendOptions = {
 		generalLegendText: string;
-		legendOptions: {
-			[key: string]: string;
-		};
+		legendOptions: LegendItem[];
 	};
 
 	export let map: Map;
@@ -430,6 +442,23 @@
 		dispatch("closeStory");
 	}
 
+	function shouldShowLegend(legendEntry: LegendItem, distribution: Array<{ group: string; value: number }>) {
+		return Array.from(legendEntry.labels).some(label =>
+			distribution.some(d => d.group === label && d.value > 0)
+		);
+	}
+
+	async function downloadPDF() {
+		const response = await fetch('/Teksten_Conceptrapportage_Klimaatonderlegger Zeeland_Defacto.pdf');
+		const blob = await response.blob();
+
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = 'MyDocument.pdf';
+		link.click();
+		URL.revokeObjectURL(url); // cleanup
+	}
 </script>
 
 <div class="story" bind:clientWidth={width}>
@@ -463,6 +492,15 @@
 					/>
 				</div>
 			{/if}
+			<div class="download-pdf">
+				<Button
+					kind={"tertiary"}
+					iconDescription="Download PDF"
+					tooltipPosition="left"
+					icon={DocumentDownload}
+					on:click={downloadPDF} 
+				/>
+			</div>
 			<div class="close">
 				<Button
 					kind="tertiary"
@@ -552,14 +590,28 @@
 								{@html layerLegends[index].generalLegendText}
 							{/if}
 							<ul>
-								{#each distributions[index] as key}
-									{#if layerLegends[index].legendOptions && key.value > 0 && layerLegends[index].legendOptions[key.group]} 
-										<li>
-											<strong>{key.group}: </strong>{layerLegends[index].legendOptions[key.group]}
-										</li>
-										<br>
-									{/if}
-								{/each}
+								{#if layerLegends[index].legendOptions}
+									{#each layerLegends[index].legendOptions as legendEntry}
+										{#if shouldShowLegend(legendEntry, distributions[index])}
+											<li>
+												{legendEntry.text}
+												{#if legendEntry.subLabels}
+													<ul>
+														{#each Array.from(legendEntry.labels) as label}
+															{#if legendEntry.subLabels[label]}
+																{#if distributions[index].find(d => d.group === label && d.value > 0)}
+																	<li title={legendEntry.subLabels[label].hoverText}>
+																		{legendEntry.subLabels[label].text}
+																	</li>
+																{/if}
+															{/if}
+														{/each}
+													</ul>
+												{/if}
+											</li>
+										{/if}
+									{/each}
+								{/if}
 							</ul>
 						{:else if $hasDrawnPolygon}
 							<StoryChart data={undefined} loading={true} />
