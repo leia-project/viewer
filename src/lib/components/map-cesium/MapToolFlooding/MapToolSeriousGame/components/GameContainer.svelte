@@ -10,6 +10,7 @@
 	import StartMenu from "./StartMenu.svelte";
 	import MapControls from "./MapControls.svelte";
 	import DataMenu from "./data/DataMenu.svelte";
+	import GameButton from "./general/GameButton.svelte";
 
 	export let gameController: GameController;
 	export let marvinApp: MarvinApp;
@@ -28,12 +29,11 @@
 			<div id="top-left">
 				<Notifications notificationLog={$activeGame.notificationLog}>
 					<svelte:fragment slot="extra-buttons">
-						<Button
+						<GameButton
 							icon={Exit}
-							iconDescription="Menu"
-							tooltipPosition="right"
-							size="default"
-							kind="secondary"
+							hasTooltip={false}
+							size={25}
+							borderHighlight={true}
 							on:click={() => showStartMenu = !showStartMenu}
 						/>
 					</svelte:fragment>

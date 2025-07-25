@@ -8,6 +8,7 @@
 	export let size: number = 22;
 	export let active: boolean | undefined = undefined;
 	export let hasTooltip: boolean = false;
+	export let borderHighlight: boolean = false;
 
 	let ref: HTMLDivElement;
 	let open: boolean;
@@ -24,8 +25,18 @@
 
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-<div class="toolbar-button-container" bind:this={ref} on:mouseenter={() => open = hasTooltip} on:mouseleave={() => open = false} style={`--button-size: ${size};`}>
-	<div class="toolbar-button" on:click={click} class:active>
+<div class="toolbar-button-container" 
+	bind:this={ref} 
+	on:mouseenter={() => open = hasTooltip} 
+	on:mouseleave={() => open = false} 
+	style={`
+		--button-size: ${size};
+	`}
+>
+	<div class="toolbar-button" on:click={click} class:active style={`border-color: ${borderHighlight ? "var(--game-color-highlight)" : "rgb(var(--game-color-bg))"};`}>
+		{#if active}
+			<span class="active-indicator"></span>
+		{/if}
 		{#if icon}
 			<svelte:component this={icon} color={"var(--icon-color)"} size={size} />
 		{/if}
@@ -60,21 +71,19 @@
 		padding: 0;
 		background-color: rgb(var(--game-color-bg));
 		color: var(--game-color-highlight);
-		border: 1px solid var(--game-color-highlight);
+		border-width: 1px;
+		border-style: solid;
 		border-radius: var(--button-border-radius);
 		cursor: pointer;
 		overflow: hidden;
 		--icon-color: var(--game-color-highlight);
 	}
 	
-	.toolbar-button:hover {
+	.active, .toolbar-button:hover {
 		background-color: var(--game-color-highlight);
 		color: rgb(var(--game-color-bg));
+		border-color: rgb(var(--game-color-bg)) !important;
 		--icon-color: rgb(var(--game-color-bg));
-	}
-	
-	.active {
-		border: 1px solid var(--theme-accent);
 	}
 
 	:global(.toolbar-button svg) {

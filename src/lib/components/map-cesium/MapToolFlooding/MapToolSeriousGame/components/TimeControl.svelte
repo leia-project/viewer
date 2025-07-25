@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Button } from "carbon-components-svelte";
 	import type { Game } from "../module/game";
 	import { SkipBackSolidFilled, SkipForwardSolidFilled, TimeFilled, Timer } from "carbon-icons-svelte";
 	import Pill from "./general/Pill.svelte";
+	import GameButton from "./general/GameButton.svelte";
 
 	export let game: Game;
 
@@ -25,37 +25,40 @@
 
 
 <div class="time-control">
-	<Button
-		kind="primary"
-		size="small"
-		iconDescription="Terugspoelen (xx minuten)"
-		tooltipPosition="top"
+	<GameButton
 		icon={SkipBackSolidFilled}
+		hasTooltip={true}
+		size={18}
+		borderHighlight={true}
 		on:click={() => game.changeStep("previous")}
-	/>
+	>
+		<svelte:fragment slot="popover">Terugspoelen (xx minuten)</svelte:fragment>
+	</GameButton>
 	<Pill 
-		icon={TimeFilled} 
-		label="Time" 
+		icon={TimeFilled}
+		label="Time"
 		bind:value={currentTime}
 	/>
 	<Pill 
-		icon={Timer} 
-		label="Since Breach" 
+		icon={Timer}
+		label="Since Breach"
 		value={elapsedTimeFormatted}
 		unit={"hours"}
 	/>
-	<Button
-		kind="primary"
-		size="small"
-		iconDescription="Ga Verder (xx minuten)"
-		tooltipPosition="top"
+	<GameButton
 		icon={SkipForwardSolidFilled}
-		on:click={() => game.changeStep("next")}
-	/>
+		hasTooltip={true}
+		size={18}
+		borderHighlight={true}
+		on:click={() => game.changeStep("previous")}
+	>
+		<svelte:fragment slot="popover">Ga verder (xx minuten)</svelte:fragment>
+	</GameButton>
 </div>
 
 
 <style>
+	
    .time-control {
 		text-align: end;
 		display: flex;

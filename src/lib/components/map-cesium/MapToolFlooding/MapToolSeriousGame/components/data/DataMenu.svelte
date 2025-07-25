@@ -7,6 +7,7 @@
 	import FloodModelControl from "./FloodModelControl.svelte";
 	import { onDestroy, onMount } from "svelte";
 	import MenuContent from "./MenuContent.svelte";
+	import GameButton from "../general/GameButton.svelte";
 
 	export let gameController: GameController;
 
@@ -17,7 +18,7 @@
 	let menuRef: HTMLDivElement;
 	function handleClickOutside(event: MouseEvent) {
 		if (!menuRef.contains(event.target as Node)) {
-			selectedMenu = undefined;
+			//selectedMenu = undefined;
 		}
 	}
 
@@ -47,25 +48,22 @@
 			{/if}
 		</div>
 		<div class="data-menu-items" class:open={selectedMenu !== undefined}>
-			<Button
-				kind="secondary"
-				size="default"
+			<GameButton
 				icon={Layers}
-				iconDescription="Layer Manager"
+				hasTooltip={false}
+				active={selectedMenu === 0}
 				on:click={() => selectedMenu = selectedMenu === 0 ? undefined : 0}
 			/>
-			<Button
-				kind="secondary"
-				size="default"
+			<GameButton
 				icon={WaveHeight}
-				iconDescription="Flood Model"
+				hasTooltip={false}
+				active={selectedMenu === 1}
 				on:click={() => selectedMenu = selectedMenu === 1 ? undefined : 1}
 			/>
-			<Button
-				kind="secondary"
-				size="default"
+			<GameButton
 				icon={VehicleInsights}
-				iconDescription="Evacuation Overview"
+				hasTooltip={false}
+				active={selectedMenu === 2}
 				on:click={() => selectedMenu = selectedMenu === 2 ? undefined : 2}
 			/>
 		</div>
@@ -86,10 +84,16 @@
 		max-width: 500px;
 	}
 
+	.data-menu-items {
+		display: flex;
+		gap: 0.6rem;
+		position: relative;
+	}
+
 	.data-menu-items.open::after {
 		content: "";
 		position: absolute;
-		bottom: 100%;
+		bottom: calc(100% + 1rem);
 		left: 0;
 		width: 100px;
 		height: 2px;

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Button } from "carbon-components-svelte";
 	import { Compass, Home } from "carbon-icons-svelte";
+	import GameButton from "./general/GameButton.svelte";
 	import type { Game } from "../module/game";
 
 	export let game: Game;
@@ -9,22 +9,23 @@
 
 
 <div class="map-controls">
-	<Button
+	<GameButton
 		icon={Home}
-		iconDescription="Start Position"
-		tooltipPosition="right"
-		size="default"
-		kind="secondary"
+		hasTooltip={true}
+		size={20}
 		on:click={() => game.flyHome()}
-	/>
-	<Button
+	>
+		<svelte:fragment slot="popover">Start Position</svelte:fragment>
+	</GameButton>
+	<GameButton
 		icon={Compass}
-		iconDescription="Zoom to North"
-		tooltipPosition="right"
-		size="default"
-		kind="secondary"
+		hasTooltip={true}
+		size={20}
 		on:click={() => game.flyHome()}
-	/>
+	>
+		<svelte:fragment slot="popover">Zoom to North</svelte:fragment>
+	</GameButton>
+	
 </div>
 
 
@@ -32,7 +33,7 @@
 	
 	.map-controls {
 		display: flex;
-		gap: 0.5rem;
+		gap: 0.6rem;
 		padding: 0.25rem;
 	}
 
