@@ -5,7 +5,8 @@
 	import { writable, get, type Writable } from "svelte/store";
 	import { Button, PaginationNav, Tag, Loading } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
-	import Edit from "carbon-icons-svelte/lib/Edit.svelte";
+	import ChevronDown from "carbon-icons-svelte/lib/ChevronDown.svelte";
+	import ChevronUp from "carbon-icons-svelte/lib/ChevronUp.svelte";
 	import { DocumentDownload } from "carbon-icons-svelte";
 	import "@carbon/charts-svelte/styles.css";
 
@@ -484,10 +485,10 @@
 			{#if story.requestPolygonArea}
 				<div class="draw-polygon">
 					<Button
-						kind={showPolygonMenu ? "primary" : "secondary"}
-						iconDescription="Projectgebied Tool"
-						tooltipPosition="left"
-						icon={Edit}
+						kind={"primary"}
+						iconDescription={showPolygonMenu ? `${$_("general.open")} Projectgebied Tool` : `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
+						tooltipPosition="top"
+						icon={showPolygonMenu ? ChevronDown : ChevronUp}
 						on:click={() => showPolygonMenu = !showPolygonMenu} 
 					/>
 				</div>
@@ -495,8 +496,8 @@
 			<div class="download-pdf">
 				<Button
 					kind={"tertiary"}
-					iconDescription="Download PDF"
-					tooltipPosition="left"
+					iconDescription={$_("tools.stories.downloadPDF")}
+					tooltipPosition="top"
 					icon={DocumentDownload}
 					on:click={downloadPDF} 
 				/>
@@ -505,7 +506,7 @@
 				<Button
 					kind="tertiary"
 					iconDescription={textBack}
-					tooltipPosition="left"
+					tooltipPosition="top"
 					icon={Exit}
 					on:click={backToOverview} 
 				/>
@@ -515,11 +516,11 @@
 		<!-- <div class="story-description body-compact-01">
 			{story.description}
 		</div> -->
-
+		{#if story.requestPolygonArea}
+			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
+		{/if}
 		<div class="chapter-buttons">
-			{#if story.requestPolygonArea}
-				<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
-			{/if}
+			
 				{#each story.storyChapters as chapter, index}
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}
