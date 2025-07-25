@@ -231,6 +231,13 @@ export class MapOptions {
 		}
 	}
 
+	public initCameraMode(config: any): void {
+		const startCameraMode3D = config.viewer.startCameraMode3D ? config.viewer.startCameraMode3D : false;
+		if (!startCameraMode3D) {
+			this.use3DMode.set(false);
+		}
+	}
+
 	private setPointCloudSetting(option: string, value: any): void {
 		const layers = Get3dLayers(this.map);
 		if (!layers) return;

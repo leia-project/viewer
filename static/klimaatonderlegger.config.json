@@ -548,6 +548,7 @@
             "pitch": -89.9,
             "duration": 1.50
         },
+        "startCameraMode3D": true,
         "colors": {
             "ui-background": "#ffffff",
             "interactive-01": "#214170",

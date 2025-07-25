@@ -73,9 +73,11 @@ export abstract class MapCore extends Dispatcher {
 				this.viewerSettings = this.config.viewer;
 				if (this.config.viewer && this.config.viewer.startPosition) {
 					const p = this.config.viewer.startPosition;
+					this.config.viewer.startCameraMode3D = this.config.viewer.startCameraMode3D ?? true;
+					if (!this.config.viewer.startCameraMode3D) p.pitch = -89.9;
+					
 					this.startPosition = new CameraLocation(p.x, p.y, p.z, p.heading, p.pitch, p.duration);
 				}
-	
 				this.configLoaded.set(true);
 			}
 		});

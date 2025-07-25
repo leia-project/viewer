@@ -20,6 +20,7 @@
 			if (ready) {
 				b ? to3D() : to2D();
 			} else {
+				if (!b) initializeIn2D();
 				ready = true;
 			}
 		});
@@ -29,6 +30,20 @@
 		};
 	});
 	
+	function initializeIn2D() {
+		if (map) {
+			// Disable tilt controls
+			map.viewer.scene.screenSpaceCameraController.enableTilt = false;
+
+			// Disable terrain
+			const terrainProviderOff = get(map.options.terrainProviders).find(provider => provider.title === 'Uit');
+			if (terrainProviderOff && get(map.options.selectedTerrainProvider) !== terrainProviderOff) {
+				map.options.selectedTerrainProvider.set(terrainProviderOff);
+			}
+		}
+	}
+
+
 	// Note: we dont use the built-in scene switcher because it sucks
 	function to2D() {
 		if (map) {
@@ -74,6 +89,7 @@
 					},
 					duration: 1
 				});
+				// Disable tilt controls
 				map.viewer.scene.screenSpaceCameraController.enableTilt = false;
 			}
 		}
