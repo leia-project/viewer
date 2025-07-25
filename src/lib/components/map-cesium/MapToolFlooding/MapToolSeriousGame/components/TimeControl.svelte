@@ -58,12 +58,11 @@
 <style>
    .time-control {
 		text-align: end;
-		padding: 1.5rem;
 		display: flex;
 		flex-direction: row;
-		justify-content: space-between;
+		align-items: center;
+		height: 100%;
 		column-gap: 0.5rem;
-		margin-top: 10px;
    }
 
 </style>

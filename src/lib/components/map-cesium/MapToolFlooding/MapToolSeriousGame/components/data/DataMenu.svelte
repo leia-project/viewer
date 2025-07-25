@@ -6,6 +6,7 @@
 	import EvacuationOverview from "./evacuation-overview/EvacuationOverview.svelte";
 	import FloodModelControl from "./FloodModelControl.svelte";
 	import { onDestroy, onMount } from "svelte";
+	import MenuContent from "./MenuContent.svelte";
 
 	export let gameController: GameController;
 
@@ -32,18 +33,20 @@
 
 <div class="data-menu" bind:this={menuRef}>
 	{#if $activeGame}
-		{#if selectedMenu !== undefined}
-			<div class="data-menu-content">
-				{#if selectedMenu === 0}
-					<Roles {gameController} />
-				{:else if selectedMenu === 1}
+		<div class="data-menu-content">
+			{#if selectedMenu === 0}
+				<Roles {gameController} />
+			{:else if selectedMenu === 1}
+				<MenuContent title="Flood Model Control" icon={WaveHeight}>
 					<FloodModelControl game={$activeGame} />
-				{:else if selectedMenu === 2}
+				</MenuContent>
+			{:else if selectedMenu === 2}
+				<MenuContent title="Evacuation Control" icon={VehicleInsights}>
 					<EvacuationOverview game={$activeGame} />
-				{/if}
-			</div>
-		{/if}
-		<div class="data-menu-items">
+				</MenuContent>
+			{/if}
+		</div>
+		<div class="data-menu-items" class:open={selectedMenu !== undefined}>
 			<Button
 				kind="secondary"
 				size="default"
@@ -75,8 +78,24 @@
 	.data-menu {
 		padding: 0.25rem;
 	}
+
 	.data-menu-content {
+		position: absolute;
+		bottom: 100%;
+		left: 0;
 		max-width: 500px;
+	}
+
+	.data-menu-items.open::after {
+		content: "";
+		position: absolute;
+		bottom: 100%;
+		left: 0;
+		width: 100px;
+		height: 2px;
+		background-color: var(--game-color-highlight);
+		border-radius: 8px;
+		pointer-events: none;
 	}
 
 </style>

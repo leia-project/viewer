@@ -17,27 +17,20 @@
 </script>
 
 
-<div class="evacuation-overview">
-	<div>Evacuaties</div>
-	{#if $evacuations.length > 0}
-		<ul>
-			{#each $evacuations as evacuation}
-				<HexagonEvacuationEntries {evacuation} />
-			{/each}
-		</ul>
-	{:else}
-		<p>No evacuations in progress.</p>
-	{/if}
+<div>
+	Selected hexagon -----[BUTTON]-----------> Selected Extraction Point
 </div>
+{#if $evacuations.length > 0}
+	<ul>
+		{#each $evacuations as evacuation}
+			<HexagonEvacuationEntries {evacuation} />
+		{/each}
+	</ul>
+{:else}
+	<p>No evacuations in progress.</p>
+{/if}
 
 
 <style>
-
-	.evacuation-overview {
-		background-color: rgb(var(--game-color-bg));
-		color: var(--game-color-text);
-		padding: 0.5rem;
-		text-align: start;
-	}
 
 </style>
