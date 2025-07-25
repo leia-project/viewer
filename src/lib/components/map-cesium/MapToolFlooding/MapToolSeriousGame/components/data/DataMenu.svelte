@@ -1,13 +1,12 @@
 <script lang="ts">
-	import { Button } from "carbon-components-svelte";
 	import { Layers, VehicleInsights, WaveHeight } from "carbon-icons-svelte";
 	import type { GameController } from "../../module/game-controller";
-	import Roles from "../Roles.svelte";
 	import EvacuationOverview from "./evacuation-overview/EvacuationOverview.svelte";
 	import FloodModelControl from "./FloodModelControl.svelte";
 	import { onDestroy, onMount } from "svelte";
 	import MenuContent from "./MenuContent.svelte";
 	import GameButton from "../general/GameButton.svelte";
+	import LayerManager from "../layer-manager/LayerManager.svelte";
 
 	export let gameController: GameController;
 
@@ -36,7 +35,9 @@
 	{#if $activeGame}
 		<div class="data-menu-content">
 			{#if selectedMenu === 0}
-				<Roles {gameController} />
+				<MenuContent title="Layer Manager" icon={Layers}>
+					<LayerManager {gameController} />
+				</MenuContent>
 			{:else if selectedMenu === 1}
 				<MenuContent title="Flood Model Control" icon={WaveHeight}>
 					<FloodModelControl game={$activeGame} />

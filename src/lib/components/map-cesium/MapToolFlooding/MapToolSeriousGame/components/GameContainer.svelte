@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Button } from "carbon-components-svelte";
 	import { Exit } from "carbon-icons-svelte";
 	import type { MarvinApp } from "../../Marvin/marvin";
 	import type { GameController } from "../module/game-controller";
@@ -32,7 +31,7 @@
 						<GameButton
 							icon={Exit}
 							hasTooltip={false}
-							size={25}
+							size={24}
 							borderHighlight={true}
 							on:click={() => showStartMenu = !showStartMenu}
 						/>

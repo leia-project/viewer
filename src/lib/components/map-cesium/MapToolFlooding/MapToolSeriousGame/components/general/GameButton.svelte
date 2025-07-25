@@ -34,9 +34,6 @@
 	`}
 >
 	<div class="toolbar-button" on:click={click} class:active style={`border-color: ${borderHighlight ? "var(--game-color-highlight)" : "rgb(var(--game-color-bg))"};`}>
-		{#if active}
-			<span class="active-indicator"></span>
-		{/if}
 		{#if icon}
 			<svelte:component this={icon} color={"var(--icon-color)"} size={size} />
 		{/if}

@@ -17,6 +17,6 @@ export interface IGameConfig {
 
 export interface IRole {
     role: string, 
-    image: string, 
+    svgIcon: string, 
     layerIds: Array<string>
 }

@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type { IRole } from "../module/models";
-    import HexagonLayerControl from "./layer-manager/HexagonLayerControl.svelte";
-    import BaseLayer from "./layer-manager/BaseLayer.svelte";
-	import type { GameController } from "../module/game-controller";
+    import type { IRole } from "../../module/models";
+    import HexagonLayerControl from "./HexagonLayerControl.svelte";
+    import BaseLayer from "./BaseLayer.svelte";
+	import type { GameController } from "../../module/game-controller";
 
     export let roleData: IRole;
     export let mainLayerIds;
@@ -41,12 +41,7 @@
 </section>
 
 <style>
-    section {
-        width: 500%;
-        padding: 5%;
-        background-color: white;
-        border-radius: 10px;
-    }
+   
 
     span {
         font-size: 1.5em;
