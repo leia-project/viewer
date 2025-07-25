@@ -284,12 +284,8 @@
         <div>
             <div class="title-with-tooltip">
                 <h4>{$_("tools.stories.drawPolygon")}</h4>
-                <Tooltip align="end">
-                    <p>
-                        Klik op 'Teken nieuw projectgebied' knop om te beginnen met tekenen op de kaart.
-                        Klik om een vlak te creëren.
-                        Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.
-                    </p>
+                <Tooltip align="start" direction="right">
+                    {$_("tools.stories.drawPolygonText")}
                 </Tooltip>
             </div>
         </div>
@@ -341,6 +337,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
+        z-index: 99;
     }
     
 </style>

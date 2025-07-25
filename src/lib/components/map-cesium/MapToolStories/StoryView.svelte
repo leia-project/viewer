@@ -486,8 +486,8 @@
 				<div class="draw-polygon">
 					<Button
 						kind={"primary"}
-						iconDescription={showPolygonMenu ? `${$_("general.open")} Projectgebied Tool` : `${$_("general.open")} Projectgebied Tool`}
-						tooltipPosition="left"
+						iconDescription={showPolygonMenu ? `${$_("general.open")} Projectgebied Tool` : `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
+						tooltipPosition="top"
 						icon={showPolygonMenu ? ChevronDown : ChevronUp}
 						on:click={() => showPolygonMenu = !showPolygonMenu} 
 					/>
@@ -496,8 +496,8 @@
 			<div class="download-pdf">
 				<Button
 					kind={"tertiary"}
-					iconDescription="Download PDF"
-					tooltipPosition="left"
+					iconDescription={$_("tools.stories.downloadPDF")}
+					tooltipPosition="top"
 					icon={DocumentDownload}
 					on:click={downloadPDF} 
 				/>
@@ -506,7 +506,7 @@
 				<Button
 					kind="tertiary"
 					iconDescription={textBack}
-					tooltipPosition="left"
+					tooltipPosition="top"
 					icon={Exit}
 					on:click={backToOverview} 
 				/>
