@@ -243,6 +243,8 @@
             "stepForward": "Stap vooruit",
             "description": "Beschrijving",
             "statistics": "Statistieken",
+            "storyChartTitle": "Verdeling per klasse",
+            "storyChartNoData": "Geen Data",
             "basemap": "Achtergrondkaart",
             "requestDrawPolygon": "Teken een projectgebied in om data op te halen",
             "drawPolygon": "Teken Projectgebied",

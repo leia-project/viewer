@@ -236,6 +236,8 @@
             "stepForward": "Step forward",
             "description": "Description",
             "statistics": "Statistics",
+            "storyChartTitle": "Class distribution",
+            "storyChartNoData": "No Data",
             "basemap": "Basemap",
             "requestDrawPolygon": "Draw a project area to retrieve data",
             "drawPolygon": "Draw Project Area",

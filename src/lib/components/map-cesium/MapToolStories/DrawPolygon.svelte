@@ -339,6 +339,7 @@
         justify-content: center;
         position: relative;
         z-index: 99;
+        margin-top: 0.5rem;
     }
     
 </style>

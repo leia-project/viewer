@@ -25,7 +25,7 @@
 	import { getCameraPositionFromBoundingSphere } from "../module/utils/layer-utils";
 	import { polygonStore } from './PolygonEntityStore';
 	import StoryChart from "./StoryChart.svelte";
-	import { Checkbox } from "carbon-components-svelte";
+	import ChoroplethMap from "carbon-icons-svelte/lib/ChoroplethMap.svelte";
 
 	type SubLabel = {
 		text: string;
@@ -476,23 +476,6 @@
 			{story.name}
 		</div>
 		<div class="nav-controls">
-			<div class="toggle-basemap">
-				<Checkbox
-				labelText={$_("tools.stories.basemap")}
-				bind:checked={$baseMapVisible}
-			/>
-			</div>
-			{#if story.requestPolygonArea}
-				<div class="draw-polygon">
-					<Button
-						kind={"primary"}
-						iconDescription={showPolygonMenu ? `${$_("general.open")} Projectgebied Tool` : `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
-						tooltipPosition="top"
-						icon={showPolygonMenu ? ChevronDown : ChevronUp}
-						on:click={() => showPolygonMenu = !showPolygonMenu} 
-					/>
-				</div>
-			{/if}
 			<div class="download-pdf">
 				<Button
 					kind={"tertiary"}
@@ -502,6 +485,26 @@
 					on:click={downloadPDF} 
 				/>
 			</div>
+			<div class="toggle-basemap">
+				<Button
+					kind="tertiary"
+					iconDescription={$baseMapVisible ? `${$_("general.close")} ${$_("tools.stories.basemap")}` : `${$_("general.open")} ${$_("tools.stories.basemap")}`}
+					tooltipPosition="top"
+					icon={ChoroplethMap}
+					on:click={() => $baseMapVisible = !$baseMapVisible}
+				/>
+			</div>
+			{#if story.requestPolygonArea}
+				<div class="draw-polygon">
+					<Button
+						kind={"primary"}
+						iconDescription={showPolygonMenu ? `${$_("general.open")} ${$_("tools.stories.projectAreaTool")}` : `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
+						tooltipPosition="top"
+						icon={showPolygonMenu ? ChevronDown : ChevronUp}
+						on:click={() => showPolygonMenu = !showPolygonMenu} 
+					/>
+				</div>
+			{/if}
 			<div class="close">
 				<Button
 					kind="tertiary"
@@ -581,7 +584,7 @@
 				<!-- <div class="step-heading-sub heading-03">
 					{$_("tools.stories.statistics")}
 				</div> -->
-				<br><br>
+				<br>
 				<div class="step-stats">
 					{#if story.requestPolygonArea}
 						{#if distributions && distributions[index]}
@@ -618,7 +621,6 @@
 							<StoryChart data={undefined} loading={true} />
 						{:else}
 							<StoryChart data={undefined} />
-							<strong>{$_("tools.stories.requestDrawPolygon")}</strong>
 						{/if}
 					{/if}
 				</div>
@@ -659,6 +661,7 @@
 		position: absolute;
 		top: 0;
 		right: 0;
+		margin-left: 1rem;
 	}
 
 	.nav .draw-polygon {

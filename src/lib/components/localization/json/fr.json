@@ -229,6 +229,8 @@
             "stepForward": "Progresser",
             "description": "Description",
             "statistics": "Statistiques",
+            "storyChartTitle": "Distribution des classes",
+            "storyChartNoData": "Aucune donnée",
             "basemap": "Calque d'arrière-plan",
             "requestDrawPolygon": "Dessinez une zone de projet pour récupérer les données",
             "drawPolygon": "Dessiner la Zone de Projet",
