@@ -83,7 +83,7 @@
 
 	.loading-container {
 		display: flex;
-		justify-content: fle;
+		justify-content: center;
 		align-items: center;
 		column-gap: 2rem;
 		height: 150px;
