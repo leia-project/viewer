@@ -1,27 +1,92 @@
 <script lang="ts">
-    import { Slider } from "carbon-components-svelte";
-    import type { Layer } from "$lib/components/map-core/layer";
-	import BaseLayer from "./BaseLayer.svelte";
+	import { Slider, Toggle } from "carbon-components-svelte";
 	import { Checkbox } from "carbon-components-svelte";
 	import type { HexagonLayer } from "../../module/game-elements/hexagons/hexagon-layer";
 
-    export let layer: HexagonLayer;
-    const use2DMode = layer?.use2DMode;
-    const opacity = layer.alpha;
+	export let layer: HexagonLayer;
+	
+	const use2DMode = layer?.use2DMode;
+	const opacity = layer.alpha;
+	const visible = layer?.visible;
 
 </script>
 
-<BaseLayer {layer}>
-    <Slider
-        slot="Slider"
-        bind:value={$opacity}
-        labelText="Opacity"
-        min={0}
-        max={1}
-        step={0.01}
-    />
-    <Checkbox slot = "2DMode"
-        bind:checked={$use2DMode}
-        labelText = "2D Mode"
-    />
-</BaseLayer>
+
+<div class="hexagon-layer-control">
+	<div class="hexagon-layer-header">
+		<Checkbox
+			bind:checked={$visible}
+			labelText={layer.title}
+		/>
+		<div class="toggle-container">
+			<Toggle
+				toggled={!$use2DMode}
+				on:toggle={() => use2DMode.set(!$use2DMode)}
+				hideLabel={true}
+				labelA=""
+				labelB=""
+			/>
+			<span class="toggle-label">
+				{$use2DMode ? "2D" : "3D"}
+			</span>
+		</div>
+	</div>
+	<div class="slider-container">
+		<div class="slider-label">Opacity</div>
+		<Slider
+			slot="Slider"
+			bind:value={$opacity}
+			min={0}
+			max={1}
+			step={0.01}
+			hideTextInput={true}
+		/>
+	</div>
+</div>
+
+<style>
+
+	.hexagon-layer-header {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		align-items: center;
+		gap: 1rem;
+	}
+	
+	.toggle-container {
+		display: flex;
+		align-items: center;
+		column-gap: 0.5rem;
+	}
+	
+	.hexagon-layer-control :global(.bx--slider__thumb) {
+		background: var(--game-color-highlight);
+		border-radius: 50%;
+		border-top: solid 0.44rem transparent; 
+		border-bottom: solid 0.44rem transparent;
+	}
+	.hexagon-layer-control :global(.bx--slider__track) {
+		background: var(--game-color-highlight);
+	}
+	.hexagon-layer-control :global(.bx--slider__filled-track) {
+		background: var(--game-color-highlight);
+	}
+	.hexagon-layer-control :global(.bx--slider__range-label) {
+		color: #fff;
+		font-size: 0.7rem;
+		margin-right: 0;
+	}
+
+	.slider-container {
+		display: flex;
+		align-items: center;
+		margin-top: 0.25rem;
+		max-width: 400px;
+	}
+
+	.slider-label {
+		margin-right: 1rem;
+		font-weight: 600;
+	}
+
+</style>

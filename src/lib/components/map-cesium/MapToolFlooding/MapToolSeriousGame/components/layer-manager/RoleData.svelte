@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { IRole } from "../../module/models";
-    import HexagonLayerControl from "./HexagonLayerControl.svelte";
     import BaseLayer from "./BaseLayer.svelte";
 	import type { GameController } from "../../module/game-controller";
 
@@ -17,13 +16,6 @@
 
 <section class="role-data">
     <span><strong>{roleData.role}</strong></span>
-    <br><br>
-    <div>
-        <span>Hexagon kaartlagen</span>
-        {#if $activeGame}
-            <HexagonLayerControl layer={$activeGame.evacuationController.hexagonLayer} />
-        {/if}
-    </div>
     <div>
         <span>Achtergrondlagen</span>
         {#each mainLayers as mL}

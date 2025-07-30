@@ -10,7 +10,7 @@
 <div>
     <Checkbox
         bind:checked={$visible}
-        labelText = {layer.title}
+        labelText={layer.title}
     />
 </div>
 <slot name = "Slider"/>
