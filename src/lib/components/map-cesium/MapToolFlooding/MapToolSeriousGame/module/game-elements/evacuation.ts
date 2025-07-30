@@ -106,7 +106,15 @@ export class Evacuation {
 		this.map.viewer.dataSources.remove(this.dataSource, true);
 		this.shown = false;
 	}
-	
+
+	public toggle(): void {
+		if (this.shown) {
+			this.hide();
+		} else {
+			this.display([]);
+		}
+	}
+
 	public destroy(): void {
 		this.hexagon.removeEvacuation(this);
 	}

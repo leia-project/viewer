@@ -1,4 +1,4 @@
-import { get, writable, type Writable } from "svelte/store";
+import { derived, get, writable, type Readable, type Writable } from "svelte/store";
 import { FloodLayerController, type Breach } from "../../layer-controller";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { NotificationLog } from "./notification-log";
@@ -38,7 +38,7 @@ const steps: Array<IGameStep> = [
 	},
 	{
 		time: 8,
-		title: "Hour 12",
+		title: "Hour 8",
 		cameraPosition: new CameraLocation(4.45092, 49.07338, 174273.52797, 6.35918, -28.59832, 1.5)
 	},
 	{
@@ -58,8 +58,10 @@ export class Game {
 	public forwarding: Writable<boolean> = writable(false);
 	public startTime: number;
 	private step: Writable<number> = writable(0);
+	public currentStep: Readable<IGameStep> = derived(this.step, ($step) => steps[$step]);
 	public elapsedTime: Writable<number> = writable(0);
 	public elapsedTimeDynamic: Writable<number>;
+	public elapsedTimeFormatted: Readable<string> = derived(this.elapsedTime, ($elapsedTime) => this.getFormattedTime($elapsedTime));
 	private interval: NodeJS.Timeout | undefined;
 
 	public floodLayerController: FloodLayerController;
@@ -132,7 +134,7 @@ export class Game {
 			type: NotificationType.INFO
 		});
 		
-		this.elapsedTimeDynamic.set(steps[get(this.step)].time);
+		this.elapsedTimeDynamic.set(get(this.currentStep).time);
 		this.step.update((value) => {
 			if (direction === "next" && value < steps.length - 1) {
 				return value + 1;
@@ -174,5 +176,12 @@ export class Game {
 	public flyHome(): void {
 		const cameraPosition = steps[get(this.step)].cameraPosition;
 		this.map.flyTo(cameraPosition);
+	}
+
+	public getFormattedTime(time: number): string {
+		const totalMinutes = Math.floor(time * 60);
+		const hours = Math.floor(totalMinutes / 60);
+		const minutes = totalMinutes % 60;
+		return `${hours}:${minutes.toString().padStart(2, "0")}`;
 	}
 }
