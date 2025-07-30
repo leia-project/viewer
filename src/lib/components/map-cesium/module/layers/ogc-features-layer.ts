@@ -5,7 +5,6 @@ import type { Map } from "../map";
 import { OgcFeaturesProviderCesium } from "../providers/ogc-features-provider";
 import { CesiumLayer } from "./cesium-layer";
 
-import * as Cesium from "cesium";
 import { CustomLayerControl } from "$lib/components/map-core/custom-layer-control";
 import LayerControlOgcFeaturesLayer from "../../LayerControls/LayerControlOGCFeaturesLayer.svelte";
 

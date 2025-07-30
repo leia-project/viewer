@@ -87,7 +87,7 @@ export class Game {
 		this.floodLayerController.loadNewScenario(gameConfig.breach, gameConfig.scenario).then(() => {
 			this.load();
 		});
-		this.evacuationController = new EvacuationController(this);
+		this.evacuationController = new EvacuationController(this, this.floodLayerController);
 		this.step.subscribe((value) => {
 			this.elapsedTime.set(steps[value].time);
 		});

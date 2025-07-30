@@ -5,7 +5,7 @@ import { FloodLayer } from "../module/layers/flood-layer";
 import { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
 import { get, writable, type Unsubscriber, type Writable } from "svelte/store";
 import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
-import type { OgcStyleCondition } from "../module/providers/ogc-features-provider";
+import type { GeoJSONFeature, OgcStyleCondition } from "../module/providers/ogc-features-provider";
 
 
 
@@ -45,6 +45,7 @@ export class FloodLayerController {
 	public stepInterval: Writable<number> = writable(0.05);
 	private unsubscribers: Array<Unsubscriber> = [];
 	private timeUnsubscriber?: Unsubscriber;
+	private roadFeatures: any;
 
 	public layerConfigGroup: LayerConfigGroup | undefined;
 	public iconLayer: IconLayer<Breach>;
@@ -252,4 +253,9 @@ export class FloodLayerController {
 		}
 		return floodedRoadsLayer;
 	}
+
+	public getFloodedRoadWritableFeatures(): Writable<GeoJSONFeature[] | undefined> {
+		return this.floodedRoadsLayer.source.OgcFeaturesLoaderCesium?.writableFeatures;
+	}
+	
 }

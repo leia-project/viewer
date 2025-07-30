@@ -13,6 +13,8 @@ import { BlockageMeasure, CapacityMeasure, HeightMeasure, Measure, type IMeasure
 import type { NotificationLog } from "../../notification-log";
 
 import measuresJSON from "./measure-config.json";
+import type { FloodLayerController } from "$lib/components/map-cesium/MapToolFlooding/layer-controller";
+import type { GeoJSONFeature } from "$lib/components/map-cesium/module/providers/ogc-features-provider";
 
 
 export class RoadNetwork {
@@ -20,6 +22,7 @@ export class RoadNetwork {
 	public map: Map;
 	private routingAPI: RoutingAPI;
 	private outline: Array<[lon: number, lat: number]>;
+	private floodedRoadFeatures: GeoJSONFeature[] | undefined;
 
 	private roadNetworkLayer: RoadNetworkLayer;
 	private extractionPointIds: Array<string> = ["42376", "83224", "77776"];
@@ -38,7 +41,7 @@ export class RoadNetwork {
 
 	public loaded: Writable<boolean> = writable(false);
 
-	constructor(map: Map, elapsedTime: Writable<number>, outline: Array<[lon: number, lat: number]>, notificationLog: NotificationLog) {
+	constructor(map: Map, elapsedTime: Writable<number>, outline: Array<[lon: number, lat: number]>, notificationLog: NotificationLog, floodLayerController: FloodLayerController) {
 		this.map = map;
 		this.elapsedTime = elapsedTime;
 		this.routingAPI = new RoutingAPI();
@@ -97,6 +100,7 @@ export class RoadNetwork {
 		this.loadRoadNetwork().then(() => {
 			//this.assignSegmentsToMeasures();
 			this.elapsedTime.subscribe((time: number) => this.cleanSetRoutingGraph(time));
+			// this.floodLayerController.getFloodedRoadWritableFeatures().subscribe((floodedRoadFeatures) => {this.fl}) TODO: dit fixen om graph op te halen
 			this.loaded.set(true);
 		});
 	}
@@ -112,6 +116,7 @@ export class RoadNetwork {
 		}).map(([id, floodHeight]) => id);
 		const blockedSegments = this.measures.filter((measure) => measure instanceof BlockageMeasure);
 		const overloadedSegments = this.roadNetworkLayer.segments.filter((segment) => segment.overloaded(time)).map((segment) => segment.id);
+		
 		this.routingAPI.onTimeUpdate(floodedSegmentsWithMeasures, overloadedSegments);
 	}
 

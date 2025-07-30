@@ -7,6 +7,7 @@ import { Map as CesiumMap } from "$lib/components/map-cesium/module/map";
 import { Evacuation } from "./evacuation";
 import type { Game } from "../game";
 import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
+import type { FloodLayerController } from "../../../layer-controller";
 
 
 export class EvacuationController {
@@ -18,7 +19,7 @@ export class EvacuationController {
 	public hexagonLayer: HexagonLayer;
 	public evacuations!: Readable<Array<Evacuation>>;
 
-	constructor(game: Game) {
+	constructor(game: Game, floodLayerController: FloodLayerController) {
 		this.game = game;
 		this.map = game.map;
 		this.elapsedTime = game.elapsedTime;
@@ -33,7 +34,7 @@ export class EvacuationController {
 				}
 			);
 		});
-		this.roadNetwork = new RoadNetwork(this.map, this.elapsedTime, game.gameConfig.outlineRoadNetwork, game.notificationLog);
+		this.roadNetwork = new RoadNetwork(this.map, this.elapsedTime, game.gameConfig.outlineRoadNetwork, game.notificationLog, floodLayerController);
 		this.addMouseEvents();
 	}
 

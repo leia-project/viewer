@@ -1,7 +1,8 @@
-import type { Unsubscriber } from "svelte/store";
+import type { Unsubscriber, Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import * as turf from "@turf/turf";
 import type { Map } from "../map";
+import { writable } from 'svelte/store';
 
 
 interface OgcFeaturesTile {
@@ -109,11 +110,11 @@ export class OgcFeaturesProviderCesium {
 	private collection: Collection | undefined = undefined;
 	private availableCollections: Array<Collection> = [];
 	private outputFormat: string | undefined = "json";
-	public maxFeatures: number = 2000;
+	public maxFeatures: number = 1000;
 	public boundingRect: Cesium.Rectangle = Cesium.Rectangle.MAX_VALUE;
 
 	public dynamicLoading: boolean = false;
-	private OgcFeaturesLoaderCesium!: OgcFeaturesLoaderCesium;
+	public OgcFeaturesLoaderCesium!: OgcFeaturesLoaderCesium;
 	public allowPicking: boolean;
 	
 	public setupPromise: Promise<void> | undefined;
@@ -121,6 +122,7 @@ export class OgcFeaturesProviderCesium {
 
 	private switchRateLimiter: RateLimiter = new RateLimiter(500);
 	private switchAbortController: AbortController | undefined;
+	
 
 	constructor(map: Map, url: string, options: Partial<OgcFeaturesConstructorOptions>, parameters?: Record<string, string>) {
 		const {
@@ -354,6 +356,8 @@ abstract class OgcFeaturesLoaderCesium {
 	public loadedFeatures: Array<string> = [];
 	private terrainUnsubscriber: Unsubscriber | undefined;
 	private cachedTerrainProvider: Cesium.TerrainProvider | undefined;
+	public features: Array<GeoJSONFeature> | undefined;
+	public writableFeatures: Writable<GeoJSONFeature[] | undefined> = writable();
 
 	constructor(OgcFeatures: OgcFeaturesProviderCesium) {
 		this.OgcFeatures = OgcFeatures;
@@ -658,7 +662,6 @@ abstract class OgcFeaturesLoaderCesium {
 
 export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 
-	private features: Array<GeoJSONFeature> | undefined;
 	//private primitives: Array<Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive> | undefined;
 
 	constructor(OgcFeatures: OgcFeaturesProviderCesium) {
@@ -672,6 +675,7 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 
 	public async loadFeatures(): Promise<void> {
 		const features = await this.OgcFeatures.getFeature(undefined, this.OgcFeatures.parameters);
+		this.writableFeatures?.set(features);
 		this.features = features || [];
 	}
 
@@ -724,12 +728,16 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 			return false;
 		});
 	}
+
+	public getLoadedFeatureIds(): string[] {
+		return this.features?.map(f => f.id) ?? [];
+	}
 }
 
 
 
 export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
-
+	
 	private heightStartLoading: number;
 	private viewDistance: number;
 	private tileSizeRad: number;
@@ -751,7 +759,7 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 		this.tileSizeRad = tileWidth / 6378137.0; // to radians
 		this.cacheBuster = cacheBuster;
 	}
-
+	
 	public activate(): void {
 		super.activate();
 		this.OgcFeatures.map.viewer.scene.camera.changed.addEventListener(this.loadHandle);
