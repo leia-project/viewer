@@ -12,8 +12,8 @@
 <div class="pill-container">
 	<svelte:component this={icon} size={20} color={color} />
 	<div class="pill-text">
-		<span style="color: {color}">{label}</span>
-		<span>{value} {unit}</span>
+		<span class="pill-label">{label}</span>
+		<span class="pill-value">{value} {unit}</span>
 	</div>
 </div>
 
@@ -25,8 +25,8 @@
 		flex-direction: row;
 		align-items: center;
 		column-gap: 0.75rem;
-		background-color: rgba(var(--game-color-bg), 0.7);
-		color: var(--game-color-contrast);
+		background-color: rgba(var(--game-color-bg), 0.8);
+		color: var(--game-color-highlight);
 		backdrop-filter: blur(8px);
 		padding: 0.25rem;
 		padding-right: 1rem;
@@ -40,7 +40,12 @@
    .pill-text span {
 		font-size: 0.8rem;
    }
-   .pill-text span:first-child {
-		font-weight: bold;
+   .pill-label {
+		font-weight: 500;
+		color: var(--game-color-highlight);
+   }
+   .pill-value {
+		font-weight: 700;
+		color: var(--game-color-contrast);
    }
 </style>

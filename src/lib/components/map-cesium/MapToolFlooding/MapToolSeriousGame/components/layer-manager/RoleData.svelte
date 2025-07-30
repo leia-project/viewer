@@ -21,23 +21,23 @@
     <div>
         <span>Hexagon kaartlagen</span>
         {#if $activeGame}
-            <HexagonLayerControl layer={$activeGame?.evacuationController.hexagonLayer}></HexagonLayerControl>
+            <HexagonLayerControl layer={$activeGame.evacuationController.hexagonLayer} />
         {/if}
     </div>
-    <br><br>
     <div>
-        <span>Gedeelde kaartlagen</span>
+        <span>Achtergrondlagen</span>
         {#each mainLayers as mL}
             <BaseLayer layer={mL}></BaseLayer>
         {/each}
     </div>
-    <br><br>
-    <div>
-        <span>Rol specifieke kaartlagen</span>
-        {#each roleLayers as rL}
-            <BaseLayer layer={rL}></BaseLayer>
-        {/each}
-    </div>
+    {#if roleLayers.length > 0}
+        <div>
+            <span>Rol specifieke kaartlagen</span>
+            {#each roleLayers as rL}
+                <BaseLayer layer={rL}></BaseLayer>
+            {/each}
+        </div>
+    {/if}
 </section>
 
 <style>
