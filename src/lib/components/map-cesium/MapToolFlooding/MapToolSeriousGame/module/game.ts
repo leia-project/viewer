@@ -62,7 +62,7 @@ export class Game {
 	public elapsedTimeDynamic: Writable<number>;
 	private interval: NodeJS.Timeout | undefined;
 
-	private floodLayerController: FloodLayerController;
+	public floodLayerController: FloodLayerController;
 	public evacuationController: EvacuationController;
 	public loaded: Writable<boolean> = writable(false);
 
@@ -93,7 +93,7 @@ export class Game {
 		});
 		this.startTime = new Date(gameConfig.breachTimeDateString).getTime();
 		this.elapsedTimeDynamic.subscribe((t) => {
-			this.map.options.dateTime.set(this.startTime + t * 1000);
+			this.map.options.dateTime.set(this.startTime + t * 3600 * 1000);
 		});
 	}
 
@@ -131,7 +131,8 @@ export class Game {
 			message: `Time forwarded to ${steps[get(this.step)].title}`,
 			type: NotificationType.INFO
 		});
-	
+		
+		this.elapsedTimeDynamic.set(steps[get(this.step)].time);
 		this.step.update((value) => {
 			if (direction === "next" && value < steps.length - 1) {
 				return value + 1;
@@ -146,17 +147,22 @@ export class Game {
 		if (this.interval) {
 			clearInterval(this.interval);
 		}
-	
+		
 		this.interval = setInterval(() => {
 			this.elapsedTimeDynamic.update((value) => {
 				if (direction === "next") {
-					return value + 0.1;
+					return Math.min(value + 0.1, newTime);
+				} else if (direction === "previous") {
+					return Math.max(value - 0.1, newTime);
 				} else if (value > newTime) {
 					return value - 0.1;
 				}
 				return value;
 			});
-			if (get(this.elapsedTimeDynamic) >= newTime) {
+			if (
+				(direction === "next" && get(this.elapsedTimeDynamic) >= newTime) ||
+				(direction === "previous" && get(this.elapsedTimeDynamic) <= newTime)
+			) {
 				this.forwarding.set(false);
 				this.elapsedTimeDynamic.set(newTime);
 				clearInterval(this.interval);

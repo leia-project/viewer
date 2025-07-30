@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Button } from "carbon-components-svelte";
 	import { Exit } from "carbon-icons-svelte";
 	import type { MarvinApp } from "../../Marvin/marvin";
 	import type { GameController } from "../module/game-controller";
@@ -10,6 +9,7 @@
 	import StartMenu from "./StartMenu.svelte";
 	import MapControls from "./MapControls.svelte";
 	import DataMenu from "./data/DataMenu.svelte";
+	import GameButton from "./general/GameButton.svelte";
 
 	export let gameController: GameController;
 	export let marvinApp: MarvinApp;
@@ -28,12 +28,11 @@
 			<div id="top-left">
 				<Notifications notificationLog={$activeGame.notificationLog}>
 					<svelte:fragment slot="extra-buttons">
-						<Button
+						<GameButton
 							icon={Exit}
-							iconDescription="Menu"
-							tooltipPosition="right"
-							size="default"
-							kind="secondary"
+							hasTooltip={false}
+							size={24}
+							borderHighlight={true}
 							on:click={() => showStartMenu = !showStartMenu}
 						/>
 					</svelte:fragment>
@@ -45,14 +44,16 @@
 			<div id="top-right">
 				<MarvinMenu app={marvinApp} />
 			</div>
-			<div id="bottom-left">
-				<DataMenu {gameController} />
-			</div>
-			<div id="bottom-center">
-				<TimeControl game={$activeGame} />
-			</div>
-			<div id="bottom-right">
-				<MapControls game={$activeGame} />
+			<div id="bottom">
+				<div id="bottom-left">
+					<DataMenu {gameController} />
+				</div>
+				<div id="bottom-center">
+					<TimeControl game={$activeGame} />
+				</div>
+				<div id="bottom-right">
+					<MapControls game={$activeGame} />
+				</div>
 			</div>
 
 			{#if showStartMenu}
@@ -68,8 +69,11 @@
 	#game-container {
 		--game-color-bg: 33, 33, 33;
 		--game-color-contrast: #f0f0f0;
-		--game-color-highlight: #ff9800;
+		--game-color-highlight: #9ccddc;
 		--game-color-text: #ffffff;
+	}
+	#game-container > div {
+		z-index: 10;
 	}
 
 	#top-left {
@@ -91,33 +95,28 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		display: flex;
-		justify-content: flex-end;
 		padding: 1rem;
 		max-height: 80vh;
 		overflow-y: auto;
+		overflow-x: hidden;
+		pointer-events: none;
 	}
 
-	#bottom-left {
+	#bottom {
 		position: absolute;
 		bottom: 0;
 		left: 0;
-		display: flex;
-		justify-content: flex-start;
-	}
-	 #bottom-center {
-		position: absolute;
-		bottom: 0;
-		left: 50%;
-		transform: translateX(-50%);
-		display: flex;
-		justify-content: center;
+		right: 0;
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		background-color: rgba(var(--game-color-bg), 0.8);
+		backdrop-filter: blur(10px);
+		padding: 0.25rem;
+		color: var(--game-color-text);
 	}
 	#bottom-right {
-		position: absolute;
-		bottom: 0;
-		right: 0;
 		display: flex;
 		justify-content: flex-end;
+		align-items: center;
 	}
 </style>

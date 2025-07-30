@@ -23,6 +23,7 @@ export class RoadNetwork {
 	private routingAPI: RoutingAPI;
 	private outline: Array<[lon: number, lat: number]>;
 	private floodedRoadFeatures: GeoJSONFeature[] | undefined;
+	private personsPerCar: number = 4;
 
 	private roadNetworkLayer: RoadNetworkLayer;
 	private extractionPointIds: Array<string> = ["42376", "83224", "77776"];
@@ -35,6 +36,7 @@ export class RoadNetwork {
 	private selectedNode: Writable<RouteSegment | Measure | undefined> = writable(undefined);
 	private selectBox: NodeHoverBox | undefined;
 	public selectTimeOut: NodeJS.Timeout | undefined;
+	private currentlyHovered: RouteSegment | Measure | undefined = undefined;
 	public hoveredNode: Writable<RouteSegment | Measure | undefined> = writable(undefined);
 	private hoverBox: NodeHoverBox | undefined;
 	public hoverTimeOut: NodeJS.Timeout | undefined;
@@ -56,9 +58,11 @@ export class RoadNetwork {
 		this.init();
 
 		this.selectedNode.subscribe((node) => {
+			this.selectSubscribe(node);
 			if (node instanceof RouteSegment || node instanceof Measure) {
 				this.hoverBox?.$destroy();
 				this.selectBox?.$destroy();
+				if (this.selectTimeOut) clearTimeout(this.selectTimeOut);
 				this.selectBox = new NodeHoverBox({
 					target: this.map.getContainer(),
 					props: {
@@ -75,8 +79,10 @@ export class RoadNetwork {
 			}
 		});
 		this.hoveredNode.subscribe((node) => {
+			this.hoverSubscribe(node);
 			if ((node instanceof RouteSegment || node instanceof Measure) && node !== get(this.selectedNode)) {
 				this.hoverBox?.$destroy();
+				if (this.hoverTimeOut) clearTimeout(this.hoverTimeOut);
 				this.hoverBox = new NodeHoverBox({
 					target: this.map.getContainer(),
 					props: {
@@ -159,23 +165,27 @@ export class RoadNetwork {
 		this.measures = measures.filter((m) => m !== undefined) as Array<Measure>;
 	}
 
-	public async evacuateHexagon(hexagon: Hexagon): Promise<Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, numberOfPersons: number }> | undefined> {
-		const chunkSize = 1000; // Number of persons to evacuate in one go
+	public async evacuateHexagon(hexagon: Hexagon): Promise<Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment,  evacuatedCars: number, numberOfPersons: number }> | undefined> {
+		//const chunkSize = 500; // Number of people to evacuate in one go
 		const totalPersons = hexagon.population;
-		const evacuationRoutes: Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, numberOfPersons: number }> = [];
-		let remainingPersons = totalPersons;
+		const evacuationRoutes: Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, evacuatedCars: number, numberOfPersons: number }> = [];
+		let remainingPersons = totalPersons - get(hexagon.totalEvacuated);
 		while (remainingPersons > 0) {
-			const numberOfPersons = Math.min(remainingPersons, chunkSize);
-			const evacuationRoute = await this.createEvacuationRoute(hexagon.center, numberOfPersons);
+			const maxNumberOfCars = Math.ceil(remainingPersons / this.personsPerCar);
+			const evacuationRoute = await this.createEvacuationRoute(hexagon, maxNumberOfCars);
 			if (!evacuationRoute) {
-				console.error("No evacuation route found or route is empty.");
-				return;
+				break;
+			}
+			let evacuatedPersons = evacuationRoute.evacuatedCars * this.personsPerCar;
+			// Ensure we do not evacuate more than remaining persons. The last car may not be full.
+			if (evacuatedPersons > remainingPersons) {
+				evacuatedPersons = remainingPersons;
 			}
 			evacuationRoutes.push({
 				...evacuationRoute,
-				numberOfPersons: numberOfPersons
+				numberOfPersons: evacuatedPersons
 			});
-			remainingPersons -= numberOfPersons;
+			remainingPersons -= evacuatedPersons;
 		}
 		if (evacuationRoutes.length === 0) {
 			console.error("No evacuation routes created.");
@@ -184,7 +194,7 @@ export class RoadNetwork {
 		return evacuationRoutes;
 	}
 
-	public async createEvacuationRoute(origin: [lon: number, lat: number], numberOfPersons: number): Promise<{ route: Array<RouteSegment>, extractionPoint: RouteSegment } | undefined> {
+	public async createEvacuationRoute(hexagon: Hexagon, maxNumberOfCars: number): Promise<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, evacuatedCars: number } | undefined> {
 		const selectedExtractionPoint = get(this.selectedExtractionPoint);
 		if (!selectedExtractionPoint) {
 			return;
@@ -193,31 +203,51 @@ export class RoadNetwork {
 			selectedExtractionPoint.lon,
 			selectedExtractionPoint.lat
 		];
-		const route = await this.routingAPI.getRoute(origin, extractionLocation);
 
+		// 1. Get the shortest route to the extraction point
+		let route: { type: string; features: Array<RouteFeature>; } | undefined;
+		for (const evacuationPoint of hexagon.evacuationPoints) {
+			route = await this.routingAPI.getRoute(evacuationPoint, extractionLocation);
+			if (route && route.features.length > 0) break;
+		}
 		if (!route || route.features.length === 0) {
 			console.error("No route found or route is empty.");
-   			return;
+			return;
 		}
 
-		// Update capacities
+		const currentStep = get(this.elapsedTime);
+
+		// 2. Determine how many cars can be evacuated based on the route segments
+		let minAvailableCarLoad = Infinity;
 		const routeSegments: Array<RouteSegment> = [];
 		route.features.forEach((feature: RouteFeature) => {
 			const routeSegment = this.roadNetworkLayer.getItemById(feature.properties.fid.toString());
 			if (routeSegment) {
-				routeSegment.addLoad(numberOfPersons, get(this.elapsedTime));
+				if (routeSegment.availableLoad < minAvailableCarLoad) {
+					minAvailableCarLoad = routeSegment.availableLoad;
+				}
 				routeSegments.push(routeSegment);
 			}
 		});
+		if (minAvailableCarLoad === Infinity || minAvailableCarLoad <= 0) {
+			console.error("No available car load on the route segments.");
+			return;
+		}
+		if (minAvailableCarLoad > maxNumberOfCars) {
+			minAvailableCarLoad = maxNumberOfCars;
+		}
 
-		// Update graph
-		const currentStep = get(this.elapsedTime);
-		const overloadedSegments = routeSegments.filter((segment) => (segment.loadPerTimeStep.get(currentStep) || 0) > segment.capacity);
+		// 3. Update graph
+		routeSegments.forEach((segment) => {
+			segment.addLoad(minAvailableCarLoad, currentStep);
+		});
+		const overloadedSegments = routeSegments.filter((segment) => (segment.loadPerTimeStep.get(currentStep) || 0) >= segment.capacity);
 		this.routingAPI.removeSegments(overloadedSegments.map((segment) => segment.id));
 
 		return {
 			route: routeSegments,
-			extractionPoint: selectedExtractionPoint
+			extractionPoint: selectedExtractionPoint,
+			evacuatedCars: minAvailableCarLoad
 		};
 	}
 
@@ -225,70 +255,75 @@ export class RoadNetwork {
 		// remove loads from road segments
 		evacuation.route.forEach((routeSegment) => {
 			routeSegment.removeLoad(evacuation.numberOfPersons, get(this.elapsedTime));
-     	});
+		});
 
 		// update graph
 	}
 
-	public onLeftClick(picked: any): void {
+	private getPickedItem(picked: any): RouteSegment | Measure | undefined {
 		let pickedItem: RouteSegment | Measure | undefined;
-		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
-			if (typeof picked?.id === "string" && picked.id.endsWith("-top")) {
-				picked.id = picked.id.slice(0, -4); // Remove "-top" suffix to get the hexagon id when clicking top hexagons
+		if ((picked?.primitive instanceof Cesium.Primitive || picked?.primitive instanceof Cesium.GroundPolylinePrimitive) && picked?.id) {
+			if (typeof picked?.id === "string") {
+				if (picked.id.endsWith("-top")) {
+					const itemId = picked.id.slice(0, -4);
+					pickedItem = this.roadNetworkLayer.getItemById(itemId);
+				} else if (picked.id.startsWith("segment-")) {
+					const itemId = picked.id.replace("segment-", "");
+					pickedItem = this.roadNetworkLayer.getItemById(itemId);
+				} else if (picked.id.startsWith("measure-")) {
+					const measureName = picked.id.split("-")[2];
+					pickedItem = this.measures.find((m) => m.config.name === measureName);
+				}
 			}
+		} else if (picked?.id instanceof Cesium.Entity) {
+			const entity = picked.id as Cesium.Entity;
+			if (entity.id.startsWith("measure-")) {
+				pickedItem = this.measures.find((m) => m.config.name === entity.name);
+			}
+		}
+		return pickedItem;
+	}
+
+
+	public onLeftClick(picked: any): void {
+		const pickedItem = this.getPickedItem(picked);
+		this.selectedNode.set(pickedItem);
+
+		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
 			const extractionPointId = this.extractionPointIds.find((id) => id === picked.id);
 			if (extractionPointId) {
 				const extractionPoint = this.roadNetworkLayer.getItemById(extractionPointId);
 				if (extractionPoint) this.selectedExtractionPoint.set(extractionPoint);
 			}
-			pickedItem = this.roadNetworkLayer.getItemById(picked.id);
-		} else if (picked?.id instanceof Cesium.Entity) {
-			const entity = picked.id as Cesium.Entity;
-			if (entity.id.startsWith("measure-")) {
-				const measureName = entity.id.replace("measure-", "").replace("line-", "");
-				pickedItem = this.measures.find((m) => m.config.name === measureName);
-			} else if (entity.id.startsWith("segment-")) {
-				const segmentId = entity.id.replace("segment-", "");
-				const segment = this.roadNetworkLayer.getItemById(segmentId);
-				pickedItem = segment;
-			}
 		}
-
-		const currentlyHovered = get(this.hoveredNode);
-		if (currentlyHovered && currentlyHovered !== pickedItem) {
-			currentlyHovered.highlight(false);
-		}
-		pickedItem?.highlight(true);
-
-		if (pickedItem) this.map.viewer.scene.canvas.style.cursor = "pointer";
-		this.selectedNode.set(pickedItem);
 	}
 
 	public onMouseMove(picked: any): void {
-		let pickedItem: RouteSegment | Measure | undefined;
-		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
-			if (typeof picked?.id === "string" && picked.id.endsWith("-top")) {
-				picked.id = picked.id.slice(0, -4); // Remove "-top" suffix to get the hexagon id when clicking top hexagons
-			}
-			pickedItem = this.roadNetworkLayer.getItemById(picked.id);
-		} else if (picked?.id instanceof Cesium.Entity) {
-			const entity = picked.id as Cesium.Entity;
-			if (entity.id.startsWith("segment-")) {
-				const entityID = entity.id.replace("segment-", "");
-				pickedItem = this.roadNetworkLayer.getItemById(entityID);
-			} else if (entity.id.startsWith("measure-")) {
-				pickedItem = this.measures.find((m) => m.config.name === entity.name);					
-			}
-		}
-
-		const currentlyHovered = get(this.hoveredNode);
-		if (currentlyHovered && currentlyHovered !== pickedItem && currentlyHovered !== get(this.selectedNode)) {
-			currentlyHovered.highlight(false);
-		}
-		pickedItem?.highlight(true);
-
-		if (pickedItem) this.map.viewer.scene.canvas.style.cursor = "pointer";
+		const pickedItem = this.getPickedItem(picked);
 		this.hoveredNode.set(pickedItem);
+	}
+
+	private selectSubscribe(s: RouteSegment | Measure | undefined): void {
+		if (this.currentlyHovered && this.currentlyHovered !== s) {
+			this.currentlyHovered.highlight(false);
+		}
+		if (s) {
+			s.highlight(true);
+			this.map.viewer.scene.canvas.style.cursor = "pointer";
+		}
+		this.map.refresh();
+	}
+
+	private hoverSubscribe(h: RouteSegment | Measure | undefined): void {
+		if (this.currentlyHovered && this.currentlyHovered !== h && this.currentlyHovered !== get(this.selectedNode)) {
+			this.currentlyHovered.highlight(false);
+		}
+		if (h) {
+			h.highlight(true);
+			this.map.viewer.scene.canvas.style.cursor = "pointer";
+			this.currentlyHovered = h;
+		}
+		this.map.refresh();
 	}
 	
 }

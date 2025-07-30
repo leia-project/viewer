@@ -41,7 +41,7 @@
 			name: "Middelburg",
 			description: "The city of Middelburg is under water. Can you save the city?",
 			thumbnail: "https://via.placeholder.com/150",
-			breachTimeDateString: "2023-10-01T12:00:00+02:00",
+			breachTimeDateString: "2023-10-01T05:00:00+02:00",
 			breach: {
 				type: "Feature",
 				properties: {
@@ -178,6 +178,8 @@
 				gameController.play(levels[0]);
 			}}
 		>Start new game</Button>
+
+		<!-- General settings -->
 	</div>
 {/if}
 
