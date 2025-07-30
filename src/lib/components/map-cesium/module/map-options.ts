@@ -203,7 +203,11 @@ export class MapOptions {
 	public initTerrainProvider(): void {
 		const currentProviders = get(this.terrainProviders);
 		if(currentProviders.length > 0) {
-			this.selectedTerrainProvider.set(currentProviders[0]);	
+			// If use3DMode is false, start with the terrain turned off
+			const provider = !get(this.use3DMode) 
+				? currentProviders.find(p => p.title.toLowerCase() === 'uit') || currentProviders[0]
+				: currentProviders[0];
+			this.selectedTerrainProvider.set(provider);
 		}
 	}
 
