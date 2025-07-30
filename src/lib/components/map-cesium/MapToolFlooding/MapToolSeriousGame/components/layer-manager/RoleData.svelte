@@ -15,7 +15,7 @@
 
 </script>
 
-<section>
+<section class="role-data">
     <span><strong>{roleData.role}</strong></span>
     <br><br>
     <div>
@@ -42,8 +42,7 @@
 
 <style>
    
-
-    span {
+    .role-data {
         font-size: 1.5em;
     }
 </style>
