@@ -5,7 +5,7 @@
 
 	import type { Map } from "../module/map";
 
-	import Catalog from "carbon-icons-svelte/lib/Catalog.svelte";
+	import Book from "carbon-icons-svelte/lib/Book.svelte";
 	import { StoryStep } from "./StoryStep";
 	import { CameraLocation } from "$lib/components/map-core/camera-location";
 	import { Story } from "./Story";
@@ -19,7 +19,7 @@
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
 	let id: string = "stories";
-	export let icon: any = Catalog;
+	export let icon: any = Book;
 	export let label: string = "Stories";
 	export let textBack: string = "Back to overview";
 	export let textStepBack: string = "Step backward";

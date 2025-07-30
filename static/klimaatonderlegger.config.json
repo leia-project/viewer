@@ -539,7 +539,7 @@
     "viewer": {
         "title": "Klimaatonderlegger",
         "subTitle": "3D viewer",
-        "logo": "images/leia_logo.png",
+        "logo": "images/Stempel_ZeelandVerandertMee.png",
         "startPosition": {
             "x": 3.8844,
             "y": 51.5986,
@@ -548,7 +548,7 @@
             "pitch": -89.9,
             "duration": 1.50
         },
-        "startCameraMode3D": true,
+        "startCameraMode3D": false,
         "colors": {
             "ui-background": "#ffffff",
             "interactive-01": "#214170",
