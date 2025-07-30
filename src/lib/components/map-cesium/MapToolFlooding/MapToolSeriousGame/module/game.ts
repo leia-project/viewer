@@ -93,7 +93,7 @@ export class Game {
 		});
 		this.startTime = new Date(gameConfig.breachTimeDateString).getTime();
 		this.elapsedTimeDynamic.subscribe((t) => {
-			this.map.options.dateTime.set(this.startTime + t * 1000);
+			this.map.options.dateTime.set(this.startTime + t * 3600 * 1000);
 		});
 	}
 

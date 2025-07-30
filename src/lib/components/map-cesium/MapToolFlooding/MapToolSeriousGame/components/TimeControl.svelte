@@ -50,7 +50,7 @@
 		hasTooltip={true}
 		size={18}
 		borderHighlight={true}
-		on:click={() => game.changeStep("previous")}
+		on:click={() => game.changeStep("next")}
 	>
 		<svelte:fragment slot="popover">Ga verder (xx minuten)</svelte:fragment>
 	</GameButton>
