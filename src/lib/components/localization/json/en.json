@@ -4,6 +4,8 @@
         "loading": "Loading...",
         "on": "On",
         "off": "Off",
+        "open": "Open",
+        "close": "Close",
         "notifications": {
             "error": "Error",
             "warning": "Warning",
@@ -236,10 +238,15 @@
             "stepForward": "Step forward",
             "description": "Description",
             "statistics": "Statistics",
+            "storyChartTitle": "Class distribution",
+            "storyChartNoData": "No Data",
             "basemap": "Basemap",
             "requestDrawPolygon": "Draw a project area to retrieve data",
             "drawPolygon": "Draw Project Area",
-            "deletePolygon": "Delete Project Area"
+            "drawPolygonText": "Click on the 'Draw Project Area' button to start drawing on the map. Click to create a polygon. Right-click on the map to finish drawing.",
+            "deletePolygon": "Delete Project Area",
+            "projectAreaTool": "Project Area Tool",
+            "downloadPDF": "Download PDF"
         },
         "animation": {
             "speed": "Speed",

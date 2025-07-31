@@ -7,28 +7,31 @@
 
 	let cleanData: Array<{ name: string; value: number }> = [];
 	let color: Array<string>;
+	let toolTipText: string;
 
 	if (data) {
 		// Change name 'group' to 'name' for compatibility with echarts
 		cleanData = data.map(item => ({ name: item.group, value: item.value }));
 		color = ['#339966', '#99ffcc', '#ffff99', '#ffcc66', '#9c4110']; // A B C D E colors
+		toolTipText = '{b}: {d}%'; // Show group name and percentage
 	}
 	else {
 		cleanData = [
-			{ name: "No Data", value: 0 }
+			{ name: $_("tools.stories.storyChartNoData"), value: 0 }
 		];
 		color = ['#cccccc']; // Grey color for no data
+		toolTipText = $_("tools.stories.requestDrawPolygon");
 	}
 
 	let option = {
 		color: color, 
 		title: {
-			text: 'Verdeling per klasse',
+			text: $_("tools.stories.storyChartTitle"),
 			left: 0
 		},
 		tooltip: {
 			trigger: 'item',
-			formatter: '{b}: {d}%'
+			formatter: toolTipText
 		},
 		legend: {
 			orient: 'vertical',

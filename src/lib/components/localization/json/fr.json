@@ -4,6 +4,8 @@
         "loading": "Chargement...",
         "on": "Allumé",
         "off": "Éteint",
+        "open": "Ouvre",
+        "close": "Ferme",
         "notifications": {
             "error": "Erreur",
             "warning": "Avertissement",
@@ -227,10 +229,15 @@
             "stepForward": "Progresser",
             "description": "Description",
             "statistics": "Statistiques",
+            "storyChartTitle": "Distribution des classes",
+            "storyChartNoData": "Aucune donnée",
             "basemap": "Calque d'arrière-plan",
             "requestDrawPolygon": "Dessinez une zone de projet pour récupérer les données",
             "drawPolygon": "Dessiner la Zone de Projet",
-            "deletePolygon": "Supprimer la Zone de Projet"
+            "drawPolygonText": "Cliquez sur le bouton 'Dessiner la Zone de Projet' pour commencer à dessiner sur la carte. Cliquez pour créer un polygone. Cliquez avec le bouton droit de la souris sur la carte pour terminer le dessin.",
+            "deletePolygon": "Supprimer la Zone de Projet",
+            "projectAreaTool": "Outil de Zone de Projet",
+            "downloadPDF": "Télécharger le PDF"
         },
         "animation": {
             "speed": "Vitesse",

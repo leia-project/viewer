@@ -8,13 +8,15 @@ export class Story {
     public storyChapters: Array<StoryChapter>;
     public width: string | undefined;
     public force2DMode: boolean | undefined;
+    public requestPolygonArea: boolean | undefined;
     
-    constructor(name: string, description: string, storyChapters: Array<StoryChapter>, width: string | undefined = undefined, force2DMode: boolean | undefined) {
+    constructor(name: string, description: string, storyChapters: Array<StoryChapter>, width: string | undefined = undefined, force2DMode: boolean | undefined, requestPolygonArea: boolean | undefined) {
         this.name = name;
         this.description = description;
         this.storyChapters = storyChapters;
         this.width = width;
         this.force2DMode = force2DMode;
+        this.requestPolygonArea = requestPolygonArea;
     }
 
     getStoryLayers(): Array<StoryLayer> {

@@ -54,7 +54,9 @@ export class Map extends MapCore {
 			this.addTerrainProvider(this.viewerSettings.terrain);
 		}
 
-		this.options.initTerrainProvider()
+		this.options.initCameraMode(this.config);
+		this.options.initTerrainProvider();
+
 		this.home();
 	}
 

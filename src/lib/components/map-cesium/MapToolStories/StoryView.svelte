@@ -2,10 +2,12 @@
 	import { _ } from "svelte-i18n";
 	import * as Cesium from "cesium";
 	import { onMount, getContext, onDestroy, createEventDispatcher } from "svelte";
-	import { writable, get } from "svelte/store";
+	import { writable, get, type Writable } from "svelte/store";
 	import { Button, PaginationNav, Tag, Loading } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
-	import Edit from "carbon-icons-svelte/lib/Edit.svelte";
+	import ChevronDown from "carbon-icons-svelte/lib/ChevronDown.svelte";
+	import ChevronUp from "carbon-icons-svelte/lib/ChevronUp.svelte";
+	import { DocumentDownload } from "carbon-icons-svelte";
 	import "@carbon/charts-svelte/styles.css";
 
 	import type { Story } from "./Story";
@@ -23,13 +25,24 @@
 	import { getCameraPositionFromBoundingSphere } from "../module/utils/layer-utils";
 	import { polygonStore } from './PolygonEntityStore';
 	import StoryChart from "./StoryChart.svelte";
-	import { Checkbox } from "carbon-components-svelte";
+	import ChoroplethMap from "carbon-icons-svelte/lib/ChoroplethMap.svelte";
+
+	type SubLabel = {
+		text: string;
+		hoverText: string;
+	};
+
+	type LegendItem = {
+		labels: string;
+		text: string;
+		subLabels?: {
+			[key: string]: SubLabel;
+		};
+	};
 
 	type LegendOptions = {
 		generalLegendText: string;
-		legendOptions: {
-			[key: string]: string;
-		};
+		legendOptions: LegendItem[];
 	};
 
 	export let map: Map;
@@ -64,25 +77,49 @@
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
 
 	let polygonArea: number = 0;
-	let hasDrawnPolygon: boolean;
+	let hasDrawnPolygon: Writable<boolean> = writable(false);
 	let polygonCameraLocation: CameraLocation | undefined = undefined; // Used instead of CL if project area is drawn by user
 	let distributions: Array<{ group: string; value: number }[]>;
-	let showPolygonMenu = false;
+	let showPolygonMenu: Writable<boolean> = writable(true);
 	let baseLayer: Layer | undefined;
 	let baseMapVisible = writable(true);
 
 	$: shown = Math.floor(width / 70);
 	$: baseLayer?.visible.set($baseMapVisible);
 
+
+	// Update layer visibility based on the polygon drawn state
+	const unsubscribeHasDrawnPolygon = hasDrawnPolygon.subscribe(polygonDrawn => {
+		if (story.requestPolygonArea && polygonDrawn) {
+			changeActiveLayersVisibility(activeStep, true);
+		}
+		else if (story.requestPolygonArea && !polygonDrawn) {
+			changeActiveLayersVisibility(activeStep, false);
+		}
+	});
+
+
+	// Change visibility of all active layers in the active step
+	function changeActiveLayersVisibility(activeStep: StoryStep | undefined, visible: boolean): void {
+		if (activeStep && activeStep.layers) {
+			for (let i = 0; i < activeStep.layers.length; i++) {
+				const layerId = activeStep.layers[i].id.toString();
+				const added = getAdded(layerId);
+				// Make the layer invisible if the polygon is not drawn but is required
+				if (added) {
+					added.visible.set(visible);
+				}
+			}
+		}
+	}
+	
+	// Fly to polygon entity when its drawn
 	const unsubscribePolygonEntity = polygonStore.subscribe(polygon => {
 		if (polygon?.polygonEntity) {
 			const use3DMode = get(map.options.use3DMode);
 			const vertices: Array<number> = [];
-
-			// Assuming the entity has a polygon or polyline geometry
 			const entity = polygon.polygonEntity;
 
-			// You probably mean polygon geometry, not polyline — adjust as needed
 			const positions = entity.polygon?.hierarchy?.getValue(map.viewer.clock.currentTime)?.positions
 				|| entity.polyline?.positions?.getValue(map.viewer.clock.currentTime);
 
@@ -191,13 +228,6 @@
 		} // Set this again because apparently OnMount is slower than a subscribe :/
 		const index = page - 1;
 
-		// Flatten the steps across all chapters so we can access the correct step based on the index
-		const flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
-		story.storyChapters.forEach((chapter) => {
-			chapter.steps.forEach((step) => {
-				flattenedSteps.push({ step, chapter });
-			});
-		});
 		const activeEntry = flattenedSteps[index];
 		activeChapter = activeEntry.chapter;
 		activeChapterSteps = activeChapter.steps;
@@ -211,20 +241,42 @@
 		if (activeStep) {
 			cesiumMap.flyTo(polygonCameraLocation ?? activeStep.cameraLocation);
 			if (activeStep.layers) {
-				hideInactiveLayers(activeStep.layers);
+				if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
+					storyLayers.forEach(layer => layer.visible.set(false));
+				}
+				else {
+					hideInactiveLayers(activeStep.layers);
+				}
 				for (let i = 0; i < activeStep.layers?.length; i++) {
 					const layerId = activeStep.layers[i].id.toString();
 					const added = getAdded(layerId);
 
 					if (added) {
-						added.visible.set(true);
+						if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
+							// Layer already added, polyon not drawn but is required
+							added.visible.set(false);
+						} else {
+							// Layer already added, no polygon required or already drawn
+							added.visible.set(true);
+						}
 						continue
 					}
 
+					// If the layer is not added yet, add it
 					const libraryLayer = getLibraryLayer(layerId);
 					if (libraryLayer) {
 						const layerConfig = storyLayerToLayerConfig(activeStep.layers[i], libraryLayer);
 						const layer = map.addLayer(layerConfig);
+						console.log("hiiding layer:", layer.id);
+
+						if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
+							// No polyon drawn but is required
+							layer.visible.set(false);
+						}
+						else {
+							// No polygon required or already drawn
+							layer.visible.set(true);
+						}
 						storyLayers.push(layer);
 					}
 				}
@@ -391,6 +443,23 @@
 		dispatch("closeStory");
 	}
 
+	function shouldShowLegend(legendEntry: LegendItem, distribution: Array<{ group: string; value: number }>) {
+		return Array.from(legendEntry.labels).some(label =>
+			distribution.some(d => d.group === label && d.value > 0)
+		);
+	}
+
+	async function downloadPDF() {
+		const response = await fetch('/Teksten_Conceptrapportage_Klimaatonderlegger Zeeland_Defacto.pdf');
+		const blob = await response.blob();
+
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = 'MyDocument.pdf';
+		link.click();
+		URL.revokeObjectURL(url); // cleanup
+	}
 </script>
 
 <div class="story" bind:clientWidth={width}>
@@ -407,26 +476,40 @@
 			{story.name}
 		</div>
 		<div class="nav-controls">
-			<div class="toggle-basemap">
-				<Checkbox
-				labelText={$_("tools.stories.basemap")}
-				bind:checked={$baseMapVisible}
-			/>
-			</div>
-			<div class="draw-polygon">
+			<div class="download-pdf">
 				<Button
-					kind={showPolygonMenu ? "primary" : "secondary"}
-					iconDescription="Projectgebied Tool"
-					tooltipPosition="left"
-					icon={Edit}
-					on:click={() => showPolygonMenu = !showPolygonMenu} 
+					kind={"tertiary"}
+					iconDescription={$_("tools.stories.downloadPDF")}
+					tooltipPosition="top"
+					icon={DocumentDownload}
+					on:click={downloadPDF} 
 				/>
 			</div>
+			<div class="toggle-basemap">
+				<Button
+					kind="tertiary"
+					iconDescription={$baseMapVisible ? `${$_("general.close")} ${$_("tools.stories.basemap")}` : `${$_("general.open")} ${$_("tools.stories.basemap")}`}
+					tooltipPosition="top"
+					icon={ChoroplethMap}
+					on:click={() => $baseMapVisible = !$baseMapVisible}
+				/>
+			</div>
+			{#if story.requestPolygonArea}
+				<div class="draw-polygon">
+					<Button
+						kind={"primary"}
+						iconDescription={showPolygonMenu ? `${$_("general.open")} ${$_("tools.stories.projectAreaTool")}` : `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
+						tooltipPosition="top"
+						icon={$showPolygonMenu ? ChevronDown : ChevronUp}
+						on:click={() => $showPolygonMenu = !$showPolygonMenu} 
+					/>
+				</div>
+			{/if}
 			<div class="close">
 				<Button
 					kind="tertiary"
 					iconDescription={textBack}
-					tooltipPosition="left"
+					tooltipPosition="top"
 					icon={Exit}
 					on:click={backToOverview} 
 				/>
@@ -436,10 +519,12 @@
 		<!-- <div class="story-description body-compact-01">
 			{story.description}
 		</div> -->
-
+		{#if story.requestPolygonArea}
+			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={showPolygonMenu}/>
+		{/if}
 		<div class="chapter-buttons">
-			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
-			{#each story.storyChapters as chapter, index}
+			
+				{#each story.storyChapters as chapter, index}
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}
 					size="small"
@@ -499,29 +584,44 @@
 				<!-- <div class="step-heading-sub heading-03">
 					{$_("tools.stories.statistics")}
 				</div> -->
-				<br><br>
+				<br>
 				<div class="step-stats">
-					{#if distributions && distributions[index]}
-						<StoryChart data={distributions[index]} />
-						<br><br><br>
-						{#if layerLegends[index].generalLegendText}
-							{@html layerLegends[index].generalLegendText}
-						{/if}
-						<ul>
-							{#each distributions[index] as key}
-								{#if layerLegends[index].legendOptions && key.value > 0 && layerLegends[index].legendOptions[key.group]} 
-									<li>
-										<strong>{key.group}: </strong>{layerLegends[index].legendOptions[key.group]}
-									</li>
-									<br>
+					{#if story.requestPolygonArea}
+						{#if distributions && distributions[index]}
+							<StoryChart data={distributions[index]} />
+							<br><br><br>
+							{#if layerLegends[index].generalLegendText}
+								{@html layerLegends[index].generalLegendText}
+							{/if}
+							<ul>
+								{#if layerLegends[index].legendOptions}
+									{#each layerLegends[index].legendOptions as legendEntry}
+										{#if shouldShowLegend(legendEntry, distributions[index])}
+											<li>
+												{legendEntry.text}
+												{#if legendEntry.subLabels}
+													<ul>
+														{#each Array.from(legendEntry.labels) as label}
+															{#if legendEntry.subLabels[label]}
+																{#if distributions[index].find(d => d.group === label && d.value > 0)}
+																	<li title={legendEntry.subLabels[label].hoverText}>
+																		{legendEntry.subLabels[label].text}
+																	</li>
+																{/if}
+															{/if}
+														{/each}
+													</ul>
+												{/if}
+											</li>
+										{/if}
+									{/each}
 								{/if}
-							{/each}
-						</ul>
-					{:else if hasDrawnPolygon}
-						<StoryChart data={undefined} loading={true} />
-					{:else}
-						<StoryChart data={undefined} />
-						<strong>{$_("tools.stories.requestDrawPolygon")}</strong>
+							</ul>
+						{:else if $hasDrawnPolygon}
+							<StoryChart data={undefined} loading={true} />
+						{:else}
+							<StoryChart data={undefined} />
+						{/if}
 					{/if}
 				</div>
 				<div class="tag">
@@ -561,6 +661,7 @@
 		position: absolute;
 		top: 0;
 		right: 0;
+		margin-left: 1rem;
 	}
 
 	.nav .draw-polygon {

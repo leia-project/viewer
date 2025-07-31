@@ -4,6 +4,8 @@
         "loading": "Laden...",
         "on": "Aan",
         "off": "Uit",
+        "open": "Open",
+        "close": "Sluit",
         "notifications": {
             "error": "Error",
             "warning": "Waarschuwing",
@@ -243,10 +245,15 @@
             "stepForward": "Stap vooruit",
             "description": "Beschrijving",
             "statistics": "Statistieken",
+            "storyChartTitle": "Verdeling per klasse",
+            "storyChartNoData": "Geen Data",
             "basemap": "Achtergrondkaart",
             "requestDrawPolygon": "Teken een projectgebied in om data op te halen",
             "drawPolygon": "Teken Projectgebied",
-            "deletePolygon": "Verwijder Projectgebied"
+            "drawPolygonText": "Klik op de 'Teken projectgebied' knop om te beginnen met tekenen op de kaart. Klik om een vlak te creëren. Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.",
+            "deletePolygon": "Verwijder Projectgebied",
+            "projectAreaTool": "Projectgebied Tool",
+            "downloadPDF": "Download PDF"
         },
         "animation": {
             "speed": "Snelheid",

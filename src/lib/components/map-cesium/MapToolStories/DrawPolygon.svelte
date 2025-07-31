@@ -1,7 +1,7 @@
 <script lang="ts">
     import * as Cesium from "cesium";
 	import { _ } from "svelte-i18n";
-	import { Button } from "carbon-components-svelte";
+    import { Button, Tooltip } from "carbon-components-svelte";
 	import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import AreaCustom from "carbon-icons-svelte/lib/AreaCustom.svelte";
 	import { Map } from "../module/map";
@@ -9,7 +9,7 @@
 	import { StoryLayer } from "./StoryLayer";
     import area from '@turf/area';
     import * as turf from '@turf/turf';
-	import { get } from "svelte/store";
+	import { get, type Writable } from "svelte/store";
     import { onMount, onDestroy } from 'svelte';
     import { polygonStore } from './PolygonEntityStore';
  
@@ -18,7 +18,7 @@
     export let distributions: Array<{ group: string; value: number }[]> = [];
     export let polygonArea: number;
     export let hasDrawnPolygon: boolean;
-    export let showPolygonMenu: boolean;
+    export let showPolygonMenu: Writable<boolean>;
         
     let polygonEntity: Cesium.Entity | null = null;
     let isDrawing = false;
@@ -163,6 +163,9 @@
                 }
             });
 
+            redPoints.forEach((point) => map.viewer.entities.remove(point));
+            redPoints = [];
+
             activeShapePoints = [];
             activeShape = undefined;
 
@@ -190,6 +193,8 @@
                 redPoints,
                 distributions
             });
+
+            showPolygonMenu.set(false);
 
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     };
@@ -225,7 +230,7 @@
         const geom = {
             geometry: geojson.geometry
         };
-        
+
         try {
             const response = await fetch("https://virtueel.dev.zeeland.nl/ko_api/analyze", {
                 method: "POST",
@@ -276,30 +281,29 @@
 
 </script>
 
-{#if showPolygonMenu}
+{#if $showPolygonMenu}
     {#if !hasDrawnPolygon}
         <div>
-            <h4>{$_("tools.stories.drawPolygon")}</h4>
-            <p>
-                Klik op 'Teken nieuw projectgebied' knop om te beginnen met tekenen op de kaart.
-                Met de linkermuisknop kun je punten op de kaart zetten om een vlak te creëren.
-                Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.
-            </p>
+            <div class="title-with-tooltip">
+                <h4>{$_("tools.stories.drawPolygon")}</h4>
+                <Tooltip align="start" direction="right">
+                    {$_("tools.stories.drawPolygonText")}
+                </Tooltip>
+            </div>
         </div>
     {/if}
 
     <div class="buttons">
-        {#if !hasDrawnPolygon}
-            <Button 
-                icon={AreaCustom}
-                kind={selectedAction === "draw" ? "primary" : "tertiary"}
-                on:click={() => {
-                    draw(); 
-                }}
-            >
-                {$_("tools.stories.drawPolygon")}
-            </Button>
-        {/if}
+        <Button 
+            icon={AreaCustom}
+            kind={selectedAction === "draw" ? "primary" : "tertiary"}
+            disabled={hasDrawnPolygon}
+            on:click={() => {
+                draw(); 
+            }}
+        >
+            {$_("tools.stories.drawPolygon")}
+        </Button>
 
         <Button 
             kind="danger"
@@ -318,9 +322,8 @@
         >
             {$_("tools.stories.deletePolygon")}
         </Button>
-
     </div>
-    <br><hr><br><br>
+    <br><hr><br>
 {/if}
 
 <style>
@@ -330,6 +333,15 @@
         justify-content: center;
         gap: 1rem;
         margin: 1rem;
+    }
+
+    .title-with-tooltip {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 99;
+        margin-top: 0.5rem;
     }
     
 </style>

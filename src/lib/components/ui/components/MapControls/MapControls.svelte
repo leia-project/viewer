@@ -23,7 +23,7 @@
     }
 
     function mapCenter() {
-        map.options.use3DMode.set(true);
+        map.options.use3DMode.set(map.config.viewer.startCameraMode3D);
         map.home();
     }
 
