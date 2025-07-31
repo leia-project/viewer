@@ -5,12 +5,13 @@
 	export let value: string | number;
 	export let unit: string = "";
 	export let color: string = "var(--game-color-highlight)";
+	export let scale: number = 1;
 
 </script>
 
 
-<div class="pill-container">
-	<svelte:component this={icon} size={20} color={color} />
+<div class="pill-container" style="--pill-scale: {scale};">
+	<svelte:component this={icon} size={20 * scale} color={color} />
 	<div class="pill-text">
 		<span class="pill-label">{label}</span>
 		<span class="pill-value">{value} {unit}</span>
@@ -24,13 +25,13 @@
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		column-gap: 0.75rem;
+		column-gap: calc(0.75rem * var(--pill-scale));
 		background-color: rgba(var(--game-color-bg), 0.8);
 		color: var(--game-color-highlight);
 		backdrop-filter: blur(8px);
-		padding: 0.25rem;
-		padding-right: 1rem;
-		border-radius: 0.25rem;
+		padding: calc(0.25rem * var(--pill-scale));
+		padding-right: calc(1rem * var(--pill-scale));
+		border-radius: calc(0.25rem * var(--pill-scale));
 		text-align: start;
    }
    .pill-text {
@@ -38,7 +39,7 @@
 		flex-direction: column;
    }
    .pill-text span {
-		font-size: 0.8rem;
+		font-size: calc(0.8rem * var(--pill-scale));
    }
    .pill-label {
 		font-weight: 500;

@@ -1,8 +1,8 @@
 import * as Cesium from "cesium";
-import { get, writable, type Writable } from "svelte/store";
+import { derived, get, writable, type Readable, type Writable } from "svelte/store";
+import type { Map } from "$lib/components/map-cesium/module/map";
 import { Hexagon } from "./hexagon";
 import { PGRestAPI, type CBSHexagon, type FloodHexagon } from "../api/pg-rest-api";
-import type { Map } from "$lib/components/map-cesium/module/map";
 import HexagonInfoBox from "../../../components/infobox/HexagonInfoBox.svelte";
 import type { EvacuationController } from "../evacuation-controller";
 
@@ -39,6 +39,9 @@ export class HexagonLayer {
 	public selectedHexagon: Writable<Hexagon | undefined> = writable();
 	private hexagonSelectBox: HexagonInfoBox | undefined;
 	private selectBoxTimeOut: NodeJS.Timeout | undefined;
+
+	public evacuatedCount!: Readable<number>;
+	public victimCount!: Readable<number>;
 
 	constructor(evacuationController: EvacuationController, scenarios: Array<string>, outline: Array<[lon: number, lat: number]>) {
 		this.map = evacuationController.map;
@@ -97,11 +100,24 @@ export class HexagonLayer {
 		hexagons.forEach((hex: CBSHexagon) => {
 			const newHex = new Hexagon(hex.hex, hex.population, this.selectedHexagon);
 			this.hexagons.push(newHex);
+			this.setCounters();
 		});
 		this.createPrimitive();
 		this.addHexagonEntities();
 		this.loaded.set(true);
 	}
+
+	private setCounters(): void {
+		this.evacuatedCount = derived(this.hexagons.map((h) => h.totalEvacuated), (($totalEvacuated, set) => {
+			const total = $totalEvacuated.reduce((sum, evacuated) => sum + evacuated, 0);
+			set(total);
+		}));
+		this.victimCount = derived(this.hexagons.map((h) => h.victims), (($victims, set) => {
+			const total = $victims.reduce((sum, victims) => sum + victims, 0);
+			set(total);
+		}));
+	}
+
 
 	private async updateFloodDepths(scenarios: Array<string>, time: number): Promise<void> {
 		const h3FloodDepths = await this.pgRestAPI.getFloodHexagons(this.outline, 7, scenarios, time);

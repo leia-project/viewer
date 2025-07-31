@@ -5,22 +5,30 @@
 
 	export let game: Game;
 
+	const loaded = game.loaded;
+	const evacuatedCount = game.evacuationController.hexagonLayer.evacuatedCount;
+	const victimCount = game.evacuationController.hexagonLayer.victimCount;
+
 </script>
 
 
 <div class="game-stats">
-	<Pill
-		icon={FaceDizzyFilled}
-		label="Slachtoffers"
-		value={game.stats.victims}
-		color="#c21111"
-	/>
-	<Pill
-		icon={FaceWinkFilled}
-		label="Geevacueerd"
-		value={game.stats.evacuated}
-		color="green"
-	/>
+	{#key $loaded}
+		<Pill
+			icon={FaceDizzyFilled}
+			label="Slachtoffers"
+			value={$victimCount}
+			color="#c21111"
+			scale={1.2}
+		/>
+		<Pill
+			icon={FaceWinkFilled}
+			label="Geevacueerd"
+			value={$evacuatedCount}
+			color="green"
+			scale={1.2}
+		/>
+	{/key}
 </div>
 
 

@@ -19,7 +19,7 @@ export class Hexagon {
 	private selectedHexagon: Writable<Hexagon | undefined>;
 	public selectedRoute: Array<number> = [];
 
-	public status: "accessible" | "flooded" | "evacuated" = "accessible";
+	public status: Writable<"accessible" | "flooded" | "evacuated"> = writable("accessible");
 
 	public geometryInstances: Array<Cesium.GeometryInstance>;
 	public parentPrimitive: Cesium.Primitive | undefined;
@@ -51,6 +51,13 @@ export class Hexagon {
 	});
 	private evacuatedCount: number = 0; // Only for animation
 
+	public victims: Readable<number> = derived(this.status, ($status) => {
+		if ($status === "flooded") {
+			return this.population - get(this.totalEvacuated);
+		}
+		return 0;
+	});
+
 	constructor(hex: string, population: number, selectedHexagon: Writable<Hexagon | undefined>) {
 		this.hex = hex;
 		const latLon = cellToLatLng(hex);
@@ -68,18 +75,12 @@ export class Hexagon {
 
 		this.floodDepth.subscribe((depth: number) => {
 			this.setColor(depth);
-			if (depth > 0.5) {
-				//this.floodedAt.set(get(elapsedTime));
-			}
+			this.updateStatus();
 		});
 
 
 		this.totalEvacuated.subscribe((evacuated: number) => {
-			if (evacuated > 0) {
-				this.updateStatus("evacuated");
-			} else {
-				this.updateStatus("accessible");
-			}
+			this.updateStatus();
 			//this.centerCartesian3 = Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.getHexagonHeight(this.population - eva) * 0.01);  // 0.01 is exag_1 uniform
 			gsap.to(this, {
 				evacuatedCount: evacuated,
@@ -202,8 +203,16 @@ export class Hexagon {
 		return population * 10 + 50;
 	}
 
-	public updateStatus(status: "accessible" | "flooded" | "evacuated"): void {
-		this.status = status;
+	public updateStatus(): void {
+		const isEvacuated = get(this.totalEvacuated) === this.population;
+		const isFlooded = get(this.floodDepth) > 0.5;
+		if (isEvacuated) {
+			this.status.set("evacuated");
+		} else if (isFlooded) {
+			this.status.set("flooded");
+		} else {
+			this.status.set("accessible");
+		}
 	}
 
 	public addEvacuations(evacuations: Array<Evacuation>): void {
