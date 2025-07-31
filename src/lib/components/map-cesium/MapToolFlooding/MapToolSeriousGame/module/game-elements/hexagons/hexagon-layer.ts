@@ -91,6 +91,7 @@ export class HexagonLayer {
 		this.use2DMode.subscribe((b) => this.toggle2D3DModeHexagons(b));
 		this.alpha.subscribe((alpha: number) => {
 			this.material.uniforms.custom_alpha = alpha;
+			this.hexagons.forEach((hex: Hexagon) => hex.onAlphaUpdate(alpha));
 			this.map.refresh();
 		});
 	}

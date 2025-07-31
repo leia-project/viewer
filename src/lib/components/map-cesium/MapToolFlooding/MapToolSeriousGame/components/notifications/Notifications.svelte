@@ -28,11 +28,12 @@
 
 </script>
 
+
 <div class="top-right-button" class:hide-tooltip={$showLog}>
 	<slot name="extra-buttons" />
 	<Button 
 		bind:ref={toggleButton}
-		kind={$showLog ? "secondary" : "tertiary"}
+		kind={$showLog ? "primary" : "secondary"}
 		size="default"
 		icon={Chat}
 		iconDescription={`Berichten (${logLength})`}
@@ -59,8 +60,8 @@
 {/if}
 
 
-
 <style>
+
 	:global(.hide-tooltip .bx--btn::before) {
 		display: none !important;
 	}
@@ -86,6 +87,5 @@
 	.notifications::-webkit-scrollbar {
 		display: none;
 	}
-
 
 </style>
