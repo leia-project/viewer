@@ -86,6 +86,12 @@
 <style>
 
 	.infobox {
+		/* Copy from GameContainer.svelte */
+		--game-color-bg: 33, 33, 33;
+		--game-color-contrast: #f0f0f0;
+		--game-color-highlight: #9ccddc;
+		--game-color-text: #ffffff;
+
 		position: absolute;
 		border-radius: 2px;
 		color: #fff;
