@@ -18,6 +18,7 @@
 
     let open: boolean;
     let imageValid: boolean = true;
+    let descriptionValid: boolean = true;
 
     $: visible = layer.visible;
     $: opacity = layer.opacity;
@@ -71,6 +72,17 @@
                 <svelte:component this={control.component} {...control.props} />
             {/each}
         {/if}
+        {#if layer.config.descriptionSupported}
+            <div class="label-01 description-header">
+                {$_("description")}
+            </div>
+            {#if descriptionValid && layer.config.description}
+                <p class="description">{layer.config.description}</p>
+            <!-- {#if !descriptionValid}
+                <ErrorMessage message="{$_("tools.layerManager.legendNotFoundText")}" />
+            {/if} -->
+            {/if}
+        {/if}
         {#if layer.config.opacitySupported}
             <Slider hideTextInput labelText={textOpacity} min={0} max={100} bind:value={$opacity} />
         {/if}
@@ -115,6 +127,17 @@
         overflow: hidden;
         width: 100%;
     }
+
+    .description {
+        margin-top: var(--cds-spacing-01);
+        max-width: 100%;
+        margin-bottom: var(--cds-spacing-02);
+    }
+
+    .description-header {
+        margin-bottom: 5px;
+    }
+
 
     .legend {
         margin-top: var(--cds-spacing-02);

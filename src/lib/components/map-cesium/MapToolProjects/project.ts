@@ -21,7 +21,7 @@ export class CesiumProject {
 
 	private map: Map;
 	public projectSettings: IProjectSettings;
-	private coordinates: Array<[lon: number, lat: number]>;
+	public coordinates: Array<[lon: number, lat: number]>;
 	private layerNames: Array<string>;
 
 	private projectClippingPlanes: ProjectClippingPlanes;

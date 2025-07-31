@@ -273,6 +273,7 @@ Layer definition
 |type|layer type, supported layer types:<br /> ```basiskaart```, ```wms```, ```wmts```, ```tms```, ```vectortiles```, ```3dtiles```, ```geojson```, ```modelanimation```, ```custom```|string|
 |title|layer title|string|
 |groupId|id of the group where this layer belongs to or empty string, will be placed under uncategorized in library|string|
+|description|simple text field in which a layer description can be provided|string|
 |imageUrl|url of an example image of layer, will be shown in layer library|string|
 |legendUrl|url of legend image or empty string|string|
 |isBackground|set to true to use this as a background layer, background layers are separated from the thematic layers in the layer manager and only 1 background layer can be active at a time|boolean|
@@ -299,6 +300,7 @@ Layer definition
 	"type": "wms",
 	"title": "Beheer vlakken RWS (WMS)",
 	"groupId": "1658756230497",
+	"description": "Ook wel bekend als KernGIS Nat"
 	"legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/beheerkaart_nat/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=beheer_vlakken",
 	"isBackground": false,
 	"defaultAddToManager": true,
@@ -736,7 +738,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |-|-|-|-|
 |dateTime|Date and time, determines the sun position|1657450800 (10-07-2022 11:00:00)|unix timestamp|
 |shadows|Shadows enabled/disabled|false|boolean|
-|showMousuCoordinates|Debug window in viewer to show coordinates for mouse position|false|boolean|
+|showMouseCoordinates|Debug window in viewer to show coordinates for mouse position|false|boolean|
 |showCameraPosition|Debug window to show the current camera position, updates on move|false|boolean|
 |showLoadingWidget|Show a small bar on the bottom of the viewer showing the loading progress of layers|false|boolean|
 |fxaa|FXAA enabled|false|Boolean|
@@ -1014,5 +1016,16 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 			//etc. You can add as many stories as you want
 		]
 	}
+}
+```
+
+#### flycamera
+
+Tool for navigation. With this tool the user is able to have free roam around the map by selecting either an aerial POV or ground POV.
+
+```json
+{
+	"id": "flyCamera",
+	"enabled": true
 }
 ```
