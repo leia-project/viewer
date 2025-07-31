@@ -182,6 +182,7 @@ export class Hexagon {
 		const boundary = this.getHexVertices(cell)
 		const positions = Cesium.Cartesian3.fromDegreesArray(boundary.flat());
 		const entity = new Cesium.Entity({
+			id: `hexagon-${cell}`,
 			polygon: {
 				hierarchy: positions,
 				fill: true,

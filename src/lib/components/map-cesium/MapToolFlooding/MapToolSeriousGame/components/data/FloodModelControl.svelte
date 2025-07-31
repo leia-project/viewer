@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { onDestroy } from "svelte";
 	import * as Cesium from "cesium";
-	import { Button, Slider } from "carbon-components-svelte";
+	import { Slider } from "carbon-components-svelte";
 	import { Reset } from "carbon-icons-svelte";
 	import type { Game } from "../../module/game";
+	import GameButton from "../general/GameButton.svelte";
 
 	export let game: Game;
 
@@ -13,6 +14,8 @@
 	$: timeDelta = $selectedTime - $simulationTime;
  
 	const floodLayer = game.floodLayerController.floodLayer;
+
+	const floodLayerOpacity = floodLayer.opacity;
 
 	$: floodLayer.source.color.set(
 		timeDelta === 0 ? floodLayer.source.defaultColor 
@@ -29,7 +32,17 @@
 
 <div>Explanation on the model</div>
 <div>Data on expansion of the flood (area m2, number of hexagons, max flood depth, etc.)</div>
-<!-- Slider to fast forward model -->
+<div class="slider-container">
+	<div class="slider-label">Opacity</div>
+	<Slider
+		min={0}
+		max={100}
+		step={0.01}
+		bind:value={$floodLayerOpacity}
+		hideLabel={true}
+		hideTextInput={true}
+	/>
+</div>
 <div class="slider-container">
 	<div class="slider-label">Fast Forward Model</div>
 	<Slider
@@ -40,12 +53,11 @@
 		hideLabel={true}
 		hideTextInput={true}
 	/>
-	<Button
-		kind="primary"
-		size="small"
-		disabled={timeDelta === 0}
+	<GameButton
+		size={15}
 		icon={Reset}
-		iconDescription="Reset Time"
+		hasTooltip={false}
+		borderHighlight={true}
 		on:click={() => selectedTime.set($simulationTime)}
 	/>
 </div>
@@ -72,11 +84,14 @@
 	}
 
 	.slider-container {
-		display: flex;
+		display: grid;
+		grid-template-columns: 160px 1fr auto;
+		align-items: center;
 		margin-top: 1rem;
 	}
 
 	.slider-label {
+		text-align: right;
 		margin-right: 1rem;
 		font-weight: 600;
 	}

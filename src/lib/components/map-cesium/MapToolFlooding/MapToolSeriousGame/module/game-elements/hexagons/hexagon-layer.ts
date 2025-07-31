@@ -179,7 +179,9 @@ export class HexagonLayer {
 	public onLeftClick(picked: any): void {
 		let pickedHexagon: Hexagon | undefined;
 		const selectedHexagon = get(this.selectedHexagon);
-		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
+		if (picked?.id instanceof Cesium.Entity) {
+			pickedHexagon = this.hexagons.find((hex: Hexagon) => hex.entityInstance === picked.id);
+		} else if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
 			pickedHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
 		}
 		if (!pickedHexagon && picked?.id !== undefined) {
@@ -194,35 +196,27 @@ export class HexagonLayer {
 	}
 
 	public onMouseMove(picked: any): void {
-		/* if ((picked?.primitive instanceof Cesium.Primitive || picked?.id instanceof Cesium.Entity) && picked?.id) {
-			if (this.hoveredHexagon && this.hoveredHexagon.hex !== picked.id) {
-				this.unhighlight(this.hoveredHexagon, "hover");
-			}
-
-			if(picked?.id instanceof Cesium.Entity) {
-				this.hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.entityInstance === picked.id)
-			} else if (picked?.primitive instanceof Cesium.Primitive) {
-				this.hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
-			} 
-			
-			if (this.hoveredHexagon) this.highlight(this.hoveredHexagon, "hover"); */
 		if (typeof picked?.id === "string" && picked.id.endsWith("-top")) {
 			picked.id = picked.id.slice(0, -4); // Remove "-top" suffix to get the hexagon id when clicking top hexagons
 		}
 		let hoveredHexagon = get(this.hoveredHexagon);
-		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
-			if (hoveredHexagon && hoveredHexagon.hex !== picked.id) {
-				hoveredHexagon.unhighlight("hover");
-			}
-			hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
-			this.hoveredHexagon.set(hoveredHexagon);
-			if (hoveredHexagon) hoveredHexagon.highlight("hover");
-			this.map.viewer.scene.canvas.style.cursor = "pointer";
-		} else if (picked?.id === undefined) {
+		if (picked?.id === undefined) {
 			if (hoveredHexagon && hoveredHexagon !== get(this.selectedHexagon)) {
 				hoveredHexagon.unhighlight("hover");
 				this.hoveredHexagon.set(undefined);
 			}
+		} else {
+			if (hoveredHexagon && hoveredHexagon.hex !== picked.id && hoveredHexagon.entityInstance !== picked.id) {
+				hoveredHexagon.unhighlight("hover");
+			}
+			if (picked.id instanceof Cesium.Entity) {
+				hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.entityInstance === picked.id);
+			} else if (picked?.primitive instanceof Cesium.Primitive) {
+				hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
+			}
+			this.hoveredHexagon.set(hoveredHexagon);
+			if (hoveredHexagon) hoveredHexagon.highlight("hover");
+			this.map.viewer.scene.canvas.style.cursor = "pointer";
 		} 
 		this.map.refresh();
 	}

@@ -99,7 +99,7 @@
 <style>
 
 	.divider {
-		border-top: 1px solid var(--game-color-highlight);
+		border-top: 1px solid lightslategray;
 		margin: 1rem 1rem;
 	}
 

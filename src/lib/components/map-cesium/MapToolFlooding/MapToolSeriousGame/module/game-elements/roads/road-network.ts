@@ -128,6 +128,7 @@ export class RoadNetwork {
 
 	private async loadRoadNetwork(): Promise<void> {
 		const network = await getNetworkPGRest("zeeland_datacore", "car", this.outline); //await fetch("/data/zeeland_2/car/edges.geojson");
+		/* 
 		const outline =  turf.polygon([this.outline.map((coord) => [coord[0], coord[1]])]);
 		const filteredFeatures = network.edges.features.filter((feature: RouteFeature) => {
 			//@ts-ignore
@@ -141,6 +142,7 @@ export class RoadNetwork {
 				return turf.booleanPointInPolygon(pt, outline) && feature.properties.fid !== undefined;
 			});
 		});
+		*/
 		network.edges.features.forEach((feature: RouteFeature) => {
 			const segment = this.roadNetworkLayer.add(feature);
 			for (const measure of this.measures) {

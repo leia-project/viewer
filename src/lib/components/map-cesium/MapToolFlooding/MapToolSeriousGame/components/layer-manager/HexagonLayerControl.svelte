@@ -39,6 +39,7 @@
 			min={0}
 			max={1}
 			step={0.01}
+			hideLabel={true}
 			hideTextInput={true}
 		/>
 	</div>
@@ -78,13 +79,15 @@
 	}
 
 	.slider-container {
-		display: flex;
+		display: grid;
+		grid-template-columns: 160px 1fr auto;
 		align-items: center;
 		margin-top: 0.25rem;
 		max-width: 400px;
 	}
 
 	.slider-label {
+		text-align: right;
 		margin-right: 1rem;
 		font-weight: 600;
 	}
