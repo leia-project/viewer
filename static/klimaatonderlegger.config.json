@@ -54,1525 +54,501 @@
                 "tileMatrixSetID": "webmerc_grid"
             }
         },
-
-
-
-
-
-
-
-
-
-
-
-
         {
-            "id": "1001",
-            "type": "wms",
-            "title": "Bodemkaart Zeeland",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/bodem/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geogwd_bdmkrtzldvvl",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/bodem/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geogwd_bdmkrtzldvvl",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1002",
-            "type": "wms",
-            "title": "Geomorfologische kaart van Nederland ",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://service.pdok.nl/bzk/bro-geomorfologischekaart/wms/v2_0/legend/geomorphological_area/geomorphological_area.png",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://service.pdok.nl/bzk/bro-geomorfologischekaart/wms/v2_0?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geomorphological_area",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1003",
-            "type": "wms",
-            "title": "Waterkansenkaart: Bodemtype",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters_bodem/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOGWD_BDMKRTZLDRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters_bodem/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEOGWD_BDMKRTZLDRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1004",
-            "type": "wms",
-            "title": "Waterkansenkaart: Teeltvoorkeur",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOGWD_WTRKNSKRTLBWRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEOGWD_WTRKNSKRTLBWRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1005",
-            "type": "wms",
-            "title": "Waterkansenkaart: Zettingsgevoeligheid",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOGWD_WTRKNSKRTZETGVHRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEOGWD_WTRKNSKRTZETGVHRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1006",
-            "type": "wms",
-            "title": "Bodemkundige geschiktheid voor akkerbouw",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEONAM_AKK_BWGSHRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEONAM_AKK_BWGSHRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1007",
-            "type": "wms",
-            "title": "Organische stofgehalte toplaag van de bodem",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEONAM_ORGSTFTLGRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEONAM_ORGSTFTLGRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1008",
-            "type": "wms",
-            "title": "Risico ondergrond verdichting",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters_bodem/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEONAM_ONDGRDRISVRDRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters_bodem/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEONAM_ONDGRDRISVRDRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1009",
-            "type": "wms",
-            "title": "Slempgevoeligheid",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/bodem/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_bdmslpvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/bodem/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_bdmslpvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1010",
-            "type": "wms",
-            "title": "Indicatieve Kaart van Archeologische Waarden IKAW",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOCMD_IKAWRDZLDRSTRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEOCMD_IKAWRDZLDRSTRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1011",
-            "type": "wms",
-            "title": "Signaleringskaart aardkunde",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ms/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geogwd_akwkrtsigvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/ms/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geogwd_akwkrtsigvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1012",
-            "type": "wms",
-            "title": "Zuurgraad toplaag van de bodem",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEONAM_ZGRTLGRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEONAM_ZGRTLGRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1013",
-            "type": "wms",
-            "title": "Bodemkwaliteitskaart Zeeland",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/bodem/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_bdmkwlkrtvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/bodem/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_bdmkwlkrtvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "1014",
-            "type": "wms",
-            "title": "Stikstof gevoelige gebieden Zeeland vanuit AERIUS M23",
-            "groupId": "bodemcondities",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/stikstof/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=extdvd_stk_gvlgebm23",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/stikstof/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "extdvd_stk_gvlgebm23",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "2001",
-            "type": "wms",
-            "title": "Waterkansenkaart: Zettingsgevoeligheid",
-            "groupId": "bodemdaling",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOGWD_WTRKNSKRTZETGVHRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEOGWD_WTRKNSKRTZETGVHRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "2001b",
-            "type": "wms",
-            "title": "Waterkansenkaart Stedelijk gebied - Inspanningsniveau",
-            "groupId": "bodemdaling",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOGWD_WTRKNSKRTGSHBBWRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?",
-                "featureName": "GEOGWD_WTRKNSKRTGSHBBWRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "2002",
-            "type": "wms",
-            "title": "Bodemdaling door ophoging 2050 (KEA)",
-            "groupId": "bodemdaling",
-            "legendUrl": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=bodemdaling_ophoging&servicekey=bf852b88-fd6a-11ea-932f-005056805b87",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/wms?servicekey=bf852b88-fd6a-11ea-932f-005056805b87",
-                "featureName": "bodemdaling_ophoging",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "2003",
-            "type": "wms",
-            "title": "Bodemdaling 2050 Hoog (KEA)",
-            "groupId": "bodemdaling",
-            "legendUrl": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=bodemdaling_2020_2050hoog&servicekey=bf852b88-fd6a-11ea-932f-005056805b87",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/wms?servicekey=bf852b88-fd6a-11ea-932f-005056805b87",
-                "featureName": "bodemdaling_2020_2050hoog",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "2004",
-            "type": "wms",
-            "title": "Bodemdaling 2100 Hoog (KEA)",
-            "groupId": "bodemdaling",
-            "legendUrl": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=bodemdaling_2020_2100hoog&servicekey=bf852b88-fd6a-11ea-932f-005056805b87",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/wms?servicekey=bf852b88-fd6a-11ea-932f-005056805b87",
-                "featureName": "bodemdaling_2020_2100hoog",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "2005",
-            "type": "arcgis",
-            "title": "Ruimtelijk afwegingskader: Sturingskaart Bodemdaling",
-            "groupId": "bodemdaling",
-            "legendUrl": "https://tiles.arcgis.com/tiles/7SEV6TvwRD5jzR74/arcgis/rest/services/Sturingskaart_bodemdalingfeb24/MapServer/legend",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://tiles.arcgis.com/tiles/7SEV6TvwRD5jzR74/arcgis/rest/services/Sturingskaart_bodemdalingfeb24/MapServer/"
-            }
-        },
-        {
-            "id": "3001",
-            "type": "wms",
-            "title": "Waterkansenkaart Stedelijk gebied - Wateroverlast",
-            "groupId": "wateroverlast",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOGWD_WTRKNSKRTWTROVLRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?",
-                "featureName": "GEOGWD_WTRKNSKRTWTROVLRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3002",
-            "type": "wms",
-            "title": "Waterkansenkaart Stedelijk gebied - Inspanningsniveau",
-            "groupId": "wateroverlast",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOGWD_WTRKNSKRTGSHBBWRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?",
-                "featureName": "GEOGWD_WTRKNSKRTGSHBBWRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3003",
-            "type": "wms",
-            "title": "Risico ondergrond verdichting",
-            "groupId": "wateroverlast",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters_bodem/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEONAM_ONDGRDRISVRDRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters_bodem/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEONAM_ONDGRDRISVRDRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3004",
-            "type": "wms",
-            "title": "Slempgevoeligheid",
-            "groupId": "wateroverlast",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/bodem/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_bdmslpvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/bodem/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_bdmslpvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3005",
-            "type": "wms",
-            "title": "Inundatie 1:10 jaar (huidige situatie)",
-            "groupId": "wateroverlast",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default&LAYERS=geokma_wb21hst10",
-                "featureName": "geokma_wb21hst10",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3006",
-            "type": "wms",
-            "title": "Inundatie 1:25 jaar (huidige situatie)",
-            "groupId": "wateroverlast",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21hst25",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3007",
-            "type": "wms",
-            "title": "Inundatie 1:50 jaar (huidige situatie)",
-            "groupId": "wateroverlast",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21hst50",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3009",
-            "type": "wms",
-            "title": "Inundatie 1:100 jaar (huidige situatie)",
-            "groupId": "wateroverlast",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21hst100",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3010",
-            "type": "wms",
-            "title": "Inundatie 1:10 jaar (toekomstige situatie)",
-            "groupId": "wateroverlast",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21vst10",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3011",
-            "type": "wms",
-            "title": "Inundatie 1:25 jaar (toekomstige situatie)",
-            "groupId": "wateroverlast",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21vst25",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3012",
-            "type": "wms",
-            "title": "Inundatie 1:50 jaar (toekomstige situatie)",
-            "groupId": "wateroverlast",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21vst50",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3013",
-            "type": "wms",
-            "title": "Inundatie 1:100 jaar (toekomstige situatie)",
-            "groupId": "wateroverlast",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21vst100",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3015",
-            "type": "wms",
-            "title": "Waterdieptekaart 1 op 4.000 jaar",
-            "groupId": "wateroverlast",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geokma_wtrdpt1_4000rst",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geokma_wtrdpt1_4000rst",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3016",
-            "type": "wms",
-            "title": "Maximale waterdiepte onbeschermd",
-            "groupId": "wateroverlast",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/water/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_rsckrtmxmwtdonbvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/water/ows?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_rsckrtmxmwtdonbvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "3017",
-            "type": "wms",
-            "title": "Maximale waterdiepte beschermd",
-            "groupId": "wateroverlast",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/water/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_rsckrtmxmwdpbsmvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/water/ows?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_rsckrtmxmwdpbsmvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4001",
-            "type": "wms",
-            "title": "Inundatie 1:10 jaar (huidige situatie)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default&LAYERS=geokma_wb21hst10",
-                "featureName": "geokma_wb21hst10",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4002",
-            "type": "wms",
-            "title": "Inundatie 1:25 jaar (huidige situatie)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21hst25",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4003",
-            "type": "wms",
-            "title": "Inundatie 1:50 jaar (huidige situatie)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21hst50",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4003",
-            "type": "wms",
-            "title": "Inundatie 1:100 jaar (huidige situatie)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21hst100",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4004",
-            "type": "wms",
-            "title": "Inundatie 1:10 jaar (toekomstige situatie)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21vst10",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4005",
-            "type": "wms",
-            "title": "Inundatie 1:25 jaar (toekomstige situatie)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21vst25",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4006",
-            "type": "wms",
-            "title": "Inundatie 1:50 jaar (toekomstige situatie)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21vst50",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4007",
-            "type": "wms",
-            "title": "Inundatie 1:100 jaar (toekomstige situatie)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_wb21vst100",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4008",
-            "type": "wfs",
-            "title": "Normering dijktrajecten: Signaleringswaarde (NBPW)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/wvp/gwc/service/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=wvp:dijktrajecten&styles=wvp:NBPW_signaleringswaarde",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://geo.rijkswaterstaat.nl/services/ogc/wvp/wfs",
-                "featureType": "wvp:dijktrajecten",
-                "version": "1.1.0",
-                "allowPicking": true
-            }
-        },
-        {
-            "id": "4009",
-            "type": "wms",
-            "title": "Normering dijktrajecten: Ondergrens (NBPW)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/wvp/gwc/service/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=wvp:dijktrajecten&styles=wvp:NBPW_ondergrens",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://waterveiligheidsportaal.nl/cached/wms?tiled=true&styles=wvp:NBPW_ondergrens&version=1.1.1&srs=EPSG:28992",
-                "featureName": "wvp:dijktrajecten",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4010",
-            "type": "wms",
-            "title": "Regionale waterkeringen (lijn)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/wbn/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_regwtrkrnlin",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/wbn/ows?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_regwtrkrnlin",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4011",
-            "type": "wms",
-            "title": "Waterdieptekaart 1 op 4.000 jaar",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geokma_wtrdpt1_4000rst",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geokma_wtrdpt1_4000rst",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4012",
-            "type": "wms",
-            "title": "Maximale waterdiepte onbeschermd",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/water/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_rsckrtmxmwtdonbvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/water/ows?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_rsckrtmxmwtdonbvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4013",
-            "type": "wms",
-            "title": "Maximale waterdiepte beschermd",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/water/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_rsckrtmxmwdpbsmvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/water/ows?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_rsckrtmxmwdpbsmvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4014",
-            "type": "wms",
-            "title": "Maximale overstromingsdiepte Nederland (LIWO)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://basisinformatie-overstromingen.nl/geoserver/ows/LIWO_Basis/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=MaximaleWaterdiepteNederland_Kaart5&STYLE=LIWO_Basis_Waterdiepte&HEIGHT=16&WIDTH=16&LEGEND_OPTIONS=fontAntiAliasing:true;fontSize:14;mx:0;dx:10;fontName:Verdana;",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://basisinformatie-overstromingen.nl/geoserver/ows?styles=LIWO_Basis_Waterdiepte&version=1.1.1&breachBandId=MaximaleWaterdiepteNederland_Kaart5__LIWO_Basis_Waterdiepte&tiled=true",
-                "featureName": "MaximaleWaterdiepteNederland_Kaart5",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4015",
-            "type": "wms",
-            "title": "Overstromingskansen norm (2050) (LIWO)",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://basisinformatie-overstromingen.nl/geoserver/ows/LIWO_Basis/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=plaatsgebonden_kans_totaal_2050_0&STYLE=LIWO_Basis_Overstromingskansen_norm_2050_pg_overstromingskans_tif&HEIGHT=16&WIDTH=16&LEGEND_OPTIONS=fontAntiAliasing:true;fontSize:14;mx:0;dx:10;fontName:Verdana;",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://basisinformatie-overstromingen.nl/geoserver/ows?styles=LIWO_Basis_Overstromingskansen_norm_2050_pg_overstromingskans_tif&version=1.1.1&breachBandId=plaatsgebonden_kans_totaal_2050_0__LIWO_Basis_Overstromingskansen_norm_2050_pg_overstromingskans_tif&tiled=true",
-                "featureName": "plaatsgebonden_kans_totaal_2050_0",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "4017",
-            "type": "arcgis",
-            "title": "Ruimtelijk afwegingskader: Sturingskaart blootstelling overstroming",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://tiles.arcgis.com/tiles/7SEV6TvwRD5jzR74/arcgis/rest/services/Sturingskaart_blootstellingfeb24/MapServer/legend",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://tiles.arcgis.com/tiles/7SEV6TvwRD5jzR74/arcgis/rest/services/Sturingskaart_blootstellingfeb24/MapServer"
-            }
-        },
-        {
-            "id": "4018",
-            "type": "arcgis",
-            "title": "Ruimtelijk afwegingskader: Sturingskaart slachtoffers overstroming",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://tiles.arcgis.com/tiles/7SEV6TvwRD5jzR74/arcgis/rest/services/Sturingskaart_slachtoffers_feb24/MapServer/legend",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://tiles.arcgis.com/tiles/7SEV6TvwRD5jzR74/arcgis/rest/services/Sturingskaart_slachtoffers_feb24/MapServer"
-            }
-        },
-        {
-            "id": "4019",
-            "type": "arcgis",
-            "title": "Ruimtelijk afwegingskader: Sturingskaart Combinatiekaart",
-            "groupId": "waterveiligheid",
-            "legendUrl": "https://tiles.arcgis.com/tiles/7SEV6TvwRD5jzR74/arcgis/rest/services/Niet_bouwen_april24/MapServer/legend",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://tiles.arcgis.com/tiles/7SEV6TvwRD5jzR74/arcgis/rest/services/Combinatiekaart_21feb24/MapServer/"
-            }
-        },
-        {
-            "id": "5001",
-            "type": "wms",
-            "title": "Waterkansenkaart Waterhuishouding - Infiltratiekaart (zoet)",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOGWD_WTRKNSKRTINFKRTRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEOGWD_WTRKNSKRTINFKRTRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5002",
-            "type": "wms",
-            "title": "Waterkansenkaart waterhuishouding - Zoute kwel",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOGWD_WTRKNSKRTZKWRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEOGWD_WTRKNSKRTZKWRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5003",
-            "type": "wms",
-            "title": "Waterkansenkaart Stedelijk Gebied - Infiltratiemogelijkheden",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOGWD_WTRKNSKRTINFMGHRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEOGWD_WTRKNSKRTINFMGHRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5004",
-            "type": "wms",
-            "title": "Waterkansenkaart Stedelijk gebied - Inspanningsniveau",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOGWD_WTRKNSKRTGSHBBWRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?",
-                "featureName": "GEOGWD_WTRKNSKRTGSHBBWRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5005",
-            "type": "wms",
-            "title": "Waterkansenkaart: Teeltvoorkeur",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=GEOGWD_WTRKNSKRTLBWRST",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "GEOGWD_WTRKNSKRTLBWRST",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5006",
-            "type": "wms",
-            "title": "Zoetwatervoorkomens",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/water/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_grdwtrzoewtrvrkvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/water/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_grdwtrzoewtrvrkvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5007",
-            "type": "wms",
-            "title": "Aanvoergebieden zoetwater",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=tijdelijk%3Azoetwater_aanvoergebieden",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "zoetwater_aanvoergebieden",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5008",
-            "type": "wms",
-            "title": "Afvoer vanuit duingebieden",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=tijdelijk%3Azoetwater_afvoerduingebieden",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "zoetwater_afvoerduingebieden",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5009",
-            "type": "wms",
-            "title": "Afvoer vanuit Vlaanderen",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=tijdelijk%3Azoetwater_afvoervlaanderen",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "zoetwater_afvoervlaanderen",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5010",
-            "type": "wms",
-            "title": "Landbouw waterleiding",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=tijdelijk%3Azoetwater_landbouwwaterleiding_gebied",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "zoetwater_landbouwwaterleiding_gebied",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5011",
-            "type": "wms",
-            "title": "Afvoer vanuit Brabantse Wal",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=tijdelijk%3Azoetwater_zoetwatergebied_brabantsewal",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "zoetwater_zoetwatergebied_brabantsewal",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5012",
-            "type": "wms",
-            "title": "Zoetwatervoorkomens 2019",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=tijdelijk%3Azoetwater_zoetwatervoorkomens_2019",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "zoetwater_zoetwatervoorkomens_2019",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5013",
-            "type": "wms",
-            "title": "Drooggevallen sloten",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=waterschap_teeltvrije_zones:Classificatie_watervoering4588",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/waterschap_teeltvrije_zones/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "Classificatie_watervoering4588",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5014",
-            "type": "wms",
-            "title": "Waterkansenkaart waterhuishouding - Relatieve hoogte",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geogwd_wtrknskrtrelhgtrst",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geogwd_wtrknskrtrelhgtrst",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5015",
-            "type": "wms",
-            "title": "Verdrogingsgevoelige natuurgebieden",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/wbn/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_vrdgvlgebvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/wbn/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_vrdgvlgebvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5016",
-            "type": "wms",
-            "title": "Afwateringsgebieden",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=water%3Ageonam_opvwtrafvgbdvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/water/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_opvwtrafvgbdvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5017",
-            "type": "wms",
-            "title": "Droge dooradering percelenkaart",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=wbn:geonam_prckrtdrgddgvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/wbn/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geonam_prckrtdrgddgvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5018",
-            "type": "wms",
-            "title": "Ecologische verbindingszone buffer",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=wbn:georok_iop1218eclvrbzonbufvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/wbn/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "georok_iop1218eclvrbzonbufvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5019",
-            "type": "wms",
-            "title": "Natte dooradering percelenkaart",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=wbn:geonam_prckrtnatddgvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/wbn/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geonam_prckrtnatddgvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5020",
-            "type": "wms",
-            "title": "Oppervlaktewater peilgebieden",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=wbn:geonam_opvwtrpgbvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/wbn/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geonam_opvwtrpgbvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5021",
-            "type": "wms",
-            "title": "Grondwateraanvulling",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=water:geonam_grwtvlvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/water/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geonam_grwtvlvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "5022",
-            "type": "wms",
-            "title": "Grondwateraanvulling",
-            "groupId": "waterbeschikbaarheid",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=water:geonam_grwtvlvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/water/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geonam_grwtvlvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "6001",
-            "type": "wms",
-            "title": "Kaderrichtlijn water (KRW) grondwaterlichamen (vlak)",
-            "groupId": "waterkwaliteit",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/water/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_krwgrdwtrlchindvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/water/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_krwgrdwtrlchindvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "6002",
-            "type": "wms",
-            "title": "Kaderrichtlijn water (KRW) oppervlakte waterlichamen (vlak)",
-            "groupId": "waterkwaliteit",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/water/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_krwoppvlkliczldvlk",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/water/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geonam_krwoppvlkliczldvlk",
-                "contenttype": "image/png"
-            }
-        },
-        {
-            "id": "6003",
+            "id": "004",
             "type": "3dtiles",
-            "title": "(Niet beschikbaar) FRESHEM 3D Middelburg",
-            "groupId": "waterkwaliteit",
+            "title": "3D BAG",
+            "groupId": "aanvullende_informatie",
             "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
-            "description": "Zie voor dekkende 2d kaarten https://kaarten.zeeland.nl/map/freshem ",
-            "attribution": "",
+            "transparent": false,
+            "opacity": 0,
             "settings": {
-                "url": "https://95.217.154.75/tiles_other/freshem_middelburg/tileset.json",
-                "shadows": false,
-                "style": {
-                    "pointSize": "15"
-                }
+                "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/gebouwen/3dtiles",
+                "defaultTheme": ""
             }
         },
         {
-            "id": "6004",
+            "id": "005",
             "type": "wms",
-            "title": "EC metingen - Waterkwaliteit meetpunten (centrale locaties)",
-            "groupId": "waterkwaliteit",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/grondwater_ec/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=v_water_quality_measurement_series_pnt",
+            "title": "Gemeentelijke grenzen",
+            "groupId": "aanvullende_informatie",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ruimte%3Ageogrz_prvzldvlk",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/grondwater_ec/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "v_water_quality_measurement_series_pnt",
+                "url": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0",
+                "featureName": "zeeland:geogrz_gemgrznldvlk",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "6005",
+            "id": "006",
             "type": "wms",
-            "title": "Drooggevallen sloten",
-            "groupId": "waterkwaliteit",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=waterschap_teeltvrije_zones:Classificatie_watervoering4588",
+            "title": "Provinciale grens",
+            "groupId": "aanvullende_informatie",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ruimte%3Ageogrz_prvzldvlk",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/waterschap_teeltvrije_zones/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "Classificatie_watervoering4588",
+                "url": "https://opengeodata.zeeland.nl/geoserver/ows?service=WMS&version=1.3.0",
+                "featureName": "ruimte:geogrz_prvzldvlk",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "6006",
+            "id": "9000",
             "type": "wms",
-            "title": "Grondwaterbeschermingsgebieden",
-            "groupId": "waterkwaliteit",
-            "legendUrl": "https://opengeodata.zeeland.nl/CDS/water/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geocds_nlam_gwbg",
+            "title": "Bebouwing Signaalkaart (Totaal)",
+            "groupId": "signaalkaarten",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bebouwing_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/CDS/wms?SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "geocds_nlam_gwbg",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "bebouwing_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "6007",
-            "type": "arcgis",
-            "title": "Zoutvracht naar oppervlaktewater voor huidige situatie",
-            "groupId": "waterkwaliteit",
-            "legendUrl": "https://geoservices.zuid-holland.nl/arcgis/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/WMSServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=29",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": { 
-                "url": "https://geoservices.zuid-holland.nl/arcgis/rest/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/",
-                "layers": [20]
-            }
-        },
-        {
-            "id": "6008",
-            "type": "arcgis",
-            "title": "Zoutvracht naar oppervlaktewater voor huidige situatie Waterschap Hollandsche Delta",
-            "groupId": "waterkwaliteit",
-            "legendUrl": "https://geoservices.zuid-holland.nl/arcgis/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/WMSServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=28",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": { 
-                "url": "https://geoservices.zuid-holland.nl/arcgis/rest/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/",
-                "layers": [21]
-            }
-        },
-        {
-            "id": "6009",
-            "type": "arcgis",
-            "title": "Indicatie verzilting op de lange termijn ",
-            "groupId": "waterkwaliteit",
-            "legendUrl": "https://geoservices.zuid-holland.nl/arcgis/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/WMSServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=30",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": { 
-                "url": "https://geoservices.zuid-holland.nl/arcgis/rest/services/Klimaat/Klimaat_Klimaatonderlegger/MapServer/",
-                "layers": [18]
-            }
-        },
-        {
-            "id": "6010",
+            "id": "9001",
             "type": "wms",
-            "title": "Ligging grensvlak zoet zout grondwater (Deltares, 2020)",
-            "groupId": "waterkwaliteit",
-            "legendUrl": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ligging_grensvlak_tussen_zoet_en_zout_grondwater&servicekey=bf852b88-fd6a-11ea-932f-005056805b87",
+            "title": "Bodemdaling - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/wms?service=wms&REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "ligging_grensvlak_tussen_zoet_en_zout_grondwater",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "bodemdaling_bebouwing_vitaleinfra_recreatie_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "6011",
+            "id": "9002",
             "type": "wms",
-            "title": "Zoutvracht 1m zeespiegelstijging",
-            "groupId": "waterkwaliteit",
-            "legendUrl": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=zoutvracht_verschil_1m&servicekey=bf852b88-fd6a-11ea-932f-005056805b87",
+            "title": "Regenwateroverlast - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_bebouwing_vitaleinfra_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/wms?service=wms&REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "zoutvracht_verschil_1m",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "regenwateroverlast_bebouwing_vitaleinfra_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "6012",
+            "id": "9003",
             "type": "wms",
-            "title": "Doorspoeling 1m zeespiegelstijging",
-            "groupId": "waterkwaliteit",
-            "legendUrl": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=Verandering_doorspoelwatervraag_1m_ZSS&servicekey=bf852b88-fd6a-11ea-932f-005056805b87",
+            "title": "Waterveiligheid - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_bebouwing_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://apps.geodan.nl/public/data/org/gws/YWFMLMWERURF/kea_public/wms?service=wms&REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0",
-                "featureName": "Verandering_doorspoelwatervraag_1m_ZSS",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterveiligheid_bebouwing_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "7001",
+            "id": "9004",
             "type": "wms",
-            "title": "Temperatuur land warmte dag",
-            "groupId": "hitte",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geokma_lndtmpwdgrst",
+            "title": "Waterbeschikbaarheid - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_bebouwing_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_lndtmpwdgrst",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterbeschikbaarheid_bebouwing_vitaleinfra_recreatie_landbouw_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "7002",
+            "id": "9005",
             "type": "wms",
-            "title": "Temperatuur land koele dag",
-            "groupId": "hitte",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geokma_lndtmpkdgrst",
+            "title": "Waterkwaliteit - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_bebouwing_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_lndtmpkdgrst",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterkwaliteit_bebouwing_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "7003",
+            "id": "9006",
             "type": "wms",
-            "title": "PET hittekaart Provincie Zeeland",
-            "groupId": "hitte",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geokma_httstrkrtrst",
+            "title": "Hitte - Bebouwing",
+            "groupId": "bebouwing",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_bebouwing_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/rasters/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_httstrkrtrst",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "hitte_bebouwing_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "7004",
+            "id": "10000",
             "type": "wms",
-            "title": "Aantal warme dagen (max > 20 C)",
-            "groupId": "hitte",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klimaatadaptatie_warmedagen",
+            "title": "Vitale Infrastructuur Signaalkaart (Totaal)",
+            "groupId": "signaalkaarten",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:vitaleinfra_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "klimaatadaptatie_warmedagen",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "vitaleinfra_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "7005",
+            "id": "10001",
             "type": "wms",
-            "title": "Aantal warme dagen (max > 20 C) in 2050",
-            "groupId": "hitte",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klimaatadaptatie_warmedagen2050",
+            "title": "Bodemdaling - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "klimaatadaptatie_warmedagen2050",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "bodemdaling_bebouwing_vitaleinfra_recreatie_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "7006",
+            "id": "10002",
             "type": "wms",
-            "title": "Aantal zomerse dagen (max > 25 C)",
-            "groupId": "hitte",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klimaatadaptatie_zomersedagen",
+            "title": "Regenwateroverlast - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_bebouwing_vitaleinfra_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "klimaatadaptatie_zomersedagen",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "regenwateroverlast_bebouwing_vitaleinfra_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "7007",
+            "id": "10003",
             "type": "wms",
-            "title": "Aantal zomerse dagen (max > 25 C) in 2050",
-            "groupId": "hitte",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klimaatadaptatie_zomersedagen2050",
+            "title": "Waterveiligheid - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_vitaleinfra_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "klimaatadaptatie_zomersedagen2050",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterveiligheid_vitaleinfra_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "7008",
+            "id": "10004",
             "type": "wms",
-            "title": "Aantal tropische dagen (max > 25 C)",
-            "groupId": "hitte",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klimaatadaptatie_tropischedagen",
+            "title": "Waterbeschikbaarheid - Vitale Infrastructuur",
+            "groupId": "vitaleinfra",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_vitaleinfra_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "klimaatadaptatie_tropischedagen",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterbeschikbaarheid_bebouwing_vitaleinfra_recreatie_landbouw_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "7009",
+            "id": "11000",
             "type": "wms",
-            "title": "Aantal tropische dagen (max > 25 C) in 2050",
-            "groupId": "hitte",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klimaatadaptatie_tropischedagen2050",
+            "title": "Recreatie Signaalkaart (Totaal)",
+            "groupId": "signaalkaarten",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:recreatie_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "klimaatadaptatie_tropischedagen2050",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "recreatie_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "7010",
+            "id": "11001",
             "type": "wms",
-            "title": "Verharding per buurt",
-            "groupId": "hitte",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klimaatadaptatie_verharding_buurt",
+            "title": "Bodemdaling - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:bodemdaling_bebouwing_vitaleinfrastructuur_recreatie_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "klimaatadaptatie_verharding_buurt",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "bodemdaling_bebouwing_vitaleinfra_recreatie_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "7011",
+            "id": "11002",
             "type": "wms",
-            "title": "Groen per buurt",
-            "groupId": "hitte",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klimaatadaptatie_groen_buurt",
+            "title": "Regenwateroverlast - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_recreatie_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/tijdelijk/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "klimaatadaptatie_groen_buurt",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "regenwateroverlast_recreatie_aggregated",
                 "contenttype": "image/png"
             }
         },
         {
-            "id": "7012",
+            "id": "11003",
             "type": "wms",
-            "title": "Stedelijk per buurt",
-            "groupId": "hitte",
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geokma_htteilndrst",
+            "title": "Waterveiligheid - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_recreatie_aggregated&format=image/png",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/klimaat/ows?SERVICE=WMS&VERSION=1.3.0&server_type=default",
-                "featureName": "geokma_htteilndrst",
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterveiligheid_recreatie_aggregated",
                 "contenttype": "image/png"
             }
-        }         
+        },
+        {
+            "id": "11004",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterbeschikbaarheid_bebouwing_vitaleinfra_recreatie_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11005",
+            "type": "wms",
+            "title": "Waterkwaliteit - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterkwaliteit_recreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterkwaliteit_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11006",
+            "type": "wms",
+            "title": "Hitte - Recreatie",
+            "groupId": "recreatie",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_reacreatie_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "hitte_recreatie_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12000",
+            "type": "wms",
+            "title": "Landbouw Signaalkaart (Totaal)",
+            "groupId": "signaalkaarten",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12001",
+            "type": "wms",
+            "title": "Regenwateroverlast - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:regenwateroverlast_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "regenwateroverlast_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12002",
+            "type": "wms",
+            "title": "Waterveiligheid - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterveiligheid_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12003",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterbeschikbaarheid_bebouwing_vitaleinfra_recreatie_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12004",
+            "type": "wms",
+            "title": "Waterkwaliteit - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterkwaliteit_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterkwaliteit_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12005",
+            "type": "wms",
+            "title": "Hitte - Landbouw",
+            "groupId": "landbouw",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:hitte_landbouw_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "hitte_landbouw_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13000",
+            "type": "wms",
+            "title": "Natuur Signaalkaart (Totaal)",
+            "groupId": "signaalkaarten",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13001",
+            "type": "wms",
+            "title": "Waterveiligheid - Natuur",
+            "groupId": "natuur",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterveiligheid_natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterveiligheid_natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13002",
+            "type": "wms",
+            "title": "Waterbeschikbaarheid - Natuur",
+            "groupId": "natuur",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterbeschikbaarheid_natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterbeschikbaarheid_natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13003",
+            "type": "wms",
+            "title": "Waterkwaliteit - Natuur",
+            "groupId": "natuur",
+            "legendUrl": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=digitaltwin_klimaatonderlegger:waterkwaliteit_natuur_aggregated&format=image/png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin_klimaatonderlegger/wms?",
+                "featureName": "waterkwaliteit_natuur_aggregated",
+                "contenttype": "image/png"
+            }
+        }
     ],
     "viewer": {
         "title": "Klimaatonderlegger",
         "subTitle": "3D viewer",
-        "logo": "images/leia_logo.png",
+        "logo": "images/Stempel_ZeelandVerandertMee.png",
         "startPosition": {
-            "x": 3.96280,
-            "y": 51.49285,
-            "z": 108025.35868,
-            "heading": 360.00000,
-            "pitch": -90.00000,
+            "x": 3.8844,
+            "y": 51.5986,
+            "z": 105618.7,
+            "heading": 0.0,
+            "pitch": -89.9,
             "duration": 1.50
         },
+        "startCameraMode3D": false,
         "colors": {
             "ui-background": "#ffffff",
             "interactive-01": "#214170",
@@ -1631,6 +607,48 @@
     },
     "groups": [
         {
+            "id": "signaalkaarten",
+            "title": "Signaalkaarten",
+            "parentId": ""
+        },
+        {
+            "id": "aanvullende_informatie",
+            "title": "Aanvullende informatie",
+            "parentId": ""
+        },
+        {
+            "id": "thematische_lagen",
+            "title": "Thematische Lagen",
+            "parentId": ""
+        },
+        {
+            "id": "bebouwing",
+            "title": "Bebouwing",
+            "parentId": "thematische_lagen"
+        },
+        {
+            "id": "vitaleinfra",
+            "title": "Vitale Infrastructuur",
+            "parentId": "thematische_lagen"
+        },
+        {
+            "id": "recreatie",
+            "title": "Recreatie",
+            "parentId": "thematische_lagen"
+        },
+        {
+            "id": "landbouw",
+            "title": "Landbouw",
+            "parentId": "thematische_lagen"
+        },
+        {
+            "id": "natuur",
+            "title": "Natuur",
+            "parentId": "thematische_lagen"
+        },
+
+
+        {
             "id": "2",
             "title": "Administratieve grenzen",
             "parentId": ""
@@ -1681,63 +699,8 @@
             "parentId": "5"
         },
         {
-            "id": "9",
-            "title": "Habitat- en vogelrichtlijngebieden",
-            "parentId": "4"
-        },
-        {
-            "id": "10",
-            "title": "Nederland Natuurbeheerplannen",
-            "parentId": "4"
-        },
-        {
-            "id": "11",
-            "title": "België Natuurbeheerplannen",
-            "parentId": "4"
-        },
-        {
             "id": "geonetwork",
             "title": "Dataportaal Zeeland",
-            "parentId": ""
-        },
-        {
-            "id": "bodemcondities",
-            "title": "Bodemcondities",
-            "parentId": ""
-        },
-        {
-            "id": "bodemdaling",
-            "title": "Bodemdaling",
-            "parentId": ""
-        },
-        {
-            "id": "wateroverlast",
-            "title": "Wateroverlast",
-            "parentId": ""
-        },
-        {
-            "id": "waterveiligheid",
-            "title": "Waterveiligheid",
-            "parentId": ""
-        },
-        {
-            "id": "waterbeschikbaarheid",
-            "title": "Waterbeschikbaarheid",
-            "parentId": ""
-        },
-        {
-            "id": "waterkwaliteit",
-            "title": "Waterkwaliteit",
-            "parentId": ""
-        },
-        {
-            "id": "sedimentatie",
-            "title": "Sedimentatie",
-            "parentId": ""
-        },
-        {
-            "id": "hitte",
-            "title": "Hitte",
             "parentId": ""
         }
     ],
@@ -1779,24 +742,6 @@
             }
         },
         {
-            "id": "bookmarks",
-            "enabled": true,
-            "settings": {
-                "bookmarks": [
-                    {
-                        "title": "Heinenoordtunnel",
-                        "description": "De Heinenoordtunnel is een verkeerstunnel in de Nederlandse provincie Zuid-Holland",
-                        "x": 4.51056,
-                        "y": 51.833003,
-                        "z": 2000,
-                        "heading": 0,
-                        "pitch": -65,
-                        "duration": 2
-                    }
-                ]
-            }
-        },
-        {
             "id": "cesium",
             "enabled": true,
             "settings": {
@@ -1815,12 +760,7 @@
                 "terrainProviders": [
                     {
                         "title": "Zeeland 1m",
-                        "url": "https://95.217.154.75/tiles_other/zeeland_1m",
-                        "vertexNormals": true
-                    },
-                    {
-                        "title": "PDOK Terrain",
-                        "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
+                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
                         "vertexNormals": true
                     },
                     {
@@ -1881,56 +821,997 @@
             }
         },
         {
-            "id": "flooding",
-            "enabled": true,
-            "settings": {
-                "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
-                "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson",
-                "roadsUrl": "https://service.pdok.nl/rws/vervoersnetwerken/wegen/wms/v1_0",
-                "floodedRoadsUrl": "http://localhost:5000",
-                "floodedRoadsStyle":[
-                    {
-                        "property": "flood_depth",
-                        "stops": [
-                            { "value": 0, "color": "#ffff42" },
-                            { "value": 4, "color": "#ff0000" }
-                        ]
-                    }
-                ]
-            }
-        },
-        {
             "id": "stories",
             "enabled": true,
             "settings": {
                 "stories": [
                     {
-                        "name": "My story",
-                        "description": "Description of my story",
+                        "name": "Klimaatonderlegger",
+                        "description": "Kaarten voor de klimaatonderlegger",
                         "width": "600px",
-                        "steps": [
+                        "force2DMode": true,
+                        "requestPolygonArea": true,
+                        "baseLayerId": "001",
+                        "chapters": [
                             {
-                                "title": "Gebouwen gekleurd naar bouwjaar",
-                                "html": "<div>Dit zijn gebouwen gekleurd naar bouwjaar.</div>",
-                                "globeOpacity": 100,
-                                "terrain": "PDOK Terrain",
-                                "camera": {
-                                    "x": 5.23907,
-                                    "y": 52.20004,
-                                    "z": 13130.05823,
-                                    "heading": 335.10694,
-                                    "pitch": -30.69127,
-                                    "duration": 1.5
-                                },
-                                "layers": [
+                                "id": "1",
+                                "steps": [
                                     {
-                                        "id": "1"
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "9000"
+                                            }
+                                        ]
                                     },
                                     {
-                                        "id": "3",
-                                        "style": "Bouwjaar"
+                                        "title": "Bodemdaling",
+                                        "html": "<div>Zeeland bestaat deels uit slappe bodems met een pakket klei en op sommige plekken veen. Deze bodems zijn gevoelig voor inklinking, zetting en veenoxidatie. Dit kan tot schade en hogere beheerkosten leiden voor bebouwing, openbare ruimte, leidingen en tuinen. Daarnaast kan bodemdaling ervoor zorgen dat het oppervlaktewaterpeil (om voldoende drooglegging te behouden voor de bebouwing) moet worden verlaagd, wat tot extra beheerkosten leidt.<br><br> Bij gebouwde ontwikkeling in risicogebieden dient de draagkracht van de bodem te worden onderzocht. Draagkracht duidt op de mate waarin de ondergrond bij belasting gevoelig is voor zetting. Veen- en kleibodems kunnen worden samengedrukt door het gewicht van gebouwde ontwikkelingen (gebouwen en wegen), zeker als het maaiveld met zand wordt opgehoogd. Een deel van de bodemdaling treedt al op tijdens het voorbelasten van de bodem en dus vóór de oplevering van een gebouw. Na de oplevering kan er nog restzetting optreden die decennia kan doorgaan. Met name deze restzetting kan leiden tot hoge kosten voor beheer en onderhoud.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>Concentreer bebouwing voor zo veel mogelijk op draagkrachtige bodems. Zorg dat de bouwwijze is afgestemd op bodemtype en verwachte restzetting. Door het stellen van eisen aan het bouwen in bodemdalingsgevoelige gebieden wordt voorkomen dat kosten (onderhoud en beheer) worden afgewenteld op de toekomst. Bijvoorbeeld door het stellen van eisen aan de toegestane restzetting in een periode van 30 jaar. Vervolgens kan op basis van bodemonderzoek worden gekeken welke maatregelen nodig zijn om te kunnen voldoen aan deze restzettingseisen. Denk daarbij aan: <br><br>–Bebouwing kan bodemdalingbestendig worden gemaakt door deze (soms diep) te onderheien. <br><br>–Gebruik van lichtere bouwmaterialen (bijvoorbeeld composieten of houtbouw). <br><br>–Goede waterdichte afwerking en bebouwing zonder kruipruimte die bestand zijn voor stijgende grondwaterstanden. <br><br>–Lichtere ophoogmaterialen in plaats van het vaak gebruikte zand voor ophoging.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "9001",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    },
+                                                    {
+                                                        "labels": "D",
+                                                        "text": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Regenwater kan gedeeltelijk worden vastgehouden of opgenomen door de bodem (infiltreren). In bebouwde gebieden met veel verharding of met hoge grondwaterstanden (weinig ruimte voor het water om te infiltreren), is de infiltratiecapaciteit beperkt. In Zeeland, dat grotendeels uit peilgereguleerde polders bestaat, moet regenwater dat niet kan worden vastgehouden, geïnfiltreerd of geborgen en op het maaiveld blijft staan, worden weggepompt.<br><br>Als gevolg van klimaatverandering neemt de hoeveelheid neerslag toe en zal wateroverlast in de toekomst vaker optreden. In gebouwde gebieden zal moeten worden ingezet op het extra infiltreren, vasthouden en bergen van water om wateroverlast te beperken. Daarnaast moet worden geaccepteerd dat er vaker water op straat zal staan, en moet worden voorkomen dat 20 cm water op straat tot schade leidt. Bij de aanleg van vitaal en kwetsbaar functies (zoals ziekenhuizen) is het extra belangrijk rekening te houden met regenwateroverlast, om schade en slachtoffers te voorkomen.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>Bij nieuwbouw wordt doorgaans al ingezet op het infiltreren, vasthouden of bergen van 40-70 mm in 1 uur, en het voorkomen van schade bij 20 cm water op straat.<br><br>-Het waterbestendig maken van kelders en souterrains door deze waterdicht uit te voeren of door er geen functies te plaatsen die gevoelig zijn voor waterschade.<br><br>-Waterdichte drempels voor woningen en garages zodat er tot 20 cm water op straat geen schade ontstaat (kan met drempels of een verhoogde rand in de openbare ruimte).<br><br>-Er kan worden ingezet op tijdelijke wateropvang en het verbeteren van het infiltratievermogen van de bodem (halfverharding, groenstroken, wadi's of infiltratiekratten).<br><br>-Afkoppelen van regenwater zorgt dat water makkelijker kan infiltreren (onbedekte bodem, groenstroken of waterdoorlatende bestrating) of vertraagd kan worden afgevoerd naar het oppervlaktewater.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "9002",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "BCD",
+                                                        "text": "B, C en D: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).",
+                                                        "subLabels": {
+                                                            "B": {
+                                                                "text": "B: Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen. Bij nieuwbouw wordt al ingezet op het infiltreren, vasthouden of bergen van 40-70 mm in 1 uur, het beperkt verharden en het gebruik van waterdichte drempels van 20 cm (Convenant klimaatadaptief vouwen en Landelijke maatlat).",
+                                                                "hoverText": ""
+                                                            },
+                                                            "C": {
+                                                                "text": "C: Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm (door extra water vast te houden, te bergen of af te voeren), zodat er geen schade of risico's ontstaan bij waterstanden op het maaiveld tot circa 50 cm.",
+                                                                "hoverText": ""
+                                                            },
+                                                            "D": {
+                                                                "text": "D: Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm, of er geen schade ontstaat bij waterstanden op het maaiveld van >50 cm.",
+                                                                "hoverText": ""
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        "labels": "D",
+                                                        "text": "D: In gebieden waar regenwater zich verzamelt, waterbestendig ontwikkelen en vitale en kwetsbare functies aangepast ontwikkelen of ontwikkelingen vermijden. Gebiedsontwikkelingen die integraal opgehoogd worden vragen een grote inspanning en wentelen af op andere gebieden."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Binnendijkse gebieden worden door een stelsel van dijken, duinen en keringen beschermd tegen overstromingen. Bij het bepalen van de sterkte van de keringen is het belangrijk dat de gevolgen van een eventuele overstroming acceptabel zijn in relatie tot de kans van optreden. Daarbij is het belangrijk dat de reserveringszones rondom de keringen (zowel primair als regionaal) vrij worden gehouden om toekomstige versterkingen te kunnen waarborgen. De gevolgen van een overstroming kunnen extra groot zijn als er veel woningen zonder droge verdiepingen zijn of gebouwen met minder zelfredzame bevolkingsgroepen overstromen.<br><br>Er kan, naast het verkleinen van de overstromingskans (met keringen), ook worden ingezet op het beperken van de gevolgen van een overstroming. Dit heet meerlaagsveiligheid. Zo kan er worden ingezet op een goed noodplan en kunnen binnendijks extra voorzieningen worden getroffen die de kans op schade of slachtoffers in geval van een overstroming beperken. Het is belangrijk goed inzicht te hebben in verantwoordelijkheden, mogelijke vluchtroutes en nood- of evacuatiemogelijkheden voor vitale en kwetsbare functies.<br><br>In gebieden met een risico op hoge waterstanden en eventuele slachtoffers kan er ook worden besloten om ontwikkelingen te zoneren op basis van het risico.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>-Zorg dat bij de locatiekeuze van vitale of kwetsbare functies rekening wordt gehouden met het overstromingsrisico en de mogelijke waterdiepte van het gebied. Plaats vitale en kwetsbare functies (zoals ziekenhuizen of datacenters) niet op diep overstroombare plekken of locaties met een hogere overstromingskans.<br><br>-Zorg voor droge verdiepingen of lokale shelterlocaties in gebieden met hogere overstromingsdiepten (meer dan 2,5 m).<br><br>-Woningen in gebieden die kunnen overstromen, kunnen meer waterbestendig worden ingericht (deze worden ook wel 'wet proof'-gebouwen genoemd). Door gebruik te maken van materialen die bij wateroverlast niet beschadigen (denk aan een stenen vloer in plaats van een houten vloer en het hoger plaatsen van stopcontacten en installaties) kan schade worden beperkt.<br><br>-Op sommige locaties biedt het verhoogd wonen op terpen of op robuuste deltadijken kansen voor een klimaatbestendige oplossing. Bij het ontwerp moet echter worden voorkomen dat er wordt afgewenteld op omliggend gebied, doordat het water minder ruimte heeft.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "9003",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "BC",
+                                                        "text": "B, C: Houd rekening met meer frequente overstromingen in buitendijkse (waterbergende) gebieden (zee-invloedsgebied of oeverland), in het bijzonder bij vitale en kwetsbare functies.",
+                                                        "subLabels": {
+                                                            "B": {
+                                                                "text": "B: De inspanning voor adaptatie in buitendijkse gebieden wordt steeds groter (eigen verantwoordelijkheid eigenaren).",
+                                                                "hoverText": ""
+                                                            },
+                                                            "C": {
+                                                                "text": "C: Peilverhoging in voormalige buitendijkse gebieden (oeverlanden) is mogelijk.",
+                                                                "hoverText": ""
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "C: Bij mogelijke overstromingsdiepten tot 2,5 meter: inzetten op schade beperken en bereikbare droge eerste verdieping. Geen ontwikkelingen met vitale functies of kwetsbre groepen."
+                                                    },
+                                                    {
+                                                        "labels": "E",
+                                                        "text": "E: Houd beschermingszones rond primaire en regionale keringen en dammen vrij van bebouwing. Op waterstaatwerken en beschermingszones is geen bebouwing toegestaan."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Zeeland ligt in de Delta; hierdoor zijn de aanvoermogelijkheden voor zoetwater beperkt en is het grootste deel van het gebied afhankelijk van regenwater wat in de bodem en het oppervlaktewatersysteem wordt opgeslagen. Door klimaatverandering zullen de perioden van droogte steeds langer zijn en neemt de zoute kwel toe waardoor er minder zoetwater beschikbaar zal zijn. Ook de productie van drinkwater loopt tegen grenzen aan. Tegelijkertijd neemt de vraag naar zoetwater en drinkwater toe door de toenemende bevolking, water voor industrie en datacenters en de toename van de hoeveelheid stedelijk groen.<br><br> Het is belangrijk om zoveel mogelijk water vast te houden en te bergen waar het valt (regentonnen, maximale sponswerking) en in te zetten op slim watergebruik (lokale waterkringlopen). Water kan worden opgevangen voor het besproeien van tuinen of het doorspoelen van toiletten. Door het verbeteren van de bodemcondities kan water gemakkelijker worden vastgehouden voor het stedelijk groen. Voor grootschalige industrie- en bedrijventerreinen kan er maximaal gebruik worden gemaakt van alternatieve bronnen voor koeling- en proceswater zoals zoutwater, regenwater en water uit rioolwaterzuiveringen. Het realiseren van lokale waterkringlopen (hergebruik van water) op bedrijventerreinen en industriegebieden kan helpen de watervraag te reduceren.<br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>- In gebouwen kan regenwater vanaf het dak goed worden opgevangen in de tuin of het gebouw zelf, bijvoorbeeld in regentonnen, waterzakken voor in de kelder, ondergrondse watertanks en kruipruimtes (wordt in België veel toegepast).<br><br>- Voldoende ruimte om regenwater te bergen en infiltreren (of hergebruiken) in de openbare ruimte door: oppervlaktewater te realiseren in openbare ruimte; de aanleg van waterpleinen, vijvers of wadi's; infiltratiekratten of bergingen in bebouwd gebied; doorlaatbare halfverharding in de openbare ruimte en op parkeerplaatsen; het vergroenen van tuinen en straten. Door in te zetten op droogteresistente beplanting zal tegelijkertijd de watervraag worden verminderd.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "9004",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Voor stedelijk groen is voldoende zoetwaterbeschikbaarheid een opgave. Zoeg dat in stedelijk gebied water wordt vastgehouden en opgevangen voor hergebruik."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Gebieden die worden aangevoerd vanuit het Volkerak-Zoommeer kunnen in zeer droge perioden kwetsbaar zijn voor watertekorten. De beschikbaarheid van zoetwater zal in de toekomst niet altijd meer vanzelfsprekend zijn."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: In gebieden met zoet grondwater (grondwaterbellen van >15m dik) kan bij neerslagtekorten water uit de bodem worden benut."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "C: Gebieden zonder wateraanvoer of zoet grondwater (of met beperkingen voor onttrekkingen) zullen in drogere perioden de zoetwatervoorziening onder druk komen te staan."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "C: In gebieden die gebruik kunnen maken van zoet grondwater, maar die liggen binnen de bufferzones van Natura 2000 gebieden, dient rekening te worden gehouden met beperkingen voor onttrekkingen in drogere perioden."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterkwaliteit",
+                                        "html": "",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "9005",
+                                                "generalLegendText": "Bij nieuwe ontwikkleingen dient re rekening te worden gehouden met waterkwaliteitsopgaven (het reduceren van rioolverstorten, inzetten op groenblauwe dooradering, het voorkomen van stilstaande waterpartijen). <br><br> Door langdurige droge perioden en hoge temperaturen kan het water steeds sneller en vaker opwarmen. Het opwarmen van oppervlaktewateren heeft effecten op de kwaliteit van het oppervlaktewatersysteem (o.a. blauwalg, zuurstofloosheid, vissterfte, botulisme).",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Het lozen van koelwater kan steeds vaker tegen beperkingen aanlopen bij wateren die zomers sterk opwarmen."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Bij onvoldoende aanvoer en temperatuurstijging van het water neemt de kans op directe vervuiling in zwemwater toe. Zorg voor voldoende robuuste (zwem)waterlichamen voor dagrecreatie."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Hitte",
+                                        "html": "<div>Indicatoren voor Hitte in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "9006",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Grote waterlichamen warmen op bij lange perioden met hoge temperaturen en geven 's nachts warmte af. Bij grote wateren draagt dit bij aan het stedelijk hitte-eiland effect. Dit kan nadelige effecten hebben op de gezondheid."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Bij een gevoelstemperatuur van meer dan 45°C kan het bebouwde gebied sterk opwarmen, met hittestress en gezondheidsrisico's als gevolg. Ouderen, jongere kinderen en chronisch zieken zijn hiervoor extra kwetsbaar. Bij langdurige hitte kunnen kleine waterlichamen waterkwaliteitsproblemen veroorzaken met gevolgen voor de volksgezondheid."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "C: In stedelijke gevieden met veel verharding kan warmte 's nachts blijven hangen. Dit draagt bij aan het stedelijk hitte-eiland effect en kan nadelige effecten hebben op de gezondheid. Neem maatregelen om verharding en opwarming te berperken."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                    
+                                ]
+                            },
+                            {
+                                "id": "2",
+                                "steps": [
+                                    {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "10000"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Bodemdaling",
+                                        "html": "<div>Zeeland bestaat deels uit slappe bodems met een pakket klei en op sommige plekken veen. Deze bodems zijn gevoelig voor inklinking, zetting en veenoxidatie. Dit kan tot schade en hogere beheerkosten leiden voor infrastructuur, dijken, bebouwing, openbare ruimte en leidingen.<br><br> Bij de aanleg van vitale infrastructuur (wegennetwerk, kabels, energie opslaglocaties, transporthuisjes, zendmasten) dient de draagkracht van de bodem te worden onderzocht. Draagkracht duidt op de mate waarin de ondergrond bij belasting gevoelig is voor zetting. Bij de aanleg van nieuwe wegen en bovengrondse energie-infrastructuur wordt de bodem belast. Veen- en kleibodems kunnen worden samengedrukt door het gewicht van gebouwde ontwikkelingen, zeker als het maaiveld met zand wordt opgehoogd. Een deel van de bodemdaling treedt al op tijdens het voorbelasten van de bodem en dus vóór de oplevering. Na de oplevering kan er nog restzetting optreden die decennia kan doorgaan. Met name deze restzetting kan leiden tot hoge kosten voor beheer en onderhoud.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>Concentreer infrastructuur voor zo veel mogelijk op draagkrachtige bodems. Zorg dat de bouwwijze is afgestemd op bodemtype en verwachte restzetting. Denk daarbij aan:<br><br>-Gebruik voor wegen (die in bodemdalingsgebieden frequenter moeten worden opgehoogd) lichte ophoogmaterialen zoals EPS, schuimbeton of een lokaal gewonnen granulair materiaal.<br><br>-Kies voor bodemdalingbestendige leidingen. Gebruik flexibele buizen (riolering) die bestaan uit vervormbare materialen of versterkte leidingen met een dikkere doorsnede die drukvast zijn.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "10001",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    },
+                                                    {
+                                                        "labels": "D",
+                                                        "text": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Regenwater kan gedeeltelijk worden vastgehouden of opgenomen door de bodem (infiltreren). In gebieden met hoge grondwaterstanden (weinig ruimte voor het water om te infiltreren), een hoge ondergrondverdichting (doordat zware landbouwvoertuigen de grond samendrukken) of veel verharding (zoals in stedelijk gebied), is de infiltratiecapaciteit beperkt. In Zeeland, dat grotendeels uit peilgereguleerde polders bestaat, moet regenwater dat niet kan worden vastgehouden, geïnfiltreerd of geborgen en op het maaiveld blijft staan, worden weggepompt.<br><br>Als gevolg van klimaatverandering neemt de hoeveelheid neerslag toe en zal wateroverlast in de toekomst vaker optreden. Dit kan vooral in de lager gelegen gebieden voor langdurige wateroverlast zorgen. Bij de aanleg van wegen, bovengrondse elektriciteitsnetwerken en transformator- of conversiehuisjes moet rekening worden gehouden met de waterdiepte die kan ontstaan.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>-Vooral in lager gelegen gebieden kan gedacht worden aan het waterdicht uitvoeren van energie-infrastructuur, het verhoogd aanleggen van wegen en vitale schakels (o.a. transformatorhuisjes en zendmasten).<br><br>-In tunnels op hoofdwegen worden vanwege de grote schade die kan optreden (lange files, beperkte bereikbaarheid voor nooddiensten), vaak ook noodpompen geplaatst die water, dat de tunnel in loopt, kunnen wegpompen. In gebieden met hoge of toenemende grondwaterstanden door de beperktere ontwateringsdiepte kunnen leidingen of tunnels in beweging komen door ondergrondse stromingen of waterdruk. Door bijvoorbeeld gebruik te maken van buisleidingen kunnen meerdere kabels en leidingen worden gebundeld, waardoor het soortelijk gewicht wordt vergroot en er minder ondergrondse beweging kan ontstaan.<br><br>-Het waterbestendig maken van kelders, parkeergarages en tunnels door deze waterdicht uit te voeren.<br><br>-Door een waterdichte drempel aan te leggen voor parkeergarages en tunnels. De drempels kunnen een rand zijn van bijvoorbeeld 20 cm hoogte.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "10002",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "BCD",
+                                                        "text": "B, C en D: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).",
+                                                        "subLabels": {
+                                                            "B": {
+                                                                "text": "B: Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen. Bij nieuwbouw wordt al ingezet op het infiltreren, vasthouden of bergen van 40-70 mm in 1 uur, het beperkt verharden en het gebruik van waterdichte drempels van 20 cm (Convenant klimaatadaptief vouwen en Landelijke maatlat).",
+                                                                "hoverText": ""
+                                                            },
+                                                            "C": {
+                                                                "text": "C: Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm (door extra water vast te houden, te bergen of af te voeren), zodat er geen schade of risico's ontstaan bij waterstanden op het maaiveld tot circa 50 cm.",
+                                                                "hoverText": ""
+                                                            },
+                                                            "D": {
+                                                                "text": "D: ONtwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm, of er geen schade ontstaat bij waterstanden op het maaiveld van >50 cm.",
+                                                                "hoverText": ""
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        "labels": "D",
+                                                        "text": "D: In gebieden waar regenwater zich verzamelt, waterbestendig ontwikkelen en vitale en kwetsbare functies aangepast ontwikkelen of ontwikkelingen vermijden. Gebiedsontwikkelingen die integraal opgehoogd worden vragen een grote inspanning en wentelen af op andere gebieden."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>De gevolgen van een overstroming kunnen extra groot zijn als vitale netwerken uitvallen. Hierdoor kunnen vitale wegen niet meer begaanbaar zijn en kunnen elektriciteitsnetwerken uitvallen. Door waterbestendig te ontwikkelen in gebieden met een kans op schade bij overstromingsdiepten bij een kans van 1:4.000, kan worden voorkomen dat er schade optreedt.<br><br>In overstromingsgevoelige gebieden is het raadzaam elektrische installaties minimaal 50 cm boven het straatniveau te plaatsen of bij dreigende overstroming af te schermen met waterbestendige schotten. Ook bij belangrijke gas- en elektriciteitsnetwerken is het van belang rekening te houden met mogelijke overstromingsdiepten (door bijvoorbeeld de elektrische installaties die de druk in gasleidingen verzorgen verhoogd aan te leggen). Hiermee kan het risico op de uitval van vitale energienetwerken worden beperkt.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "10003",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "BC",
+                                                        "text": "B, C: Houd rekening met meer frequente overstromingen in buitendijkse (waterbergende) gebieden (zee-invloedsgebied of oeverland), in het bijzonder bij vitale en kwetsbare functies.",
+                                                        "subLabels": {
+                                                            "B": {
+                                                                "text": "B: De inspanning voor adaptatie in buitendijkse gebieden wordt steeds groter (eigen verantwoordelijkheid eigenaren).",
+                                                                "hoverText": ""
+                                                            },
+                                                            "C": {
+                                                                "text": "C: Peilverhoging in voormalige buitendijkse gebieden (oeverlanden) is mogelijk.",
+                                                                "hoverText": ""
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        "labels": "BCD",
+                                                        "text": "B, C en D: Houd rekening met het binnendijkse overstromingsrisico en zet in op gevolgdberperking."
+                                                    },
+                                                    {
+                                                        "labels": "E",
+                                                        "text": "E: Houd beschermingszones rond primaire en regionale keringen en dammen vrij van bebouwing. Op waterstaatwerken en beschermingszones is geen bebouwing toegestaan."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "10004",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Gebieden die worden aangevoerd vanuit het Volkerak-Zoommeer kunnen in zeer droge perioden kwetsbaar zijn voor watertekorten. De beschikbaarheid van zoetwater zal in de toekomst niet altijd meer vanzelfsprekend zijn."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: In gebieden met zoet grondwater (grondwaterbellen van >15m dik) kan bij neerslagtekorten water uit de bodem worden benut."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "C: In gebieden zonder wateraanvoer of zoet grondwater (of met beperkingen voor onttrekkingen) zal in drogere perioden de zoetwatervoorziening odner druk komen te staan."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "C: In gebieden die gebruik kunnen maken van zoet grondwater, maar die liggen binnen de bufferzones van Natura 2000 gebieden, dient rekening te worden gehouden met beperkingen voor onttrekkingen in drogere perioden."
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     }
                                 ]
+                            },
+                            {
+                                "id": "3",
+                                "steps": [
+                                    {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "11000"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Bodemdaling",
+                                        "html": "<div>Zeeland bestaat deels uit slappe bodems met een pakket klei en op sommige plekken veen. Deze bodems zijn gevoelig voor inklinking, zetting en veenoxidatie. Dit kan tot schade en hogere beheerkosten leiden voor bebouwing, openbare ruimte, leidingen en tuinen. Daarnaast kan bodemdaling ervoor zorgen dat het oppervlaktewaterpeil (om voldoende drooglegging te behouden voor de bebouwing) moet worden verlaagd, wat tot extra beheerkosten leidt.<br><br>Recreatiewoningen hebben een kortere levensduur (circa 25-30 jaar) dan vaste woningen, ze zijn vaak lichter en sluiten niet aan op een verharde openbare ruimte. Hierdoor zijn ze, mits goed ontworpen, minder gevoelig voor het veroorzaken van bodemdaling en de schade die daardoor ontstaat. Grootschalige nieuwbouwontwikkelingen, zoals vakantieparken, waarbij wordt opgehoogd en aangesloten op een verharde openbare ruimte, kennen dezelfde risico's als woningbouw.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>-Gebruik lichtere materialen (composieten of houtbouw) wat de woningen bodemdalingsbestendiger maakt.<br><br>-Kies voor demontabele of verplaatsbare tijdelijke gebouwen.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "11001",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "10-25 cm: Ontwikkel bodemdalingsbestendig in gebieden met zetting tot 25 cm. Houd bij ontwikkelingen rekening met zetting tot 25 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "25-50 cm: Kleigronden zijn gevoelig voor verslemping. Houd bij ontwikkelingen rekening met zetting tot 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    },
+                                                    {
+                                                        "labels": "D",
+                                                        "text": ">50 cm: Heroverweeg de locatie van de ontwikkeling in zeer zettingsgevoelige gebieden. Houd bij ontwikkelingen rekening met hoge inspanning bij zetting van meer dan 50 cm. Onderzoek zettinggevoeligheid en fundeer op palen bij ontwikkeling."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Regenwater kan gedeeltelijk worden vastgehouden of opgenomen door de bodem (infiltreren). In bebouwde gebieden met veel verharding of met hoge grondwaterstanden (weinig ruimte voor het water om te infiltreren), is de infiltratiecapaciteit beperkt. In Zeeland, dat grotendeels uit peilgereguleerde polders bestaat, moet regenwater dat niet kan worden vastgehouden, geïnfiltreerd of geborgen en op het maaiveld blijft staan, worden weggepompt.<br><br>Als gevolg van klimaatverandering neemt de hoeveelheid neerslag toe en zal wateroverlast in de toekomst vaker optreden. Er zal moeten worden ingezet op het extra infiltreren, vasthouden en bergen van water om wateroverlast te beperken. Daarnaast zal moeten worden geaccepteerd dat er (zeker in laaggelegen gebieden) vaker water op straat staat, en ervoor moet worden gezorgd dat hierbij geen schade optreedt. Bijvoorbeeld door recreatiewoningen waterbestendig te ontwerpen.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br>-Het interieur aanpassen op mogelijke wateroverlast. Denk aan het plaatsen van vloertegels in plaats van houten vloeren.<br><br>-Drijvende en amfibische recreatiewoningen te plaatsen. Deze kunnen met het water mee omhoog drijven zonder dat ze schade oplopen. Hetzelfde geldt voor woningen die verhoogd op palen staan.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "11002",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "BC",
+                                                        "text": "B en C: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).",
+                                                        "subLabels": {
+                                                            "B": {
+                                                                "text": "B: Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen.",
+                                                                "hoverText": ""
+                                                            },
+                                                            "C": {
+                                                                "text": "C: Ontwikkel waterbestendig bij >20cm wateroverlast; denk aan tijdelijke (tot 1 jaar) of floodproof woningen (geen water in de woning) en extra waterberging.",
+                                                                "hoverText": ""
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "C: Ontwikkel waterbestending in gebieden waar regenwater zich verzamelt (geen water in de woning); denk aan tijdelijke (tot 15 jaar) of floodproof woningen, extra waterberging en voorkom afwenteling."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>De gevolgen van een overstroming kunnen extra groot zijn als vitale netwerken uitvallen. Hierdoor kunnen vitale wegen niet meer begaanbaar zijn en kunnen elektriciteitsnetwerken uitvallen. Door waterbestendig te ontwikkelen in gebieden met een kans op schade bij overstromingsdiepten bij een kans van 1:4.000, kan worden voorkomen dat er schade optreedt. In overstromingsgevoelige gebieden is het raadzaam elektrische installaties minimaal 50 cm boven het straatniveau te plaatsen of bij dreigende overstroming af te schermen met waterbestendige schotten. Ook bij belangrijke gas- en elektriciteitsnetwerken is het van belang rekening te houden met mogelijke overstromingsdiepten (door bijvoorbeeld de elektrische installaties die de druk in gasleidingen verzorgen verhoogd aan te leggen). Hiermee kan het risico op de uitval van vitale energienetwerken worden beperkt.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "11003",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "BC",
+                                                        "text": "B, C: Houd rekening met meer frequente overstromingen in buitendijkse (waterbergende) gebieden (zee-invloedsgebied of oeverland).",
+                                                        "subLabels": {
+                                                            "B": {
+                                                                "text": "B: De inspanning voor adaptatie in buitendijkse gebieden wordt steeds groter (eigen verantwoordelijkheid eigenaren).",
+                                                                "hoverText": ""
+                                                            },
+                                                            "C": {
+                                                                "text": "C: Peilverhoging in voormalige buitendijkse gebieden (oeverlanden) is mogelijk.",
+                                                                "hoverText": ""
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        "labels": "E",
+                                                        "text": "E: Houd beschermingszones rond primaire en regionale keringen en dammen vrij van bebouwing. Op waterstaatwerken en beschermingszones is geen bebouwing toegestaan."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "11004",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Gebieden die worden aangevoerd vanuit het Volkerak-Zoommeer kunnen in zeer droge perioden kwetsbaar zijn voor watertekorten. De beschikbaarheid van zoetwater zal in de toekomst niet altijd meer vanzelfsprekend zijn."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: In gebieden met zoet grondwater (grondwaterbellen van >15m dik) kan bij neerslagtekorten water uit de bodem worden benut."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "C: In gebieden zonder wateraanvoer of zoet grondwater (of met beperkingen voor onttrekkingen) zal in drogere perioden de zoetwatervoorziening odner druk komen te staan."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "C: In gebieden die gebruik kunnen maken van zoet grondwater, maar die liggen binnen de bufferzones van Natura 2000 gebieden, dient rekening te worden gehouden met beperkingen voor onttrekkingen in drogere perioden."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterkwaliteit",
+                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "11005",
+                                                "generalLegendText": "Bij nieuwe ontwikkleingen dient re rekening te worden gehouden met waterkwaliteitsopgaven (het reduceren van rioolverstorten, inzetten op groenblauwe dooradering, het voorkomen van stilstaande waterpartijen). <br><br> Door langdurige droge perioden en hoge temperaturen kan het water steeds sneller en vaker opwarmen. Het opwarmen van oppervlaktewateren heeft effecten op de kwaliteit van het oppervlaktewatersysteem (o.a. blauwalg, zuurstofloosheid, vissterfte, botulisme).",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Bij onvoldoende aanvoer en temperatuurstijging van het water neemt de kans op directe vervuiling in zwemwater toe. Zorg voor voldoende robuuste (zwem)waterlichamen voor dagrecreatie."
+                                                    }
+                                                ]
+
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Hitte",
+                                        "html": "<div>Indicatoren voor Hitte in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "11006",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Grote waterlichamen warmen op bij lange perioden met hoge temperaturen en geven 's nachts warmte af. Bij grote wateren draagt dit bij aan het stedelijk hitte-eiland effect. Dit kan nadelige effecten hebben op de gezondheid."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Bij een gevoelstemperatuur van meer dan 45°C kan het bebouwde gebied sterk opwarmen, met hittestress en gezondheidsrisico's als gevolg. Ouderen, jongere kinderen en chronisch zieken zijn hiervoor extra kwetsbaar. Bij langdurige hitte kunnen kleine waterlichamen waterkwaliteitsproblemen veroorzaken met gevolgen voor de volksgezondheid."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "C: In stedelijke gevieden met veel verharding kan warmte 's nachts blijven hangen. Dit draagt bij aan het stedelijk hitte-eiland effect en kan nadelige effecten hebben op de gezondheid. Neem maatregelen om verharding en opwarming te berperken."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "4",
+                                "steps": [
+                                    {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "12000"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Regenwateroverlast",
+                                        "html": "<div>Regenwater kan gedeeltelijk worden vastgehouden of opgenomen door de bodem (infiltreren). In gebieden met hoge grondwaterstanden (weinig ruimte voor het water om te infiltreren), een hoge ondergrondverdichting of veel verharding, is de infiltratiecapaciteit beperkt. In Zeeland, dat grotendeels uit peilgereguleerde polders bestaat, moet regenwater dat niet kan worden vastgehouden, geïnfiltreerd of geborgen en op het maaiveld blijft staan, worden weggepompt.<br><br>Als gevolg van klimaatverandering neemt de hoeveelheid neerslag toe en zal wateroverlast in de toekomst vaker optreden. Er zal moeten worden ingezet op het extra infiltreren, vasthouden en bergen van water (in de bodem of het oppervlaktewatersysteem) om wateroverlast te beperken. Daarnaast zal moeten worden geaccepteerd dat er (zeker in laaggelegen gebieden) vaker water op het maaiveld blijft staan, en ervoor moet worden gezorgd dat er wordt aangepast aan nattere condities.<br><br><br><br><strong>Voorbeelden maatregelen</strong><br><hr><br<br><br>-In natte gebieden kan door te extensiveren, landbouw mogelijk blijven op gronden die vaker te maken krijgen met wateroverlast en verminderende draagkracht.<br><br>-In natte gebieden kunnen gewassen, die beter bestand zijn tegen hoge grondwaterstanden, worden overwogen.<br><br>-Bij niet-kerende grondbewerking (NKG) wordt de bodem niet dieper dan 12 cm bewerkt. Natuurlijke processen worden zo min mogelijk verstoord, het bodemleven blijft hiermee gespaard en er treedt minder bodemverdichting op.<br><br>-Het toepassen van vaste rijpaden heeft een positief effect op de bodemstructuur. Het kiezen voor een vaste werkbreedte is echter vanwege de grote variatie aan landbouwmachines en teelttechnieken vaak nog niet mogelijk.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "12001",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "Door extremere regenval kunnen landbouwpercelen voor een korte tijd snel inunderen. Houd rekening met wateroverlast van meer dan 5 cm. Pas hierop de bedrijfsvoering aan indien nodig."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "Gebieden die van nature slempgevoelig (in relatie tot bodemtype) zijn, krijgen bij overbelasting vaker te maken met water op het maaiveld. Door een andere bewerkingsvorm van de bodem (anders ploegen, etc.) of het toevoegen van organisch materiaal in de toplaag kan de bodemstructuur worden verbeterd."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "Gebieden die vallen onder de 1:25 wateroverlast normering waar het regenwater zich verzameld, kunnen steeds vaker te maken krijgen met (regen)wateroverlast. Houd rekening met snellere wateroverlast."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "Lage gebieden waar het regenwater zich verzamelt, kunnen steeds vaker te maken rkijgen met (regen)wateroverlast. Intensieve veeteelt in deze gebieden dient te worden vermeden. Houd rekening met korte periodes van inundatie van percelen. Pas de bedrijfsvoering hierop aan."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "12002"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "12003",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "BC",
+                                                        "text": "B, C: Houd rekening met meer frequente overstromingen in buitendijkse (waterbergende) gebieden (zee-invloedsgebied of oeverland). Buitendijkse gebieden die frequent overstromen zijn op termijn niet geschikt voor landbouwvormen met vollegrondsgewassen en voor gebouwen ten begoeve van veeteelt.",
+                                                        "subLabels": {
+                                                            "B": {
+                                                                "text": "B: De inspanning voor adaptatie in buitendijkse gebieden wordt steeds groter (eigen verantwoordelijkheid eigenaren).",
+                                                                "hoverText": ""
+                                                            },
+                                                            "C": {
+                                                                "text": "C: Peilverhoging in voormalige buitendijkse gebieden (oeverlanden) is mogelijk.",
+                                                                "hoverText": ""
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Beschermingszones rondom primaire en regionale keringen en dammen kunnen in beslag worden genomen voor versterkingen en uitbreidingen van de keringen."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterkwaliteit",
+                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "12004",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Grote delen van Zeeland zijn afhankelijk van regenwater. Bij het uitblijven van neerslag en temperatuurstijging kunnen problemen ontstaan met de waterkwaliteit (zuurstofloosheid, sterfte van waterdieren, blauwalg)."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: In gebieden met (zoute) kwel komt fosfaatrijk water naar boven."
+                                                    },
+                                                    {
+                                                        "labels": "D",
+                                                        "text": "D: Door zowel nattere als drogere condities worden landbouwgronden gevoeliger voor uitspoeling. Dit brengt extra inspanningen voor de waterkwaliteit met zich mee. Daarmee komen KRW doelen verder onder druk te staan."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Hitte",
+                                        "html": "<div>Indicatoren voor Hitte in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+        
+                                            {
+                                                "id": "12005",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Hitte kan impact hebben op gewassen en beplanting boven een gevoelstemperatuur van 41°C. Gewassen en beplanting die gevoelig zijn voor hitte kunnen minder rendabel worden. Daarnaast kan hitte de verdamping en verdroging versterken."
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Vee kan bij hoge termperaturen (meer dan 27°C) of gebrek aan schaduw hittestress ervaren."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "5",
+                                "steps": [
+                                    {
+                                        "title": "Signaalkaart",
+                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "13000"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterveiligheid",
+                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "13001",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Beschermingszones rondom primaire en regionale keringen en dammen kunnen in beslag worden genomen voor versterkingen en uitbreiding van de keringen."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterbeschikbaarheid",
+                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "13002",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Het kan uitdagend zijn bestaande natuur (die afhankelijk zijn van zoet water en kwetsbaar zijn voor droogte of verzilting) in stand te houden."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Waterkwaliteit",
+                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "globeOpacity": 100,
+                                        "terrain": "PDOK Terrain",
+                                        "camera": {
+                                            "x": 3.8655,
+                                            "y": 51.4765,
+                                            "z": 68957.5785,
+                                            "heading": 360.0,
+                                            "pitch": -89.9,
+                                            "duration": 1.5
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "13003",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "B: Bij wateren die opwarmen neemt het zuurstofgehalte af en de kans op wieren en blauwalg toe. DIt kan impact hebben op de huidige natuurwaarden en -doeltypen. Indien er voldoende water beschikbaar is kan het waterpeil op nieveau worden gehouden."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }                            
+                        ],
+                        "chapterGroups": [
+                            {
+                                "id": "1",
+                                "title": "Bebouwing",
+                                "buttonText": "Bebouwing"
+                            },
+                            {
+                                "id": "2",
+                                "title": "Vitale Infrastructuur",
+                                "buttonText": "Vitale Infrastructuur"
+                            },
+                            {
+                                "id": "3",
+                                "title": "Recreatie",
+                                "buttonText": "Recreatie"
+                            },
+                            {
+                                "id": "4",
+                                "title": "Landbouw",
+                                "buttonText": "Landbouw"
+                            },
+                            {
+                                "id": "5",
+                                "title": "Natuur",
+                                "buttonText": "Natuur"
                             }
                         ]
                     }
@@ -1947,6 +1828,10 @@
         },
         {
             "id": "geocoder",
+            "enabled": true
+        },
+        {
+            "id": "modeswitcher",
             "enabled": true
         }
     ]

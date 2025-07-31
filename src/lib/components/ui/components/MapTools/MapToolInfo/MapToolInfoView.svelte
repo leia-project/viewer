@@ -48,7 +48,14 @@
             "farzher",
             "https://github.com/farzher/fuzzysort",
             "MIT"
-        )
+        ),
+        new Attribution(
+                     "Aim Logo Icon",
+            "Used as a position selection marker for the human perspective.",
+            "Pixel Icons",
+            "https://iconscout.com/free-icon/aim-183_722670",
+            "Creative Commons Attribution 4"
+        ), 
     );
 
     $: att = [...attribution, ...tostiAttribution];
