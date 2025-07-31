@@ -5,30 +5,30 @@
 
 	export let game: Game;
 
-	const loaded = game.loaded;
-	const evacuatedCount = game.evacuationController.hexagonLayer.evacuatedCount;
-	const victimCount = game.evacuationController.hexagonLayer.victimCount;
+	const loaded = game.evacuationController.hexagonLayer.loaded;
+	$: evacuatedCount = $loaded ? game.evacuationController.hexagonLayer.evacuatedCount : undefined
+	$: victimCount = $loaded ? game.evacuationController.hexagonLayer.victimCount : undefined;
 
 </script>
 
 
 <div class="game-stats">
-	{#key $loaded}
+	{#if evacuatedCount !== undefined && victimCount !== undefined}
 		<Pill
 			icon={FaceDizzyFilled}
 			label="Slachtoffers"
-			value={$victimCount}
+			value={$victimCount || 0}
 			color="#c21111"
 			scale={1.2}
 		/>
 		<Pill
 			icon={FaceWinkFilled}
 			label="Geevacueerd"
-			value={$evacuatedCount}
+			value={$evacuatedCount || 0}
 			color="green"
 			scale={1.2}
 		/>
-	{/key}
+	{/if}
 </div>
 
 

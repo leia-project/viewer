@@ -37,7 +37,7 @@ export class Hexagon {
 		"#d73027", // red
 		"#a50026", // dark red
 		"#800026"  // deeper red
-	]; //https://colordesigner.io/gradient-generator    -  https://uigradients.com/#TheBlueLagoon
+	]; //https://colordesigner.io/gradient-generator - https://uigradients.com/#TheBlueLagoon
 	private cesiumColors = this.colorScale.map((color, i) => {
 		const col = Cesium.Color.fromCssColorString(color);
 		col.alpha = 1;
@@ -66,7 +66,7 @@ export class Hexagon {
 		this.evacuationPoints = this.getEvacuationPoints();
 		this.population = population;
 		this.selectedHexagon = selectedHexagon;
-		this.geometryInstances = this.createGeometryInstance(hex, population);
+		this.geometryInstances = this.createGeometryInstance(hex);
 		this.entityInstance = this.createEntityInstance(hex, population);
 
 		this.selectedHexagon.subscribe((selected: Hexagon | undefined) => {
@@ -77,7 +77,6 @@ export class Hexagon {
 			this.setColor(depth);
 			this.updateStatus();
 		});
-
 
 		this.totalEvacuated.subscribe((evacuated: number) => {
 			this.updateStatus();
@@ -104,7 +103,7 @@ export class Hexagon {
 		return [this.center, ...midpoints];
 	}
 
-	private createGeometryInstance(cell: string, population: number): Array<Cesium.GeometryInstance> {
+	private createGeometryInstance(cell: string): Array<Cesium.GeometryInstance> {
 		const boundary = this.getHexVertices(cell);
 		const positions = Cesium.Cartesian3.fromDegreesArray(boundary.flat());
 
@@ -212,6 +211,19 @@ export class Hexagon {
 			this.status.set("flooded");
 		} else {
 			this.status.set("accessible");
+		}
+	}
+
+	public getStatusColor(status: string): string {
+		switch (status) {
+			case "accessible":
+				return "green";
+			case "flooded":
+				return "red";
+			case "evacuated":
+				return "blue";
+			default:
+				return "gray";
 		}
 	}
 

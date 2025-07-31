@@ -121,11 +121,16 @@ export class HexagonLayer {
 
 	private async updateFloodDepths(scenarios: Array<string>, time: number): Promise<void> {
 		const h3FloodDepths = await this.pgRestAPI.getFloodHexagons(this.outline, 7, scenarios, time);
+		const updatedHexIds = new Set<string>();
 		h3FloodDepths.forEach((floodHex: FloodHexagon) => {
 			const hex = this.hexagons.find((h: Hexagon) => h.hex === floodHex.hex);
 			if (hex) {
 				hex.floodDepth.set(floodHex.maxFloodDepth);
+				updatedHexIds.add(hex.hex);
 			}
+		});
+		this.hexagons.forEach((hex: Hexagon) => {
+			if (!updatedHexIds.has(hex.hex)) hex.floodDepth.set(0);
 		});
 	}
 

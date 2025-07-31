@@ -23,6 +23,7 @@
 		evacuations = game.evacuationController.evacuations;
 	}
 
+	$: selectedHexagonStatus = $selectedHexagon?.status;
 	$: canEvacuate = $selectedExtractionPoint !== undefined && $selectedHexagon !== undefined;
 
 	const currentStep = game.currentStep;
@@ -37,9 +38,12 @@
 <div class="evacuation-create">
 	<span class="point point-a">
 		<span class="point-label">From</span>
-		<span>
+		<span class="point-value">
 			{#if $selectedHexagon}
-				{$selectedHexagon.hex}
+				{#if $selectedHexagonStatus}
+					<span class="point-status" style="background-color: {$selectedHexagon.getStatusColor($selectedHexagonStatus)};" />
+				{/if}
+				<span>{$selectedHexagon.hex}</span>
 			{:else}
 				No hexagon selected
 			{/if}
@@ -49,7 +53,9 @@
 		{#if canEvacuate}
 			{#if portionEvacuated >= 1}
 				<div class="evacuate-notice">Already evacuated</div>
-			{:else}
+			{:else if $selectedHexagonStatus === "flooded"}
+				<div class="evacuate-notice">Hexagon is flooded</div>
+			{:else if $selectedHexagonStatus === "accessible"}
 				<GameButton
 					icon={VehicleApi}
 					borderHighlight={true}
@@ -105,17 +111,27 @@
 		margin-bottom: 1rem;
 	}
 
-	.point span {
-		display: block;
-	}
-
 	.point-a {
 		text-align: right;
 	}
 
 	.point-label {
+		display: block;
 		font-size: 0.8rem;
 		color: var(--game-color-highlight);
+	}
+
+	.point-value {
+		display: flex;
+		align-items: center;
+		column-gap: 0.25rem;
+	}
+
+	.point-status {
+		width: 0.8rem;
+		height: 0.8rem;
+		border-radius: 50%;
+		margin-right: 0.5rem;
 	}
 
 	.evacuate-notice {

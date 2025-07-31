@@ -68,17 +68,11 @@ export class Game {
 	public evacuationController: EvacuationController;
 	public loaded: Writable<boolean> = writable(false);
 
-	public stats: IGameStats;
-
 	constructor(map: Map, gameConfig: IGameConfig, marvin?: MarvinApp) {
 		this.map = map;
 		this.marvin = marvin;
 		this.gameConfig = gameConfig;
 		this.notificationLog = new NotificationLog();
-		this.stats = {
-			victims: 92,
-			evacuated: 240
-		}
 		
 		const activeBreach: Writable<Breach | undefined> = writable(gameConfig.breach);
 		const selectedScenario: Writable<string | undefined> = writable(gameConfig.scenario);
