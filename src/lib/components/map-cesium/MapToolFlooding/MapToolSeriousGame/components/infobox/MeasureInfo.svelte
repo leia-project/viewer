@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { Button } from "carbon-components-svelte";
-	import { Checkmark, CloseFilled } from "carbon-icons-svelte";
+	import { CheckmarkFilled, CloseFilled, InformationFilled, ToolKit } from "carbon-icons-svelte";
 	import { Measure } from "../../module/game-elements/roads/measure";
 	import type { NotificationLog } from "../../module/notification-log";
 	import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
+	import GameButton from "../general/GameButton.svelte";
 
 	export let measure: Measure;
 	export let notificationLog: NotificationLog;
@@ -21,33 +21,76 @@
 
 </script>
 
+
+<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
 <div class="measure-info">
-	<div>
+	<div class="measure-title">
 		<div>{measure.config.name}</div>
+		<div class="info-button" on:click={sendMeasureInfo}>
+			<InformationFilled size={16} />
+		</div>
 	</div>
-	<div>
-		{#if $applied}
-			<Checkmark color="green" />
-		{:else}
-			<CloseFilled color="red" />
-		{/if}
-		<div>{$applied ? "Applied" : "Not applied"}</div>
+	<div class="measure-effect">
+		Measure: {measure.config.type}
 	</div>
-	<div class="measure-actions">
-		<Button
-			kind="primary"
-			size="small"
-			on:click={() => applied.set(!$applied)}
-		>Apply</Button>
-		<Button
-			kind="primary"
-			size="small"
-			on:click={sendMeasureInfo}
-		>More Info</Button>
+	<div class="measure-bottom">
+		<div class="measure-status">
+			{#if $applied}
+				<CheckmarkFilled color="green" />
+			{:else}
+				<CloseFilled color="red" />
+			{/if}
+			<div>{$applied ? "Applied" : "Not applied"}</div>
+		</div>
+		<div class="measure-actions">
+			<GameButton
+				buttonText={$applied ? "Undo" : "Apply"}
+				icon={ToolKit}
+				hasTooltip={false}
+				borderHighlight={false}
+				size={14}
+				on:click={() => applied.set(!$applied)}
+			/>
+		</div>
 	</div>
 </div>
 
 
 <style>
+
+	.measure-title {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-weight: 700;
+	}
+
+	.info-button {
+		color: var(--game-color-highlight);
+		transition: color 0.2s;
+		cursor: pointer;
+		margin-left: 1rem;
+	}
+	.info-button:hover {
+		color: var(--game-color-contrast);
+	}
+
+	.measure-effect {
+		margin: 0.1rem 0;
+	}
+
+	.measure-status {
+		display: flex;
+		align-items: center;
+		column-gap: 0.5rem;
+	}
+
+	.measure-bottom {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		column-gap: 1rem;
+		margin-top: 0.1rem;
+	}
 
 </style>
