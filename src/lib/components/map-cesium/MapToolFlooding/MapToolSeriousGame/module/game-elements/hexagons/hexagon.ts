@@ -174,7 +174,6 @@ export class Hexagon {
 			attributesTop.offsetBottom = [remaingPopulationHeight];
 			attributesTop.offsetTop = [populationHeight];
 			attributesTop.show = Cesium.ShowGeometryInstanceAttribute.toValue(populationHeight !== remaingPopulationHeight, attributesTop.show);
-
 		}
 	}
 
@@ -199,7 +198,7 @@ export class Hexagon {
 	}
 
 	private getHexagonHeight = (population: number) => {
-		return population * 10 + 50;
+		return population * 10;
 	}
 
 	public updateStatus(): void {

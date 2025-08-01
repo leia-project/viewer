@@ -1,10 +1,12 @@
 <script lang="ts">
 	import type { Readable } from "svelte/store";
+	import { View } from "carbon-icons-svelte";
 	import type { Game } from "../../../module/game";
 	import type { Evacuation } from "../../../module/game-elements/evacuation";
 	import HexagonEvacuationEntry from "./HexagonEvacuationEntry.svelte";
 	import HexagonLayerControl from "../../layer-manager/HexagonLayerControl.svelte";
 	import EvacuateAction from "./EvacuateAction.svelte";
+	import GameButton from "../../general/GameButton.svelte";
 
 	export let game: Game;
 
@@ -18,6 +20,12 @@
 	}
 
 	const currentStep = game.currentStep;
+
+	function showAllEvacuationsAggregated(): void {
+		$evacuations.forEach((evacuation) => {
+			evacuation.display($evacuations);
+		});
+	}
 
 </script>
 
@@ -56,8 +64,22 @@
 <div class="divider"></div>
 
 <div class="evacuation-list-header">
-	<span>Evacuations</span>
-	<span class="step-title">{$currentStep.title}</span>
+	<span>Evacuations ({$evacuations.length})</span>
+	<div class="step-title">
+		{#if $evacuations.length > 0}
+			<GameButton
+				icon={View}
+				size={14}
+				hasTooltip={false}
+				borderHighlight={true}
+				active={$evacuations.length > 0}
+				buttonText={$currentStep.title}
+				on:click={showAllEvacuationsAggregated}
+			/>
+		{:else}
+			<span>{$currentStep.title}</span>
+		{/if}
+	</div>
 </div>
 {#if $evacuations.length > 0}
 	<ul class="evacuation-list">
@@ -107,10 +129,6 @@
 	.step-title {
 		font-size: 0.9rem;
 		font-weight: 500;
-		color: rgb(var(--game-color-bg));
-		background-color: var(--game-color-highlight);
-		padding: 0.2rem 0.5rem;
-		border-radius: 5px;
 	}
 
 	.evacuation-list {

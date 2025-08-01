@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { UserFilled, ZoomIn } from "carbon-icons-svelte";
+	import { UserFilled, ViewFilled, ViewOffFilled } from "carbon-icons-svelte";
 	import type { Evacuation } from "../../../module/game-elements/evacuation";
 	import GameButton from "../../general/GameButton.svelte";
 
 	export let evacuation: Evacuation;
+
+	const shown = evacuation.shown;
 
 </script>
 
@@ -17,14 +19,12 @@
 		<span>{evacuation.numberOfPersons}</span>
 	</span>
 	<GameButton
-		icon={ZoomIn}
+		icon={$shown ? ViewFilled : ViewOffFilled}
 		size={16}
 		hasTooltip={false}
 		borderHighlight={true}
-		on:click={(e) => {
-			e.stopPropagation();
-			evacuation.toggle();
-		}}
+		active={$shown}
+		on:click={() => evacuation.toggle()}
 	/>
 </li>
 
