@@ -1,30 +1,21 @@
 <script lang="ts">
 	import type { Readable } from "svelte/store";
-	import { VehicleApi } from "carbon-icons-svelte";
 	import type { Game } from "../../../module/game";
 	import type { Evacuation } from "../../../module/game-elements/evacuation";
 	import HexagonEvacuationEntry from "./HexagonEvacuationEntry.svelte";
 	import HexagonLayerControl from "../../layer-manager/HexagonLayerControl.svelte";
-	import GameButton from "../../general/GameButton.svelte";
+	import EvacuateAction from "./EvacuateAction.svelte";
 
 	export let game: Game;
 
 	const selectedHexagon = game.evacuationController.hexagonLayer.selectedHexagon;
 	const selectedExtractionPoint = game.evacuationController.roadNetwork.selectedExtractionPoint;
-
-	const evacuatedFromHexagon = $selectedHexagon?.totalEvacuated;
-	$: portionEvacuated = $selectedHexagon && $evacuatedFromHexagon ? $evacuatedFromHexagon / $selectedHexagon.population : 0;
-
-	let evacuations: Readable<Array<Evacuation>>;
-
 	const hexagonsLoaded = game.evacuationController.hexagonLayer.loaded;
 
+	let evacuations: Readable<Array<Evacuation>>;
 	$: if ($hexagonsLoaded) {
 		evacuations = game.evacuationController.evacuations;
 	}
-
-	$: selectedHexagonStatus = $selectedHexagon?.status;
-	$: canEvacuate = $selectedExtractionPoint !== undefined && $selectedHexagon !== undefined;
 
 	const currentStep = game.currentStep;
 
@@ -38,35 +29,18 @@
 <div class="evacuation-create">
 	<span class="point point-a">
 		<span class="point-label">From</span>
-		<span class="point-value">
+		<span>
 			{#if $selectedHexagon}
-				{#if $selectedHexagonStatus}
-					<span class="point-status" style="background-color: {$selectedHexagon.getStatusColor($selectedHexagonStatus)};" />
-				{/if}
 				<span>{$selectedHexagon.hex}</span>
 			{:else}
 				No hexagon selected
 			{/if}
 		</span>
 	</span>
-	<div class="evacuate-button">
-		{#if canEvacuate}
-			{#if portionEvacuated >= 1}
-				<div class="evacuate-notice">Already evacuated</div>
-			{:else if $selectedHexagonStatus === "flooded"}
-				<div class="evacuate-notice">Hexagon is flooded</div>
-			{:else if $selectedHexagonStatus === "accessible"}
-				<GameButton
-					icon={VehicleApi}
-					borderHighlight={true}
-					hasTooltip={false}
-					buttonText="Evacueer"
-					active={$selectedExtractionPoint !== undefined && $selectedHexagon !== undefined}
-					on:click={() => game.evacuationController.evacuate()}
-				/>
-			{/if}
-		{/if}
-	</div>
+	<EvacuateAction
+		hexagon={$selectedHexagon}
+		evacuationController={game.evacuationController}
+	/>
 	<span class="point point-b">
 		<span class="point-label">To</span>
 		<span>
@@ -119,24 +93,6 @@
 		display: block;
 		font-size: 0.8rem;
 		color: var(--game-color-highlight);
-	}
-
-	.point-value {
-		display: flex;
-		align-items: center;
-		column-gap: 0.25rem;
-	}
-
-	.point-status {
-		width: 0.8rem;
-		height: 0.8rem;
-		border-radius: 50%;
-		margin-right: 0.5rem;
-	}
-
-	.evacuate-notice {
-		color: var(--game-color-highlight);
-		font-weight: bold;
 	}
 
 	.evacuation-list-header {

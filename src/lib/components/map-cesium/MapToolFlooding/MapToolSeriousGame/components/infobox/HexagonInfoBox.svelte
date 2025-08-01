@@ -5,8 +5,8 @@
 	import type { Hexagon } from "../../module/game-elements/hexagons/hexagon";
 	import type { EvacuationController } from "../../module/game-elements/evacuation-controller";
 	import InfoBox from "./InfoBox.svelte";
-	import GameButton from "../general/GameButton.svelte";
 	import MarvinInfoBoxAddOn from "./MarvinInfoBoxAddOn.svelte";
+	import EvacuateAction from "../data/evacuation-overview/EvacuateAction.svelte";
 
 	export let hexagon: Hexagon;
 	export let store: Writable<Hexagon | undefined>;
@@ -17,7 +17,6 @@
 	export let evacuationController: EvacuationController;
 
 	const evacuated = hexagon.totalEvacuated;
-	const selectedExtractionPoint = evacuationController.roadNetwork.selectedExtractionPoint;
 
 	const marvinQuestions: Array<string> = [
 		"Which places and cities are in this area?",
@@ -58,18 +57,10 @@
 		{/if}
 	</div>
 	{#if type === "selected"}
-		{#if $selectedExtractionPoint}
-			<GameButton
-				icon={VehicleApi}
-				buttonText="Evacuate"
-				borderHighlight={true}
-				hasTooltip={false}
-				size={18}
-				on:click={() => evacuationController.evacuate(hexagon)}
-			/>
-		{:else}
-			<span>Select an extraction point to evacuate</span>
-		{/if}
+		<EvacuateAction
+			{hexagon}
+			{evacuationController}
+		/>
 	{/if}
 </InfoBox>
 

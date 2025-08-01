@@ -217,11 +217,11 @@ export class Hexagon {
 	public getStatusColor(status: string): string {
 		switch (status) {
 			case "accessible":
-				return "green";
+				return "#00BFFF";
 			case "flooded":
-				return "red";
+				return "#FF4500";
 			case "evacuated":
-				return "blue";
+				return "#5EDC1F";
 			default:
 				return "gray";
 		}
