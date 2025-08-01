@@ -25,7 +25,6 @@
 	>
 		<svelte:fragment slot="popover">Zoom to North</svelte:fragment>
 	</GameButton>
-	
 </div>
 
 

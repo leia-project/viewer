@@ -62,7 +62,7 @@ export class GameController {
 		this.addBackgroundLayer();
 		this.loadGame(gameConfig);
 		this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
-		this.map.viewer.entities.add(this.boundingDome);
+		//this.map.viewer.entities.add(this.boundingDome);
 	}
 
 	public exit(): void {   
@@ -75,7 +75,7 @@ export class GameController {
 		this.active.set(undefined);
 		this.gameContainer?.$destroy();
 		this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
-		this.map.viewer.entities.remove(this.boundingDome);
+		//this.map.viewer.entities.remove(this.boundingDome);
 	}
 
 	private loadUserInterface(marvin: MarvinApp): void {

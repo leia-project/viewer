@@ -78,6 +78,7 @@
 
 	.hexagon-info-box {
 		display: flex;
+		justify-content: space-between;
 		column-gap: 2.5rem;
 		color: var(--game-color-highlight)
 	}
