@@ -47,7 +47,7 @@ export const typeTitles: { [key: string]: string } = {
 /*
  * Process the SVG content to add a background circle with padding.
  */
-export function processSVG(svgContent: string, size: string = "15mm", padding: number = 16, outline: number = 5): string | undefined {
+export function processSVG(svgContent: string, size: string = "15mm", bgColor: string, padding: number = 16, outline: number = 5): string | undefined {
 	const parser = new DOMParser();
 	const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
 	const svgElement = svgDoc.documentElement;
@@ -68,7 +68,7 @@ export function processSVG(svgContent: string, size: string = "15mm", padding: n
 	circle.setAttribute('cx', centerX.toString());
 	circle.setAttribute('cy', centerY.toString());
 	circle.setAttribute('r', radius.toString());
-	circle.setAttribute('fill', '#F4F6F8'); 
+	circle.setAttribute('fill', bgColor); 
     circle.setAttribute('stroke', '#154273');
     circle.setAttribute('stroke-width', outline.toString());
 
