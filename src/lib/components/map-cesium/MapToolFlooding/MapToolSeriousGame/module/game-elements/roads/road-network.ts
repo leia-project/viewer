@@ -145,13 +145,14 @@ export class RoadNetwork {
 		});
 		*/
 		network.edges.features.forEach((feature: RouteFeature) => {
-			const segment = this.roadNetworkLayer.add(feature);
+			const segment = this.roadNetworkLayer.add(feature, false);
 			for (const measure of this.measures) {
 				if (measure.config.routeSegmentFids.includes(segment.id)) {
 					measure.addRouteSegment(segment);
 				}
 			}
 		});
+		this.roadNetworkLayer.updatePrimitive();
 	}
 
 	private loadMeasures(): void {

@@ -16,7 +16,6 @@ export class RoadNetworkLayer {
 	private polylinePrimitive?: Cesium.GroundPolylinePrimitive;
 	private extractionPointPrimitive?: Cesium.Primitive;
 	private elapsedTime: Writable<number>;
-	private timeout: NodeJS.Timeout | undefined;
 
 	constructor(map: CesiumMap, elapsedTime: Writable<number>, extractionPointIds: Array<string>) {
 		this.map = map;
@@ -26,17 +25,17 @@ export class RoadNetworkLayer {
 		this.map.viewer.dataSources.add(this.dataSource);
 	}
 
-	public add(item: RouteFeature): RouteSegment {
+	public add(item: RouteFeature, updatePrimitive: boolean = true): RouteSegment {
 		const isExtractionPoint = this.extractionPointIds.includes(item.properties.fid.toString());
 		const routeSegment = new RouteSegment(item, this.elapsedTime, this.dataSource, this.map, isExtractionPoint);
 		this.segments.push(routeSegment);
-		this.updatePrimitive();
+		if (updatePrimitive) this.updatePrimitive();
 		return routeSegment;
 	}
 
-	public remove(item: RouteSegment): void {
+	public remove(item: RouteSegment, updatePrimitive: boolean = true): void {
 		this.segments = this.segments.filter((segment) => segment.id !== item.id);
-		this.updatePrimitive();
+		if (updatePrimitive) this.updatePrimitive();
 	}
 
 	public clear(): void {
@@ -47,36 +46,31 @@ export class RoadNetworkLayer {
 		return this.segments.find((segment) => segment.id === id);
 	}
 
-	private updatePrimitive(): void {
-		if (this.timeout) {
-			clearTimeout(this.timeout);
+	public updatePrimitive(): void {
+		if (this.extractionPointPrimitive) {
+			this.map.viewer.scene.primitives.remove(this.extractionPointPrimitive);
 		}
-		this.timeout = setTimeout(() => {
-			if (this.extractionPointPrimitive) {
-				this.map.viewer.scene.primitives.remove(this.extractionPointPrimitive);
-			}
-			if (this.polylinePrimitive) {
-				this.map.viewer.scene.primitives.remove(this.polylinePrimitive);
-			}
-			this.polylinePrimitive = this.createGroundPolylinePrimitive();
-			this.extractionPointPrimitive = this.createExtractionPointPrimitive();
-			this.map.viewer.scene.primitives.add(this.polylinePrimitive);
-			this.map.viewer.scene.primitives.add(this.extractionPointPrimitive);
+		if (this.polylinePrimitive) {
+			this.map.viewer.scene.primitives.remove(this.polylinePrimitive);
+		}
+		this.polylinePrimitive = this.createGroundPolylinePrimitive();
+		this.extractionPointPrimitive = this.createExtractionPointPrimitive();
+		this.map.viewer.scene.primitives.add(this.polylinePrimitive);
+		this.map.viewer.scene.primitives.add(this.extractionPointPrimitive);
 
-			this.segments.forEach((segment) => {
-				segment.lineInstance.parentPrimitive = this.polylinePrimitive;
-				if (segment.extractionPoint) {
-					segment.extractionPoint.parentPrimitive = this.extractionPointPrimitive;
-				}
-			});
-			const removeListener = this.map.viewer.scene.postRender.addEventListener(() => {
-				if (!this.polylinePrimitive?.ready || !this.extractionPointPrimitive?.ready) {
-					return;
-				}
-				this.segments.forEach((segment) => segment.updateVisualization());
-				removeListener();
-			});
-		}, 10);
+		this.segments.forEach((segment) => {
+			segment.lineInstance.parentPrimitive = this.polylinePrimitive;
+			if (segment.extractionPoint) {
+				segment.extractionPoint.parentPrimitive = this.extractionPointPrimitive;
+			}
+		});
+		const removeListener = this.map.viewer.scene.postRender.addEventListener(() => {
+			if (!this.polylinePrimitive?.ready || !this.extractionPointPrimitive?.ready) {
+				return;
+			}
+			this.segments.forEach((segment) => segment.updateVisualization());
+			removeListener();
+		});
 	}
 
 	private createGroundPolylinePrimitive(): Cesium.GroundPolylinePrimitive {
