@@ -230,7 +230,7 @@
         };
         // https://virtueel.dev.zeeland.nl/ko_api/analyze
         try {
-            const response = await fetch("Http://localhost:8000/analyze", {
+            const response = await fetch("https://virtueel.dev.zeeland.nl/ko_api/analyze", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

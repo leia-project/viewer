@@ -449,6 +449,20 @@
 		);
 	}
 
+	type Label = 'A' | 'B' | 'C' | 'D' | 'E';
+
+	const labelToColor: Record<string, string> = {
+		A: "#339966",
+		B: "#99ffcc",
+		C: "#ffff99",
+		D: "#ffcc66",
+		E: "#9c4110"
+	};
+
+	function isLabel(label: string): label is Label {
+		return ['A', 'B', 'C', 'D', 'E'].includes(label);
+	}
+
 	async function downloadPDF() {
 		const response = await fetch('/Teksten_Conceptrapportage_Klimaatonderlegger Zeeland_Defacto.pdf');
 		const blob = await response.blob();
@@ -460,6 +474,12 @@
 		link.click();
 		URL.revokeObjectURL(url); // cleanup
 	}
+
+
+	function getColorFromLabel(label: string) {
+		return labelToColor[label];
+	}
+
 </script>
 
 <div class="story" bind:clientWidth={width}>
@@ -591,21 +611,43 @@
 							<StoryChart data={distributions[index]} />
 							<br><br><br>
 							{#if layerLegends[index].generalLegendText}
-								{@html layerLegends[index].generalLegendText}
+								<div class="legendary-text mb">
+									{@html layerLegends[index].generalLegendText}
+								</div>
 							{/if}
 							<ul>
 								{#if layerLegends[index].legendOptions}
 									{#each layerLegends[index].legendOptions as legendEntry}
 										{#if shouldShowLegend(legendEntry, distributions[index])}
-											<li>
-												{legendEntry.text}
+											<li style="margin-bottom: 1.5rem;">
+												{#if legendEntry.labels}
+													<!-- Label images inline -->
+													<span style="margin-left: 0.5rem; display: flex;">
+														{#each Array.from(legendEntry.labels) as char}
+															{#if isLabel(char)}
+																<div class="legend-letter legend-letter-m" style="background-color: {getColorFromLabel(char)};">
+																	{char}
+																</div>
+															{/if}
+														{/each}
+													</span>
+												{/if}
+												<div class="legendary-text">
+													{legendEntry.text}
+												</div>
 												{#if legendEntry.subLabels}
 													<ul>
 														{#each Array.from(legendEntry.labels) as label}
-															{#if legendEntry.subLabels[label]}
+															{#if isLabel(label) && legendEntry.subLabels[label]}
 																{#if distributions[index].find(d => d.group === label && d.value > 0)}
-																	<li title={legendEntry.subLabels[label].hoverText}>
-																		{legendEntry.subLabels[label].text}
+																	<li class="legend-letter-with-text legendary-text">
+																		<!-- Image before text per sublabel -->
+																		<div class="legend-letter legend-letter-s" style="background-color: {getColorFromLabel(label)};">
+																			{label}
+																		</div>
+																		<div>
+																			{legendEntry.subLabels[label].text}
+																		</div>
 																	</li>
 																{/if}
 															{/if}
@@ -737,5 +779,45 @@
 		display: flex;
 		justify-content: flex-end;
 	}
+
+	.legend-letter {
+		border-radius: 50%;
+		width: 1.5rem;
+		height: 1.5rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-left: 0.1rem;
+		filter: drop-shadow(1px 1px 2px #727171);
+	}
+
+	.legendary-text {
+		margin-top: 0.5rem;
+		margin-left: 0.5rem;
+	}
+
+	.legend-letter-with-text {
+		margin-left: 3rem;
+		margin-right: 0.5rem;
+		display: grid;
+		grid-template-columns: 1.5rem 1fr;
+		column-gap: 0.5rem;
+	}
+
+	.mb {
+		margin-bottom: 2rem;
+	}
+
+	.legend-letter-m {
+		width: 1.5rem;
+		height: 1.5rem;
+	}
+
+	.legend-letter-s {
+		width: 1.2rem;
+		height: 1.2rem;
+	}
+
+	
 	
 </style>
