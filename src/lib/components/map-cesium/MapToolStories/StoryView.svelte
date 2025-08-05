@@ -619,21 +619,23 @@
 								{#if layerLegends[index].legendOptions}
 									{#each layerLegends[index].legendOptions as legendEntry}
 										{#if shouldShowLegend(legendEntry, distributions[index])}
-											<li style="margin-bottom: 1.5rem;">
-												{#if legendEntry.labels}
-													<!-- Label images inline -->
-													<span style="margin-left: 0.5rem; display: flex;">
-														{#each Array.from(legendEntry.labels) as char}
-															{#if isLabel(char)}
-																<div class="legend-letter legend-letter-m" style="background-color: {getColorFromLabel(char)};">
-																	{char}
-																</div>
-															{/if}
-														{/each}
-													</span>
-												{/if}
-												<div class="legendary-text">
-													{legendEntry.text}
+											<li style="margin-bottom: 2rem;">
+												<div style=" display: grid; grid-template-columns: 5rem 1fr;">
+													{#if legendEntry.labels}
+														<!-- Label images inline -->
+														<div style="margin-left: 0.5rem; display: flex; justify-content: center; align-items: center;">
+															{#each Array.from(legendEntry.labels) as char, i}
+																{#if isLabel(char)}
+																	<div class="legend-letter legend-letter-m" style="background-color: {getColorFromLabel(char)}; transform: translateX(-{42.5 * i}%; z-index: {10 - i};">
+																		{char}
+																	</div>
+																{/if}
+															{/each}
+														</div>
+													{/if}
+													<div class="legendary-text">
+														{legendEntry.text}
+													</div>
 												</div>
 												{#if legendEntry.subLabels}
 													<ul>
@@ -787,7 +789,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		margin-left: 0.1rem;
 		filter: drop-shadow(1px 1px 2px #727171);
 	}
 
@@ -797,7 +798,7 @@
 	}
 
 	.legend-letter-with-text {
-		margin-left: 3rem;
+		margin-left: 4rem;
 		margin-right: 0.5rem;
 		display: grid;
 		grid-template-columns: 1.5rem 1fr;
@@ -816,8 +817,6 @@
 	.legend-letter-s {
 		width: 1.2rem;
 		height: 1.2rem;
+		font-size: 0.75rem;
 	}
-
-	
-	
 </style>
