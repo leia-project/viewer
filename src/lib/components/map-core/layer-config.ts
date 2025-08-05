@@ -38,6 +38,10 @@ export class LayerConfig {
         return this.legendUrl ? true : false;
     }
 
+    get descriptionSupported(): boolean {
+        return this.description ? true : false;
+    }
+
     get opacitySupported(): boolean {
         return this.transparent;
     }

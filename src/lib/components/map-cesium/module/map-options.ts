@@ -203,7 +203,11 @@ export class MapOptions {
 	public initTerrainProvider(): void {
 		const currentProviders = get(this.terrainProviders);
 		if(currentProviders.length > 0) {
-			this.selectedTerrainProvider.set(currentProviders[0]);	
+			// If use3DMode is false, start with the terrain turned off
+			const provider = !get(this.use3DMode) 
+				? currentProviders.find(p => p.title.toLowerCase() === 'uit') || currentProviders[0]
+				: currentProviders[0];
+			this.selectedTerrainProvider.set(provider);
 		}
 	}
 
@@ -228,6 +232,13 @@ export class MapOptions {
 			if (this.map.viewer.cesium3DTilesInspector) {
 				this.map.viewer.cesium3DTilesInspector.destroy();
 			}
+		}
+	}
+
+	public initCameraMode(config: any): void {
+		const startCameraMode3D = config.viewer.startCameraMode3D ? config.viewer.startCameraMode3D : false;
+		if (!startCameraMode3D) {
+			this.use3DMode.set(false);
 		}
 	}
 

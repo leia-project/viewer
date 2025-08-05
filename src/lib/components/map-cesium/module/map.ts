@@ -54,7 +54,9 @@ export class Map extends MapCore {
 			this.addTerrainProvider(this.viewerSettings.terrain);
 		}
 
-		this.options.initTerrainProvider()
+		this.options.initCameraMode(this.config);
+		this.options.initTerrainProvider();
+
 		this.home();
 	}
 
@@ -82,7 +84,6 @@ export class Map extends MapCore {
 		this.camera = this.viewer.camera;
 		this.viewer.forceResize();
 
-		this.addFlyCamera();
 		this.featureInfoHandler = new FeatureInfoHandler(this);
 
 		if (!this.startPosition) {
@@ -295,7 +296,9 @@ export class Map extends MapCore {
 	}
 
 	private addFlyCamera(): void {
+		if(this.flyCamera == null) {
 		this.flyCamera = new FlyCamera(this.viewer);
+		}
 	}
 
 	public refresh(): void {

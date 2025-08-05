@@ -9,7 +9,7 @@
 	import { StoryLayer } from "./StoryLayer";
     import area from '@turf/area';
     import * as turf from '@turf/turf';
-	import { get } from "svelte/store";
+	import { get, type Writable } from "svelte/store";
     import { onMount, onDestroy } from 'svelte';
     import { polygonStore } from './PolygonEntityStore';
  
@@ -18,7 +18,7 @@
     export let distributions: Array<{ group: string; value: number }[]> = [];
     export let polygonArea: number;
     export let hasDrawnPolygon: boolean;
-    export let showPolygonMenu: boolean;
+    export let showPolygonMenu: Writable<boolean>;
         
     let polygonEntity: Cesium.Entity | null = null;
     let isDrawing = false;
@@ -194,6 +194,8 @@
                 distributions
             });
 
+            showPolygonMenu.set(false);
+
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     };
     
@@ -228,7 +230,7 @@
         const geom = {
             geometry: geojson.geometry
         };
-        // https://virtueel.dev.zeeland.nl/ko_api/analyze
+
         try {
             const response = await fetch("https://virtueel.dev.zeeland.nl/ko_api/analyze", {
                 method: "POST",
@@ -279,7 +281,7 @@
 
 </script>
 
-{#if showPolygonMenu}
+{#if $showPolygonMenu}
     {#if !hasDrawnPolygon}
         <div>
             <div class="title-with-tooltip">

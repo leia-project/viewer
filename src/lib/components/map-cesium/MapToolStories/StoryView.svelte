@@ -80,7 +80,7 @@
 	let hasDrawnPolygon: Writable<boolean> = writable(false);
 	let polygonCameraLocation: CameraLocation | undefined = undefined; // Used instead of CL if project area is drawn by user
 	let distributions: Array<{ group: string; value: number }[]>;
-	let showPolygonMenu = false;
+	let showPolygonMenu: Writable<boolean> = writable(true);
 	let baseLayer: Layer | undefined;
 	let baseMapVisible = writable(true);
 
@@ -520,8 +520,8 @@
 						kind={"primary"}
 						iconDescription={showPolygonMenu ? `${$_("general.open")} ${$_("tools.stories.projectAreaTool")}` : `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
 						tooltipPosition="top"
-						icon={showPolygonMenu ? ChevronDown : ChevronUp}
-						on:click={() => showPolygonMenu = !showPolygonMenu} 
+						icon={$showPolygonMenu ? ChevronDown : ChevronUp}
+						on:click={() => $showPolygonMenu = !$showPolygonMenu} 
 					/>
 				</div>
 			{/if}
@@ -540,7 +540,7 @@
 			{story.description}
 		</div> -->
 		{#if story.requestPolygonArea}
-			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={!showPolygonMenu}/>
+			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={showPolygonMenu}/>
 		{/if}
 		<div class="chapter-buttons">
 			

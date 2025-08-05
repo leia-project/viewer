@@ -74,12 +74,13 @@ Base configuration for the viewer such as start position, UI colors.
 |value|description|type|
 |-|-|-|
 |startPosition|Startposition of the camera|[startPosition](#startposition)|
+|startCameraMode3D|Choose to start the camera in 2D or 3D mode|boolean|
 |colors|Colors to use in de app, for more info check Carbon Design|[colors](#colors)|
 |title|The title shown in the top bar of the viewer|string|
 |subTitle|Subtitle shown in the top bar after the title|string|
 |logo|Url for the image to show in the top left corner of the header|string|
-|logoMarginLeft|margin string for left margin of header logo|string|
-|logoMarginRight|margin string for right margin of header logo|string|
+|logoMarginLeft|Margin string for left margin of header logo|string|
+|logoMarginRight|Margin string for right margin of header logo|string|
 
 ```json
 "viewer": {
@@ -92,7 +93,7 @@ Base configuration for the viewer such as start position, UI colors.
 ```
 
 #### startPosition
-The start position of the camera. Since we are using a 3D viewer we need more than just an x, y and z position. An easy way to interactively get all the parameters for your preferred startPosition is by using the dt-generic-viewer. Open the settings from the left menu bar and enable the option ```Camera position```. When moving the view you will see the camera settings appear in a box. You can copy these settings to the startPosition configuration.
+The start position of the camera. Since we are using a 3D viewer we need more than just an x, y and z position. An easy way to interactively get all the parameters for your preferred startPosition is by using the dt-generic-viewer. Open the settings from the left menu bar and enable the option ```Camera position```. When moving the view you will see the camera settings appear in a box. You can copy these settings to the startPosition configuration. Note: pitch is always overwritten with -90 degrees if startCameraMode3D is set to false.
 
 |value|description|type|
 |-|-|-|
@@ -272,6 +273,7 @@ Layer definition
 |type|layer type, supported layer types:<br /> ```basiskaart```, ```wms```, ```wmts```, ```tms```, ```vectortiles```, ```3dtiles```, ```geojson```, ```modelanimation```, ```custom```|string|
 |title|layer title|string|
 |groupId|id of the group where this layer belongs to or empty string, will be placed under uncategorized in library|string|
+|description|simple text field in which a layer description can be provided|string|
 |imageUrl|url of an example image of layer, will be shown in layer library|string|
 |legendUrl|url of legend image or empty string|string|
 |isBackground|set to true to use this as a background layer, background layers are separated from the thematic layers in the layer manager and only 1 background layer can be active at a time|boolean|
@@ -298,6 +300,7 @@ Layer definition
 	"type": "wms",
 	"title": "Beheer vlakken RWS (WMS)",
 	"groupId": "1658756230497",
+	"description": "Ook wel bekend als KernGIS Nat"
 	"legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/beheerkaart_nat/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=beheer_vlakken",
 	"isBackground": false,
 	"defaultAddToManager": true,
@@ -735,7 +738,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |-|-|-|-|
 |dateTime|Date and time, determines the sun position|1657450800 (10-07-2022 11:00:00)|unix timestamp|
 |shadows|Shadows enabled/disabled|false|boolean|
-|showMousuCoordinates|Debug window in viewer to show coordinates for mouse position|false|boolean|
+|showMouseCoordinates|Debug window in viewer to show coordinates for mouse position|false|boolean|
 |showCameraPosition|Debug window to show the current camera position, updates on move|false|boolean|
 |showLoadingWidget|Show a small bar on the bottom of the viewer showing the loading progress of layers|false|boolean|
 |fxaa|FXAA enabled|false|Boolean|
@@ -952,6 +955,15 @@ Measuring tool accessible through the toolbar, with this tool the user can add 3
 
 Tool for storymapping. Create and show multiple stories in the viewer. Each story can contain multiple chapters with steps which the user can click through. Each chapter has an id, title, button text (shorthand for longer titles) and steps. Each step has a title and description (HTML), a fly-to location, and a set of layers with their settings (id, style, opacity). A story can be opened directly in the viewer through the 'story' search parameter, for example: "https://some-site.nl/?story=mystoryname".
 
+|value|description|type|
+|-|-|-|
+|name|The name of the story|string
+|description|A short description to describe the story|string|
+|width|The width of the story menu|string|
+|force2DMode|Sets the camera to 2D mode and prevents users from switching camera mode while the story is open|boolean|
+|requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists|boolean|
+|baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
+
 ```json
 
 {
@@ -963,6 +975,9 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 				"name": "My Story",
 				"description": "Description of my story",
 				"width": "600px",
+				"force2DMode": false,
+				"requestPolygonArea": false,
+				"baseLayerId": "001",
 				"chapters": [
 					{
 						"id": "1",
@@ -982,15 +997,14 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 								},
 								"layers": [
 									{
-										"id": "001",
+										"id": "002",
 										"opacity": 50
 									},
 									{
 										"id": "19747667-ddb2-4162-99f6-a37d5aaa15ea",
 										"style": "Bouwjaar"
-									},
+									}
 									//etc. You can add as many layers as you want per step
-
 								]
 							},
 							//etc. You can add as many steps as you want per chapter
@@ -1002,5 +1016,16 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 			//etc. You can add as many stories as you want
 		]
 	}
+}
+```
+
+#### flycamera
+
+Tool for navigation. With this tool the user is able to have free roam around the map by selecting either an aerial POV or ground POV.
+
+```json
+{
+	"id": "flyCamera",
+	"enabled": true
 }
 ```

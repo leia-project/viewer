@@ -1,4 +1,4 @@
-import type * as Cesium from "cesium";
+import * as Cesium from "cesium";
 
 export default class FlyCamera {
 	private viewer: Cesium.Viewer;
@@ -12,14 +12,24 @@ export default class FlyCamera {
 	private mouseMoveY: number;
 	private moveSpeed: number;
 	private speedModifier: number;
-	private pointerCameraEnabled: boolean;
-	private keys: any;
 	public enabled: boolean;
+	public groundPOV: boolean;
+	public requestingRender: boolean;
+	public prevDepthTesting: boolean;
+	public POVActive: boolean;
+	public lastTime: number;
+	public deltaTime: number;
+	public clickHandler: Cesium.ScreenSpaceEventHandler;
+	public base = process.env.APP_URL;
+
+	public movementHandler: Cesium.ScreenSpaceEventHandler;
+
+	private keys: any;
 
 	constructor(
 		viewer: Cesium.Viewer,
 		mouseSpeed = 0.003,
-		moveSpeed = 1.0,
+		moveSpeed = 0.05,
 		speedModOn = 6.5,
 		slowModOn = 6.5
 	) {
@@ -30,26 +40,40 @@ export default class FlyCamera {
 		this.speedModOff = 1.0;
 		this.speedModOn = speedModOn;
 		this.speedSlowOn = slowModOn;
+		this.requestingRender = viewer.scene.requestRenderMode;
+		this.prevDepthTesting = viewer.scene.globe.depthTestAgainstTerrain;
 
 		this.mouseMoveX = 0;
 		this.mouseMoveY = 0;
 		this.moveSpeed = moveSpeed;
 		this.speedModifier = this.speedModOff;
 		this.enabled = false;
-		this.pointerCameraEnabled = false;
-
+		this.lastTime = performance.now();
+		this.deltaTime = 1;
+		this.groundPOV = false;
+		this.POVActive = false;
+		this.clickHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+		this.movementHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 		this.setupKeys();
 		this.setupEvents();
 	}
 
 	private setupKeys() {
 		this.keys = {
+			w: { downAction: () => this.moveHorizontally(true) },
 			a: { downAction: () => this.moveLeft() },
+			s: { downAction: () => this.moveHorizontally(false) },
 			d: { downAction: () => this.moveRight() },
+			h: { upAction: () => this.toggleGuide() },
+
+			arrowup: { downAction: () => this.moveHorizontally(true) },
+			arrowleft: { downAction: () => this.moveLeft() },
+			arrowdown: { downAction: () => this.moveHorizontally(false) },
+			arrowright: { downAction: () => this.moveRight() },
+
 			q: { downAction: () => this.moveUp() },
-			w: { downAction: () => this.moveForward() },
-			s: { downAction: () => this.moveBackward() },
 			e: { downAction: () => this.moveDown() },
+
 			r: {
 				continuesly: false,
 				downAction: () => this.slowModifierOn(),
@@ -89,16 +113,11 @@ export default class FlyCamera {
 			(e) => {
 				const key = e.key.toLowerCase();
 
-				if (this.pointerCameraEnabled || this.enabled) {
+				if (this.enabled) {
 					if (this.keys[key]) {
 						this.keys[key].state = "down";
 						this.keys[key].updated = true;
 					}
-				}
-
-				// need to do it directly else requesting pointerlock does not work
-				if (key === "\\") {
-					this.switchPointerCamera();
 				}
 			},
 			true
@@ -119,12 +138,52 @@ export default class FlyCamera {
 		);
 	}
 
+	public switchPointerCamera() {
+		if (!this.enabled) {
+			this.lockPointer();
+		} else {
+			this.unlockPointer();
+			
+		}
+	}
+
 	private addPointerLockChangeEvent() {
 		document.addEventListener("pointerlockchange", (event) => {
 			if (document.pointerLockElement === null) {
-				this.pointerCameraEnabled = false;
+				this.switchPointerCamera();
 			}
 		});
+	}
+	public lockPointer() {
+		this.prevDepthTesting = this.scene.globe.depthTestAgainstTerrain;
+
+		this.scene.globe.depthTestAgainstTerrain = true;
+		this.scene.screenSpaceCameraController.enableCollisionDetection = true;
+
+		this.scene.canvas.requestPointerLock();
+		this.POVActive = true;
+		this.enabled = true;
+		
+		document.getElementById("navfooter").style.visibility = "hidden";
+		this.createGuide();
+	}
+
+	public unlockPointer() {
+		this.enabled = false;
+
+		this.scene.globe.depthTestAgainstTerrain = this.prevDepthTesting;
+
+		this.scene.screenSpaceCameraController.enableCollisionDetection = false;
+		this.POVActive = false;
+		  
+		//wait out the pointerlock restriction without errors
+		setTimeout(() => {
+			document.getElementById("navfooter").style.visibility = "visible";
+			document.getElementById("povGuide")?.remove();
+		}, 1000);
+
+    
+
 	}
 
 	private addClockTickEvent() {
@@ -132,11 +191,11 @@ export default class FlyCamera {
 	}
 
 	private onMouseMove(event: MouseEvent) {
-		if (!this.pointerCameraEnabled) {
+		if (!this.enabled) {
 			return;
 		}
 
-		if (event.movementX && event.movementY) {
+		if (event.movementX || event.movementY) {
 			// the condition workarounds https://bugzilla.mozilla.org/show_bug.cgi?id=1417702
 			// in Firefox, event.mouseMoveX is -2 even though there is no movement
 			this.mouseMoveX += event.movementX;
@@ -144,14 +203,181 @@ export default class FlyCamera {
 		}
 	}
 
-	private switchPointerCamera() {
-		if (!this.pointerCameraEnabled) {
-			this.scene.canvas.requestPointerLock();
+	public enablePositionSelection() {
+		this.groundPOV = true;
+		let walkModeButton = document.getElementById("walkModeButton");
+
+		//povactive differs from enabled variable in order to block stacking position marker
+		this.POVActive = true;
+		document.body.style.cursor = "grab";
+
+		walkModeButton.style.backgroundColor = "#4c4c4c";
+		walkModeButton.style.borderTop = "1px solid white";
+		walkModeButton.style.borderBottom = "1px solid white";
+
+
+
+
+
+		if (this.requestingRender) {
+			this.viewer.scene.requestRenderMode = false;
+		}
+	}
+
+	public toggleGuide() {
+		if(document.getElementById("povGuide") && document.getElementById("povGuide")?.style.visibility == "visible") {
+			document.getElementById("povGuide").style.visibility = "hidden";
 		} else {
-			document.exitPointerLock();
+			document.getElementById("povGuide").style.visibility = "visible";
+		}
+		
+	}
+
+	public createGuide() {
+     let guide = document.createElement("row");
+		guide.id = "povGuide";
+		guide.style.backgroundColor = "var(--cds-interactive-02, #393939)";
+		guide.style.color = "white";
+		guide.style.border = "0.5mm ridge white";
+
+		let escDiv = document.createElement("div");
+		let movementDiv = document.createElement("div");
+		let modifierDiv = document.createElement("div");
+		let hideDiv = document.createElement("div");
+		let verticalMovementDiv = document.createElement("div");
+
+
+		escDiv.textContent = "Press ESC to exit";
+		movementDiv.textContent = "Use WASD or arrow keys to move";
+		verticalMovementDiv.textContent = "Use Q/E to go up/down";
+		modifierDiv.textContent = "Use R/SHIFT to go slower/faster";
+		hideDiv.textContent = "Press H to hide this menu";
+
+		guide.appendChild(escDiv);
+        guide.appendChild(movementDiv);
+		if(!this.groundPOV) {
+		guide.appendChild(verticalMovementDiv);
+		}
+		guide.appendChild(modifierDiv);
+
+		
+		guide.appendChild(hideDiv);
+
+		document.getElementById("navfooter")?.appendChild(guide);
+		guide.style.visibility = "visible";
+	}
+
+	public handleMovement(movingEntity: Cesium.Entity) {
+		const viewer = this.viewer;
+		const movementHandler = this.movementHandler;
+
+		movementHandler.setInputAction((movement: { endPosition: Cesium.Cartesian2 }) => {
+			let pickedPosition = viewer.scene.pickPosition(movement.endPosition);
+			if (Cesium.defined(pickedPosition)) {
+				targetPosition = pickedPosition;
+			}
+		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+		//tweening
+		let currentPosition = Cesium.Cartesian3.clone(Cesium.Cartesian3.ZERO);
+		let targetPosition = Cesium.Cartesian3.clone(Cesium.Cartesian3.ZERO);
+		const smoothfactor = 0.4;
+
+		movingEntity.position = new Cesium.CallbackProperty(() => {
+			const distance = Cesium.Cartesian3.distance(currentPosition, targetPosition);
+			const epsilon = 0.001;
+
+			if (distance < epsilon) {
+				currentPosition = targetPosition;
+			} else {
+				Cesium.Cartesian3.lerp(currentPosition, targetPosition, smoothfactor, currentPosition);
+			}
+			return currentPosition;
+		}, false);
+
+		return movementHandler;
+	}
+
+	public handleClick() {
+		let viewer = this.viewer;
+		const clickHandler = this.clickHandler;
+
+		clickHandler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
+			this.disablePositionSelection();
+			let pickedPosition = viewer.scene.pickPosition(click.position);
+
+			if (Cesium.defined(pickedPosition)) {
+				this.disablePositionSelection();
+				const offset = Cesium.Cartesian3.fromElements(0, 0, 0); //height
+				const newCameraPosition = Cesium.Cartesian3.add(
+					pickedPosition,
+					offset,
+					new Cesium.Cartesian3()
+				);
+
+				const up = Cesium.Cartesian3.clone(Cesium.Cartesian3.UNIT_Z);
+
+				viewer.camera.setView({
+					destination: newCameraPosition,
+					orientation: {
+						direction: this.getForwardFromPosition(newCameraPosition),
+						up: up
+					}
+				});
+
+				this.switchPointerCamera();
+			}
+		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+		return clickHandler;
+	}
+
+	public disablePositionSelection() {
+		this.clickHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+		this.movementHandler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+		this.viewer.entities.removeById("CursorBoard");
+		this.viewer.scene.requestRenderMode = this.requestingRender;
+		this.viewer.scene.requestRender();
+		document.getElementById("walkModeButton").style.backgroundColor = document.getElementById("navfooter")?.style.backgroundColor;
+		document.getElementById("walkModeButton").style.border = document.getElementById("navfooter")?.style.border;
+
+
+
+		this.POVActive = false;
+		document.body.style.cursor = "auto";
+	}
+
+	public bringToGroundPOV() {
+		if (this.POVActive) {
+			this.disablePositionSelection();
+			return;
 		}
 
-		this.pointerCameraEnabled = !this.pointerCameraEnabled;
+		this.enablePositionSelection();
+
+		let movingEntity = this.viewer.entities.add({
+			name: "Cursor tracker",
+			position: Cesium.Cartesian3.ZERO,
+			id: "CursorBoard",
+			billboard: {
+				image:
+				this.base + "/images/pov_man.png",
+				width: 35,
+				height: 35,
+				verticalOrigin: Cesium.VerticalOrigin.BOTTOM
+			}
+		});
+
+		this.handleMovement(movingEntity);
+		this.handleClick();
+	}
+
+	public bringToFlyingPOV() {
+		if (this.POVActive) {
+			this.disablePositionSelection();
+		}
+		this.groundPOV = false;
+		this.switchPointerCamera();
 	}
 
 	private speedModifierOn() {
@@ -170,8 +396,14 @@ export default class FlyCamera {
 		this.speedModifier = this.speedModOff;
 	}
 
+	private getHeightSpeedModifier() {
+		const height = this.camera.positionCartographic.height;
+		const heightModifier = Math.max(1, height / 100);
+		return heightModifier;
+	}
+
 	private getMoveSpeed() {
-		return this.moveSpeed * this.speedModifier;
+		return this.deltaTime * (this.moveSpeed * this.speedModifier * this.getHeightSpeedModifier()) ;
 	}
 
 	private getMouseSpeed() {
@@ -179,7 +411,7 @@ export default class FlyCamera {
 	}
 
 	private mouseLook() {
-		if (!this.pointerCameraEnabled) {
+		if (!this.enabled) {
 			return;
 		}
 
@@ -198,47 +430,101 @@ export default class FlyCamera {
 		});
 	}
 
-	private moveForward() {
-		const speed = this.getMoveSpeed();
-		this.camera.moveForward(speed);
+	private getForwardFromPosition(cameraPosition: Cesium.Cartesian3) {
+		const transform = Cesium.Transforms.eastNorthUpToFixedFrame(this.camera.position);
+
+		const east = new Cesium.Cartesian3(transform[0], transform[1], transform[2]);
+		const north = new Cesium.Cartesian3(transform[4], transform[5], transform[6]);
+		const heading = this.camera.heading;
+
+		const forward = Cesium.Cartesian3.add(
+			Cesium.Cartesian3.multiplyByScalar(north, Math.cos(heading), new Cesium.Cartesian3()),
+			Cesium.Cartesian3.multiplyByScalar(east, Math.sin(heading), new Cesium.Cartesian3()),
+			new Cesium.Cartesian3()
+		);
+
+		Cesium.Cartesian3.normalize(forward, forward);
+
+		return forward;
 	}
 
-	private moveBackward() {
-		const speed = this.getMoveSpeed();
-		this.camera.moveBackward(speed);
+	private applyGravity() {
+		if(this.groundPOV) {
+			const groundHeight =
+			  this.scene.globe.getHeight(this.camera.positionCartographic);
+		   
+  
+			  if(groundHeight) {
+		  this.camera.moveDown((this.camera.positionCartographic.height - 1) - groundHeight)
+			  }
+		  }
+	}
+
+	private moveHorizontally(ahead: boolean) {
+		let speed;
+
+		if (ahead) {
+			speed = this.getMoveSpeed();
+		} else {
+			speed = this.getMoveSpeed() - this.getMoveSpeed() * 2;
+		}
+		let forward = this.getForwardFromPosition(this.camera.position);
+		this.camera.move(forward, speed);
+
+		this.applyGravity();
 	}
 
 	private moveLeft() {
 		const speed = this.getMoveSpeed();
 		this.camera.moveLeft(speed);
+
+		this.applyGravity();
+
 	}
 
 	private moveRight() {
 		const speed = this.getMoveSpeed();
 		this.camera.moveRight(speed);
+
+		this.applyGravity();
+
 	}
 
 	private moveUp() {
-		const speed = this.getMoveSpeed();
-		this.camera.moveUp(speed);
+		if (!this.groundPOV) {
+			const speed = this.getMoveSpeed();
+			this.camera.moveUp(speed);
+		}
 	}
 
 	private moveDown() {
-		const speed = this.getMoveSpeed();
-		this.camera.moveDown(speed);
+		if (!this.groundPOV) {
+			const speed = this.getMoveSpeed();
+			this.camera.moveDown(speed);
+		}
 	}
 
-	private viewerUpdate() {
-		this.mouseLook();
 
+	private viewerUpdate() {
+ let now = performance.now();
+this.deltaTime = now - this.lastTime;
+ this.lastTime = now;
+ 
+		this.mouseLook();
 		for (const property in this.keys) {
 			const key = this.keys[property];
-			if (key.downAction && key.state == "down" && (key.continuesly || key.updated)) {
+
+                if(!this.enabled) {
+					key.state = "up";
+					key.updated = false;
+				}
+
+			if (key.downAction && key.state == "down" && (key.continuesly || key.updated) && this.enabled) {
 				key.downAction();
 				key.updated = false;
 			}
 
-			if (key.upAction && key.state == "up" && key.updated) {
+			if (key.upAction && key.state == "up" && key.updated && this.enabled) {
 				key.upAction();
 				key.updated = false;
 			}
