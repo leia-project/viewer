@@ -39,11 +39,11 @@
 			/>
 		{/if}
 	{:else}
-		<div>
-			<span>Select an extraction point</span>
+		<div class="info-message">
 			<div class="info-button">
 				<InformationFilled size={20} />
 			</div>
+			<span>Select an extraction point</span>
 		</div>
 	{/if}
 </div>
@@ -67,6 +67,13 @@
 	.status-label {
 		font-size: 0.875rem;
 		color: var(--text-color);
+	}
+
+	.info-message {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.875rem;
 	}
 
 </style>

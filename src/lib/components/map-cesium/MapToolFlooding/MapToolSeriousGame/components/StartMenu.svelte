@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, Loading, Modal } from "carbon-components-svelte";
-	import { Exit, CaretRight } from "carbon-icons-svelte";
+	import { Exit, CaretRight, Save } from "carbon-icons-svelte";
 	import type { GameController } from "../module/game-controller";
 
 	export let gameController: GameController;
@@ -27,9 +27,7 @@
 	<div class="start-menu-content">
 		<h1>Serious Game - Floods</h1>
 		<div>[image]</div>
-		<p>
-			Explanations about the game...
-		</p>
+		<p>Explanations about the game...</p>
 		{#if gameLoaded}
 			<div class="start-menu-actions">
 				<Button
@@ -37,6 +35,13 @@
 					icon={Exit}
 					on:click={() => gameController.exit()}
 				>Exit Game</Button>
+				{#if $activeGame}
+					<Button
+						kind="primary"
+						icon={Save}
+						on:click={() => $activeGame.save()}
+					>Save Game</Button>
+				{/if}
 				<Button
 					kind="primary"
 					icon={CaretRight}
@@ -61,6 +66,7 @@
 		{/if}
 	</div>
 </Modal>
+
 
 <style>
 

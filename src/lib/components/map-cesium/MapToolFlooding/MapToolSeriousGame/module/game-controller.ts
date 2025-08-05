@@ -4,7 +4,7 @@ import type { Map } from "$lib/components/map-cesium/module/map";
 import { Game } from "./game";
 import { MarvinApp } from "../../Marvin/marvin";
 import GameContainer from "../components/GameContainer.svelte";
-import type { IGameConfig, IGameSettings } from "./models";
+import type { IGameConfig, IGameSettings, ISavedGame } from "./models";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
 
 
@@ -37,7 +37,7 @@ export class GameController {
 		numberOfPersonsPerCar: 4
 	};
 	public inGame: Writable<boolean> = writable(false);
-	private savedGames: Array<Game> = [];
+	public savedGames: Writable<Array<ISavedGame>> = writable([]);
 
 	public active: Writable<Game | undefined> = writable(undefined);
 	private boundingDome: Cesium.Entity;
@@ -53,7 +53,7 @@ export class GameController {
 		this.active.set(game);
 	}
 
-	public play(gameConfig: IGameConfig): void {
+	public play(gameConfig: IGameConfig, savedGame?: ISavedGame): void {
 		this.inGame.set(true);
 		this.cachedTime = get(this.map.options.dateTime);
 		this.toggleViewerUI(false);
@@ -146,5 +146,17 @@ export class GameController {
 			}
 		});
 		return boundingDome;
+	}
+
+	public getGamesFromCache(): void {
+		const cachedGames = localStorage.getItem("serious-game-flooding");
+		if (cachedGames) {
+			try {
+				const savedGames = JSON.parse(cachedGames) as Array<ISavedGame>;
+				this.savedGames.set(savedGames);
+			} catch (error) {
+				console.error("Error parsing saved games from cache:", error);
+			}
+		}
 	}
 }

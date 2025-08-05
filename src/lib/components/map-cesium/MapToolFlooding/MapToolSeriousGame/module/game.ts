@@ -4,7 +4,7 @@ import type { Map } from "$lib/components/map-cesium/module/map";
 import { NotificationLog } from "./notification-log";
 import { CameraLocation } from "$lib/components/map-core/camera-location";
 import { EvacuationController } from "./game-elements/evacuation-controller";
-import type { IGameConfig } from "./models";
+import type { IGameConfig, ISavedGame } from "./models";
 import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 import type { MarvinApp } from "../../Marvin/marvin";
 
@@ -127,6 +127,7 @@ export class Game {
 			message: `Time forwarded to ${steps[get(this.step)].title}`,
 			type: NotificationType.INFO
 		});
+		this.save();
 		
 		this.elapsedTimeDynamic.set(get(this.currentStep).time);
 		this.step.update((value) => {
@@ -177,5 +178,24 @@ export class Game {
 		const hours = Math.floor(totalMinutes / 60);
 		const minutes = totalMinutes % 60;
 		return `${hours}:${minutes.toString().padStart(2, "0")}`;
+	}
+
+	public save(): void {
+		const gameData: ISavedGame = {
+			name: this.gameConfig.name,
+			time: get(this.elapsedTimeDynamic),
+			evacuationLog: this.evacuationController.evacuationLog,
+			lastUpdate: Date.now()
+		};
+		const gameCache = localStorage.getItem("serious-game-flooding");
+		const savedGames: Array<ISavedGame> = gameCache ? JSON.parse(gameCache) : [];
+		const saveGame = savedGames?.find((game) => game.name === gameData.name);
+		if (saveGame) {
+			const index = savedGames.indexOf(saveGame);
+			savedGames[index] = gameData;
+		} else {
+			savedGames.push(gameData);
+		}
+		localStorage.setItem("serious-game-flooding", JSON.stringify(savedGames));
 	}
 }
