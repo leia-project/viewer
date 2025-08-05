@@ -22,3 +22,19 @@
 		<MeasureEntry {measure} />
 	{/each}
 </div>
+
+
+<style>
+
+	.layer-control {
+		border-bottom: 1px solid var(--game-color-highlight);
+		margin-bottom: 0.75rem;
+	}
+
+	.measure-list {
+		display: flex;
+		flex-direction: column;
+		row-gap: 0.6rem;
+	}
+
+</style>
