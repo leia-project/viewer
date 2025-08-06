@@ -45,7 +45,10 @@
 				<Button
 					kind="primary"
 					icon={CaretRight}
-					on:click={() => open = false}
+					on:click={() => {
+						open = false;
+						$activeGame?.startCutscene();
+					}}
 				>Start</Button>
 			</div>
 		{:else}
