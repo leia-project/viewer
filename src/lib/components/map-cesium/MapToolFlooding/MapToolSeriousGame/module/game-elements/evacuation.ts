@@ -1,3 +1,4 @@
+import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Hexagon } from "./hexagons/hexagon";
 import type { Map } from "$lib/components/map-cesium/module/map";
@@ -15,7 +16,7 @@ export class Evacuation {
 
 	private dataSource: Cesium.CustomDataSource;
 	private interval?: NodeJS.Timeout;
-	private shown: boolean = false;
+	public shown: Writable<boolean> = writable(false);
 
 	constructor(route: Array<RouteSegment>, hexagon: Hexagon, extractionPoint: RouteSegment, numberOfPersons: number, time: number, map: Map) {
 		this.route = route;
@@ -87,26 +88,35 @@ export class Evacuation {
 	}
 	
 	public display(evacuationGroup: Array<Evacuation>): void {
-		if (this.shown) {
+		if (get(this.shown) && evacuationGroup.length === 0) {
 			return;
 		}
 		if (!this.map.viewer.dataSources.contains(this.dataSource)) {
 			this.map.viewer.dataSources.add(this.dataSource);
 		}
 		this.animate(evacuationGroup);
-		this.shown = true;
+		this.shown.set(true);
 	}
 
 	public hide(): void {
-		if (!this.shown) {
+		if (!get(this.shown)) {
 			return;
 		}
 		if (this.interval) clearInterval(this.interval);
 		this.dataSource.entities.values.forEach((entity) => entity.show = false);
 		this.map.viewer.dataSources.remove(this.dataSource, true);
-		this.shown = false;
+		this.shown.set(false);
+		this.map.refresh();
 	}
-	
+
+	public toggle(): void {
+		if (get(this.shown)) {
+			this.hide();
+		} else {
+			this.display([]);
+		}
+	}
+
 	public destroy(): void {
 		this.hexagon.removeEvacuation(this);
 	}

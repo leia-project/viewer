@@ -7,7 +7,8 @@
 	export let icon: any = undefined;
 	export let size: number = 22;
 	export let active: boolean | undefined = undefined;
-	export let hasTooltip: boolean = false;
+	export let hasTooltip: boolean = true;
+	export let buttonText: string | undefined = undefined;
 	export let borderHighlight: boolean = false;
 
 	let ref: HTMLDivElement;
@@ -33,11 +34,18 @@
 		--button-size: ${size};
 	`}
 >
-	<div class="toolbar-button" on:click={click} class:active style={`border-color: ${borderHighlight ? "var(--game-color-highlight)" : "rgb(var(--game-color-bg))"};`}>
+	<div class="toolbar-button"
+		on:click={click} 
+		class:active 
+		class:padded={buttonText !== undefined}
+		style={`border-color: ${borderHighlight ? "var(--game-color-highlight)" : "rgb(var(--game-color-bg))"};`}
+	>
 		{#if icon}
 			<svelte:component this={icon} color={"var(--icon-color)"} size={size} />
 		{/if}
-		<slot />
+		{#if buttonText}
+			<span class="tooltip-text">{buttonText}</span>
+		{/if}
 	</div>
 	<Popover
 		bind:open
@@ -46,7 +54,7 @@
 			open = ref.contains(e.detail.target);
 		}}
 	>
-		<slot name="popover"></slot>
+		<slot name="popover" />
 	</Popover>
 </div>
 
@@ -61,7 +69,7 @@
 		display: inline-flex;
 		justify-content: center;
 		align-items: center;
-		column-gap: calc(var(--button-size) * 0.025rem);
+		column-gap: calc(var(--button-size) * 0.03rem);
 		min-width: calc(var(--button-size) * 0.12rem);
 		height: calc(var(--button-size) * 0.12rem);
 		margin: 0;
@@ -83,6 +91,9 @@
 		--icon-color: rgb(var(--game-color-bg));
 	}
 
+	.toolbar-button.padded {
+		padding: 0 1rem;
+	}
 	:global(.toolbar-button svg) {
 		margin: 0;
 		padding: 0;
@@ -100,4 +111,5 @@
 		border-bottom: 1px solid var(--game-color-highlight);
 		border-right: 1px solid var(--game-color-highlight);
 	}
+
 </style>

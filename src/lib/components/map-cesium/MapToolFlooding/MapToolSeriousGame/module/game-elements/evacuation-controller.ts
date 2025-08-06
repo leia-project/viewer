@@ -8,6 +8,7 @@ import { Evacuation } from "./evacuation";
 import type { Game } from "../game";
 import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 import type { FloodLayerController } from "../../../layer-controller";
+import type { EvacuationLogItem } from "../models";
 
 
 export class EvacuationController {
@@ -18,6 +19,7 @@ export class EvacuationController {
 	public roadNetwork: RoadNetwork;
 	public hexagonLayer: HexagonLayer;
 	public evacuations!: Readable<Array<Evacuation>>;
+	public evacuationLog: Array<EvacuationLogItem> = [];
 
 	constructor(game: Game, floodLayerController: FloodLayerController) {
 		this.game = game;
@@ -62,6 +64,16 @@ export class EvacuationController {
   		});
 		const aggregatedEvacuations = this.aggregateEvacuations(newEvacuations);
 		hexagon.addEvacuations(aggregatedEvacuations);
+
+		this.evacuationLog.push(
+			...aggregatedEvacuations.map((evacuation) => ({
+				hexagonId: hexagon.hex,
+				extractionPointId: evacuation.extractionPoint.id,
+				evacuated: evacuation.numberOfPersons,
+				timeStep: get(this.elapsedTime),
+				added: true
+			}))
+		);
 	}
 
 	private aggregateEvacuations(evacuations: Array<Evacuation>): Array<Evacuation> {
@@ -82,6 +94,14 @@ export class EvacuationController {
 	public deleteEvacuation(evacuation: Evacuation): void {
 		this.roadNetwork.onEvacuationDelete(evacuation);
 		evacuation.hexagon.removeEvacuation(evacuation);
+
+		this.evacuationLog.push({
+			hexagonId: evacuation.hexagon.hex,
+			extractionPointId: evacuation.extractionPoint.id,
+			evacuated: evacuation.numberOfPersons,
+			timeStep: get(this.elapsedTime),
+			added: false
+		});
 	}
 
 	public cancelHexagonEvacuation(hexagon: Hexagon, time: number = get(this.elapsedTime)): void {

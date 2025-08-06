@@ -1,12 +1,13 @@
 <script lang="ts">
-	import { Layers, VehicleInsights, WaveHeight } from "carbon-icons-svelte";
+	import { onDestroy, onMount } from "svelte";
+	import { Layers, ToolKit, VehicleInsights, WaveHeight } from "carbon-icons-svelte";
 	import type { GameController } from "../../module/game-controller";
 	import EvacuationOverview from "./evacuation-overview/EvacuationOverview.svelte";
 	import FloodModelControl from "./FloodModelControl.svelte";
-	import { onDestroy, onMount } from "svelte";
 	import MenuContent from "./MenuContent.svelte";
 	import GameButton from "../general/GameButton.svelte";
 	import LayerManager from "../layer-manager/LayerManager.svelte";
+	import MeasureOverview from "./measures/MeasureOverview.svelte";
 
 	export let gameController: GameController;
 
@@ -43,8 +44,12 @@
 					<FloodModelControl game={$activeGame} />
 				</MenuContent>
 			{:else if selectedMenu === 2}
-				<MenuContent title="Evacuation Control" icon={VehicleInsights}>
+				<MenuContent title="Evacuations" icon={VehicleInsights}>
 					<EvacuationOverview game={$activeGame} />
+				</MenuContent>
+			{:else if selectedMenu === 3}
+				<MenuContent title="Measures" icon={VehicleInsights}>
+					<MeasureOverview game={$activeGame} />
 				</MenuContent>
 			{/if}
 		</div>
@@ -66,6 +71,12 @@
 				hasTooltip={false}
 				active={selectedMenu === 2}
 				on:click={() => selectedMenu = selectedMenu === 2 ? undefined : 2}
+			/>
+			<GameButton
+				icon={ToolKit}
+				hasTooltip={false}
+				active={selectedMenu === 3}
+				on:click={() => selectedMenu = selectedMenu === 3 ? undefined : 3}
 			/>
 		</div>
 	{/if}

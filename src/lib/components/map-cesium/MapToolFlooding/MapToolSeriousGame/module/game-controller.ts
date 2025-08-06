@@ -1,9 +1,10 @@
 import { get, writable, type Writable } from "svelte/store";
+import * as Cesium from "cesium";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { Game } from "./game";
 import { MarvinApp } from "../../Marvin/marvin";
 import GameContainer from "../components/GameContainer.svelte";
-import type { IGameConfig, IGameSettings } from "./models";
+import type { IGameConfig, IGameSettings, ISavedGame } from "./models";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
 
 
@@ -18,6 +19,9 @@ const hiddenElements = [
 	}
 ];
 
+interface IGeneralSettings {
+	numberOfPersonsPerCar: number;
+}
 
 export class GameController {
 
@@ -29,14 +33,19 @@ export class GameController {
 	private cachedMapLayers: Array<any> = [];
 	private cachedTime: number = 0;
 
+	private generalSettings: IGeneralSettings = {
+		numberOfPersonsPerCar: 4
+	};
 	public inGame: Writable<boolean> = writable(false);
-	private savedGames: Array<Game> = [];
+	public savedGames: Writable<Array<ISavedGame>> = writable([]);
 
 	public active: Writable<Game | undefined> = writable(undefined);
+	private boundingDome: Cesium.Entity;
 
 	constructor(map: Map, settings: IGameSettings) {
 		this.map = map;
 		this.backgroundLayer = this.map.layerLibrary.findLayer(settings.backgroundLayerId);
+		this.boundingDome = this.getBoundingDome();
 	}
 
 	public loadGame(gameConfig: IGameConfig): void {
@@ -44,25 +53,29 @@ export class GameController {
 		this.active.set(game);
 	}
 
-	public play(gameConfig: IGameConfig): void {
+	public play(gameConfig: IGameConfig, savedGame?: ISavedGame): void {
 		this.inGame.set(true);
-		this.toggleViewerUI(false);
 		this.cachedTime = get(this.map.options.dateTime);
+		this.toggleViewerUI(false);
 		const marvin = this.initMarvin();
 		this.loadUserInterface(marvin);
 		this.addBackgroundLayer();
 		this.loadGame(gameConfig);
+		this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
+		//this.map.viewer.entities.add(this.boundingDome);
 	}
 
 	public exit(): void {   
 		this.inGame.set(false);
+		this.map.options.dateTime.set(this.cachedTime);
 		this.removeBackgroundLayer();
 		this.toggleViewerUI(true);
 		this.map.options.dateTime.set(this.cachedTime);
 		get(this.active)?.exit();
 		this.active.set(undefined);
 		this.gameContainer?.$destroy();
-		this.map.options.dateTime.set(this.cachedTime);
+		this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
+		//this.map.viewer.entities.remove(this.boundingDome);
 	}
 
 	private loadUserInterface(marvin: MarvinApp): void {
@@ -121,5 +134,29 @@ export class GameController {
 		this.cachedMapLayers.forEach((layer) => {
 			layer.visible.set(show);
 		});
+	}
+
+	private getBoundingDome(): Cesium.Entity {
+		const boundingDome = new Cesium.Entity({
+			position: new Cesium.Cartesian3(0, 0, 0),
+			ellipsoid: {
+				radii: new Cesium.Cartesian3(100000000, 100000000, 100000000),
+				material: Cesium.Color.DIMGRAY.withAlpha(0.9),
+				fill: true
+			}
+		});
+		return boundingDome;
+	}
+
+	public getGamesFromCache(): void {
+		const cachedGames = localStorage.getItem("serious-game-flooding");
+		if (cachedGames) {
+			try {
+				const savedGames = JSON.parse(cachedGames) as Array<ISavedGame>;
+				this.savedGames.set(savedGames);
+			} catch (error) {
+				console.error("Error parsing saved games from cache:", error);
+			}
+		}
 	}
 }

@@ -1,8 +1,8 @@
 import * as Cesium from "cesium";
-import { get, writable, type Writable } from "svelte/store";
+import { derived, get, writable, type Readable, type Writable } from "svelte/store";
+import type { Map } from "$lib/components/map-cesium/module/map";
 import { Hexagon } from "./hexagon";
 import { PGRestAPI, type CBSHexagon, type FloodHexagon } from "../api/pg-rest-api";
-import type { Map } from "$lib/components/map-cesium/module/map";
 import HexagonInfoBox from "../../../components/infobox/HexagonInfoBox.svelte";
 import type { EvacuationController } from "../evacuation-controller";
 
@@ -39,6 +39,9 @@ export class HexagonLayer {
 	public selectedHexagon: Writable<Hexagon | undefined> = writable();
 	private hexagonSelectBox: HexagonInfoBox | undefined;
 	private selectBoxTimeOut: NodeJS.Timeout | undefined;
+
+	public evacuatedCount!: Readable<number>;
+	public victimCount!: Readable<number>;
 
 	constructor(evacuationController: EvacuationController, scenarios: Array<string>, outline: Array<[lon: number, lat: number]>) {
 		this.map = evacuationController.map;
@@ -88,6 +91,7 @@ export class HexagonLayer {
 		this.use2DMode.subscribe((b) => this.toggle2D3DModeHexagons(b));
 		this.alpha.subscribe((alpha: number) => {
 			this.material.uniforms.custom_alpha = alpha;
+			this.hexagons.forEach((hex: Hexagon) => hex.onAlphaUpdate(alpha));
 			this.map.refresh();
 		});
 	}
@@ -97,19 +101,37 @@ export class HexagonLayer {
 		hexagons.forEach((hex: CBSHexagon) => {
 			const newHex = new Hexagon(hex.hex, hex.population, this.selectedHexagon);
 			this.hexagons.push(newHex);
+			this.setCounters();
 		});
 		this.createPrimitive();
 		this.addHexagonEntities();
 		this.loaded.set(true);
 	}
 
+	private setCounters(): void {
+		this.evacuatedCount = derived(this.hexagons.map((h) => h.totalEvacuated), (($totalEvacuated, set) => {
+			const total = $totalEvacuated.reduce((sum, evacuated) => sum + evacuated, 0);
+			set(total);
+		}));
+		this.victimCount = derived(this.hexagons.map((h) => h.victims), (($victims, set) => {
+			const total = $victims.reduce((sum, victims) => sum + victims, 0);
+			set(total);
+		}));
+	}
+
+
 	private async updateFloodDepths(scenarios: Array<string>, time: number): Promise<void> {
 		const h3FloodDepths = await this.pgRestAPI.getFloodHexagons(this.outline, 7, scenarios, time);
+		const updatedHexIds = new Set<string>();
 		h3FloodDepths.forEach((floodHex: FloodHexagon) => {
 			const hex = this.hexagons.find((h: Hexagon) => h.hex === floodHex.hex);
 			if (hex) {
 				hex.floodDepth.set(floodHex.maxFloodDepth);
+				updatedHexIds.add(hex.hex);
 			}
+		});
+		this.hexagons.forEach((hex: Hexagon) => {
+			if (!updatedHexIds.has(hex.hex)) hex.floodDepth.set(0);
 		});
 	}
 
@@ -157,7 +179,9 @@ export class HexagonLayer {
 	public onLeftClick(picked: any): void {
 		let pickedHexagon: Hexagon | undefined;
 		const selectedHexagon = get(this.selectedHexagon);
-		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
+		if (picked?.id instanceof Cesium.Entity) {
+			pickedHexagon = this.hexagons.find((hex: Hexagon) => hex.entityInstance === picked.id);
+		} else if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
 			pickedHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
 		}
 		if (!pickedHexagon && picked?.id !== undefined) {
@@ -172,35 +196,27 @@ export class HexagonLayer {
 	}
 
 	public onMouseMove(picked: any): void {
-		/* if ((picked?.primitive instanceof Cesium.Primitive || picked?.id instanceof Cesium.Entity) && picked?.id) {
-			if (this.hoveredHexagon && this.hoveredHexagon.hex !== picked.id) {
-				this.unhighlight(this.hoveredHexagon, "hover");
-			}
-
-			if(picked?.id instanceof Cesium.Entity) {
-				this.hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.entityInstance === picked.id)
-			} else if (picked?.primitive instanceof Cesium.Primitive) {
-				this.hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
-			} 
-			
-			if (this.hoveredHexagon) this.highlight(this.hoveredHexagon, "hover"); */
 		if (typeof picked?.id === "string" && picked.id.endsWith("-top")) {
 			picked.id = picked.id.slice(0, -4); // Remove "-top" suffix to get the hexagon id when clicking top hexagons
 		}
 		let hoveredHexagon = get(this.hoveredHexagon);
-		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
-			if (hoveredHexagon && hoveredHexagon.hex !== picked.id) {
-				hoveredHexagon.unhighlight("hover");
-			}
-			hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
-			this.hoveredHexagon.set(hoveredHexagon);
-			if (hoveredHexagon) hoveredHexagon.highlight("hover");
-			this.map.viewer.scene.canvas.style.cursor = "pointer";
-		} else if (picked?.id === undefined) {
+		if (picked?.id === undefined) {
 			if (hoveredHexagon && hoveredHexagon !== get(this.selectedHexagon)) {
 				hoveredHexagon.unhighlight("hover");
 				this.hoveredHexagon.set(undefined);
 			}
+		} else {
+			if (hoveredHexagon && hoveredHexagon.hex !== picked.id && hoveredHexagon.entityInstance !== picked.id) {
+				hoveredHexagon.unhighlight("hover");
+			}
+			if (picked.id instanceof Cesium.Entity) {
+				hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.entityInstance === picked.id);
+			} else if (picked?.primitive instanceof Cesium.Primitive) {
+				hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
+			}
+			this.hoveredHexagon.set(hoveredHexagon);
+			if (hoveredHexagon) hoveredHexagon.highlight("hover");
+			this.map.viewer.scene.canvas.style.cursor = "pointer";
 		} 
 		this.map.refresh();
 	}

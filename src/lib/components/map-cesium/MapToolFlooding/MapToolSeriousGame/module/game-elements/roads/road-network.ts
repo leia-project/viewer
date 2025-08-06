@@ -22,13 +22,14 @@ export class RoadNetwork {
 	public map: Map;
 	private routingAPI: RoutingAPI;
 	private outline: Array<[lon: number, lat: number]>;
-	private floodedRoadFeatures: GeoJSONFeature[] | undefined;
+	private floodedRoadFeatures: GeoJSONFeature[] | undefined;	
 	private personsPerCar: number = 4;
 
 	private roadNetworkLayer: RoadNetworkLayer;
 	private extractionPointIds: Array<string> = ["42376", "83224", "77776"];
 	public selectedExtractionPoint: Writable<RouteSegment  | undefined> = writable(undefined);
 	public measures: Array<Measure> = [];
+	public measureToggled: Writable<boolean> = writable(true);
 
 	private pgRestAPI = new PGRestAPI();
 	private elapsedTime: Writable<number>;
@@ -106,7 +107,7 @@ export class RoadNetwork {
 		this.loadRoadNetwork().then(() => {
 			//this.assignSegmentsToMeasures();
 			this.elapsedTime.subscribe((time: number) => this.cleanSetRoutingGraph(time));
-			// this.floodLayerController.getFloodedRoadWritableFeatures().subscribe((floodedRoadFeatures) => {this.fl}) TODO: dit fixen om graph op te halen
+			// TODO: this.floodLayerController.getFloodedRoadWritableFeatures().subscribe((floodedRoadFeatures) => {this.fl}) TODO: dit fixen om graph op te halen
 			this.loaded.set(true);
 		});
 	}
@@ -128,6 +129,7 @@ export class RoadNetwork {
 
 	private async loadRoadNetwork(): Promise<void> {
 		const network = await getNetworkPGRest("zeeland_datacore", "car", this.outline); //await fetch("/data/zeeland_2/car/edges.geojson");
+		/* 
 		const outline =  turf.polygon([this.outline.map((coord) => [coord[0], coord[1]])]);
 		const filteredFeatures = network.edges.features.filter((feature: RouteFeature) => {
 			//@ts-ignore
@@ -141,14 +143,16 @@ export class RoadNetwork {
 				return turf.booleanPointInPolygon(pt, outline) && feature.properties.fid !== undefined;
 			});
 		});
+		*/
 		network.edges.features.forEach((feature: RouteFeature) => {
-			const segment = this.roadNetworkLayer.add(feature);
+			const segment = this.roadNetworkLayer.add(feature, false);
 			for (const measure of this.measures) {
 				if (measure.config.routeSegmentFids.includes(segment.id)) {
 					measure.addRouteSegment(segment);
 				}
 			}
 		});
+		this.roadNetworkLayer.updatePrimitive();
 	}
 
 	private loadMeasures(): void {
@@ -163,6 +167,9 @@ export class RoadNetwork {
 			}
 		});
 		this.measures = measures.filter((m) => m !== undefined) as Array<Measure>;
+		this.measureToggled.subscribe((toggled) => {
+			this.measures.forEach((measure) => measure.toggle(toggled));
+		});
 	}
 
 	public async evacuateHexagon(hexagon: Hexagon): Promise<Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment,  evacuatedCars: number, numberOfPersons: number }> | undefined> {
@@ -270,14 +277,14 @@ export class RoadNetwork {
 				} else if (picked.id.startsWith("segment-")) {
 					const itemId = picked.id.replace("segment-", "");
 					pickedItem = this.roadNetworkLayer.getItemById(itemId);
-				} else if (picked.id.startsWith("measure-")) {
+				} else if (picked.id.startsWith("measure")) {
 					const measureName = picked.id.split("-")[2];
 					pickedItem = this.measures.find((m) => m.config.name === measureName);
 				}
 			}
 		} else if (picked?.id instanceof Cesium.Entity) {
 			const entity = picked.id as Cesium.Entity;
-			if (entity.id.startsWith("measure-")) {
+			if (entity.id.startsWith("measure")) {
 				pickedItem = this.measures.find((m) => m.config.name === entity.name);
 			}
 		}

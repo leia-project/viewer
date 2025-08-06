@@ -19,6 +19,9 @@ export interface IMeasureConfig {
 
 export abstract class Measure {
 
+	private static constantTrue = new Cesium.ConstantProperty(true);
+	private static constantFalse = new Cesium.ConstantProperty(false);
+
 	public config: IMeasureConfig;
 	private map: Map;
 	public routeSegments: Array<RouteSegment> = [];
@@ -26,6 +29,7 @@ export abstract class Measure {
 
 	public position: Cesium.Cartesian3 = new Cesium.Cartesian3(0, 0, 0);
 	private billboard: Cesium.Entity;
+	private billboardApplied: Cesium.Entity;
 	private polylinePrimitive?: Cesium.GroundPolylinePrimitive;
 
 	get centerCartesian3(): Cesium.Cartesian3 {
@@ -35,13 +39,17 @@ export abstract class Measure {
 	constructor(config: IMeasureConfig, map: Map) {
 		this.config = config;
 		this.map = map;
-		this.billboard = this.createBillboard();
+		this.billboard = this.createBillboard("#F4F6F8", "default");
+		this.billboardApplied = this.createBillboard("#98FB98", "applied"); // #AFEEEE
 		this.applied.subscribe((applied) => {
 			if (applied) {
 				this.routeSegments.forEach((segment) => this.applyTo(segment));
 			} else {
 				this.routeSegments.forEach((segment) => this.removeFrom(segment));
 			}
+			if (this.billboard.billboard) this.billboard.billboard.show = applied ? Measure.constantFalse : Measure.constantTrue;
+			if (this.billboardApplied.billboard) this.billboardApplied.billboard.show = applied ? Measure.constantTrue : Measure.constantFalse;
+			this.map.refresh();
 		});
 	}
 
@@ -73,11 +81,11 @@ export abstract class Measure {
 
 	public abstract removeFrom(routeSegment: RouteSegment): void;
 
-	private createBillboard(): Cesium.Entity {
+	private createBillboard(bgColor: string, type: string): Cesium.Entity {
 		const icon = iconMap[this.config.asset];
-		const svg = processSVG(icon, "12mm");
+		const svg = processSVG(icon, "12mm", bgColor);
 		const billboard = new Cesium.Entity({
-			id: `measure-${this.config.name}`,
+			id: `measure_${type}-${this.config.name}`,
 			name: this.config.name,
 			position: this.position,
 			billboard: {
@@ -85,8 +93,7 @@ export abstract class Measure {
 				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
 				verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
 				scaleByDistance: new Cesium.NearFarScalar(5.0e4, 1.0, 3.0e6, 0.1)
-			},
-			show: false
+			}
 		});
 		this.map.viewer.entities.add(billboard);
 		return billboard;
@@ -95,6 +102,7 @@ export abstract class Measure {
 	private updateEntities(): void {
 		this.updateBillboardPosition();
 		this.billboard.show = this.routeSegments.length > 0;
+		this.billboardApplied.show = this.routeSegments.length > 0;
 		this.updatePrimitive();
 	}
 
@@ -106,6 +114,7 @@ export abstract class Measure {
 				: turf.center(turf.lineString(coordinates)).geometry.coordinates;
 			this.position = Cesium.Cartesian3.fromDegrees(center[0], center[1], 50);
 			this.billboard.position = new Cesium.ConstantPositionProperty(this.position);
+			this.billboardApplied.position = new Cesium.ConstantPositionProperty(this.position);
 		}
 	}
 
@@ -129,18 +138,25 @@ export abstract class Measure {
 	}
 
 	public highlight(b: boolean): void {
-		if (!this.billboard?.billboard) return;
-		const color = b ? Cesium.Color.BLUE : Cesium.Color.DARKBLUE;
-		this.billboard.billboard.color = new Cesium.ColorMaterialProperty(color);
 		if (this.polylinePrimitive && this.polylinePrimitive?.ready) {
 			for (const segment of this.routeSegments) {
 				const attributes = this.polylinePrimitive.getGeometryInstanceAttributes(`measure-${segment.id}-${this.config.name}}`);
 				if (attributes) {
+					const color = b ? Cesium.Color.BLUE : Cesium.Color.DARKBLUE;
 					attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(color, attributes.color);
 					attributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(b, attributes.show);
 				}
 			}
 		}
+	}
+
+	public toggle(show: boolean): void {
+		this.billboard.show = show;
+		this.billboardApplied.show = show;
+		if (this.polylinePrimitive) {
+			this.polylinePrimitive.show = show;
+		}
+		this.map.refresh();
 	}
 }
 

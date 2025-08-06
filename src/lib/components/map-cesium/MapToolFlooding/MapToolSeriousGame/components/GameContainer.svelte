@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onDestroy, onMount } from "svelte";
 	import { Exit } from "carbon-icons-svelte";
 	import type { MarvinApp } from "../../Marvin/marvin";
 	import type { GameController } from "../module/game-controller";
@@ -18,6 +19,22 @@
 	const activeGame = gameController.active;
 
 	let showStartMenu = true;
+
+	onMount(() => {
+		const cesiumContainerClass = "cesiumContainer ";
+		const el = document.getElementsByClassName(cesiumContainerClass)[0];
+		if (el instanceof HTMLElement) {
+			el.classList.add("serious-game-loaded");
+		}
+	});
+
+	onDestroy(() => {
+		const cesiumContainerClass = "cesiumContainer ";
+		const el = document.getElementsByClassName(cesiumContainerClass)[0];
+		if (el instanceof HTMLElement) {
+			el.classList.remove("serious-game-loaded");
+		}
+	});
 
 </script>
 
@@ -65,7 +82,13 @@
 
 
 <style>
-	
+
+	:global(.serious-game-loaded .fiView) {
+		right: 1rem !important;
+		left: auto !important;
+		bottom: calc(58px + 1rem) !important;
+	}
+
 	#game-container {
 		--game-color-bg: 33, 33, 33;
 		--game-color-contrast: #f0f0f0;
