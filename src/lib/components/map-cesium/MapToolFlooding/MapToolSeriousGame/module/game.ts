@@ -7,6 +7,7 @@ import { EvacuationController } from "./game-elements/evacuation-controller";
 import type { IGameConfig } from "./models";
 import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 import type { MarvinApp } from "../../Marvin/marvin";
+import { Cutscene, type CameraData, type ChinookPositions } from "./cutscene";
 
 
 interface IGameStats {
@@ -95,6 +96,28 @@ export class Game {
 		this.elapsedTimeDynamic.subscribe((t) => {
 			this.map.options.dateTime.set(this.startTime + t * 3600 * 1000);
 		});
+
+		let cameraData: CameraData = [[4.5, 52.53, 1000, 270, -45.0], [52.53, 4.5, 500, 270, -45.0]];
+		let chinookData: ChinookPositions = [
+			{
+				startLon: 4.5, 
+				startLat: 52.53, 
+				startHeight: 15000, 
+				endLon: 5.0, 
+				endLat: 52.53, 
+				endHeight: 15000
+			},
+			{
+				startLon: 4.5, 
+				startLat: 52.73, 
+				startHeight: 15000, 
+				endLon: 5.0, 
+				endLat: 52.73, 
+				endHeight: 15000
+			}
+		]
+		let cut = new Cutscene(map, cameraData, chinookData);
+		cut.startAnimation();
 	}
 
 	public load(): void {
