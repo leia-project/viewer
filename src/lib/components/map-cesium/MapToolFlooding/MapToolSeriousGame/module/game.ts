@@ -201,23 +201,32 @@ export class Game {
 	}
 
 	public startCutscene() {
-		let cameraData: CameraData = [[4.5, 52.53, 1000, 270, -45.0], [52.53, 4.5, 500, 270, -45.0]];
+		let cameraData: CameraData = [
+			[3.44017, 51.52262, 867.78804, 133.37068, -32.27899],
+			[3.44878, 51.51690, 391.71098, 132.36315, -26.51283],
+			[3.45797, 51.51140, 133.04299, 130.84555, -19.30481],
+			[3.46324, 51.50890, 84.64456, 129.83175, -15.22017],
+			[3.46841, 51.50660, 70.80599, 129.57566, -15.22017],
+			[3.47162, 51.50519, 75.61191, 129.57594, -15.21989],
+			[3.47750, 51.50236, 71.22324, 130.35239, -12.09640]
+		];
+
 		let chinookData: ChinookPositions = [
 			{
-				startLon: 4.5, 
-				startLat: 52.53, 
+				startLon: 3.5545, 
+				startLat: 51.4255, 
 				startHeight: 15000, 
 				endLon: 5.0, 
-				endLat: 52.53, 
-				endHeight: 15000
+				endLat: 51.4255, 
+				endHeight: 5000
 			},
 			{
-				startLon: 4.5, 
-				startLat: 52.73, 
+				startLon: 3.64997, 
+				startLat: 51.53205, 
 				startHeight: 15000, 
 				endLon: 5.0, 
 				endLat: 52.73, 
-				endHeight: 15000
+				endHeight: 5000
 			}
 		]
 		let cut = new Cutscene(this.map, cameraData, chinookData);

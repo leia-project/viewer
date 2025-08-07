@@ -26,7 +26,7 @@
             "legendUrl": "",
             "isBackground": true,
             "defaultAddToManager": true,
-            "defaultOn": true,
+            "defaultOn": false,
             "transparent": true,
             "opacity": 0,
             "settings": {
@@ -317,7 +317,8 @@
         {
             "id": "flooding-serious-game",
             "settings": {
-                "backgroundLayerId": "1"
+                "backgroundLayerId": "1",
+                "cutsceneBackgroundLayerId": "2"
             },
             "enabled": true
         },

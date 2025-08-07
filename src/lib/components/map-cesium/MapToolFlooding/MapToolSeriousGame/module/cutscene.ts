@@ -28,6 +28,10 @@ export class Cutscene {
     private map: Map;
     private chinookAudio: HTMLAudioElement;
 
+    private cameraPositionProperty = new SampledPositionProperty();
+    private cameraRotationProperty = new Cesium.SampledProperty(Cesium.Quaternion);
+
+
     constructor(map: Map, cameraData: CameraData, chinookPositions: ChinookPositions) {
         this.map = map;
         this.convertPositionsToCartesian3(cameraData, chinookPositions);
@@ -37,13 +41,37 @@ export class Cutscene {
     }
 
     private convertPositionsToCartesian3(cameraData: CameraData, chinookPositions: ChinookPositions): void {
+        const startTime = JulianDate.now();
+        let currentTime = JulianDate.clone(startTime);
+        const cameraSpeed = 60; // meters per second = ~288 km/h
+        let previousPosition: Cartesian3 = Cartesian3.ONE;
+
         for (let i = 0; i < cameraData.length; i++) {
             const [lon, lat, height, headingDeg, pitchDeg] = cameraData[i];
             const position = Cartesian3.fromDegrees(lon, lat, height);
-            const rotation = new HeadingPitchRoll(headingDeg * Math.PI / 180, pitchDeg * Math.PI / 180, 0);
+            const rotation = new HeadingPitchRoll(
+                Cesium.Math.toRadians(headingDeg - 90),
+                Cesium.Math.toRadians(pitchDeg),
+                0
+            );
+            
+            let intervalInSeconds = 0;
+            if (i != 0) {
+                const distanceBetweenPoints = Cartesian3.distance(previousPosition, position);
+                intervalInSeconds = distanceBetweenPoints / cameraSpeed;
+                currentTime = JulianDate.addSeconds(currentTime, intervalInSeconds, new JulianDate());
+            }
+            
+            
 
             this.cameraDataCartesian.positions.push(position);
             this.cameraDataCartesian.rotations.push(rotation);
+
+            this.cameraPositionProperty.addSample(currentTime, position);
+
+            const quaternion = Cesium.Transforms.headingPitchRollQuaternion(position, rotation);
+            this.cameraRotationProperty.addSample(currentTime, quaternion);
+            previousPosition = position;
         }
 
         for (let i = 0; i < chinookPositions.length; i++) {
@@ -57,23 +85,27 @@ export class Cutscene {
         }
     }
     
-    private computeHeadingPitch(start: Cartesian3, end: Cartesian3): { heading: number, pitch: number } {
-        const vector = Cartesian3.subtract(end, start, new Cartesian3());
-        Cartesian3.normalize(vector, vector);
+   private computeHeadingPitch(start: Cartesian3, end: Cartesian3): number {
+        // Get direction vector from start to end
+        const direction = Cartesian3.subtract(end, start, new Cartesian3());
+        Cartesian3.normalize(direction, direction);
 
-        // Heading: angle in horizontal plane (around Z)
-        const heading = Math.atan2(vector.y, vector.x);
+        // Get the ENU frame (East-North-Up) at the start point
+        const transform = Cesium.Transforms.eastNorthUpToFixedFrame(start);
 
-        // Pitch: angle above the horizontal plane
-        const horizontalMagnitude = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
-        const pitch = Math.atan2(vector.z, horizontalMagnitude);
+        // Inverse transform to convert world direction to local ENU frame
+        const inverseTransform = Cesium.Matrix4.inverseTransformation(transform, new Cesium.Matrix4());
+        const localDirection = Cesium.Matrix4.multiplyByPointAsVector(inverseTransform, direction, new Cartesian3());
 
-        return { heading, pitch };
+        // Compute heading as angle from local North (Y-axis) to direction projected in X-Y plane
+        const heading = Math.atan2(localDirection.x, localDirection.y); // X = East, Y = North in ENU
+
+        return heading; // In radians
     }
 
     private loadChinookInstances(): void {
         const startTime = JulianDate.now();
-        const durationSeconds = 50;
+        const durationSeconds = 500;
 
         for (let i = 0; i < this.chinookDataCartesian.length; i++) {
             const chinook = this.chinookDataCartesian[i];
@@ -88,11 +120,9 @@ export class Cutscene {
             position.addSample(startTime, chinook.startPosition);
             position.addSample(endTime, chinook.endPosition);
 
-            const { heading, pitch } = this.computeHeadingPitch(chinook.startPosition, chinook.endPosition);
-            const headingCorrected = heading + Cesium.Math.toRadians(85);
-            const pitchCorrected = pitch - Cesium.Math.toRadians(-45); 
+            const heading = this.computeHeadingPitch(chinook.startPosition, chinook.endPosition); 
 
-            const hpr = new Cesium.HeadingPitchRoll(headingCorrected, 0, 0);
+            const hpr = new Cesium.HeadingPitchRoll(heading + 0.5 * Math.PI, 0);
             const orientation = Cesium.Transforms.headingPitchRollQuaternion(chinook.startPosition, hpr);
 
             const entity = this.map.viewer.entities.add({
@@ -119,10 +149,34 @@ export class Cutscene {
         clock.shouldAnimate = true;
     }
 
+    private animateCamera(): void {
+        const viewer = this.map.viewer;
+
+        viewer.scene.postUpdate.addEventListener((scene, time) => {
+            const position = this.cameraPositionProperty.getValue(time);
+            const quaternion = this.cameraRotationProperty.getValue(time);
+
+            if (position && quaternion) {
+                const rotationMatrix = Cesium.Matrix3.fromQuaternion(quaternion);
+                const direction = Cesium.Matrix3.getColumn(rotationMatrix, 0, new Cesium.Cartesian3()); // X-axis = forward
+                const up = Cesium.Matrix3.getColumn(rotationMatrix, 2, new Cesium.Cartesian3()); // Z-axis = up
+
+                viewer.scene.camera.setView({
+                    destination: position,
+                    orientation: {
+                        direction,
+                        up
+                    }
+                });
+            }
+        });
+    }
+
+
+
     public startAnimation(): void {
-        console.log("Starting");
-        this.map.viewer.clock.shouldAnimate = true;
         this.startAudio();
+        this.animateCamera();
     }
 
     public startAudio() {
