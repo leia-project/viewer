@@ -24,8 +24,9 @@ export interface EvacuationLogItem {
 }
 
 export interface ISavedGame {
+	uuid: string;
 	name: string;
-	time: number;
+	step: number;
 	evacuationLog: Array<EvacuationLogItem>;
 	lastUpdate: number;
 }

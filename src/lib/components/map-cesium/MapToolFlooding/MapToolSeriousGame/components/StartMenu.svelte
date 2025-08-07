@@ -8,7 +8,7 @@
 
 	const activeGame = gameController.active;
 
-	$: layersLoaded = $activeGame?.loaded;
+	$: layersLoaded = $activeGame?.floodLayerController.floodLayer.loaded;
 	$: roadsLoaded = $activeGame?.evacuationController.roadNetwork.loaded;
 	$: hexagonsLoaded = $activeGame?.evacuationController.hexagonLayer.loaded;
 
@@ -22,12 +22,26 @@
 	passiveModal={true}
 	modalHeading={""}
 	id="start-menu-modal"
-	preventCloseOnClickOutside={true}
+	preventCloseOnClickOutside={true} 
 >
 	<div class="start-menu-content">
-		<h1>Serious Game - Floods</h1>
-		<div>[image]</div>
-		<p>Explanations about the game...</p>
+		<img src="https://www.interregnorthsea.eu/sites/default/files/media-object/2024-09/FIER-Logo-PO-DeepWater_Klein%20formaat_wit.png" alt="FIER Logo" width=200 />
+		<h1 class="intro-header">Serious Game - Overstromingen</h1>
+		<p class="intro-text">
+			In deze game neem jij de leiding tijdens een acute overstromingsdreiging in Zeeland. De klok tikt, het water stijgt, en de veiligheid van duizenden mensen ligt in jouw handen.
+		</p>
+		<p class="intro-text">
+			Als speler kruip je in de huid van een crisismanager. Op basis van actuele data - zoals overstromingsmodellen, belasting van het wegennetwerk, kwetsbare gebieden en bevolkingsdichtheid - moet je razendsnelle maar doordachte beslissingen nemen.
+		</p>
+		<p class="intro-text">
+			Evacueren of niet? Welke routes blijven open? En hoe ga je om met beperkte middelen en tijdsdruk?
+		</p>
+		<p class="intro-text">
+			Je keuzes bepalen het verloop van de ramp - en de gevolgen zijn voelbaar.
+		</p>
+		<p class="intro-text">
+			Ben jij klaar om Zeeland te beschermen?
+		</p>
 		{#if gameLoaded}
 			<div class="start-menu-actions">
 				<Button
@@ -84,6 +98,16 @@
 		text-align: center;
 		padding: 1rem;
 		color: var(--game-color-text);
+	}
+
+	.intro-header {
+		font-weight: 500;
+		margin-bottom: 1rem;
+	}
+
+	.intro-text {
+		margin: 1rem 0;
+		line-height: 1.5;
 	}
 
 	.start-menu-actions {

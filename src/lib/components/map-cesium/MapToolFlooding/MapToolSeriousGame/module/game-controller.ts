@@ -48,8 +48,8 @@ export class GameController {
 		this.boundingDome = this.getBoundingDome();
 	}
 
-	public loadGame(gameConfig: IGameConfig): void {
-		const game = new Game(this.map, gameConfig, this.marvin);
+	public loadGame(gameConfig: IGameConfig, savedGame?: ISavedGame): void {
+		const game = new Game(this.map, gameConfig, this.marvin, savedGame);
 		this.active.set(game);
 	}
 
@@ -60,7 +60,7 @@ export class GameController {
 		const marvin = this.initMarvin();
 		this.loadUserInterface(marvin);
 		this.addBackgroundLayer();
-		this.loadGame(gameConfig);
+		this.loadGame(gameConfig, savedGame);
 		this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
 		//this.map.viewer.entities.add(this.boundingDome);
 	}
@@ -156,6 +156,20 @@ export class GameController {
 				this.savedGames.set(savedGames);
 			} catch (error) {
 				console.error("Error parsing saved games from cache:", error);
+			}
+		}
+	}
+
+	public deleteGameFromCache(uuid: string): void {
+		const cachedGames = localStorage.getItem("serious-game-flooding");
+		if (cachedGames) {
+			try {
+				const savedGames = JSON.parse(cachedGames) as Array<ISavedGame>;
+				const updatedGames = savedGames.filter((game) => game.uuid !== uuid);
+				localStorage.setItem("serious-game-flooding", JSON.stringify(updatedGames));
+				this.savedGames.set(updatedGames);
+			} catch (error) {
+				console.error("Error deleting game from cache:", error);
 			}
 		}
 	}

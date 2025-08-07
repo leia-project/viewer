@@ -23,7 +23,7 @@
 			gameController = new GameController(map, settings)
 		}
 	});
-	
+
 </script>
 
 
