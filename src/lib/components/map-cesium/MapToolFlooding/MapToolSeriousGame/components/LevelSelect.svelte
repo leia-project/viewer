@@ -10,8 +10,6 @@
 	import type { IGameConfig } from "../module/models";
 
 	export let gameController: GameController;
-	
-	let cachedGame: Writable<boolean> = writable(false);
 
 	const savedGames = gameController.savedGames;
 
@@ -172,7 +170,7 @@
 						kind="danger"
 						icon={TrashCan}
 						on:click={() => {
-							//delete saved game
+							gameController.deleteGameFromCache(savedGame.uuid);
 						}}
 					>Delete</Button>
 					<Button

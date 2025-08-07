@@ -1,4 +1,5 @@
 import { derived, get, writable, type Readable, type Writable } from "svelte/store";
+import { v4 as uuidv4 } from '@lukeed/uuid';
 import { FloodLayerController, type Breach } from "../../layer-controller";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { NotificationLog } from "./notification-log";
@@ -67,9 +68,9 @@ export class Game {
 
 	public floodLayerController: FloodLayerController;
 	public evacuationController: EvacuationController;
-	public loaded: Writable<boolean> = writable(false);
+	public loaded: Readable<boolean>;
 
-	constructor(map: Map, gameConfig: IGameConfig, marvin?: MarvinApp) {
+	constructor(map: Map, gameConfig: IGameConfig, marvin?: MarvinApp, savedGame?: ISavedGame) {
 		this.map = map;
 		this.marvin = marvin;
 		this.gameConfig = gameConfig;
@@ -82,7 +83,7 @@ export class Game {
 		this.floodLayerController = new FloodLayerController(map, floodTool.settings, activeBreach, selectedScenario);
 		this.elapsedTimeDynamic = this.floodLayerController.time;
 		this.floodLayerController.loadNewScenario(gameConfig.breach, gameConfig.scenario).then(() => {
-			this.load();
+			this.addFloodLayers();
 		});
 		this.evacuationController = new EvacuationController(this, this.floodLayerController);
 		this.step.subscribe((value) => {
@@ -92,21 +93,30 @@ export class Game {
 		this.elapsedTimeDynamic.subscribe((t) => {
 			this.map.options.dateTime.set(this.startTime + t * 3600 * 1000);
 		});
-	}
 
-	public load(): void {
-		this.addLayers();
-		this.loaded.set(true);
+		this.loaded = derived(
+			[this.floodLayerController.floodLayer.loaded, this.evacuationController.hexagonLayer.loaded, this.evacuationController.roadNetwork.loaded],
+			([$f, $h, $r]) => {
+				return $f && $h && $r;
+			}
+		);
+
+		const loadedUnsubscriber = this.loaded.subscribe((loaded) => {
+			if (loaded) {
+				if (savedGame) this.setSavedState(savedGame);
+				loadedUnsubscriber();
+			}
+		});
 	}
 
 	public exit(): void {
-		this.removeLayers();
+		this.removeFloodLayers();
 		if (this.interval) {
 			clearInterval(this.interval);
 		}
 	}
 
-	private addLayers(): void {
+	private addFloodLayers(): void {
 		this.floodLayerController.floodLayer.addToMap();
 		this.floodLayerController.floodedRoadsLayer.addToMap();
 		this.floodLayerController.floodLayer.show();
@@ -114,7 +124,7 @@ export class Game {
 		this.floodLayerController.addTimeSubscriber();
 	}
 
-	private removeLayers(): void {
+	private removeFloodLayers(): void {
 		this.floodLayerController.floodLayer.removeFromMap();
 		this.floodLayerController.floodedRoadsLayer.removeFromMap();
 		this.floodLayerController.floodLayer.hide();
@@ -123,13 +133,6 @@ export class Game {
 
 	public changeStep(direction: "next" | "previous"): void {
 		this.forwarding.set(true);
-		this.notificationLog.send({
-			title: "Game",
-			message: `Time forwarded to ${steps[get(this.step)].title}`,
-			type: NotificationType.INFO
-		});
-		this.save();
-		
 		this.elapsedTimeDynamic.set(get(this.currentStep).time);
 		this.step.update((value) => {
 			if (direction === "next" && value < steps.length - 1) {
@@ -139,13 +142,18 @@ export class Game {
 			}
 			return value;
 		});
-	
+		this.notificationLog.send({
+			title: "Game",
+			message: `Time ${direction === "next" ? "forwarded" : "rewinded"} to ${steps[get(this.step)].title}`,
+			type: NotificationType.INFO
+		});
+
 		const newTime = steps[get(this.step)].time;
-	
+
 		if (this.interval) {
 			clearInterval(this.interval);
 		}
-		
+
 		this.interval = setInterval(() => {
 			this.elapsedTimeDynamic.update((value) => {
 				if (direction === "next") {
@@ -167,6 +175,17 @@ export class Game {
 				this.interval = undefined;
 			}
 		}, 50);
+
+		this.save();
+	}
+
+	private setStep(step: number): void {
+		if (step < 0 || step >= steps.length) {
+			throw new Error("Invalid step index");
+		}
+		this.step.set(step);
+		this.elapsedTime.set(steps[step].time);
+		this.elapsedTimeDynamic.set(steps[step].time);
 	}
 
 	public flyHome(): void {
@@ -183,8 +202,9 @@ export class Game {
 
 	public save(): void {
 		const gameData: ISavedGame = {
+			uuid: uuidv4(),
 			name: this.gameConfig.name,
-			time: get(this.elapsedTimeDynamic),
+			step: get(this.step),
 			evacuationLog: this.evacuationController.evacuationLog,
 			lastUpdate: Date.now()
 		};
@@ -198,6 +218,23 @@ export class Game {
 			savedGames.push(gameData);
 		}
 		localStorage.setItem("serious-game-flooding", JSON.stringify(savedGames));
+	}
+
+	public setSavedState(savedGame: ISavedGame): void {
+		savedGame.evacuationLog.forEach((logEntry) => {
+			if (logEntry.added) {
+				const hexagon = this.evacuationController.hexagonLayer.hexagons.find((h) => h.hex === logEntry.hexagonId);
+				const extractionPoint = this.evacuationController.roadNetwork.roadNetworkLayer.getItemById(logEntry.extractionPointId);
+				if (hexagon && extractionPoint) {
+					this.evacuationController.evacuate(hexagon, extractionPoint, logEntry.evacuated);
+				}
+			} else {
+				const evacuation = get(this.evacuationController.evacuations).find((e) => e.hexagon.hex === logEntry.hexagonId && e.extractionPoint.id === logEntry.extractionPointId);
+				if (evacuation) this.evacuationController.deleteEvacuation(evacuation, false);
+			}
+		});
+		this.evacuationController.roadNetwork.cleanSetRoutingGraph(get(this.elapsedTime));
+		this.setStep(savedGame.step);
 	}
 
 	public startCutscene() {

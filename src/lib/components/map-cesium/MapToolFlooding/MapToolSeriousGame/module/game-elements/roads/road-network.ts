@@ -1,6 +1,5 @@
 import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
-import * as turf from "@turf/turf";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { Evacuation } from "../evacuation";
 import { RoutingAPI, type RouteFeature } from "../api/routing-api";
@@ -25,7 +24,7 @@ export class RoadNetwork {
 	private floodedRoadFeatures: GeoJSONFeature[] | undefined;	
 	private personsPerCar: number = 4;
 
-	private roadNetworkLayer: RoadNetworkLayer;
+	public roadNetworkLayer: RoadNetworkLayer;
 	private extractionPointIds: Array<string> = ["42376", "83224", "77776"];
 	public selectedExtractionPoint: Writable<RouteSegment  | undefined> = writable(undefined);
 	public measures: Array<Measure> = [];
@@ -112,7 +111,7 @@ export class RoadNetwork {
 		});
 	}
 
-	private async cleanSetRoutingGraph(time: number): Promise<void> {
+	public async cleanSetRoutingGraph(time: number): Promise<void> {
 		const floodedSegments: Array<[string, number]> = await this.pgRestAPI.getFloodedRoadSegments(time);
 		const floodedSegmentsWithMeasures = floodedSegments.filter(([id, floodHeight]) => {
 			const segment = this.roadNetworkLayer.getItemById(id);
@@ -172,14 +171,20 @@ export class RoadNetwork {
 		});
 	}
 
-	public async evacuateHexagon(hexagon: Hexagon): Promise<Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment,  evacuatedCars: number, numberOfPersons: number }> | undefined> {
-		//const chunkSize = 500; // Number of people to evacuate in one go
-		const totalPersons = hexagon.population;
+	public async evacuateHexagon(
+		hexagon: Hexagon,
+		extractionPoint: RouteSegment | undefined = get(this.selectedExtractionPoint),
+		numberOfPersons: number = hexagon.population
+	): Promise<Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, evacuatedCars: number, numberOfPersons: number }> | undefined> {
+		if (!extractionPoint) {
+			return [];
+		}
+		const totalPersons = Math.min(numberOfPersons, hexagon.population);
 		const evacuationRoutes: Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, evacuatedCars: number, numberOfPersons: number }> = [];
 		let remainingPersons = totalPersons - get(hexagon.totalEvacuated);
 		while (remainingPersons > 0) {
 			const maxNumberOfCars = Math.ceil(remainingPersons / this.personsPerCar);
-			const evacuationRoute = await this.createEvacuationRoute(hexagon, maxNumberOfCars);
+			const evacuationRoute = await this.createEvacuationRoute(hexagon, extractionPoint, maxNumberOfCars);
 			if (!evacuationRoute) {
 				break;
 			}
@@ -201,14 +206,10 @@ export class RoadNetwork {
 		return evacuationRoutes;
 	}
 
-	public async createEvacuationRoute(hexagon: Hexagon, maxNumberOfCars: number): Promise<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, evacuatedCars: number } | undefined> {
-		const selectedExtractionPoint = get(this.selectedExtractionPoint);
-		if (!selectedExtractionPoint) {
-			return;
-		}
+	public async createEvacuationRoute(hexagon: Hexagon, extractionPoint: RouteSegment, maxNumberOfCars: number): Promise<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, evacuatedCars: number } | undefined> {
 		const extractionLocation: [lon: number, lat: number] = [
-			selectedExtractionPoint.lon,
-			selectedExtractionPoint.lat
+			extractionPoint.lon,
+			extractionPoint.lat
 		];
 
 		// 1. Get the shortest route to the extraction point
@@ -253,18 +254,19 @@ export class RoadNetwork {
 
 		return {
 			route: routeSegments,
-			extractionPoint: selectedExtractionPoint,
+			extractionPoint: extractionPoint,
 			evacuatedCars: minAvailableCarLoad
 		};
 	}
 
-	public onEvacuationDelete(evacuation: Evacuation): void {
+	public onEvacuationDelete(evacuation: Evacuation, setGraph: boolean = true): void {
 		// remove loads from road segments
 		evacuation.route.forEach((routeSegment) => {
 			routeSegment.removeLoad(evacuation.numberOfPersons, get(this.elapsedTime));
 		});
 
 		// update graph
+		if (setGraph) this.cleanSetRoutingGraph(get(this.elapsedTime));
 	}
 
 	private getPickedItem(picked: any): RouteSegment | Measure | undefined {
@@ -332,52 +334,4 @@ export class RoadNetwork {
 		}
 		this.map.refresh();
 	}
-	
 }
-
-
-
-
-
-
-/* 
-	private getBottlenecksOnRoute(route: Array<RouteFeature>): Array<BottleNeck> {
-		const distanceThreshold = 1000;
-		return this.bottlenecks.filter((bottleneck) => {
-			return route.some((routeFeature) => {
-				return Cesium.Cartesian3.distance(
-					Cesium.Cartesian3.fromDegrees(bottleneck.lon, bottleneck.lat),
-					Cesium.Cartesian3.fromDegrees(routeFeature.geometry.coordinates[0][0], routeFeature.geometry.coordinates[0][1])
-				) < distanceThreshold;
-			});
-		});
-	}
-
-	private routeHasSufficientCapacity(route: Array<RouteFeature>, evacuees: number): Array<{ bottleneck: BottleNeck, hasCapacity: boolean }> {
-		const bottlenecksOnRoute = this.getBottlenecksOnRoute(route);
-		const res: Array<{ bottleneck: BottleNeck, hasCapacity: boolean }> = [];
-		for (const bottleneck of bottlenecksOnRoute) {
-			const hasCapacity = bottleneck.capacity >= evacuees;
-			res.push({ bottleneck, hasCapacity });
-		}
-		return res;
-	}
-
-	public updateBottleneckCapacities(): void {
-		this.bottlenecks.forEach((bottleneck) => {
-			bottleneck.currentLoad = 0; // Reset current load
-		});
-
-		get(this.evacuations)
-			.filter((evacuation) => evacuation.time === get(this.elapsedTime))
-			.forEach((evacuation) => {
-				evacuation.includedBottlenecks.forEach((bottleneck) => {
-					const currentBottleneck = this.bottlenecks.find((bn) => bn.id === bottleneck.id);
-					if (currentBottleneck) {
-						const newLoad = currentBottleneck.currentLoad + evacuation.hexagon.population; // Increment the load for each evacuation
-						currentBottleneck.updateLoad(newLoad);
-					}
-				});
-		});
-	}
-*/

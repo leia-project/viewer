@@ -9,6 +9,7 @@ import type { Game } from "../game";
 import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 import type { FloodLayerController } from "../../../layer-controller";
 import type { EvacuationLogItem } from "../models";
+import type { RouteSegment } from "./roads/route-segments";
 
 
 export class EvacuationController {
@@ -41,7 +42,12 @@ export class EvacuationController {
 	}
 
 
-	public async evacuate(hexagon: Hexagon | undefined = get(this.hexagonLayer.selectedHexagon)): Promise<void> {
+	public async evacuate(
+		hexagon: Hexagon | undefined = get(this.hexagonLayer.selectedHexagon),
+		extractionPoint: RouteSegment | undefined = get(this.roadNetwork.selectedExtractionPoint),
+		timeStep: number = get(this.elapsedTime),
+		totalNumberOfPersons?: number
+	): Promise<void> {
 		if (!hexagon) {
 			this.game.notificationLog.send({
 				type: NotificationType.ERROR,
@@ -50,7 +56,7 @@ export class EvacuationController {
 			})
 			return;
 		}
-		const routeResults = await this.roadNetwork.evacuateHexagon(hexagon);
+		const routeResults = await this.roadNetwork.evacuateHexagon(hexagon, extractionPoint, totalNumberOfPersons);
 		if (routeResults === undefined) {
 			   this.game.notificationLog.send({
 					type: NotificationType.ERROR,
@@ -60,7 +66,7 @@ export class EvacuationController {
 			return;
 		}
 		const newEvacuations = routeResults.map((routeResult) => {
-			return new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint, routeResult.numberOfPersons, get(this.elapsedTime), this.map);
+			return new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint, routeResult.numberOfPersons, timeStep, this.map);
   		});
 		const aggregatedEvacuations = this.aggregateEvacuations(newEvacuations);
 		hexagon.addEvacuations(aggregatedEvacuations);
@@ -70,7 +76,7 @@ export class EvacuationController {
 				hexagonId: hexagon.hex,
 				extractionPointId: evacuation.extractionPoint.id,
 				evacuated: evacuation.numberOfPersons,
-				timeStep: get(this.elapsedTime),
+				timeStep: timeStep,
 				added: true
 			}))
 		);
@@ -91,8 +97,8 @@ export class EvacuationController {
 		return Array.from(map.values());
 	}
 
-	public deleteEvacuation(evacuation: Evacuation): void {
-		this.roadNetwork.onEvacuationDelete(evacuation);
+	public deleteEvacuation(evacuation: Evacuation, setGraph: boolean = true): void {
+		this.roadNetwork.onEvacuationDelete(evacuation, setGraph);
 		evacuation.hexagon.removeEvacuation(evacuation);
 
 		this.evacuationLog.push({
