@@ -6,6 +6,7 @@
 
 	export let hexagon: Hexagon | undefined;
 	export let evacuationController: EvacuationController;
+	export let selected: boolean = true;
 
 	const selectedExtractionPoint = evacuationController.roadNetwork.selectedExtractionPoint;
 	$: hexagonStatus = hexagon?.status;
@@ -16,18 +17,24 @@
 
 
 <div>
-	{#if nodesSelected}
-		{#if $hexagonStatus === "flooded"}
-			<div class="hexagon-status">
-				<span class="status-indicator" style="background-color: {hexagon?.getStatusColor($hexagonStatus)}" />
-				<span class="status-label">Flooded</span>
-			</div>
-		{:else if $hexagonStatus === "evacuated"}
-			<div class="hexagon-status">
-				<span class="status-indicator" style="background-color: {hexagon?.getStatusColor($hexagonStatus)}" />
-				<span class="status-label">Evacuated</span>
-			</div>
-		{:else if $hexagonStatus === "accessible"}
+	{#if $hexagonStatus === "flooded"}
+		<div class="hexagon-status">
+			<span class="status-indicator" style="background-color: {hexagon?.getStatusColor($hexagonStatus)}" />
+			<span class="status-label">Flooded</span>
+		</div>
+	{:else if $hexagonStatus === "evacuated"}
+		<div class="hexagon-status">
+			<span class="status-indicator" style="background-color: {hexagon?.getStatusColor($hexagonStatus)}" />
+			<span class="status-label">Evacuated</span>
+		</div>
+	{:else if $hexagonStatus === "accessible" && !nodesSelected}
+		<div class="hexagon-status">
+			<span class="status-indicator" style="background-color: {hexagon?.getStatusColor($hexagonStatus)}" />
+			<span class="status-label">Accessible</span>
+		</div>
+	{/if}
+	{#if selected && $hexagonStatus === "accessible"}
+		{#if nodesSelected}
 			<GameButton
 				icon={VehicleApi}
 				borderHighlight={true}
@@ -37,14 +44,14 @@
 				size={18}
 				on:click={() => evacuationController.evacuate()}
 			/>
-		{/if}
-	{:else}
-		<div class="info-message">
-			<div class="info-button">
-				<InformationFilled size={20} />
+		{:else}
+			<div class="info-message">
+				<div class="info-button">
+					<InformationFilled size={20} />
+				</div>
+				<span>Select an extraction point to evacuate</span>
 			</div>
-			<span>Select an extraction point</span>
-		</div>
+		{/if}
 	{/if}
 </div>
 
@@ -74,6 +81,7 @@
 		align-items: center;
 		gap: 0.5rem;
 		font-size: 0.875rem;
+		margin-top: 0.5rem;
 	}
 
 </style>

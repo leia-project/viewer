@@ -74,7 +74,7 @@ export class GameController {
 		get(this.active)?.exit();
 		this.active.set(undefined);
 		this.gameContainer?.$destroy();
-		this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
+		this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = false;
 		//this.map.viewer.entities.remove(this.boundingDome);
 	}
 

@@ -56,12 +56,11 @@
 			/>
 		{/if}
 	</div>
-	{#if type === "selected"}
-		<EvacuateAction
-			{hexagon}
-			{evacuationController}
-		/>
-	{/if}
+	<EvacuateAction
+		{hexagon}
+		{evacuationController}
+		selected={type === "selected"}
+	/>
 </InfoBox>
 
 

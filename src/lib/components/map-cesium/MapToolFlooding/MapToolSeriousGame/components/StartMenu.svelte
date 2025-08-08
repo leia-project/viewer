@@ -14,11 +14,14 @@
 
 	$: gameLoaded = $layersLoaded && $roadsLoaded && $hexagonsLoaded;
 
+	$: step = $activeGame?.step;
+
 </script>
 
 
 <Modal
 	bind:open
+	size="lg"
 	passiveModal={true}
 	modalHeading={""}
 	id="start-menu-modal"
@@ -63,7 +66,7 @@
 						open = false;
 						$activeGame?.startCutscene();
 					}}
-				>Start</Button>
+				>{$step === 0 ? "Start" : "Verder spelen"}</Button>
 			</div>
 		{:else}
 			<div class="loading-container">

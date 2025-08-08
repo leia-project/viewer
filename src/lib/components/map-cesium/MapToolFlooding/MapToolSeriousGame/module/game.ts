@@ -59,7 +59,7 @@ export class Game {
 	public notificationLog: NotificationLog;
 	public forwarding: Writable<boolean> = writable(false);
 	public startTime: number;
-	private step: Writable<number> = writable(0);
+	public step: Writable<number> = writable(0);
 	public currentStep: Readable<IGameStep> = derived(this.step, ($step) => steps[$step]);
 	public elapsedTime: Writable<number> = writable(0);
 	public elapsedTimeDynamic: Writable<number>;
