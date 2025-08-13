@@ -504,7 +504,6 @@ abstract class WFSLoaderCesium {
 				Cesium.Color.fromRandom()
 			);
 			let height = tileHeight;
-			console.log(feature.geometry.type);
 			switch (feature.geometry.type) {
 				case "Point":
 					const geometryInstance = new Cesium.GeometryInstance({
@@ -807,13 +806,11 @@ export class WFSLoaderCesiumStatic extends WFSLoaderCesium {
 	}
 
 	public onTerrainSwitch(): void {
-		console.log("onTerrainSwitch");
 		super.onTerrainSwitch();
 		this.loadedFeatures = [];
 		if (this.features)
 			this.createPrimitives(this.features, 0, true).then((primitives) => {
 				this.primitives = primitives;
-				console.log(this.primitives);
 				this.primitives.forEach((primitive) => this.primitiveCollection.add(primitive));
 			});
 	}

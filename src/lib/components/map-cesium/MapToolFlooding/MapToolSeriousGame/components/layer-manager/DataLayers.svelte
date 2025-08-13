@@ -20,7 +20,10 @@
 			<span>Achtergrondlagen</span>
 		</div>
 		{#each mainLayers as mL}
-			<BaseLayer layer={mL}></BaseLayer>
+			<BaseLayer
+				visible={mL.visible}
+				title={mL.title}
+			/>
 		{/each}
 	</div>
 	{#if role}
@@ -35,7 +38,10 @@
 			{#if roleLayers.length > 0}
 				<div>
 					{#each roleLayers as rL}
-						<BaseLayer layer={rL}></BaseLayer>
+						<BaseLayer
+							visible={rL.visible}
+							title={rL.title}
+						/>
 					{/each}
 				</div>
 			{:else}

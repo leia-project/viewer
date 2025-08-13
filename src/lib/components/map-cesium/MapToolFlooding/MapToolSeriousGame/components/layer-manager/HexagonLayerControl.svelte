@@ -1,22 +1,21 @@
 <script lang="ts">
 	import { Slider, Toggle } from "carbon-components-svelte";
-	import { Checkbox } from "carbon-components-svelte";
 	import type { HexagonLayer } from "../../module/game-elements/hexagons/hexagon-layer";
+	import BaseLayer from "./BaseLayer.svelte";
 
 	export let layer: HexagonLayer;
-	
+
 	const use2DMode = layer?.use2DMode;
 	const opacity = layer.alpha;
-	const visible = layer?.visible;
 
 </script>
 
 
 <div class="hexagon-layer-control">
 	<div class="hexagon-layer-header">
-		<Checkbox
-			bind:checked={$visible}
-			labelText={layer.title}
+		<BaseLayer
+			visible={layer.visible}
+			title={layer.title}
 		/>
 		<div class="toggle-container">
 			<Toggle
