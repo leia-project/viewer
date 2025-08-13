@@ -99,6 +99,43 @@
                 "featureName": "rev_public:kgl_public",
                 "contenttype": "image/png"
             }
+        },
+        {
+            "id": "5",
+            "type": "wms",
+            "title": "AHN Digital Terrain Model (DTM) 0.5m x 0.5m",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "https://zldlufow3.zeeland.nl/geoserver/AHN4/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=AHN4_DTM_0.5mtr",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "Het Actueel Hoogtebestand Nederland is een digitaal hoogtemodel voor het Europese deel van Nederland. De eigenaar van de dataset is Rijkswaterstaat. Het AHN is als open data publiek toegankelijk, zowel door het downloaden van de data als door middel van verschillende viewers.",
+            "attribution": "AHN4_DTM_0.5mtr",
+            "settings": {
+                "url": "https://zldlufow3.zeeland.nl/geoserver/AHN4/wms?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.1.1",
+                "featureName": "AHN4_DTM_0.5mtr",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "6",
+            "type": "geojson",
+            "title": "Ziekenhuislocaties 2013",
+            "groupId": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": true,
+            "settings": {
+                "url": "https://storage.googleapis.com/sogelink-research-public/projects/zeeland/Ziekenhuislocaties2013.geojson",
+                "clampToGround": true,
+                "markers": [
+                    {
+                        "color": "#ff0000",
+                        "size": 25
+                    }
+                ]
+            }
         }
     ],
     "viewer": {
