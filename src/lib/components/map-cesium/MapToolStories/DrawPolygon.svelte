@@ -12,6 +12,9 @@
 	import { get, type Writable } from "svelte/store";
     import { onMount, onDestroy } from 'svelte';
     import { polygonStore } from './PolygonEntityStore';
+	import { notifications } from "$lib/components/map-core/notifications/notifications";
+	import { Notification } from "$lib/components/map-core/notifications/notification";
+	import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
  
     export let map: Map;
     export let story: Story;
@@ -28,6 +31,8 @@
     let redPoints: Cesium.Entity[] = [];
     let selectedAction: 'draw' | 'delete' | undefined = undefined;
     let geojson: any;
+
+    const MAXAREA: number = 625_000_000 // Max polygon area in m2 (25km x 25km)
     
 
     onMount(() => {
@@ -45,10 +50,34 @@
         }
     });
 
+    function isPolygonAreaTooLarge(): boolean {
+        const isTooLarge = polygonArea > MAXAREA;
+        if (isTooLarge) {
+            notifications.send(
+                new Notification(
+                    NotificationType.WARN, 
+                    "Projectgebied te groot", 
+                    `Het ingetekende projectgebied is te groot. Deze mag maximaal ${MAXAREA / 1_000_000}km2 zijn. Verwijder het projectgebied en teken het opnieuw in.`, 
+                    5000, 
+                    false
+                )   
+            );
+        }
+        return isTooLarge;
+    }
 
     function checkPolygonForSelfIntersection(): boolean {
         const kinks = turf.kinks(geojson);
         if (kinks.features.length > 1) {
+            notifications.send(
+                new Notification(
+                    NotificationType.WARN, 
+                    "Projectgebied geometrie snijdt zichzelf", 
+                    `Het ingetekende projectgebied snijdt zichzelf. Verwijder het projectgebied en teken het opnieuw in.`, 
+                    5000, 
+                    false
+                )   
+            );
             return false;
         } else {
             return true;
@@ -143,8 +172,13 @@
                 },
                 properties: {}
             };
+            polygonArea = area(geojson);
             
             if (!checkPolygonForSelfIntersection()) {
+                return;
+            }
+
+            if(isPolygonAreaTooLarge()) {
                 return;
             }
 
@@ -187,7 +221,7 @@
                 
             }
             selectedAction = undefined;
-            polygonArea = area(geojson)
+            
             polygonStore.set({
                 polygonEntity,
                 redPoints,
@@ -220,7 +254,7 @@
         isDrawing = false;
         map.viewer.scene.requestRender();
     }
-
+    
     async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any): Promise<any> {
         if (!url || !featureName) {
             console.warn("url or featureName undefined, not able to get the analysis request");
