@@ -125,7 +125,7 @@
             "groupId": "",
             "isBackground": false,
             "defaultAddToManager": true,
-            "defaultOn": true,
+            "defaultOn": false,
             "settings": {
                 "url": "https://storage.googleapis.com/sogelink-research-public/projects/zeeland/Ziekenhuislocaties2013.geojson",
                 "clampToGround": true,

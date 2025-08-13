@@ -16,38 +16,34 @@
 			role: "Defensie",
 			svgIcon: iconTank,
 			layerIds: [
-				"4",
-				"5"
+				""
 			]
 		},
 		{
 			role: "Brandweer",
 			svgIcon: iconFirefighter,
 			layerIds: [
-				"6",
-				"7"
+				""
 			]
 		},
 		{
 			role: "Politie",
 			svgIcon: iconPolice,
 			layerIds: [
-				"8",
-				"9"
+				"999"
 			]
 		},
 		{
 			role: "GHOR",
 			svgIcon: iconAmbulance,
 			layerIds: [
-				"10",
-				"11"
+				"6"
 			]
 		}
 	];
 	let selectedRole: IRole | undefined;
 
-	const mainLayerIds = ["1", "2", "3"];
+	const mainLayerIds = ["1", "2", "3", "4", "5"];
 
 </script>
 
