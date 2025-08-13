@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { GameController } from "../../module/game-controller";
 	import type { IRole } from "../../module/models";
-	import RoleData from "./RoleData.svelte";
+	import DataLayers from "./DataLayers.svelte";
 	import RoleNav from "./RoleNav.svelte";
 
 	import { icon as iconPolice } from "./role-icons/icon-police";
@@ -45,18 +45,18 @@
 			]
 		}
 	];
-	let selectedRole: IRole;
+	let selectedRole: IRole | undefined;
 
 	const mainLayerIds = ["1", "2", "3"];
 
 </script>
 
 
-<div class="layer-manager">
-	{#if selectedRole}
-		<RoleData roleData={selectedRole} {mainLayerIds} {gameController}/>
-	{/if}
-</div>
+<DataLayers
+	role={selectedRole}
+	{mainLayerIds}
+	{gameController}
+/>
 <div class="role-nav-container">
 	<RoleNav
 		{roles}
@@ -66,11 +66,6 @@
 
 
 <style>
-	
-	.layer-manager {
-		display: grid;
-		grid-template-columns: 1fr auto;
-	}
 
 	.role-nav-container {
 		position: absolute;

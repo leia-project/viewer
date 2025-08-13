@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Checkbox } from "carbon-components-svelte";
 	import type { Game } from "../../../module/game";
 	import MeasureEntry from "./MeasureEntry.svelte";
+	import BaseLayer from "../../layer-manager/BaseLayer.svelte";
 
 	export let game: Game;
 
@@ -10,10 +10,11 @@
 	
 </script>
 
+
 <div class="layer-control">
-	<Checkbox
-		bind:checked={$measureToggled}
-		labelText="Measures"
+	<BaseLayer
+		visible={measureToggled}
+		title="Measures"
 	/>
 </div>
 

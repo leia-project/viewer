@@ -1,19 +1,32 @@
 <script lang="ts">
-	import type { Layer } from "$lib/components/map-core/layer";
-    import { Checkbox } from "carbon-components-svelte";
-	import type { HexagonLayer } from "../../module/game-elements/hexagons/hexagon-layer";
-    
-    export let layer: Layer | HexagonLayer;
-
-    const visible = layer?.visible;
-    
+	import { Checkbox } from "carbon-components-svelte";
+	import type { Writable } from "svelte/store";
+	
+	export let visible: Writable<boolean>;
+	export let title: string;
+	
 </script>
 
-<div>
-    <Checkbox
-        bind:checked={$visible}
-        labelText={layer.title}
-    />
+
+<div class="layer-toggle">
+	<Checkbox
+		bind:checked={$visible}
+		labelText={title}
+	/>
 </div>
-<slot name = "Slider"/>
-<slot name = "2DMode"/>
+<slot name="Slider"/>
+<slot name="2DMode"/>
+
+
+<style>
+
+	:global(.layer-toggle .bx--checkbox:checked+.bx--checkbox-label::before) {
+		background-color: var(--game-color-highlight);
+	}
+
+	:global(.layer-toggle .bx--checkbox-label::after) {
+		border-bottom-color: rgb(var(--game-color-bg));
+		border-left-color: rgb(var(--game-color-bg));
+	}
+
+</style>
