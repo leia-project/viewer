@@ -172,10 +172,11 @@ export class HexagonLayer {
 	private addHexagonEntities(): void {
 		for (let i = 0; i < this.hexagons.length; i++) {
 			this.hexagonEntities.entities.add(this.hexagons[i].entityInstance);
+			this.hexagonEntities.entities.add(this.hexagons[i].entityInstanceOutline);
 		}
 		this.map.viewer.dataSources.add(this.hexagonEntities);
 	}
-	
+
 	public onLeftClick(picked: any): void {
 		let pickedHexagon: Hexagon | undefined;
 		const selectedHexagon = get(this.selectedHexagon);
