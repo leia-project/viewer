@@ -84,11 +84,25 @@
                     }
                 ]
             }
+        },
+        {
+            "id": "4",
+            "type": "wms",
+            "title": "Kwetsbare gebouwen en locaties",
+            "groupId": "",
+            "legendUrl": "https://rev-portaal.nl/geoserver/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=rev_public%3Akgl_public",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://rev-portaal.nl/geoserver/wms/rev_public?",
+                "featureName": "rev_public:kgl_public",
+                "contenttype": "image/png"
+            }
         }
-
     ],
     "viewer": {
-        "title": "FIER",
+        "title": "Serious Game",
         "subTitle": "3D Leia Viewer",
         "logo": "images/leia_logo.png",
         "startPosition": {
