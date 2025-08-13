@@ -24,6 +24,7 @@ export class Hexagon {
 	public geometryInstances: Array<Cesium.GeometryInstance>;
 	public parentPrimitive: Cesium.Primitive | undefined;
 	public entityInstance: Cesium.Entity;
+	public entityInstanceOutline: Cesium.Entity;
 	
 	public colorScale = [
 		"#1a9850", // dark green
@@ -67,8 +68,9 @@ export class Hexagon {
 		this.evacuationPoints = this.getEvacuationPoints();
 		this.population = population;
 		this.selectedHexagon = selectedHexagon;
-		this.geometryInstances = this.createGeometryInstance(hex);
+		this.geometryInstances = this.createGeometryInstances(hex);
 		this.entityInstance = this.createEntityInstance(hex);
+		this.entityInstanceOutline = this.createEntityInstanceOutline(hex);
 		this.updateEntityColor();
 
 		this.selectedHexagon.subscribe((selected: Hexagon | undefined) => {
@@ -96,6 +98,21 @@ export class Hexagon {
 		return boundary.map((point) => [point[0], point[1]]);
 	}
 
+	private getHexVerticesInset(cell: string = this.hex, distanceMeters: number = 25): Array<[lon: number, lat: number]> {
+		const boundary = cellToBoundary(cell, true);
+		const center = this.center;
+		return boundary.map(([lon, lat]) => {
+			const from = Cesium.Cartesian3.fromDegrees(lon, lat);
+			const to = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+			const direction = Cesium.Cartesian3.subtract(to, from, new Cesium.Cartesian3());
+			Cesium.Cartesian3.normalize(direction, direction);
+			const moved = Cesium.Cartesian3.multiplyByScalar(direction, distanceMeters, new Cesium.Cartesian3());
+			const inset = Cesium.Cartesian3.add(from, moved, new Cesium.Cartesian3());
+			const carto = Cesium.Cartographic.fromCartesian(inset);
+			return [Cesium.Math.toDegrees(carto.longitude), Cesium.Math.toDegrees(carto.latitude)];
+		});
+	}
+
 	private getEvacuationPoints(): Array<[lon: number, lat: number]> {
 		const boundary = this.getHexVertices();
 		const midpoints: Array<[number, number]> = boundary.map(([lon, lat]) => [
@@ -105,7 +122,7 @@ export class Hexagon {
 		return [this.center, ...midpoints];
 	}
 
-	private createGeometryInstance(cell: string): Array<Cesium.GeometryInstance> {
+	private createGeometryInstances(cell: string): Array<Cesium.GeometryInstance> {
 		const boundary = this.getHexVertices(cell);
 		const positions = Cesium.Cartesian3.fromDegreesArray(boundary.flat());
 
@@ -183,12 +200,29 @@ export class Hexagon {
 		const entity = new Cesium.Entity({
 			id: `hexagon-${cell}`,
 			polygon: {
-				hierarchy: positions,
+				hierarchy: positions, 
 				fill: true,
-				heightReference: Cesium.HeightReference.RELATIVE_TO_TERRAIN
+				heightReference: Cesium.HeightReference.NONE,
+				zIndex: 1
 			},
 		});
 		return entity;
+	}
+
+	private createEntityInstanceOutline(cell: string): Cesium.Entity {
+		const boundary = this.getHexVertices(cell)
+		const positions = Cesium.Cartesian3.fromDegreesArray(boundary.flat());
+		const polyline = new Cesium.Entity({
+			id: `hexagon-outline-${cell}`,
+			polyline: {
+				positions: positions,
+				width: 1,
+				material: Cesium.Color.GAINSBORO,
+				clampToGround: true,
+				zIndex: 2
+			}
+		});
+		return polyline;
 	}
 	
 	private updateEntityColor(): void {
@@ -227,6 +261,11 @@ export class Hexagon {
 	}
 
 	private setColor(depth: number): void {
+		const isEvacuated = get(this.totalEvacuated) === this.population;
+		if (isEvacuated) {
+			this.color = Cesium.Color.SKYBLUE;
+			return;
+		}
 		const colorIndex = Math.min(Math.floor(depth * 2.5), this.colorScale.length - 1);
 		this.color = Cesium.Color.fromCssColorString(this.colorScale[colorIndex]);
 		if (this !== get(this.selectedHexagon)) this.unhighlight("click");
