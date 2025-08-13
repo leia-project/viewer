@@ -2,10 +2,15 @@
 	import type { IRole } from "../../module/models";
 
 	export let roles: Array<IRole>;
-	export let selectedRole: IRole;
+	export let selectedRole: IRole | undefined;
 
-	function changeRole(index: number) {
-		selectedRole = roles[index];
+	function changeRole(index: number): void {
+		const newRole = roles[index];
+		if (selectedRole === newRole) {
+			selectedRole = undefined;
+		} else {
+			selectedRole = roles[index];
+		}
 	}
 
 </script>
@@ -61,8 +66,7 @@
 		margin: 0 auto;
 		width: 30px;
 		height: 30px;
-		filter: drop-shadow(0 0 8px #054569) ;
-
+		filter: drop-shadow(0 0 2px #054569) ;
 	}
 
 </style>
