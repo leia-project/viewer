@@ -1,5 +1,5 @@
-import { calculateRoute } from "./routing/calculateroute";
 import { PGRestAPI } from "./pg-rest-api";
+import { calculateRoute } from "./routing/calculateroute";
 import { disableGraphEdges, resetGraphToDefault } from "./routing/graph";
 //import { Network } from "./routing/network";
 
@@ -32,6 +32,7 @@ export class RoutingAPI extends PGRestAPI {
 
 	private floodedSegments: Array<string> = [];
 	private overloadedSegments: Array<string> = [];
+	private blockedSegments: Array<string> = [];
 
 	constructor() {
 		super();
@@ -39,7 +40,7 @@ export class RoutingAPI extends PGRestAPI {
 
 	public async getRoute(startPoint: [lon: number, lat: number], endPoint: [lon: number, lat: number]): Promise<{ type: string, features: Array<RouteFeature> }> {
 		const maxDistance = 15000; // meters
-		const route = await calculateRoute("zeeland_datacore", "car", startPoint, endPoint, [...this.floodedSegments, ...this.overloadedSegments], maxDistance);
+		const route = await calculateRoute("zeeland_datacore", "car", startPoint, endPoint, [...this.floodedSegments, ...this.overloadedSegments, ...this.blockedSegments], maxDistance);
 		return route;
 	}
 
@@ -58,16 +59,18 @@ export class RoutingAPI extends PGRestAPI {
 
 	public async createGraph(geojson: string): Promise<void> {
 		//const network = new Network("zeeland_new", "car");
-		
 	}
 
-	public onTimeUpdate(floodedSegments: Array<string>, overloadedSegments: Array<string>): void {
+	public update(floodedSegments: Array<string>, overloadedSegments: Array<string>, blockedSegments: Array<string>): void {
 		this.floodedSegments = floodedSegments;
 		this.overloadedSegments = overloadedSegments;
+		this.blockedSegments = blockedSegments;
+
 		// Update the graph with the new flooded and overloaded segments
 		this.resetGraph();
 		this.removeSegments(floodedSegments);
 		this.removeSegments(overloadedSegments);
+		this.removeSegments(blockedSegments);
 	}
 	
 }
