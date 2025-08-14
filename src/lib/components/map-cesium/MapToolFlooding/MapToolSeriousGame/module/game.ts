@@ -9,6 +9,7 @@ import type { IGameConfig, ISavedGame } from "./models";
 import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 import type { MarvinApp } from "../../Marvin/marvin";
 import { Cutscene, type CameraData, type ChinookPositions } from "./cutscene";
+import { BackgroundMusic } from "./background-music";
 
 
 interface IGameStats {
@@ -239,34 +240,109 @@ export class Game {
 
 	public startCutscene() {
 		let cameraData: CameraData = [
-			[3.44017, 51.52262, 867.78804, 133.37068, -32.27899],
-			[3.44878, 51.51690, 391.71098, 132.36315, -26.51283],
-			[3.45797, 51.51140, 133.04299, 130.84555, -19.30481],
-			[3.46324, 51.50890, 84.64456, 129.83175, -15.22017],
-			[3.46841, 51.50660, 70.80599, 129.57566, -15.22017],
-			[3.47162, 51.50519, 75.61191, 129.57594, -15.21989],
-			[3.47750, 51.50236, 71.22324, 130.35239, -12.09640]
+			{
+				lon: 3.42941,
+				lat: 51.53084,
+				height: 77.66574,
+				heading: 140.15362,
+				pitch: -17.58288
+			},
+			{
+				lon: 3.43852,
+				lat: 51.52433,
+				height: 77.66584,
+				heading: 140.16072,
+				pitch: -17.05859
+			},
+			{
+				lon: 3.44941,
+				lat: 51.51550,
+				height: 77.66596,
+				heading: 142.23190,
+				pitch: -17.07877
+			},
+			{
+				lon: 3.45811,
+				lat: 51.51020,
+				height: 77.66714,
+				heading: 136.05081,
+				pitch: -17.07877
+			},
+			{
+				lon: 3.47779,
+				lat: 51.50096,
+				height: 77.66779,
+				heading: 127.64374,
+				pitch: -5.0
+			},
+			{
+			    lon: 3.48169,
+				lat: 51.49957,
+				height: 77.66784,
+				heading: 111.48933,
+				pitch: 10.37024
+			},
+			{
+				lon: 3.49384,
+				lat: 51.50071,
+				height: 116.92997,
+				heading: 81.65274,
+				pitch: 6.08778
+			},
+			{
+				lon: 3.47914,
+				lat: 51.49233,
+				height: 314.19318,
+				heading: 43.49485,
+				pitch: -7.16892
+			},
+			{
+				lon: 3.65420,
+				lat: 51.41641,
+				height: 6365.80323,
+				heading: 0.0,
+				pitch: -31.71540
+			}
 		];
 
 		let chinookData: ChinookPositions = [
 			{
-				startLon: 3.5545, 
-				startLat: 51.4255, 
-				startHeight: 15000, 
-				endLon: 5.0, 
-				endLat: 51.4255, 
-				endHeight: 5000
+				startLon: 3.44616, 
+				startLat: 51.291575, 
+				startHeight: 750, 
+				endLon: 3.554, 
+				endLat: 51.55507, 
+				endHeight: 750
 			},
 			{
-				startLon: 3.64997, 
-				startLat: 51.53205, 
-				startHeight: 15000, 
-				endLon: 5.0, 
-				endLat: 52.73, 
-				endHeight: 5000
+				startLon: 3.8926, 
+				startLat: 51.5674, 
+				startHeight: 750, 
+				endLon: 3.6571, 
+				endLat: 51.5737, 
+				endHeight: 750
+			},
+			{
+				startLon: 3.487, 
+				startLat: 51.5624, 
+				startHeight: 750, 
+				endLon: 3.5991, 
+				endLat: 51.5582, 
+				endHeight: 750
+			},
+			{
+				startLon: 3.655, 
+				startLat: 51.5511, 
+				startHeight: 750, 
+				endLon: 3.5903, 
+				endLat: 51.4998, 
+				endHeight: 750
 			}
 		]
 		let cut = new Cutscene(this.map, cameraData, chinookData);
 		cut.startAnimation();
+		const backgroundMusic: BackgroundMusic = new BackgroundMusic("/audio/background-cutscene-music.mp3", true);
+		backgroundMusic.playMusic();
+		// this.map.getContainer()
 	}
 }

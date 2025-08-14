@@ -1,9 +1,9 @@
-import { Cartesian3, Entity, HeadingPitchRoll, Viewer, CallbackProperty } from "cesium"
-import { JulianDate, SampledPositionProperty, VelocityOrientationProperty } from "cesium";
+import { Cartesian3, Entity, HeadingPitchRoll } from "cesium"
+import { JulianDate, SampledPositionProperty } from "cesium";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import * as Cesium from "cesium"
 
-export type CameraData = [lon: number, lat: number, height: number, heading: number, pitch: number][];
+export type CameraData = {lon: number, lat: number, height: number, heading: number, pitch: number}[];
 export type ChinookPositions = Array<{startLon: number, startLat: number, startHeight: number, endLon: number, endLat: number, endHeight: number}>;
 
 type CameraDataCartesian = {
@@ -43,15 +43,15 @@ export class Cutscene {
     private convertPositionsToCartesian3(cameraData: CameraData, chinookPositions: ChinookPositions): void {
         const startTime = JulianDate.now();
         let currentTime = JulianDate.clone(startTime);
-        const cameraSpeed = 60; // meters per second = ~288 km/h
+        const cameraSpeed = 240; 
         let previousPosition: Cartesian3 = Cartesian3.ONE;
 
         for (let i = 0; i < cameraData.length; i++) {
-            const [lon, lat, height, headingDeg, pitchDeg] = cameraData[i];
+            const {lon, lat, height, heading, pitch} = cameraData[i];
             const position = Cartesian3.fromDegrees(lon, lat, height);
             const rotation = new HeadingPitchRoll(
-                Cesium.Math.toRadians(headingDeg - 90),
-                Cesium.Math.toRadians(pitchDeg),
+                Cesium.Math.toRadians(heading - 90),
+                Cesium.Math.toRadians(pitch),
                 0
             );
             
@@ -105,7 +105,7 @@ export class Cutscene {
 
     private loadChinookInstances(): void {
         const startTime = JulianDate.now();
-        const durationSeconds = 500;
+        const durationSeconds = 81;
 
         for (let i = 0; i < this.chinookDataCartesian.length; i++) {
             const chinook = this.chinookDataCartesian[i];
@@ -131,7 +131,7 @@ export class Cutscene {
                 orientation: orientation,
                 model: {
                     uri: "/models/ChinookMetLoopAnimatie.glb",
-                    scale: 1000.0,
+                    scale: 100.0,
                     minimumPixelSize: 64,
                     runAnimations: true
                 }
@@ -142,7 +142,7 @@ export class Cutscene {
 
         const clock = this.map.viewer.clock;
         clock.startTime = startTime.clone();
-        clock.stopTime = JulianDate.addSeconds(startTime, durationSeconds, new JulianDate());
+        clock.stopTime = JulianDate.addSeconds(startTime, durationSeconds * 10, new JulianDate());
         clock.currentTime = startTime.clone();
         clock.clockRange = Cesium.ClockRange.CLAMPED; // stop at the end
         clock.multiplier = 1.0; // real-time speed
@@ -171,8 +171,6 @@ export class Cutscene {
             }
         });
     }
-
-
 
     public startAnimation(): void {
         this.startAudio();
