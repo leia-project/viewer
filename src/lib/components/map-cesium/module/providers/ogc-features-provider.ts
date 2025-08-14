@@ -1,8 +1,8 @@
-import type { Unsubscriber, Writable } from "svelte/store";
+import type { Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
 import * as turf from "@turf/turf";
+import { Dispatcher } from "$lib/components/map-core/event/dispatcher";
 import type { Map } from "../map";
-import { writable } from 'svelte/store';
 
 
 interface OgcFeaturesTile {
@@ -139,7 +139,6 @@ export class OgcFeaturesProviderCesium {
 
 		this.collectionId = collectionId;
 		this.allowPicking = allowPicking;
-
 	}
 
 	public async init(layerShown: boolean = true): Promise<void> {
@@ -349,7 +348,7 @@ export class OgcFeaturesProviderCesium {
 
 
 
-abstract class OgcFeaturesLoaderCesium {
+abstract class OgcFeaturesLoaderCesium extends Dispatcher {
 
 	public OgcFeatures: OgcFeaturesProviderCesium;
 	public primitives: Array<Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive> = [];
@@ -357,9 +356,9 @@ abstract class OgcFeaturesLoaderCesium {
 	private terrainUnsubscriber: Unsubscriber | undefined;
 	private cachedTerrainProvider: Cesium.TerrainProvider | undefined;
 	public features: Array<GeoJSONFeature> | undefined;
-	public writableFeatures: Writable<GeoJSONFeature[] | undefined> = writable();
 
 	constructor(OgcFeatures: OgcFeaturesProviderCesium) {
+		super();
 		this.OgcFeatures = OgcFeatures;
 	}
 
@@ -675,8 +674,8 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 
 	public async loadFeatures(): Promise<void> {
 		const features = await this.OgcFeatures.getFeature(undefined, this.OgcFeatures.parameters);
-		this.writableFeatures?.set(features);
 		this.features = features || [];
+		this.dispatch("featuresLoaded", features)
 	}
 
 	private refreshPrimitives(): void {
@@ -809,7 +808,8 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 				destroyed: false
 			}
 			this.loadedTiles.push(newTile);
-			this.loadTile(newTile)
+			this.loadTile(newTile);
+			this.dispatch("featuresLoaded", newTile);
 		});
 	}
 

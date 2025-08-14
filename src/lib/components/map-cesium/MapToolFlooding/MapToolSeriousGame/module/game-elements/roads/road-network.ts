@@ -21,8 +21,8 @@ export class RoadNetwork {
 	public map: Map;
 	private routingAPI: RoutingAPI;
 	private outline: Array<[lon: number, lat: number]>;
-	private floodedRoadFeatures: GeoJSONFeature[] | undefined;	
 	private personsPerCar: number = 4;
+	private floodLayerController: FloodLayerController;
 
 	public roadNetworkLayer: RoadNetworkLayer;
 	private extractionPointIds: Array<string> = ["42376", "83224", "77776"];
@@ -49,6 +49,7 @@ export class RoadNetwork {
 		this.routingAPI = new RoutingAPI();
 
 		this.outline = outline;
+		this.floodLayerController = floodLayerController;
 		this.roadNetworkLayer = new RoadNetworkLayer(map, elapsedTime, this.extractionPointIds);
 		this.selectedExtractionPoint.subscribe((selectedExtractionPoint) => {
 			this.roadNetworkLayer.segments.forEach((segment) => {
@@ -104,45 +105,36 @@ export class RoadNetwork {
 	private init(): void {
 		this.loadMeasures();
 		this.loadRoadNetwork().then(() => {
-			//this.assignSegmentsToMeasures();
 			this.elapsedTime.subscribe((time: number) => this.cleanSetRoutingGraph(time));
-			// TODO: this.floodLayerController.getFloodedRoadWritableFeatures().subscribe((floodedRoadFeatures) => {this.fl}) TODO: dit fixen om graph op te halen
+			this.floodLayerController.floodedRoadsLayer.source.setupPromise?.then(() => {
+				this.floodLayerController.floodedRoadsLayer.source.OgcFeaturesLoaderCesium.on("featuresLoaded", () => {
+					this.cleanSetRoutingGraph(get(this.elapsedTime));
+				});
+			});
 			this.loaded.set(true);
 		});
 	}
 
 	public async cleanSetRoutingGraph(time: number): Promise<void> {
-		const floodedSegments: Array<[string, number]> = await this.pgRestAPI.getFloodedRoadSegments(time);
+		const floodedRoadFeatures = this.floodLayerController.floodedRoadsLayer.source.OgcFeaturesLoaderCesium.features || [];
+		const floodedSegments= floodedRoadFeatures.map((f: GeoJSONFeature) => [f.properties.wvk_id, parseFloat(f.properties.flood_depth)] as [string, number]) || [];
 		const floodedSegmentsWithMeasures = floodedSegments.filter(([id, floodHeight]) => {
 			const segment = this.roadNetworkLayer.getItemById(id);
 			if (segment) {
 				floodHeight -= segment?.raisedBy;
 			}
 			return segment && floodHeight > 0;
-		}).map(([id, floodHeight]) => id);
-		const blockedSegments = this.measures.filter((measure) => measure instanceof BlockageMeasure);
+		}).map(([id, flood_depth]) => id);
+
 		const overloadedSegments = this.roadNetworkLayer.segments.filter((segment) => segment.overloaded(time)).map((segment) => segment.id);
+
+		const blockedSegments = this.measures.filter((measure) => measure instanceof BlockageMeasure).map((measure) => measure.config.routeSegmentFids).flat();
 		
-		this.routingAPI.onTimeUpdate(floodedSegmentsWithMeasures, overloadedSegments);
+		this.routingAPI.update(floodedSegmentsWithMeasures, overloadedSegments, blockedSegments);
 	}
 
 	private async loadRoadNetwork(): Promise<void> {
 		const network = await getNetworkPGRest("zeeland_datacore", "car", this.outline); //await fetch("/data/zeeland_2/car/edges.geojson");
-		/* 
-		const outline =  turf.polygon([this.outline.map((coord) => [coord[0], coord[1]])]);
-		const filteredFeatures = network.edges.features.filter((feature: RouteFeature) => {
-			//@ts-ignore
-			if (feature.geometry.type === "MultiLineString") {
-				feature.geometry.type = "LineString";
-				//@ts-ignore
-				feature.geometry.coordinates = feature.geometry.coordinates.flat();
-			}
-			return feature.geometry.coordinates.some((coord: [number, number]) => {
-				const pt = turf.point(coord);
-				return turf.booleanPointInPolygon(pt, outline) && feature.properties.fid !== undefined;
-			});
-		});
-		*/
 		network.edges.features.forEach((feature: RouteFeature) => {
 			const segment = this.roadNetworkLayer.add(feature, false);
 			for (const measure of this.measures) {

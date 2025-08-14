@@ -3,6 +3,7 @@ import * as Cesium from "cesium";
 import type { Hexagon } from "./hexagons/hexagon";
 import { HexagonLayer } from "./hexagons/hexagon-layer";
 import { RoadNetwork } from "./roads/road-network";
+import type { MouseLocation } from "$lib/components/map-core/mouse-location";
 import { Map as CesiumMap } from "$lib/components/map-cesium/module/map";
 import { Evacuation } from "./evacuation";
 import type { Game } from "../game";
@@ -127,7 +128,7 @@ export class EvacuationController {
 		this.map.off("mouseLeftClick", this.leftClickHandle);
 	}
 
-	private getObjectFromMouseLocation(m: any): any {
+	private getObjectFromMouseLocation(m: MouseLocation): any {
 		const location = new Cesium.Cartesian2(m.x, m.y);
 		if (!location) return undefined;
 		return this.map.viewer.scene.pick(location);
@@ -135,7 +136,7 @@ export class EvacuationController {
 
 	private moveHandle = (m: any): void => {
 		const obj = this.getObjectFromMouseLocation(m);
-		this.hexagonLayer.onMouseMove(obj);
+		this.hexagonLayer.onMouseMove(obj, m);
 		this.roadNetwork.onMouseMove(obj);
 		if (!obj) {
 			this.map.viewer.scene.canvas.style.cursor = "default";
@@ -144,7 +145,7 @@ export class EvacuationController {
 
 	private leftClickHandle = (m: any): void => {
 		const picked = this.getObjectFromMouseLocation(m);
-		this.hexagonLayer.onLeftClick(picked);
+		this.hexagonLayer.onLeftClick(picked, m);
 		this.roadNetwork.onLeftClick(picked);
 	}
 
