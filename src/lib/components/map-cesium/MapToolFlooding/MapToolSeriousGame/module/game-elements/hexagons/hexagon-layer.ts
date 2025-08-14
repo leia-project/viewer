@@ -1,18 +1,21 @@
-import * as Cesium from "cesium";
 import { derived, get, writable, type Readable, type Writable } from "svelte/store";
-import type { Map } from "$lib/components/map-cesium/module/map";
+import * as Cesium from "cesium";
+import * as h3 from "h3-js";
+import type { Map as GameMap } from "$lib/components/map-cesium/module/map";
 import { Hexagon } from "./hexagon";
 import { PGRestAPI, type CBSHexagon, type FloodHexagon } from "../api/pg-rest-api";
 import HexagonInfoBox from "../../../components/infobox/HexagonInfoBox.svelte";
 import type { EvacuationController } from "../evacuation-controller";
+import type { MouseLocation } from "$lib/components/map-core/mouse-location";
 
 
 export class HexagonLayer {
 
-	private map: Map;
+	private map: GameMap;
 	private primitive?: Cesium.Primitive;
 	private outline: Array<[lon: number, lat: number]>;
 	public hexagons: Array<Hexagon> = [];
+	private hexagonMap: Map<string, Hexagon> = new Map<string, Hexagon>();
 	public loaded: Writable<boolean> = writable(false);
 
 	private pgRestAPI = new PGRestAPI();
@@ -101,8 +104,9 @@ export class HexagonLayer {
 		hexagons.forEach((hex: CBSHexagon) => {
 			const newHex = new Hexagon(hex.hex, hex.population, this.selectedHexagon);
 			this.hexagons.push(newHex);
-			this.setCounters();
+			this.hexagonMap.set(hex.hex, newHex);
 		});
+		this.setCounters();
 		this.createPrimitive();
 		this.addHexagonEntities();
 		this.loaded.set(true);
@@ -177,17 +181,19 @@ export class HexagonLayer {
 		this.map.viewer.dataSources.add(this.hexagonEntities);
 	}
 
-	public onLeftClick(picked: any): void {
+	public onLeftClick(picked: any, m: MouseLocation): void {
+		if (!get(this.visible)) return;
 		let pickedHexagon: Hexagon | undefined;
 		const selectedHexagon = get(this.selectedHexagon);
-		if (picked?.id instanceof Cesium.Entity) {
-			pickedHexagon = this.hexagons.find((hex: Hexagon) => hex.entityInstance === picked.id);
-		} else if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
+		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
 			pickedHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
+		} else {	
+			pickedHexagon = this.getHexagonFromMouseLocation(m);
 		}
 		if (!pickedHexagon && picked?.id !== undefined) {
 			return; // Something else was clicked, not a hexagon, so do nothing
 		}
+
 		if (selectedHexagon && selectedHexagon !== pickedHexagon) {
 			selectedHexagon.unhighlight("click");
 		}
@@ -196,7 +202,8 @@ export class HexagonLayer {
 		this.map.refresh();
 	}
 
-	public onMouseMove(picked: any): void {
+	public onMouseMove(picked: any, m: MouseLocation): void {
+		if (!get(this.visible)) return;
 		if (typeof picked?.id === "string" && picked.id.endsWith("-top")) {
 			picked.id = picked.id.slice(0, -4); // Remove "-top" suffix to get the hexagon id when clicking top hexagons
 		}
@@ -210,16 +217,31 @@ export class HexagonLayer {
 			if (hoveredHexagon && hoveredHexagon.hex !== picked.id && hoveredHexagon.entityInstance !== picked.id) {
 				hoveredHexagon.unhighlight("hover");
 			}
-			if (picked.id instanceof Cesium.Entity) {
-				hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.entityInstance === picked.id);
-			} else if (picked?.primitive instanceof Cesium.Primitive) {
+			if (picked?.primitive instanceof Cesium.Primitive) {
 				hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
+			} else {
+				hoveredHexagon = this.getHexagonFromMouseLocation(m);
 			}
 			this.hoveredHexagon.set(hoveredHexagon);
 			if (hoveredHexagon) hoveredHexagon.highlight("hover");
 			this.map.viewer.scene.canvas.style.cursor = "pointer";
 		} 
 		this.map.refresh();
+	}
+
+	private getHexagonFromMouseLocation(m: MouseLocation): Hexagon | undefined {
+		const cartesian = this.map.viewer.scene.camera.pickEllipsoid(
+			new Cesium.Cartesian2(m.x, m.y),
+			this.map.viewer.scene.globe.ellipsoid
+		);
+		if (cartesian) {
+			const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+			const lon = Cesium.Math.toDegrees(cartographic.longitude);
+			const lat = Cesium.Math.toDegrees(cartographic.latitude);
+			const hexIndex = h3.latLngToCell(lat, lon, 7);
+			return this.hexagonMap.get(hexIndex);
+		}
+		return undefined;
 	}
 
 	public toggle2D3DModeHexagons(show: boolean): void {
