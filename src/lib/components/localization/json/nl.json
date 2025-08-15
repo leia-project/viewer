@@ -41,7 +41,7 @@
             "title": "Digital-Twin Viewer",
             "close": "Sluiten",
             "closeDontShowOnStart": "Sluit en geef niet meer weer bij opstarten",
-            "intro": "<div class='body-02'>A digital twin is a digital representation of an intended or actual real-world physical product, system, or process (a physical twin) that serves as the effectively indistinguishable digital counterpart of it for practical purposes, such as simulation, integration, testing, monitoring, and maintenance.<br><br>For more information on how to use the viewer see the different topics</div><br><div style='display:flex; justify-content: center;'></div>",
+            "intro": "<div class='body-02'>Een digital twin is is een digitale representatie van een beoogd of daadwerkelijk bestaand fysiek product, systeem of proces (een fysieke 'twin') die dient als het in de praktijk vrijwel niet te onderscheiden digitale tegenhanger ervan, voor doeleinden zoals simulatie, integratie, testen, monitoring en onderhoud.<br><br>Voor meer informatie over het gebruik van de viewer, zie de verschillende onderwerpen</div><br><div style='display:flex; justify-content: center;'></div>",
             "tabs": {
               "intro": "Introductie",
               "movement": "Beweging",
