@@ -8,7 +8,7 @@ import type { Hexagon } from "../hexagons/hexagon";
 import { RoadNetworkLayer, RouteSegment } from "./route-segments";
 import { PGRestAPI } from "../api/pg-rest-api";
 import { getNetworkPGRest } from "../api/routing/graph";
-import { BlockageMeasure, CapacityMeasure, HeightMeasure, Measure, type IMeasureConfig } from "./measure";
+import { BlockMeasure, WidenMeasure, RaiseMeasure, Measure, type IMeasureConfig } from "./measure";
 import type { NotificationLog } from "../../notification-log";
 
 import measuresJSON from "./measure-config.json";
@@ -128,7 +128,7 @@ export class RoadNetwork {
 
 		const overloadedSegments = this.roadNetworkLayer.segments.filter((segment) => segment.overloaded(time)).map((segment) => segment.id);
 
-		const blockedSegments = this.measures.filter((measure) => measure instanceof BlockageMeasure).map((measure) => measure.config.routeSegmentFids).flat();
+		const blockedSegments = this.measures.filter((measure) => measure instanceof BlockMeasure).map((measure) => measure.config.routeSegmentFids).flat();
 		
 		this.routingAPI.update(floodedSegmentsWithMeasures, overloadedSegments, blockedSegments);
 	}
@@ -149,12 +149,12 @@ export class RoadNetwork {
 	private loadMeasures(): void {
 		const measureConfig: Array<IMeasureConfig> = measuresJSON;
 		const measures = measureConfig.map((c) => {
-			if (c.type === "capacity") {
-				return new CapacityMeasure(c, this.map);
-			} else if (c.type === "height") {
-				return new HeightMeasure(c, this.map);
-			} else if (c.type === "blockage") {
-				return new BlockageMeasure(c, this.map);
+			if (c.type === "widen") {
+				return new WidenMeasure(c, this.map);
+			} else if (c.type === "raise") {
+				return new RaiseMeasure(c, this.map);
+			} else if (c.type === "block") {
+				return new BlockMeasure(c, this.map);
 			}
 		});
 		this.measures = measures.filter((m) => m !== undefined) as Array<Measure>;
@@ -265,8 +265,8 @@ export class RoadNetwork {
 		let pickedItem: RouteSegment | Measure | undefined;
 		if ((picked?.primitive instanceof Cesium.Primitive || picked?.primitive instanceof Cesium.GroundPolylinePrimitive) && picked?.id) {
 			if (typeof picked?.id === "string") {
-				if (picked.id.endsWith("-top")) {
-					const itemId = picked.id.slice(0, -4);
+				if (picked.id.startsWith("extraction-")) {
+					const itemId = picked.id.replace("extraction-", "");
 					pickedItem = this.roadNetworkLayer.getItemById(itemId);
 				} else if (picked.id.startsWith("segment-")) {
 					const itemId = picked.id.replace("segment-", "");

@@ -1,13 +1,12 @@
 import { writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
-import * as turf from "@turf/turf";
 import type { RouteSegment } from "./route-segments";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { iconMap, processSVG } from "../../asset-icons";
 
 
 export interface IMeasureConfig {
-	type: string; //"capacity" | "height" | "blockage";
+	type: string; //"widen" | "raise" | "block";
 	asset: string;
 	name: string;
 	description: string;
@@ -108,14 +107,35 @@ export abstract class Measure {
 
 	private updateBillboardPosition(): void {
 		if (this.routeSegments.length > 0) {
-			const coordinates = this.routeSegments.map((segment) => [segment.lon, segment.lat]);
+			const coordinates = this.routeSegments.map((segment) => [segment.lon, segment.lat]) as Array<[lon: number, lat: number]>;
 			const center = coordinates.length === 1 
 				? coordinates[0] 
-				: turf.center(turf.lineString(coordinates)).geometry.coordinates;
+				: this.getMostCentralCoordinate(coordinates);
 			this.position = Cesium.Cartesian3.fromDegrees(center[0], center[1], 50);
 			this.billboard.position = new Cesium.ConstantPositionProperty(this.position);
 			this.billboardApplied.position = new Cesium.ConstantPositionProperty(this.position);
 		}
+	}
+
+	private getMostCentralCoordinate(coordinates: Array<[lon: number, lat: number]>): [lon: number, lat: number] {
+		if (coordinates.length === 1) return coordinates[0];
+		let minSum = Infinity;
+		let minCoord: [lon: number, lat: number] = coordinates[0];
+		for (let i = 0; i < coordinates.length; i++) {
+			let sum = 0;
+			for (let j = 0; j < coordinates.length; j++) {
+				if (i !== j) {
+					const dx = coordinates[i][0] - coordinates[j][0];
+					const dy = coordinates[i][1] - coordinates[j][1];
+					sum += Math.sqrt(dx * dx + dy * dy);
+				}
+			}
+			if (sum < minSum) {
+				minSum = sum;
+				minCoord = coordinates[i];
+			}
+		}
+		return minCoord;
 	}
 
 	private updatePrimitive(): void {
@@ -161,24 +181,24 @@ export abstract class Measure {
 }
 
 
-export class CapacityMeasure extends Measure {
+export class WidenMeasure extends Measure {
 
 	constructor(config: IMeasureConfig, map: Map) {
 		super(config, map);
 	}
 
 	public applyTo(routeSegment: RouteSegment): void {
-		const newCapacity = routeSegment.capacity + this.config.value;
+		const newCapacity = routeSegment.capacity * this.config.value;
 		routeSegment.updateCapacity(newCapacity);
 	}
 
 	public removeFrom(routeSegment: RouteSegment): void {
-		const newCapacity = routeSegment.capacity - this.config.value;
+		const newCapacity = routeSegment.capacity / this.config.value;
 		routeSegment.updateCapacity(newCapacity);
 	}
 }
 
-export class HeightMeasure extends Measure {
+export class RaiseMeasure extends Measure {
 
 	constructor(config: IMeasureConfig, map: Map) {
 		super(config, map);
@@ -193,7 +213,7 @@ export class HeightMeasure extends Measure {
 	}
 }
 
-export class BlockageMeasure extends Measure {
+export class BlockMeasure extends Measure {
 
 	constructor(config: IMeasureConfig, map: Map) {
 		super(config, map);

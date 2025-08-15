@@ -39,7 +39,7 @@ export class Hexagon {
 		"#a50026", // dark red
 		"#800026"  // deeper red
 	]; //https://colordesigner.io/gradient-generator - https://uigradients.com/#TheBlueLagoon
-	private cesiumColors = this.colorScale.map((color, i) => {
+	private cesiumColors = this.colorScale.map((color) => {
 		const col = Cesium.Color.fromCssColorString(color);
 		col.alpha = 1;
 		return col;

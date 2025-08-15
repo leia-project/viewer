@@ -380,14 +380,14 @@ export class RouteSegmentLineInstance {
 
 class ExtractionPoint {
 
-	private routeSegmentID: string;
+	private geometryID: string;
 	private position: Cesium.Cartesian3;
 	public geometryInstances: Array<Cesium.GeometryInstance>;
 
 	public parentPrimitive?: Cesium.Primitive;
 
 	constructor(routeSegmentID: string, position: Cesium.Cartesian3) {
-		this.routeSegmentID = routeSegmentID;
+		this.geometryID = `extraction-${routeSegmentID}`;
 		this.position = position;
 		this.geometryInstances = this.createGeometryInstances();
 	}
@@ -406,7 +406,7 @@ class ExtractionPoint {
 		const bottom = new Cesium.GeometryInstance({
 			geometry: geometry,
 			modelMatrix: Cesium.Transforms.eastNorthUpToFixedFrame(this.position),
-			id: this.routeSegmentID,
+			id: this.geometryID,
 			attributes: {
 				color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.RED.withAlpha(0.5)),
 				offsetBottom: new Cesium.GeometryInstanceAttribute({
@@ -429,7 +429,7 @@ class ExtractionPoint {
 		const top = new Cesium.GeometryInstance({
 			geometry: geometry,
 			modelMatrix: Cesium.Transforms.eastNorthUpToFixedFrame(this.position),
-			id: this.routeSegmentID + "-top",
+			id: this.geometryID + "-top",
 			attributes: {
 				color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.GREEN.withAlpha(0.5)),
 				offsetBottom: new Cesium.GeometryInstanceAttribute({
@@ -454,8 +454,8 @@ class ExtractionPoint {
 
 	public updateAttributes(load: number, capacity: number): void {
 		if (this.parentPrimitive?.ready) {
-			const attributesBottom = this.parentPrimitive?.getGeometryInstanceAttributes(this.routeSegmentID);
-			const attributesTop = this.parentPrimitive?.getGeometryInstanceAttributes(this.routeSegmentID + "-top");
+			const attributesBottom = this.parentPrimitive?.getGeometryInstanceAttributes(this.geometryID);
+			const attributesTop = this.parentPrimitive?.getGeometryInstanceAttributes(this.geometryID + "-top");
 			attributesBottom.offsetBottom = [0];
 			attributesBottom.offsetTop = [load];
 			attributesTop.offsetBottom = [load];
@@ -465,8 +465,8 @@ class ExtractionPoint {
 
 	public highlight(b: boolean): void {
 		if (this.parentPrimitive?.ready) {
-			const attributesBottom = this.parentPrimitive.getGeometryInstanceAttributes(this.routeSegmentID);
-			const attributesTop = this.parentPrimitive.getGeometryInstanceAttributes(this.routeSegmentID + "-top");
+			const attributesBottom = this.parentPrimitive.getGeometryInstanceAttributes(this.geometryID);
+			const attributesTop = this.parentPrimitive.getGeometryInstanceAttributes(this.geometryID + "-top");
 			if (b) {
 				attributesBottom.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.RED.withAlpha(1), attributesBottom.color);
 				attributesTop.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.GREEN.withAlpha(1), attributesTop.color);

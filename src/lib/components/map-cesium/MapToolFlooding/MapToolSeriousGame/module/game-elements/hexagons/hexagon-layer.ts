@@ -23,7 +23,7 @@ export class HexagonLayer {
 	public use2DMode: Writable<boolean> = writable<boolean>(false);
 	private hexagonEntities: Cesium.CustomDataSource = new Cesium.CustomDataSource();
 	public title: string = "CBS Hexagons";
-	public alpha: Writable<number> = writable(1);
+	public alpha: Writable<number> = writable(0.85);
 
 	private material: Cesium.Material = new Cesium.Material({
 		fabric: {
@@ -181,15 +181,20 @@ export class HexagonLayer {
 		this.map.viewer.dataSources.add(this.hexagonEntities);
 	}
 
-	public onLeftClick(picked: any, m: MouseLocation): void {
-		if (!get(this.visible)) return;
+	private getPickedHexagon(picked: any, m: MouseLocation): Hexagon | undefined {
 		let pickedHexagon: Hexagon | undefined;
-		const selectedHexagon = get(this.selectedHexagon);
 		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
 			pickedHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
-		} else {	
+		} else if (typeof picked?.id === "string") {
 			pickedHexagon = this.getHexagonFromMouseLocation(m);
 		}
+		return pickedHexagon;
+	}
+
+	public onLeftClick(picked: any, m: MouseLocation): void {
+		if (!get(this.visible)) return;
+		const selectedHexagon = get(this.selectedHexagon);
+		const pickedHexagon = this.getPickedHexagon(picked, m);
 		if (!pickedHexagon && picked?.id !== undefined) {
 			return; // Something else was clicked, not a hexagon, so do nothing
 		}
@@ -207,7 +212,7 @@ export class HexagonLayer {
 		if (typeof picked?.id === "string" && picked.id.endsWith("-top")) {
 			picked.id = picked.id.slice(0, -4); // Remove "-top" suffix to get the hexagon id when clicking top hexagons
 		}
-		let hoveredHexagon = get(this.hoveredHexagon);
+		const hoveredHexagon = get(this.hoveredHexagon);
 		if (picked?.id === undefined) {
 			if (hoveredHexagon && hoveredHexagon !== get(this.selectedHexagon)) {
 				hoveredHexagon.unhighlight("hover");
@@ -217,13 +222,9 @@ export class HexagonLayer {
 			if (hoveredHexagon && hoveredHexagon.hex !== picked.id && hoveredHexagon.entityInstance !== picked.id) {
 				hoveredHexagon.unhighlight("hover");
 			}
-			if (picked?.primitive instanceof Cesium.Primitive) {
-				hoveredHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
-			} else {
-				hoveredHexagon = this.getHexagonFromMouseLocation(m);
-			}
-			this.hoveredHexagon.set(hoveredHexagon);
-			if (hoveredHexagon) hoveredHexagon.highlight("hover");
+			const pickedHexagon = this.getPickedHexagon(picked, m);
+			this.hoveredHexagon.set(pickedHexagon);
+			if (pickedHexagon) pickedHexagon.highlight("hover");
 			this.map.viewer.scene.canvas.style.cursor = "pointer";
 		} 
 		this.map.refresh();
