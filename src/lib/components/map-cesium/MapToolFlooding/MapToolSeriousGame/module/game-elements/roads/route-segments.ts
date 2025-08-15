@@ -72,7 +72,7 @@ export class RoadNetworkLayer {
 			if (!this.polylinePrimitive?.ready || !this.extractionPointPrimitive?.ready) {
 				return;
 			}
-			this.segments.forEach((segment) => segment.updateVisualization());
+			this.segments.forEach((segment) => segment.updateLoad());
 			removeListener();
 		});
 	}
@@ -97,14 +97,15 @@ export class RoadNetworkLayer {
 			in vec3 position3DLow;
 			in vec3 normal;
 			in vec4 color;
+			in vec2 st;
 			in float batchId;
 
 			in float isTop;
-			in vec3 vectorUp;
 
 			out vec3 v_positionEC;
 			out vec3 v_normalEC;
 			out vec4 v_color;
+			out vec2 v_st;
 
 			void main() {
 				vec4 p = czm_computePosition();
@@ -122,17 +123,57 @@ export class RoadNetworkLayer {
 				v_positionEC = (czm_modelViewRelativeToEye * p).xyz;      // position in eye coordinates
 				v_normalEC = czm_normal * normal;                         // normal in eye coordinates
 				v_color = color;
+				v_st = st;
 
 				gl_Position = czm_modelViewProjectionRelativeToEye * p;
 			}
-		`
-		const appearance = new Cesium.PerInstanceColorAppearance({
-			translucent: true,
-			closed: true,
-			vertexShaderSource: vertexShader,
-			renderState: {
-				// Fix the vertical flickering lights here?
+		`;
+		const fragmentShader = `
+			in vec3 v_positionEC;
+			in vec3 v_normalEC;
+			in vec2 v_st;
+			in vec4 v_color;
+
+			czm_material sdg_czm_getMaterial(czm_materialInput materialInput) {
+				czm_material material = czm_getDefaultMaterial(materialInput);
+				material.diffuse = czm_gammaCorrect(v_color.rgb * vec3(1.0));
+				material.alpha = v_color.a;
+				material.specular = 0.0;
+				material.shininess = 0.0;
+				return material;
 			}
+
+			void main() {
+				vec3 positionToEyeEC = -v_positionEC;
+
+				vec3 normalEC = normalize(v_normalEC);
+			#ifdef FACE_FORWARD
+				normalEC = faceforward(normalEC, vec3(0.0, 0.0, 1.0), -normalEC);
+			#endif
+
+				czm_materialInput materialInput;
+				materialInput.normalEC = normalEC;
+				materialInput.positionToEyeEC = positionToEyeEC;
+				materialInput.st = v_st;
+				czm_material material = sdg_czm_getMaterial(materialInput);
+
+			#ifdef FLAT
+				out_FragColor = vec4(material.diffuse + material.emission, material.alpha);
+			#else
+				out_FragColor = czm_phong(normalize(positionToEyeEC), material, czm_lightDirectionEC);
+			#endif
+			}
+		`;
+		const appearance = new Cesium.MaterialAppearance({
+			material: new Cesium.Material({
+				fabric: {
+					type: "ExtractionPointMaterial"
+				}
+			}),
+			vertexShaderSource: vertexShader,
+			fragmentShaderSource: fragmentShader,
+			translucent: true,
+			closed: true
 		});
 		return new Cesium.Primitive({
 			geometryInstances: geometryInstances,
@@ -222,7 +263,7 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 		if (isExtractionPoint) {
 			this.extractionPoint = new ExtractionPoint(this.feature.properties.fid.toString(), this.position);
 		}
-		elapsedTime.subscribe((t) => this.updateVisualization());
+		elapsedTime.subscribe((t) => this.updateLoad());
 	}
 
 	protected createEntity(): Cesium.Entity {
@@ -252,7 +293,7 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 		} else {
 			this.loadPerTimeStep.set(time, load);
 		}
-		this.updateVisualization();
+		this.updateLoad();
 	}
 
 	public removeLoad(load: number, time: number = get(this.elapsedTime)): void {
@@ -261,20 +302,20 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 			const newLoad = Math.max(0, currentLoad - load);
 			this.loadPerTimeStep.set(time, newLoad);
 		}
-		this.updateVisualization();
+		this.updateLoad();
 	}
 
-	public updateVisualization(): void {
+	public updateLoad(): void {
 		const time = get(this.elapsedTime);
 		this.isOverloaded.set(this.overloaded(time));
 		const currentLoad = this.loadPerTimeStep.get(time) || 0;
 		if (currentLoad !== this.displayedLoad) {
 			gsap.to(this, {
 				displayedLoad: currentLoad,
-				duration: 1.5,
+				duration: 2.5,
 				onUpdate: () => {
-					this.lineInstance.update(currentLoad, this.capacity);
-					this.extractionPoint?.updateAttributes(currentLoad, this.capacity);
+					this.lineInstance.update(this.displayedLoad, this.capacity);
+					this.extractionPoint?.updateAttributes(this.displayedLoad, this.capacity);
 					this.map.refresh();
 				}
 			});
@@ -394,13 +435,14 @@ class ExtractionPoint {
 
 	private createGeometryInstances(): Array<Cesium.GeometryInstance> {
 		const cylinder = new Cesium.CylinderGeometry({
-			length: 10,
+			length: 1,
 			topRadius: 500,
-			bottomRadius: 500,
+			bottomRadius: 500
 		});
 		const geometry = CylinderGeometry.createGeometry(cylinder) as Cesium.Geometry;
 		if (!geometry) {
 			console.error("Failed to create geometry for BottleNeck");
+			return [];
 		}
 		const vectorUp = Cesium.Cartesian3.normalize(this.position, new Cesium.Cartesian3());
 		const bottom = new Cesium.GeometryInstance({

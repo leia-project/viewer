@@ -290,8 +290,9 @@ export class RoadNetwork {
 		const pickedItem = this.getPickedItem(picked);
 		this.selectedNode.set(pickedItem);
 
-		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
-			const extractionPointId = this.extractionPointIds.find((id) => id === picked.id);
+		if (picked?.primitive instanceof Cesium.Primitive && picked?.id && picked.id.startsWith("extraction-")) {
+			const itemId = picked.id.replace("extraction-", "");
+			const extractionPointId = this.extractionPointIds.find((id) => id === itemId);
 			if (extractionPointId) {
 				const extractionPoint = this.roadNetworkLayer.getItemById(extractionPointId);
 				if (extractionPoint) this.selectedExtractionPoint.set(extractionPoint);
