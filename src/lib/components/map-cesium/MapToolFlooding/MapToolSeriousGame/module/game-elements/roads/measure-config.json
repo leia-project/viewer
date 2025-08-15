@@ -1,16 +1,30 @@
 [
 	{
-		"type": "blockage",
-		"asset": "viaduct",
-		"name": "Schietbaan",
-		"description": "Afsluiten Schietbaan tussen rotonde met Mozartweg en rotonde Waldammeweg om te voorkomen dat verkeer de N57 op kan.",
+		"swecoId": "4",
+		"type": "capacity",
+		"asset": "snelweg",
+		"name": "Sloeweg tussen aansluiting Sloehaven en aansluiting N62.",
+		"description": "Verbreden N254 tussen aansluiting Sloehaven en aansluiting N62 naar twee rijstroken per rijrichting.",
 		"routeSegmentFids": [
-			"38614"
+			"13900",
+			"31786",
+			"31806",
+			"16928",
+			"18455",
+			"10100",
+			"18452",
+			"18044",
+			"18041",
+			"18039",
+			"18228",
+			"18045",
+			"18287"
 		],
 		"cost": 1000,
-		"value": 0
+		"value": 1.5
 	},
 	{
+		"swecoId": "5",
 		"type": "blockage",
 		"asset": "brug",
 		"name": "A58 hmp 167,0 Li en Re",
@@ -23,14 +37,199 @@
 		"value": 0
 	},
 	{
+		"swecoId": "6",
+		"type": "blockage",
+		"asset": "viaduct",
+		"name": "Schietbaan",
+		"description": "Afsluiten Schietbaan tussen rotonde met Mozartweg en rotonde Waldammeweg om te voorkomen dat verkeer de N57 op kan.",
+		"routeSegmentFids": [
+			"38614"
+		],
+		"cost": 1000,
+		"value": 0
+	},
+	{
+		"swecoId": "7",
+		"type": "blockage",
+		"asset": "rotonde",
+		"name": "N665",
+		"description": "Afsluiting dat verkeer via de N665 of de Langeweg verder richting de Westerscheldetunnel kan rijden.",
+		"routeSegmentFids": [
+			"31702",
+			"31703",
+			"38982"
+		],
+		"cost": 1000,
+		"value": 0
+	},
+	{
+		"swecoId": "8",
+		"type": "blockage",
+		"asset": "",
+		"name": "N62",
+		"description": "Afsluiten N62 zodat verkeer vanuit Goes niet richting de Westerscheldetunnel kan en vice versa dat verkeer vanaf de N254 niet via de N62 richting de A58 rijdt.",
+		"routeSegmentFids": [
+			"18055",
+			"18053",
+			"18531",
+			"18056"
+		],
+		"cost": 1000,
+		"value": 0
+	},
+	{
+		"swecoId": "19a",
 		"type": "height",
 		"asset": "snelweg",
 		"name": "N57 - Nabij Burgh-Haamstede",
 		"description": "Ophoging van het deel van de weg dat overstroomt, met minimaal 1.2 meter.",
 		"routeSegmentFids": [
-			"11795",
-			"11804",
-			"12478"
+			"83224", "76088", "83239", "83240", "76087",
+			"76089", "76092", "76093", "83234", "83235",
+			"83236", "83237", "83683", "83684", "83686",
+			"83696", "83697", "83698", "83699", "83700"
+		],
+		"cost": 1000,
+		"value": 1.2
+	},
+	{
+		"swecoId": "19b",
+		"type": "height",
+		"asset": "snelweg",
+		"name": "Kraaijensteinweg - Nabij Burgh-Haamstede",
+		"description": "Ophoging van het deel van de weg dat overstroomt, met minimaal 0,6 meter.",
+		"routeSegmentFids": [
+			"76227", "76228", "76233", "76261", "83344",
+			"83283", "83284", "83674", "83676", "83677",
+			"83678", "83680", "83681", "83682", "83683",
+			"83685", "83686", "83687", "83688", "83689",
+			"83691", "83692", "83693", "83699", "83700",
+			"83701", "83702", "83703", "83709", "83712",
+			"83716", "83718", "76173", "76178", "76171",
+			"76121", "76122", "76123", "76124", "76125",
+			"76126", "76127", "76129", "76136", "76138",
+			"76139", "76172", "76174", "76175", "76176",
+			"76177", "76179", "76180", "83317", "83324",
+			"83738", "83739", "83740"
+		],
+		"routeSegmentWvkIds": [
+			"79222006", "79222009", "600495962", "600992362", "600707146", "80222005",
+			"79222010", "601246040", "600615924", "600460761", "600707147", "600460733",
+			"600524744", "80222006", "600460762", "600460755", "601158267", "600460739",
+			"601247138", "600460753", "600460754", "600460752", "600460749", "601158269",
+			"601158268", "600460748", "601158266", "600707213", "600707212", "600671634",
+			"600900096", "600574385", "600582872", "600955659", "600707263"
+		],
+		"cost": 1000,
+		"value": 0.6
+	},
+	{
+		"swecoId": "20",
+		"type": "height",
+		"asset": "snelweg",
+		"name": "N256 - Nabij Zierikzee",
+		"description": "Ophoging van het deel van de weg dat overstroomt over een lengte van ongeveer 1 kilometer met minimaal 0.7 tot 1.5 meter.",
+		"routeSegmentFids": [
+			"81153", "81160", "82502", "80678", "81129",
+			"81130", "81131", "81132", "81133", "81136",
+			"81146", "81147", "81149", "81150", "81157",
+			"81158", "82532", "82533", "82534", "82535",
+			"82538", "82539", "82540", "82541", "82500",
+			"80674", "82501"
+		],
+		"routeSegmentWvkIds": [
+			"600576466", "107211008", "600709303", "601246147", "600683861",
+			"600101312", "109214008", "109214007", "109214049", "600890324",
+			"600890323", "600101314", "109214051", "600684424", "600890322",
+			"600890321", "600618549", "600684027", "600586115", "600173726",
+			"600173729", "600173727", "600173728"
+		],
+		"cost": 1000,
+		"value": 1.5
+	},
+	{
+		"swecoId": "21a",
+		"type": "height",
+		"asset": "snelweg",
+		"name": "N256 - Noord-Beveland, ten noorden van de Zandkreeksluis",
+		"description": "Ophoging van het deel van de weg dat overstroomt over een lengte van ongeveer 800 meter met minimaal 1 tot 1.3 meter.",
+		"routeSegmentFids": [
+			"37250",
+			"37252",
+			"37253",
+			"37254",
+			"37523",
+			"37524"
+		],
+		"routeSegmentWvkIds":  [
+			"600993642",
+			"601246429",
+			"98194007",
+			"97195007",
+			"97195005"
+		],
+		"cost": 1000,
+		"value": 1.2
+	},
+	{
+		"swecoId": "22",
+		"type": "height",
+		"asset": "snelweg",
+		"name": "N62 - Ten noorden van Westerscheldetunnel",
+		"description": "Ophoging van het deel van de weg dat overstroomt, variërend met 1 tot 2 meter. Of het aanpassen naar een waterkerende functie en verlengen van de verhoging aan beide kanten van de weg.",
+		"routeSegmentFids": [
+			"17769", "17766", "20970", "20969", "20968",
+			"17770", "17597", "20992", "20993", "20847",
+			"20855", "20846", "20843", "20854", "20841",
+			"20842", "20853", "20856", "20857", "18127",
+			"18119", "18116", "18125", "18466", "18117",
+			"18115", "17768", "18128", "17595", "18209",
+			"18210", "17682", "18218", "18220", "18491",
+			"18490", "18489", "18479", "18488", "18206",
+			"18485", "18204", "18487", "18486", "17997",
+			"17994", "17996", "18492", "17995", "17998",
+			"17999", "18480", "18001", "18000", "18494",
+			"18482", "18483", "18003", "18007", "18004",
+			"18005", "18002", "18006", "18009", "18013",
+			"18011", "18017", "18019", "18497", "18495",
+			"18021", "18015", "18018", "18014", "18016",
+			"18012", "18008", "18010", "18484", "18503",
+			"18502", "18500", "18498", "18501", "18499",
+			"18022", "18496", "18020", "18504", "17713",
+			"18212", "17693", "17675", "17683", "17678",
+			"17680", "17681"
+		],
+		"cost": 1000,
+		"value": 1.2
+	},
+	{
+		"swecoId": "23",
+		"type": "height",
+		"asset": "snelweg",
+		"name": "N57 - Ten noordwesten van Middelburg",
+		"description": "Ophoging van de weg. Over een lengte van ongeveer 4,8 kilometer overstroomt de weg, met overstromingsdieptes variërend tussen 0,1 en 2,5 meter.",
+		"routeSegmentFids": [
+			"12063", "12067", "12525", "12529", "11805",
+			"11804", "11682", "11689", "11687", "11686",
+			"12476", "12475", "12470", "12467", "12485",
+			"12486", "12484", "12469", "12464", "12465",
+			"12463", "12466", "12479", "12487", "12468",
+			"12488", "12478", "12477", "11803", "11795",
+			"12062", "12056", "12017", "11996"
+		],
+		"cost": 1000,
+		"value": 1.2
+	},
+	{
+		"swecoId": "24",
+		"type": "height",
+		"asset": "snelweg",
+		"name": "N287/N288 - “Ringweg van Walcheren”",
+		"description": "Beperkte overstroomde delen oplossen door ophoging van de weg.",
+		"routeSegmentFids": [
+			"41308", "41317", "41310", "41298", "41302",
+			"3245",  "3257",  "3248",  "3270",  "3199",
+			"3269",  "3266",  "3195",  "3193",  "41305"
 		],
 		"cost": 1000,
 		"value": 1.2

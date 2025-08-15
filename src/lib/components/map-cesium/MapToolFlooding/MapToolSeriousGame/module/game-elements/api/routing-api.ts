@@ -24,6 +24,7 @@ export interface RouteFeature {
 		sourceIndex: number;
 		target: string | number;
 		targetIndex: number;
+		wvk_ids: Array<number>;
 	};
 	bbox: [number, number, number, number];
 }
