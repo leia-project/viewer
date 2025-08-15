@@ -45,7 +45,7 @@ The source file is a .gpkg with the road network in Zeeland, including the prope
 
 ## Load data into database
 
-In the command promopt, cd to the folder with the .gpkg file. Then use ogr2ogr to load the .gpkg into the database. The source data is in EPSG:28992, so it is important to explicitly reproject to EPSG:4326.
+In the command prompt, cd to the folder with the .gpkg file. Then use ogr2ogr to load the .gpkg into the database. The source data is in EPSG:28992, so it is important to explicitly reproject to EPSG:4326.
 
 ```
 ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=postgres user=postgres password=password" 10_netwerk_met_evacuatieroutes_Definitief.gpkg -nln datacore.zeeland_road_network -nlt PROMOTE_TO_MULTI -lco GEOMETRY_NAME=geom -lco FID=fid -t_srs EPSG:4326 -overwrite
@@ -80,11 +80,29 @@ UPDATE zeeland.road_network
 		WHERE oneway_auto = 'T';
 ```
 
-Finally create an index on the geom column:
+Create an index on the geom column:
 
 ```
 CREATE INDEX zeeland_road_network_geom_idx ON zeeland.road_network USING GIST (geom);
 ```
+
+IMPORTANT!
+The routing network is not based on WVK IDs. In order to determine which segments are flooded, these WVK IDs need be joined on the zeeland.road_network table in a separate wvk_ids column. For a fast query based on a minimum distance in meters, a geom column in RD coordinates (28992) can be used to then join with ST_DWithin:
+
+```
+UPDATE datacore.zeeland_road_network AS a
+SET wvk_ids = b_array.wvk_ids
+FROM (
+    SELECT a.fid AS a_fid, array_agg(b.wvk_id) AS wvk_ids
+    FROM datacore.zeeland_road_network AS a
+    JOIN datacore.zeeland_road_network_nwb AS b
+      ON ST_DWithin(a.geom_rd, b.geom_rd, 2) -- distance in meters, using RD
+    GROUP BY a.fid
+) AS b_array
+WHERE a.fid = b_array.a_fid;
+```
+
+For doing the above, I used the nwb_seg_inundatie_getij_average.gpkg file from Sweco to get NWB roads into the database (datacore.zeeland_road_network_nwb) via ogr2ogr (similar to 10_netwerk_met_evacuatieroutes_Definitief.gpkg).
 
 ### Not needed: pgr_createTopology
 
