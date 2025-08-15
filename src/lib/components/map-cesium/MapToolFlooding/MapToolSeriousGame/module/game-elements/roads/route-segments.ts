@@ -46,6 +46,10 @@ export class RoadNetworkLayer {
 		return this.segments.find((segment) => segment.id === id);
 	}
 
+	public getItemByWvkId(id: string): RouteSegment | undefined {
+		return this.segments.find((segment) => segment.feature.properties.wvk_ids?.includes(parseInt(id)));
+	}
+
 	public updatePrimitive(): void {
 		if (this.extractionPointPrimitive) {
 			this.map.viewer.scene.primitives.remove(this.extractionPointPrimitive);
@@ -152,6 +156,7 @@ export interface IEdgeFeature {
 		cost: number;
 		source: string | number;
 		target: string | number;
+		wvk_ids: Array<number> | null;
 	};
 }
 

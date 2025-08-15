@@ -117,9 +117,9 @@ export class RoadNetwork {
 
 	public async cleanSetRoutingGraph(time: number): Promise<void> {
 		const floodedRoadFeatures = this.floodLayerController.floodedRoadsLayer.source.OgcFeaturesLoaderCesium.features || [];
-		const floodedSegments= floodedRoadFeatures.map((f: GeoJSONFeature) => [f.properties.wvk_id, parseFloat(f.properties.flood_depth)] as [string, number]) || [];
+		const floodedSegments = floodedRoadFeatures.map((f: GeoJSONFeature) => [f.properties.wvk_id, parseFloat(f.properties.flood_depth)] as [string, number]) || [];
 		const floodedSegmentsWithMeasures = floodedSegments.filter(([id, floodHeight]) => {
-			const segment = this.roadNetworkLayer.getItemById(id);
+			const segment = this.roadNetworkLayer.getItemByWvkId(id);
 			if (segment) {
 				floodHeight -= segment?.raisedBy;
 			}
