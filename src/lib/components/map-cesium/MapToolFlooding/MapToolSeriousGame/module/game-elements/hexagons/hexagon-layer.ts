@@ -103,6 +103,7 @@ export class HexagonLayer {
 		const hexagons = await this.pgRestAPI.getCBSHexagons(this.outline, 7);
 		hexagons.forEach((hex: CBSHexagon) => {
 			const newHex = new Hexagon(hex.hex, hex.population, this.selectedHexagon);
+			newHex.onAlphaUpdate(get(this.alpha));
 			this.hexagons.push(newHex);
 			this.hexagonMap.set(hex.hex, newHex);
 		});
@@ -176,7 +177,7 @@ export class HexagonLayer {
 	private addHexagonEntities(): void {
 		for (let i = 0; i < this.hexagons.length; i++) {
 			this.hexagonEntities.entities.add(this.hexagons[i].entityInstance);
-			this.hexagonEntities.entities.add(this.hexagons[i].entityInstanceOutline);
+			this.hexagonEntities.entities.add(this.hexagons[i].highlightEntityInstance);
 		}
 		this.map.viewer.dataSources.add(this.hexagonEntities);
 	}
@@ -185,7 +186,7 @@ export class HexagonLayer {
 		let pickedHexagon: Hexagon | undefined;
 		if (picked?.primitive instanceof Cesium.Primitive && picked?.id) {
 			pickedHexagon = this.hexagons.find((hex: Hexagon) => hex.hex === picked.id);
-		} else if (typeof picked?.id === "string") {
+		} else if (picked?.primitive instanceof Cesium.GroundPrimitive && picked?.id?.id?.startsWith("hexagon-")) {
 			pickedHexagon = this.getHexagonFromMouseLocation(m);
 		}
 		return pickedHexagon;

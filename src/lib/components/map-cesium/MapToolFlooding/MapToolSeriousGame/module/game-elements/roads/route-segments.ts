@@ -261,7 +261,7 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 		this.map = map;
 		this.lineInstance = new RouteSegmentLineInstance(this.feature.properties.fid, this.feature.geometry.coordinates);
 		if (isExtractionPoint) {
-			this.extractionPoint = new ExtractionPoint(this.feature.properties.fid.toString(), this.position);
+			this.extractionPoint = new ExtractionPoint(this.map, this.feature.properties.fid.toString(), this.position, this.capacity);
 		}
 		elapsedTime.subscribe((t) => this.updateLoad());
 	}
@@ -336,6 +336,7 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 				this.map.refresh();
 			}
 		});
+		this.extractionPoint?.updateArrow(newCapacity);
 	}
 
 	public highlight(b: boolean): void {
@@ -424,13 +425,17 @@ class ExtractionPoint {
 	private geometryID: string;
 	private position: Cesium.Cartesian3;
 	public geometryInstances: Array<Cesium.GeometryInstance>;
+	private selectArrow3D: [head: Cesium.Entity, shaft: Cesium.Entity];
 
+	private map: CesiumMap;
 	public parentPrimitive?: Cesium.Primitive;
 
-	constructor(routeSegmentID: string, position: Cesium.Cartesian3) {
+	constructor(map: CesiumMap, routeSegmentID: string, position: Cesium.Cartesian3, capacity: number) {
+		this.map = map;
 		this.geometryID = `extraction-${routeSegmentID}`;
 		this.position = position;
 		this.geometryInstances = this.createGeometryInstances();
+		this.selectArrow3D = this.createSelectArrow3D(capacity);
 	}
 
 	private createGeometryInstances(): Array<Cesium.GeometryInstance> {
@@ -517,6 +522,64 @@ class ExtractionPoint {
 				attributesTop.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.GREEN.withAlpha(0.5), attributesTop.color);
 			}
 		}
+		if (b && !this.map.viewer.entities.contains(this.selectArrow3D[0])) this.map.viewer.entities.add(this.selectArrow3D[0]);
+		if (b && !this.map.viewer.entities.contains(this.selectArrow3D[1])) this.map.viewer.entities.add(this.selectArrow3D[1]);
+		this.selectArrow3D[0].show = b;
+		this.selectArrow3D[1].show = b;
+	}
+
+	public updateArrow(newCapacity: number): void {
+		if (this.map.viewer.entities.contains(this.selectArrow3D[0])) this.map.viewer.entities.remove(this.selectArrow3D[0]);
+		if (this.map.viewer.entities.contains(this.selectArrow3D[1])) this.map.viewer.entities.remove(this.selectArrow3D[1]);
+		this.selectArrow3D = this.createSelectArrow3D(newCapacity);
+	}
+
+	private createSelectArrow3D(base: number): [head: Cesium.Entity, shaft: Cesium.Entity] {
+		const shaftHeight = 1400;
+		const shaftRadius = 200;
+		const headHeight = 500;
+		const headRadius = 400;
+
+		const transform = Cesium.Transforms.eastNorthUpToFixedFrame(this.position);
+		const verticalOffset = (upMeters: number) => {
+			return Cesium.Matrix4.multiplyByPoint(
+				transform,
+				new Cesium.Cartesian3(0, 0, base + upMeters + 250),
+				new Cesium.Cartesian3()
+			);
+		};
+
+		const orientation = Cesium.Transforms.headingPitchRollQuaternion(
+			this.position,
+			new Cesium.HeadingPitchRoll(0, Math.PI, 0)
+		);
+
+		const head = new Cesium.Entity({
+			cylinder: {
+				length: headHeight,
+				topRadius: 0,
+				bottomRadius: headRadius,
+				material: Cesium.Color.DODGERBLUE.withAlpha(1)
+			},
+			position: verticalOffset(headHeight / 2),
+			orientation: orientation,
+			show: false
+		});
+		const shaft = new Cesium.Entity({
+			cylinder: {
+				length: shaftHeight,
+				topRadius: shaftRadius,
+				bottomRadius: shaftRadius,
+				material: Cesium.Color.DODGERBLUE.withAlpha(1)
+			},
+			position: verticalOffset(headHeight + shaftHeight / 2),
+			orientation: orientation,
+			show: false
+		});
+		this.map.viewer.entities.add(head);
+		this.map.viewer.entities.add(shaft);
+
+		return [head, shaft];
 	}
 
 }

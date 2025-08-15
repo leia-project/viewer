@@ -64,7 +64,7 @@
 		display:{display}; 
 		opacity: {opacity}%; transition: opacity 0.5s; 
 		z-index: {type === 'selected' ? 2 : 1}; 
-		pointer-events: ${type === 'selected' ? 'auto' : 'none'}
+		pointer-events: {type === 'selected' ? 'auto' : 'none'}
 	"
 	on:mouseenter={(e) => { if (type === "hover") onMouseEnter(e) }}
 	on:mouseleave={() => { if (type === "hover") opacity = 0; }}

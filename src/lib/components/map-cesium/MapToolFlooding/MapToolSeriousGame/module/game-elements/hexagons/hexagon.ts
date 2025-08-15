@@ -24,7 +24,7 @@ export class Hexagon {
 	public geometryInstances: Array<Cesium.GeometryInstance>;
 	public parentPrimitive: Cesium.Primitive | undefined;
 	public entityInstance: Cesium.Entity;
-	public entityInstanceOutline: Cesium.Entity;
+	public highlightEntityInstance: Cesium.Entity;
 	
 	public colorScale = [
 		"#1a9850", // dark green
@@ -70,7 +70,7 @@ export class Hexagon {
 		this.selectedHexagon = selectedHexagon;
 		this.geometryInstances = this.createGeometryInstances(hex);
 		this.entityInstance = this.createEntityInstance(hex);
-		this.entityInstanceOutline = this.createEntityInstanceOutline(hex);
+		this.highlightEntityInstance = this.createEntityInstance(hex, "-highlight", false);
 		this.updateEntityColor();
 
 		this.selectedHexagon.subscribe((selected: Hexagon | undefined) => {
@@ -80,6 +80,7 @@ export class Hexagon {
 		this.floodDepth.subscribe((depth: number) => {
 			this.setColor(depth);
 			this.updateStatus();
+			this.updateEntityColor();
 		});
 
 		this.totalEvacuated.subscribe((evacuated: number) => {
@@ -194,40 +195,28 @@ export class Hexagon {
 		}
 	}
 
-	private createEntityInstance(cell: string): Cesium.Entity {
-		const boundary = this.getHexVertices(cell)
+	private createEntityInstance(cell: string, suffix?: string, show: boolean = true): Cesium.Entity {
+		const boundary = this.getHexVerticesInset(cell, 20)
 		const positions = Cesium.Cartesian3.fromDegreesArray(boundary.flat());
 		const entity = new Cesium.Entity({
-			id: `hexagon-${cell}`,
+			id: `hexagon-${cell}${suffix}`,
 			polygon: {
 				hierarchy: positions, 
 				fill: true,
 				heightReference: Cesium.HeightReference.NONE,
 				zIndex: 1
 			},
+			show: show
 		});
 		return entity;
 	}
 
-	private createEntityInstanceOutline(cell: string): Cesium.Entity {
-		const boundary = this.getHexVertices(cell)
-		const positions = Cesium.Cartesian3.fromDegreesArray(boundary.flat());
-		const polyline = new Cesium.Entity({
-			id: `hexagon-outline-${cell}`,
-			polyline: {
-				positions: positions,
-				width: 1,
-				material: Cesium.Color.GAINSBORO,
-				clampToGround: true,
-				zIndex: 2
-			}
-		});
-		return polyline;
-	}
-	
 	private updateEntityColor(): void {
 		if (this.entityInstance.polygon) {
 			this.entityInstance.polygon.material = new Cesium.ColorMaterialProperty(this.color.withAlpha(this.alpha));
+		}
+		if (this.highlightEntityInstance.polygon) {
+			this.highlightEntityInstance.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.LIGHTPINK.withAlpha(this.alpha));
 		}
 	}
 
@@ -301,9 +290,9 @@ export class Hexagon {
 		const color = event === "hover" ? Cesium.Color.LIGHTPINK : Cesium.Color.HOTPINK;
 		const attributes = this.parentPrimitive?.getGeometryInstanceAttributes(this.hex);
 		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(color, attributes.color); // this.valueToColor(this.population);
-		if (this.entityInstance.polygon) {
-			this.entityInstance.polygon.material = new Cesium.ColorMaterialProperty(color.withAlpha(this.alpha));
-		}
+
+		this.entityInstance.show = false;
+		this.highlightEntityInstance.show = true;
 	}
 
 	public unhighlight(event: "click" | "hover"): void {
@@ -311,7 +300,9 @@ export class Hexagon {
 		if (!this.parentPrimitive?.ready) return;
 		const attributes = this.parentPrimitive?.getGeometryInstanceAttributes(this.hex);
 		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(this.color, attributes.color);
-		this.updateEntityColor();
+
+		this.entityInstance.show = true;
+		this.highlightEntityInstance.show = false;
 	}
 
 	public onAlphaUpdate(alpha: number): void {
