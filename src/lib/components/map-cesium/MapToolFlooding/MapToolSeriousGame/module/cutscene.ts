@@ -19,6 +19,10 @@ type ChinookDataCartesian = {
 
 
 export class Cutscene {
+    private chinooksDurationSeconds = 108;
+    private cameraSpeed = 240;
+
+
     private cameraDataCartesian: CameraDataCartesian = {
         positions: [],
         rotations: []
@@ -42,8 +46,7 @@ export class Cutscene {
 
     private convertPositionsToCartesian3(cameraData: CameraData, chinookPositions: ChinookPositions): void {
         const startTime = JulianDate.now();
-        let currentTime = JulianDate.clone(startTime);
-        const cameraSpeed = 240; 
+        let currentTime = JulianDate.clone(startTime); 
         let previousPosition: Cartesian3 = Cartesian3.ONE;
 
         for (let i = 0; i < cameraData.length; i++) {
@@ -58,7 +61,7 @@ export class Cutscene {
             let intervalInSeconds = 0;
             if (i != 0) {
                 const distanceBetweenPoints = Cartesian3.distance(previousPosition, position);
-                intervalInSeconds = distanceBetweenPoints / cameraSpeed;
+                intervalInSeconds = distanceBetweenPoints / this.cameraSpeed;
                 currentTime = JulianDate.addSeconds(currentTime, intervalInSeconds, new JulianDate());
             }
             
@@ -105,7 +108,7 @@ export class Cutscene {
 
     private loadChinookInstances(): void {
         const startTime = JulianDate.now();
-        const durationSeconds = 81;
+        
 
         for (let i = 0; i < this.chinookDataCartesian.length; i++) {
             const chinook = this.chinookDataCartesian[i];
@@ -114,7 +117,7 @@ export class Cutscene {
             const position = new SampledPositionProperty();
 
             // Compute end time
-            const endTime = JulianDate.addSeconds(startTime, durationSeconds, new JulianDate());
+            const endTime = JulianDate.addSeconds(startTime, this.chinooksDurationSeconds, new JulianDate());
 
             // Add positions to the SampledPositionProperty
             position.addSample(startTime, chinook.startPosition);
@@ -142,7 +145,7 @@ export class Cutscene {
 
         const clock = this.map.viewer.clock;
         clock.startTime = startTime.clone();
-        clock.stopTime = JulianDate.addSeconds(startTime, durationSeconds * 10, new JulianDate());
+        clock.stopTime = JulianDate.addSeconds(startTime, this.chinooksDurationSeconds, new JulianDate());
         clock.currentTime = startTime.clone();
         clock.clockRange = Cesium.ClockRange.CLAMPED; // stop at the end
         clock.multiplier = 1.0; // real-time speed

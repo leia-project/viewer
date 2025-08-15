@@ -307,11 +307,11 @@ export class Game {
 
 		let chinookData: ChinookPositions = [
 			{
-				startLon: 3.44616, 
-				startLat: 51.291575, 
+				startLon: 3.54616, 
+				startLat: 51.40575, 
 				startHeight: 750, 
-				endLon: 3.554, 
-				endLat: 51.55507, 
+				endLon: 3.654, 
+				endLat: 51.70507, 
 				endHeight: 750
 			},
 			{
