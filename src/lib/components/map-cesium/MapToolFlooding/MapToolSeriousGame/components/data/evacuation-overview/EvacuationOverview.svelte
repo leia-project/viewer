@@ -17,10 +17,9 @@
 	let evacuations: Readable<Array<Evacuation>>;
 	$: if ($hexagonsLoaded) {
 		evacuations = game.evacuationController.evacuations;
-	}
+	} 
 
-	const currentStep = game.currentStep;
-	let selectedStep = game.currentStep;
+	const elapsedHours = game.elapsedTimeSinceBreach;
 
 	function showAllEvacuationsAggregated(): void {
 		$evacuations.forEach((evacuation) => {
@@ -74,11 +73,11 @@
 				hasTooltip={false}
 				borderHighlight={true}
 				active={$evacuations.length > 0}
-				buttonText={$currentStep.title}
+				buttonText={`Hour ${$elapsedHours}`}
 				on:click={showAllEvacuationsAggregated}
 			/>
 		{:else}
-			<span>{$currentStep.title}</span>
+			<span>{`Hour ${$elapsedHours}`}</span>
 		{/if}
 	</div>
 </div>

@@ -2,6 +2,7 @@
 	import { FaceDizzyFilled, FaceWinkFilled } from "carbon-icons-svelte";
 	import type { Game } from "../module/game";
 	import Pill from "./general/Pill.svelte";
+	import { slide } from "svelte/transition";
 
 	export let game: Game;
 
@@ -12,7 +13,7 @@
 </script>
 
 
-<div class="game-stats">
+<div class="game-stats" transition:slide={{ duration: 1000, axis: "y" }}>
 	{#if evacuatedCount !== undefined && victimCount !== undefined}
 		<Pill
 			icon={FaceDizzyFilled}

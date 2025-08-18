@@ -1,9 +1,9 @@
+import { _ } from "svelte-i18n";
 import { derived, get, writable, type Readable, type Writable } from "svelte/store";
 import { v4 as uuidv4 } from '@lukeed/uuid';
 import { FloodLayerController, type Breach, type FloodToolSettings } from "../../layer-controller";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { NotificationLog } from "./notification-log";
-import { CameraLocation } from "$lib/components/map-core/camera-location";
 import { EvacuationController } from "./game-elements/evacuation-controller";
 import type { IGameConfig, ISavedGame } from "./models";
 import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
@@ -12,46 +12,10 @@ import { Cutscene, type CameraData, type ChinookPositions } from "./cutscene";
 import { BackgroundMusic } from "./background-music";
 
 
-interface IGameStats {
-	victims: number;
-	evacuated: number;
-}
-
-interface IGameStep {
-	time: number;
-	title: string;
-	cameraPosition: CameraLocation;
-}
-
-const steps: Array<IGameStep> = [
-	{
-		time: 0,
-		title: "Introduction",
-		cameraPosition: new CameraLocation(4.45092, 49.07338, 174273.52797, 6.35918, -28.59832, 1.5)
-	},
-	{
-		time: 4,
-		title: "Hour 3",
-		cameraPosition: new CameraLocation(4.45092, 49.07338, 174273.52797, 6.35918, -28.59832, 1.5)
-	},
-	{
-		time: 6,
-		title: "Hour 6",
-		cameraPosition: new CameraLocation(4.45092, 49.07338, 174273.52797, 6.35918, -28.59832, 1.5)
-	},
-	{
-		time: 8,
-		title: "Hour 8",
-		cameraPosition: new CameraLocation(4.45092, 49.07338, 174273.52797, 6.35918, -28.59832, 1.5)
-	},
-	{
-		time: 12,
-		title: "Hour 12",
-		cameraPosition: new CameraLocation(4.45092, 49.07338, 174273.52797, 6.35918, -28.59832, 1.5)
-	}
-];
 
 export class Game {
+
+	private static breachStartOffsetInHours: number = 4;
 
 	public map: Map;
 	public marvin?: MarvinApp;
@@ -61,16 +25,27 @@ export class Game {
 	public notificationLog: NotificationLog;
 	public forwarding: Writable<boolean> = writable(false);
 	public startTime: number;
-	public step: Writable<number> = writable(0);
-	public currentStep: Readable<IGameStep> = derived(this.step, ($step) => steps[$step]);
-	public elapsedTime: Writable<number> = writable(0);
+	public elapsedTime: Writable<number> = writable(-1); // Initialize to -1 to indicate not preparation phase
+	public elapsedTimeSinceBreach: Readable<number> = derived(this.elapsedTime, ($t) => $t - Game.breachStartOffsetInHours);
+	public inPreparationPhase: Readable<boolean> = derived(this.elapsedTime, ($t) => $t < 0);
+	public timeGaps: Readable<{ before?: number, after?: number }> = derived(this.elapsedTime, ($t) => {
+		const timeSteps = this.gameConfig.timeSteps;
+		const currentIndex = timeSteps.indexOf($t);
+		if (currentIndex === -1) return {};
+		const before = currentIndex > 0 ? timeSteps[currentIndex - 1] : undefined;
+		const after = currentIndex < timeSteps.length - 1 ? timeSteps[currentIndex + 1] : undefined;
+		return { before, after };
+	});
+
 	public elapsedTimeDynamic: Writable<number>;
-	public elapsedTimeFormatted: Readable<string> = derived(this.elapsedTime, ($elapsedTime) => this.getFormattedTime($elapsedTime));
+	public elapsedTimeDynamicSinceBreach: Readable<number>;
+	public elapsedTimeDynamicFormatted: Readable<string>;
 	private interval: NodeJS.Timeout | undefined;
 
 	public floodLayerController: FloodLayerController;
 	public evacuationController: EvacuationController;
 	public loaded: Readable<boolean>;
+	public started: boolean = false;
 
 	constructor(map: Map, gameConfig: IGameConfig, breach: Breach, floodToolSettings: FloodToolSettings, marvin?: MarvinApp, savedGame?: ISavedGame) {
 		this.map = map;
@@ -81,16 +56,23 @@ export class Game {
 		this.breach = breach;
 		this.floodLayerController = new FloodLayerController(map, floodToolSettings, writable(breach), writable(gameConfig.scenario));
 		this.elapsedTimeDynamic = this.floodLayerController.time;
+		this.elapsedTimeDynamicSinceBreach = derived(this.elapsedTimeDynamic, ($t) => $t - Game.breachStartOffsetInHours);
+		this.elapsedTimeDynamicFormatted = derived(this.elapsedTimeDynamicSinceBreach, ($t) => this.getFormattedTime($t));
+
 		this.floodLayerController.loadNewScenario(breach, gameConfig.scenario).then(() => {
 			this.addFloodLayers();
 		});
 		this.evacuationController = new EvacuationController(this, this.floodLayerController);
-		this.step.subscribe((value) => {
-			this.elapsedTime.set(steps[value].time);
-		});
-		this.startTime = new Date(gameConfig.breachTimeDateString).getTime();
+
+		this.startTime = new Date(gameConfig.breachTimeDateString).getTime() - Game.breachStartOffsetInHours * 3600 * 1000;
+		if (!gameConfig.preparationPhase) {
+			this.startBreach();
+		}
 		this.elapsedTimeDynamic.subscribe((t) => {
-			this.map.options.dateTime.set(this.startTime + t * 3600 * 1000);
+			const realTime = get(this.inPreparationPhase) ? 
+				this.getNoonishDutchTime()
+				: this.startTime + t * 3600 * 1000;
+			this.map.options.dateTime.set(realTime);
 		});
 
 		this.loaded = derived(
@@ -132,64 +114,57 @@ export class Game {
 
 	public changeStep(direction: "next" | "previous"): void {
 		this.forwarding.set(true);
-		this.elapsedTimeDynamic.set(get(this.currentStep).time);
-		this.step.update((value) => {
-			if (direction === "next" && value < steps.length - 1) {
-				return value + 1;
-			} else if (direction === "previous" && value > 0) {
-				return value - 1;
+		this.elapsedTimeDynamic.set(get(this.elapsedTime));
+		this.elapsedTime.update((value) => {
+			const currentStepIndex = this.gameConfig.timeSteps.indexOf(value);
+			if (direction === "next" && currentStepIndex < this.gameConfig.timeSteps.length - 1) {
+				return this.gameConfig.timeSteps[currentStepIndex + 1];
+			} else if (direction === "previous" && currentStepIndex > 0) {
+				return this.gameConfig.timeSteps[currentStepIndex - 1];
 			}
 			return value;
 		});
 		this.notificationLog.send({
 			title: "Game",
-			message: `Time ${direction === "next" ? "forwarded" : "rewinded"} to ${steps[get(this.step)].title}`,
+			message: `Time ${direction === "next" ? "forwarded" : "rewinded"} to ${get(this.elapsedTimeSinceBreach)} hours since breach.`,
 			type: NotificationType.INFO
 		});
-
-		const newTime = steps[get(this.step)].time;
 
 		if (this.interval) {
 			clearInterval(this.interval);
 		}
 
-		this.interval = setInterval(() => {
-			this.elapsedTimeDynamic.update((value) => {
-				if (direction === "next") {
-					return Math.min(value + 0.1, newTime);
-				} else if (direction === "previous") {
-					return Math.max(value - 0.1, newTime);
-				} else if (value > newTime) {
-					return value - 0.1;
+		const newTime = get(this.elapsedTime);
+		if (newTime !== get(this.elapsedTimeDynamic)) {
+			this.map.flyTo(this.gameConfig.floodView);
+			this.interval = setInterval(() => {
+				this.elapsedTimeDynamic.update((value) => {
+					if (direction === "next") {
+						return Math.min(value + 0.1, newTime);
+					} else if (direction === "previous") {
+						return Math.max(value - 0.1, newTime);
+					} else if (value > newTime) {
+						return value - 0.1;
+					}
+					return value;
+				});
+				if (
+					(direction === "next" && get(this.elapsedTimeDynamic) >= newTime) ||
+					(direction === "previous" && get(this.elapsedTimeDynamic) <= newTime)
+				) {
+					this.forwarding.set(false);
+					this.elapsedTimeDynamic.set(newTime);
+					clearInterval(this.interval);
+					this.interval = undefined;
 				}
-				return value;
-			});
-			if (
-				(direction === "next" && get(this.elapsedTimeDynamic) >= newTime) ||
-				(direction === "previous" && get(this.elapsedTimeDynamic) <= newTime)
-			) {
-				this.forwarding.set(false);
-				this.elapsedTimeDynamic.set(newTime);
-				clearInterval(this.interval);
-				this.interval = undefined;
-			}
-		}, 50);
+			}, 50);
+		}
 
 		this.save();
 	}
 
-	private setStep(step: number): void {
-		if (step < 0 || step >= steps.length) {
-			throw new Error("Invalid step index");
-		}
-		this.step.set(step);
-		this.elapsedTime.set(steps[step].time);
-		this.elapsedTimeDynamic.set(steps[step].time);
-	}
-
 	public flyHome(): void {
-		const cameraPosition = steps[get(this.step)].cameraPosition;
-		this.map.flyTo(cameraPosition);
+		this.map.flyTo(this.gameConfig.homeView);
 	}
 
 	public getFormattedTime(time: number): string {
@@ -203,7 +178,7 @@ export class Game {
 		const gameData: ISavedGame = {
 			uuid: uuidv4(),
 			name: this.gameConfig.name,
-			step: get(this.step),
+			elapsedTime: get(this.elapsedTime),
 			evacuationLog: this.evacuationController.evacuationLog,
 			lastUpdate: Date.now()
 		};
@@ -233,10 +208,61 @@ export class Game {
 			}
 		});
 		this.evacuationController.roadNetwork.cleanSetRoutingGraph(get(this.elapsedTime));
-		this.setStep(savedGame.step);
+		this.setStep(savedGame.elapsedTime);
+	}
+	
+	private setStep(time: number): void {
+		if (time < 0 || time >= this.gameConfig.timeSteps[this.gameConfig.timeSteps.length - 1]) {
+			throw new Error("Invalid step index");
+		}
+		this.elapsedTime.set(time);
+		this.elapsedTimeDynamic.set(time);
 	}
 
-	public startCutscene() {
+	public startBreach(): void {
+		this.setStep(this.gameConfig.timeSteps[0]);
+		this.notificationLog.send({
+			title: "Scenario",
+			message: this.gameConfig.scenarioDescription,
+			type: NotificationType.WARN,
+			duration: 20000
+		});				
+	}
+
+	private getNoonishDutchTime(): number {
+		const d = new Date();
+		d.setUTCHours(12, 0, 0, 0); // 13:00 Dutch time (UTC+2)
+    	return d.getTime();
+	}
+
+	public start(): void {
+		if (!this.started) {
+			this.startCutscene().then(() => {
+				this.flyHome();
+				this.notificationLog.send({
+					title: get(_)("game.welcome"),
+					message: get(_)("game.notification.start"),
+					type: NotificationType.INFO
+				});
+				setTimeout(() => {
+					if (get(this.inPreparationPhase)) {
+						this.notificationLog.send({
+							title: get(_)("game.preprationPhase"),
+							message: get(_)("game.notification.preparation"),
+							type: NotificationType.INFO
+						});
+					}
+				}, 5000);
+				this.started = true;
+			});
+		}
+	}
+
+	public startCutscene(): Promise<void> {
+		return new Promise((resolve) => {
+			resolve();
+		});
+
 		let cameraData: CameraData = [
 			{
 				lon: 3.42941,

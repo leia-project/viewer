@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from "svelte";
+	import { slide } from "svelte/transition";
 	import { Layers, ToolKit, TrafficEvent, WaveHeight } from "carbon-icons-svelte";
 	import type { GameController } from "../../module/game-controller";
 	import EvacuationOverview from "./evacuation-overview/EvacuationOverview.svelte";
@@ -12,6 +13,8 @@
 	export let gameController: GameController;
 
 	const activeGame = gameController.active;
+
+	$: inPrepartionPhase = $activeGame?.inPreparationPhase;
 
 	let selectedMenu: number | undefined;
 
@@ -39,11 +42,11 @@
 				<MenuContent title="Layer Manager" icon={Layers}>
 					<LayerManager {gameController} />
 				</MenuContent>
-			{:else if selectedMenu === 1}
+			{:else if selectedMenu === 1 && !$inPrepartionPhase}
 				<MenuContent title="Flood Model Control" icon={WaveHeight}>
 					<FloodModelControl game={$activeGame} />
 				</MenuContent>
-			{:else if selectedMenu === 2}
+			{:else if selectedMenu === 2 && !$inPrepartionPhase}
 				<MenuContent title="Evacuations" icon={TrafficEvent}>
 					<EvacuationOverview game={$activeGame} />
 				</MenuContent>
@@ -60,18 +63,22 @@
 				active={selectedMenu === 0}
 				on:click={() => selectedMenu = selectedMenu === 0 ? undefined : 0}
 			/>
-			<GameButton
-				icon={WaveHeight}
-				hasTooltip={false}
-				active={selectedMenu === 1}
-				on:click={() => selectedMenu = selectedMenu === 1 ? undefined : 1}
-			/>
-			<GameButton
-				icon={TrafficEvent}
-				hasTooltip={false}
-				active={selectedMenu === 2}
-				on:click={() => selectedMenu = selectedMenu === 2 ? undefined : 2}
-			/>
+			{#if !$inPrepartionPhase}
+				<div class="data-menu-items" transition:slide={{ duration: 800, axis: "y" }}>
+					<GameButton
+						icon={WaveHeight}
+						hasTooltip={false}
+						active={selectedMenu === 1}
+						on:click={() => selectedMenu = selectedMenu === 1 ? undefined : 1}
+					/>
+					<GameButton
+						icon={TrafficEvent}
+						hasTooltip={false}
+						active={selectedMenu === 2}
+						on:click={() => selectedMenu = selectedMenu === 2 ? undefined : 2}
+					/>
+				</div>
+			{/if}
 			<GameButton
 				icon={ToolKit}
 				hasTooltip={false}

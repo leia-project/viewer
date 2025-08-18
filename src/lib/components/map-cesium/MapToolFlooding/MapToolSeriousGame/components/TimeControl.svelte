@@ -6,59 +6,92 @@
 
 	export let game: Game;
 
-	const elapsedTimeDynamic = game.elapsedTimeDynamic;
+	const inPreparationPhase = game.inPreparationPhase;
+	const elapsedTimeFormatted = game.elapsedTimeDynamicFormatted;
+	const timeGaps = game.timeGaps;
 
-	$: currentTime = new Date(game.startTime + $elapsedTimeDynamic * 3600000).toLocaleTimeString("nl", {
+	const currentTime = game.map.options.dateTime;
+	$: currentTimeFormatted = new Date($currentTime).toLocaleTimeString("nl", {
 		day: "numeric",
 		month: "short",
 		hour: "2-digit",
 		minute: "2-digit"
 	});
-	$: elapsedTimeFormatted = (() => {
-		const totalMinutes = Math.floor($elapsedTimeDynamic * 60);
-		const hours = Math.floor(totalMinutes / 60);
-		const minutes = totalMinutes % 60;
-		return `${hours}:${minutes.toString().padStart(2, "0")}`;
-	})();
 
 </script>
 
 
-<div class="time-control">
-	<GameButton
-		icon={SkipBackSolidFilled}
-		hasTooltip={true}
-		size={18}
-		borderHighlight={true}
-		on:click={() => game.changeStep("previous")}
-	>
-		<svelte:fragment slot="popover">Terugspoelen (xx minuten)</svelte:fragment>
-	</GameButton>
-	<Pill 
-		icon={TimeFilled}
-		label="Time"
-		bind:value={currentTime}
-	/>
-	<Pill 
-		icon={Timer}
-		label="Since Breach"
-		value={elapsedTimeFormatted}
-		unit={"hours"}
-	/>
-	<GameButton
-		icon={SkipForwardSolidFilled}
-		hasTooltip={true}
-		size={18}
-		borderHighlight={true}
-		on:click={() => game.changeStep("next")}
-	>
-		<svelte:fragment slot="popover">Ga verder (xx minuten)</svelte:fragment>
-	</GameButton>
-</div>
+{#if $inPreparationPhase}
+	<div class="prep-phase">
+		<div class="prep-phase-title">Preparation Phase</div>
+		<GameButton
+			icon={SkipForwardSolidFilled}
+			hasTooltip={false}
+			size={18}
+			borderHighlight={true}
+			buttonText="Let the hell break lose"
+			on:click={() => game.startBreach()}
+		/>
+	</div>
+{:else}
+	<div class="time-control">
+		<div class="button-container" style="justify-content: flex-end;" >
+			{#if $timeGaps.before}
+				<GameButton
+					icon={SkipBackSolidFilled}
+					hasTooltip={true}
+					size={18}
+					borderHighlight={true}
+					on:click={() => game.changeStep("previous")}
+				>
+					<svelte:fragment slot="popover">Terugspoelen ({$timeGaps.after} uur)</svelte:fragment>
+				</GameButton>
+			{/if}
+		</div>
+		<Pill 
+			icon={TimeFilled}
+			label="Time"
+			bind:value={currentTimeFormatted}
+		/>
+		<Pill 
+			icon={Timer}
+			label="Since Breach"
+			value={$elapsedTimeFormatted}
+			unit={"hours"}
+		/>
+		<div class="button-container" style="justify-content: flex-start;" >
+			{#if $timeGaps.after}
+				<GameButton
+					icon={SkipForwardSolidFilled}
+					hasTooltip={true}
+					size={18}
+					borderHighlight={true}
+					on:click={() => game.changeStep("next")}
+				>
+					<svelte:fragment slot="popover">Ga verder ({$timeGaps.after} uur)</svelte:fragment>
+				</GameButton>
+			{/if}
+		</div>
+	</div>
+{/if}
 
 
 <style>
-	
+
+	.prep-phase {
+		display: flex;
+		align-items: center;
+		column-gap: 2rem;
+	}
+
+	.prep-phase-title {
+		color: var(--game-color-highlight);
+		font-weight: 600;
+		font-size: 1.2rem;
+		text-align: center;
+		margin: 1rem 0;
+	}
+
    .time-control {
 		text-align: end;
 		display: flex;
@@ -67,5 +100,10 @@
 		height: 100%;
 		column-gap: 0.5rem;
    }
+
+	.button-container {
+		min-width: 100px;
+		display: flex;
+	}
 
 </style>

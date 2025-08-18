@@ -18,6 +18,8 @@
 	const inGame = gameController.inGame;
 	const activeGame = gameController.active;
 
+	$: inPreparationPhase = $activeGame?.inPreparationPhase;
+
 	let showStartMenu = true;
 
 	onMount(() => {
@@ -56,7 +58,9 @@
 				</Notifications>
 			</div>
 			<div id="top-center">
-				<GameStats game={$activeGame} />
+				{#if !$inPreparationPhase}
+					<GameStats game={$activeGame} />
+				{/if}
 			</div>
 			<div id="top-right">
 				<MarvinMenu app={marvinApp} />
