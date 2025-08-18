@@ -192,6 +192,7 @@ export interface IEdgeFeature {
 	};
 	properties: {
 		fid: string;
+		name: string;
 		maximum_snelheid: number;
 		capaciteit: number;
 		cost: number;

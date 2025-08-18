@@ -6,6 +6,15 @@
 			"widen": "Widen",
             "block": "Block",
             "raise": "Raise"
-        }
+        },
+		"status": {
+			"flooded": "Flooded",
+			"evacuated": "Evacuated",
+			"accessible": "Accessible"
+		},
+		"capacity": "Capacity",
+		"load": "Load",
+		"maxSpeed": "Max speed",
+		"cars": "cars"
 	}
 }

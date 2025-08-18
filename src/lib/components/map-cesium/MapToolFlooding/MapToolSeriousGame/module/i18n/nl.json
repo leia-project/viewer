@@ -6,6 +6,15 @@
 			"widen": "Verbreden",
 			"block": "Afsluiten",
 			"raise": "Ophogen"
-		}
+		},
+		"status": {
+			"flooded": "Overstroomd",
+			"evacuated": "Geëvacueerd",
+			"accessible": "Toegankelijk"
+		},
+		"capacity": "Capaciteit",
+		"load": "Belasting",
+		"maxSpeed": "Max. snelheid",
+		"cars": "voertuigen"
 	}
 }

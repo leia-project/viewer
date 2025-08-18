@@ -117,7 +117,7 @@ export class PGRestAPI {
 					)
 				)
 			FROM (
-				SELECT fid, geom, source, target, capaciteit, cost, reverse_cost, wvk_ids
+				SELECT fid, name, geom, source, target, capaciteit, maximum_snelheid, cost, reverse_cost, wvk_ids
 				FROM ${this.schema}.${this.tables.zeeland_road_network}
 				WHERE ST_Intersects(
 					geom,

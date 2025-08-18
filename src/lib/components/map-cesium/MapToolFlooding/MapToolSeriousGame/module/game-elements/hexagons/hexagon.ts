@@ -44,7 +44,7 @@ export class Hexagon {
 		col.alpha = 1;
 		return col;
 	});
-	private color: Cesium.Color = this.cesiumColors[0];
+	public color: Writable<Cesium.Color> = writable(this.cesiumColors[0]);
 	private alpha: number = 1;
 
 	public evacuations: Writable<Array<Evacuation>> = writable([]);
@@ -78,18 +78,18 @@ export class Hexagon {
 		});
 
 		this.floodDepth.subscribe((depth: number) => {
-			this.setColor(depth);
 			this.updateStatus();
-			this.updateEntityColor();
 		});
 
 		this.totalEvacuated.subscribe((evacuated: number) => {
 			this.updateStatus();
-			//this.centerCartesian3 = Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.getHexagonHeight(this.population - eva) * 0.01);  // 0.01 is exag_1 uniform
 			gsap.to(this, {
 				evacuatedCount: evacuated,
 				duration: 0.7,
-				onUpdate: () => this.updateAttributes()
+				onUpdate: () => this.updateAttributes(),
+				onComplete: () => {
+					this.updateEntityColor();
+				}
 			});
 		});
 	}
@@ -144,7 +144,7 @@ export class Hexagon {
 			modelMatrix: Cesium.Matrix4.IDENTITY,
 			id: cell,
 			attributes: {
-				color: Cesium.ColorGeometryInstanceAttribute.fromColor(this.color),
+				color: Cesium.ColorGeometryInstanceAttribute.fromColor(get(this.color)),
 				offsetBottom: new Cesium.GeometryInstanceAttribute({
 					componentDatatype: Cesium.ComponentDatatype.FLOAT,
 					componentsPerAttribute: 1,
@@ -213,7 +213,7 @@ export class Hexagon {
 
 	private updateEntityColor(): void {
 		if (this.entityInstance.polygon) {
-			this.entityInstance.polygon.material = new Cesium.ColorMaterialProperty(this.color.withAlpha(this.alpha));
+			this.entityInstance.polygon.material = new Cesium.ColorMaterialProperty(get(this.color).withAlpha(this.alpha));
 		}
 		if (this.highlightEntityInstance.polygon) {
 			this.highlightEntityInstance.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.LIGHTPINK.withAlpha(this.alpha));
@@ -234,29 +234,19 @@ export class Hexagon {
 		} else {
 			this.status.set("accessible");
 		}
-	}
-
-	public getStatusColor(status: string): string {
-		switch (status) {
-			case "accessible":
-				return "#00BFFF";
-			case "flooded":
-				return "#FF4500";
-			case "evacuated":
-				return "#5EDC1F";
-			default:
-				return "gray";
-		}
+		this.setColor(get(this.floodDepth));
 	}
 
 	private setColor(depth: number): void {
-		const isEvacuated = get(this.totalEvacuated) === this.population;
-		if (isEvacuated) {
-			this.color = Cesium.Color.SKYBLUE;
-			return;
+		let color: string = "white";
+		if (get(this.status) === "evacuated") {
+			color = "gray";
+		} else {
+			const colorIndex = Math.min(Math.floor(depth * 2.5), this.colorScale.length - 1);
+			color = this.colorScale[colorIndex];
 		}
-		const colorIndex = Math.min(Math.floor(depth * 2.5), this.colorScale.length - 1);
-		this.color = Cesium.Color.fromCssColorString(this.colorScale[colorIndex]);
+		const cesiumColor = Cesium.Color.fromCssColorString(color);
+		this.color.set(cesiumColor);
 		if (this !== get(this.selectedHexagon)) this.unhighlight("click");
 	}
 
@@ -299,7 +289,7 @@ export class Hexagon {
 		if (event === "hover" && this === get(this.selectedHexagon)) return;
 		if (!this.parentPrimitive?.ready) return;
 		const attributes = this.parentPrimitive?.getGeometryInstanceAttributes(this.hex);
-		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(this.color, attributes.color);
+		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(get(this.color), attributes.color);
 
 		this.entityInstance.show = true;
 		this.highlightEntityInstance.show = false;

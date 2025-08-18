@@ -20,6 +20,7 @@
 	}
 
 	const currentStep = game.currentStep;
+	let selectedStep = game.currentStep;
 
 	function showAllEvacuationsAggregated(): void {
 		$evacuations.forEach((evacuation) => {
@@ -53,7 +54,7 @@
 		<span class="point-label">To</span>
 		<span>
 			{#if $selectedExtractionPoint}
-				{$selectedExtractionPoint.id}
+				{$selectedExtractionPoint.feature.properties.name}
 			{:else}
 				No extraction point selected
 			{/if}

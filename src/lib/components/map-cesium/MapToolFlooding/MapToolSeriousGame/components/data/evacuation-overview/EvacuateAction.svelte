@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import { InformationFilled, TrafficEvent } from "carbon-icons-svelte";
 	import type { EvacuationController } from "../../../module/game-elements/evacuation-controller";
 	import type { Hexagon } from "../../../module/game-elements/hexagons/hexagon";
@@ -10,27 +11,18 @@
 
 	const selectedExtractionPoint = evacuationController.roadNetwork.selectedExtractionPoint;
 	$: hexagonStatus = hexagon?.status;
+	$: hexagonColor = hexagon?.color;
 
 	$: nodesSelected = $selectedExtractionPoint !== undefined && hexagon !== undefined;
 
 </script>
 
 
-<div>
-	{#if $hexagonStatus === "flooded"}
+<div class="evacuate-action">
+	{#if nodesSelected}
 		<div class="hexagon-status">
-			<span class="status-indicator" style="background-color: {hexagon?.getStatusColor($hexagonStatus)}" />
-			<span class="status-label">Flooded</span>
-		</div>
-	{:else if $hexagonStatus === "evacuated"}
-		<div class="hexagon-status">
-			<span class="status-indicator" style="background-color: {hexagon?.getStatusColor($hexagonStatus)}" />
-			<span class="status-label">Evacuated</span>
-		</div>
-	{:else if $hexagonStatus === "accessible" && !nodesSelected}
-		<div class="hexagon-status">
-			<span class="status-indicator" style="background-color: {hexagon?.getStatusColor($hexagonStatus)}" />
-			<span class="status-label">Accessible</span>
+			<span class="status-indicator" style="background-color: {$hexagonColor?.toCssColorString()}" />
+			<span class="status-label">{$_(`game.status.${$hexagonStatus}`)}</span>
 		</div>
 	{/if}
 	{#if selected && $hexagonStatus === "accessible"}
@@ -57,6 +49,12 @@
 
 
 <style>
+
+	.evacuate-action {
+		display: flex;
+		flex-direction: column;
+		row-gap: 0.35rem;
+	}
 
 	.hexagon-status {
 		display: flex;
