@@ -6,7 +6,6 @@ import { RoutingAPI, type RouteFeature } from "../api/routing-api";
 import NodeHoverBox from "../../../components/infobox/NodeHoverBox.svelte";
 import type { Hexagon } from "../hexagons/hexagon";
 import { RoadNetworkLayer, RouteSegment } from "./route-segments";
-import { PGRestAPI } from "../api/pg-rest-api";
 import { getNetworkPGRest } from "../api/routing/graph";
 import { BlockMeasure, WidenMeasure, RaiseMeasure, Measure, type IMeasureConfig } from "./measure";
 import type { NotificationLog } from "../../notification-log";
@@ -30,16 +29,17 @@ export class RoadNetwork {
 	public measures: Array<Measure> = [];
 	public measureToggled: Writable<boolean> = writable(true);
 
-	private pgRestAPI = new PGRestAPI();
 	private elapsedTime: Writable<number>;
 
 	private selectedNode: Writable<RouteSegment | Measure | undefined> = writable(undefined);
 	private selectBox: NodeHoverBox | undefined;
 	public selectTimeOut: NodeJS.Timeout | undefined;
-	private currentlyHovered: RouteSegment | Measure | undefined = undefined;
+	private currentlySelected: RouteSegment | Measure | undefined = undefined;
+
 	public hoveredNode: Writable<RouteSegment | Measure | undefined> = writable(undefined);
 	private hoverBox: NodeHoverBox | undefined;
 	public hoverTimeOut: NodeJS.Timeout | undefined;
+	private currentlyHovered: RouteSegment | Measure | undefined = undefined;
 
 	public loaded: Writable<boolean> = writable(false);
 
@@ -306,13 +306,14 @@ export class RoadNetwork {
 	}
 
 	private selectSubscribe(s: RouteSegment | Measure | undefined): void {
-		if (this.currentlyHovered && this.currentlyHovered !== s) {
-			this.currentlyHovered.highlight(false);
+		if (this.currentlySelected && this.currentlySelected !== s) {
+			this.currentlySelected.highlight(false);
 		}
 		if (s) {
 			s.highlight(true);
 			this.map.viewer.scene.canvas.style.cursor = "pointer";
 		}
+		this.currentlySelected = s;
 		this.map.refresh();
 	}
 
@@ -323,8 +324,8 @@ export class RoadNetwork {
 		if (h) {
 			h.highlight(true);
 			this.map.viewer.scene.canvas.style.cursor = "pointer";
-			this.currentlyHovered = h;
 		}
+		this.currentlyHovered = h;
 		this.map.refresh();
 	}
 }

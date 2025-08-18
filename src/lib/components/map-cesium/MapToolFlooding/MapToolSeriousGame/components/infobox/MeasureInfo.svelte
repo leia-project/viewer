@@ -7,6 +7,7 @@
 
 	export let measure: Measure;
 	export let notificationLog: NotificationLog;
+	export let type: "hover" | "selected";
 
 	const applied = measure.applied;
 
@@ -26,9 +27,11 @@
 <div class="measure-info">
 	<div class="measure-title">
 		<div>{measure.config.name}</div>
-		<div class="info-button" on:click={sendMeasureInfo}>
-			<InformationFilled size={16} />
-		</div>
+		{#if type === "selected"}
+			<div class="info-button" on:click={sendMeasureInfo}>
+				<InformationFilled size={16} />
+			</div>
+		{/if}
 	</div>
 	<div class="measure-effect">
 		Measure: {measure.config.type}
@@ -42,16 +45,18 @@
 			{/if}
 			<div>{$applied ? "Applied" : "Not applied"}</div>
 		</div>
-		<div class="measure-actions">
-			<GameButton
-				buttonText={$applied ? "Undo" : "Apply"}
-				icon={ToolKit}
-				hasTooltip={false}
-				borderHighlight={false}
-				size={14}
-				on:click={() => applied.set(!$applied)}
-			/>
-		</div>
+		{#if type === "selected"}
+			<div class="measure-actions">
+				<GameButton
+					buttonText={$applied ? "Undo" : "Apply"}
+					icon={ToolKit}
+					hasTooltip={false}
+					borderHighlight={false}
+					size={14}
+					on:click={() => applied.set(!$applied)}
+				/>
+			</div>
+		{/if}
 	</div>
 </div>
 
@@ -83,6 +88,7 @@
 		display: flex;
 		align-items: center;
 		column-gap: 0.5rem;
+		margin-top: 0.5rem;
 	}
 
 	.measure-bottom {

@@ -250,6 +250,7 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 	public extractionPoint: ExtractionPoint | undefined;
 	private isActiveExtractionPoint: boolean = false;
 	private displayedLoad: number = 0;
+	public load: Writable<number> = writable(0);
 
 	public raisedBy: number = 0;
 
@@ -313,17 +314,18 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 			gsap.to(this, {
 				displayedLoad: currentLoad,
 				duration: 2.5,
-				onUpdate: () => {
-					this.lineInstance.update(this.displayedLoad, this.capacity);
-					this.extractionPoint?.updateAttributes(this.displayedLoad, this.capacity);
-					this.map.refresh();
-				}
+				onUpdate: () => this.setLoad(this.displayedLoad)
 			});
 		} else {
-			this.lineInstance.update(currentLoad, this.capacity);
-			this.extractionPoint?.updateAttributes(currentLoad, this.capacity);
-			this.map.refresh();
+			this.setLoad(currentLoad);
 		}
+	}
+
+	private setLoad(newLoad: number): void {
+		this.lineInstance.update(newLoad, this.capacity);
+		this.extractionPoint?.updateAttributes(newLoad, this.capacity);
+		this.load.set(Math.round(newLoad));
+		this.map.refresh();
 	}
 
 	public updateCapacity(newCapacity: number): void {
@@ -511,6 +513,7 @@ class ExtractionPoint {
 	}
 
 	public highlight(b: boolean): void {
+		/* 	
 		if (this.parentPrimitive?.ready) {
 			const attributesBottom = this.parentPrimitive.getGeometryInstanceAttributes(this.geometryID);
 			const attributesTop = this.parentPrimitive.getGeometryInstanceAttributes(this.geometryID + "-top");
@@ -522,6 +525,7 @@ class ExtractionPoint {
 				attributesTop.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.GREEN.withAlpha(0.5), attributesTop.color);
 			}
 		}
+		*/
 		if (b && !this.map.viewer.entities.contains(this.selectArrow3D[0])) this.map.viewer.entities.add(this.selectArrow3D[0]);
 		if (b && !this.map.viewer.entities.contains(this.selectArrow3D[1])) this.map.viewer.entities.add(this.selectArrow3D[1]);
 		this.selectArrow3D[0].show = b;
@@ -537,14 +541,14 @@ class ExtractionPoint {
 	private createSelectArrow3D(base: number): [head: Cesium.Entity, shaft: Cesium.Entity] {
 		const shaftHeight = 1400;
 		const shaftRadius = 200;
-		const headHeight = 500;
-		const headRadius = 400;
+		const headHeight = 600;
+		const headRadius = 500;
 
 		const transform = Cesium.Transforms.eastNorthUpToFixedFrame(this.position);
 		const verticalOffset = (upMeters: number) => {
 			return Cesium.Matrix4.multiplyByPoint(
 				transform,
-				new Cesium.Cartesian3(0, 0, base + upMeters + 250),
+				new Cesium.Cartesian3(0, 0, base + upMeters + 350),
 				new Cesium.Cartesian3()
 			);
 		};

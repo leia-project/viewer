@@ -3,7 +3,7 @@
 		"swecoId": "4",
 		"type": "widen",
 		"asset": "snelweg",
-		"name": "Sloeweg tussen aansluiting Sloehaven en aansluiting N62.",
+		"name": "Sloeweg tussen aansluiting Sloehaven en aansluiting N62",
 		"description": "Verbreden N254 tussen aansluiting Sloehaven en aansluiting N62 naar twee rijstroken per rijrichting.",
 		"routeSegmentFids": [
 			"13900",
@@ -41,7 +41,7 @@
 		"type": "block",
 		"asset": "viaduct",
 		"name": "Schietbaan",
-		"description": "Afsluiten Schietbaan tussen rotonde met Mozartweg en rotonde Waldammeweg om te voorkomen dat verkeer de N57 op kan.",
+		"description": "Afsluiten Schietbaan tussen rotonde met Mozartweg en rotonde Waldammeweg om te voorkomen dat verkeer de N57 op kan",
 		"routeSegmentFids": [
 			"38614"
 		],
@@ -53,7 +53,7 @@
 		"type": "block",
 		"asset": "snelweg",
 		"name": "N665",
-		"description": "Afsluiting dat verkeer via de N665 of de Langeweg verder richting de Westerscheldetunnel kan rijden.",
+		"description": "Afsluiting dat verkeer via de N665 of de Langeweg verder richting de Westerscheldetunnel kan rijden",
 		"routeSegmentFids": [
 			"31702",
 			"31703",
@@ -82,7 +82,7 @@
 		"type": "raise",
 		"asset": "snelweg",
 		"name": "N57 - Nabij Burgh-Haamstede",
-		"description": "Ophoging van het deel van de weg dat overstroomt, met minimaal 1.2 meter.",
+		"description": "Ophoging van het deel van de weg dat overstroomt, met minimaal 1.2 meter",
 		"routeSegmentFids": [
 			"83224", "76088", "83239", "83240", "76087",
 			"76089", "76092", "76093", "83234", "83235",
@@ -97,7 +97,7 @@
 		"type": "raise",
 		"asset": "snelweg",
 		"name": "Kraaijensteinweg - Nabij Burgh-Haamstede",
-		"description": "Ophoging van het deel van de weg dat overstroomt, met minimaal 0,6 meter.",
+		"description": "Ophoging van het deel van de weg dat overstroomt, met minimaal 0,6 meter",
 		"routeSegmentFids": [
 			"76227", "76228", "76233", "76261", "83344",
 			"83283", "83284", "83674", "83676", "83677",
@@ -128,7 +128,7 @@
 		"type": "raise",
 		"asset": "snelweg",
 		"name": "N256 - Nabij Zierikzee",
-		"description": "Ophoging van het deel van de weg dat overstroomt over een lengte van ongeveer 1 kilometer met minimaal 0.7 tot 1.5 meter.",
+		"description": "Ophoging van het deel van de weg dat overstroomt over een lengte van ongeveer 1 kilometer met minimaal 0.7 tot 1.5 meter",
 		"routeSegmentFids": [
 			"81153", "81160", "82502", "80678", "81129",
 			"81130", "81131", "81132", "81133", "81136",

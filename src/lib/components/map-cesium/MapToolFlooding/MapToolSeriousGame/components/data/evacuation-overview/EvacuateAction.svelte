@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { InformationFilled, VehicleApi } from "carbon-icons-svelte";
+	import { InformationFilled, TrafficEvent } from "carbon-icons-svelte";
 	import type { EvacuationController } from "../../../module/game-elements/evacuation-controller";
 	import type { Hexagon } from "../../../module/game-elements/hexagons/hexagon";
 	import GameButton from "../../general/GameButton.svelte";
@@ -36,7 +36,7 @@
 	{#if selected && $hexagonStatus === "accessible"}
 		{#if nodesSelected}
 			<GameButton
-				icon={VehicleApi}
+				icon={TrafficEvent}
 				borderHighlight={true}
 				hasTooltip={false}
 				buttonText="Evacueer"

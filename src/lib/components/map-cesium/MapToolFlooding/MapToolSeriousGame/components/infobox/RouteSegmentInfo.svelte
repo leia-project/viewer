@@ -3,8 +3,7 @@
 
 	export let segment: RouteSegment;
 
-	const elapsedTime = segment.elapsedTime;
-	$: currentLoad = segment.loadPerTimeStep.get($elapsedTime);
+	const load = segment.load;
 
 </script>
 
@@ -12,6 +11,5 @@
 <div>
 	<div>{segment.id}</div>
 	<div>Capacity: {segment.capacity}</div>
-	<div>Load: {currentLoad}</div>
-	<div>List with evacuations</div>
+	<div>Load: {$load}</div>
 </div>

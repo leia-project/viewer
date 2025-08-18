@@ -17,6 +17,12 @@
 	export let type: "hover" | "selected";
 	export let notificationLog: NotificationLog;
 
+	const isExtractionPoint = node instanceof RouteSegment && node.extractionPoint;
+
+	const icon = node instanceof Measure ? ToolKit 
+		: isExtractionPoint ? Road
+		: Road;
+
 </script>
 
 
@@ -26,13 +32,13 @@
 	{timeout}
 	{map}
 	{type}
-	icon={node instanceof RouteSegment ? Road : ToolKit}
+	{icon}
 	{selectStore}
 >
 	{#if node instanceof RouteSegment}
 		<RouteSegmentInfo segment={node} />
 	{:else if node instanceof Measure}
-		<MeasureInfo measure={node} {notificationLog} />
+		<MeasureInfo measure={node} {notificationLog} {type} />
 	{/if}
 </InfoBox>
 
