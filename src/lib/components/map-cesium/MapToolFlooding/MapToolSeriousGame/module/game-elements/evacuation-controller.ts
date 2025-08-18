@@ -57,7 +57,7 @@ export class EvacuationController {
 			})
 			return;
 		}
-		const routeResults = await this.roadNetwork.evacuateHexagon(hexagon, extractionPoint, totalNumberOfPersons);
+		const routeResults = await this.roadNetwork.evacuateHexagon(hexagon, extractionPoint, totalNumberOfPersons, this.game.gameConfig.personsPerCar);
 		if (routeResults === undefined) {
 			   this.game.notificationLog.send({
 					type: NotificationType.ERROR,

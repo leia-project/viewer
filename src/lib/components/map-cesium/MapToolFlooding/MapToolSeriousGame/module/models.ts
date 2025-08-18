@@ -12,6 +12,7 @@ export interface IGameConfig {
 	breachTimeDateString: string;
 	breach: string;
 	scenario: string;
+	personsPerCar: number;
 	outline: Array<[lon: number, lat: number]>;
 	outlineRoadNetwork: Array<[lon: number, lat: number]>;
 }

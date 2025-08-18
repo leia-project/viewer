@@ -20,7 +20,6 @@ export class RoadNetwork {
 	public map: Map;
 	private routingAPI: RoutingAPI;
 	private outline: Array<[lon: number, lat: number]>;
-	private personsPerCar: number = 4;
 	private floodLayerController: FloodLayerController;
 
 	public roadNetworkLayer: RoadNetworkLayer;
@@ -166,7 +165,8 @@ export class RoadNetwork {
 	public async evacuateHexagon(
 		hexagon: Hexagon,
 		extractionPoint: RouteSegment | undefined = get(this.selectedExtractionPoint),
-		numberOfPersons: number = hexagon.population
+		numberOfPersons: number = hexagon.population,
+		personsPerCar: number
 	): Promise<Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, evacuatedCars: number, numberOfPersons: number }> | undefined> {
 		if (!extractionPoint) {
 			return [];
@@ -175,12 +175,12 @@ export class RoadNetwork {
 		const evacuationRoutes: Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, evacuatedCars: number, numberOfPersons: number }> = [];
 		let remainingPersons = totalPersons - get(hexagon.totalEvacuated);
 		while (remainingPersons > 0) {
-			const maxNumberOfCars = Math.ceil(remainingPersons / this.personsPerCar);
+			const maxNumberOfCars = Math.ceil(remainingPersons / personsPerCar);
 			const evacuationRoute = await this.createEvacuationRoute(hexagon, extractionPoint, maxNumberOfCars);
 			if (!evacuationRoute) {
 				break;
 			}
-			let evacuatedPersons = evacuationRoute.evacuatedCars * this.personsPerCar;
+			let evacuatedPersons = evacuationRoute.evacuatedCars * personsPerCar;
 			// Ensure we do not evacuate more than remaining persons. The last car may not be full.
 			if (evacuatedPersons > remainingPersons) {
 				evacuatedPersons = remainingPersons;
