@@ -4,10 +4,11 @@ import type { Map } from "$lib/components/map-cesium/module/map";
 import { Game } from "./game";
 import { MarvinApp } from "../../Marvin/marvin";
 import GameContainer from "../components/GameContainer.svelte";
-import type { IGameConfig, IGameSettings, ISavedGame } from "./models";
+import type { IGameConfig, ISeriousGameToolSettings, ISavedGame } from "./models";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
 
 import { selectedLanguage } from "$lib/components/localization/localization";
+import type { Breach, FloodToolSettings } from "../../layer-controller";
 
 
 const hiddenElements = [
@@ -31,6 +32,10 @@ export class GameController {
 	private gameContainer?: GameContainer;
 	private marvin?: MarvinApp;
 
+	public settings: ISeriousGameToolSettings;
+	private floodToolSettings: FloodToolSettings;
+	private breaches: Array<Breach>;
+
 	private backgroundLayer?: LayerConfig;
 	private cachedMapLayers: Array<any> = [];
 	private cachedTime: number = 0;
@@ -44,14 +49,22 @@ export class GameController {
 	public active: Writable<Game | undefined> = writable(undefined);
 	private boundingDome: Cesium.Entity;
 
-	constructor(map: Map, settings: IGameSettings) {
+	constructor(map: Map, settings: ISeriousGameToolSettings, floodToolSettings: FloodToolSettings, breaches: Array<Breach>) {
 		this.map = map;
+		this.settings = settings;
+		this.floodToolSettings = floodToolSettings;
+		this.breaches = breaches;
 		this.backgroundLayer = this.map.layerLibrary.findLayer(settings.backgroundLayerId);
 		this.boundingDome = this.getBoundingDome();
 	}
 
 	public loadGame(gameConfig: IGameConfig, savedGame?: ISavedGame): void {
-		const game = new Game(this.map, gameConfig, this.marvin, savedGame);
+		const breach = this.breaches.find((b) => b.properties.name === gameConfig.breach);
+		if (!breach) {
+			console.error("Configured breach not found");
+			return;
+		}
+		const game = new Game(this.map, gameConfig, breach, this.floodToolSettings, this.marvin, savedGame);
 		this.active.set(game);
 	}
 

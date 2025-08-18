@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import { CheckmarkFilled, CloseFilled, InformationFilled, ToolKit } from "carbon-icons-svelte";
 	import { Measure } from "../../module/game-elements/roads/measure";
 	import type { NotificationLog } from "../../module/notification-log";
@@ -34,7 +35,7 @@
 		{/if}
 	</div>
 	<div class="measure-effect">
-		Measure: {measure.config.type}
+		{$_("game.measure")}: {$_(`game.measureTypes.${measure.config.type}`)}
 	</div>
 	<div class="measure-bottom">
 		<div class="measure-status">

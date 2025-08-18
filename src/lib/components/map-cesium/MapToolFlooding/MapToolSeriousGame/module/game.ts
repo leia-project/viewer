@@ -1,6 +1,6 @@
 import { derived, get, writable, type Readable, type Writable } from "svelte/store";
 import { v4 as uuidv4 } from '@lukeed/uuid';
-import { FloodLayerController, type Breach } from "../../layer-controller";
+import { FloodLayerController, type Breach, type FloodToolSettings } from "../../layer-controller";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { NotificationLog } from "./notification-log";
 import { CameraLocation } from "$lib/components/map-core/camera-location";
@@ -56,6 +56,7 @@ export class Game {
 	public map: Map;
 	public marvin?: MarvinApp;
 	public gameConfig: IGameConfig;
+	public breach: Breach;
 
 	public notificationLog: NotificationLog;
 	public forwarding: Writable<boolean> = writable(false);
@@ -71,19 +72,16 @@ export class Game {
 	public evacuationController: EvacuationController;
 	public loaded: Readable<boolean>;
 
-	constructor(map: Map, gameConfig: IGameConfig, marvin?: MarvinApp, savedGame?: ISavedGame) {
+	constructor(map: Map, gameConfig: IGameConfig, breach: Breach, floodToolSettings: FloodToolSettings, marvin?: MarvinApp, savedGame?: ISavedGame) {
 		this.map = map;
 		this.marvin = marvin;
 		this.gameConfig = gameConfig;
 		this.notificationLog = new NotificationLog();
 		
-		const activeBreach: Writable<Breach | undefined> = writable(gameConfig.breach);
-		const selectedScenario: Writable<string | undefined> = writable(gameConfig.scenario);
-
-		const floodTool = map.toolSettings.find((tool: { id: string, settings: any}) => tool.id === "flooding");
-		this.floodLayerController = new FloodLayerController(map, floodTool.settings, activeBreach, selectedScenario);
+		this.breach = breach;
+		this.floodLayerController = new FloodLayerController(map, floodToolSettings, writable(breach), writable(gameConfig.scenario));
 		this.elapsedTimeDynamic = this.floodLayerController.time;
-		this.floodLayerController.loadNewScenario(gameConfig.breach, gameConfig.scenario).then(() => {
+		this.floodLayerController.loadNewScenario(breach, gameConfig.scenario).then(() => {
 			this.addFloodLayers();
 		});
 		this.evacuationController = new EvacuationController(this, this.floodLayerController);
