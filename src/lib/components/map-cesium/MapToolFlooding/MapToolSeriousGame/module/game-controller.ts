@@ -7,6 +7,8 @@ import GameContainer from "../components/GameContainer.svelte";
 import type { IGameConfig, IGameSettings, ISavedGame } from "./models";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
 
+import { selectedLanguage } from "$lib/components/localization/localization";
+
 
 const hiddenElements = [
 	{
@@ -63,6 +65,9 @@ export class GameController {
 		this.loadGame(gameConfig, savedGame);
 		this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
 		//this.map.viewer.entities.add(this.boundingDome);
+
+		// Later: add support for English too (language switcher in start menu)
+		selectedLanguage.set("nl");
 	}
 
 	public exit(): void {   

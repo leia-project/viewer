@@ -1,0 +1,11 @@
+{
+	"game": {
+		"measure": "Measure",
+		"measures": "Measures",
+		"measureTypes": {
+			"widen": "Widen",
+            "block": "Block",
+            "raise": "Raise"
+        }
+	}
+}

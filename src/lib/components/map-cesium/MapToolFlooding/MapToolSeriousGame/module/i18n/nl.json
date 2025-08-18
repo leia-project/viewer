@@ -1,0 +1,11 @@
+{
+	"game": {
+		"measure": "Maatregel",
+		"measures": "Maatregelen",
+		"measureTypes": {
+			"widen": "Verbreden",
+			"block": "Afsluiten",
+			"raise": "Ophogen"
+		}
+	}
+}

@@ -2,8 +2,9 @@
 	import { getContext } from "svelte";
 	import { GameConsole } from "carbon-icons-svelte";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
-	import { GameController } from "./module/game-controller";
 	import { addMarvini18n } from "../Marvin/module/i18n/i18n-marvin";
+	import { addSeriousGamei18n } from "./module/i18n/i18n-game";
+	import { GameController } from "./module/game-controller";
 	import type { IGameSettings } from "./module/models";
 	import LevelSelect from "./components/LevelSelect.svelte";
 
@@ -15,6 +16,7 @@
 	registerTool(tool);
 
 	addMarvini18n();
+	addSeriousGamei18n();
 	
 	let gameController: GameController;
 
