@@ -1,4 +1,4 @@
-import { writable, type Writable } from "svelte/store";
+import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import type { RouteSegment } from "./route-segments";
 import type { Map } from "$lib/components/map-cesium/module/map";
@@ -189,7 +189,8 @@ export abstract class Measure {
 	}
 
 	public flyTo(): void {
-		this.map.viewer.flyTo(this.billboard, {
+		const target = get(this.applied) ? this.billboardApplied : this.billboard;
+		this.map.viewer.flyTo(target, {
 			offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-45), 1500),
 		});
 	}

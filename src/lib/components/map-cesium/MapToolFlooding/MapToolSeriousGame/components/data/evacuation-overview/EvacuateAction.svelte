@@ -15,6 +15,8 @@
 
 	$: nodesSelected = $selectedExtractionPoint !== undefined && hexagon !== undefined;
 
+	const inPreparationPhase = evacuationController.game.inPreparationPhase;
+
 </script>
 
 
@@ -25,7 +27,7 @@
 			<span class="status-label">{$_(`game.status.${$hexagonStatus}`)}</span>
 		</div>
 	{/if}
-	{#if selected && $hexagonStatus === "accessible"}
+	{#if selected && $hexagonStatus === "accessible"  && !$inPreparationPhase}
 		{#if nodesSelected}
 			<GameButton
 				icon={TrafficEvent}
