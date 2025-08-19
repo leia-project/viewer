@@ -339,41 +339,7 @@
         },
         {
             "id": "stories",
-            "enabled": true,
-            "settings": {
-                "stories": [
-                    {
-                        "name": "My story",
-                        "description": "Description of my story",
-                        "width": "600px",
-                        "steps": [
-                            {
-                                "title": "Gebouwen gekleurd naar bouwjaar",
-                                "html": "<div>Dit zijn gebouwen gekleurd naar bouwjaar.</div>",
-                                "globeOpacity": 100,
-                                "terrain": "PDOK Terrain",
-                                "camera": {
-                                    "x": 5.23907,
-                                    "y": 52.20004,
-                                    "z": 13130.05823,
-                                    "heading": 335.10694,
-                                    "pitch": -30.69127,
-                                    "duration": 1.5
-                                },
-                                "layers": [
-                                    {
-                                        "id": "1"
-                                    },
-                                    {
-                                        "id": "3",
-                                        "style": "Bouwjaar"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
+            "enabled": false
         },
         {
             "id": "measure",
