@@ -707,7 +707,7 @@ Geocoder tool,  located at the right corner of the header instead of the toolbar
 
 |value|description|type|
 |-|-|-|
-|name|Geocoder name (currently supporting locatieserver and nominatim)|string|
+|name|Geocoder name. Currently supporting locatieserver (Dutch), geolocation (Belgian) and nominatim (worldwide)|string|
 
 
 ```json
