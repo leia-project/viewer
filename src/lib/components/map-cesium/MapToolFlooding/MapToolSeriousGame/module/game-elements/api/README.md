@@ -90,6 +90,9 @@ IMPORTANT!
 The routing network is not based on WVK IDs. In order to determine which segments are flooded, these WVK IDs need be joined on the zeeland.road_network table in a separate wvk_ids column. For a fast query based on a minimum distance in meters, a geom column in RD coordinates (28992) can be used to then join with ST_DWithin:
 
 ```
+ALTER TABLE datacore.zeeland_road_network ADD COLUMN geom_rd geometry(MultiLineString, 28992);
+UPDATE datacore.zeeland_road_network SET geom_rd = ST_Transform(geom, 28992);
+
 UPDATE datacore.zeeland_road_network AS a
 SET wvk_ids = b_array.wvk_ids
 FROM (

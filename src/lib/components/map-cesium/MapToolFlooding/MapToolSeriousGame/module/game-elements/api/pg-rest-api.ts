@@ -1,5 +1,4 @@
 import { PGRestClient } from "@sogelink-research/pgrest-client";
-import { writable, type Writable } from "svelte/store";
 
 
 const PGREST_URL = "https://datacore.beta.geodan.nl/pgrest/";
@@ -22,8 +21,6 @@ export interface FloodHexagon {
 export class PGRestAPI {
 
 	private client: PGRestClient;
-	private loading: Writable<boolean> = writable<boolean>(false);
-
 	private schema = "datacore";
 	private tables = {
 		cbs_h3: "cbs_h3",
@@ -193,8 +190,8 @@ export class PGRestAPI {
 			FROM node_connection_objects;
 		`;
 		const queryResult: any = await this.client.query(query, {
-			   format: "json"
-  		});
+			format: "json"
+		});
 		return queryResult.data[0].network;
 	}
 	
@@ -210,7 +207,7 @@ export class PGRestAPI {
 			;
 		`;
 		const queryResult: any = await this.client.query(query, {
-		   format: "jsonDataArray"
+			format: "jsonDataArray"
   		});
 
 		return  queryResult.data.rows.map((row: any) => row[0]); 

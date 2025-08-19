@@ -11,6 +11,7 @@
 	export let type: "hover" | "selected";
 
 	const applied = measure.applied;
+	const toggleEnabled = measure.toggleEnabled;
 
 	function sendMeasureInfo(): void {
 		notificationLog.send({
@@ -46,7 +47,7 @@
 			{/if}
 			<div>{$applied ? "Applied" : "Not applied"}</div>
 		</div>
-		{#if type === "selected"}
+		{#if type === "selected" && $toggleEnabled}
 			<div class="measure-actions">
 				<GameButton
 					buttonText={$applied ? "Undo" : "Apply"}

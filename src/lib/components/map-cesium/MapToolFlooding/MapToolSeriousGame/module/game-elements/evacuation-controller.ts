@@ -39,6 +39,11 @@ export class EvacuationController {
 			);
 		});
 		this.roadNetwork = new RoadNetwork(this.map, this.elapsedTime, game.gameConfig.outlineRoadNetwork, game.notificationLog, floodLayerController);
+		this.game.inPreparationPhase.subscribe((inPreparation) => {
+			this.roadNetwork.measures.forEach((measure) => {
+				measure.toggleEnabled.set(inPreparation);
+			});
+		});
 		this.addMouseEvents();
 	}
 

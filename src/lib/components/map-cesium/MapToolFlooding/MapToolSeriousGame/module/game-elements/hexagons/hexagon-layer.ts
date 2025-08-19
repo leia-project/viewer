@@ -260,14 +260,15 @@ export class HexagonLayer {
 	public toggleHexagons(show: boolean): void {
 		if (show) {
 			this.hexagonEntities.show = get(this.use2DMode);
-			if(this.primitive) {
+			if (this.primitive) {
 				this.primitive.show = !get(this.use2DMode);
 			}
 		} else {
 			this.hexagonEntities.show = false;
-			if(this.primitive) {
+			if (this.primitive) {
 				this.primitive.show = false;
 			}
+			this.hoveredHexagon.set(undefined);
 		}
 		this.map.refresh();
 	}

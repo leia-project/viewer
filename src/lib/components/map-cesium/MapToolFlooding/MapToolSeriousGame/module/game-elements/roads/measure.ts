@@ -35,12 +35,21 @@ export abstract class Measure {
 		return this.position;
 	}
 
+	public toggleEnabled: Writable<boolean> = writable(true);
+	private applyUnsubscriber?: () => void;
+
 	constructor(config: IMeasureConfig, map: Map) {
 		this.config = config;
 		this.map = map;
 		this.billboard = this.createBillboard("#F4F6F8", "default");
-		this.billboardApplied = this.createBillboard("#98FB98", "applied"); // #AFEEEE
-		this.applied.subscribe((applied) => {
+		this.billboardApplied = this.createBillboard("#00BFFF", "applied"); // #AFEEEE
+		this.toggleEnabled.subscribe((enabled) => {
+			enabled ? this.subscribeApply() : this.applyUnsubscriber?.();
+		});
+	}
+
+	private subscribeApply(): void {
+		this.applyUnsubscriber = this.applied.subscribe((applied) => {
 			if (applied) {
 				this.routeSegments.forEach((segment) => this.applyTo(segment));
 			} else {
@@ -162,7 +171,7 @@ export abstract class Measure {
 			for (const segment of this.routeSegments) {
 				const attributes = this.polylinePrimitive.getGeometryInstanceAttributes(`measure-${segment.id}-${this.config.name}}`);
 				if (attributes) {
-					const color = b ? Cesium.Color.BLUE : Cesium.Color.DARKBLUE;
+					const color = b ? Cesium.Color.DEEPSKYBLUE : Cesium.Color.RED;
 					attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(color, attributes.color);
 					attributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(b, attributes.show);
 				}

@@ -1,5 +1,6 @@
 import { _ } from "svelte-i18n";
 import { derived, get, writable, type Readable, type Writable } from "svelte/store";
+import * as Cesium from "cesium";
 import { v4 as uuidv4 } from '@lukeed/uuid';
 import { FloodLayerController, type Breach, type FloodToolSettings } from "../../layer-controller";
 import type { Map } from "$lib/components/map-cesium/module/map";
@@ -226,7 +227,18 @@ export class Game {
 			message: this.gameConfig.scenarioDescription,
 			type: NotificationType.WARN,
 			duration: 20000
-		});				
+		});
+		const breachLocation = new Cesium.Entity({
+			position: Cesium.Cartesian3.fromDegrees(this.breach.geometry.coordinates[0], this.breach.geometry.coordinates[1]),
+			billboard: {
+				image: "/images/alert-icon.svg",
+				scale: 0.3,
+				verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+				heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+			}
+		});
+		this.map.viewer.entities.add(breachLocation);
+		this.flyHome();
 	}
 
 	private getNoonishDutchTime(): number {

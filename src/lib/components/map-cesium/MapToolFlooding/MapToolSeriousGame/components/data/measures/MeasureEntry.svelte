@@ -9,6 +9,7 @@
 	export let roadNetwork: RoadNetwork;
 
 	const applied = measure.applied;
+	const toggleEnabled = measure.toggleEnabled;
 
 	function hover(h: boolean): void {
 		roadNetwork.hoveredNode.set(h ? measure : undefined);
@@ -19,7 +20,11 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
 <div class="measure-entry" on:mouseenter={() => hover(true)} on:mouseleave={() => hover(false)}>
-	<div class="apply-toggle" on:click={() => applied.set(!$applied)}>
+	<div class="apply-toggle" class:toggleEnabled={$toggleEnabled} 
+		on:click={() => {
+			if ($toggleEnabled) applied.set(!$applied);
+		}
+	}>
 		{#if $applied}
 			<CheckmarkFilled color="green" />
 		{:else}
@@ -54,7 +59,7 @@
 		padding: 0.25rem;
 	}
 
-	.apply-toggle:hover {
+	.apply-toggle.toggleEnabled:hover {
 		cursor: pointer;
 		filter: brightness(200%);
 	}
