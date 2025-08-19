@@ -11,29 +11,31 @@
 	const applied = measure.applied;
 	const toggleEnabled = measure.toggleEnabled;
 
+	const hoveredNode = roadNetwork.hoveredNode;
+
 	function hover(h: boolean): void {
-		roadNetwork.hoveredNode.set(h ? measure : undefined);
+		hoveredNode.set(h ? measure : undefined);
 	}
 
 </script>
 
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-<div class="measure-entry" on:mouseenter={() => hover(true)} on:mouseleave={() => hover(false)}>
+<div class="measure-entry" on:mouseenter={() => hover(true)} on:mouseleave={() => hover(false)} class:hovered={$hoveredNode === measure}>
 	<div class="apply-toggle" class:toggleEnabled={$toggleEnabled} 
 		on:click={() => {
 			if ($toggleEnabled) applied.set(!$applied);
 		}
 	}>
 		{#if $applied}
-			<CheckmarkFilled color="green" />
+			<CheckmarkFilled color="#30e630" />
 		{:else}
-			<CloseFilled color="red" />
+			<CloseFilled color="#de2f10" />
 		{/if}
 	</div>
 	<div class="measure-details">
 		<div class="measure-type">{$_(`game.measureTypes.${measure.config.type}`)}</div>
-		<div>{measure.config.name}</div>
+		<div class="measure-name">{measure.config.name}</div>
 	</div>
 	<GameButton
 		size={15}
@@ -61,7 +63,7 @@
 
 	.apply-toggle.toggleEnabled:hover {
 		cursor: pointer;
-		filter: brightness(200%);
+		filter: brightness(70%);
 	}
 
 	.measure-details {
@@ -75,6 +77,10 @@
 		color: var(--game-color-highlight);
 		display: flex;
 		align-items: center;
+	}
+
+	.hovered .measure-name {
+		color: var(--game-color-highlight);
 	}
 
 </style>

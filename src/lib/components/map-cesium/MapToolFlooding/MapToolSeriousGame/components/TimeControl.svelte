@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import type { Game } from "../module/game";
 	import { SkipBackSolidFilled, SkipForwardSolidFilled, TimeFilled, Timer } from "carbon-icons-svelte";
 	import Pill from "./general/Pill.svelte";
@@ -23,13 +24,13 @@
 
 {#if $inPreparationPhase}
 	<div class="prep-phase">
-		<div class="prep-phase-title">Preparation Phase</div>
+		<div class="prep-phase-title">{$_("game.preparationPhase")}</div>
 		<GameButton
 			icon={SkipForwardSolidFilled}
 			hasTooltip={false}
 			size={18}
 			borderHighlight={true}
-			buttonText="Let the hell break lose"
+			buttonText={$_("game.startFlood")}
 			on:click={() => game.startBreach()}
 		/>
 	</div>

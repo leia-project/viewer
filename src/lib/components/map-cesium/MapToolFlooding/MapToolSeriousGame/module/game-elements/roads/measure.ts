@@ -192,6 +192,7 @@ export abstract class Measure {
 		const target = get(this.applied) ? this.billboardApplied : this.billboard;
 		this.map.viewer.flyTo(target, {
 			offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-45), 1500),
+			duration: 1.5
 		});
 	}
 }

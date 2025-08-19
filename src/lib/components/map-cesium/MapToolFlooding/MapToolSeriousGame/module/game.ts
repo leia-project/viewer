@@ -259,7 +259,7 @@ export class Game {
 				setTimeout(() => {
 					if (get(this.inPreparationPhase)) {
 						this.notificationLog.send({
-							title: get(_)("game.preprationPhase"),
+							title: get(_)("game.preparationPhase"),
 							message: get(_)("game.notification.preparation"),
 							type: NotificationType.INFO
 						});

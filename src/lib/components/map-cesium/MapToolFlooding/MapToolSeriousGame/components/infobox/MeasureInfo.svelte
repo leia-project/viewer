@@ -19,7 +19,7 @@
 			title: "Measure Info",
 			message: measure.config.description,
 			duration: 20000
-		})
+		});
 	}
 
 </script>
@@ -41,9 +41,9 @@
 	<div class="measure-bottom">
 		<div class="measure-status">
 			{#if $applied}
-				<CheckmarkFilled color="green" />
+				<CheckmarkFilled color="#30e630" />
 			{:else}
-				<CloseFilled color="red" />
+				<CloseFilled color="#de2f10" />
 			{/if}
 			<div>{$applied ? "Applied" : "Not applied"}</div>
 		</div>
