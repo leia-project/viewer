@@ -2,13 +2,13 @@
 	import { getContext } from "svelte";
 	import { GameConsole } from "carbon-icons-svelte";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
+	import { CameraLocation } from "$lib/components/map-core/camera-location";
 	import type { Map } from "../../module/map";
 	import { addMarvini18n } from "../Marvin/module/i18n/i18n-marvin";
 	import { addSeriousGamei18n } from "./module/i18n/i18n-game";
 	import { GameController } from "./module/game-controller";
 	import type { ISeriousGameToolSettings } from "./module/models";
 	import LevelSelect from "./components/LevelSelect.svelte";
-	import { CameraLocation } from "$lib/components/map-core/camera-location";
 
 	const { registerTool, selectedTool, map }: {
 		registerTool: (tool: MapToolMenuOption) => void;
@@ -28,6 +28,7 @@
 
 	const toolSettings: ISeriousGameToolSettings = {
 		backgroundLayerId: "1",
+		generalLayerIds: ["2", "3", "4", "5"],
 		cutsceneBackgroundLayerId: "2",
 		levels: [
 			{

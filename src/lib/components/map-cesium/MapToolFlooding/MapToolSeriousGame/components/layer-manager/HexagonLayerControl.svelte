@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import { Slider, Toggle } from "carbon-components-svelte";
 	import type { HexagonLayer } from "../../module/game-elements/hexagons/hexagon-layer";
 	import BaseLayer from "./BaseLayer.svelte";
@@ -31,7 +32,7 @@
 		</div>
 	</div>
 	<div class="slider-container">
-		<div class="slider-label">Opacity</div>
+		<div class="slider-label">{$_("game.opacity")}</div>
 		<Slider
 			slot="Slider"
 			bind:value={$opacity}

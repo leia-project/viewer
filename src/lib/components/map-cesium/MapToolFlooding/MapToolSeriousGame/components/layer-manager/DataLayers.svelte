@@ -1,30 +1,45 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import type { IRole } from "../../module/models";
 	import BaseLayer from "./BaseLayer.svelte";
 	import type { GameController } from "../../module/game-controller";
 
 	export let role: IRole | undefined;
-	export let mainLayerIds: Array<string>;
+	export let generalLayerIds: Array<string>;
 	export let gameController: GameController;
 
 	const layers = gameController.map.layers;
-	$: mainLayers = $layers.filter((l) => mainLayerIds.includes(l.id));
+	$: mainLayers = $layers.filter((l) => generalLayerIds.includes(l.id));
 	$: roleLayers = $layers.filter((l) => role?.layerIds.includes(l.id)); 
+
+	const activeGame = gameController.active;
+	$: hexagonLayer = $activeGame?.evacuationController.hexagonLayer;
+	$: measureToggled = $activeGame?.evacuationController.roadNetwork.measureToggled;
 
 </script>
 
 
 <div class="layer-manager">
 	<div>
-		<div class="list-header">
-			<span>Achtergrondlagen</span>
-		</div>
+		<div class="list-header">Datasets</div>
 		{#each mainLayers as mL}
 			<BaseLayer
 				visible={mL.visible}
 				title={mL.title}
 			/>
 		{/each}
+		{#if hexagonLayer}
+			<BaseLayer
+				visible={hexagonLayer.visible}
+				title={hexagonLayer.title}
+			/>
+		{/if}
+		{#if measureToggled}
+			<BaseLayer
+				visible={measureToggled}
+				title={$_("game.measures")}
+			/>
+		{/if}
 	</div>
 	{#if role}
 		<div class="divider"></div>
@@ -45,7 +60,7 @@
 					{/each}
 				</div>
 			{:else}
-				<div>Geen specifieke kaartlagen voor deze rol</div>
+				<div>{$_("game.menu.noLayersForRole")}</div>
 			{/if}
 		</div>
 	{/if}

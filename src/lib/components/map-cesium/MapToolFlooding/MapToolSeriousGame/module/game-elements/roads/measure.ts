@@ -178,6 +178,12 @@ export abstract class Measure {
 		}
 		this.map.refresh();
 	}
+
+	public flyTo(): void {
+		this.map.viewer.flyTo(this.billboard, {
+			offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-45), 1500),
+		});
+	}
 }
 
 

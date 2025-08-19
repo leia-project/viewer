@@ -2,6 +2,7 @@ import type { CameraLocation } from "$lib/components/map-core/camera-location";
 
 export interface ISeriousGameToolSettings {
 	backgroundLayerId: string;
+	generalLayerIds: Array<string>;
 	cutsceneBackgroundLayerId: string;
 	levels: Array<IGameConfig>;
 }

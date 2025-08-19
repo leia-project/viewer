@@ -352,6 +352,13 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 		this.isActiveExtractionPoint = active;
 		this.highlight(active);
 	}
+
+	public flyTo(): void {
+		if (!this.extractionPoint?.flyTo()) {
+			const boundingSphere = Cesium.BoundingSphere.fromPoints(this.lineInstance.positions);
+			this.map.viewer.camera.flyToBoundingSphere(boundingSphere);
+		}
+	}
 }
 
 
@@ -587,4 +594,9 @@ class ExtractionPoint {
 		return [head, shaft];
 	}
 
+	public flyTo(): void {
+		const boundingSpheres = this.geometryInstances.map(instance => instance.geometry.boundingSphere);
+		const boundingSphere = Cesium.BoundingSphere.fromBoundingSpheres(boundingSpheres);
+		this.map.viewer.camera.flyToBoundingSphere(boundingSphere);
+	}
 }

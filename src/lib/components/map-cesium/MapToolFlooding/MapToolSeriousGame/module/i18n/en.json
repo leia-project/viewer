@@ -21,6 +21,10 @@
 		"notification": {
 			"start": "Welcome to the serious game! You will be playing as a flood manager. Your goal is to manage the flood situation effectively by implementing measures and ensuring the safety of the citizens. Good luck!",
 			"preparation": "You are in the preparation phase. Use the available measures to prepare for the flood. You can widen, block, or raise areas to manage the flood risk. Once you are ready, you can start the flooding."
-		}
+		},
+		"menu": {
+			"noLayersForRole": "No layers available for this role."
+		},
+		"opacity": "Opacity"
 	}
 }
