@@ -33,6 +33,8 @@ export class MapOptions {
 	public selectedTerrainProvider: Writable<{ title: string, url: string, vertexNormals: boolean }> = writable<{ title: string, url: string, vertexNormals: boolean }>(undefined);
 	public terrainSwitchReady: Writable<boolean> = writable(false);
 	public selectedProject: Writable<string | undefined> = writable(undefined);
+	public use3DMode: Writable<boolean> = writable(true);
+	public disableModeSwitcher: Writable<boolean> = writable(false);
 
 	public pointCloudAttenuation: Writable<boolean> = writable<boolean>(true);
 	public pointCloudAttenuationMaximum: Writable<number> = writable<number>(0);
@@ -201,7 +203,11 @@ export class MapOptions {
 	public initTerrainProvider(): void {
 		const currentProviders = get(this.terrainProviders);
 		if(currentProviders.length > 0) {
-			this.selectedTerrainProvider.set(currentProviders[0]);	
+			// If use3DMode is false, start with the terrain turned off
+			const provider = !get(this.use3DMode) 
+				? currentProviders.find(p => p.title.toLowerCase() === 'uit') || currentProviders[0]
+				: currentProviders[0];
+			this.selectedTerrainProvider.set(provider);
 		}
 	}
 
@@ -226,6 +232,13 @@ export class MapOptions {
 			if (this.map.viewer.cesium3DTilesInspector) {
 				this.map.viewer.cesium3DTilesInspector.destroy();
 			}
+		}
+	}
+
+	public initCameraMode(config: any): void {
+		const startCameraMode3D = config.viewer.startCameraMode3D ? config.viewer.startCameraMode3D : false;
+		if (!startCameraMode3D) {
+			this.use3DMode.set(false);
 		}
 	}
 
@@ -268,11 +281,16 @@ export class MapOptions {
 	public setGlobeOpacity(value: number): void {
 		var alpha = Math.max(0, value) / 100;
 
-		if (alpha >= 1.0) {
-			alpha = 1.0;
-			this.map.viewer.scene.globe.translucency.enabled = false;
+		if (alpha > 0) {
+			this.map.viewer.scene.globe.show = true;
+			if (alpha >= 1.0) {
+				alpha = 1.0;
+				this.map.viewer.scene.globe.translucency.enabled = false;
+			} else {
+				this.map.viewer.scene.globe.translucency.enabled = true;
+			}
 		} else {
-			this.map.viewer.scene.globe.translucency.enabled = true;
+			this.map.viewer.scene.globe.show = false;
 		}
 
 		this.map.viewer.scene.globe.translucency.frontFaceAlpha = alpha;

@@ -54,7 +54,9 @@ export class Map extends MapCore {
 			this.addTerrainProvider(this.viewerSettings.terrain);
 		}
 
-		this.options.initTerrainProvider()
+		this.options.initCameraMode(this.config);
+		this.options.initTerrainProvider();
+
 		this.home();
 	}
 
@@ -82,7 +84,6 @@ export class Map extends MapCore {
 		this.camera = this.viewer.camera;
 		this.viewer.forceResize();
 
-		this.addFlyCamera();
 		this.featureInfoHandler = new FeatureInfoHandler(this);
 
 		if (!this.startPosition) {
@@ -118,15 +119,19 @@ export class Map extends MapCore {
 		this.refresh();
 	}
 
-	public flyTo(position: CameraLocation): void {
-		this.camera?.flyTo({
-			destination: Cesium.Cartesian3.fromDegrees(position.x, position.y, position.z),
-			orientation: {
-				heading: Cesium.Math.toRadians(position.heading),
-				pitch: Cesium.Math.toRadians(position.pitch),
-				roll: 0.0
-			},
-			duration: position.duration
+	public flyTo(position: CameraLocation): Promise<void> {
+		return new Promise((resolve, reject) => {
+			this.camera?.flyTo({
+				destination: Cesium.Cartesian3.fromDegrees(position.x, position.y, position.z),
+				orientation: {
+					heading: Cesium.Math.toRadians(position.heading),
+					pitch: Cesium.Math.toRadians(position.pitch),
+					roll: 0.0
+				},
+				duration: position.duration,
+				complete: resolve,
+				cancel: reject
+			});
 		});
 	}
 
@@ -291,7 +296,9 @@ export class Map extends MapCore {
 	}
 
 	private addFlyCamera(): void {
+		if(this.flyCamera == null) {
 		this.flyCamera = new FlyCamera(this.viewer);
+		}
 	}
 
 	public refresh(): void {

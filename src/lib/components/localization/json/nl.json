@@ -4,6 +4,8 @@
         "loading": "Laden...",
         "on": "Aan",
         "off": "Uit",
+        "open": "Open",
+        "close": "Sluit",
         "notifications": {
             "error": "Error",
             "warning": "Waarschuwing",
@@ -13,7 +15,8 @@
         },
         "buttons": {
             "show": "Tonen",
-            "hide": "Verbergen"
+            "hide": "Verbergen",
+            "reset": "Resetten"
         }
     },
     "tools": {
@@ -30,7 +33,7 @@
         "info": {
             "info": "Informatie",
             "close": "Sluiten",
-            "general": "Open 3D viewer, een product door Geodan en Provincie Zeeland.",
+            "general": "Open 3D viewer, een product door Sogelink (voorheen Geodan) en Provincie Zeeland.",
             "attribution": "Naamsvermelding"
         },
         "help": {
@@ -57,6 +60,8 @@
               "rotatePitchOption2": "2) Houd de <help-key>ctrl</help-key> toets op uw toetsenbord en uw linkermuisknop en beweeg de muis rond.",
               "headingButtons": "Kaart Knoppen",
               "buttonsDescription": "Rechtsonder zijn enkele knoppen te vinden.",
+              "buttonsFlyMode": "Activeer FlyMode",
+              "buttonsWalkMode": "Activeer WalkMode",
               "buttonsHome": "Reset het aanzicht naar de startpositie",
               "buttonsCompass": "Reset de camera naar het noorden",
               "buttonsZoomIn": "Zoom in",
@@ -146,6 +151,12 @@
                 "default": "Geen",
                 "legend": "Legenda",
                 "reset": "Reset legenda"
+            },
+            "clipper": {
+                "label": "Laag knippen",
+                "rotationVerticalAxis": "Rotatie verticale as",
+                "rotationHorizontalAxis": "Rotatie horizontale as",
+                "sliceModeLabel": "Doorsnede maken"
             }
         },
         "backgroundControls": {
@@ -231,7 +242,18 @@
             "label": "Verhalen",
             "back": "Terug naar overzicht",
             "stepBack": "Stap terug",
-            "stepForward": "Stap vooruit                                                                                                                                       "
+            "stepForward": "Stap vooruit",
+            "description": "Beschrijving",
+            "statistics": "Statistieken",
+            "storyChartTitle": "Verdeling per klasse",
+            "storyChartNoData": "Geen Data",
+            "basemap": "Achtergrondkaart",
+            "requestDrawPolygon": "Teken een projectgebied in om data op te halen",
+            "drawPolygon": "Teken Projectgebied",
+            "drawPolygonText": "Klik op de 'Teken projectgebied' knop om te beginnen met tekenen op de kaart. Klik om een vlak te creëren. Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.",
+            "deletePolygon": "Verwijder Projectgebied",
+            "projectAreaTool": "Projectgebied Tool",
+            "downloadPDF": "Download PDF"
         },
         "animation": {
             "speed": "Snelheid",
@@ -246,6 +268,21 @@
             "trackModel": "Model volgen",
             "stopTracking": "Stop met volgen",
             "zoomToModel": "Zoom naar model"
+        },
+        "flooding": {
+            "label": "Overstromingen",
+            "measureDepth": "Diepte meten",
+            "waterTransparency": "Water Transparantie",
+            "measureDepthError": "Zoom in om de waterdiepte te meten",
+            "scenario": "Scenario",
+            "errorCouldNotLoad": "Kan overstromingsdata niet laden",
+            "hourSinceBreach": "uur na bres",
+            "chosenBreach": "Gekozen bres",
+            "otherBreaches": "Overige bressen",
+            "noResults": "Geen resultaten",
+            "noBreachSelected": "Geen bres geselecteerd",
+            "searchBreach": "Zoek bres",
+            "timeSlider": "Tijd slider"
         }
     }
 }

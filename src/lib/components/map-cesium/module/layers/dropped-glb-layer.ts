@@ -73,6 +73,7 @@ export class DroppedGLBLayer extends CesiumLayer<Cesium.CustomDataSource> {
 			const boundingSphere = Cesium.BoundingSphere.fromPoints(entityPositions);
 			boundingSphere.radius += 100;
 			if (boundingSphere) {
+				//TODO: add option to use 2D or 3D camera position
 				this.config.cameraPosition = getCameraPositionFromBoundingSphere(boundingSphere);
 			}
 		}

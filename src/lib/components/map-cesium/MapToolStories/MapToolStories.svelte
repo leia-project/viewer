@@ -1,10 +1,11 @@
 <script lang="ts">
+	import * as Cesium from "cesium";
 	import { getContext } from "svelte";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 
 	import type { Map } from "../module/map";
 
-	import Catalog from "carbon-icons-svelte/lib/Catalog.svelte";
+	import Book from "carbon-icons-svelte/lib/Book.svelte";
 	import { StoryStep } from "./StoryStep";
 	import { CameraLocation } from "$lib/components/map-core/camera-location";
 	import { Story } from "./Story";
@@ -13,12 +14,12 @@
 	import { StoryLayer } from "./StoryLayer";
 
 	import { page } from "$app/stores";
-	
+	import { StoryChapter } from "./StoryChapter";
 	
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
 	let id: string = "stories";
-	export let icon: any = Catalog;
+	export let icon: any = Book;
 	export let label: string = "Stories";
 	export let textBack: string = "Back to overview";
 	export let textStepBack: string = "Step backward";
@@ -28,8 +29,18 @@
 	let stories = new Array<Story>();
 	let selectedStory: Story | undefined;
 	let stepNumber: number;
+	let baseLayerId: string;
 
 	let tool = new MapToolMenuOption(id, icon, label);
+	const layers = cesiumMap.layers;
+
+	type LegendOptions = {
+		generalLegendText: string;
+		legendOptions: {
+			[key: string]: string;
+		};
+	};
+	const layerLegends: Array<LegendOptions> = [];
 
 	$: { tool.label.set(label); }
 	registerTool(tool);
@@ -45,7 +56,11 @@
 
 	tool.settings.subscribe((settings) => {
 		if (settings) {
-			loadStoriesFromSettings(settings);
+			cesiumMap.ready.subscribe((ready)=> {
+				if(ready) {
+					loadStoriesFromSettings(settings);
+				}
+			})
 
 			// Directly activate story from searchParams
 			const queriedStory = $page.data.story;
@@ -60,47 +75,84 @@
 		}
 	});
 
+	function getUrlAndFeatureNameForLayer(id: string): { url: string | undefined; featureName: string | undefined } {
+		for (let i = 0; i < $layers.length; i++) {
+			if ($layers[i].config.id === id) {
+				let originalUrl = $layers[i].config.settings.url;
+				let updatedUrl = originalUrl?.replace(/wms/i, 'wcs');
+				return { 
+					url: updatedUrl,
+					featureName: $layers[i].config.settings.featureName
+				};
+			}
+		}
+		return {
+			url: undefined,
+			featureName: undefined
+		}
+	}
 
 	function loadStoriesFromSettings(settings: any) {
 		const configStories = settings.stories;
 		const loadedStories = new Array<Story>();
 
 		if (configStories) {
+			// Load all stories
 			for (let i = 0; i < configStories.length; i++) {
 				const story = configStories[i];
 				const storyName = story.name;
 				const storyDescription = story.description;
 				const storyWidth = story.width;
-				const storySteps = story.steps;
+				const storyForce2DMode = story.force2DMode ?? false;
+				const storyRequestPolygonArea = story.requestPolygonArea ?? false;
+				baseLayerId = story.baseLayerId ?? "";
+				const storyChapters = new Array<StoryChapter>();
 
-				const steps = new Array<StoryStep>();
+				// Load all chapter groups
+				const chapterGroups = story.chapterGroups;
 
-				for (let j = 0; j < storySteps.length; j++) {
-					const step = storySteps[j];
-					const cl = new CameraLocation(
-						step.camera["x"],
-						step.camera["y"],
-						step.camera["z"],
-						step.camera["heading"],
-						step.camera["pitch"],
-						step.camera["duration"]
-					);
-
-					const stepLayers = new Array<StoryLayer>();
-					for (let k = 0; k < step.layers.length; k++) {
-						stepLayers.push(
-							new StoryLayer(step.layers[k].id, step.layers[k].opacity, step.layers[k].style)
+				// Load all chapters
+				for (let j = 0; j < story.chapters.length; j++) {
+					const chapter = story.chapters[j];
+					const chapterGroup = chapterGroups.find((chapterGroup: any) => chapter.id === chapterGroup.id);
+					const chapterTitle: string = chapterGroup.title;
+					const chapterButtonText: string = chapterGroup.buttonText;
+					const storySteps = new Array<StoryStep>();
+					
+					// Load all chapter steps
+					for (let k = 0; k < chapter.steps.length; k++) {
+						const step = chapter.steps[k];
+						const cl = new CameraLocation(
+							step.camera["x"],
+							step.camera["y"],
+							step.camera["z"],
+							step.camera["heading"],
+							step.camera["pitch"],
+							step.camera["duration"]
 						);
+
+						// Load all story layers
+						const storyLayers = new Array<StoryLayer>();
+						for (let l = 0; l < step.layers.length; l++) {
+							const opacity = step.layers[l].opacity ?? 100;
+							const {url, featureName} = getUrlAndFeatureNameForLayer(step.layers[l].id);
+							storyLayers.push(
+								new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName)
+							);
+							const layerLegendInfo = {
+								generalLegendText: step.layers[l].generalLegendText,
+								legendOptions: step.layers[l].legendOptions
+							}
+							layerLegends.push(layerLegendInfo);
+						}
+						const globeOpacity = step.globeOpacity ?? 100;
+						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent));
 					}
-
-					const globeOpacity = step.globeOpacity ?? 100;		
-					steps.push(new StoryStep(step.title, step.html, cl, stepLayers, globeOpacity, step.terrain, step.customComponent));
+					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}
-
-				loadedStories.push(new Story(storyName, storyDescription, steps, storyWidth));
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForce2DMode, storyRequestPolygonArea));
 			}
 		}
-
 		stories = loadedStories;
 	}
 
@@ -130,6 +182,8 @@
 				{textStepBack}
 				{textStepForward}
 				savedStepNumber={stepNumber}
+				{layerLegends}
+				{baseLayerId}
 				on:closeStory={() => {
 					closeStory();
 				}}
