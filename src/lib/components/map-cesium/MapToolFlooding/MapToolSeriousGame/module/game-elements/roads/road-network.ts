@@ -23,7 +23,7 @@ export class RoadNetwork {
 	private floodLayerController: FloodLayerController;
 
 	public roadNetworkLayer: RoadNetworkLayer;
-	private extractionPointIds: Array<string> = ["42376", "83224", "77776"];
+	private extractionPointIds: Array<string>;
 	public selectedExtractionPoint: Writable<RouteSegment  | undefined> = writable(undefined);
 	public measures: Array<Measure> = [];
 	public measureToggled: Writable<boolean> = writable(true);
@@ -42,12 +42,13 @@ export class RoadNetwork {
 
 	public loaded: Writable<boolean> = writable(false);
 
-	constructor(map: Map, elapsedTime: Writable<number>, outline: Array<[lon: number, lat: number]>, notificationLog: NotificationLog, floodLayerController: FloodLayerController) {
+	constructor(map: Map, elapsedTime: Writable<number>, outline: Array<[lon: number, lat: number]>, extractionPointIds: Array<string>, notificationLog: NotificationLog, floodLayerController: FloodLayerController) {
 		this.map = map;
 		this.elapsedTime = elapsedTime;
 		this.routingAPI = new RoutingAPI();
 
 		this.outline = outline;
+		this.extractionPointIds = extractionPointIds;
 		this.floodLayerController = floodLayerController;
 		this.roadNetworkLayer = new RoadNetworkLayer(map, elapsedTime, this.extractionPointIds);
 		this.selectedExtractionPoint.subscribe((selectedExtractionPoint) => {
@@ -101,9 +102,10 @@ export class RoadNetwork {
 		});
 	}
 
-	private init(): void {
+	private async init(): Promise<void> {
 		this.loadMeasures();
-		this.loadRoadNetwork().then(() => {
+		try {
+			await this.retryLoadRoadNetwork();
 			this.elapsedTime.subscribe((time: number) => this.cleanSetRoutingGraph(time));
 			this.floodLayerController.floodedRoadsLayer.source.setupPromise?.then(() => {
 				this.floodLayerController.floodedRoadsLayer.source.OgcFeaturesLoaderCesium.on("featuresLoaded", () => {
@@ -111,7 +113,25 @@ export class RoadNetwork {
 				});
 			});
 			this.loaded.set(true);
-		});
+		} catch (error) {
+			console.error("Failed to initialize road network after retries:", error);
+		}
+	}
+
+	private async retryLoadRoadNetwork(retries: number = 5, delayMs: number = 1000): Promise<void> {
+		for (let attempt = 0; attempt <= retries; attempt++) {
+			try {
+				await this.loadRoadNetwork();
+				return;
+			} catch (error) {
+				if (attempt < retries) {
+					console.warn(`loadRoadNetwork failed, retrying in ${delayMs}ms... (${retries - attempt} retries left)`);
+					await new Promise((resolve) => setTimeout(resolve, delayMs));
+				} else {
+					throw error;
+				}
+			}
+		}
 	}
 
 	public async cleanSetRoutingGraph(time: number): Promise<void> {

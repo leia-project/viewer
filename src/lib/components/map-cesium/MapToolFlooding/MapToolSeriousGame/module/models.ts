@@ -23,6 +23,7 @@ export interface IGameConfig {
 	floodView: CameraLocation;
 	outline: Array<[lon: number, lat: number]>;
 	outlineRoadNetwork: Array<[lon: number, lat: number]>;
+	extractionPointIds: Array<string>;
 }
 
 export interface EvacuationLogItem {
