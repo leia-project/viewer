@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import type { Readable } from "svelte/store";
 	import { View } from "carbon-icons-svelte";
 	import type { Game } from "../../../module/game";
@@ -36,12 +37,12 @@
 
 <div class="evacuation-create">
 	<span class="point point-a">
-		<span class="point-label">From</span>
+		<span class="point-label">{$_("game.from")}</span>
 		<span>
 			{#if $selectedHexagon}
 				<span>{$selectedHexagon.hex}</span>
 			{:else}
-				No hexagon selected
+				{$_("game.menu.noHexagonSelected")}
 			{/if}
 		</span>
 	</span>
@@ -50,12 +51,12 @@
 		evacuationController={game.evacuationController}
 	/>
 	<span class="point point-b">
-		<span class="point-label">To</span>
+		<span class="point-label">{$_("game.from")}</span>
 		<span>
 			{#if $selectedExtractionPoint}
 				{$selectedExtractionPoint.feature.properties.name}
 			{:else}
-				No extraction point selected
+				{$_("game.menu.noExtractionPointSelected")}
 			{/if}
 		</span>
 	</span>
@@ -64,7 +65,7 @@
 <div class="divider"></div>
 
 <div class="evacuation-list-header">
-	<span>Evacuations ({$evacuations.length})</span>
+	<span>{$_("game.evacuations")} ({$evacuations.length})</span>
 	<div class="step-title">
 		{#if $evacuations.length > 0}
 			<GameButton

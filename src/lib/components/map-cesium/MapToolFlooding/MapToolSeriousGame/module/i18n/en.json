@@ -25,10 +25,15 @@
 			"preparation": "You are in the preparation phase. Use the available measures to prepare for the flood. You can widen, block, or raise areas to manage the flood risk. Once you are ready, you can start the flooding."
 		},
 		"menu": {
-			"noLayersForRole": "No layers available for this role."
+			"noLayersForRole": "No layers available for this role.",
+			"noHexagonSelected": "No hexagon selected",
+			"noExtractionPointSelected": "No extraction point selected"
 		},
 		"opacity": "Opacity",
 		"available": "Available",
-		"unavailable": "Unavailable"
+		"unavailable": "Unavailable",
+		"from": "From",
+		"to": "To",
+		"evacuations": "Evacuations"
 	}
 }

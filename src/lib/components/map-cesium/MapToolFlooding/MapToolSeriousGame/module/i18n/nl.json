@@ -25,10 +25,15 @@
 			"preparation": "Je bevindt je nu nog in de voorbereidingsfase. Gebruik de beschikbare maatregelen om Zeeland zo goed mogelijk voor te bereiden op de overstroming. Je kunt wegen verbreden, afsluiten of ophogen om het overstromingsrisico te beheersen. Zodra je klaar bent, kun je beginnen met de overstroming."
 		},
 		"menu": {
-			"noLayersForRole": "Geen lagen beschikbaar voor deze rol."
+			"noLayersForRole": "Geen lagen beschikbaar voor deze rol.",
+			"noHexagonSelected": "Geen hexagoon geselecteerd",
+			"noExtractionPointSelected": "Geen evacuatiepunt geselecteerd"
 		},
 		"opacity": "Transparantie",
 		"available": "Beschikbaar",
-		"unavailable": "Niet beschikbaar"
+		"unavailable": "Niet beschikbaar",
+		"from": "Van",
+		"to": "Naar",
+		"evacuations": "Evacuaties"
 	}
 }

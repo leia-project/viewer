@@ -62,7 +62,7 @@
 <style>
 	.toolbar-button-container {
 		position: relative;
-		--button-border-radius: 5px;
+		--button-border-radius: 0px;
 	}
 
 	.toolbar-button {
@@ -83,12 +83,15 @@
 		overflow: hidden;
 		--icon-color: var(--game-color-highlight);
 	}
-	
+
 	.active, .toolbar-button:hover {
 		background-color: var(--game-color-highlight);
 		color: rgb(var(--game-color-bg));
-		border-color: rgb(var(--game-color-bg)) !important;
 		--icon-color: rgb(var(--game-color-bg));
+	}
+	
+	.active.toolbar-button:hover {
+		filter: brightness(0.6);
 	}
 
 	.toolbar-button.padded {

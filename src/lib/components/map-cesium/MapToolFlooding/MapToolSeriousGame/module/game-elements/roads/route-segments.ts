@@ -408,7 +408,8 @@ export class RouteSegmentLineInstance {
 		if (this.parentPrimitive?.ready) {
 			const attributes = this.parentPrimitive.getGeometryInstanceAttributes(this.lineInstanceID);
 			if (b) {
-				attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.HOTPINK.withAlpha(0.8), attributes.color);
+				const darkenedColor = this.darkenColor(this.color, 0.6);
+				attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(darkenedColor, attributes.color);
 			} else {
 				attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(this.color, attributes.color);
 			}
@@ -426,6 +427,14 @@ export class RouteSegmentLineInstance {
 		}
 	}
 
+	private darkenColor(color: Cesium.Color, factor: number): Cesium.Color {
+		return new Cesium.Color(
+			Cesium.Math.clamp(color.red * factor, 0, 1),
+			Cesium.Math.clamp(color.green * factor, 0, 1),
+			Cesium.Math.clamp(color.blue * factor, 0, 1),
+			color.alpha
+		);
+	}
 }
 
 
