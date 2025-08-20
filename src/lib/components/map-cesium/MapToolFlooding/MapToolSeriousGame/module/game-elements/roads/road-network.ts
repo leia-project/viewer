@@ -137,17 +137,20 @@ export class RoadNetwork {
 	public async cleanSetRoutingGraph(time: number): Promise<void> {
 		const floodedRoadFeatures = this.floodLayerController.floodedRoadsLayer.source.OgcFeaturesLoaderCesium.features || [];
 		const floodedSegments = floodedRoadFeatures.map((f: GeoJSONFeature) => [f.properties.wvk_id, parseFloat(f.properties.flood_depth)] as [string, number]) || [];
-		const floodedSegmentsWithMeasures = floodedSegments.filter(([id, floodHeight]) => {
+		const floodedSegmentsWithMeasures = floodedSegments.map(([id, floodHeight]) => {
 			const segment = this.roadNetworkLayer.getItemByWvkId(id);
 			if (segment) {
-				floodHeight -= segment?.raisedBy;
+				floodHeight -= segment.raisedBy;
+				if (floodHeight > 0) {
+					return segment.id;
+				}
 			}
-			return segment && floodHeight > 0;
-		}).map(([id, flood_depth]) => id);
+			return null;
+		}).filter((fid) => fid !== null) as Array<string>;
 
 		const overloadedSegments = this.roadNetworkLayer.segments.filter((segment) => segment.overloaded(time)).map((segment) => segment.id);
 
-		const blockedSegments = this.measures.filter((measure) => measure instanceof BlockMeasure).map((measure) => measure.config.routeSegmentFids).flat();
+		const blockedSegments = this.measures.filter((measure) => measure instanceof BlockMeasure && get(measure.applied)).map((measure) => measure.config.routeSegmentFids).flat();
 		
 		this.routingAPI.update(floodedSegmentsWithMeasures, overloadedSegments, blockedSegments);
 	}

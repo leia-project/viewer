@@ -269,6 +269,7 @@ export class HexagonLayer {
 				this.primitive.show = false;
 			}
 			this.hoveredHexagon.set(undefined);
+			this.selectedHexagon.set(undefined);
 		}
 		this.map.refresh();
 	}
