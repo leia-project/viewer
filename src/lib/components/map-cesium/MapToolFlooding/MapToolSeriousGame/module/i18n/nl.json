@@ -18,6 +18,7 @@
 		"cars": "voertuigen",
 		"welcome": "Welkom",
 		"preparationPhase": "Voorbereidingsfase",
+		"evacuationPhase": "Evacuatiefase",
 		"startFlood": "Start Overstromingsscenario",
 		"notification": {
 			"start": "Wees gegroet, Overstromingsmanager! Het is jouw taak om Zeeland te beschermen tegen het water. Elke beslissing die jij neemt heeft directe gevolgen voor de veiligheid van duizenden mensen. De inwoners rekenen op je. Veel succes!",
@@ -26,6 +27,8 @@
 		"menu": {
 			"noLayersForRole": "Geen lagen beschikbaar voor deze rol."
 		},
-		"opacity": "Transparantie"
+		"opacity": "Transparantie",
+		"available": "Beschikbaar",
+		"unavailable": "Niet beschikbaar"
 	}
 }

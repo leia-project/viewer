@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from "svelte";
+	import { _ } from "svelte-i18n";
 	import { slide } from "svelte/transition";
 	import { Layers, ToolKit, TrafficEvent, WaveHeight } from "carbon-icons-svelte";
 	import type { GameController } from "../../module/game-controller";
@@ -14,7 +15,7 @@
 
 	const activeGame = gameController.active;
 
-	$: inPrepartionPhase = $activeGame?.inPreparationPhase;
+	$: inPreparationPhase = $activeGame?.inPreparationPhase;
 
 	let selectedMenu: number | undefined;
 
@@ -42,11 +43,11 @@
 				<MenuContent title="Layer Manager" icon={Layers}>
 					<LayerManager {gameController} />
 				</MenuContent>
-			{:else if selectedMenu === 1 && !$inPrepartionPhase}
+			{:else if selectedMenu === 1 && !$inPreparationPhase}
 				<MenuContent title="Flood Model Control" icon={WaveHeight}>
 					<FloodModelControl game={$activeGame} />
 				</MenuContent>
-			{:else if selectedMenu === 2 && !$inPrepartionPhase}
+			{:else if selectedMenu === 2 && !$inPreparationPhase}
 				<MenuContent title="Evacuations" icon={TrafficEvent}>
 					<EvacuationOverview game={$activeGame} />
 				</MenuContent>
@@ -63,7 +64,7 @@
 				active={selectedMenu === 0}
 				on:click={() => selectedMenu = selectedMenu === 0 ? undefined : 0}
 			/>
-			{#if !$inPrepartionPhase}
+			{#if !$inPreparationPhase}
 				<div class="data-menu-items" transition:slide={{ duration: 800, axis: "y" }}>
 					<GameButton
 						icon={WaveHeight}
@@ -85,6 +86,7 @@
 				active={selectedMenu === 3}
 				on:click={() => selectedMenu = selectedMenu === 3 ? undefined : 3}
 			/>
+			<div class="prep-phase-title">{$inPreparationPhase ? $_("game.preparationPhase") : $_("game.evacuationPhase")}</div>
 		</div>
 	{/if}
 </div>
@@ -119,6 +121,16 @@
 		background-color: var(--game-color-highlight);
 		border-radius: 8px;
 		pointer-events: none;
+	}
+
+	
+	.prep-phase-title {
+		color: var(--game-color-highlight);
+		font-weight: 500;
+		font-size: 1.15rem;
+		display: flex;
+		align-items: center;
+		margin-left: 1rem;
 	}
 
 </style>

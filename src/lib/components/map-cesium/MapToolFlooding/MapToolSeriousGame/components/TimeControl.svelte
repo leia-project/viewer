@@ -24,7 +24,6 @@
 
 {#if $inPreparationPhase}
 	<div class="prep-phase">
-		<div class="prep-phase-title">{$_("game.preparationPhase")}</div>
 		<GameButton
 			icon={SkipForwardSolidFilled}
 			hasTooltip={false}
@@ -80,17 +79,10 @@
 <style>
 
 	.prep-phase {
+		height: 100%;
 		display: flex;
 		align-items: center;
 		column-gap: 2rem;
-	}
-
-	.prep-phase-title {
-		color: var(--game-color-highlight);
-		font-weight: 600;
-		font-size: 1.2rem;
-		text-align: center;
-		margin: 1rem 0;
 	}
 
    .time-control {

@@ -18,6 +18,7 @@
 		"cars": "cars",
 		"welcome": "Welcome",
 		"preparationPhase": "Preparation Phase",
+		"evacuationPhase": "Evacuation Phase",
 		"startFlood": "Start Flooding Scenario",
 		"notification": {
 			"start": "Welcome to the serious game! You will be playing as a flood manager. Your goal is to manage the flood situation effectively by implementing measures and ensuring the safety of the citizens. Good luck!",
@@ -26,6 +27,8 @@
 		"menu": {
 			"noLayersForRole": "No layers available for this role."
 		},
-		"opacity": "Opacity"
+		"opacity": "Opacity",
+		"available": "Available",
+		"unavailable": "Unavailable"
 	}
 }

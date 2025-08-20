@@ -46,6 +46,7 @@ export abstract class Measure {
 		this.billboardApplied = this.createBillboard("#00BFFF", "applied"); // #AFEEEE
 		this.toggleEnabled.subscribe((enabled) => {
 			enabled ? this.subscribeApply() : this.applyUnsubscriber?.();
+			this.updateBillboard(enabled);
 		});
 		this.show.subscribe((show) => {
 			this.billboard.show = show;
@@ -118,6 +119,17 @@ export abstract class Measure {
 		});
 		this.map.viewer.entities.add(billboard);
 		return billboard;
+	}
+
+	private updateBillboard(enabled: boolean): void {
+		if (this.map.viewer.entities.contains(this.billboard)) {
+			this.map.viewer.entities.remove(this.billboard);
+		}
+		this.billboard = this.createBillboard(enabled ? "#F4F6F8" : "#787878", "default");
+		if (this.map.viewer.entities.contains(this.billboardApplied)) {
+			this.map.viewer.entities.remove(this.billboardApplied);
+		}
+		this.billboardApplied = this.createBillboard(enabled ? "#00BFFF" : "#306e82ff", "applied");
 	}
 
 	private updateEntities(): void {
