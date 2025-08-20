@@ -47,6 +47,10 @@
 		});
 	}
 
+	function deleteEvacuationGroup(evacuationGroup: EvacuationGroup): void {
+		evacuationGroup.evacuations.forEach(evacuation => game.evacuationController.deleteEvacuation(evacuation));
+	}
+
 </script>
 
 
@@ -135,7 +139,10 @@
 		<ul class="evacuation-list">
 			{#each $evacuationsGrouped as evacuationGroup}
 				{#if evacuationGroup.time === $elapsedTime}
-					<HexagonEvacuationGroupEntry {evacuationGroup} />
+					<HexagonEvacuationGroupEntry
+						{evacuationGroup}
+						on:delete={() => deleteEvacuationGroup(evacuationGroup)}
+					/>
 				{/if}
 			{/each}
 		</ul>
