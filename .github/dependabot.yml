@@ -1,9 +1,0 @@
-version: 2
-
-updates:
-  - package-ecosystem: "npm"
-    directory: "/" # location of package.json
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-    target-branch: "development" # branch to create pull requests for
