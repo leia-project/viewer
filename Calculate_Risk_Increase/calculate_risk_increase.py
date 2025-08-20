@@ -19,8 +19,8 @@ import geopandas as gpd
 
 def main():
     # Load the GeoDataFrames
-    gdf1 = gpd.read_file("Data/opwm_opp_huidig.geojson")
-    gdf2 = gpd.read_file("Data/opwm_opp_2050.geojson")
+    gdf1 = gpd.read_file("data/opwm_opp_huidig.geojson")
+    gdf2 = gpd.read_file("data/opwm_opp_2050.geojson")
 
     # Merge the GeoDataFrames on geometry
     joined = gdf1.merge(gdf2, on='geometry', how='inner')
