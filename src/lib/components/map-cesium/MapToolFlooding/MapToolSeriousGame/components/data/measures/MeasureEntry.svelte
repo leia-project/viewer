@@ -10,6 +10,7 @@
 
 	const applied = measure.applied;
 	const toggleEnabled = measure.toggleEnabled;
+	const show = measure.show;
 
 	const hoveredNode = roadNetwork.hoveredNode;
 
@@ -21,30 +22,32 @@
 
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-<div class="measure-entry" on:mouseenter={() => hover(true)} on:mouseleave={() => hover(false)} class:hovered={$hoveredNode === measure}>
-	<div class="apply-toggle" class:toggleEnabled={$toggleEnabled} 
-		on:click={() => {
-			if ($toggleEnabled) applied.set(!$applied);
-		}
-	}>
-		{#if $applied}
-			<CheckmarkFilled color="#30e630" />
-		{:else}
-			<CloseFilled color="#de2f10" />
-		{/if}
+{#if $show}
+	<div class="measure-entry" on:mouseenter={() => hover(true)} on:mouseleave={() => hover(false)} class:hovered={$hoveredNode === measure}>
+		<div class="apply-toggle" class:toggleEnabled={$toggleEnabled} 
+			on:click={() => {
+				if ($toggleEnabled) applied.set(!$applied);
+			}
+		}>
+			{#if $applied}
+				<CheckmarkFilled color="#30e630" />
+			{:else}
+				<CloseFilled color="#de2f10" />
+			{/if}
+		</div>
+		<div class="measure-details">
+			<div class="measure-type">{$_(`game.measureTypes.${measure.config.type}`)}</div>
+			<div class="measure-name">{measure.config.name}</div>
+		</div>
+		<GameButton
+			size={15}
+			icon={ZoomIn}
+			hasTooltip={false}
+			borderHighlight={false}
+			on:click={() => measure.flyTo()}
+		/>
 	</div>
-	<div class="measure-details">
-		<div class="measure-type">{$_(`game.measureTypes.${measure.config.type}`)}</div>
-		<div class="measure-name">{measure.config.name}</div>
-	</div>
-	<GameButton
-		size={15}
-		icon={ZoomIn}
-		hasTooltip={false}
-		borderHighlight={false}
-		on:click={() => measure.flyTo()}
-	/>
-</div>
+{/if}
 
 
 <style>

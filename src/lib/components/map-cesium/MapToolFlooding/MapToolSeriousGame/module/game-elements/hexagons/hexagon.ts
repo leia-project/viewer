@@ -216,7 +216,8 @@ export class Hexagon {
 			this.entityInstance.polygon.material = new Cesium.ColorMaterialProperty(get(this.color).withAlpha(this.alpha));
 		}
 		if (this.highlightEntityInstance.polygon) {
-			this.highlightEntityInstance.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.LIGHTPINK.withAlpha(this.alpha));
+			const darkenedColor = this.darkenColor(get(this.color), 0.8);
+			this.highlightEntityInstance.polygon.material = new Cesium.ColorMaterialProperty(darkenedColor.withAlpha(this.alpha));
 		}
 	}
 
@@ -247,7 +248,8 @@ export class Hexagon {
 		}
 		const cesiumColor = Cesium.Color.fromCssColorString(color);
 		this.color.set(cesiumColor);
-		if (this !== get(this.selectedHexagon)) this.unhighlight("click");
+		this !== get(this.selectedHexagon) ? this.unhighlight("click") : this.highlight("click");
+		this.updateEntityColor();
 	}
 
 	public addEvacuations(evacuations: Array<Evacuation>): void {
@@ -277,7 +279,7 @@ export class Hexagon {
 	public highlight(event: "click" | "hover"): void {
 		if (event === "hover" && this === get(this.selectedHexagon)) return;
 		if (!this.parentPrimitive?.ready) return;
-		const color = event === "hover" ? Cesium.Color.LIGHTPINK : Cesium.Color.HOTPINK;
+		const color = this.darkenColor(get(this.color), 0.8);
 		const attributes = this.parentPrimitive?.getGeometryInstanceAttributes(this.hex);
 		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(color, attributes.color); // this.valueToColor(this.population);
 
@@ -298,6 +300,15 @@ export class Hexagon {
 	public onAlphaUpdate(alpha: number): void {
 		this.alpha = alpha;
 		this.updateEntityColor();
+	}
+
+	private darkenColor(color: Cesium.Color, factor: number): Cesium.Color {
+		return new Cesium.Color(
+			Cesium.Math.clamp(color.red * factor, 0, 1),
+			Cesium.Math.clamp(color.green * factor, 0, 1),
+			Cesium.Math.clamp(color.blue * factor, 0, 1),
+			color.alpha
+		);
 	}
 
 }

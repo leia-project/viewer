@@ -35,6 +35,7 @@ export abstract class Measure {
 		return this.position;
 	}
 
+	public show: Writable<boolean> = writable(true);
 	public toggleEnabled: Writable<boolean> = writable(true);
 	private applyUnsubscriber?: () => void;
 
@@ -46,7 +47,18 @@ export abstract class Measure {
 		this.toggleEnabled.subscribe((enabled) => {
 			enabled ? this.subscribeApply() : this.applyUnsubscriber?.();
 		});
+		this.show.subscribe((show) => {
+			this.billboard.show = show;
+			this.billboardApplied.show = show;
+			if (this.polylinePrimitive) {
+				this.polylinePrimitive.show = show;
+			}
+			this.map.refresh();
+		});
 	}
+
+	// Use this function to toggle enabled state of the measure
+	public abstract inPreparationPhase(inPreparation: boolean): void;
 
 	private subscribeApply(): void {
 		this.applyUnsubscriber = this.applied.subscribe((applied) => {
@@ -101,7 +113,8 @@ export abstract class Measure {
 				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
 				verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
 				scaleByDistance: new Cesium.NearFarScalar(5.0e4, 1.0, 3.0e6, 0.1)
-			}
+			},
+			show: get(this.show)
 		});
 		this.map.viewer.entities.add(billboard);
 		return billboard;
@@ -109,8 +122,8 @@ export abstract class Measure {
 
 	private updateEntities(): void {
 		this.updateBillboardPosition();
-		this.billboard.show = this.routeSegments.length > 0;
-		this.billboardApplied.show = this.routeSegments.length > 0;
+		this.billboard.show = this.routeSegments.length > 0 && get(this.show);
+		this.billboardApplied.show = this.routeSegments.length > 0 && get(this.show);
 		this.updatePrimitive();
 	}
 
@@ -213,6 +226,10 @@ export class WidenMeasure extends Measure {
 		const newCapacity = routeSegment.capacity / this.config.value;
 		routeSegment.updateCapacity(newCapacity);
 	}
+
+	public inPreparationPhase(inPreparation: boolean): void {
+		this.toggleEnabled.set(inPreparation);
+	}
 }
 
 export class RaiseMeasure extends Measure {
@@ -228,6 +245,10 @@ export class RaiseMeasure extends Measure {
 	public removeFrom(routeSegment: RouteSegment): void {
 		routeSegment.raisedBy -= this.config.value;
 	}
+
+	public inPreparationPhase(inPreparation: boolean): void {
+		this.toggleEnabled.set(inPreparation);
+	}
 }
 
 export class BlockMeasure extends Measure {
@@ -240,5 +261,10 @@ export class BlockMeasure extends Measure {
 	}
 
 	public removeFrom(routeSegment: RouteSegment): void {
+	}
+
+	public inPreparationPhase(inPreparation: boolean): void {
+		this.toggleEnabled.set(!inPreparation);
+		this.show.set(!inPreparation);
 	}
 }
