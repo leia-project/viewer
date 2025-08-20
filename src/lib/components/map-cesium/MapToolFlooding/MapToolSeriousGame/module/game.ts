@@ -30,11 +30,10 @@ export class Game {
 	public elapsedTimeSinceBreach: Readable<number> = derived(this.elapsedTime, ($t) => $t - Game.breachStartOffsetInHours);
 	public inPreparationPhase: Readable<boolean> = derived(this.elapsedTime, ($t) => $t < 0);
 	public timeGaps: Readable<{ before?: number, after?: number }> = derived(this.elapsedTime, ($t) => {
-		const timeSteps = this.gameConfig.timeSteps;
-		const currentIndex = timeSteps.indexOf($t);
-		if (currentIndex === -1) return {};
-		const before = currentIndex > 0 ? timeSteps[currentIndex - 1] : undefined;
-		const after = currentIndex < timeSteps.length - 1 ? timeSteps[currentIndex + 1] : undefined;
+		const timeBefore = this.getAdjacentStep($t, "previous");
+		const timeAfter = this.getAdjacentStep($t, "next");
+		const before = timeBefore !== undefined ? $t - timeBefore : undefined;
+		const after = timeAfter !== undefined ? timeAfter - $t : undefined;
 		return { before, after };
 	});
 
@@ -113,18 +112,23 @@ export class Game {
 		this.floodLayerController.floodedRoadsLayer.hide();
 	}
 
+	public getAdjacentStep(time: number, direction: "next" | "previous"): number | undefined {
+		const timeSteps = this.gameConfig.timeSteps;
+		const stepIndex = timeSteps.indexOf(time);
+		if (stepIndex === -1) return undefined;
+
+		if (direction === "next" && stepIndex < timeSteps.length - 1) {
+			return timeSteps[stepIndex + 1];
+		} else if (direction === "previous" && stepIndex > 0) {
+			return timeSteps[stepIndex - 1];
+		}
+		return undefined;
+	}
+
 	public changeStep(direction: "next" | "previous"): void {
 		this.forwarding.set(true);
 		this.elapsedTimeDynamic.set(get(this.elapsedTime));
-		this.elapsedTime.update((value) => {
-			const currentStepIndex = this.gameConfig.timeSteps.indexOf(value);
-			if (direction === "next" && currentStepIndex < this.gameConfig.timeSteps.length - 1) {
-				return this.gameConfig.timeSteps[currentStepIndex + 1];
-			} else if (direction === "previous" && currentStepIndex > 0) {
-				return this.gameConfig.timeSteps[currentStepIndex - 1];
-			}
-			return value;
-		});
+		this.elapsedTime.update((value) => this.getAdjacentStep(value, direction) ?? value);
 		this.notificationLog.send({
 			title: "Game",
 			message: `Time ${direction === "next" ? "forwarded" : "rewinded"} to ${get(this.elapsedTimeSinceBreach)} hours since breach.`,

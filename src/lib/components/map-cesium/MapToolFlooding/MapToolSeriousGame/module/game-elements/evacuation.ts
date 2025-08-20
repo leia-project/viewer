@@ -42,7 +42,7 @@ export class Evacuation {
 			name: route.feature.properties.fid.toString(),
 			wall: {
 				positions: linePositions,
-				material: Cesium.Color.ORANGERED
+				material: Cesium.Color.LIGHTGRAY
 			},
 			properties: route.feature.properties,
 			show: false
@@ -87,14 +87,14 @@ export class Evacuation {
 		return (height / 10) + 50;
 	}
 	
-	public display(evacuationGroup: Array<Evacuation>): void {
-		if (get(this.shown) && evacuationGroup.length === 0) {
+	public display(evacuationArray: Array<Evacuation>): void {
+		if (get(this.shown) && evacuationArray.length === 0) {
 			return;
 		}
 		if (!this.map.viewer.dataSources.contains(this.dataSource)) {
 			this.map.viewer.dataSources.add(this.dataSource);
 		}
-		this.animate(evacuationGroup);
+		this.animate(evacuationArray);
 		this.shown.set(true);
 	}
 
@@ -109,11 +109,15 @@ export class Evacuation {
 		this.map.refresh();
 	}
 
-	public toggle(): void {
+	public toggle(evacuationArray: Array<Evacuation> = [], display?: boolean): void {
+		if (display !== undefined) {
+			display ? this.display(evacuationArray) : this.hide();
+			return;
+		}
 		if (get(this.shown)) {
 			this.hide();
 		} else {
-			this.display([]);
+			this.display(evacuationArray);
 		}
 	}
 

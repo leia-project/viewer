@@ -27,13 +27,17 @@
 		"menu": {
 			"noLayersForRole": "No layers available for this role.",
 			"noHexagonSelected": "No hexagon selected",
-			"noExtractionPointSelected": "No extraction point selected"
+			"noExtractionPointSelected": "No extraction point selected",
+			"noEvacuationsInThisTimestep": "No evacuations in this timestep"
 		},
 		"opacity": "Opacity",
 		"available": "Available",
 		"unavailable": "Unavailable",
 		"from": "From",
 		"to": "To",
-		"evacuations": "Evacuations"
+		"evacuations": "Evacuations",
+		"hours": "hours",
+		"proceed": "Continue",
+		"rewind": "Rewind"
 	}
 }

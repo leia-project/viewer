@@ -44,7 +44,7 @@
 					borderHighlight={true}
 					on:click={() => game.changeStep("previous")}
 				>
-					<svelte:fragment slot="popover">Terugspoelen ({$timeGaps.after} uur)</svelte:fragment>
+					<svelte:fragment slot="popover">{$_("game.rewind")} (—{$timeGaps.before} {$_("game.hours")})</svelte:fragment>
 				</GameButton>
 			{/if}
 		</div>
@@ -68,7 +68,7 @@
 					borderHighlight={true}
 					on:click={() => game.changeStep("next")}
 				>
-					<svelte:fragment slot="popover">Ga verder ({$timeGaps.after} uur)</svelte:fragment>
+					<svelte:fragment slot="popover">{$_("game.proceed")} (+{$timeGaps.after} {$_("game.hours")})</svelte:fragment>
 				</GameButton>
 			{/if}
 		</div>

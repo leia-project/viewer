@@ -26,14 +26,18 @@
 		},
 		"menu": {
 			"noLayersForRole": "Geen lagen beschikbaar voor deze rol.",
-			"noHexagonSelected": "Geen hexagoon geselecteerd",
-			"noExtractionPointSelected": "Geen evacuatiepunt geselecteerd"
+			"noHexagonSelected": "Geen hexagon geselecteerd",
+			"noExtractionPointSelected": "Geen evacuatiepunt geselecteerd",
+			"noEvacuationsInThisTimestep": "Geen evacuaties in deze tijdstap"
 		},
 		"opacity": "Transparantie",
 		"available": "Beschikbaar",
 		"unavailable": "Niet beschikbaar",
 		"from": "Van",
 		"to": "Naar",
-		"evacuations": "Evacuaties"
+		"evacuations": "Evacuaties",
+		"hours": "uur",
+		"proceed": "Verder gaan",
+		"rewind": "Terugspoelen"
 	}
 }

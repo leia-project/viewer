@@ -13,6 +13,14 @@ import type { EvacuationLogItem } from "../models";
 import type { RouteSegment } from "./roads/route-segments";
 
 
+export interface EvacuationGroup {
+	hexagon: Hexagon;
+	extractionPoint: RouteSegment;
+	time: number;
+	evacuations: Array<Evacuation>;
+}
+
+
 export class EvacuationController {
 
 	public game: Game;
@@ -21,6 +29,7 @@ export class EvacuationController {
 	public roadNetwork: RoadNetwork;
 	public hexagonLayer: HexagonLayer;
 	public evacuations!: Readable<Array<Evacuation>>;
+	public evacuationsGrouped!: Readable<Array<EvacuationGroup>>;
 	public evacuationLog: Array<EvacuationLogItem> = [];
 
 	constructor(game: Game, floodLayerController: FloodLayerController) {
@@ -37,6 +46,28 @@ export class EvacuationController {
 					set(allEvacuations);
 				}
 			);
+			this.evacuationsGrouped = derived(
+				this.evacuations,
+				($evacuations, set) => {
+					const grouped = $evacuations.reduce((acc, evacuation) => {
+						const key = `${evacuation.hexagon.hex}|${evacuation.extractionPoint.id}|${evacuation.time}`;
+						if (!acc[key]) {
+							acc[key] = {
+								hexagon: evacuation.hexagon,
+								extractionPoint: evacuation.extractionPoint,
+								time: evacuation.time,
+								evacuations: []
+							};
+						}
+						acc[key].evacuations.push(evacuation);
+						return acc;
+					}, {} as Record<string, EvacuationGroup>);
+					set(Object.values(grouped));
+				}
+			);
+			this.elapsedTime.subscribe(() => {
+				get(this.evacuations).forEach((evacuation) => evacuation.toggle([], false));
+			});
 		});
 		this.roadNetwork = new RoadNetwork(this.map, this.elapsedTime, game.gameConfig.outlineRoadNetwork, game.gameConfig.extractionPointIds, game.notificationLog, floodLayerController);
 		this.game.inPreparationPhase.subscribe((inPreparation) => {
