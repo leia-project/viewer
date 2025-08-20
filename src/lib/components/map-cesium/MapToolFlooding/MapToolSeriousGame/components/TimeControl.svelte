@@ -97,6 +97,7 @@
 	.button-container {
 		min-width: 100px;
 		display: flex;
+		margin: 0 0.5rem;
 	}
 
 </style>

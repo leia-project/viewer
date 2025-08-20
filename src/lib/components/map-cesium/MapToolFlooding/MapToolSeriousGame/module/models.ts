@@ -18,7 +18,7 @@ export interface IGameConfig {
 	scenario: string;
 	personsPerCar: number;
 	preparationPhase: boolean;
-	timeSteps: Array<number>;
+	timesteps: Array<number>;
 	homeView: CameraLocation;
 	floodView: CameraLocation;
 	outline: Array<[lon: number, lat: number]>;

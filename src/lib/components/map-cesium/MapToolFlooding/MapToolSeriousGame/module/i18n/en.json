@@ -29,7 +29,8 @@
 			"noLayersForRole": "No layers available for this role.",
 			"noHexagonSelected": "No hexagon selected",
 			"noExtractionPointSelected": "No extraction point selected",
-			"noEvacuationsInThisTimestep": "No evacuations in this timestep"
+			"noEvacuationsInThisTimestep": "No evacuations in this timestep",
+			"timeSinceBreach": "Time since breach"
 		},
 		"opacity": "Opacity",
 		"available": "Available",

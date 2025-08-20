@@ -54,113 +54,107 @@
 </script>
 
 
-<div class="evacuation-overview">
-	<HexagonLayerControl layer={game.evacuationController.hexagonLayer} />
+<HexagonLayerControl layer={game.evacuationController.hexagonLayer} />
 
-	<div class="divider"></div>
+<div class="divider"></div>
 
-	<div class="evacuation-create">
-		<span class="point point-a">
-			<span class="point-label">{$_("game.from")}</span>
-			<span>
-				{#if $selectedHexagon}
-					<span>{$selectedHexagon.hex}</span>
-				{:else}
-					{$_("game.menu.noHexagonSelected")}
-				{/if}
-			</span>
+<div class="evacuation-create">
+	<span class="point point-a">
+		<span class="point-label">{$_("game.from")}</span>
+		<span>
+			{#if $selectedHexagon}
+				<span>{$selectedHexagon.hex}</span>
+			{:else}
+				{$_("game.menu.noHexagonSelected")}
+			{/if}
 		</span>
-		<EvacuateAction
-			hexagon={$selectedHexagon}
-			evacuationController={game.evacuationController}
-		/>
-		<span class="point point-b">
-			<span class="point-label">{$_("game.to")}</span>
-			<span>
-				{#if $selectedExtractionPoint}
-					{$selectedExtractionPoint.feature.properties.name}
-				{:else}
-					{$_("game.menu.noExtractionPointSelected")}
-				{/if}
-			</span>
+	</span>
+	<EvacuateAction
+		hexagon={$selectedHexagon}
+		evacuationController={game.evacuationController}
+	/>
+	<span class="point point-b">
+		<span class="point-label">{$_("game.to")}</span>
+		<span>
+			{#if $selectedExtractionPoint}
+				{$selectedExtractionPoint.feature.properties.name}
+			{:else}
+				{$_("game.menu.noExtractionPointSelected")}
+			{/if}
 		</span>
+	</span>
+</div>
+
+<div class="divider"></div>
+
+<div class="evacuation-list-header">
+	<span>{$_("game.evacuations")} ({$currentEvacuationsGrouped.length})</span>
+	<div class="step-title">
+		{#if $currentEvacuationsGrouped.length > 0}
+			<GameButton
+				icon={View}
+				size={14}
+				hasTooltip={false}
+				borderHighlight={true}
+				active={$showAllToggled}
+				buttonText={`T+ ${$elapsedTimeSinceBreach}`}
+				on:click={toggleAllEvacuationsAggregated}
+			/>
+		{:else}
+			<span class="step-pill">{`T+ ${$elapsedTimeSinceBreach} ${$_("game.hours")}`}</span>
+		{/if}
 	</div>
-
-	<div class="divider"></div>
-
-	<div class="evacuation-list-header">
-		<span>{$_("game.evacuations")} ({$currentEvacuationsGrouped.length})</span>
-		<div class="step-title">
-			{#if $evacuationsGrouped.length > 0}
+	<!-- Navigation: Too confusing for users (?)
+	<div class="step-nav">
+		<div class="step-nav-button">
+			{#if previousHour}
 				<GameButton
-					icon={View}
+					icon={PreviousFilled}
 					size={14}
 					hasTooltip={false}
 					borderHighlight={true}
-					active={$showAllToggled}
-					buttonText={`T+ ${$elapsedTimeSinceBreach}`}
-					on:click={toggleAllEvacuationsAggregated}
+					active={nextHour !== undefined}
+					on:click={() => selectedHour = previousHour}
 				/>
-			{:else}
-				<span>{`T+ ${$elapsedTimeSinceBreach} ${$_("game.hours")}`}</span>
 			{/if}
 		</div>
-		<!-- Navigation: Too confusing for users (?)
-		<div class="step-nav">
-			<div class="step-nav-button">
-				{#if previousHour}
-					<GameButton
-						icon={PreviousFilled}
-						size={14}
-						hasTooltip={false}
-						borderHighlight={true}
-						active={nextHour !== undefined}
-						on:click={() => selectedHour = previousHour}
-					/>
-				{/if}
-			</div>
-			<span class="step-title">{`T+ ${selectedHour - Game.breachStartOffsetInHours}`}</span>
-			<div class="step-nav-button">
-				{#if nextHour}
-					<GameButton
-						icon={NextFilled}
-						size={14}
-						hasTooltip={false}
-						borderHighlight={true}
-						active={nextHour !== undefined}
-						on:click={() => selectedHour = nextHour}
-					/>
-				{/if}
-			</div>
+		<span class="step-title">{`T+ ${selectedHour - Game.breachStartOffsetInHours}`}</span>
+		<div class="step-nav-button">
+			{#if nextHour}
+				<GameButton
+					icon={NextFilled}
+					size={14}
+					hasTooltip={false}
+					borderHighlight={true}
+					active={nextHour !== undefined}
+					on:click={() => selectedHour = nextHour}
+				/>
+			{/if}
 		</div>
-		-->
 	</div>
-	{#if $evacuationsGrouped.length > 0}
-		<ul class="evacuation-list">
-			{#each $evacuationsGrouped as evacuationGroup}
-				{#if evacuationGroup.time === $elapsedTime}
-					<HexagonEvacuationGroupEntry
-						{evacuationGroup}
-						on:delete={() => deleteEvacuationGroup(evacuationGroup)}
-					/>
-				{/if}
-			{/each}
-		</ul>
-	{:else}
-		<p>{$_("game.menu.noEvacuationsInThisTimestep")}</p>
-	{/if}
+	-->
 </div>
+{#if $evacuationsGrouped.length > 0}
+	<ul class="evacuation-list">
+		{#each $evacuationsGrouped as evacuationGroup}
+			{#if evacuationGroup.time === $elapsedTime}
+				<HexagonEvacuationGroupEntry
+					{evacuationGroup}
+					on:delete={() => deleteEvacuationGroup(evacuationGroup)}
+				/>
+			{/if}
+		{/each}
+	</ul>
+{:else}
+	<p>{$_("game.menu.noEvacuationsInThisTimestep")}</p>
+{/if}
 
 
 <style>
 
-	.evacuation-overview {
-		padding-bottom: 1rem;
-	}
-
 	.divider {
 		border-top: 1px solid lightslategray;
-		margin: 1rem 1rem;
+		margin: 1rem 0;
 	}
 
 	.evacuation-create {
@@ -193,6 +187,13 @@
 	.step-title {
 		font-size: 0.9rem;
 		font-weight: 500;
+	}
+
+	.step-pill {
+		background-color: var(--game-color-highlight);
+		color: rgb(var(--game-color-bg));
+		padding: 0.25rem 0.8rem;
+		border-radius: 0.5rem;
 	}
 
 	.step-nav {

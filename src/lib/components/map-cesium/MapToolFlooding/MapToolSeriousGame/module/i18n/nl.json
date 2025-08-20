@@ -29,7 +29,8 @@
 			"noLayersForRole": "Geen lagen beschikbaar voor deze rol.",
 			"noHexagonSelected": "Geen hexagon geselecteerd",
 			"noExtractionPointSelected": "Geen evacuatiepunt geselecteerd",
-			"noEvacuationsInThisTimestep": "Geen evacuaties in deze tijdstap"
+			"noEvacuationsInThisTimestep": "Geen evacuaties in deze tijdstap",
+			"timeSinceBreach": "Tijd sinds doorbraak"
 		},
 		"opacity": "Transparantie",
 		"available": "Beschikbaar",

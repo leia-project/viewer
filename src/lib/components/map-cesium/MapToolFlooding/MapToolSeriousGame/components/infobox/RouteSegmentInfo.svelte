@@ -14,29 +14,29 @@
 	<div class="route-segment-info">
 		<span class="info-label">{$_("game.maxSpeed")}</span>
 		<span class="route-segment-value">
-			<span class="value">{segment.feature.properties.maximum_snelheid}</span>
-			<span class="unit">km/h</span>
+			<span>{segment.feature.properties.maximum_snelheid}</span>
+			<span>km/h</span>
 		</span>
 	</div>
 	<div class="route-segment-info">
 		<span class="info-label">{$_("game.capacity")}/{$_("game.hour")}</span>
 		<span class="route-segment-value">
-			<span class="value">{Math.round(segment.capacityPerHour).toLocaleString('nl-NL')}</span>
-			<span class="unit">{$_("game.cars")}</span>
+			<span>{Math.round(segment.capacityPerHour).toLocaleString('nl-NL')}</span>
+			<span>{$_("game.cars")}</span>
 		</span>
 	</div>
 	<div class="route-segment-info">
 		<span class="info-label">{$_("game.capacity")}</span>
 		<span class="route-segment-value">
-			<span class="value">{Math.round(segment.capacity).toLocaleString('nl-NL')}</span>
-			<span class="unit">{$_("game.cars")}</span>
+			<span>{Math.round(segment.capacity).toLocaleString('nl-NL')}</span>
+			<span>{$_("game.cars")}</span>
 		</span>
 	</div>
 	<div class="route-segment-info">
 		<span class="info-label">{$_("game.load")}</span>
 		<span class="route-segment-value">
-			<span class="value">{Math.round($load).toLocaleString('nl-NL')}</span>
-			<span class="unit">{$_("game.cars")}</span>
+			<span>{Math.round($load).toLocaleString('nl-NL')}</span>
+			<span>{$_("game.cars")}</span>
 		</span>
 	</div>
 </div>
@@ -72,9 +72,8 @@
 		column-gap: 0.4rem;
 	}
 
-	.route-segment-value .value {
+	.route-segment-value span:first-child {
 		justify-self: flex-end;
 	}
-
 
 </style>

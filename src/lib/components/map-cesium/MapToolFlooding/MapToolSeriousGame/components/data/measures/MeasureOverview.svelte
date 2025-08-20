@@ -22,44 +22,38 @@
 </script>
 
 
-<div class="measure-overview">
-	<div class="layer-control">
-		<BaseLayer
-			visible={roadNetwork.measureToggled}
-			title={$_("game.measures")}
-		/>
-	</div>
+<div class="layer-control">
+	<BaseLayer
+		visible={roadNetwork.measureToggled}
+		title={$_("game.measures")}
+	/>
+</div>
 
+<div class="divider" />
+
+<div class="measure-list">
+	<div class="measure-list-title">{$_("game.available")}</div>
+	{#each $enabledMeasures as measure}
+		<MeasureEntry {measure} {roadNetwork} />
+	{/each}
+</div>
+
+{#if $disabledMeasures.length > 0}
 	<div class="divider" />
 
 	<div class="measure-list">
-		<div class="measure-list-title">{$_("game.available")}</div>
-		{#each $enabledMeasures as measure}
+		<div class="measure-list-title">{$_("game.unavailable")} in {$inPreparationPhase ? $_("game.preparationPhase") : $_("game.evacuationPhase")}</div>
+		{#each $disabledMeasures as measure}
 			<MeasureEntry {measure} {roadNetwork} />
 		{/each}
 	</div>
-
-	{#if $disabledMeasures.length > 0}
-		<div class="divider" />
-
-		<div class="measure-list">
-			<div class="measure-list-title">{$_("game.unavailable")} in {$inPreparationPhase ? $_("game.preparationPhase") : $_("game.evacuationPhase")}</div>
-			{#each $disabledMeasures as measure}
-				<MeasureEntry {measure} {roadNetwork} />
-			{/each}
-		</div>
-	{/if}
-</div>
+{/if}
 
 
 <style>
 
-	.measure-overview {
-		padding-bottom: 0.75rem;
-	}
-
 	.divider {
-		border-bottom: 1px solid var(--game-color-highlight);
+		border-bottom: 1px solid lightslategray;
 		margin: 1rem 0;
 	}
 
@@ -79,6 +73,6 @@
 		font-size: 0.9rem;
 		color: var(--game-color-highlight);
 		margin-bottom: 0.6rem;
-}
+	}
 
 </style>

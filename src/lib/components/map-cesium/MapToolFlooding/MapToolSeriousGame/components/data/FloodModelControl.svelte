@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { onDestroy } from "svelte";
+	import { _ } from "svelte-i18n";
 	import * as Cesium from "cesium";
 	import { Slider } from "carbon-components-svelte";
 	import { Reset } from "carbon-icons-svelte";
-	import type { Game } from "../../module/game";
+	import { Game } from "../../module/game";
 	import GameButton from "../general/GameButton.svelte";
+	import { derived } from "svelte/store";
 
 	export let game: Game;
 
@@ -25,45 +27,125 @@
 	onDestroy(() => {
 		selectedTime.set($simulationTime);
 		floodLayer.source.color.set(floodLayer.source.defaultColor);
+		console.log("Flood model control destroyed, resetting time and color.");
 	});
+
+	const sliderMin = game.gameConfig.timesteps[0];
+	const sliderMax = game.gameConfig.timesteps[game.gameConfig.timesteps.length - 1];
+
+	const floodedSegments = game.evacuationController.roadNetwork.routingAPI.floodedSegments;
+	let floodedHexagons = derived(
+		game.evacuationController.hexagonLayer.hexagons.map(hex => hex.status), 
+		$statuses => $statuses.filter(status => status === "flooded").length
+	);
+	let maxFloodDepth = derived(
+		game.evacuationController.hexagonLayer.hexagons.map(hex => hex.floodDepth), 
+		$depths => Math.max(...$depths)
+	);
 
 </script>
 
 
-<div>Explanation on the model</div>
-<div>Data on expansion of the flood (area m2, number of hexagons, max flood depth, etc.)</div>
-<div class="slider-container">
-	<div class="slider-label">Opacity</div>
-	<Slider
-		min={0}
-		max={100}
-		step={0.01}
-		bind:value={$floodLayerOpacity}
-		hideLabel={true}
-		hideTextInput={true}
-	/>
-</div>
-<div class="slider-container">
-	<div class="slider-label">Fast Forward Model</div>
-	<Slider
-		min={0}
-		max={12}
-		step={0.1}
-		bind:value={$selectedTime}
-		hideLabel={true}
-		hideTextInput={true}
-	/>
-	<GameButton
-		size={15}
-		icon={Reset}
-		hasTooltip={false}
-		borderHighlight={true}
-		on:click={() => selectedTime.set($simulationTime)}
-	/>
+<div class="flood-model">
+	<div class="flood-details">
+		<div class="flood-model-info">
+			<div class="flood-model-info-key">Expansion</div>
+			<div class="flood-model-info-value">
+				<span>{$floodedHexagons}</span>
+				<span>flooded hexagons</span>
+			</div>
+		</div>
+		<div class="flood-model-info">
+			<div class="flood-model-info-key">Max. flood depth</div>
+			<div class="flood-model-info-value">
+				<span>{Math.round($maxFloodDepth * 100) / 100}</span>
+				<span>m</span>
+			</div>
+		</div>
+		<div class="flood-model-info">
+			<div class="flood-model-info-key">Flooded roads</div>
+			<div class="flood-model-info-value">
+				<span>{$floodedSegments.length}</span>
+				<span>flooded road segments</span>
+			</div>
+		</div>
+	</div>
+
+	<div class="divider" />
+
+	<div class="slider-container">
+		<div class="slider-label">{$_("game.opacity")}</div>
+		<Slider
+			min={0}
+			max={100}
+			step={0.01}
+			bind:value={$floodLayerOpacity}
+			hideLabel={true}
+			hideTextInput={true}
+		/>
+	</div>
+	<div class="slider-container">
+		<div class="slider-label">{$_("game.menu.timeSinceBreach")}</div>
+		<Slider
+			min={sliderMin}
+			max={sliderMax}
+			step={0.1}
+			minLabel={(sliderMin - Game.breachStartOffsetInHours).toString()}
+			maxLabel={(sliderMax - Game.breachStartOffsetInHours).toString()}
+			bind:value={$selectedTime}
+			hideLabel={true}
+			hideTextInput={true}
+		/>
+		<GameButton
+			size={15}
+			icon={Reset}
+			hasTooltip={false}
+			borderHighlight={true}
+			on:click={() => selectedTime.set($simulationTime)}
+		/>
+	</div>
 </div>
 
 
 <style>
+
+	.divider {
+		border-bottom: 1px solid lightslategray;
+		margin: 1rem 0;
+	}
+
+	.flood-model {
+		padding-bottom: 0.75rem;
+	}
+
+	.flood-details {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		margin: 1rem 0;
+		font-weight: 600;
+	}
+
+	.flood-model-info {
+		display: grid;
+		grid-template-columns: 120px auto;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.flood-model-info-key {
+		color: var(--game-color-highlight);
+	}
+
+	.flood-model-info-value {
+		display: grid;
+		grid-template-columns: 40px auto;
+		gap: 0.6rem;
+	}
+
+	.flood-model-info-value span:first-child {
+		justify-self: flex-end;
+	}
 
 	.slider-container :global(.bx--slider__thumb) {
 		background: var(--game-color-highlight);

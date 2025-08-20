@@ -1,3 +1,4 @@
+import { get, writable, type Writable } from "svelte/store";
 import { PGRestAPI } from "./pg-rest-api";
 import { calculateRoute } from "./routing/calculateroute";
 import { disableGraphEdges, resetGraphToDefault } from "./routing/graph";
@@ -32,7 +33,7 @@ export interface RouteFeature {
 
 export class RoutingAPI extends PGRestAPI {
 
-	private floodedSegments: Array<string> = [];
+	public floodedSegments: Writable<Array<string>> = writable([]);
 	private overloadedSegments: Array<string> = [];
 	private blockedSegments: Array<string> = [];
 
@@ -42,7 +43,7 @@ export class RoutingAPI extends PGRestAPI {
 
 	public async getRoute(startPoint: [lon: number, lat: number], endPoint: [lon: number, lat: number]): Promise<{ type: string, features: Array<RouteFeature> }> {
 		const maxDistance = 15000; // meters
-		const route = await calculateRoute("zeeland_datacore", "car", startPoint, endPoint, [...this.floodedSegments, ...this.overloadedSegments, ...this.blockedSegments], maxDistance);
+		const route = await calculateRoute("zeeland_datacore", "car", startPoint, endPoint, [...get(this.floodedSegments), ...this.overloadedSegments, ...this.blockedSegments], maxDistance);
 		return route;
 	}
 
@@ -64,7 +65,7 @@ export class RoutingAPI extends PGRestAPI {
 	}
 
 	public update(floodedSegments: Array<string>, overloadedSegments: Array<string>, blockedSegments: Array<string>): void {
-		this.floodedSegments = floodedSegments;
+		this.floodedSegments.set(floodedSegments);
 		this.overloadedSegments = overloadedSegments;
 		this.blockedSegments = blockedSegments;
 

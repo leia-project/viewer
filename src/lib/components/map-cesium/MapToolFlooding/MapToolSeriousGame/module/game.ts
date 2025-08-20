@@ -16,7 +16,7 @@ import { BackgroundMusic } from "./background-music";
 
 export class Game {
 
-	private static breachStartOffsetInHours: number = 4;
+	public static breachStartOffsetInHours: number = 4;
 
 	public map: Map;
 	public marvin?: MarvinApp;
@@ -113,14 +113,14 @@ export class Game {
 	}
 
 	public getAdjacentStep(time: number, direction: "next" | "previous"): number | undefined {
-		const timeSteps = this.gameConfig.timeSteps;
-		const stepIndex = timeSteps.indexOf(time);
+		const timesteps = this.gameConfig.timesteps;
+		const stepIndex = timesteps.indexOf(time);
 		if (stepIndex === -1) return undefined;
 
-		if (direction === "next" && stepIndex < timeSteps.length - 1) {
-			return timeSteps[stepIndex + 1];
+		if (direction === "next" && stepIndex < timesteps.length - 1) {
+			return timesteps[stepIndex + 1];
 		} else if (direction === "previous" && stepIndex > 0) {
-			return timeSteps[stepIndex - 1];
+			return timesteps[stepIndex - 1];
 		}
 		return undefined;
 	}
@@ -142,6 +142,12 @@ export class Game {
 		const newTime = get(this.elapsedTime);
 		if (newTime !== get(this.elapsedTimeDynamic)) {
 			this.map.flyTo(this.gameConfig.floodView);
+
+			// For visual appeal:
+			this.evacuationController.hexagonLayer.use2DMode.set(true);
+			const hexagonAlpha = this.evacuationController.hexagonLayer.alpha;
+			hexagonAlpha.set(Math.min(0.3, get(hexagonAlpha)));
+
 			this.interval = setInterval(() => {
 				this.elapsedTimeDynamic.update((value) => {
 					if (direction === "next") {
@@ -218,7 +224,7 @@ export class Game {
 	}
 	
 	private setStep(time: number): void {
-		if (time < this.gameConfig.timeSteps[0] || time >= this.gameConfig.timeSteps[this.gameConfig.timeSteps.length - 1]) {
+		if (time < this.gameConfig.timesteps[0] || time >= this.gameConfig.timesteps[this.gameConfig.timesteps.length - 1]) {
 			throw new Error("Invalid step index");
 		}
 		this.elapsedTime.set(time);
@@ -226,7 +232,7 @@ export class Game {
 	}
 
 	public startBreach(): void {
-		this.setStep(this.gameConfig.timeSteps[0]);
+		this.setStep(this.gameConfig.timesteps[0]);
 		this.notificationLog.send({
 			title: "Scenario",
 			message: this.gameConfig.scenarioDescription,

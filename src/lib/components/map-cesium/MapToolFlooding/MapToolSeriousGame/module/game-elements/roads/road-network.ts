@@ -18,7 +18,7 @@ import type { GeoJSONFeature } from "$lib/components/map-cesium/module/providers
 export class RoadNetwork {
 
 	public map: Map;
-	private routingAPI: RoutingAPI;
+	public routingAPI: RoutingAPI;
 	private outline: Array<[lon: number, lat: number]>;
 	private floodLayerController: FloodLayerController;
 

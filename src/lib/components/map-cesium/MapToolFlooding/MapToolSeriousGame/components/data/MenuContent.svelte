@@ -24,7 +24,7 @@
 		background-color: rgba(var(--game-color-bg), 0.8);
 		border-top-right-radius: 8px;
 		color: var(--game-color-text);
-		padding: 1rem;
+		padding: 1rem 1rem 2rem;
 	}
 	
 	.data-menu-header {

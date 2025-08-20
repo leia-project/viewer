@@ -70,7 +70,7 @@
 <style>
 
 	.layer-manager {
-		margin: 1rem 0;
+		margin-top: 1rem;
 		min-width: 300px;
 	}
 
