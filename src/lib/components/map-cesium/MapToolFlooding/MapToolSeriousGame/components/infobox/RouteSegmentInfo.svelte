@@ -19,16 +19,23 @@
 		</span>
 	</div>
 	<div class="route-segment-info">
+		<span class="info-label">{$_("game.capacity")}/{$_("game.hour")}</span>
+		<span class="route-segment-value">
+			<span class="value">{Math.round(segment.capacityPerHour).toLocaleString('nl-NL')}</span>
+			<span class="unit">{$_("game.cars")}</span>
+		</span>
+	</div>
+	<div class="route-segment-info">
 		<span class="info-label">{$_("game.capacity")}</span>
 		<span class="route-segment-value">
-			<span class="value">{segment.capacity}</span>
+			<span class="value">{Math.round(segment.capacity).toLocaleString('nl-NL')}</span>
 			<span class="unit">{$_("game.cars")}</span>
 		</span>
 	</div>
 	<div class="route-segment-info">
 		<span class="info-label">{$_("game.load")}</span>
 		<span class="route-segment-value">
-			<span class="value">{$load}</span>
+			<span class="value">{Math.round($load).toLocaleString('nl-NL')}</span>
 			<span class="unit">{$_("game.cars")}</span>
 		</span>
 	</div>
@@ -61,7 +68,7 @@
 
 	.route-segment-value {
 		display: grid;
-		grid-template-columns: 50px auto;
+		grid-template-columns: 60px auto;
 		column-gap: 0.4rem;
 	}
 

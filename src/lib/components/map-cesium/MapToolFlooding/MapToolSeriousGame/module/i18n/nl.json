@@ -1,5 +1,6 @@
 {
 	"game": {
+		"breach": "doorbraak",
 		"measure": "Maatregel",
 		"measures": "Maatregelen",
 		"measureTypes": {
@@ -35,9 +36,16 @@
 		"unavailable": "Niet beschikbaar",
 		"from": "Van",
 		"to": "Naar",
+		"until": "Tot",
+		"since": "Sinds",
+		"time": "Tijd",
 		"evacuations": "Evacuaties",
+		"hour": "uur",
 		"hours": "uur",
 		"proceed": "Verder gaan",
-		"rewind": "Terugspoelen"
+		"rewind": "Terugspoelen",
+		"inhabitants": "Inwoners",
+		"evacuated": "Geëvacueerd",
+		"victims": "Slachtoffers"
 	}
 }

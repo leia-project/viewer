@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import { FaceDizzyFilled, FaceWinkFilled } from "carbon-icons-svelte";
 	import type { Game } from "../module/game";
 	import Pill from "./general/Pill.svelte";
@@ -17,16 +18,16 @@
 	{#if evacuatedCount !== undefined && victimCount !== undefined}
 		<Pill
 			icon={FaceDizzyFilled}
-			label="Slachtoffers"
-			value={$victimCount || 0}
-			color="#c21111"
+			label={$_("game.victims")}
+			value={$victimCount?.toLocaleString("nl-NL") || 0}
+			color="#FF4500"
 			scale={1.2}
 		/>
 		<Pill
 			icon={FaceWinkFilled}
-			label="Geevacueerd"
-			value={$evacuatedCount || 0}
-			color="green"
+			label={$_("game.evacuated")}
+			value={$evacuatedCount?.toLocaleString("nl-NL") || 0}
+			color="#1a9850"
 			scale={1.2}
 		/>
 	{/if}

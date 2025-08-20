@@ -71,7 +71,7 @@
 			evacuationController={game.evacuationController}
 		/>
 		<span class="point point-b">
-			<span class="point-label">{$_("game.from")}</span>
+			<span class="point-label">{$_("game.to")}</span>
 			<span>
 				{#if $selectedExtractionPoint}
 					{$selectedExtractionPoint.feature.properties.name}

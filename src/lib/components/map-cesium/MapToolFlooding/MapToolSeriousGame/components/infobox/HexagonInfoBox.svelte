@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import type { Writable } from "svelte/store";
 	import { HexagonVerticalOutline } from "carbon-icons-svelte";
 	import type { Map } from "$lib/components/map-cesium/module/map";
@@ -39,8 +40,14 @@
 	<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 	<div class="hexagon-info-box">
 		<div>
-			<div>Population: {hexagon.population}</div>
-			<div>Evacuated: {$evacuated}</div>
+			<div class="hexagon-info">
+				<span>{$_("game.inhabitants")}</span>
+				<span>{hexagon.population.toLocaleString('nl-NL')}</span>
+			</div>
+			<div class="hexagon-info">
+				<span>{$_("game.evacuated")}</span>
+				<span>{$evacuated.toLocaleString('nl-NL')}</span>
+			</div>
 		</div>
 		{#if type === "selected"}
 			<MarvinInfoBoxAddOn
@@ -69,8 +76,13 @@
 	.hexagon-info-box {
 		display: flex;
 		justify-content: space-between;
-		column-gap: 2.5rem;
+		column-gap: 1.5rem;
 		color: var(--game-color-highlight)
+	}
+
+	.hexagon-info {
+		display: grid;
+		grid-template-columns: 100px auto;
 	}
 
 </style>

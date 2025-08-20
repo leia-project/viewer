@@ -26,9 +26,9 @@ export class Game {
 	public notificationLog: NotificationLog;
 	public forwarding: Writable<boolean> = writable(false);
 	public startTime: number;
-	public elapsedTime: Writable<number> = writable(-1); // Initialize to -1 to indicate not preparation phase
+	public elapsedTime: Writable<number> = writable(-999); // Initialize to -999 to indicate not preparation phase
 	public elapsedTimeSinceBreach: Readable<number> = derived(this.elapsedTime, ($t) => $t - Game.breachStartOffsetInHours);
-	public inPreparationPhase: Readable<boolean> = derived(this.elapsedTime, ($t) => $t < 0);
+	public inPreparationPhase: Readable<boolean> = derived(this.elapsedTime, ($t) => $t === -999);
 	public timeGaps: Readable<{ before?: number, after?: number }> = derived(this.elapsedTime, ($t) => {
 		const timeBefore = this.getAdjacentStep($t, "previous");
 		const timeAfter = this.getAdjacentStep($t, "next");
@@ -173,10 +173,11 @@ export class Game {
 	}
 
 	public getFormattedTime(time: number): string {
-		const totalMinutes = Math.floor(time * 60);
+		const totalMinutes = Math.floor(Math.abs(time) * 60);
 		const hours = Math.floor(totalMinutes / 60);
 		const minutes = totalMinutes % 60;
-		return `${hours}:${minutes.toString().padStart(2, "0")}`;
+		const sign = time < 0 ? "-" : "";
+		return `${sign}${hours}:${minutes.toString().padStart(2, "0")}`;
 	}
 
 	public save(): void {
@@ -217,7 +218,7 @@ export class Game {
 	}
 	
 	private setStep(time: number): void {
-		if (time < 0 || time >= this.gameConfig.timeSteps[this.gameConfig.timeSteps.length - 1]) {
+		if (time < this.gameConfig.timeSteps[0] || time >= this.gameConfig.timeSteps[this.gameConfig.timeSteps.length - 1]) {
 			throw new Error("Invalid step index");
 		}
 		this.elapsedTime.set(time);

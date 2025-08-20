@@ -1,4 +1,4 @@
-import { get, writable, type Writable } from "svelte/store";
+import { get, writable, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import { lineString, length, along } from '@turf/turf';
 import gsap  from "gsap";
@@ -10,24 +10,24 @@ import { CylinderGeometry } from "./cylinder-geometry";
 export class RoadNetworkLayer {
 
 	private map: CesiumMap;
-	private dataSource: Cesium.CustomDataSource;
 	public segments: Array<RouteSegment> = [];
 	private extractionPointIds: Array<string>;
 	private polylinePrimitive?: Cesium.GroundPolylinePrimitive;
 	private extractionPointPrimitive?: Cesium.Primitive;
-	private elapsedTime: Writable<number>;
 
-	constructor(map: CesiumMap, elapsedTime: Writable<number>, extractionPointIds: Array<string>) {
+	private elapsedTime: Writable<number>;
+	private timeGaps: Readable<{ before?: number, after?: number }>;
+
+	constructor(map: CesiumMap, elapsedTime: Writable<number>, timeGaps: Readable<{ before?: number, after?: number }>, extractionPointIds: Array<string>) {
 		this.map = map;
-		this.elapsedTime = elapsedTime;
 		this.extractionPointIds = extractionPointIds;
-		this.dataSource = new Cesium.CustomDataSource();
-		this.map.viewer.dataSources.add(this.dataSource);
+		this.elapsedTime = elapsedTime;
+		this.timeGaps = timeGaps;
 	}
 
 	public add(item: RouteFeature, updatePrimitive: boolean = true): RouteSegment {
 		const isExtractionPoint = this.extractionPointIds.includes(item.properties.fid.toString());
-		const routeSegment = new RouteSegment(item, this.elapsedTime, this.dataSource, this.map, isExtractionPoint);
+		const routeSegment = new RouteSegment(item, this.elapsedTime, this.timeGaps, this.map, isExtractionPoint);
 		this.segments.push(routeSegment);
 		if (updatePrimitive) this.updatePrimitive();
 		return routeSegment;
@@ -36,10 +36,6 @@ export class RoadNetworkLayer {
 	public remove(item: RouteSegment, updatePrimitive: boolean = true): void {
 		this.segments = this.segments.filter((segment) => segment.id !== item.id);
 		if (updatePrimitive) this.updatePrimitive();
-	}
-
-	public clear(): void {
-		this.map.viewer.dataSources.remove(this.dataSource);
 	}
 
 	public getItemById(id: string): RouteSegment | undefined {
@@ -241,6 +237,7 @@ function getMidpoint(coords: Array<[lon: number, lat: number]>): { lon: number, 
 
 export class RouteSegment extends RoutingNode<IEdgeFeature> {
 
+	public capacityPerHour: number;
 	public capacity: number; // Extraction capacity per time step
 	public elapsedTime: Writable<number>;
 	public loadPerTimeStep: Map<number, number> = new Map(); // Load per time step
@@ -255,17 +252,22 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 
 	public raisedBy: number = 0;
 
-	constructor(feature: IEdgeFeature, elapsedTime: Writable<number>, dataSource: Cesium.CustomDataSource, map: CesiumMap, isExtractionPoint: boolean) {
+	constructor(feature: IEdgeFeature, elapsedTime: Writable<number>, timeGaps: Readable<{ before?: number, after?: number }>, map: CesiumMap, isExtractionPoint: boolean) {
 		const { lon , lat } = getMidpoint(feature.geometry.coordinates);
 		super(feature.properties.fid.toString(), lon, lat, feature);
-		this.capacity = feature.properties.capaciteit;
+		this.capacityPerHour = feature.properties.capaciteit;
+		this.capacity = this.capacityPerHour;
 		this.elapsedTime = elapsedTime;
 		this.map = map;
 		this.lineInstance = new RouteSegmentLineInstance(this.feature.properties.fid, this.feature.geometry.coordinates);
 		if (isExtractionPoint) {
 			this.extractionPoint = new ExtractionPoint(this.map, this.feature.properties.fid.toString(), this.position, this.capacity);
 		}
-		elapsedTime.subscribe((t) => this.updateLoad());
+		elapsedTime.subscribe(() => this.updateLoad());
+		timeGaps.subscribe((gaps) => {
+			const timeAfter = gaps.after || 0;
+			this.updateCapacity(timeAfter * this.capacityPerHour);
+		});
 	}
 
 	protected createEntity(): Cesium.Entity {

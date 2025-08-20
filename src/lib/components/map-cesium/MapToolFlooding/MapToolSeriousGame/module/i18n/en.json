@@ -1,5 +1,6 @@
 {
 	"game": {
+		"breach": "breach",
 		"measure": "Measure",
 		"measures": "Measures",
 		"measureTypes": {
@@ -35,9 +36,16 @@
 		"unavailable": "Unavailable",
 		"from": "From",
 		"to": "To",
+		"until": "Until",
+		"since": "Since",
+		"time": "Time",
 		"evacuations": "Evacuations",
+		"hour": "hour",
 		"hours": "hours",
 		"proceed": "Continue",
-		"rewind": "Rewind"
+		"rewind": "Rewind",
+		"inhabitants": "Inhabitants",
+		"evacuated": "Evacuated",
+		"victims": "Victims"
 	}
 }

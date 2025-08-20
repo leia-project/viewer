@@ -1,4 +1,4 @@
-import { get, writable, type Writable } from "svelte/store";
+import { get, writable, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { Evacuation } from "../evacuation";
@@ -42,7 +42,7 @@ export class RoadNetwork {
 
 	public loaded: Writable<boolean> = writable(false);
 
-	constructor(map: Map, elapsedTime: Writable<number>, outline: Array<[lon: number, lat: number]>, extractionPointIds: Array<string>, notificationLog: NotificationLog, floodLayerController: FloodLayerController) {
+	constructor(map: Map, elapsedTime: Writable<number>, timeGaps: Readable<{ before?: number, after?: number }>, outline: Array<[lon: number, lat: number]>, extractionPointIds: Array<string>, notificationLog: NotificationLog, floodLayerController: FloodLayerController) {
 		this.map = map;
 		this.elapsedTime = elapsedTime;
 		this.routingAPI = new RoutingAPI();
@@ -50,7 +50,7 @@ export class RoadNetwork {
 		this.outline = outline;
 		this.extractionPointIds = extractionPointIds;
 		this.floodLayerController = floodLayerController;
-		this.roadNetworkLayer = new RoadNetworkLayer(map, elapsedTime, this.extractionPointIds);
+		this.roadNetworkLayer = new RoadNetworkLayer(map, elapsedTime, timeGaps, this.extractionPointIds);
 		this.selectedExtractionPoint.subscribe((selectedExtractionPoint) => {
 			this.roadNetworkLayer.segments.forEach((segment) => {
 				if (segment.extractionPoint) segment.activeExtractionPoint = segment === selectedExtractionPoint;

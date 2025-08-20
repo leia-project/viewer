@@ -50,14 +50,14 @@
 		</div>
 		<Pill 
 			icon={TimeFilled}
-			label="Time"
+			label={$_("game.time")}
 			bind:value={currentTimeFormatted}
 		/>
 		<Pill 
 			icon={Timer}
-			label="Since Breach"
+			label={`${$elapsedTimeFormatted.startsWith("-") ? $_("game.until") : $_("game.since")} ${$_("game.breach")}`}
 			value={$elapsedTimeFormatted}
-			unit={"hours"}
+			unit={$_("game.hours")}
 		/>
 		<div class="button-container" style="justify-content: flex-start;" >
 			{#if $timeGaps.after}

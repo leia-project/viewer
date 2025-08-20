@@ -69,7 +69,7 @@ export class EvacuationController {
 				get(this.evacuations).forEach((evacuation) => evacuation.toggle([], false));
 			});
 		});
-		this.roadNetwork = new RoadNetwork(this.map, this.elapsedTime, game.gameConfig.outlineRoadNetwork, game.gameConfig.extractionPointIds, game.notificationLog, floodLayerController);
+		this.roadNetwork = new RoadNetwork(this.map, this.elapsedTime, game.timeGaps, game.gameConfig.outlineRoadNetwork, game.gameConfig.extractionPointIds, game.notificationLog, floodLayerController);
 		this.game.inPreparationPhase.subscribe((inPreparation) => {
 			this.roadNetwork.measures.forEach((measure) => {
 				measure.inPreparationPhase(inPreparation);
