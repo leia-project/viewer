@@ -47,8 +47,13 @@
 		<Manual />
 		{:else}
 		<div class="start-menu-content">
-			<img src="https://www.interregnorthsea.eu/sites/default/files/media-object/2024-09/FIER-Logo-PO-DeepWater_Klein%20formaat_wit.png" alt="FIER Logo" width=200 />
-			<h1 class="intro-header">Serious Game - Overstromingen</h1>
+			<div class="intro-header">
+				<img src="https://www.interregnorthsea.eu/sites/default/files/media-object/2024-09/FIER-Logo-PO-DeepWater_Klein%20formaat_wit.png" alt="FIER Logo" width=150 />
+				<h1 class="intro-header-text">
+					<span>Serious Game</span>
+					<span style="color: var(--game-color-highlight);">Overstromingen Zeeland</span>
+				</h1>
+			</div>
 			<p class="intro-text">
 				In deze game neem jij de leiding tijdens een acute overstromingsdreiging in Zeeland. De klok tikt, het water stijgt, en de veiligheid van duizenden mensen ligt in jouw handen.
 			</p>
@@ -143,9 +148,22 @@
 	}
 
 	.intro-header {
-		font-weight: 500;
+		display:flex;
+		justify-content: center;
+		align-items: center; 
+		column-gap: 0.5rem;
+	}
+	.intro-header-text {
+		font-weight: 700;
 		margin-bottom: 1rem;
 		color: var(--game-color-highlight);
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	.intro-header-text span:first-child {
+		font-weight: 500;
+		font-size: 2rem;
 	}
 
 	.intro-text {
@@ -171,7 +189,7 @@
 	}
 
 	.credits {
-		margin-top: 1.5rem;
+		margin-top: 2rem;
 		color: var(--game-color-highlight);
 		font-size: 0.9rem;
 		font-weight: 700;
