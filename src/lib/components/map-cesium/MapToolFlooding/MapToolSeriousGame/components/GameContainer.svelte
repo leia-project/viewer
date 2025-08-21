@@ -7,7 +7,7 @@
 	import MarvinMenu from "../../Marvin/MarvinMenu.svelte";
 	import TimeControl from "./TimeControl.svelte";
 	import Notifications from "./notifications/Notifications.svelte";
-	import StartMenu from "./StartMenu.svelte";
+	import StartMenu from "./start/StartMenu.svelte";
 	import MapControls from "./MapControls.svelte";
 	import DataMenu from "./data/DataMenu.svelte";
 	import GameButton from "./general/GameButton.svelte";

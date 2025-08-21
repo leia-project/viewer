@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
 	import { Button, Loading, Modal } from "carbon-components-svelte";
-	import { Exit, CaretRight, Save, WatsonHealth3DCurveManual } from "carbon-icons-svelte";
+	import { Exit, CaretRight, Save, Book, CaretLeft } from "carbon-icons-svelte";
 	import type { GameController } from "../../module/game-controller";
 	import GameButton from "../general/GameButton.svelte";
 	import LanguageSwitcher from "./LanguageSwitcher.svelte";
+	import Manual from "./Manual.svelte";
 
 	export let gameController: GameController;
 	export let open: boolean;
@@ -32,8 +33,8 @@
 >
 	<div class="top-nav">
 		<GameButton
-			icon={WatsonHealth3DCurveManual}
-			hasTooltip={true}
+			icon={showManual ? CaretLeft : Book}
+			hasTooltip={false}
 			size={24}
 			borderHighlight={true}
 			on:click={() => showManual = !showManual}
@@ -42,68 +43,72 @@
 		</GameButton>
 		<LanguageSwitcher />
 	</div>
-	<div class="start-menu-content">
-		<img src="https://www.interregnorthsea.eu/sites/default/files/media-object/2024-09/FIER-Logo-PO-DeepWater_Klein%20formaat_wit.png" alt="FIER Logo" width=200 />
-		<h1 class="intro-header">Serious Game - Overstromingen</h1>
-		<p class="intro-text">
-			In deze game neem jij de leiding tijdens een acute overstromingsdreiging in Zeeland. De klok tikt, het water stijgt, en de veiligheid van duizenden mensen ligt in jouw handen.
-		</p>
-		<p class="intro-text">
-			Als speler kruip je in de huid van een crisismanager. Op basis van actuele data - zoals overstromingsmodellen, belasting van het wegennetwerk, kwetsbare gebieden en bevolkingsdichtheid - moet je razendsnelle maar doordachte beslissingen nemen.
-		</p>
-		<p class="intro-text">
-			Evacueren of niet? Welke routes blijven open? En hoe ga je om met beperkte middelen en tijdsdruk?
-		</p>
-		<p class="intro-text">
-			Je keuzes bepalen het verloop van de ramp - en de gevolgen zijn voelbaar.
-		</p>
-		<p class="intro-text">
-			Ben jij klaar om Zeeland te beschermen?
-		</p>
-		{#if gameLoaded}
-			<div class="start-menu-actions">
-				{#if $activeGame}
-					<div class="left">
-						<Button
-							kind="danger"
-							icon={Exit}
-							on:click={() => gameController.exit()}
-						>{$_("game.buttons.exit")}</Button>
-						<Button
-							kind="primary"
-							icon={Save}
-							on:click={() => $activeGame.save()}
-						>{$_("game.buttons.save")}</Button>
-					</div>
-					<div class="right">
-						<Button
-							kind="primary"
-							icon={CaretRight}
-							on:click={() => {
-								open = false;
-								$activeGame.start();
-							}}
-						>{$activeGame.started ? "Start" : $_("game.buttons.continuePlaying")}</Button>
-					</div>
-				{/if}
-			</div>
+	{#if showManual}
+		<Manual />
 		{:else}
-			<div class="loading-container">
-				<Loading withOverlay={false} />
-				<div class="loading-status">
-					{#if !$roadsLoaded}
-						<p>{$_("game.loading")} {$_("game.roadNetwork").toLocaleLowerCase()}...</p>
-					{/if}
-					{#if !$hexagonsLoaded}
-						<p>{$_("game.loading")} {$_("game.hexagons").toLocaleLowerCase()}...</p>
-					{/if}
-					{#if !$layersLoaded}
-						<p>{$_("game.loading")} {$_("game.floodModel").toLocaleLowerCase()}...</p>
+		<div class="start-menu-content">
+			<img src="https://www.interregnorthsea.eu/sites/default/files/media-object/2024-09/FIER-Logo-PO-DeepWater_Klein%20formaat_wit.png" alt="FIER Logo" width=200 />
+			<h1 class="intro-header">Serious Game - Overstromingen</h1>
+			<p class="intro-text">
+				In deze game neem jij de leiding tijdens een acute overstromingsdreiging in Zeeland. De klok tikt, het water stijgt, en de veiligheid van duizenden mensen ligt in jouw handen.
+			</p>
+			<p class="intro-text">
+				Als speler kruip je in de huid van een crisismanager. Op basis van actuele data - zoals overstromingsmodellen, belasting van het wegennetwerk, kwetsbare gebieden en bevolkingsdichtheid - moet je razendsnelle maar doordachte beslissingen nemen.
+			</p>
+			<p class="intro-text">
+				Evacueren of niet? Welke routes blijven open? En hoe ga je om met beperkte middelen en tijdsdruk?
+			</p>
+			<p class="intro-text">
+				Je keuzes bepalen het verloop van de ramp - en de gevolgen zijn voelbaar.
+			</p>
+			<p class="intro-text">
+				Ben jij klaar om Zeeland te beschermen?
+			</p>
+			{#if gameLoaded}
+				<div class="start-menu-actions">
+					{#if $activeGame}
+						<div class="left">
+							<Button
+								kind="danger"
+								icon={Exit}
+								on:click={() => gameController.exit()}
+							>{$_("game.buttons.exit")}</Button>
+							<Button
+								kind="primary"
+								icon={Save}
+								on:click={() => $activeGame.save()}
+							>{$_("game.buttons.save")}</Button>
+						</div>
+						<div class="right">
+							<Button
+								kind="primary"
+								icon={CaretRight}
+								on:click={() => {
+									open = false;
+									$activeGame.start();
+								}}
+							>{$activeGame.started ? "Start" : $_("game.buttons.continuePlaying")}</Button>
+						</div>
 					{/if}
 				</div>
-			</div>
-		{/if}
-	</div>
+			{:else}
+				<div class="loading-container">
+					<Loading withOverlay={false} />
+					<div class="loading-status">
+						{#if !$roadsLoaded}
+							<p>{$_("game.loading")} {$_("game.roadNetwork").toLocaleLowerCase()}...</p>
+						{/if}
+						{#if !$hexagonsLoaded}
+							<p>{$_("game.loading")} {$_("game.hexagons").toLocaleLowerCase()}...</p>
+						{/if}
+						{#if !$layersLoaded}
+							<p>{$_("game.loading")} {$_("game.floodModel").toLocaleLowerCase()}...</p>
+						{/if}
+					</div>
+				</div>
+			{/if}
+		</div>
+	{/if}
 </Modal>
 
 
@@ -114,6 +119,12 @@
 	}
 	:global(#start-menu-modal .bx--modal-close) {
 		display: none;
+	}
+
+	.top-nav {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 	}
 	
 	.start-menu-content {
