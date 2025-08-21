@@ -457,7 +457,7 @@ export default class FlyCamera {
 			const groundHeight = this.scene.globe.getHeight(this.camera.positionCartographic);
 		   
 			if (groundHeight) {
-		  		this.camera.moveDown((this.camera.positionCartographic.height - 1) - groundHeight)
+		  		this.camera.moveDown((this.camera.positionCartographic.height - 1.60) - groundHeight)
 			}
 		}
 	}
