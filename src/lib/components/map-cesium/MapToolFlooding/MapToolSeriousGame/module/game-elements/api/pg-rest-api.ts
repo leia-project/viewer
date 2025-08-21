@@ -76,7 +76,7 @@ export class PGRestAPI {
 			FROM
 				${this.schema}.${this.tables.zeeland_flood_h3}
 				WHERE scenario = ANY(ARRAY[${scenarios.map(s => `'${s}'`).join(',')}])
-				AND timestep = ${time * 6}
+				AND timestep = ${Math.ceil(time) * 6}
 				--AND flood_depth > 0.02 // Hexagons with depths < 0.02 are already deleted in the database
 				AND ST_Intersects(
 					ST_SetSRID(centroid, 4326),
