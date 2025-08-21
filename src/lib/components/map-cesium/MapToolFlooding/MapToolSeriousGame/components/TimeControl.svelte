@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
 	import type { Game } from "../module/game";
-	import { SkipBackSolidFilled, SkipForwardSolidFilled, TimeFilled, Timer } from "carbon-icons-svelte";
+	import { Badge, SkipBackSolidFilled, SkipForwardSolidFilled, TimeFilled, Timer } from "carbon-icons-svelte";
 	import Pill from "./general/Pill.svelte";
 	import GameButton from "./general/GameButton.svelte";
 
@@ -19,6 +19,10 @@
 		minute: "2-digit"
 	});
 
+	const elapsedTime = game.elapsedTime;
+	const elapsedTimeDynamic = game.elapsedTimeDynamic;
+	$: buttonsEnabled = $elapsedTime === $elapsedTimeDynamic;
+
 </script>
 
 
@@ -35,8 +39,8 @@
 	</div>
 {:else}
 	<div class="time-control">
-		<div class="button-container" style="justify-content: flex-end;" >
-			{#if $timeGaps.before}
+		<div class="button-container" style="justify-content: flex-end;">
+			{#if $timeGaps.before && buttonsEnabled}
 				<GameButton
 					icon={SkipBackSolidFilled}
 					hasTooltip={true}
@@ -44,7 +48,7 @@
 					borderHighlight={true}
 					on:click={() => game.changeStep("previous")}
 				>
-					<svelte:fragment slot="popover">{$_("game.rewind")} (—{$timeGaps.before} {$_("game.hours")})</svelte:fragment>
+					<svelte:fragment slot="popover">{$_("game.buttons.rewind")} (—{$timeGaps.before} {$_("game.hours")})</svelte:fragment>
 				</GameButton>
 			{/if}
 		</div>
@@ -59,17 +63,29 @@
 			value={$elapsedTimeFormatted}
 			unit={$_("game.hours")}
 		/>
-		<div class="button-container" style="justify-content: flex-start;" >
-			{#if $timeGaps.after}
-				<GameButton
-					icon={SkipForwardSolidFilled}
-					hasTooltip={true}
-					size={18}
-					borderHighlight={true}
-					on:click={() => game.changeStep("next")}
-				>
-					<svelte:fragment slot="popover">{$_("game.proceed")} (+{$timeGaps.after} {$_("game.hours")})</svelte:fragment>
-				</GameButton>
+		<div class="button-container" style="justify-content: flex-start;">
+			{#if buttonsEnabled}
+				{#if $timeGaps.after}
+					<GameButton
+						icon={SkipForwardSolidFilled}
+						hasTooltip={true}
+						size={18}
+						borderHighlight={true}
+						on:click={() => game.changeStep("next")}
+					>
+						<svelte:fragment slot="popover">{$_("game.buttons.proceed")} (+{$timeGaps.after} {$_("game.hours")})</svelte:fragment>
+					</GameButton>
+				{:else}
+					<GameButton
+						icon={Badge}
+						hasTooltip={true}
+						size={18}
+						borderHighlight={true}
+						on:click={() => game.finish()}
+					>
+						<svelte:fragment slot="popover">{$_("game.finalReport")}</svelte:fragment>
+					</GameButton>
+				{/if}
 			{/if}
 		</div>
 	</div>

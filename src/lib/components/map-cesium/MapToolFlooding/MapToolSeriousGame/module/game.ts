@@ -1,20 +1,24 @@
+import type { ComponentType } from "svelte";
 import { _ } from "svelte-i18n";
 import { derived, get, writable, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import { v4 as uuidv4 } from '@lukeed/uuid';
-import { FloodLayerController, type Breach, type FloodToolSettings } from "../../layer-controller";
+import { Dispatcher } from "$lib/components/map-core/event/dispatcher";
 import type { Map } from "$lib/components/map-cesium/module/map";
+import { FloodLayerController, type Breach, type FloodToolSettings } from "../../layer-controller";
+import type { MarvinApp } from "../../Marvin/marvin";
 import { NotificationLog } from "./notification-log";
 import { EvacuationController } from "./game-elements/evacuation-controller";
 import type { IGameConfig, ISavedGame } from "./models";
 import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
-import type { MarvinApp } from "../../Marvin/marvin";
 import { Cutscene, type CameraData, type ChinookPositions } from "./cutscene";
 import { BackgroundMusic } from "./background-music";
+import FinalReport from "../components/modal/FinalReport.svelte";
+import LevelDescription from "../components/modal/LevelDescription.svelte";
 
 
 
-export class Game {
+export class Game extends Dispatcher {
 
 	public static breachStartOffsetInHours: number = 4;
 
@@ -48,6 +52,7 @@ export class Game {
 	public started: boolean = false;
 
 	constructor(map: Map, gameConfig: IGameConfig, breach: Breach, floodToolSettings: FloodToolSettings, marvin?: MarvinApp, savedGame?: ISavedGame) {
+		super();
 		this.map = map;
 		this.marvin = marvin;
 		this.gameConfig = gameConfig;
@@ -258,27 +263,38 @@ export class Game {
     	return d.getTime();
 	}
 
+	private showModal(component: ComponentType, args?: any): void {
+		this.dispatch("open-modal", {
+			component: component,
+			args: args
+		});
+	}
+
 	public start(): void {
 		if (!this.started) {
 			this.startCutscene().then(() => {
-				this.flyHome();
-				this.notificationLog.send({
-					title: get(_)("game.welcome"),
-					message: get(_)("game.notification.start"),
-					type: NotificationType.INFO
-				});
-				setTimeout(() => {
-					if (get(this.inPreparationPhase)) {
-						this.notificationLog.send({
-							title: get(_)("game.preparationPhase"),
-							message: get(_)("game.notification.preparation"),
-							type: NotificationType.INFO
-						});
-					}
-				}, 5000);
-				this.started = true;
+				this.showModal(LevelDescription)
 			});
 		}
+	}
+
+	public onCloseLevelDescription(): void {
+		this.flyHome();
+		this.notificationLog.send({
+			title: get(_)("game.welcome"),
+			message: get(_)("game.notification.start"),
+			type: NotificationType.INFO
+		});
+		setTimeout(() => {
+			if (get(this.inPreparationPhase)) {
+				this.notificationLog.send({
+					title: get(_)("game.preparationPhase"),
+					message: get(_)("game.notification.preparation"),
+					type: NotificationType.INFO
+				});
+			}
+		}, 5000);
+		this.started = true;
 	}
 
 	public startCutscene(): Promise<void> {
@@ -391,5 +407,13 @@ export class Game {
 		const backgroundMusic: BackgroundMusic = new BackgroundMusic("/audio/background-cutscene-music.mp3", true);
 		backgroundMusic.playMusic();
 		// this.map.getContainer()
+	}
+
+	public finish(): void {
+		this.showModal(FinalReport, { game: this }); 
+	}
+
+	private getScore(): number {
+		return 6;
 	}
 }

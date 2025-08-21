@@ -32,6 +32,13 @@
 			"noEvacuationsInThisTimestep": "No evacuations in this timestep",
 			"timeSinceBreach": "Time since breach"
 		},
+		"buttons": {
+			"save": "Save",
+			"exit": "Exit game",
+			"proceed": "Continue",
+			"rewind": "Rewind",
+			"continuePlaying": "Continue"
+		},
 		"opacity": "Opacity",
 		"available": "Available",
 		"unavailable": "Unavailable",
@@ -43,10 +50,13 @@
 		"evacuations": "Evacuations",
 		"hour": "hour",
 		"hours": "hours",
-		"proceed": "Continue",
-		"rewind": "Rewind",
+		"finalReport" : "Final report",
 		"inhabitants": "Inhabitants",
 		"evacuated": "Evacuated",
-		"victims": "Victims"
+		"victims": "Victims",
+		"loading": "Loading",
+		"roadNetwork": "Road network",
+		"hexagons": "Hexagons",
+		"floodModel": "Flood model"
 	}
 }

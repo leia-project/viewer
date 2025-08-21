@@ -32,6 +32,13 @@
 			"noEvacuationsInThisTimestep": "Geen evacuaties in deze tijdstap",
 			"timeSinceBreach": "Tijd sinds doorbraak"
 		},
+		"buttons": {
+			"save": "Opslaan",
+			"exit": "Spel verlaten",
+			"proceed": "Verder gaan",
+			"rewind": "Terugspoelen",
+			"continuePlaying": "Verder spelen"
+		},
 		"opacity": "Transparantie",
 		"available": "Beschikbaar",
 		"unavailable": "Niet beschikbaar",
@@ -43,10 +50,13 @@
 		"evacuations": "Evacuaties",
 		"hour": "uur",
 		"hours": "uur",
-		"proceed": "Verder gaan",
-		"rewind": "Terugspoelen",
+		"finalReport": "Eindrapport",
 		"inhabitants": "Inwoners",
 		"evacuated": "Geëvacueerd",
-		"victims": "Slachtoffers"
+		"victims": "Slachtoffers",
+		"loading": "Inladen",
+		"roadNetwork": "Wegennetwerk",
+		"hexagons": "Hexagonen",
+		"floodModel": "Overstromingsmodel"
 	}
 }

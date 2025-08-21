@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import { Button, Loading, Modal } from "carbon-components-svelte";
 	import { Exit, CaretRight, Save } from "carbon-icons-svelte";
 	import type { GameController } from "../module/game-controller";
@@ -13,8 +14,6 @@
 	$: hexagonsLoaded = $activeGame?.evacuationController.hexagonLayer.loaded;
 
 	$: gameLoaded = $layersLoaded && $roadsLoaded && $hexagonsLoaded;
-
-	$: step = $activeGame?.step;
 
 </script>
 
@@ -51,35 +50,35 @@
 					kind="danger"
 					icon={Exit}
 					on:click={() => gameController.exit()}
-				>Exit Game</Button>
+				>{$_("game.buttons.exit")}</Button>
 				{#if $activeGame}
 					<Button
 						kind="primary"
 						icon={Save}
 						on:click={() => $activeGame.save()}
-					>Save Game</Button>
+					>{$_("game.buttons.save")}</Button>
+					<Button
+						kind="primary"
+						icon={CaretRight}
+						on:click={() => {
+							open = false;
+							$activeGame.start();
+						}}
+					>{$activeGame.started ? "Start" : $_("game.buttons.continuePlaying")}</Button>
 				{/if}
-				<Button
-					kind="primary"
-					icon={CaretRight}
-					on:click={() => {
-						open = false;
-						$activeGame?.startCutscene();
-					}}
-				>{$step === 0 ? "Start" : "Verder spelen"}</Button>
 			</div>
 		{:else}
 			<div class="loading-container">
 				<Loading withOverlay={false} />
 				<div class="loading-status">
 					{#if !$roadsLoaded}
-						<p>Loading road network...</p>
+						<p>{$_("game.loading")} {$_("game.roadNetwork").toLocaleLowerCase()}...</p>
 					{/if}
 					{#if !$hexagonsLoaded}
-						<p>Loading hexagons...</p>
+						<p>{$_("game.loading")} {$_("game.hexagons").toLocaleLowerCase()}...</p>
 					{/if}
 					{#if !$layersLoaded}
-						<p>Loading flood layer...</p>
+						<p>{$_("game.loading")} {$_("game.floodModel").toLocaleLowerCase()}...</p>
 					{/if}
 				</div>
 			</div>
@@ -106,6 +105,7 @@
 	.intro-header {
 		font-weight: 500;
 		margin-bottom: 1rem;
+		color: var(--game-color-highlight);
 	}
 
 	.intro-text {

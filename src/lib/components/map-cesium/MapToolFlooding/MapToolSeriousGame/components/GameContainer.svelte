@@ -11,6 +11,7 @@
 	import MapControls from "./MapControls.svelte";
 	import DataMenu from "./data/DataMenu.svelte";
 	import GameButton from "./general/GameButton.svelte";
+	import InfoModal from "./modal/InfoModal.svelte";
 
 	export let gameController: GameController;
 	export let marvinApp: MarvinApp;
@@ -80,6 +81,8 @@
 			{#if showStartMenu}
 				<StartMenu {gameController} bind:open={showStartMenu} />
 			{/if}
+
+			<InfoModal game={$activeGame} />
 		</div>
 	{/key}
 {/if}
