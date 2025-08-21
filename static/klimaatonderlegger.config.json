@@ -1847,11 +1847,18 @@
         },
         {
             "id": "geocoder",
-            "enabled": true
+            "enabled": true,
+            "settings": {
+                "name": "locatieserver"
+            }
         },
         {
             "id": "modeswitcher",
             "enabled": true
+        },
+        {
+            "id": "flyCamera",
+            "enabled": false
         }
     ]
 }
