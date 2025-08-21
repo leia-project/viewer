@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
 	import { Button, Loading, Modal } from "carbon-components-svelte";
-	import { Exit, CaretRight, Save } from "carbon-icons-svelte";
-	import type { GameController } from "../module/game-controller";
+	import { Exit, CaretRight, Save, WatsonHealth3DCurveManual } from "carbon-icons-svelte";
+	import type { GameController } from "../../module/game-controller";
+	import GameButton from "../general/GameButton.svelte";
+	import LanguageSwitcher from "./LanguageSwitcher.svelte";
 
 	export let gameController: GameController;
 	export let open: boolean;
@@ -15,6 +17,8 @@
 
 	$: gameLoaded = $layersLoaded && $roadsLoaded && $hexagonsLoaded;
 
+	let showManual: boolean = false;
+
 </script>
 
 
@@ -26,6 +30,18 @@
 	id="start-menu-modal"
 	preventCloseOnClickOutside={true} 
 >
+	<div class="top-nav">
+		<GameButton
+			icon={WatsonHealth3DCurveManual}
+			hasTooltip={true}
+			size={24}
+			borderHighlight={true}
+			on:click={() => showManual = !showManual}
+		>
+			<svelte:fragment slot="popover">{$_("game.manual")}</svelte:fragment>
+		</GameButton>
+		<LanguageSwitcher />
+	</div>
 	<div class="start-menu-content">
 		<img src="https://www.interregnorthsea.eu/sites/default/files/media-object/2024-09/FIER-Logo-PO-DeepWater_Klein%20formaat_wit.png" alt="FIER Logo" width=200 />
 		<h1 class="intro-header">Serious Game - Overstromingen</h1>
@@ -46,25 +62,29 @@
 		</p>
 		{#if gameLoaded}
 			<div class="start-menu-actions">
-				<Button
-					kind="danger"
-					icon={Exit}
-					on:click={() => gameController.exit()}
-				>{$_("game.buttons.exit")}</Button>
 				{#if $activeGame}
-					<Button
-						kind="primary"
-						icon={Save}
-						on:click={() => $activeGame.save()}
-					>{$_("game.buttons.save")}</Button>
-					<Button
-						kind="primary"
-						icon={CaretRight}
-						on:click={() => {
-							open = false;
-							$activeGame.start();
-						}}
-					>{$activeGame.started ? "Start" : $_("game.buttons.continuePlaying")}</Button>
+					<div class="left">
+						<Button
+							kind="danger"
+							icon={Exit}
+							on:click={() => gameController.exit()}
+						>{$_("game.buttons.exit")}</Button>
+						<Button
+							kind="primary"
+							icon={Save}
+							on:click={() => $activeGame.save()}
+						>{$_("game.buttons.save")}</Button>
+					</div>
+					<div class="right">
+						<Button
+							kind="primary"
+							icon={CaretRight}
+							on:click={() => {
+								open = false;
+								$activeGame.start();
+							}}
+						>{$activeGame.started ? "Start" : $_("game.buttons.continuePlaying")}</Button>
+					</div>
 				{/if}
 			</div>
 		{:else}
@@ -98,7 +118,7 @@
 	
 	.start-menu-content {
 		text-align: center;
-		padding: 1rem;
+		padding: 0 2rem;
 		color: var(--game-color-text);
 	}
 
@@ -115,6 +135,8 @@
 
 	.start-menu-actions {
 		margin-top: 2rem;
+		display: flex;
+		justify-content: space-between;
 	}
 
 	.loading-container {
