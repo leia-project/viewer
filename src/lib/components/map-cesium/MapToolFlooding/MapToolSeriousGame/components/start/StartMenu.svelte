@@ -64,6 +64,15 @@
 			<p class="intro-text">
 				Ben jij klaar om Zeeland te beschermen?
 			</p>
+			<div class="credits">
+				<div>Een samenwerking van:</div>
+				<div class="credits-logos">
+					<img class="credits-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Logo_ZeelandProvince.svg/2560px-Logo_ZeelandProvince.svg.png" alt="Logo Province Zeeland" >
+					<img class="credits-logo" src="https://storage.googleapis.com/sogelink-research-public/images/logo-sogelink.png" alt="Logo Sogelink" >
+					<img class="credits-logo" src="https://dw-consultancy.nl/wp-content/uploads/2024/08/Logo-1-1024x461.png" alt="Logo Dutch Wildfire Consultancy" >
+					<img class="credits-logo" src="https://iiw.kuleuven.be/onderzoek/advise/meet_an_engineer/sweco-logo-voor-office-en-online-lindsey.png/@@images/image.png" alt="Logo Sweco" >
+				</div>
+			</div>
 			{#if gameLoaded}
 				<div class="start-menu-actions">
 					{#if $activeGame}
@@ -145,7 +154,6 @@
 	}
 
 	.start-menu-actions {
-		margin-top: 2rem;
 		display: flex;
 		justify-content: space-between;
 	}
@@ -160,6 +168,25 @@
 
 	.loading-status {
 		text-align: left;
+	}
+
+	.credits {
+		margin-top: 1.5rem;
+		color: var(--game-color-highlight);
+		font-size: 0.9rem;
+		font-weight: 700;
+	}
+	.credits-logos {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		column-gap: 1.5rem;
+		margin-top: 1rem;
+	}
+	.credits-logo {
+		height: min(50px, auto);
+		max-width: 100px;
+		filter: invert(1);
 	}
 
 </style>
