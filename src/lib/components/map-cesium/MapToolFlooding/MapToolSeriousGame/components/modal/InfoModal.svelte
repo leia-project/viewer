@@ -10,7 +10,6 @@
 	let args: any;
 
 	function mountComponent(data: any): void {
-		console.log("Mounting component", data);
 		component = data.component;
 		args = data.args;
 		open = true;

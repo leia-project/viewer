@@ -196,8 +196,8 @@ export class PGRestAPI {
 	}
 	
 	public async getFloodedRoadSegments(time: number): Promise<Array<[string, number]>> {
+		// We use the flooded roads service of Zeeland to get the flooded road segments.
 		return [];
-		// use outline, scenario and time step
 		let query = `
 			SELECT fid, flood_height FROM datacore.zeeland_roads a
 				LEFT JOIN datacore.flood_h3 b ON ST_Intersects(

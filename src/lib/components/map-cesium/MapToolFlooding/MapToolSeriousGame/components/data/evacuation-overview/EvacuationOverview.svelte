@@ -32,11 +32,6 @@
 		);
 	}
 
-	//let selectedHour = $elapsedTime;
-	//$: nextHour = game.getAdjacentStep(selectedHour, "next");
-	//$: previousHour = game.getAdjacentStep(selectedHour, "previous");
-
-
 	function toggleAllEvacuationsAggregated(): void {
 		const display = !$showAllToggled;
 		const allCurrentEvacuations = $currentEvacuationsGrouped.flatMap(group => group.evacuations);
@@ -97,42 +92,13 @@
 				hasTooltip={false}
 				borderHighlight={true}
 				active={$showAllToggled}
-				buttonText={`T+ ${$elapsedTimeSinceBreach}`}
+				buttonText={`T${$elapsedTimeSinceBreach >= 0 ? "+" : "-"} ${Math.abs($elapsedTimeSinceBreach)}`}
 				on:click={toggleAllEvacuationsAggregated}
 			/>
 		{:else}
-			<span class="step-pill">{`T+ ${$elapsedTimeSinceBreach} ${$_("game.hours")}`}</span>
+			<span class="step-pill">{`T${$elapsedTimeSinceBreach >= 0 ? "+" : "-"} ${Math.abs($elapsedTimeSinceBreach)} ${$_("game.hours")}`}</span>
 		{/if}
 	</div>
-	<!-- Navigation: Too confusing for users (?)
-	<div class="step-nav">
-		<div class="step-nav-button">
-			{#if previousHour}
-				<GameButton
-					icon={PreviousFilled}
-					size={14}
-					hasTooltip={false}
-					borderHighlight={true}
-					active={nextHour !== undefined}
-					on:click={() => selectedHour = previousHour}
-				/>
-			{/if}
-		</div>
-		<span class="step-title">{`T+ ${selectedHour - Game.breachStartOffsetInHours}`}</span>
-		<div class="step-nav-button">
-			{#if nextHour}
-				<GameButton
-					icon={NextFilled}
-					size={14}
-					hasTooltip={false}
-					borderHighlight={true}
-					active={nextHour !== undefined}
-					on:click={() => selectedHour = nextHour}
-				/>
-			{/if}
-		</div>
-	</div>
-	-->
 </div>
 {#if $evacuationsGrouped.length > 0}
 	<ul class="evacuation-list">
@@ -209,6 +175,9 @@
 		max-height: 300px;
 		overflow-y: auto;
 		padding-bottom: 0.5rem;
+	}
+	.evacuation-list::-webkit-scrollbar {
+		display: none;
 	}
 
 </style>

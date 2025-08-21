@@ -20,17 +20,21 @@
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions a11y-click-events-have-key-events -->
 <li class="evacuation-entry">
 	<Button
-		kind="secondary"
+		kind="danger"
 		icon={TrashCan}
 		size="small"
 		on:click={() => dispatch("delete")}
 	/>
-	<span class="col">{evacuationGroup.hexagon.hex}</span>
-	<span class="col">{evacuationGroup.extractionPoint.id}</span>
-	<span class="col evacuation-count">
+	<div class="col">
+		<span class="text-ellipsis">{evacuationGroup.hexagon.hex}</span>
+	</div>
+	<div class="col">
+		<span class="text-ellipsis">{evacuationGroup.extractionPoint.feature.properties.name}</span>
+	</div>
+	<div class="col evacuation-count">
 		<UserFilled />
 		<span>{numberOfPersons}</span>
-	</span>
+	</div>
 	<GameButton
 		icon={$shown ? ViewFilled : ViewOffFilled}
 		size={16}
@@ -46,14 +50,22 @@
 
 	.evacuation-entry {
 		display: grid;
-		grid-template-columns: auto 150px 80px 80px auto;
+		grid-template-columns: auto 140px 140px 80px auto;
+		column-gap: 0.5rem;
 		justify-content: space-between;
-		margin-bottom: -1px;
+		margin-bottom: 4px;
 	}
 
 	.col {
 		display: flex;
 		align-items: center;
+	}
+
+	.text-ellipsis {
+		display: block;
+		overflow: hidden;
+	    white-space: nowrap;
+		text-overflow: ellipsis;
 	}
 
 	.evacuation-count {
