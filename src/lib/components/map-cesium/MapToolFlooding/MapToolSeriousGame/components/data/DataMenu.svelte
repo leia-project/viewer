@@ -40,19 +40,19 @@
 	{#if $activeGame}
 		<div class="data-menu-content">
 			{#if selectedMenu === 0}
-				<MenuContent title="Layer Manager" icon={Layers}>
+				<MenuContent title={$_("game.layerManager")} icon={Layers}>
 					<LayerManager {gameController} />
 				</MenuContent>
 			{:else if selectedMenu === 1 && !$inPreparationPhase}
-				<MenuContent title="Flood Model Control" icon={WaveHeight}>
+				<MenuContent title={$_("game.floodModel")} icon={WaveHeight}>
 					<FloodModelControl game={$activeGame} />
 				</MenuContent>
 			{:else if selectedMenu === 2 && !$inPreparationPhase}
-				<MenuContent title="Evacuations" icon={TrafficEvent}>
+				<MenuContent title={$_("game.evacuations")} icon={TrafficEvent}>
 					<EvacuationOverview game={$activeGame} />
 				</MenuContent>
 			{:else if selectedMenu === 3}
-				<MenuContent title="Measures" icon={ToolKit}>
+				<MenuContent title={$_("game.measures")} icon={ToolKit}>
 					<MeasureOverview game={$activeGame} />
 				</MenuContent>
 			{/if}

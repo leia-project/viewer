@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { onDestroy } from "svelte";
+	import { derived } from "svelte/store";
 	import { _ } from "svelte-i18n";
 	import * as Cesium from "cesium";
 	import { Slider } from "carbon-components-svelte";
 	import { Reset } from "carbon-icons-svelte";
 	import { Game } from "../../module/game";
 	import GameButton from "../general/GameButton.svelte";
-	import { derived } from "svelte/store";
 
 	export let game: Game;
 
@@ -49,24 +49,30 @@
 <div class="flood-model">
 	<div class="flood-details">
 		<div class="flood-model-info">
-			<div class="flood-model-info-key">Expansion</div>
+			<div class="flood-model-info-key">{$_("game.expansion")}</div>
 			<div class="flood-model-info-value">
 				<span>{$floodedHexagons}</span>
-				<span>flooded hexagons</span>
+				<span>
+					{$_("game.flooded").toLowerCase()}
+					{($floodedHexagons === 1 ? $_("game.hexagon") : $_("game.hexagons")).toLowerCase()}
+				</span>
 			</div>
 		</div>
 		<div class="flood-model-info">
-			<div class="flood-model-info-key">Max. flood depth</div>
+			<div class="flood-model-info-key">{$_("game.maxFloodDepth")}</div>
 			<div class="flood-model-info-value">
 				<span>{Math.round($maxFloodDepth * 100) / 100}</span>
 				<span>m</span>
 			</div>
 		</div>
 		<div class="flood-model-info">
-			<div class="flood-model-info-key">Flooded roads</div>
+			<div class="flood-model-info-key">{$_("game.flooded")} {$_("game.roads").toLowerCase()}</div>
 			<div class="flood-model-info-value">
 				<span>{$floodedSegments.length}</span>
-				<span>flooded road segments</span>
+				<span>
+					{$_("game.flooded").toLowerCase()}
+					{($floodedHexagons === 1 ? $_("game.roadSection") : $_("game.roadSections")).toLowerCase()}
+				</span>
 			</div>
 		</div>
 	</div>
@@ -128,7 +134,7 @@
 
 	.flood-model-info {
 		display: grid;
-		grid-template-columns: 120px auto;
+		grid-template-columns: 150px auto;
 		align-items: center;
 		gap: 0.5rem;
 	}

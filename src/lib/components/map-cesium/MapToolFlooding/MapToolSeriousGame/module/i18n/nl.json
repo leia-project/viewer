@@ -18,6 +18,7 @@
 		"maxSpeed": "Max. snelheid",
 		"cars": "voertuigen",
 		"welcome": "Welkom",
+		"layerManager": "Lagenbeheer",
 		"preparationPhase": "Voorbereidingsfase",
 		"evacuationPhase": "Evacuatiefase",
 		"startFlood": "Start Overstromingsscenario",
@@ -56,7 +57,14 @@
 		"victims": "Slachtoffers",
 		"loading": "Inladen",
 		"roadNetwork": "Wegennetwerk",
+		"hexagon": "Hexagon",
 		"hexagons": "Hexagonen",
-		"floodModel": "Overstromingsmodel"
+		"floodModel": "Overstromingsmodel",
+		"expansion": "Uitbreiding",
+		"maxFloodDepth": "Max. waterdiepte",
+		"flooded": "Overstroomde",
+		"roads": "Wegen",
+		"roadSection": "Wegdeel",
+		"roadSections": "Wegdelen"	
 	}
 }
