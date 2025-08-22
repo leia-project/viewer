@@ -250,6 +250,7 @@
             "basemap": "Achtergrondkaart",
             "requestDrawPolygon": "Teken een projectgebied in om data op te halen",
             "drawPolygon": "Teken Projectgebied",
+            "finishPolygon": "Voltooi Projectgebied",
             "drawPolygonText": "Klik op de 'Teken projectgebied' knop om te beginnen met tekenen op de kaart. Klik om een vlak te creëren. Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.",
             "deletePolygon": "Verwijder Projectgebied",
             "projectAreaTool": "Projectgebied Tool",

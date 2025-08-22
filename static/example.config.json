@@ -359,6 +359,10 @@
         {
             "id": "modeswitcher",
             "enabled": true
+        },
+        {
+            "id": "flyCamera",
+            "enabled": false
         }
     ]
 }

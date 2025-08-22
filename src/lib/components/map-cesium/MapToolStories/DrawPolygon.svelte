@@ -4,6 +4,7 @@
     import { Button, Tooltip } from "carbon-components-svelte";
 	import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import AreaCustom from "carbon-icons-svelte/lib/AreaCustom.svelte";
+    import Checkmark from "carbon-icons-svelte/lib/Checkmark.svelte";
 	import { Map } from "../module/map";
 	import type { Story } from "./Story";
 	import { StoryLayer } from "./StoryLayer";
@@ -114,90 +115,93 @@
 
         // Handle right click to finish drawing
         handler.setInputAction(() => {
-            if (activeShapePoints.length < 4) {
-                return;
-            }            
-
-            const coords = activeShapePoints.map((cartesian) => {
-                const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-                return [
-                    Cesium.Math.toDegrees(cartographic.longitude),
-                    Cesium.Math.toDegrees(cartographic.latitude)
-                ];
-            });
-
-            // Ensure the polygon is closed
-            if  (
-                coords.length > 0 &&
-                (coords[0][0] !== coords[coords.length - 1][0] ||
-                coords[0][1] !== coords[coords.length - 1][1])
-            )   {
-                coords.push(coords[0]);
-            }
-
-            geojson = {
-                type: "Feature",
-                geometry: {
-                type: "Polygon",
-                coordinates: [coords]
-                },
-                properties: {}
-            };
-            
-            if (!checkPolygonForSelfIntersection()) {
-                return;
-            }
-
-            handler.destroy();
-            if (activeShape) { 
-                map.viewer.entities.remove(activeShape);
-            }
-
-            // Now draw and clear
-            polygonEntity = map.viewer.entities.add({
-                polyline: {
-                    positions: activeShapePoints.concat([activeShapePoints[0]]), // close the polygon
-                    width: 2,
-                    material: Cesium.Color.RED,
-                    clampToGround: true
-                }
-            });
-
-            redPoints.forEach((point) => map.viewer.entities.remove(point));
-            redPoints = [];
-
-            activeShapePoints = [];
-            activeShape = undefined;
-
-            hasDrawnPolygon = true;
-            isDrawing = false;
-            
-            // sendAPIUpResponse();
-            let storyLayers: Array<StoryLayer> = story.getStoryLayers();
-            
-            for (let i = 0; i < storyLayers.length; i++) {
-                sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson)
-                .then(apiResponse => {
-                    const transformed = transformDistribution(apiResponse.distribution);
-                    distributions[i] = transformed;
-                })
-                .catch(error => 
-                    console.error("Error: ", error)
-                );
-                
-            }
-            selectedAction = undefined;
-            polygonArea = area(geojson)
-            polygonStore.set({
-                polygonEntity,
-                redPoints,
-                distributions
-            });
-
-            showPolygonMenu.set(false);
-
+            handleFinishDrawing();
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     };
+
+    function handleFinishDrawing() {
+        if (activeShapePoints.length < 4) {
+            return;
+        }            
+
+        const coords = activeShapePoints.map((cartesian) => {
+            const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+            return [
+                Cesium.Math.toDegrees(cartographic.longitude),
+                Cesium.Math.toDegrees(cartographic.latitude)
+            ];
+        });
+
+        // Ensure the polygon is closed
+        if  (
+            coords.length > 0 &&
+            (coords[0][0] !== coords[coords.length - 1][0] ||
+            coords[0][1] !== coords[coords.length - 1][1])
+        )   {
+            coords.push(coords[0]);
+        }
+
+        geojson = {
+            type: "Feature",
+            geometry: {
+            type: "Polygon",
+            coordinates: [coords]
+            },
+            properties: {}
+        };
+        
+        if (!checkPolygonForSelfIntersection()) {
+            return;
+        }
+
+        handler.destroy();
+        if (activeShape) { 
+            map.viewer.entities.remove(activeShape);
+        }
+
+        // Now draw and clear
+        polygonEntity = map.viewer.entities.add({
+            polyline: {
+                positions: activeShapePoints.concat([activeShapePoints[0]]), // close the polygon
+                width: 2,
+                material: Cesium.Color.RED,
+                clampToGround: true
+            }
+        });
+
+        redPoints.forEach((point) => map.viewer.entities.remove(point));
+        redPoints = [];
+
+        activeShapePoints = [];
+        activeShape = undefined;
+
+        hasDrawnPolygon = true;
+        isDrawing = false;
+        
+        // sendAPIUpResponse();
+        let storyLayers: Array<StoryLayer> = story.getStoryLayers();
+        
+        for (let i = 0; i < storyLayers.length; i++) {
+            sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi)
+            .then(apiResponse => {
+                const transformed = transformDistribution(apiResponse.distribution);
+                distributions[i] = transformed;
+            })
+            .catch(error => 
+                console.error("Error: ", error)
+            );
+            
+        }
+        selectedAction = undefined;
+        polygonArea = area(geojson)
+        polygonStore.set({
+            polygonEntity,
+            redPoints,
+            distributions
+        });
+
+        showPolygonMenu.set(false);
+    }
     
     function deletePolygon() {
         if (handler && !handler.isDestroyed()) {
@@ -221,9 +225,9 @@
         map.viewer.scene.requestRender();
     }
 
-    async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any): Promise<any> {
+    async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any, statisticsApi: string): Promise<any> {
         if (!url || !featureName) {
-            console.warn("url or featureName undefined, not able to get the analysis request");
+            console.warn("URL or featureName undefined, not able to get the analysis request");
             return;
         }
         // Extract the inner geometry part from the GeoJSON Feature for the "geom" field
@@ -232,7 +236,7 @@
         };
 
         try {
-            const response = await fetch("https://virtueel.dev.zeeland.nl/ko_api/analyze", {
+            const response = await fetch(statisticsApi, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -295,14 +299,14 @@
 
     <div class="buttons">
         <Button 
-            icon={AreaCustom}
-            kind={selectedAction === "draw" ? "primary" : "tertiary"}
+            icon={isDrawing ? Checkmark : AreaCustom}
+            kind={isDrawing ? "primary" : "tertiary"}
             disabled={hasDrawnPolygon}
             on:click={() => {
-                draw(); 
+                isDrawing ? handleFinishDrawing() : draw();
             }}
         >
-            {$_("tools.stories.drawPolygon")}
+            {isDrawing ? $_("tools.stories.finishPolygon") : $_("tools.stories.drawPolygon")}
         </Button>
 
         <Button 
