@@ -38,7 +38,9 @@
 			"exit": "Spel verlaten",
 			"proceed": "Verder gaan",
 			"rewind": "Terugspoelen",
-			"continuePlaying": "Verder spelen"
+			"continuePlaying": "Verder spelen",
+			"load": "Laden",
+			"delete": "Verwijderen"
 		},
 		"opacity": "Transparantie",
 		"available": "Beschikbaar",
@@ -65,6 +67,10 @@
 		"flooded": "Overstroomde",
 		"roads": "Wegen",
 		"roadSection": "Wegdeel",
-		"roadSections": "Wegdelen"	
+		"roadSections": "Wegdelen",
+		"startPosition": "Startpositie",
+		"north": "Noord",
+		"savedGames": "Opgeslagen spellen",
+		"lastSave": "Laatst opgeslagen"
 	}
 }

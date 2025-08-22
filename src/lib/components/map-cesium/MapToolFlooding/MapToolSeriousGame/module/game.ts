@@ -9,7 +9,7 @@ import { FloodLayerController, type Breach, type FloodToolSettings } from "../..
 import type { MarvinApp } from "../../Marvin/marvin";
 import { NotificationLog } from "./notification-log";
 import { EvacuationController } from "./game-elements/evacuation-controller";
-import type { IGameConfig, ISavedGame } from "./models";
+import type { EvacuationLogItem, IGameConfig, ISavedGame, MeasureLogItem } from "./models";
 import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 import { Cutscene, type CameraData, type ChinookPositions } from "./cutscene";
 import { BackgroundMusic } from "./background-music";
@@ -21,6 +21,9 @@ import LevelDescription from "../components/modal/LevelDescription.svelte";
 export class Game extends Dispatcher {
 
 	public static breachStartOffsetInHours: number = 4;
+
+	private uuid: string;
+	public name: Writable<string> = writable("");
 
 	public map: Map;
 	public marvin?: MarvinApp;
@@ -53,6 +56,8 @@ export class Game extends Dispatcher {
 
 	constructor(map: Map, gameConfig: IGameConfig, breach: Breach, floodToolSettings: FloodToolSettings, marvin?: MarvinApp, savedGame?: ISavedGame) {
 		super();
+		this.uuid = savedGame?.uuid ?? uuidv4();
+		if (savedGame) this.name.set(savedGame.name);
 		this.map = map;
 		this.marvin = marvin;
 		this.gameConfig = gameConfig;
@@ -175,7 +180,6 @@ export class Game extends Dispatcher {
 				}
 			}, 50);
 		}
-
 		this.save();
 	}
 
@@ -192,44 +196,50 @@ export class Game extends Dispatcher {
 	}
 
 	public save(): void {
+		const evacuationLog: Array<EvacuationLogItem> = get(this.evacuationController.evacuations).map((evacuation) => {
+			return {
+				routeSegmentIds: evacuation.route.map((r) => r.id),
+				hexagonId: evacuation.hexagon.hex,
+				extractionPointId: evacuation.extractionPoint.id,
+				numberOfPersons: evacuation.numberOfPersons,
+				numberOfCars: evacuation.numberOfCars,
+				time: evacuation.time
+			};
+		});
+		const measureLog: Array<MeasureLogItem> = this.evacuationController.roadNetwork.measures.map((measure) => {
+			return {
+				id: measure.config.id,
+				applied: get(measure.applied),
+			};
+		});
 		const gameData: ISavedGame = {
-			uuid: uuidv4(),
-			name: this.gameConfig.name,
+			uuid: this.uuid,
+			name: get(this.name),
+			level: this.gameConfig.name,
 			elapsedTime: get(this.elapsedTime),
-			evacuationLog: this.evacuationController.evacuationLog,
+			evacuations: evacuationLog,
+			measures: measureLog,
 			lastUpdate: Date.now()
 		};
 		const gameCache = localStorage.getItem("serious-game-flooding");
 		const savedGames: Array<ISavedGame> = gameCache ? JSON.parse(gameCache) : [];
-		const saveGame = savedGames?.find((game) => game.name === gameData.name);
-		if (saveGame) {
-			const index = savedGames.indexOf(saveGame);
-			savedGames[index] = gameData;
+		const existingGameIndex = savedGames.findIndex((g) => g.uuid === this.uuid);
+		if (existingGameIndex !== -1) {
+			savedGames[existingGameIndex] = gameData;
 		} else {
 			savedGames.push(gameData);
 		}
 		localStorage.setItem("serious-game-flooding", JSON.stringify(savedGames));
+		this.dispatch("game-saved", {});
 	}
 
 	public setSavedState(savedGame: ISavedGame): void {
-		savedGame.evacuationLog.forEach((logEntry) => {
-			if (logEntry.added) {
-				const hexagon = this.evacuationController.hexagonLayer.hexagons.find((h) => h.hex === logEntry.hexagonId);
-				const extractionPoint = this.evacuationController.roadNetwork.roadNetworkLayer.getItemById(logEntry.extractionPointId);
-				if (hexagon && extractionPoint) {
-					this.evacuationController.evacuate(hexagon, extractionPoint, logEntry.evacuated);
-				}
-			} else {
-				const evacuation = get(this.evacuationController.evacuations).find((e) => e.hexagon.hex === logEntry.hexagonId && e.extractionPoint.id === logEntry.extractionPointId);
-				if (evacuation) this.evacuationController.deleteEvacuation(evacuation, false);
-			}
-		});
-		this.evacuationController.roadNetwork.cleanSetRoutingGraph(get(this.elapsedTime));
+		this.evacuationController.preload(savedGame.evacuations, savedGame.measures);
 		this.setStep(savedGame.elapsedTime);
 	}
 	
 	private setStep(time: number): void {
-		if (time < this.gameConfig.timesteps[0] || time >= this.gameConfig.timesteps[this.gameConfig.timesteps.length - 1]) {
+		if (time !== -999 && (time < this.gameConfig.timesteps[0] || time >= this.gameConfig.timesteps[this.gameConfig.timesteps.length - 1])) {
 			throw new Error("Invalid step index");
 		}
 		this.elapsedTime.set(time);

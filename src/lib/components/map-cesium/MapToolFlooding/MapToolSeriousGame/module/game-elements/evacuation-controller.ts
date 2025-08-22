@@ -9,7 +9,7 @@ import { Evacuation } from "./evacuation";
 import type { Game } from "../game";
 import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 import type { FloodLayerController } from "../../../layer-controller";
-import type { EvacuationLogItem } from "../models";
+import type { EvacuationLogItem, MeasureLogItem } from "../models";
 import type { RouteSegment } from "./roads/route-segments";
 
 
@@ -30,7 +30,7 @@ export class EvacuationController {
 	public hexagonLayer: HexagonLayer;
 	public evacuations!: Readable<Array<Evacuation>>;
 	public evacuationsGrouped!: Readable<Array<EvacuationGroup>>;
-	public evacuationLog: Array<EvacuationLogItem> = [];
+	private loaded: Readable<boolean>;
 
 	constructor(game: Game, floodLayerController: FloodLayerController) {
 		this.game = game;
@@ -76,6 +76,10 @@ export class EvacuationController {
 			});
 		});
 		this.addMouseEvents();
+		this.loaded = derived(
+			[this.hexagonLayer.loaded, this.roadNetwork.loaded],
+			([$hexagonsLoaded, $roadsLoaded]) => $hexagonsLoaded && $roadsLoaded
+		);
 	}
 
 
@@ -103,20 +107,11 @@ export class EvacuationController {
 			return;
 		}
 		const newEvacuations = routeResults.map((routeResult) => {
-			return new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint, routeResult.numberOfPersons, timeStep, this.map);
+			return new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint, routeResult.numberOfPersons, routeResult.evacuatedCars, timeStep, this.map);
   		});
 		const aggregatedEvacuations = this.aggregateEvacuations(newEvacuations);
 		hexagon.addEvacuations(aggregatedEvacuations);
-
-		this.evacuationLog.push(
-			...aggregatedEvacuations.map((evacuation) => ({
-				hexagonId: hexagon.hex,
-				extractionPointId: evacuation.extractionPoint.id,
-				evacuated: evacuation.numberOfPersons,
-				timeStep: timeStep,
-				added: true
-			}))
-		);
+		this.game.save();
 	}
 
 	private aggregateEvacuations(evacuations: Array<Evacuation>): Array<Evacuation> {
@@ -137,14 +132,7 @@ export class EvacuationController {
 	public deleteEvacuation(evacuation: Evacuation, setGraph: boolean = true): void {
 		this.roadNetwork.onEvacuationDelete(evacuation, setGraph);
 		evacuation.hexagon.removeEvacuation(evacuation);
-
-		this.evacuationLog.push({
-			hexagonId: evacuation.hexagon.hex,
-			extractionPointId: evacuation.extractionPoint.id,
-			evacuated: evacuation.numberOfPersons,
-			timeStep: get(this.elapsedTime),
-			added: false
-		});
+		this.game.save();
 	}
 
 	public cancelHexagonEvacuation(hexagon: Hexagon, time: number = get(this.elapsedTime)): void {
@@ -183,6 +171,43 @@ export class EvacuationController {
 		const picked = this.getObjectFromMouseLocation(m);
 		this.hexagonLayer.onLeftClick(picked, m);
 		this.roadNetwork.onLeftClick(picked);
+	}
+
+
+	public preload(savedEvacuations: Array<EvacuationLogItem>, savedMeasures: Array<MeasureLogItem>): void {
+		this.loaded.subscribe((isLoaded) => {
+			if (isLoaded) {			
+				savedEvacuations.forEach((savedEvacuation) => {
+					const hexagon = this.hexagonLayer.hexagons.find((h) => h.hex === savedEvacuation.hexagonId);
+					const extractionPoint = this.roadNetwork.roadNetworkLayer.segments.find((s) => s.id === savedEvacuation.extractionPointId);
+					const route = savedEvacuation.routeSegmentIds.map((id) => this.roadNetwork.roadNetworkLayer.segments.find((s) => s.id === id)).filter((s): s is RouteSegment => !!s);
+					if (hexagon && extractionPoint) {
+						const evacuation = new Evacuation(
+							route,
+							hexagon,
+							extractionPoint,
+							savedEvacuation.numberOfPersons,
+							savedEvacuation.numberOfCars,
+							savedEvacuation.time,
+							this.map
+						);
+						hexagon.addEvacuations([evacuation]);
+					}
+					route.forEach((segment) => {
+						segment.addLoad(savedEvacuation.numberOfCars, savedEvacuation.time);
+					});
+				});
+
+				savedMeasures.forEach((savedMeasure) => {
+					const measure = this.roadNetwork.measures.find((m) => m.config.id === savedMeasure.id);
+					if (measure) {
+						measure.applied.set(savedMeasure.applied);
+					}
+				});
+
+				this.roadNetwork.cleanSetRoutingGraph(get(this.elapsedTime));
+			}
+		});
 	}
 
 }

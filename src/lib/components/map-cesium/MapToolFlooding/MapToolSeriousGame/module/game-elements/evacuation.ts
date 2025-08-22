@@ -11,6 +11,7 @@ export class Evacuation {
 	public hexagon: Hexagon;
 	public extractionPoint: RouteSegment;
 	public numberOfPersons: number;
+	public numberOfCars: number;
 	public time: number;
 	private map: Map;
 
@@ -18,11 +19,12 @@ export class Evacuation {
 	private interval?: NodeJS.Timeout;
 	public shown: Writable<boolean> = writable(false);
 
-	constructor(route: Array<RouteSegment>, hexagon: Hexagon, extractionPoint: RouteSegment, numberOfPersons: number, time: number, map: Map) {
+	constructor(route: Array<RouteSegment>, hexagon: Hexagon, extractionPoint: RouteSegment, numberOfPersons: number, numberOfCars: number, time: number, map: Map) {
 		this.route = route;
 		this.hexagon = hexagon;
 		this.extractionPoint = extractionPoint;
 		this.numberOfPersons = numberOfPersons;
+		this.numberOfCars = numberOfCars;
 		this.time = time;
 		this.map = map;
 		this.dataSource = new Cesium.CustomDataSource();

@@ -1,6 +1,6 @@
 [
 	{
-		"swecoId": "4",
+		"id": "4",
 		"type": "widen",
 		"asset": "snelweg",
 		"name": "Sloeweg tussen aansluiting Sloehaven en aansluiting N62",
@@ -24,7 +24,7 @@
 		"value": 2
 	},
 	{
-		"swecoId": "5",
+		"id": "5",
 		"type": "block",
 		"asset": "brug",
 		"name": "A58 hmp 167,0 Li en Re",
@@ -37,7 +37,7 @@
 		"value": 0
 	},
 	{
-		"swecoId": "6",
+		"id": "6",
 		"type": "block",
 		"asset": "viaduct",
 		"name": "Schietbaan",
@@ -49,7 +49,7 @@
 		"value": 0
 	},
 	{
-		"swecoId": "7",
+		"id": "7",
 		"type": "block",
 		"asset": "snelweg",
 		"name": "N665",
@@ -63,7 +63,7 @@
 		"value": 0
 	},
 	{
-		"swecoId": "8",
+		"id": "8",
 		"type": "block",
 		"asset": "snelweg",
 		"name": "N62",
@@ -78,7 +78,7 @@
 		"value": 0
 	},
 	{
-		"swecoId": "19a",
+		"id": "19a",
 		"type": "raise",
 		"asset": "snelweg",
 		"name": "N57 - Nabij Burgh-Haamstede",
@@ -93,7 +93,7 @@
 		"value": 1.2
 	},
 	{
-		"swecoId": "19b",
+		"id": "19b",
 		"type": "raise",
 		"asset": "snelweg",
 		"name": "Kraaijensteinweg - Nabij Burgh-Haamstede",
@@ -124,7 +124,7 @@
 		"value": 0.6
 	},
 	{
-		"swecoId": "20",
+		"id": "20",
 		"type": "raise",
 		"asset": "snelweg",
 		"name": "N256 - Nabij Zierikzee",
@@ -148,7 +148,7 @@
 		"value": 1.5
 	},
 	{
-		"swecoId": "21a",
+		"id": "21a",
 		"type": "raise",
 		"asset": "snelweg",
 		"name": "N256 - Noord-Beveland, ten noorden van de Zandkreeksluis",
@@ -172,7 +172,7 @@
 		"value": 1.2
 	},
 	{
-		"swecoId": "22",
+		"id": "22",
 		"type": "raise",
 		"asset": "snelweg",
 		"name": "N62 - Ten noorden van Westerscheldetunnel",
@@ -203,7 +203,7 @@
 		"value": 1.2
 	},
 	{
-		"swecoId": "23",
+		"id": "23",
 		"type": "raise",
 		"asset": "snelweg",
 		"name": "N57 - Ten noordwesten van Middelburg",
@@ -221,7 +221,7 @@
 		"value": 1.2
 	},
 	{
-		"swecoId": "24",
+		"id": "24",
 		"type": "raise",
 		"asset": "snelweg",
 		"name": "N287/N288 - “Ringweg van Walcheren”",

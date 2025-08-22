@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { _ } from "svelte-i18n";
 	import { Button } from "carbon-components-svelte";
 	import { GameConsole, PlayOutlineFilled, TrashCan, WatsonHealthSaveSeries } from "carbon-icons-svelte";
 	import { notifications } from "$lib/components/map-core/notifications/notifications";
@@ -29,14 +30,17 @@
 		<div class="sg-icon">
 			<WatsonHealthSaveSeries size={20} />
 		</div>
-		<span>Save Games</span>
+		<span>{$_("game.savedGames")}</span>
 	</div>
 	{#if $savedGames.length > 0}
 		{#each $savedGames as savedGame}
 			<div class="level">
 				<div class="level-header">
-					<div class="level-name">{savedGame.name}</div>
-					<p>Last save: {new Date(savedGame.lastUpdate).toLocaleDateString("nl-NL", {
+					<div >
+						<div class="level-name">{savedGame.level}</div>
+						<div>{savedGame.name}</div>
+					</div>
+					<p>{$_("game.lastSave")}: {new Date(savedGame.lastUpdate).toLocaleDateString("nl-NL", {
 						day: "numeric",
 						month: "short",
 						hour: "2-digit",
@@ -51,13 +55,13 @@
 						on:click={() => {
 							gameController.deleteGameFromCache(savedGame.uuid);
 						}}
-					>Delete</Button>
+					>{$_("game.buttons.delete")}</Button>
 					<Button
 						size="small"
 						kind="primary"
 						icon={PlayOutlineFilled}
 						on:click={() => {
-							const level = levels.find(l => l.name === savedGame.name);
+							const level = levels.find(l => l.name === savedGame.level);
 							if (!level) {
 								notifications.send(
 									new Notification(NotificationType.ERROR, "Error", `Unable to find scenario`, 5000, true, true)
@@ -66,7 +70,7 @@
 							}
 							gameController.play(level, savedGame);
 						}}
-					>Continue</Button>
+					>{$_("game.buttons.load")}</Button>
 				</div>
 			</div>
 		{/each}

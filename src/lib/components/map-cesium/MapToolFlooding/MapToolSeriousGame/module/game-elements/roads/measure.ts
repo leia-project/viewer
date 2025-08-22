@@ -6,6 +6,7 @@ import { iconMap, processSVG } from "../../asset-icons";
 
 
 export interface IMeasureConfig {
+	id: string;
 	type: string; //"widen" | "raise" | "block";
 	asset: string;
 	name: string;

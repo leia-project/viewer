@@ -13,6 +13,7 @@ import type { NotificationLog } from "../../notification-log";
 import measuresJSON from "./measure-config.json";
 import type { FloodLayerController } from "$lib/components/map-cesium/MapToolFlooding/layer-controller";
 import type { GeoJSONFeature } from "$lib/components/map-cesium/module/providers/ogc-features-provider";
+import type { RouteResult } from "../../models";
 
 
 export class RoadNetwork {
@@ -190,12 +191,12 @@ export class RoadNetwork {
 		extractionPoint: RouteSegment | undefined = get(this.selectedExtractionPoint),
 		numberOfPersons: number = hexagon.population,
 		personsPerCar: number
-	): Promise<Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, evacuatedCars: number, numberOfPersons: number }> | undefined> {
+	): Promise<Array<RouteResult> | undefined> {
 		if (!extractionPoint) {
 			return [];
 		}
 		const totalPersons = Math.min(numberOfPersons, hexagon.population);
-		const evacuationRoutes: Array<{ route: Array<RouteSegment>, extractionPoint: RouteSegment, evacuatedCars: number, numberOfPersons: number }> = [];
+		const evacuationRoutes: Array<RouteResult> = [];
 		let remainingPersons = totalPersons - get(hexagon.totalEvacuated);
 		while (remainingPersons > 0) {
 			const maxNumberOfCars = Math.ceil(remainingPersons / personsPerCar);

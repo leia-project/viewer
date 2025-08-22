@@ -162,15 +162,6 @@
 		border-radius: 0.5rem;
 	}
 
-	.step-nav {
-		display: grid;
-		grid-template-columns: 30px 50px 30px;
-		align-items: center;
-		gap: 1rem;
-		font-size: 0.9rem;
-		font-weight: 500;
-	}
-
 	.evacuation-list {
 		max-height: 300px;
 		overflow-y: auto;

@@ -1,4 +1,5 @@
 import type { CameraLocation } from "$lib/components/map-core/camera-location";
+import type { RouteSegment } from "./game-elements/roads/route-segments";
 
 export interface ISeriousGameToolSettings {
 	backgroundLayerId: string;
@@ -27,18 +28,26 @@ export interface IGameConfig {
 }
 
 export interface EvacuationLogItem {
-	hexagonId: string;
-	extractionPointId: string;
-	evacuated: number;
-	timeStep: number,
-	added: boolean;
+	routeSegmentIds: Array<string>,
+	hexagonId: string,
+	extractionPointId: string,
+	numberOfPersons: number
+	numberOfCars: number;
+	time: number;
+}
+
+export interface MeasureLogItem {
+	id: string;
+	applied: boolean;
 }
 
 export interface ISavedGame {
 	uuid: string;
 	name: string;
+	level: string;
 	elapsedTime: number;
-	evacuationLog: Array<EvacuationLogItem>;
+	evacuations: Array<EvacuationLogItem>;
+	measures: Array<MeasureLogItem>;
 	lastUpdate: number;
 }
 
@@ -46,4 +55,11 @@ export interface IRole {
 	role: string, 
 	svgIcon: string, 
 	layerIds: Array<string>
+}
+
+export interface RouteResult {
+	route: Array<RouteSegment>;
+	extractionPoint: RouteSegment;
+	evacuatedCars: number;
+	numberOfPersons: number;
 }

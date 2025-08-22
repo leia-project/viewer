@@ -38,7 +38,9 @@
 			"exit": "Exit game",
 			"proceed": "Continue",
 			"rewind": "Rewind",
-			"continuePlaying": "Continue"
+			"continuePlaying": "Continue",
+			"load": "Load",
+			"delete": "Delete"
 		},
 		"opacity": "Opacity",
 		"available": "Available",
@@ -65,6 +67,10 @@
 		"flooded": "Flooded",
 		"roads": "Roads",
 		"roadSection": "Road section",
-		"roadSections": "Road sections"
+		"roadSections": "Road sections",
+		"startPosition": "Start position",
+		"north": "North",
+		"savedGames": "Saved games",
+		"lastSave": "Last save"
 	}
 }

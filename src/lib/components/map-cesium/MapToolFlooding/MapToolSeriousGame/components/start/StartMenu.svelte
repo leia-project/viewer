@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
-	import { Button, Loading, Modal } from "carbon-components-svelte";
+	import { Button, Loading, Modal, TextInput } from "carbon-components-svelte";
 	import { Exit, CaretRight, Save, Book, CaretLeft } from "carbon-icons-svelte";
 	import type { GameController } from "../../module/game-controller";
 	import GameButton from "../general/GameButton.svelte";
 	import LanguageSwitcher from "./LanguageSwitcher.svelte";
 	import Manual from "./Manual.svelte";
+	import { notifications } from "$lib/components/map-core/notifications/notifications";
+	import { Notification } from "$lib/components/map-core/notifications/notification";
+	import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 
 	export let gameController: GameController;
 	export let open: boolean;
@@ -15,8 +18,9 @@
 	$: layersLoaded = $activeGame?.floodLayerController.floodLayer.loaded;
 	$: roadsLoaded = $activeGame?.evacuationController.roadNetwork.loaded;
 	$: hexagonsLoaded = $activeGame?.evacuationController.hexagonLayer.loaded;
-
 	$: gameLoaded = $layersLoaded && $roadsLoaded && $hexagonsLoaded;
+
+	$: gameName = $activeGame?.name;
 
 	let showManual: boolean = false;
 
@@ -32,15 +36,25 @@
 	preventCloseOnClickOutside={true} 
 >
 	<div class="top-nav">
-		<GameButton
-			icon={showManual ? CaretLeft : Book}
-			hasTooltip={false}
-			size={24}
-			borderHighlight={true}
-			on:click={() => showManual = !showManual}
-		>
-			<svelte:fragment slot="popover">{$_("game.manual")}</svelte:fragment>
-		</GameButton>
+		<div class="left">
+			<GameButton
+				icon={showManual ? CaretLeft : Book}
+				hasTooltip={false}
+				size={24}
+				borderHighlight={true}
+				on:click={() => showManual = !showManual}
+			>
+				<svelte:fragment slot="popover">{$_("game.manual")}</svelte:fragment>
+			</GameButton>
+			<div class="name-input-container">
+				<input
+					type="text"
+					bind:value={$gameName}
+					placeholder="Game name"
+					class="name-input"
+				/>
+			</div>
+		</div>
 		<LanguageSwitcher />
 	</div>
 	{#if showManual}
@@ -90,7 +104,12 @@
 							<Button
 								kind="primary"
 								icon={Save}
-								on:click={() => $activeGame.save()}
+								on:click={() => {
+									$activeGame.save()
+									notifications.send(
+										new Notification(NotificationType.SUCCESS, "Success", `Game saved`, 5000, true, true)
+									);
+								}}
 							>{$_("game.buttons.save")}</Button>
 						</div>
 						<div class="right">
@@ -139,6 +158,12 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+	}
+
+	.top-nav .left {
+		display: flex;
+		align-items: center;
+		column-gap: 0.5rem;
 	}
 	
 	.start-menu-content {
@@ -206,5 +231,31 @@
 		max-width: 100px;
 		filter: invert(1);
 	}
+
+
+	 .name-input-container {
+        position: relative;
+        width: 250px;
+    }
+    
+    .name-input {
+        width: 100%;
+        padding: 13px 12px;
+        border: 1px solid var(--game-color-highlight);
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--game-color-text);
+        font-size: 14px;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+    
+    .name-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--game-color-highlight);
+    }
+    
+    .name-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
 
 </style>
