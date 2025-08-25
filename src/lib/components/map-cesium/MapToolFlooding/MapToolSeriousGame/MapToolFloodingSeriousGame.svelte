@@ -122,6 +122,19 @@
 		});
 	});
 
+
+	// Cutscene recording:
+	import { CutScene, startCutscene } from "./module/cutscene/cutscene";
+	let cutscene: CutScene;
+	document.onkeydown = function (e) {
+		if (e.key === 'q') {
+			cutscene = startCutscene(map, gameController, 1);
+		}
+		if (e.key === 'w') {
+			cutscene?.stop();
+		}
+	};
+
 </script>
 
 

@@ -34,7 +34,7 @@ export class GameController {
 
 	public settings: ISeriousGameToolSettings;
 	private floodToolSettings: FloodToolSettings;
-	private breaches: Array<Breach>;
+	public breaches: Array<Breach>;
 
 	private backgroundLayer?: LayerConfig;
 	private cachedMapLayers: Array<any> = [];
