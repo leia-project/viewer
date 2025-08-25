@@ -13,6 +13,7 @@ import type { EvacuationLogItem, IGameConfig, ISavedGame, MeasureLogItem } from 
 import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 import FinalReport from "../components/modal/FinalReport.svelte";
 import LevelDescription from "../components/modal/LevelDescription.svelte";
+import Cutscene from "../components/Cutscene.svelte";
 
 
 
@@ -306,10 +307,21 @@ export class Game extends Dispatcher {
 	}
 
 	public startCutscene(): Promise<void> {
-		return new Promise((resolve) => {
-			resolve();
+		const target = document.getElementById("game-container");
+		const cutscene = new Cutscene({
+			target: target ?? document.body,
+			props: {
+				game: this
+			}
 		});
-
+		return new Promise((resolve) => {
+			const onEnd = () => {
+				cutscene.$destroy();
+				this.off("cutscene-ended", onEnd);
+				resolve();
+			};
+			this.on("cutscene-ended", onEnd);
+		});
 	}
 
 	public finish(): void {
