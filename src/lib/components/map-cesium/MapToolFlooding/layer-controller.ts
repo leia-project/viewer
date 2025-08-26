@@ -6,6 +6,7 @@ import { IconLayer } from "../module/layers/icon-layer";
 import { FloodLayer } from "../module/layers/flood-layer";
 import { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
 import type { OgcStyleCondition } from "../module/providers/ogc-features-provider";
+import breachIcon from "./icon-breach.svg";
 
 
 export interface FloodToolSettings {
@@ -147,6 +148,9 @@ export class FloodLayerController {
 			isBackground: false,
 			defaultOn: false,
 			defaultAddToManager: true,
+			settings: {
+				svgIcon: breachIcon
+			}
 		});
 		let layer: IconLayer<Breach>;
 		if (this.layerConfigGroup) {
