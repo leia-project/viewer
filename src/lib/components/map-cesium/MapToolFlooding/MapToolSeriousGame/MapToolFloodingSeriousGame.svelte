@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { getContext } from "svelte";
 	import { GameConsole } from "carbon-icons-svelte";
-	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
-	import { CameraLocation } from "$lib/components/map-core/camera-location";
-	import type { Map } from "../../module/map";
+	import { MapToolMenuOption, CameraLocation, type Map } from "./external-dependencies";
 	import { addMarvini18n } from "../Marvin/module/i18n/i18n-marvin";
 	import { addSeriousGamei18n } from "./module/i18n/i18n-game";
 	import { GameController } from "./module/game-controller";
@@ -36,7 +34,7 @@
 				description: "The city of Middelburg is under water. Can you save the city?",
 				scenarioDescription: "Het is een natte novemberochtend. Na dagenlange regenval en harde zuidwestenwind bereikt het waterpeil in de Westerschelde een recordhoogte. Om 09:45 uur meldt het water-schap een dreigende situatie bij een dijktraject ten oosten van Vlissingen.",
 				breachNotification: "Rond 10:30 uur vindt een dijkdoorbraak plaats vlakbij Ritthem. Grote hoeveelheden water stromen het ach-terland in richting Middelburg, waarbij de polders snel vollopen.",
-				thumbnail: "https://via.placeholder.com/150",
+				thumbnail: "https://www.zeeuwseankers.nl/data/uploads/201401281652e7d23263076.jpg",
 				breachTimeDateString: "2023-10-01T05:00:00+02:00",
 				breach: "WSNoo-DP760",
 				scenario: "100000",

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
 	import { CheckmarkFilled, CloseFilled, InformationFilled, ToolKit } from "carbon-icons-svelte";
-	import { Measure } from "../../module/game-elements/roads/measure";
+	import { NotificationType } from "../../external-dependencies";
 	import type { NotificationLog } from "../../module/notification-log";
-	import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
+	import { Measure } from "../../module/game-elements/roads/measure";
 	import GameButton from "../general/GameButton.svelte";
 
 	export let measure: Measure;

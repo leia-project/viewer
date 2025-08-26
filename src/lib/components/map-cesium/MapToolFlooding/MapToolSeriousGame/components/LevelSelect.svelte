@@ -3,9 +3,7 @@
 	import { _ } from "svelte-i18n";
 	import { Button } from "carbon-components-svelte";
 	import { GameConsole, PlayOutlineFilled, TrashCan, WatsonHealthSaveSeries } from "carbon-icons-svelte";
-	import { notifications } from "$lib/components/map-core/notifications/notifications";
-	import { Notification } from "$lib/components/map-core/notifications/notification";
-	import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
+	import { Notification, notifications, NotificationType } from "../external-dependencies";
 	import type { GameController } from "../module/game-controller";
 
 	export let gameController: GameController;

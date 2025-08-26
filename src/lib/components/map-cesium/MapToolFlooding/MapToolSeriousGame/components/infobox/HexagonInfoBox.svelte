@@ -2,7 +2,7 @@
 	import { _ } from "svelte-i18n";
 	import type { Writable } from "svelte/store";
 	import { HexagonVerticalOutline } from "carbon-icons-svelte";
-	import type { Map } from "$lib/components/map-cesium/module/map";
+	import type { Map } from "../../external-dependencies";
 	import type { Hexagon } from "../../module/game-elements/hexagons/hexagon";
 	import type { EvacuationController } from "../../module/game-elements/evacuation-controller";
 	import InfoBox from "./InfoBox.svelte";

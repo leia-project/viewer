@@ -1,8 +1,8 @@
 <script lang="ts">
+	import { createEventDispatcher } from "svelte";
 	import { _ } from "svelte-i18n";
 	import { Return } from "carbon-icons-svelte";
 	import type { Game } from "../../module/game";
-	import { createEventDispatcher } from "svelte";
 	import TimeseriesPlot from "./TimeseriesPlot.svelte";
 	import GameButton from "../general/GameButton.svelte";
 

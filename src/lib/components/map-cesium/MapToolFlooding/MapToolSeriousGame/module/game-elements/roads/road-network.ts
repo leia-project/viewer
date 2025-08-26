@@ -1,6 +1,8 @@
 import { get, writable, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
-import type { Map } from "$lib/components/map-cesium/module/map";
+import type { Map, GeoJSONFeature } from "../../../external-dependencies";
+import type { FloodLayerController } from "../../../../layer-controller";
+
 import { Evacuation } from "../evacuation";
 import { RoutingAPI, type RouteFeature } from "../api/routing-api";
 import NodeHoverBox from "../../../components/infobox/NodeHoverBox.svelte";
@@ -11,8 +13,6 @@ import { BlockMeasure, WidenMeasure, RaiseMeasure, Measure, type IMeasureConfig 
 import type { NotificationLog } from "../../notification-log";
 
 import measuresJSON from "./measure-config.json";
-import type { FloodLayerController } from "$lib/components/map-cesium/MapToolFlooding/layer-controller";
-import type { GeoJSONFeature } from "$lib/components/map-cesium/module/providers/ogc-features-provider";
 import type { RouteResult } from "../../models";
 
 

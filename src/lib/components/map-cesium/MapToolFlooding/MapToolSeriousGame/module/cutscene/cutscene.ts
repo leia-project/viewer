@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import * as Cesium from "cesium";
-import type { Map } from "$lib/components/map-cesium/module/map";
+import type { Map } from "../../external-dependencies";
 import { FloodLayerController, type Breach, type FloodToolSettings } from "../../../layer-controller";
 import { FlightPath,  type FlightPathPoint } from "./flight-path";
 

@@ -1,8 +1,8 @@
 import { derived, get, writable, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import * as h3 from "h3-js";
-import type { MouseLocation } from "$lib/components/map-core/mouse-location";
-import type { Map as GameMap } from "$lib/components/map-cesium/module/map";
+import type { MouseLocation, Map as GameMap } from "../../../external-dependencies";
+
 import type { EvacuationController } from "../evacuation-controller";
 import { Hexagon } from "./hexagon";
 import { PGRestAPI, type CBSHexagon, type FloodHexagon } from "../api/pg-rest-api";

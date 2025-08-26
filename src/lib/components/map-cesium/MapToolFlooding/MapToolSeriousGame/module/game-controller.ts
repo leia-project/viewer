@@ -1,13 +1,11 @@
 import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
-import type { Map } from "$lib/components/map-cesium/module/map";
+import { selectedLanguage, type LayerConfig, type Map } from "../external-dependencies";
+
 import { Game } from "./game";
 import { MarvinApp } from "../../Marvin/marvin";
 import GameContainer from "../components/GameContainer.svelte";
 import type { IGameConfig, ISeriousGameToolSettings, ISavedGame } from "./models";
-import type { LayerConfig } from "$lib/components/map-core/layer-config";
-
-import { selectedLanguage } from "$lib/components/localization/localization";
 import type { Breach, FloodToolSettings } from "../../layer-controller";
 
 

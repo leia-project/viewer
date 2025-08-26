@@ -1,7 +1,7 @@
 import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
+import type { Map } from "../../external-dependencies";
 import type { Hexagon } from "./hexagons/hexagon";
-import type { Map } from "$lib/components/map-cesium/module/map";
 import type { RouteSegment } from "./roads/route-segments";
 
 

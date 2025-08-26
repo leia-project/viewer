@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Writable } from "svelte/store";
 	import { Road, ToolKit } from "carbon-icons-svelte";
-	import type { Map } from "$lib/components/map-cesium/module/map";
+	import type { Map } from "../../external-dependencies";
 	import { RouteSegment } from "../../module/game-elements/roads/route-segments";
 	import { Measure } from "../../module/game-elements/roads/measure";
 	import RouteSegmentInfo from "./RouteSegmentInfo.svelte";

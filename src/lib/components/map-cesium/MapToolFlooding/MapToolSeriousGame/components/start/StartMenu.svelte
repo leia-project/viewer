@@ -1,14 +1,12 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
-	import { Button, Loading, Modal, TextInput } from "carbon-components-svelte";
+	import { Button, Loading, Modal } from "carbon-components-svelte";
 	import { Exit, CaretRight, Save, Book, CaretLeft } from "carbon-icons-svelte";
+	import { Notification, notifications, NotificationType } from "../../external-dependencies";
 	import type { GameController } from "../../module/game-controller";
 	import GameButton from "../general/GameButton.svelte";
 	import LanguageSwitcher from "./LanguageSwitcher.svelte";
 	import Manual from "./Manual.svelte";
-	import { notifications } from "$lib/components/map-core/notifications/notifications";
-	import { Notification } from "$lib/components/map-core/notifications/notification";
-	import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 
 	export let gameController: GameController;
 	export let open: boolean;

@@ -1,7 +1,6 @@
 
-import { Dispatcher } from "$lib/components/map-core/event/dispatcher";
-import type { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 import { get, writable, type Writable, type Unsubscriber } from "svelte/store";
+import { Dispatcher, NotificationType } from "../external-dependencies";
 
 
 export interface INotification {

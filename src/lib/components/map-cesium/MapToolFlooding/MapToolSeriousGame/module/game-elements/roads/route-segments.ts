@@ -2,7 +2,7 @@ import { get, writable, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import { lineString, length, along } from '@turf/turf';
 import gsap  from "gsap";
-import type { Map as CesiumMap } from "$lib/components/map-cesium/module/map";
+import type { Map as CesiumMap } from "../../../external-dependencies";
 import type { RouteFeature } from "../api/routing-api";
 import { CylinderGeometry } from "./cylinder-geometry";
 

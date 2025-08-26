@@ -3,10 +3,7 @@
 	import { writable } from "svelte/store";
 	import { fade } from "svelte/transition";
 	import { QuestionAnswering } from "carbon-icons-svelte";
-	import { QA } from "../../../Marvin/module/qa";
-	import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
-	import { DrawnGeometry } from "../../../Marvin/module/draw/drawn-geometry";
-	import MarvinAvatar from "../../../Marvin/components/MarvinAvatar.svelte";
+	import { DrawnGeometry, MarvinAvatar, NotificationType, QA } from "../../external-dependencies";
 	import type { EvacuationController } from "../../module/game-elements/evacuation-controller";
 
 	export let evacuationController: EvacuationController;

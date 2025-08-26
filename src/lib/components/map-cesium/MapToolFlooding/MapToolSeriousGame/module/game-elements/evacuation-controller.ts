@@ -1,16 +1,15 @@
 import { derived, get, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
-import type { Hexagon } from "./hexagons/hexagon";
-import { HexagonLayer } from "./hexagons/hexagon-layer";
-import { RoadNetwork } from "./roads/road-network";
-import type { MouseLocation } from "$lib/components/map-core/mouse-location";
-import { Map as CesiumMap } from "$lib/components/map-cesium/module/map";
-import { Evacuation } from "./evacuation";
+import { NotificationType, type MouseLocation, type Map as CesiumMap } from "../../external-dependencies";
+
 import type { Game } from "../game";
-import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 import type { FloodLayerController } from "../../../layer-controller";
 import type { EvacuationLogItem, MeasureLogItem } from "../models";
 import type { RouteSegment } from "./roads/route-segments";
+import type { Hexagon } from "./hexagons/hexagon";
+import { HexagonLayer } from "./hexagons/hexagon-layer";
+import { RoadNetwork } from "./roads/road-network";
+import { Evacuation } from "./evacuation";
 
 
 export interface EvacuationGroup {

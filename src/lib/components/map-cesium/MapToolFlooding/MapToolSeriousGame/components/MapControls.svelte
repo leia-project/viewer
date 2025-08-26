@@ -1,10 +1,10 @@
 <script lang="ts">
+	import { onDestroy, onMount } from "svelte";
 	import { _ } from "svelte-i18n";
+	import { fade } from "svelte/transition";
 	import { Compass, Home, Save } from "carbon-icons-svelte";
 	import GameButton from "./general/GameButton.svelte";
 	import type { Game } from "../module/game";
-	import { onDestroy, onMount } from "svelte";
-	import { fade } from "svelte/transition";
 
 	export let game: Game;
 

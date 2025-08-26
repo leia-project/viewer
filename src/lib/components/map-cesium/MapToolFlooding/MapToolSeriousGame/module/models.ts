@@ -1,5 +1,6 @@
-import type { CameraLocation } from "$lib/components/map-core/camera-location";
+import type { CameraLocation } from "../external-dependencies";
 import type { RouteSegment } from "./game-elements/roads/route-segments";
+
 
 export interface ISeriousGameToolSettings {
 	backgroundLayerId: string;

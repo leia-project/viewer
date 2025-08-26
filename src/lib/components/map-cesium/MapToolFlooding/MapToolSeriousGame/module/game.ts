@@ -3,18 +3,16 @@ import { _ } from "svelte-i18n";
 import { derived, get, writable, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import { v4 as uuidv4 } from '@lukeed/uuid';
-import { Dispatcher } from "$lib/components/map-core/event/dispatcher";
-import type { Map } from "$lib/components/map-cesium/module/map";
+import {Dispatcher, NotificationType, type Map } from "../external-dependencies";
+
 import { FloodLayerController, type Breach, type FloodToolSettings } from "../../layer-controller";
 import type { MarvinApp } from "../../Marvin/marvin";
 import { NotificationLog } from "./notification-log";
 import { EvacuationController } from "./game-elements/evacuation-controller";
 import type { EvacuationLogItem, IGameConfig, ISavedGame, MeasureLogItem } from "./models";
-import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
 import FinalReport from "../components/modal/FinalReport.svelte";
 import LevelDescription from "../components/modal/LevelDescription.svelte";
 import Cutscene from "../components/Cutscene.svelte";
-
 
 
 export class Game extends Dispatcher {

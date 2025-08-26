@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from "svelte";
 	import { get, type Writable } from "svelte/store";
 	import * as Cesium from "cesium";
-	import type { Map } from "$lib/components/map-cesium/module/map";
+	import type { Map } from "../../external-dependencies";
 	import type { Hexagon } from "../../module/game-elements/hexagons/hexagon";
 	import { RouteSegment } from "../../module/game-elements/roads/route-segments";
 	import { Measure } from "../../module/game-elements/roads/measure";

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { selectedLanguage } from "$lib/components/localization/localization";
+	import { selectedLanguage } from "../../external-dependencies";
+
 </script>
 
 

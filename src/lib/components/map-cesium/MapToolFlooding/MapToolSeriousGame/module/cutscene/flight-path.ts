@@ -1,5 +1,5 @@
-import type { Map } from "$lib/components/map-cesium/module/map";
 import * as Cesium from "cesium";
+import type { Map } from "../../external-dependencies";
 
 
 export interface FlightPathPoint {

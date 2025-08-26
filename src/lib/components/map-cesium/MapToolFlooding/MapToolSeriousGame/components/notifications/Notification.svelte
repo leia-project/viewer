@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { CheckmarkFilled, ErrorFilled, InformationFilled, WarningHexFilled } from "carbon-icons-svelte";
-	import { NotificationType } from "$lib/components/map-core/notifications/notification-type";
+	import { NotificationType } from "../../external-dependencies";
 	import type { INotification } from "../../module/notification-log";
 
 	export let notification: INotification;
