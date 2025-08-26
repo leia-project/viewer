@@ -288,7 +288,8 @@ export class Game extends Dispatcher {
 	public start(): void {
 		if (!this.started) {
 			this.startCutscene().then(() => {
-				this.showModal(LevelDescription)
+				this.showModal(LevelDescription, { game: this });
+				this.started = true;
 			});
 		}
 	}
@@ -334,7 +335,64 @@ export class Game extends Dispatcher {
 		this.showModal(FinalReport, { game: this }); 
 	}
 
-	private getScore(): number {
-		return 6;
+	public get report(): { evacuatedNeeded: number, evacuatedUnneeded: number, victims: number, evacuatedRequired: number, score: number } {
+		const evacuated = get(this.evacuationController.evacuations).reduce((sum, e) => sum + e.numberOfPersons, 0);
+
+		const evacuatedUnneeded = get(this.evacuationController.evacuations).reduce((sum, e) => {
+			const hexagon = this.evacuationController.hexagonLayer.hexagons.find((h) => h.hex === e.hexagon.hex);
+			if (hexagon && (!hexagon.floodedAt || (e.time < hexagon.floodedAt - 1))) {
+				return sum + e.numberOfPersons;
+			}
+			return sum;
+		}, 0);
+
+		const evacuatedNeeded = evacuated - evacuatedUnneeded;
+
+		const victims = this.evacuationController.hexagonLayer.hexagons.reduce((sum, h) => sum + get(h.victims), 0);
+
+		const evacuatedRequired = victims + evacuatedNeeded;
+
+		const score = Math.max(0, Math.round(
+			6 * (evacuatedRequired - evacuatedUnneeded) / (evacuatedRequired + 20)
+		));
+
+		return {
+			evacuatedNeeded: evacuatedNeeded,
+			evacuatedUnneeded: evacuatedUnneeded,
+			victims: victims,
+			evacuatedRequired: evacuatedRequired,
+			score: score
+		};
+	}
+
+	public get timeseriesEvacuated(): Array<{ time: number, value: number }> {
+		const timeseries: Array<{ time: number, value: number }> = [];
+		get(this.evacuationController.evacuations).forEach((evacuation) => {
+			const existingEntry = timeseries.find((t) => t.time === evacuation.time);
+			if (existingEntry) {
+				existingEntry.value += evacuation.numberOfPersons;
+			} else {
+				timeseries.push({ time: evacuation.time, value: evacuation.numberOfPersons });
+			}
+		});
+		timeseries.sort((a, b) => a.time - b.time);
+		return timeseries;
+	}
+
+	public get timeseriesVictims(): Array<{ time: number, value: number }> {
+		const timeseries: Array<{ time: number, value: number }> = [];
+		this.evacuationController.hexagonLayer.hexagons.forEach((hex) => {
+			const victims = get(hex.victims);
+			if (victims > 0 && hex.floodedAt) {
+				const existingEntry = timeseries.find((t) => t.time === hex.floodedAt);
+				if (existingEntry) {
+					existingEntry.value += victims;
+				} else {
+					timeseries.push({ time: hex.floodedAt, value: victims });
+				}
+			}
+		});
+		timeseries.sort((a, b) => a.time - b.time);
+		return timeseries;
 	}
 }

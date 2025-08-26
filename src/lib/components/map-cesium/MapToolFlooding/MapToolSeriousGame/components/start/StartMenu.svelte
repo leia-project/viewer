@@ -30,10 +30,10 @@
 <Modal
 	bind:open
 	size="lg"
-	passiveModal={true}
 	modalHeading={""}
-	id="start-menu-modal"
+	passiveModal={true}
 	preventCloseOnClickOutside={true} 
+	id="start-menu-modal"
 >
 	<div class="top-nav">
 		<div class="left">
@@ -120,7 +120,7 @@
 									open = false;
 									$activeGame.start();
 								}}
-							>{$activeGame.started ? "Start" : $_("game.buttons.continuePlaying")}</Button>
+							>{$activeGame.started ? $_("game.buttons.continuePlaying") : "Start"}</Button>
 						</div>
 					{/if}
 				</div>

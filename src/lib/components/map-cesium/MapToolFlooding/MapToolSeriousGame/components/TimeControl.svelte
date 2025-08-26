@@ -83,7 +83,7 @@
 						borderHighlight={true}
 						on:click={() => game.finish()}
 					>
-						<svelte:fragment slot="popover">{$_("game.finalReport")}</svelte:fragment>
+						<svelte:fragment slot="popover">{$_("game.finalReport.title")}</svelte:fragment>
 					</GameButton>
 				{/if}
 			{/if}

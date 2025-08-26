@@ -33,6 +33,10 @@
 			"noEvacuationsInThisTimestep": "No evacuations in this timestep",
 			"timeSinceBreach": "Time since breach"
 		},
+		"finalReport": {
+			"title": "Final Report",
+			"returnToGame": "Return to game"
+		},
 		"buttons": {
 			"save": "Save",
 			"exit": "Exit game",
@@ -40,7 +44,8 @@
 			"rewind": "Rewind",
 			"continuePlaying": "Continue",
 			"load": "Load",
-			"delete": "Delete"
+			"delete": "Delete",
+			"skip": "Skip"
 		},
 		"opacity": "Opacity",
 		"available": "Available",
@@ -53,7 +58,6 @@
 		"evacuations": "Evacuations",
 		"hour": "hour",
 		"hours": "hours",
-		"finalReport" : "Final report",
 		"inhabitants": "Inhabitants",
 		"evacuated": "Evacuated",
 		"victims": "Victims",

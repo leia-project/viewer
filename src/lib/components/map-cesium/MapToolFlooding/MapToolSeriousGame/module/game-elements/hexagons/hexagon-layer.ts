@@ -1,12 +1,12 @@
 import { derived, get, writable, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import * as h3 from "h3-js";
+import type { MouseLocation } from "$lib/components/map-core/mouse-location";
 import type { Map as GameMap } from "$lib/components/map-cesium/module/map";
+import type { EvacuationController } from "../evacuation-controller";
 import { Hexagon } from "./hexagon";
 import { PGRestAPI, type CBSHexagon, type FloodHexagon } from "../api/pg-rest-api";
 import HexagonInfoBox from "../../../components/infobox/HexagonInfoBox.svelte";
-import type { EvacuationController } from "../evacuation-controller";
-import type { MouseLocation } from "$lib/components/map-core/mouse-location";
 
 
 export class HexagonLayer {
@@ -131,6 +131,7 @@ export class HexagonLayer {
 		h3FloodDepths.forEach((floodHex: FloodHexagon) => {
 			const hex = this.hexagons.find((h: Hexagon) => h.hex === floodHex.hex);
 			if (hex) {
+				if (!hex.floodedAt) hex.floodedAt = time;
 				hex.floodDepth.set(floodHex.maxFloodDepth);
 				updatedHexIds.add(hex.hex);
 			}

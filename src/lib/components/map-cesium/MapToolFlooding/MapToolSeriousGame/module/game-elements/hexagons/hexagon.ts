@@ -14,7 +14,7 @@ export class Hexagon {
 	public evacuationPoints: Array<[lon: number, lat: number]>;
 	public population: number;
 	public floodDepth: Writable<number> = writable(0);
-	public floodedAt: Writable<number | undefined> = writable(undefined);
+	public floodedAt: number | undefined;
 
 	private selectedHexagon: Writable<Hexagon | undefined>;
 	public selectedRoute: Array<number> = [];

@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { onDestroy, onMount, type ComponentType } from "svelte";
 	import { Modal } from "carbon-components-svelte";
 	import type { Game } from "../../module/game";
-	import { onDestroy, onMount, type ComponentType } from "svelte";
 
 	export let game: Game;
 
@@ -23,10 +23,30 @@
 
 <Modal
 	bind:open
+	size="lg"
 	passiveModal={true}
 	preventCloseOnClickOutside={true}
+	modalHeading={""}
+	id="game-modal"
 >
 	{#if component}
-		<svelte:component this={component} {...args} />
+		{#key open}
+			<svelte:component this={component} {...args} on:close={() => open = false} />
+		{/key}
 	{/if}
 </Modal>
+
+
+<style>
+
+	:global(#game-modal .bx--modal-container) {
+		background-color: rgb(var(--game-color-bg));
+	}
+	:global(#game-modal .bx--modal-content) {
+		color: var(--game-color-text);
+	}
+	:global(#game-modal .bx--modal-close) {
+		display: none;
+	}
+
+</style>

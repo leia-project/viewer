@@ -33,6 +33,10 @@
 			"noEvacuationsInThisTimestep": "Geen evacuaties in deze tijdstap",
 			"timeSinceBreach": "Tijd sinds doorbraak"
 		},
+		"finalReport": {
+			"title": "Eindrapport",
+			"returnToGame": "Terug naar het spel"
+		},
 		"buttons": {
 			"save": "Opslaan",
 			"exit": "Spel verlaten",
@@ -40,7 +44,8 @@
 			"rewind": "Terugspoelen",
 			"continuePlaying": "Verder spelen",
 			"load": "Laden",
-			"delete": "Verwijderen"
+			"delete": "Verwijderen",
+			"skip": "Overslaan"
 		},
 		"opacity": "Transparantie",
 		"available": "Beschikbaar",
@@ -53,7 +58,6 @@
 		"evacuations": "Evacuaties",
 		"hour": "uur",
 		"hours": "uur",
-		"finalReport": "Eindrapport",
 		"inhabitants": "Inwoners",
 		"evacuated": "Geëvacueerd",
 		"victims": "Slachtoffers",
