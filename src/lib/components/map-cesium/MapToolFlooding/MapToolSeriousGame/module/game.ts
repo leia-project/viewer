@@ -28,12 +28,17 @@ export class Game extends Dispatcher {
 	public marvin?: MarvinApp;
 	public gameConfig: IGameConfig;
 	public breach: Breach;
+	private showBreachLocation: Cesium.ConstantProperty = new Cesium.ConstantProperty(false);
 
 	public notificationLog: NotificationLog;
 	public forwarding: Writable<boolean> = writable(false);
 	public startTime: number;
 	public elapsedTime: Writable<number> = writable(-999); // Initialize to -999 to indicate not preparation phase
-	public elapsedTimeSinceBreach: Readable<number> = derived(this.elapsedTime, ($t) => $t - Game.breachStartOffsetInHours);
+	public elapsedTimeSinceBreach: Readable<number> = derived(this.elapsedTime, ($t) => {
+		const elapsed = $t - Game.breachStartOffsetInHours;
+		this.showBreachLocation.setValue(elapsed >= 0);
+		return elapsed;
+	});
 	public inPreparationPhase: Readable<boolean> = derived(this.elapsedTime, ($t) => $t === -999);
 	public timeGaps: Readable<{ before?: number, after?: number }> = derived(this.elapsedTime, ($t) => {
 		const timeBefore = this.getAdjacentStep($t, "previous");
@@ -259,7 +264,8 @@ export class Game extends Dispatcher {
 				image: "/images/alert-icon.svg",
 				scale: 0.3,
 				verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-				heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+				heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+				show: this.showBreachLocation
 			}
 		});
 		this.map.viewer.entities.add(breachLocation);

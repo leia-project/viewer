@@ -10,6 +10,8 @@
 	let progress = 0;
 	let duration = 0;
 
+	const closeDelay = 3000;
+
 	function exit(): void {
 		game.dispatch("cutscene-ended", {});
 	}
@@ -30,7 +32,7 @@
 	}
 
 	function onVideoLoaded() {
-		duration = video.duration;
+		duration = video.duration + (closeDelay / 1000);
 		updateProgress();
 	}
 
@@ -43,7 +45,7 @@
 		id="cutscene" 
 		bind:this={video}
 		autoplay 
-		on:ended={exit}
+		on:ended={() => setTimeout(exit, closeDelay)}
 		on:loadedmetadata={onVideoLoaded}
 	>
 		<source src="https://storage.googleapis.com/sogelink-research-public/projects/zeeland/serious-game-zeeland-cutscene.mp4" type="video/mp4">
