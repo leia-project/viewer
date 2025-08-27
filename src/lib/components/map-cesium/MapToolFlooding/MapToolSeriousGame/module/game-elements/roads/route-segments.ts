@@ -177,6 +177,18 @@ export class RoadNetworkLayer {
 			asynchronous: false
 		});
 	}
+
+	public removeFromMap(): void {
+		if (this.polylinePrimitive) {
+			this.map.viewer.scene.primitives.remove(this.polylinePrimitive);
+		}
+		if (this.extractionPointPrimitive) {
+			this.map.viewer.scene.primitives.remove(this.extractionPointPrimitive);
+		}
+		this.segments.forEach((segment) => {
+			segment.extractionPoint?.removeFromMap();
+		});
+	}
 }
 
 
@@ -609,5 +621,10 @@ class ExtractionPoint {
 		const boundingSpheres = this.geometryInstances.map(instance => instance.geometry.boundingSphere);
 		const boundingSphere = Cesium.BoundingSphere.fromBoundingSpheres(boundingSpheres);
 		this.map.viewer.camera.flyToBoundingSphere(boundingSphere);
+	}
+
+	public removeFromMap(): void {
+		if (this.map.viewer.entities.contains(this.selectArrow3D[0])) this.map.viewer.entities.remove(this.selectArrow3D[0]);
+		if (this.map.viewer.entities.contains(this.selectArrow3D[1])) this.map.viewer.entities.remove(this.selectArrow3D[1]);
 	}
 }

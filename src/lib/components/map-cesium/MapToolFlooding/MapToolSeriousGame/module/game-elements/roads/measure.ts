@@ -221,6 +221,19 @@ export abstract class Measure {
 			duration: 1.5
 		});
 	}
+
+	public removeFromMap(): void {
+		if (this.polylinePrimitive) {
+			this.map.viewer.scene.primitives.remove(this.polylinePrimitive);
+		}
+		if (this.map.viewer.entities.contains(this.billboard)) {
+			this.map.viewer.entities.remove(this.billboard);
+		}
+		if (this.map.viewer.entities.contains(this.billboardApplied)) {
+			this.map.viewer.entities.remove(this.billboardApplied);
+		}
+		this.applyUnsubscriber?.();
+	}
 }
 
 

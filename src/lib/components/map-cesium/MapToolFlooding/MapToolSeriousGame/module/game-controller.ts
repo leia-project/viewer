@@ -1,6 +1,6 @@
 import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
-import { MarvinApp, selectedLanguage, type LayerConfig, type Map } from "../external-dependencies";
+import { MarvinApp, type Map, type LayerConfig, type Layer } from "../external-dependencies";
 
 import { Game } from "./game";
 import GameContainer from "../components/GameContainer.svelte";
@@ -30,8 +30,9 @@ export class GameController {
 	private floodToolSettings: FloodToolSettings;
 	public breaches: Array<Breach>;
 
-	private backgroundLayer?: LayerConfig;
-	private cachedMapLayers: Array<any> = [];
+	private backgroundLayer: LayerConfig;
+	private cachedMapLayersAdded: Array<Layer> = [];
+	private cachedMapLayersVisible: Array<Layer> = [];
 	private cachedTime: number = 0;
 
 	public inGame: Writable<boolean> = writable(false);
@@ -45,7 +46,7 @@ export class GameController {
 		this.settings = settings;
 		this.floodToolSettings = floodToolSettings;
 		this.breaches = breaches;
-		this.backgroundLayer = this.map.layerLibrary.findLayer(settings.backgroundLayerId);
+		this.backgroundLayer = this.map.layerLibrary.findLayer(settings.backgroundLayerId) as LayerConfig;
 		this.boundingDome = this.getBoundingDome();
 	}
 
@@ -62,16 +63,13 @@ export class GameController {
 	public play(gameConfig: IGameConfig, savedGame?: ISavedGame): void {
 		this.inGame.set(true);
 		this.cachedTime = get(this.map.options.dateTime);
+		this.addGameLayers();
 		this.toggleViewerUI(false);
 		const marvin = this.initMarvin();
 		this.loadUserInterface(marvin);
-		this.addGameLayers();
 		this.loadGame(gameConfig, savedGame);
 		this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
 		//this.map.viewer.entities.add(this.boundingDome);
-
-		// Later: add support for English too (language switcher in start menu)
-		selectedLanguage.set("nl");
 	}
 
 	public exit(): void {   
@@ -79,7 +77,6 @@ export class GameController {
 		this.map.options.dateTime.set(this.cachedTime);
 		this.removeGameLayers();
 		this.toggleViewerUI(true);
-		this.map.options.dateTime.set(this.cachedTime);
 		get(this.active)?.exit();
 		this.active.set(undefined);
 		this.gameContainer?.$destroy();
@@ -99,8 +96,9 @@ export class GameController {
 	}
 
 	private addGameLayers(): void {
-		this.cachedMapLayers = get(this.map.layers);
-		this.cachedMapLayers.forEach((layer) => {
+		this.cachedMapLayersAdded = get(this.map.layers);
+		this.cachedMapLayersVisible = this.cachedMapLayersAdded.filter((l) => get(l.visible));
+		get(this.map.layers).forEach((layer) => {
 			layer.visible.set(false);
 		});
 		if (this.backgroundLayer) {
@@ -109,23 +107,29 @@ export class GameController {
 			layer?.visible.set(true);
 		}
 		this.settings.generalLayerIds.forEach((id) => {
-			const layer = this.map.layerLibrary.findLayer(id);
-			if (layer) {
-				layer.added.set(true);
+			const layerConfig = this.map.layerLibrary.findLayer(id);
+			if (layerConfig) {
+				layerConfig.added.set(true);
+				const layer = get(this.map.layers).find((l) => l.id === layerConfig.id);
+				layer?.visible.set(false);
 			}
 		});
 	}
 
 	private removeGameLayers(): void {
-		this.backgroundLayer?.added.set(false);
+		const cachedLayerIds = this.cachedMapLayersAdded.map((l) => l.id);
+		if (!cachedLayerIds.includes(this.backgroundLayer.id)) {
+			this.backgroundLayer.added.set(false);
+		}
 		this.settings.generalLayerIds.forEach((id) => {
+			if (cachedLayerIds.includes(id)) return;
 			const layer = this.map.layerLibrary.findLayer(id);
 			if (layer) {
 				layer.added.set(false);
 			}
 		});
-		this.cachedMapLayers.forEach((layer) => {
-			layer.visible.set(true);
+		this.cachedMapLayersAdded.forEach((layer) => {
+			if (this.cachedMapLayersVisible.includes(layer)) layer.visible.set(true);
 		});
 	}
 

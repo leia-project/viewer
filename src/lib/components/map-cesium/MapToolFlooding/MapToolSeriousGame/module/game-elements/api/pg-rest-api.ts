@@ -29,6 +29,9 @@ export class PGRestAPI {
 	}
 
 	constructor() {
+		if (!PGREST_CLIENT_ID || !PGREST_CLIENT_SECRET) {
+			throw new Error("PGREST_CLIENT_ID and PGREST_CLIENT_SECRET must be set in environment variables.");
+		}
 		this.client = new PGRestClient(
 			PGREST_URL,
 			PGREST_CLIENT_ID,
@@ -125,10 +128,39 @@ export class PGRestAPI {
 				)
 			) AS r;
 		`;
-		const queryResult: any = await this.client.query(query, {
-			format: "json"
-		});
-		return queryResult.data[0].jsonb_build_object;
+		try {
+			const queryResult: any = await this.client.query(query, {
+				format: "json"
+			});
+			return queryResult.data[0].jsonb_build_object;
+		} catch (error) {
+			// If the error is likely due to a bad polygon, try splitting it in two and merging results
+			if (polygon.length > 4) {
+				const mid = Math.floor(polygon.length / 2);
+				const poly1 = polygon.slice(0, mid + 1);
+				const poly2 = [polygon[0], ...polygon.slice(mid)];
+				const [result1, result2] = await Promise.all([
+					this.getRoadNetworkEdges(poly1),
+					this.getRoadNetworkEdges(poly2)
+				]);
+				// Combine features from both results, removing duplicates by fid
+				const features1 = result1?.features ?? [];
+				const features2 = result2?.features ?? [];
+				const seen = new Set();
+				const combined = [...features1, ...features2].filter(f => {
+					const fid = f.properties?.fid;
+					if (seen.has(fid)) return false;
+					seen.add(fid);
+					return true;
+				});
+				return {
+					type: "FeatureCollection",
+					features: combined
+				};
+			} else {
+				throw error;
+			}
+		}
 	}
 
 	public async getRoadNetworkGraph(polygon: Array<[lon: number, lat: number]>): Promise<any> {

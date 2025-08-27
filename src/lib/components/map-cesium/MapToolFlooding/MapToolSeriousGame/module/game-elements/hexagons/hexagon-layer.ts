@@ -274,6 +274,15 @@ export class HexagonLayer {
 		}
 		this.map.refresh();
 	}
+
+	public removeFromMap(): void {
+		if (this.primitive) this.map.viewer.scene.primitives.remove(this.primitive);
+		this.map.viewer.dataSources.remove(this.hexagonEntities);
+		this.hexagonEntities.entities.removeAll();
+		this.hexagonHoverBox?.$destroy();
+		this.hexagonSelectBox?.$destroy();
+		this.loaded.set(false);
+	}
 }
 
 

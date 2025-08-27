@@ -106,7 +106,7 @@ export class RoadNetwork {
 	private async init(): Promise<void> {
 		this.loadMeasures();
 		try {
-			await this.retryLoadRoadNetwork();
+			await this.loadRoadNetwork();
 			this.elapsedTime.subscribe((time: number) => this.cleanSetRoutingGraph(time));
 			this.floodLayerController.floodedRoadsLayer.source.setupPromise?.then(() => {
 				this.floodLayerController.floodedRoadsLayer.source.OgcFeaturesLoaderCesium.on("featuresLoaded", () => {
@@ -119,6 +119,19 @@ export class RoadNetwork {
 		}
 	}
 
+	private async loadRoadNetwork(): Promise<void> {
+		const network = await getNetworkPGRest("zeeland_datacore", "car", this.outline); //await fetch("/data/zeeland_2/car/edges.geojson");
+		network.edges.features.forEach((feature: RouteFeature) => {
+			const segment = this.roadNetworkLayer.add(feature, false);
+			for (const measure of this.measures) {
+				if (measure.config.routeSegmentFids.includes(segment.id)) {
+					measure.addRouteSegment(segment);
+				}
+			}
+		});
+		this.roadNetworkLayer.updatePrimitive();
+	}
+/* 
 	private async retryLoadRoadNetwork(retries: number = 5, delayMs: number = 1000): Promise<void> {
 		for (let attempt = 0; attempt <= retries; attempt++) {
 			try {
@@ -134,6 +147,7 @@ export class RoadNetwork {
 			}
 		}
 	}
+*/
 
 	public async cleanSetRoutingGraph(time: number): Promise<void> {
 		const floodedRoadFeatures = this.floodLayerController.floodedRoadsLayer.source.OgcFeaturesLoaderCesium.features || [];
@@ -154,19 +168,6 @@ export class RoadNetwork {
 		const blockedSegments = this.measures.filter((measure) => measure instanceof BlockMeasure && get(measure.applied)).map((measure) => measure.config.routeSegmentFids).flat();
 		
 		this.routingAPI.update(floodedSegmentsWithMeasures, overloadedSegments, blockedSegments);
-	}
-
-	private async loadRoadNetwork(): Promise<void> {
-		const network = await getNetworkPGRest("zeeland_datacore", "car", this.outline); //await fetch("/data/zeeland_2/car/edges.geojson");
-		network.edges.features.forEach((feature: RouteFeature) => {
-			const segment = this.roadNetworkLayer.add(feature, false);
-			for (const measure of this.measures) {
-				if (measure.config.routeSegmentFids.includes(segment.id)) {
-					measure.addRouteSegment(segment);
-				}
-			}
-		});
-		this.roadNetworkLayer.updatePrimitive();
 	}
 
 	private loadMeasures(): void {
@@ -351,5 +352,11 @@ export class RoadNetwork {
 		}
 		this.currentlyHovered = h;
 		this.map.refresh();
+	}
+
+	public removeFromMap(): void {
+		this.roadNetworkLayer.removeFromMap();
+		this.measures.forEach((measure) => measure.removeFromMap());
+		this.loaded.set(false);
 	}
 }

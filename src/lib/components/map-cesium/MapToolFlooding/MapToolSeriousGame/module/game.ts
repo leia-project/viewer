@@ -25,6 +25,7 @@ export class Game extends Dispatcher {
 	public marvin?: MarvinApp;
 	public gameConfig: IGameConfig;
 	public breach: Breach;
+	private breachIcon: Cesium.Entity;
 	private showBreachLocation: Cesium.ConstantProperty = new Cesium.ConstantProperty(false);
 
 	public notificationLog: NotificationLog;
@@ -65,7 +66,7 @@ export class Game extends Dispatcher {
 		this.notificationLog = new NotificationLog();
 		
 		this.breach = breach;
-		this.addBreachIcon();
+		this.breachIcon = this.addBreachIcon();
 		this.floodLayerController = new FloodLayerController(map, floodToolSettings, writable(breach), writable(gameConfig.scenario));
 		this.elapsedTimeDynamic = this.floodLayerController.time;
 		this.elapsedTimeDynamicSinceBreach = derived(this.elapsedTimeDynamic, ($t) => $t - Game.breachStartOffsetInHours);
@@ -104,6 +105,8 @@ export class Game extends Dispatcher {
 
 	public exit(): void {
 		this.removeFloodLayers();
+		this.evacuationController.removeFromMap();
+		this.removeBreachIcon();
 		if (this.interval) {
 			clearInterval(this.interval);
 		}
@@ -257,10 +260,11 @@ export class Game extends Dispatcher {
 	}
 	
 	private setStep(time: number): void {
-		if (time !== -999 && (time < this.gameConfig.timesteps[0] || time >= this.gameConfig.timesteps[this.gameConfig.timesteps.length - 1])) {
+		if (time !== -999 && (time < this.gameConfig.timesteps[0] || time > this.gameConfig.timesteps[this.gameConfig.timesteps.length - 1])) {
 			throw new Error("Invalid step index");
 		}
 		this.elapsedTime.set(time);
+		get(this.elapsedTimeSinceBreach); // Ensure this derived store is updated...
 		this.elapsedTimeDynamic.set(time);
 	}
 
@@ -275,7 +279,7 @@ export class Game extends Dispatcher {
 		this.flyHome();
 	}
 
-	private addBreachIcon(): void {
+	private addBreachIcon(): Cesium.Entity {
 		const breachLocation = new Cesium.Entity({
 			position: Cesium.Cartesian3.fromDegrees(this.breach.geometry.coordinates[0], this.breach.geometry.coordinates[1]),
 			billboard: {
@@ -288,6 +292,11 @@ export class Game extends Dispatcher {
 		});
 		this.map.viewer.entities.add(breachLocation);
 		this.showBreachLocation.setValue(get(this.elapsedTime) >= 0);
+		return breachLocation;
+	}
+
+	private removeBreachIcon(): void {
+		this.map.viewer.entities.remove(this.breachIcon);
 	}
 
 	private getNoonishDutchTime(): number {

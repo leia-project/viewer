@@ -209,4 +209,10 @@ export class EvacuationController {
 		});
 	}
 
+	public removeFromMap(): void {
+		this.removeMouseEvents();
+		this.hexagonLayer.removeFromMap();
+		this.roadNetwork.removeFromMap();
+	}
+
 }
