@@ -1,9 +1,8 @@
 import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
-import { selectedLanguage, type LayerConfig, type Map } from "../external-dependencies";
+import { MarvinApp, selectedLanguage, type LayerConfig, type Map } from "../external-dependencies";
 
 import { Game } from "./game";
-import { MarvinApp } from "../../Marvin/marvin";
 import GameContainer from "../components/GameContainer.svelte";
 import type { IGameConfig, ISeriousGameToolSettings, ISavedGame } from "./models";
 import type { Breach, FloodToolSettings } from "../../layer-controller";
@@ -20,9 +19,6 @@ const hiddenElements = [
 	}
 ];
 
-interface IGeneralSettings {
-	numberOfPersonsPerCar: number;
-}
 
 export class GameController {
 
@@ -38,9 +34,6 @@ export class GameController {
 	private cachedMapLayers: Array<any> = [];
 	private cachedTime: number = 0;
 
-	private generalSettings: IGeneralSettings = {
-		numberOfPersonsPerCar: 4
-	};
 	public inGame: Writable<boolean> = writable(false);
 	public savedGames: Writable<Array<ISavedGame>> = writable([]);
 
@@ -72,7 +65,7 @@ export class GameController {
 		this.toggleViewerUI(false);
 		const marvin = this.initMarvin();
 		this.loadUserInterface(marvin);
-		this.addBackgroundLayer();
+		this.addGameLayers();
 		this.loadGame(gameConfig, savedGame);
 		this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
 		//this.map.viewer.entities.add(this.boundingDome);
@@ -84,7 +77,7 @@ export class GameController {
 	public exit(): void {   
 		this.inGame.set(false);
 		this.map.options.dateTime.set(this.cachedTime);
-		this.removeBackgroundLayer();
+		this.removeGameLayers();
 		this.toggleViewerUI(true);
 		this.map.options.dateTime.set(this.cachedTime);
 		get(this.active)?.exit();
@@ -105,16 +98,35 @@ export class GameController {
 		});
 	}
 
-	private addBackgroundLayer(): void {
+	private addGameLayers(): void {
+		this.cachedMapLayers = get(this.map.layers);
+		this.cachedMapLayers.forEach((layer) => {
+			layer.visible.set(false);
+		});
 		if (this.backgroundLayer) {
 			this.backgroundLayer.added.set(true);
 			const layer = get(this.map.layers).find((l) => l.id === this.backgroundLayer?.id);
 			layer?.visible.set(true);
 		}
+		this.settings.generalLayerIds.forEach((id) => {
+			const layer = this.map.layerLibrary.findLayer(id);
+			if (layer) {
+				layer.added.set(true);
+			}
+		});
 	}
 
-	private removeBackgroundLayer(): void {
+	private removeGameLayers(): void {
 		this.backgroundLayer?.added.set(false);
+		this.settings.generalLayerIds.forEach((id) => {
+			const layer = this.map.layerLibrary.findLayer(id);
+			if (layer) {
+				layer.added.set(false);
+			}
+		});
+		this.cachedMapLayers.forEach((layer) => {
+			layer.visible.set(true);
+		});
 	}
 
 	private initMarvin(): MarvinApp {
@@ -144,12 +156,6 @@ export class GameController {
 				view.style.paddingTop = show ? "3rem" : "0";
 			}
 		}
-		if (!show) {
-			this.cachedMapLayers = get(this.map.layers);
-		}
-		this.cachedMapLayers.forEach((layer) => {
-			layer.visible.set(show);
-		});
 	}
 
 	private getBoundingDome(): Cesium.Entity {

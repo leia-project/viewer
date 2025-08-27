@@ -2,17 +2,16 @@ import type { ComponentType } from "svelte";
 import { _ } from "svelte-i18n";
 import { derived, get, writable, type Readable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
-import { v4 as uuidv4 } from '@lukeed/uuid';
-import {Dispatcher, NotificationType, type Map } from "../external-dependencies";
+import { CameraLocation, Dispatcher, NotificationType, type Map, type MarvinApp, uuidv4 } from "../external-dependencies";
 
 import { FloodLayerController, type Breach, type FloodToolSettings } from "../../layer-controller";
-import type { MarvinApp } from "../../Marvin/marvin";
 import { NotificationLog } from "./notification-log";
 import { EvacuationController } from "./game-elements/evacuation-controller";
 import type { EvacuationLogItem, IGameConfig, ISavedGame, MeasureLogItem } from "./models";
 import FinalReport from "../components/modal/FinalReport.svelte";
 import LevelDescription from "../components/modal/LevelDescription.svelte";
 import Cutscene from "../components/Cutscene.svelte";
+import alertIcon from "../icons/alert-icon.svg";
 
 
 export class Game extends Dispatcher {
@@ -66,6 +65,7 @@ export class Game extends Dispatcher {
 		this.notificationLog = new NotificationLog();
 		
 		this.breach = breach;
+		this.addBreachIcon();
 		this.floodLayerController = new FloodLayerController(map, floodToolSettings, writable(breach), writable(gameConfig.scenario));
 		this.elapsedTimeDynamic = this.floodLayerController.time;
 		this.elapsedTimeDynamicSinceBreach = derived(this.elapsedTimeDynamic, ($t) => $t - Game.breachStartOffsetInHours);
@@ -153,7 +153,15 @@ export class Game extends Dispatcher {
 
 		const newTime = get(this.elapsedTime);
 		if (newTime !== get(this.elapsedTimeDynamic)) {
-			this.map.flyTo(this.gameConfig.floodView);
+			const view = new CameraLocation(
+				this.gameConfig.floodView.x,
+				this.gameConfig.floodView.y,
+				this.gameConfig.floodView.z,
+				this.gameConfig.floodView.heading,
+				this.gameConfig.floodView.pitch,
+				this.gameConfig.floodView.duration
+			);
+			this.map.flyTo(view);
 
 			// For visual appeal:
 			this.evacuationController.hexagonLayer.use2DMode.set(true);
@@ -186,7 +194,15 @@ export class Game extends Dispatcher {
 	}
 
 	public flyHome(): void {
-		this.map.flyTo(this.gameConfig.homeView);
+		const view = new CameraLocation(
+			this.gameConfig.homeView.x,
+			this.gameConfig.homeView.y,
+			this.gameConfig.homeView.z,
+			this.gameConfig.homeView.heading,
+			this.gameConfig.homeView.pitch,
+			this.gameConfig.homeView.duration
+		);
+		this.map.flyTo(view);
 	}
 
 	public getFormattedTime(time: number): string {
@@ -256,10 +272,14 @@ export class Game extends Dispatcher {
 			type: NotificationType.WARN,
 			duration: 20000
 		});
+		this.flyHome();
+	}
+
+	private addBreachIcon(): void {
 		const breachLocation = new Cesium.Entity({
 			position: Cesium.Cartesian3.fromDegrees(this.breach.geometry.coordinates[0], this.breach.geometry.coordinates[1]),
 			billboard: {
-				image: "/images/alert-icon.svg",
+				image: alertIcon,
 				scale: 0.3,
 				verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
 				heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
@@ -267,7 +287,7 @@ export class Game extends Dispatcher {
 			}
 		});
 		this.map.viewer.entities.add(breachLocation);
-		this.flyHome();
+		this.showBreachLocation.setValue(get(this.elapsedTime) >= 0);
 	}
 
 	private getNoonishDutchTime(): number {

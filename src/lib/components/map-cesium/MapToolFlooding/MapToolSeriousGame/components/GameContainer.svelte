@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { onDestroy, onMount } from "svelte";
 	import { Exit } from "carbon-icons-svelte";
-	import type { MarvinApp } from "../../Marvin/marvin";
+	import { MarvinMenu, type MarvinApp } from "../external-dependencies";
 	import type { GameController } from "../module/game-controller";
 	import GameStats from "./GameStats.svelte";
-	import MarvinMenu from "../../Marvin/MarvinMenu.svelte";
 	import TimeControl from "./TimeControl.svelte";
 	import Notifications from "./notifications/Notifications.svelte";
 	import StartMenu from "./start/StartMenu.svelte";

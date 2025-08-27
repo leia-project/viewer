@@ -1,12 +1,19 @@
-import type { CameraLocation } from "../external-dependencies";
 import type { RouteSegment } from "./game-elements/roads/route-segments";
 
 
 export interface ISeriousGameToolSettings {
 	backgroundLayerId: string;
 	generalLayerIds: Array<string>;
-	cutsceneBackgroundLayerId: string;
 	levels: Array<IGameConfig>;
+}
+
+interface ICameraLocation {
+	x: number;
+	y: number;
+	z: number;
+	heading: number;
+	pitch: number;
+	duration: number;
 }
 
 export interface IGameConfig {
@@ -21,8 +28,8 @@ export interface IGameConfig {
 	personsPerCar: number;
 	preparationPhase: boolean;
 	timesteps: Array<number>;
-	homeView: CameraLocation;
-	floodView: CameraLocation;
+	homeView: ICameraLocation;
+	floodView: ICameraLocation;
 	outline: Array<[lon: number, lat: number]>;
 	outlineRoadNetwork: Array<[lon: number, lat: number]>;
 	extractionPointIds: Array<string>;

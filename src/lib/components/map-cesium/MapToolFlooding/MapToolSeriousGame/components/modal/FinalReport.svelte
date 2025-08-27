@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
 	import { _ } from "svelte-i18n";
-	import { Return } from "carbon-icons-svelte";
+	import { GameConsole } from "carbon-icons-svelte";
 	import type { Game } from "../../module/game";
 	import TimeseriesPlot from "./TimeseriesPlot.svelte";
 	import GameButton from "../general/GameButton.svelte";
@@ -66,7 +66,7 @@
 	<div class="return-button">
 		<GameButton
 			buttonText={$_("game.finalReport.returnToGame")}
-			icon={Return}
+			icon={GameConsole}
 			borderHighlight={true}
 			hasTooltip={false}
 			on:click={() => dispatch("close")}
