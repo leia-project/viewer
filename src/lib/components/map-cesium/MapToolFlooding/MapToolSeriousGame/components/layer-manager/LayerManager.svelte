@@ -10,37 +10,23 @@
 	import { icon as iconTank } from "./role-icons/icon-tank";
 
 	export let gameController: GameController;
-	
-	const roles: Array<IRole> = [
-		{
-			role: "Defensie",
-			svgIcon: iconTank,
-			layerIds: [
-				""
-			]
-		},
-		{
-			role: "Brandweer",
-			svgIcon: iconFirefighter,
-			layerIds: [
-				""
-			]
-		},
-		{
-			role: "Politie",
-			svgIcon: iconPolice,
-			layerIds: [
-				"999"
-			]
-		},
-		{
-			role: "GHOR",
-			svgIcon: iconAmbulance,
-			layerIds: [
-				"6"
-			]
+
+	const roles: Array<IRole> = gameController.settings.roleLayers;
+
+	const roleIconMap: Record<string, string> = {
+		defensie: iconTank,
+		politie: iconPolice,
+		brandweer: iconFirefighter,
+		ambulance: iconAmbulance,
+		ghor: iconAmbulance
+	};
+
+	roles.forEach((role) => {
+		if (!role.svgIcon) {
+			role.svgIcon = roleIconMap[role.role.toLowerCase()] ?? "";
 		}
-	];
+	});
+	
 	let selectedRole: IRole | undefined;
 
 </script>

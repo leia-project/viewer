@@ -4,6 +4,7 @@ import type { RouteSegment } from "./game-elements/roads/route-segments";
 export interface ISeriousGameToolSettings {
 	backgroundLayerId: string;
 	generalLayerIds: Array<string>;
+	roleLayers: Array<IRole>;
 	levels: Array<IGameConfig>;
 }
 

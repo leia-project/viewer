@@ -370,6 +370,24 @@
             "settings": {
                 "backgroundLayerId": "1",
                 "generalLayerIds": ["2", "3", "4", "5"],
+                "roleLayers": [
+                    {
+                        "role": "GHOR",
+                        "layerIds": ["6"]
+                    },
+                    {
+                        "role": "defensie",
+                        "layerIds": []
+                    },
+                    {
+                        "role": "brandweer",
+                        "layerIds": []
+                    },
+                    {
+                        "role": "police",
+                        "layerIds": []
+                    }
+                ],
                 "levels": [
                     {
                         "name": "Middelburg",

@@ -408,9 +408,9 @@ export class RouteSegmentLineInstance {
 	}
 
 	public update(load: number, capacity: number): void {
+		this.color = this.getColor(load, capacity);
 		if (this.parentPrimitive?.ready) {
 			const attributes = this.parentPrimitive.getGeometryInstanceAttributes(this.lineInstanceID);
-			this.color = this.getColor(load, capacity);
 			if (attributes) {
 				attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(this.color, attributes.color);
 				attributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(load > 0, attributes.show);

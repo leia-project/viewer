@@ -46,9 +46,9 @@
 		<div>
 			<div class="list-header">
 				<div class="role-icon">
-					{@html role?.svgIcon}
+					{@html role.svgIcon}
 				</div>
-				<span>{role?.role}</span>
+				<span>{$_(`game.roles.${role.role}`, { default: role.role })}</span>
 			</div>
 			{#if roleLayers.length > 0}
 				<div>

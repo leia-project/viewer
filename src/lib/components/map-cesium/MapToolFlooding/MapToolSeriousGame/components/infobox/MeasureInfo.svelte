@@ -45,12 +45,12 @@
 			{:else}
 				<CloseFilled color="#de2f10" />
 			{/if}
-			<div>{$applied ? "Applied" : "Not applied"}</div>
+			<div>{$applied ? $_("game.applied") : $_("game.notApplied")}</div>
 		</div>
 		{#if type === "selected" && $toggleEnabled}
 			<div class="measure-actions">
 				<GameButton
-					buttonText={$applied ? "Undo" : "Apply"}
+					buttonText={$applied ? $_("game.buttons.apply") : $_("game.buttons.undo")}
 					icon={ToolKit}
 					hasTooltip={false}
 					borderHighlight={false}
