@@ -53,7 +53,7 @@
 	.route-segment-name {
 		color: var(--game-color-highlight);
 		font-weight: 600;
-		font-size: 1rem;
+		font-size: 0.9rem;
 		margin-bottom: 0.2rem;
 	}
 

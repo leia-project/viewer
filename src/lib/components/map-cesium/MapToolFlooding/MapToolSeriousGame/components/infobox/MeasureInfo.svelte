@@ -69,7 +69,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		font-weight: 700;
+		font-weight: 600;
+		font-size: 0.9rem;
+		color: var(--game-color-highlight);
 	}
 
 	.info-button {

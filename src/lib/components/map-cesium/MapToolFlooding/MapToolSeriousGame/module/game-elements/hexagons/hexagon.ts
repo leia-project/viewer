@@ -9,6 +9,14 @@ import PolygonGeometry from "./polygon-geometry";
 export class Hexagon {
 
 	public hex: string;
+	public gm_naam?: string;
+	public wk_naam?: string;
+	public get name (): string {
+		return this.gm_naam && this.wk_naam ? `${this.gm_naam} - ${this.wk_naam}` 
+			: this.gm_naam ? this.gm_naam 
+			: this.wk_naam ? this.wk_naam
+			: this.hex;
+	}
 	public center: [lon: number, lat: number];
 	public centerCartesian3: Cesium.Cartesian3;
 	public evacuationPoints: Array<[lon: number, lat: number]>;
@@ -60,8 +68,10 @@ export class Hexagon {
 		return 0;
 	});
 
-	constructor(hex: string, population: number, selectedHexagon: Writable<Hexagon | undefined>) {
+	constructor(hex: string, population: number, selectedHexagon: Writable<Hexagon | undefined>, gm_naam?: string, wk_naam?: string, ) {
 		this.hex = hex;
+		this.gm_naam = gm_naam;
+		this.wk_naam = wk_naam;
 		const latLon = cellToLatLng(hex);
 		this.center = [latLon[1], latLon[0]];
 		this.centerCartesian3 = Cesium.Cartesian3.fromDegrees(this.center[0], this.center[1], this.getHexagonHeight(population) * 0.01); // 0.01 is exag_1 uniform

@@ -40,6 +40,7 @@
 	<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 	<div class="hexagon-info-box">
 		<div>
+			<div class="hexagon-name">{hexagon.name}</div>
 			<div class="hexagon-info">
 				<span>{$_("game.inhabitants")}</span>
 				<span>{hexagon.population.toLocaleString('nl-NL')}</span>
@@ -77,7 +78,14 @@
 		display: flex;
 		justify-content: space-between;
 		column-gap: 1.5rem;
-		color: var(--game-color-highlight)
+		color: var(--game-color-highlight);
+	}
+
+	.hexagon-name {
+		font-weight: 600;
+		font-size: 0.9rem;
+		color: var(--game-color-highlight);
+		margin-bottom: 0.25rem;
 	}
 
 	.hexagon-info {

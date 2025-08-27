@@ -102,7 +102,7 @@ export class HexagonLayer {
 	private async loadHexagons(): Promise<void> {
 		const hexagons = await this.pgRestAPI.getCBSHexagons(this.outline, 7);
 		hexagons.forEach((hex: CBSHexagon) => {
-			const newHex = new Hexagon(hex.hex, hex.population, this.selectedHexagon);
+			const newHex = new Hexagon(hex.hex, hex.population, this.selectedHexagon, hex.gm_naam, hex.wk_naam);
 			newHex.onAlphaUpdate(get(this.alpha));
 			this.hexagons.push(newHex);
 			this.hexagonMap.set(hex.hex, newHex);
