@@ -26,7 +26,7 @@
 		on:click={() => dispatch("delete")}
 	/>
 	<div class="col">
-		<span class="text-ellipsis">{evacuationGroup.hexagon.hex}</span>
+		<span class="text-ellipsis">{evacuationGroup.hexagon.name}</span>
 	</div>
 	<div class="col">
 		<span class="text-ellipsis">{evacuationGroup.extractionPoint.feature.properties.name}</span>

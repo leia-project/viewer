@@ -31,6 +31,45 @@ And then use psql to transfer it to the database:
 \COPY datacore.cbs FROM 'cbs_data.csv' DELIMITER ',' CSV HEADER;
 ```
 
+Make sure that the geomtry columns have GIST indices and that the SRID is set to 4326.
+
+If you have a table with neighbourhoods (wijken) and municipalities (gemeentes), these can be joined through the following query:
+
+```
+CREATE TABLE datacore.zeeland_wijken (
+    wkt GEOMETRY,
+    objectid INTEGER,
+    wk_naam VARCHAR(255),
+    gm_naam VARCHAR(255),
+	id INTEGER,
+	wkt_4326 GEOMETRY,
+	centroid GEOMETRY
+);
+
+ALTER TABLE datacore.cbs_h3
+  ADD COLUMN wk_naam VARCHAR(255),
+  ADD COLUMN gm_naam VARCHAR(255);
+
+WITH closest_wijken AS (
+    SELECT 
+        uh.h3, 
+        w.wk_naam,
+        w.gm_naam,
+        ROW_NUMBER() OVER (
+            PARTITION BY uh.h3 
+            ORDER BY ST_Distance(uh.centroid, w.centroid) ASC
+        ) AS rn
+    FROM datacore.cbs_h3 uh
+    JOIN datacore.zeeland_wijken w 
+     	ON ST_DWithin(uh.centroid, w.wkt_4326, 0)
+)
+UPDATE datacore.cbs_h3 h
+SET wk_naam = cw.wk_naam,
+    gm_naam = cw.gm_naam
+FROM closest_wijken cw
+WHERE h.h3 = cw.h3
+ 	AND cw.rn = 1;
+```
 
 # Routing network to database
 

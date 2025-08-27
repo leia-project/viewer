@@ -19,11 +19,11 @@ export class HexagonLayer {
 	public loaded: Writable<boolean> = writable(false);
 
 	private pgRestAPI = new PGRestAPI();
-	public visible: Writable<boolean> = writable<boolean>(true);
-	public use2DMode: Writable<boolean> = writable<boolean>(false);
+	public visible: Writable<boolean> = writable(true);
+	public use2DMode: Writable<boolean> = writable(true);
 	private hexagonEntities: Cesium.CustomDataSource = new Cesium.CustomDataSource();
 	public title: string = "CBS Hexagons";
-	public alpha: Writable<number> = writable(0.85);
+	public alpha: Writable<number> = writable(0.6);
 
 	private material: Cesium.Material = new Cesium.Material({
 		fabric: {
@@ -110,6 +110,7 @@ export class HexagonLayer {
 		this.setCounters();
 		this.createPrimitive();
 		this.addHexagonEntities();
+		this.toggle2D3DModeHexagons(get(this.use2DMode));
 		this.loaded.set(true);
 	}
 

@@ -10,6 +10,8 @@ const PGREST_CONNECTION = "default";
 export interface CBSHexagon {
 	hex: string;
 	population: number;
+	gm_naam?: string;
+	wk_naam?: string;
 }
 
 export interface FloodHexagon {
@@ -45,12 +47,14 @@ export class PGRestAPI {
 		const query = `
 			SELECT
 				h3_cell_to_parent(h3::h3index, ${resolution}) AS parent_h3,
-				SUM(number_of_inhabitants) AS population
+				SUM(number_of_inhabitants) AS population,
+				mode() WITHIN GROUP (ORDER BY gm_naam) AS most_frequent_gm_naam,
+				mode() WITHIN GROUP (ORDER BY wk_naam) AS most_frequent_wk_naam
 			FROM
 				${this.schema}.${this.tables.cbs_h3}
 			WHERE number_of_inhabitants > 0
 			AND ST_Intersects(
-				ST_SetSRID(centroid, 4326),
+				centroid,
 				ST_GeomFromGeoJSON('{
 					"type":"Polygon",
 					"coordinates": [${JSON.stringify(polygon)}]
@@ -64,7 +68,9 @@ export class PGRestAPI {
 		const hexagons: Array<CBSHexagon> = queryResult.data.rows.map((rows: any) => {
 			return {
 				hex: rows[0],
-				population: rows[1]
+				population: rows[1],
+				gm_naam: rows[2],
+				wk_naam: rows[3]
 			}
 		});
 		return hexagons;
@@ -82,7 +88,7 @@ export class PGRestAPI {
 				AND timestep = ${Math.ceil(time) * 6}
 				--AND flood_depth > 0.02 // Hexagons with depths < 0.02 are already deleted in the database
 				AND ST_Intersects(
-					ST_SetSRID(centroid, 4326),
+					centroid,
 					ST_GeomFromGeoJSON('{
 						"type":"Polygon",
 						"coordinates": [${JSON.stringify(polygon)}]
@@ -135,6 +141,7 @@ export class PGRestAPI {
 			return queryResult.data[0].jsonb_build_object;
 		} catch (error) {
 			// If the error is likely due to a bad polygon, try splitting it in two and merging results
+			console.log("Error fetching road network edges, trying to split polygon:", error);
 			if (polygon.length > 4) {
 				const mid = Math.floor(polygon.length / 2);
 				const poly1 = polygon.slice(0, mid + 1);

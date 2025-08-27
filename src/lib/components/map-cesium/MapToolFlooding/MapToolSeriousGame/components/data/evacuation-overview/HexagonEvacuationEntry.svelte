@@ -12,7 +12,7 @@
 
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions a11y-click-events-have-key-events -->
 <li class="evacuation-entry">
-	<span class="col">{evacuation.hexagon.hex}</span>
+	<span class="col">{evacuation.hexagon.name}</span>
 	<span class="col">{evacuation.extractionPoint.id}</span>
 	<span class="col evacuation-count">
 		<UserFilled />

@@ -58,7 +58,7 @@
 		<span class="point-label">{$_("game.from")}</span>
 		<span>
 			{#if $selectedHexagon}
-				<span>{$selectedHexagon.hex}</span>
+				<span>{$selectedHexagon.name}</span>
 			{:else}
 				{$_("game.menu.noHexagonSelected")}
 			{/if}
