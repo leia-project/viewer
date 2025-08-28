@@ -122,7 +122,6 @@
 		border-radius: 8px;
 		pointer-events: none;
 	}
-
 	
 	.prep-phase-title {
 		color: var(--game-color-highlight);

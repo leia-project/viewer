@@ -5,6 +5,7 @@ import gsap  from "gsap";
 import type { Map as CesiumMap } from "../../../external-dependencies";
 import type { RouteFeature } from "../api/routing-api";
 import { CylinderGeometry } from "./cylinder-geometry";
+import type { Unsubscriber } from "svelte/motion";
 
 
 export class RoadNetworkLayer {
@@ -273,7 +274,7 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 		this.map = map;
 		this.lineInstance = new RouteSegmentLineInstance(this.feature.properties.fid, this.feature.geometry.coordinates);
 		if (isExtractionPoint) {
-			this.extractionPoint = new ExtractionPoint(this.map, this.feature.properties.fid.toString(), this.position, this.capacity);
+			this.extractionPoint = new ExtractionPoint(this.map, this.feature.properties.fid.toString(), this.position, this.capacity, timeGaps);
 		}
 		elapsedTime.subscribe(() => this.updateLoad());
 		timeGaps.subscribe((gaps) => {
@@ -349,10 +350,11 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 			duration: 0.7,
 			onUpdate: () => {
 				this.lineInstance.update(this.displayedLoad, this.capacity);
-				this.extractionPoint?.updateAttributes(this.displayedLoad, this.capacity);
+				//this.extractionPoint?.updateAttributes(this.displayedLoad, this.capacity);
 				this.map.refresh();
 			}
 		});
+		this.extractionPoint?.updateAttributes(this.displayedLoad, this.capacity);
 		this.extractionPoint?.updateArrow(newCapacity);
 	}
 
@@ -463,12 +465,22 @@ class ExtractionPoint {
 	private map: CesiumMap;
 	public parentPrimitive?: Cesium.Primitive;
 
-	constructor(map: CesiumMap, routeSegmentID: string, position: Cesium.Cartesian3, capacity: number) {
+	private loadScratch: number = 0;
+	private capacityScratch: number = 1;
+	private timeGaps: Readable<{ before?: number, after?: number }>;
+	private timeGapUnsubscriber: Unsubscriber;
+
+	constructor(map: CesiumMap, routeSegmentID: string, position: Cesium.Cartesian3, capacity: number, timeGaps: Readable<{ before?: number, after?: number }>) {
 		this.map = map;
 		this.geometryID = `extraction-${routeSegmentID}`;
 		this.position = position;
+		this.timeGaps = timeGaps;
 		this.geometryInstances = this.createGeometryInstances();
 		this.selectArrow3D = this.createSelectArrow3D(capacity);
+		this.timeGapUnsubscriber = this.timeGaps.subscribe(() => {
+			this.updateAttributes();
+			this.updateArrow();
+		});
 	}
 
 	private createGeometryInstances(): Array<Cesium.GeometryInstance> {
@@ -532,14 +544,18 @@ class ExtractionPoint {
 		return [bottom, top];
 	}
 
-	public updateAttributes(load: number, capacity: number): void {
+	public updateAttributes(load: number = this.loadScratch, capacity: number = this.capacityScratch): void {
+		this.loadScratch = load;
+		this.capacityScratch = capacity;
 		if (this.parentPrimitive?.ready) {
+			const normalizedLoad = load / (get(this.timeGaps).after || 1);
+			const normalizedCapacity = capacity / (get(this.timeGaps).after || 1);
 			const attributesBottom = this.parentPrimitive?.getGeometryInstanceAttributes(this.geometryID);
 			const attributesTop = this.parentPrimitive?.getGeometryInstanceAttributes(this.geometryID + "-top");
 			attributesBottom.offsetBottom = [0];
-			attributesBottom.offsetTop = [load];
-			attributesTop.offsetBottom = [load];
-			attributesTop.offsetTop = [capacity];
+			attributesBottom.offsetTop = [normalizedLoad];
+			attributesTop.offsetBottom = [normalizedLoad];
+			attributesTop.offsetTop = [normalizedCapacity];
 		}
 	}
 
@@ -563,10 +579,11 @@ class ExtractionPoint {
 		this.selectArrow3D[1].show = b;
 	}
 
-	public updateArrow(newCapacity: number): void {
+	public updateArrow(newCapacity: number = this.capacityScratch): void {
 		if (this.map.viewer.entities.contains(this.selectArrow3D[0])) this.map.viewer.entities.remove(this.selectArrow3D[0]);
 		if (this.map.viewer.entities.contains(this.selectArrow3D[1])) this.map.viewer.entities.remove(this.selectArrow3D[1]);
-		this.selectArrow3D = this.createSelectArrow3D(newCapacity);
+		const normalizedCapacity = newCapacity / (get(this.timeGaps).after || 1);
+		this.selectArrow3D = this.createSelectArrow3D(normalizedCapacity);
 	}
 
 	private createSelectArrow3D(base: number): [head: Cesium.Entity, shaft: Cesium.Entity] {
@@ -626,5 +643,6 @@ class ExtractionPoint {
 	public removeFromMap(): void {
 		if (this.map.viewer.entities.contains(this.selectArrow3D[0])) this.map.viewer.entities.remove(this.selectArrow3D[0]);
 		if (this.map.viewer.entities.contains(this.selectArrow3D[1])) this.map.viewer.entities.remove(this.selectArrow3D[1]);
+		this.timeGapUnsubscriber();
 	}
 }

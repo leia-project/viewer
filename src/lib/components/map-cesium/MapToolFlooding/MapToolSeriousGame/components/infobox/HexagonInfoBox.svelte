@@ -17,12 +17,18 @@
 	export let type: "hover" | "selected";
 	export let evacuationController: EvacuationController;
 
+
+	const scenario = evacuationController.game.gameConfig.scenario;
+	const timestep = evacuationController.elapsedTime;;
+
 	const evacuated = hexagon.totalEvacuated;
 
 	const marvinQuestions: Array<string> = [
-		"Which places and cities are in this area?",
-		"What is the population of this hexagon?",
-		"How many people have been evacuated from this hexagon?"
+		"Where is the closest medical service for area $h3_id?",
+
+
+		// my own
+		"What is the population of this hexagon?"
 	];
 
 </script>
@@ -52,7 +58,7 @@
 		</div>
 		{#if type === "selected"}
 			<MarvinInfoBoxAddOn
-				{evacuationController}
+				game={evacuationController.game}
 				questions={marvinQuestions}
 				geoJSON={{
 					type: "Feature",

@@ -29,6 +29,8 @@
 	
 	let selectedRole: IRole | undefined;
 
+	const activeGame = gameController.active;
+
 </script>
 
 
@@ -39,6 +41,7 @@
 />
 <div class="role-nav-container">
 	<RoleNav
+		game={$activeGame}
 		{roles}
 		bind:selectedRole
 	/>

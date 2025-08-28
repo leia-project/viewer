@@ -4,17 +4,20 @@
 	import { fade } from "svelte/transition";
 	import { QuestionAnswering } from "carbon-icons-svelte";
 	import { DrawnGeometry, MarvinAvatar, NotificationType, QA } from "../../external-dependencies";
-	import type { EvacuationController } from "../../module/game-elements/evacuation-controller";
+	import type { Game } from "../../module/game";
 
-	export let evacuationController: EvacuationController;
+	export let game: Game;
 	export let geoJSON: any;
 	export let questions: Array<string>;
-
+	export let top: string | undefined = undefined
+	export let right: string | undefined = undefined;
+	export let bottom: string | undefined = undefined;
+	export let left: string | undefined = undefined;
 		
 	function askMarvin(question: string): void {
-		const marvin = evacuationController.game.marvin;
+		const marvin = game.marvin;
 		if (!marvin) {
-			evacuationController.game.notificationLog.send({
+			game.notificationLog.send({
 				type: NotificationType.WARN,
 				title: "Marvin error",
 				message: "Marvin is not available.",
@@ -66,7 +69,13 @@
 		bind:open={$marvinQuestionListOpen}
 	/>
 	{#if $marvinQuestionListOpen}
-		<div class="marvin-question-list" transition:fade={{ duration: 200 }}>
+		<div class="marvin-question-list" transition:fade={{ duration: 200 }}
+			style="
+				{top ? `top: ${top};` : ""}
+				{right ? `right: ${right};` : ""}
+				{bottom ? `bottom: ${bottom};` : ""}
+				{left ? `left: ${left};` : ""}"
+		>
 			{#each questions as question}
 				<li class="marvin-question" on:click={() => askMarvin(question)}>
 					<QuestionAnswering size={16} />

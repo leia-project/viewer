@@ -1,6 +1,9 @@
 <script lang="ts">
+	import { Game } from "../../module/game";
 	import type { IRole } from "../../module/models";
+	import MarvinInfoBoxAddOn from "../infobox/MarvinInfoBoxAddOn.svelte";
 
+	export let game: Game | undefined;
 	export let roles: Array<IRole>;
 	export let selectedRole: IRole | undefined;
 
@@ -16,8 +19,19 @@
 </script>
 
 
+{#if game && selectedRole?.marvinQuestions && selectedRole.marvinQuestions.length > 0}
+	<div class="marvin-container">
+		<MarvinInfoBoxAddOn 
+			{game}
+			geoJSON={game.outlineGeoJSON}
+			questions={selectedRole.marvinQuestions} 
+		/>
+	</div>
+{/if}
+
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
 <div class="role-nav">
+
 	{#each roles as role, roleId}
 		<div
 			class="role-button"
@@ -33,9 +47,16 @@
 
 <style>
 
+	.marvin-container {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 1rem;
+	}
+
    .role-nav {
 		display: flex;
 		flex-direction: column;
+		align-items: center;
 		row-gap: 0.25rem;
 		padding: 0.5rem;
 		background-color: rgba(var(--game-color-bg), 0.4);

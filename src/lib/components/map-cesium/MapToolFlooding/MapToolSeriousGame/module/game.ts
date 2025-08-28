@@ -422,4 +422,15 @@ export class Game extends Dispatcher {
 		timeseries.sort((a, b) => a.time - b.time);
 		return timeseries;
 	}
+
+	public get outlineGeoJSON(): any {
+		return {
+			type: "Feature",
+			geometry: {
+				type: "Polygon",
+				coordinates: [this.gameConfig.outline]
+			},
+			properties: {}
+		};
+	}
 }

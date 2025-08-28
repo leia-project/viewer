@@ -11,8 +11,9 @@ export class Hexagon {
 	public hex: string;
 	public gm_naam?: string;
 	public wk_naam?: string;
+	public suffix: string = "";
 	public get name (): string {
-		return this.gm_naam && this.wk_naam ? `${this.gm_naam} - ${this.wk_naam}` 
+		return this.gm_naam && this.wk_naam ? `${this.gm_naam} - ${this.wk_naam} ${this.suffix}` 
 			: this.gm_naam ? this.gm_naam 
 			: this.wk_naam ? this.wk_naam
 			: this.hex;

@@ -101,8 +101,20 @@ export class HexagonLayer {
 
 	private async loadHexagons(): Promise<void> {
 		const hexagons = await this.pgRestAPI.getCBSHexagons(this.outline, 7);
+		const names: Map<string, Array<Hexagon>> = new Map<string, Array<Hexagon>>();
 		hexagons.forEach((hex: CBSHexagon) => {
 			const newHex = new Hexagon(hex.hex, hex.population, this.selectedHexagon, hex.gm_naam, hex.wk_naam);
+			const name = newHex.name;
+			if (names.has(name)) {
+				const hexesWithName = names.get(name);
+				if (hexesWithName) {
+					hexesWithName.push(newHex);
+					names.set(name, hexesWithName);
+					hexesWithName.forEach((h, index) => h.suffix = `(${index + 1}/${hexesWithName.length})`);
+				}
+			} else {
+				names.set(name, [newHex]);
+			}
 			newHex.onAlphaUpdate(get(this.alpha));
 			this.hexagons.push(newHex);
 			this.hexagonMap.set(hex.hex, newHex);

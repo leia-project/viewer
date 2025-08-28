@@ -61,9 +61,10 @@ export interface ISavedGame {
 }
 
 export interface IRole {
-	role: string, 
-	svgIcon: string, 
-	layerIds: Array<string>
+	role: string;
+	svgIcon: string;
+	layerIds: Array<string>;
+	marvinQuestions?: Array<string>;
 }
 
 export interface RouteResult {
