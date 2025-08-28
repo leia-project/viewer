@@ -35,8 +35,7 @@ export class EvacuationController {
 		this.game = game;
 		this.map = game.map;
 		this.elapsedTime = game.elapsedTime;
-		const scenarioName = `${game.breach.properties.dijkring}_${game.breach.properties.name}_${game.gameConfig.scenario}`;
-		this.hexagonLayer = new HexagonLayer(this, [scenarioName], game.gameConfig.outline);
+		this.hexagonLayer = new HexagonLayer(this, [game.scenarioName], game.gameConfig.outline);
 		this.hexagonLayer.loaded.subscribe(() => {
 			this.evacuations = derived(
 				this.hexagonLayer.hexagons.map((h) => h.evacuations),

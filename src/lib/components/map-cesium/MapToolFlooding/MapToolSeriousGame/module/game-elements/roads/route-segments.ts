@@ -354,7 +354,7 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 				this.map.refresh();
 			}
 		});
-		this.extractionPoint?.updateAttributes(this.displayedLoad, this.capacity);
+		this.extractionPoint?.updateAttributes(this.displayedLoad, newCapacity);
 		this.extractionPoint?.updateArrow(newCapacity);
 	}
 

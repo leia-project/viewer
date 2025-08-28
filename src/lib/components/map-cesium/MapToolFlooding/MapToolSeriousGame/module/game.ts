@@ -164,7 +164,7 @@ export class Game extends Dispatcher {
 				this.gameConfig.floodView.pitch,
 				this.gameConfig.floodView.duration
 			);
-			this.map.flyTo(view);
+			//this.map.flyTo(view);
 
 			// For visual appeal:
 			this.evacuationController.hexagonLayer.use2DMode.set(true);
@@ -423,6 +423,10 @@ export class Game extends Dispatcher {
 		return timeseries;
 	}
 
+	public get scenarioName(): string {
+		return `${this.breach.properties.dijkring}_${this.breach.properties.name}_${this.gameConfig.scenario}`;
+	}
+	
 	public get outlineGeoJSON(): any {
 		return {
 			type: "Feature",

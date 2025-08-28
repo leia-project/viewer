@@ -33,6 +33,7 @@
 		)
 		marvin.qaManager.addEntry(qa);
 		marvin.openMenu.set(true);
+		marvinQuestionListOpen.set(false);
 	}
 
 	const marvinQuestionListOpen = writable(false);

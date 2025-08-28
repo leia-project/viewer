@@ -19,22 +19,24 @@
 		"Which buildings are used for education?",
 	];
 
-	const marvinQuestionsDuringFlood: Array<string> = [
-		"When do roads become impassable (flood depth > 0.5) in scenario $scenario?",
-		"Which roads will be flooded (flood depth > 0.5) in scenario $scenario?",
-		"When will vulnerable areas (higher than average) lose all accessible roads (flood_depth > 0.5m) in scenario $scenario?",
-		"When will high-density areas (above average) lose all passible roads (flood_depth > 0.5m) in scenario $scenario?",
-		"Current timestep is $curr_timestep, which roads became newly flooded compared to previous timestep (interval=6) in scenario $scenario?",
-		"Which vulnearble areas (above average) have flooeded roads (flood depth > 0.5) in scenario $scenario at timestep $timestep?",
-		"Which vulnerable areas (above average) cannot be reached by ambulance in scenario $scenario at timestep $timestep?",
+	const elapsedTime = game.elapsedTime;
+	$: timestep = $elapsedTime * 6;
+	$: marvinQuestionsDuringFlood = [
+		`When do roads become impassable (flood depth > 0.5) in scenario ${game.scenarioName}?`,
+		`Which roads will be flooded (flood depth > 0.5) in scenario ${game.scenarioName}?`,
+		`When will vulnerable areas (higher than average) lose all accessible roads (flood_depth > 0.5m) in scenario ${game.scenarioName}?`,
+		`When will high-density areas (above average) lose all passible roads (flood_depth > 0.5m) in scenario ${game.scenarioName}?`,
+		`Current timestep is ${timestep}, which roads became newly flooded compared to previous timestep (interval=6) in scenario ${game.scenarioName}?`,
+		`"Which vulnearble areas (above average) have flooeded roads (flood depth > 0.5) in scenario ${game.scenarioName} at timestep ${timestep}?`,
+		`Which vulnerable areas (above average) cannot be reached by ambulance in scenario ${game.scenarioName} at timestep ${timestep}?`,
 
 		// Firefighter
-		"Which routes has passible flood depth for fire truck (flood depth < 0.4) in scenario $scenario at timestep $timestep?",
-		"Which areas with high population density (above average) lack impassible routes for fire truck (flood depth < 0.4) in scenario $scenario at timestep $timestep?",
+		`Which routes has passible flood depth for fire truck (flood depth < 0.4) in scenario ${game.scenarioName} at timestep ${timestep}?`,
+		`Which areas with high population density (above average) lack impassible routes for fire truck (flood depth < 0.4) in scenario ${game.scenarioName} at timestep ${timestep}?`,
 
 		// Healthcare
-		"Which routes have passible flood depth for ambulance (flood depth < 0.4) in scenario $scenario at timestep $timestep?",
-		"Which medical services are no longer reachable by road within the distance of $radius meters in scenario $scenario at timestep $timestep?"
+		`Which routes have passible flood depth for ambulance (flood depth < 0.4) in scenario ${game.scenarioName} at timestep ${timestep}?`,
+		`Which medical services are no longer reachable by road within the distance of $radius meters in scenario ${game.scenarioName} at timestep ${timestep}?`
 	];
 
 	/* unused questions:
