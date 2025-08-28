@@ -135,7 +135,7 @@ export class GameController {
 
 	private initMarvin(): MarvinApp {
 		if (!this.marvin) {
-			this.marvin = new MarvinApp(this.map);
+			this.marvin = new MarvinApp(this.map, "https://zeeland.marvin.bertha.geodan.nl");
 			this.marvin.init();
 		}
 		return this.marvin;

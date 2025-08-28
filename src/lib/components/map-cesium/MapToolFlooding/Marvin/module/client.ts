@@ -1,8 +1,8 @@
 export class MarvinClient {
 	private baseUrl: string;
 
-	constructor() {
-		this.baseUrl = 'https://marvin-server.bertha.geodan.nl';
+	constructor(baseUrl: string) {
+		this.baseUrl = baseUrl;
 	}
 
 	public async askGeo(

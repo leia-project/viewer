@@ -41,7 +41,7 @@ export class QA {
 		this.error.set(undefined);
 
 		try {
-			const client = new MarvinClient();
+			const client = new MarvinClient(this.app.baseUrl);
 			const response = await client.askGeo(this.question, this.geom, get(this.app.userLocationManager.location) ?? "");
 
 			const result = Result.fromJSON(response);

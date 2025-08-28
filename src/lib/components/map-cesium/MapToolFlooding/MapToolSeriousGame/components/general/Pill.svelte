@@ -37,16 +37,17 @@
    .pill-text {
 		display: flex;
 		flex-direction: column;
-   }
-   .pill-text span {
-		font-size: calc(0.8rem * var(--pill-scale));
-   }
+  		row-gap: calc(0.1rem * var(--pill-scale));
+ 	}
    .pill-label {
-		font-weight: 500;
+		font-weight: 400;
+		font-size: 0.5rem;
 		color: var(--game-color-highlight);
-   }
+  		font-size: calc(0.8rem * var(--pill-scale));
+ }
    .pill-value {
-		font-weight: 700;
+		font-weight: 400;
 		color: var(--game-color-contrast);
-   }
+  		font-size: calc(0.88rem * var(--pill-scale));
+ 	}
 </style>

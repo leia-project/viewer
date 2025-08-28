@@ -21,14 +21,14 @@
 			label={$_("game.victims")}
 			value={$victimCount?.toLocaleString("nl-NL") || 0}
 			color="#FF4500"
-			scale={1.2}
+			scale={1}
 		/>
 		<Pill
 			icon={FaceWinkFilled}
 			label={$_("game.evacuated")}
 			value={$evacuatedCount?.toLocaleString("nl-NL") || 0}
 			color="#1a9850"
-			scale={1.2}
+			scale={1}
 		/>
 	{/if}
 </div>

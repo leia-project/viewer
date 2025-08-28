@@ -11,6 +11,7 @@ import { CommandPalette } from "./module/command-center/command-palette";
 
 export class MarvinApp {
 	public map: Map;
+	public baseUrl: string;
 	public menu?: MarvinMenu;
 	public openMenu: Writable<boolean> = writable(false);
 
@@ -23,8 +24,9 @@ export class MarvinApp {
 
 	public loading: Writable<boolean> = writable(false);
 
-	constructor(map: Map) {
+	constructor(map: Map, baseUrl: string = "https://marvin-server.bertha.geodan.nl") {
 		this.map = map;
+		this.baseUrl = baseUrl;
 		this.ready = writable(false);
 		this.qaManager = new QAManager(this.loading);
 		this.geomInputManager = new GeomInputManager();
