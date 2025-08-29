@@ -9,14 +9,22 @@ export class Story {
     public width: string | undefined;
     public force2DMode: boolean | undefined;
     public requestPolygonArea: boolean | undefined;
+    public statisticsApi: string;
     
-    constructor(name: string, description: string, storyChapters: Array<StoryChapter>, width: string | undefined = undefined, force2DMode: boolean | undefined, requestPolygonArea: boolean | undefined) {
+    constructor(name: string, 
+                description: string, 
+                storyChapters: Array<StoryChapter>, 
+                width: string | undefined = undefined, 
+                force2DMode: boolean | undefined, 
+                requestPolygonArea: boolean | undefined,
+                statisticsApi: string) {
         this.name = name;
         this.description = description;
         this.storyChapters = storyChapters;
         this.width = width;
         this.force2DMode = force2DMode;
         this.requestPolygonArea = requestPolygonArea;
+        this.statisticsApi = statisticsApi;
     }
 
     getStoryLayers(): Array<StoryLayer> {
@@ -37,7 +45,6 @@ export class Story {
                 
             }
         }
-
         return storyLayers;
     }
 }

@@ -62,7 +62,7 @@ Output of the static build can be found in the ./build directory.
 
 With the static build there are 2 ways to load a configuration.
 
-1) Start the viewer with `?url=http://host.com/some_config.json`, the viewer will try to load the configuration from url
+1) Start the viewer with `?url=http://host.com/some_config.json`, the viewer will try to load the configuration from URL
 2) Place a file named config.json in the root directory of the build. When ?url is supplied the local file will not be used.
 
 An example config is stored in `./static/example.config.json`.
@@ -78,7 +78,7 @@ Base configuration for the viewer such as start position, UI colors.
 |colors|Colors to use in de app, for more info check Carbon Design|[colors](#colors)|
 |title|The title shown in the top bar of the viewer|string|
 |subTitle|Subtitle shown in the top bar after the title|string|
-|logo|Url for the image to show in the top left corner of the header|string|
+|logo|URL for the image to show in the top left corner of the header|string|
 |logoMarginLeft|Margin string for left margin of header logo|string|
 |logoMarginRight|Margin string for right margin of header logo|string|
 
@@ -269,30 +269,30 @@ An array of layer definitions.
 Layer definition
 |value|description|type|
 |-|-|-|
-|id|unique layer id|string|
-|type|layer type, supported layer types:<br /> ```basiskaart```, ```wms```, ```wmts```, ```tms```, ```vectortiles```, ```3dtiles```, ```geojson```, ```modelanimation```, ```custom```|string|
-|title|layer title|string|
-|groupId|id of the group where this layer belongs to or empty string, will be placed under uncategorized in library|string|
-|description|simple text field in which a layer description can be provided|string|
-|imageUrl|url of an example image of layer, will be shown in layer library|string|
-|legendUrl|url of legend image or empty string|string|
-|isBackground|set to true to use this as a background layer, background layers are separated from the thematic layers in the layer manager and only 1 background layer can be active at a time|boolean|
-|defaultAddToManager|true if layer should be inmediately available in the layer manager tool on startup|boolean|
-|defaultOn|true if this layer should be visible at start up, use this together with defaultAddToManager|boolean|
-|attribution|attribution for the layer data, to be displayed at at layer information page|string|
-|metadata|an array of {"key":"somekey","value":"somevalue"} pairs, to store custom metadata which is shown in the layer library|array[KeyValue]|
-|transparent|true if layer can be transparent|boolean|
-|opacity|number between 0 (opaque) and 100 (transparent)|number|
+|id|Unique layer id|string|
+|type|Layer type, supported layer types:<br /> ```basiskaart```, ```wms```, ```wmts```, ```tms```, ```vectortiles```, ```3dtiles```, ```geojson```, ```modelanimation```, ```custom```|string|
+|title|Layer title|string|
+|groupId|Id of the group where this layer belongs to or empty string, will be placed under uncategorized in library|string|
+|description|Simple text field in which a layer description can be provided|string|
+|imageUrl|URL of an example image of layer, will be shown in layer library|string|
+|legendUrl|URL of legend image or empty string|string|
+|isBackground|Set to true to use this as a background layer, background layers are separated from the thematic layers in the layer manager and only 1 background layer can be active at a time|boolean|
+|defaultAddToManager|True if layer should be inmediately available in the layer manager tool on startup|boolean|
+|defaultOn|True if this layer should be visible at start up, use this together with defaultAddToManager|boolean|
+|attribution|Attribution for the layer data, to be displayed at at layer information page|string|
+|metadata|An array of {"key":"somekey","value":"somevalue"} pairs, to store custom metadata which is shown in the layer library|array[KeyValue]|
+|transparent|True if layer can be transparent|boolean|
+|opacity|Number between 0 (opaque) and 100 (transparent)|number|
 |cameraPosition|Default camera position, when set a zoom to icon is displayed for the layer in the layer manager|cameraPosition, same as parameters for [startPosition](###startPosition)|
-|settings|technical settings for the layer, this can differ between layer types, see LayerSettings below|LayerSettings|
+|settings|Technical settings for the layer, this can differ between layer types, see LayerSettings below|LayerSettings|
 
 #### LayerSettings for type wms
 
 |value|description|default|type|
 |-|-|-|-|
-|url|base url for the layer service||string|
-|featureName|name of feature or wms layer, can be found in WMS GetCapabilities||string|
-|contenttype|the http content type for the map data to be retrieved|image/png|string|
+|url|base URL for the layer service||string|
+|featureName|Name of feature or wms layer, can be found in WMS GetCapabilities||string|
+|contenttype|The http content type for the map data to be retrieved|image/png|string|
 
 ```json
 {
@@ -300,7 +300,7 @@ Layer definition
 	"type": "wms",
 	"title": "Beheer vlakken RWS (WMS)",
 	"groupId": "1658756230497",
-	"description": "Ook wel bekend als KernGIS Nat"
+	"description": "Ook wel bekend als KernGIS Nat",
 	"legendUrl": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/beheerkaart_nat/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=beheer_vlakken",
 	"isBackground": false,
 	"defaultAddToManager": true,
@@ -325,22 +325,13 @@ Layer definition
 
 #### LayerSettings for type wmts
 LayerSettings
-|value|description|type|
-|-|-|-|
-|url|base url for the layer service|string|
-|featureName|name of feature or (wms-)/(wmst-)layer|string|
-|contenttype|the http content type for the map data to be retrieved|string||
-|requestencoding|either ```KVP```(key-value-pairs) or ```REST```|string|
-|matrixids|list matrix ids to be used by this (wmts-) layer|array of string|
-|matrixset|name of the matrixset|string|
-
 |value|description|default|type|
 |-|-|-|-|
-|url|base url for the layer service||string|
-|featureName|name of feature of wmts layer, can be found in WMTS GetCapabilities||string|
-|contentType|the http content type for the map data to be retrieved|image/png|string|
-|matrixids|list matrix ids to be used by this wmts layer|EPSG:3857:0...EPSG:3857:19|array of string|
-|tileMatrixSetID|name of the matrixset|EPSG:3857|string|
+|url|Base URL for the layer service||string|
+|featureName|Name of feature of wmts layer, can be found in WMTS GetCapabilities||string|
+|contentType|The http content type for the map data to be retrieved|image/png|string|
+|matrixids|List matrix ids to be used by this wmts layer|EPSG:3857:0...EPSG:3857:19|array of string|
+|tileMatrixSetID|Name of the matrixset|EPSG:3857|string|
 |tileWidth|Pixel width of tile|256|number|
 |tileHeigth|Pixel height of tile|256|number|
 |maximumLevel|Maximum zoom levers of layer|amount items in matrixids - 1|number|
@@ -373,7 +364,7 @@ LayerSettings
 
 |value|description|default|type|
 |-|-|-|-|
-|url|Url to tileset.json for the 3D Tiles layer||string|
+|url|URL to tileset.json for the 3D Tiles layer||string|
 |shadows|If shadows casting & receiving is enabled or disabled|true|boolean|
 |tilesetHeight|3D tiles layer height (z position) can be changed, supply the change in meters here|0|number|
 |enableHeightControl|Allows the user to set the tilesetHeight using an input element. The tileset height is taken as the input element's initial value.|false|boolean|
@@ -483,7 +474,7 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 
 |value|description|default|type|
 |-|-|-|-|
-|url|Url to the GeoJSON file||string|
+|url|URL to the GeoJSON file||string|
 |clampToGround|Choose to clamp the layer to the terrain|true|boolean|
 |style|If it is a string, it points to the property of the GeoJSON to base the styling on. If it is an object, it can contain a `stroke` (HEX-string), `strokeWidth` (number) and `fill` (HEX-string).||string or object|
 |tools|Selection of GeoJSON tools available in the layer manager||tool|
@@ -535,11 +526,11 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 
 |value|description|default|type|
 |-|-|-|-|
-|url|Url to data file for the animation in GeoJSON format. Should be a FeatureCollection of Points with the time specified in the properties||string|
-|modelUrl|Url to the .glb or .gltf file of the 3D model to be used for the animation||string|
+|url|URL to data file for the animation in GeoJSON format. Should be a FeatureCollection of Points with the time specified in the properties||string|
+|modelUrl|URL to the .glb or .gltf file of the 3D model to be used for the animation||string|
 |timeKey|Key of the parameter in the GeoJSON properties that holds the time value (e.g.: '2022-08-01T12:25:11Z')||string|
 |orientationKey|Optional: Key of the parameter in the GeoJSON properties that specifies the orientation of the model in degrees relative to north||string|
-|clampToTerrain|true if the model should be clamped to the terrain. If false, the model will move over the ellipsoid|true|boolean|
+|clampToTerrain|True if the model should be clamped to the terrain. If false, the model will move over the ellipsoid|true|boolean|
 
 ```json
 {
@@ -607,7 +598,7 @@ Library with layers from the config with an option to add connectors to other sy
 |value|description|type|
 |-|-|-|
 |type|Type of connector, currently supported ```ckan```|string|
-|url|Url to the service/file|string|
+|url|URL to the service/file|string|
 |organizations|Optional: Array of strings defining which CKAN organizations (```organization names```) to retrieve the layers from|Array<string>|
 |groups|Optional: Array of strings defining which CKAN groups (```group names```) to retrieve the layers from|Array<string>|
 |packages|Optional: Array of strings defining which CKAN packages (```package names```) to retrieve|Array<string>|
@@ -706,13 +697,20 @@ The info tool will display attribution from used libraries in the viewer and som
 
 #### geocoder
 
-Geocoder tool, located at the right corner of the header instead of the toolbar, the user can search for locations using and zoom to locations using this tool. For geocoding the PDOK geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. No additional settings are required for this tool
+Geocoder tool, located at the right corner of the header instead of the toolbar, the user can search for locations using and zoom to locations using this tool. By default the Dutch Locatieserver geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. For international geocoding, OSM's Nominatim can be used: https://nominatim.openstreetmap.org.
+
+|value|description|type|
+|-|-|-|
+|name|Geocoder name. Currently supporting locatieserver (Dutch), geolocation (Belgian) and nominatim (worldwide)|string|
+
 
 ```json
 {
 	"id": "geocoder",
 	"enabled": true,
-	"settings": {}
+	"settings": {
+		"name": "locatieserver"
+	}
 }
 ```
 
@@ -758,7 +756,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |pointCloudEDLStrength|Eye dome lighting strength (apparent contrast)|1|number|
 |pointCloudEDLRadius|Thickness of contours from eye dome lighting|1|number|
 |globeOpacity|Opacity percentage of the globe|100|number|
-|terrainProviders|Array of terrain providers, first in list is activated by default, leave out url to create empty provider (see example below)|-|Terrain Provider|
+|terrainProviders|Array of terrain providers, first in list is activated by default, leave out URL to create empty provider (see example below)|-|Terrain Provider|
 
 
 ```json
@@ -822,7 +820,7 @@ In order for the config switcher to work, you must configure the environment var
 
 |value|description|default|type|
 |-|-|-|-|
-|fullReload|Whether to reload the entire page on switching configs, which will change the url of the page. If false, only some components will be reloaded.|false|boolean|
+|fullReload|Whether to reload the entire page on switching configs, which will change the URL of the page. If false, only some components will be reloaded.|false|boolean|
 
 ```json
 {
@@ -961,8 +959,10 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 |description|A short description to describe the story|string|
 |width|The width of the story menu|string|
 |force2DMode|Sets the camera to 2D mode and prevents users from switching camera mode while the story is open|boolean|
-|requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists|boolean|
+|requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
 |baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
+|chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
+|chapterGroups|Groups the chapter ids refer to|object|
 
 ```json
 
@@ -976,7 +976,10 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 				"description": "Description of my story",
 				"width": "600px",
 				"force2DMode": false,
-				"requestPolygonArea": false,
+				"requestPolygonArea": {
+					"enabled": false,
+					"statisticsApi": "https://virtueel.dev.zeeland.nl/ko_api/analyze"
+				},
 				"baseLayerId": "001",
 				"chapters": [
 					{
@@ -1011,6 +1014,14 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 						]
 					},
 					//etc. You can add as many chapters as you want per story
+				],
+				"chapterGroups": [
+					{
+						"id": "1",
+						"title": "Bebouwing",
+						"buttonText": "Ch.1"
+					},
+					//etc. These are the groups your chapter ids refer to
 				]
 			},
 			//etc. You can add as many stories as you want

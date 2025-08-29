@@ -234,11 +234,15 @@ export default class FlyCamera {
 	}
 
 	public createGuide() {
-     let guide = document.createElement("row");
+     	let guide = document.createElement("row");
 		guide.id = "povGuide";
-		guide.style.backgroundColor = "var(--cds-interactive-02, #393939)";
-		guide.style.color = "white";
-		guide.style.border = "0.5mm ridge white";
+		guide.style.backgroundColor = "#343434ff";
+		guide.style.color = "#ffffffff"
+		guide.style.border = "3px solid white";
+		guide.style.padding = "5px";
+		guide.style.display = "flex";
+		guide.style.flexDirection = "column";
+		guide.style.gap = "8px"; // adjust spacin
 
 		let escDiv = document.createElement("div");
 		let movementDiv = document.createElement("div");
@@ -265,6 +269,7 @@ export default class FlyCamera {
 
 		document.getElementById("navfooter")?.appendChild(guide);
 		guide.style.visibility = "visible";
+		
 	}
 
 	public handleMovement(movingEntity: Cesium.Entity) {
@@ -299,12 +304,11 @@ export default class FlyCamera {
 	}
 
 	public handleClick() {
-		let viewer = this.viewer;
 		const clickHandler = this.clickHandler;
 
 		clickHandler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
 			this.disablePositionSelection();
-			let pickedPosition = viewer.scene.pickPosition(click.position);
+			let pickedPosition = this.viewer.scene.pickPosition(click.position);
 
 			if (Cesium.defined(pickedPosition)) {
 				this.disablePositionSelection();
@@ -317,7 +321,7 @@ export default class FlyCamera {
 
 				const up = Cesium.Cartesian3.clone(Cesium.Cartesian3.UNIT_Z);
 
-				viewer.camera.setView({
+				this.viewer.camera.setView({
 					destination: newCameraPosition,
 					orientation: {
 						direction: this.getForwardFromPosition(newCameraPosition),
@@ -355,7 +359,7 @@ export default class FlyCamera {
 
 		this.enablePositionSelection();
 
-		let movingEntity = this.viewer.entities.add({
+		const movingEntity = this.viewer.entities.add({
 			name: "Cursor tracker",
 			position: Cesium.Cartesian3.ZERO,
 			id: "CursorBoard",
@@ -449,15 +453,13 @@ export default class FlyCamera {
 	}
 
 	private applyGravity() {
-		if(this.groundPOV) {
-			const groundHeight =
-			  this.scene.globe.getHeight(this.camera.positionCartographic);
+		if (this.groundPOV) {
+			const groundHeight = this.scene.globe.getHeight(this.camera.positionCartographic);
 		   
-  
-			  if(groundHeight) {
-		  this.camera.moveDown((this.camera.positionCartographic.height - 1) - groundHeight)
-			  }
-		  }
+			if (groundHeight) {
+		  		this.camera.moveDown((this.camera.positionCartographic.height - 1.60) - groundHeight)
+			}
+		}
 	}
 
 	private moveHorizontally(ahead: boolean) {
@@ -477,17 +479,13 @@ export default class FlyCamera {
 	private moveLeft() {
 		const speed = this.getMoveSpeed();
 		this.camera.moveLeft(speed);
-
 		this.applyGravity();
-
 	}
 
 	private moveRight() {
 		const speed = this.getMoveSpeed();
 		this.camera.moveRight(speed);
-
 		this.applyGravity();
-
 	}
 
 	private moveUp() {
@@ -506,15 +504,15 @@ export default class FlyCamera {
 
 
 	private viewerUpdate() {
- let now = performance.now();
-this.deltaTime = now - this.lastTime;
- this.lastTime = now;
+		let now = performance.now();
+		this.deltaTime = now - this.lastTime;
+		this.lastTime = now;
  
 		this.mouseLook();
 		for (const property in this.keys) {
 			const key = this.keys[property];
 
-                if(!this.enabled) {
+                if (!this.enabled) {
 					key.state = "up";
 					key.updated = false;
 				}

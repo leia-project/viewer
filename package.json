@@ -13,7 +13,7 @@
 	},
 	"devDependencies": {
 		"@carbon/colors": "^11.30.0",
-		"@carbon/grid": "^11.33.0",
+		"@carbon/grid": "^11.41.0",
 		"@sveltejs/adapter-node": "^5.2.12",
 		"@sveltejs/adapter-static": "^3.0.8",
 		"@sveltejs/kit": "^2.20.5",
@@ -37,7 +37,7 @@
 	"type": "module",
 	"dependencies": {
 		"@carbon/charts-svelte": "^1.22.18",
-		"@fontsource/fira-mono": "^5.2.5",
+		"@fontsource/fira-mono": "^5.2.6",
 		"@fontsource/open-sans": "^5.2.5",
 		"@lukeed/uuid": "^2.0.1",
 		"@observablehq/plot": "^0.6.17",
@@ -47,7 +47,7 @@
 		"cesium": "^1.121.1",
 		"cookie": "^0.7.0",
 		"d3-delaunay": "^6.0.4",
-		"dotenv": "^16.4.5",
+		"dotenv": "^17.2.1",
 		"echarts": "^5.6.0",
 		"fuzzysort": "^3.0.2",
 		"jsonwebtoken": "^9.0.2",

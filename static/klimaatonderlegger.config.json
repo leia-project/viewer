@@ -830,7 +830,10 @@
                         "description": "Kaarten voor de klimaatonderlegger",
                         "width": "600px",
                         "force2DMode": true,
-                        "requestPolygonArea": true,
+                        "requestPolygonArea": {
+                            "enabled": true,
+                            "statisticsApi": "https://virtueel.dev.zeeland.nl/ko_api/analyze"
+                        },
                         "baseLayerId": "001",
                         "chapters": [
                             {
@@ -838,7 +841,7 @@
                                 "steps": [
                                     {
                                         "title": "Signaalkaart",
-                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -907,25 +910,25 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "BCD",
-                                                        "text": "B, C en D: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).",
+                                                        "text": "Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).",
                                                         "subLabels": {
                                                             "B": {
-                                                                "text": "B: Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen. Bij nieuwbouw wordt al ingezet op het infiltreren, vasthouden of bergen van 40-70 mm in 1 uur, het beperkt verharden en het gebruik van waterdichte drempels van 20 cm (Convenant klimaatadaptief vouwen en Landelijke maatlat).",
+                                                                "text": "Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen. Bij nieuwbouw wordt al ingezet op het infiltreren, vasthouden of bergen van 40-70 mm in 1 uur, het beperkt verharden en het gebruik van waterdichte drempels van 20 cm (Convenant klimaatadaptief vouwen en Landelijke maatlat).",
                                                                 "hoverText": ""
                                                             },
                                                             "C": {
-                                                                "text": "C: Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm (door extra water vast te houden, te bergen of af te voeren), zodat er geen schade of risico's ontstaan bij waterstanden op het maaiveld tot circa 50 cm.",
+                                                                "text": "Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm (door extra water vast te houden, te bergen of af te voeren), zodat er geen schade of risico's ontstaan bij waterstanden op het maaiveld tot circa 50 cm.",
                                                                 "hoverText": ""
                                                             },
                                                             "D": {
-                                                                "text": "D: Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm, of er geen schade ontstaat bij waterstanden op het maaiveld van >50 cm.",
+                                                                "text": "Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm, of er geen schade ontstaat bij waterstanden op het maaiveld van >50 cm.",
                                                                 "hoverText": ""
                                                             }
                                                         }
                                                     },
                                                     {
                                                         "labels": "D",
-                                                        "text": "D: In gebieden waar regenwater zich verzamelt, waterbestendig ontwikkelen en vitale en kwetsbare functies aangepast ontwikkelen of ontwikkelingen vermijden. Gebiedsontwikkelingen die integraal opgehoogd worden vragen een grote inspanning en wentelen af op andere gebieden."
+                                                        "text": "In gebieden waar regenwater zich verzamelt, waterbestendig ontwikkelen en vitale en kwetsbare functies aangepast ontwikkelen of ontwikkelingen vermijden. Gebiedsontwikkelingen die integraal opgehoogd worden vragen een grote inspanning en wentelen af op andere gebieden."
                                                     }
                                                 ]
                                             }
@@ -950,25 +953,25 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "BC",
-                                                        "text": "B, C: Houd rekening met meer frequente overstromingen in buitendijkse (waterbergende) gebieden (zee-invloedsgebied of oeverland), in het bijzonder bij vitale en kwetsbare functies.",
+                                                        "text": "Houd rekening met meer frequente overstromingen in buitendijkse (waterbergende) gebieden (zee-invloedsgebied of oeverland), in het bijzonder bij vitale en kwetsbare functies.",
                                                         "subLabels": {
                                                             "B": {
-                                                                "text": "B: De inspanning voor adaptatie in buitendijkse gebieden wordt steeds groter (eigen verantwoordelijkheid eigenaren).",
+                                                                "text": "De inspanning voor adaptatie in buitendijkse gebieden wordt steeds groter (eigen verantwoordelijkheid eigenaren).",
                                                                 "hoverText": ""
                                                             },
                                                             "C": {
-                                                                "text": "C: Peilverhoging in voormalige buitendijkse gebieden (oeverlanden) is mogelijk.",
+                                                                "text": "Peilverhoging in voormalige buitendijkse gebieden (oeverlanden) is mogelijk.",
                                                                 "hoverText": ""
                                                             }
                                                         }
                                                     },
                                                     {
                                                         "labels": "C",
-                                                        "text": "C: Bij mogelijke overstromingsdiepten tot 2,5 meter: inzetten op schade beperken en bereikbare droge eerste verdieping. Geen ontwikkelingen met vitale functies of kwetsbre groepen."
+                                                        "text": "Bij mogelijke overstromingsdiepten tot 2,5 meter: inzetten op schade beperken en bereikbare droge eerste verdieping. Geen ontwikkelingen met vitale functies of kwetsbre groepen."
                                                     },
                                                     {
                                                         "labels": "E",
-                                                        "text": "E: Houd beschermingszones rond primaire en regionale keringen en dammen vrij van bebouwing. Op waterstaatwerken en beschermingszones is geen bebouwing toegestaan."
+                                                        "text": "Houd beschermingszones rond primaire en regionale keringen en dammen vrij van bebouwing. Op waterstaatwerken en beschermingszones is geen bebouwing toegestaan."
                                                     }
                                                 ]
                                             }
@@ -994,23 +997,23 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Voor stedelijk groen is voldoende zoetwaterbeschikbaarheid een opgave. Zoeg dat in stedelijk gebied water wordt vastgehouden en opgevangen voor hergebruik."
+                                                        "text": "Voor stedelijk groen is voldoende zoetwaterbeschikbaarheid een opgave. Zoeg dat in stedelijk gebied water wordt vastgehouden en opgevangen voor hergebruik."
                                                     },
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Gebieden die worden aangevoerd vanuit het Volkerak-Zoommeer kunnen in zeer droge perioden kwetsbaar zijn voor watertekorten. De beschikbaarheid van zoetwater zal in de toekomst niet altijd meer vanzelfsprekend zijn."
+                                                        "text": "Gebieden die worden aangevoerd vanuit het Volkerak-Zoommeer kunnen in zeer droge perioden kwetsbaar zijn voor watertekorten. De beschikbaarheid van zoetwater zal in de toekomst niet altijd meer vanzelfsprekend zijn."
                                                     },
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: In gebieden met zoet grondwater (grondwaterbellen van >15m dik) kan bij neerslagtekorten water uit de bodem worden benut."
+                                                        "text": "In gebieden met zoet grondwater (grondwaterbellen van >15m dik) kan bij neerslagtekorten water uit de bodem worden benut."
                                                     },
                                                     {
                                                         "labels": "C",
-                                                        "text": "C: Gebieden zonder wateraanvoer of zoet grondwater (of met beperkingen voor onttrekkingen) zullen in drogere perioden de zoetwatervoorziening onder druk komen te staan."
+                                                        "text": "Gebieden zonder wateraanvoer of zoet grondwater (of met beperkingen voor onttrekkingen) zullen in drogere perioden de zoetwatervoorziening onder druk komen te staan."
                                                     },
                                                     {
                                                         "labels": "C",
-                                                        "text": "C: In gebieden die gebruik kunnen maken van zoet grondwater, maar die liggen binnen de bufferzones van Natura 2000 gebieden, dient rekening te worden gehouden met beperkingen voor onttrekkingen in drogere perioden."
+                                                        "text": "In gebieden die gebruik kunnen maken van zoet grondwater, maar die liggen binnen de bufferzones van Natura 2000 gebieden, dient rekening te worden gehouden met beperkingen voor onttrekkingen in drogere perioden."
                                                     }
                                                 ]
                                             }
@@ -1018,7 +1021,7 @@
                                     },
                                     {
                                         "title": "Waterkwaliteit",
-                                        "html": "",
+                                        "html": "<div>Door hogere (water)temperaturen, lozingen, toenemende rioolverstorten bij hevige regenval en de uitspoeling van nutriënten neemt de druk op de waterkwaliteit toe. Hierdoor kan zuurstofloosheid, blauwalg, vissterfte en botulisme ontstaan en neemt het risico op biologische vervuiling van het water toe. Dit vergroot de kans op infectieziekten bij recreatief gebruik.<br><br>Door in te zetten op het verbeteren van rioolwaterzuiveringsinstallaties en het zo inrichten van de openbare ruimte dat afstromend regenwater wordt gezuiverd, wordt voorkomen dat verontreinigignen in het oppervlaktewater terechtkomen. Robuustere watersystemen met ruimte voor waterplanten, voldoende waterdiepte, goede doorstroming, een geode overinrichting en het voorkomen van riooloverstorten, nutriëntenuitspoeling of de inlaat van gebiedsvreemd, nutriëntrijk water, dragen bij aan het voorkomen van slechte waterkwaliteit.<br><br><strong>Voorbeelden maatregelen</strong><hr><br><br>-De aanleg van helofytenfilters. In gebieden waar afstromend of drainagewater vanuit landelijk gebied (met nutriënten of gewasbeschermingsmiddelen) of stedelijk gebied (met vervuiling vanaf verharde oppervlakken zoals wegen) in waterlopen terecht komt, kan dit water worden opgevangen en gefiltreerd in een groene waterberging met helofytenfilter. Dit natuurlijke filter neemt nutriënten en verontreinigingen op uit het water en zorgt voor een natuurlijke zuivering voordat het water afstroomt in het oppervlaktewater.<br><br>-Het beperken van riooloverstorten. Oppervlaktewateren hebben na een overstort enkele jaren nodig om te herstellen en de oorspronkelijke waterkwaliteit terug te krijgen. Daarom moeten met name de overstorten op deze wateren worden voorkomen. Voor ontwikkelingen kan er gebruik worden gemaakt van de zogenaamde 'Waterkwaliteitscheck' waarbij een microbiologische risico-inventarisatie kan worden gemaakt voor stedelijke waterconcepten.<br><br>-Het aanleggen van een nazuiveringsmoeras nabij RWZI's. Doorstroom- en zuiveringsmoerassen nabij rioolwaterzuiveringsinstallaties (RWZI's) hebben een positieve invloed op de milieukwaliteit van effluent dat uit de rioolwaterzuiveringen komt.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1036,11 +1039,11 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Het lozen van koelwater kan steeds vaker tegen beperkingen aanlopen bij wateren die zomers sterk opwarmen."
+                                                        "text": "Het lozen van koelwater kan steeds vaker tegen beperkingen aanlopen bij wateren die zomers sterk opwarmen."
                                                     },
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Bij onvoldoende aanvoer en temperatuurstijging van het water neemt de kans op directe vervuiling in zwemwater toe. Zorg voor voldoende robuuste (zwem)waterlichamen voor dagrecreatie."
+                                                        "text": "Bij onvoldoende aanvoer en temperatuurstijging van het water neemt de kans op directe vervuiling in zwemwater toe. Zorg voor voldoende robuuste (zwem)waterlichamen voor dagrecreatie."
                                                     }
                                                 ]
                                             }
@@ -1048,7 +1051,7 @@
                                     },
                                     {
                                         "title": "Hitte",
-                                        "html": "<div>Indicatoren voor Hitte in de categorie Bebouwing.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Door de klimaatverandering zal het aantal hete dagen sterk toenemen. Het wordt met name in stedelijke gebieden waar veel verharding te vinden is zeer warm. Deze warmte blijft hangen waardoor het ook 's nachts minder goed afkoelt. Dit heeft effect op de gezondheid van inwoners (met name kwetsbare bevolkingsgroepen zoals ouderen en kinderen). Net als bebouwing kunnen ook grote waterlichamen op hete dagen veel warmte absorberen en deze 's nachts weer afgeven.<br><br>Zorg dat nieuwe gebiedsontwikkelingen beperkt bijdragen aan het stedelijk hitte-eiland effect. Dit kan door in te zetten op aangepast materiaalgebruik, veel groen en schaduw.<br><br>Hittebestendig ontwikkelen en het creëren van voldoende mogelijkheden om natuurlijk te koelen zijn essentieel voor nieuwbouw.<br><br>Zorg in stedelijke gebieden voor voldoende koele plekken, koele routes en uitloopgebieden met schaduw of schoon zwemwater. Het is belangrijk dat gemeenten gaan werken met een lokaal hitteplan.<br><br><strong>Voorbeelden maatregelen</strong><hr>-In een lokaal hitteplan worden afspraken vastgelegd over de zorg voor kwetsbare groepen tijdens hete perioden. Een lokaal hitteplan is een aanvulling op het Nationaal Hitteplan en bevat afspraken over verantwoordelijkheden en maatregelen bij een periode van hitte.<br><br>Hittebestendig bouwen kan bijvoorbeeld door het gebruik van minder hitte-absorberende materialen; meer groen oppervlak (zoals groene gevels en daken); lichtere/ reflecterende materialen; minder stenige materialen; goede zonwering van gebouwen.Zorg in stedelijke gebieden voor voldoende koele plekken nabij woningen, en met name nabij ouderenwoningen en voorzieningen voor jonge kinderen. Dit zijn plekken met minimaal 200 m2 groen en schaduw op een afstand van maximaal 300 meter van woningen (norm uit de landelijke maatlat klimaatadaptief bouwen).</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1066,15 +1069,15 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Grote waterlichamen warmen op bij lange perioden met hoge temperaturen en geven 's nachts warmte af. Bij grote wateren draagt dit bij aan het stedelijk hitte-eiland effect. Dit kan nadelige effecten hebben op de gezondheid."
+                                                        "text": "Grote waterlichamen warmen op bij lange perioden met hoge temperaturen en geven 's nachts warmte af. Bij grote wateren draagt dit bij aan het stedelijk hitte-eiland effect. Dit kan nadelige effecten hebben op de gezondheid."
                                                     },
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Bij een gevoelstemperatuur van meer dan 45°C kan het bebouwde gebied sterk opwarmen, met hittestress en gezondheidsrisico's als gevolg. Ouderen, jongere kinderen en chronisch zieken zijn hiervoor extra kwetsbaar. Bij langdurige hitte kunnen kleine waterlichamen waterkwaliteitsproblemen veroorzaken met gevolgen voor de volksgezondheid."
+                                                        "text": "Bij een gevoelstemperatuur van meer dan 45°C kan het bebouwde gebied sterk opwarmen, met hittestress en gezondheidsrisico's als gevolg. Ouderen, jongere kinderen en chronisch zieken zijn hiervoor extra kwetsbaar. Bij langdurige hitte kunnen kleine waterlichamen waterkwaliteitsproblemen veroorzaken met gevolgen voor de volksgezondheid."
                                                     },
                                                     {
                                                         "labels": "C",
-                                                        "text": "C: In stedelijke gevieden met veel verharding kan warmte 's nachts blijven hangen. Dit draagt bij aan het stedelijk hitte-eiland effect en kan nadelige effecten hebben op de gezondheid. Neem maatregelen om verharding en opwarming te berperken."
+                                                        "text": "In stedelijke gevieden met veel verharding kan warmte 's nachts blijven hangen. Dit draagt bij aan het stedelijk hitte-eiland effect en kan nadelige effecten hebben op de gezondheid. Neem maatregelen om verharding en opwarming te berperken."
                                                     }
                                                 ]
                                             }
@@ -1088,7 +1091,7 @@
                                 "steps": [
                                     {
                                         "title": "Signaalkaart",
-                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1158,25 +1161,25 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "BCD",
-                                                        "text": "B, C en D: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).",
+                                                        "text": "Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).",
                                                         "subLabels": {
                                                             "B": {
-                                                                "text": "B: Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen. Bij nieuwbouw wordt al ingezet op het infiltreren, vasthouden of bergen van 40-70 mm in 1 uur, het beperkt verharden en het gebruik van waterdichte drempels van 20 cm (Convenant klimaatadaptief vouwen en Landelijke maatlat).",
+                                                                "text": "Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen. Bij nieuwbouw wordt al ingezet op het infiltreren, vasthouden of bergen van 40-70 mm in 1 uur, het beperkt verharden en het gebruik van waterdichte drempels van 20 cm (Convenant klimaatadaptief vouwen en Landelijke maatlat).",
                                                                 "hoverText": ""
                                                             },
                                                             "C": {
-                                                                "text": "C: Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm (door extra water vast te houden, te bergen of af te voeren), zodat er geen schade of risico's ontstaan bij waterstanden op het maaiveld tot circa 50 cm.",
+                                                                "text": "Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm (door extra water vast te houden, te bergen of af te voeren), zodat er geen schade of risico's ontstaan bij waterstanden op het maaiveld tot circa 50 cm.",
                                                                 "hoverText": ""
                                                             },
                                                             "D": {
-                                                                "text": "D: ONtwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm, of er geen schade ontstaat bij waterstanden op het maaiveld van >50 cm.",
+                                                                "text": "Ontwikkel zo dat het water op het maaiveld beperkt wordt tot 20 cm, of er geen schade ontstaat bij waterstanden op het maaiveld van >50 cm.",
                                                                 "hoverText": ""
                                                             }
                                                         }
                                                     },
                                                     {
                                                         "labels": "D",
-                                                        "text": "D: In gebieden waar regenwater zich verzamelt, waterbestendig ontwikkelen en vitale en kwetsbare functies aangepast ontwikkelen of ontwikkelingen vermijden. Gebiedsontwikkelingen die integraal opgehoogd worden vragen een grote inspanning en wentelen af op andere gebieden."
+                                                        "text": "In gebieden waar regenwater zich verzamelt, waterbestendig ontwikkelen en vitale en kwetsbare functies aangepast ontwikkelen of ontwikkelingen vermijden. Gebiedsontwikkelingen die integraal opgehoogd worden vragen een grote inspanning en wentelen af op andere gebieden."
                                                     }
                                                 ]
                                             }
@@ -1202,25 +1205,25 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "BC",
-                                                        "text": "B, C: Houd rekening met meer frequente overstromingen in buitendijkse (waterbergende) gebieden (zee-invloedsgebied of oeverland), in het bijzonder bij vitale en kwetsbare functies.",
+                                                        "text": "Houd rekening met meer frequente overstromingen in buitendijkse (waterbergende) gebieden (zee-invloedsgebied of oeverland), in het bijzonder bij vitale en kwetsbare functies.",
                                                         "subLabels": {
                                                             "B": {
-                                                                "text": "B: De inspanning voor adaptatie in buitendijkse gebieden wordt steeds groter (eigen verantwoordelijkheid eigenaren).",
+                                                                "text": "De inspanning voor adaptatie in buitendijkse gebieden wordt steeds groter (eigen verantwoordelijkheid eigenaren).",
                                                                 "hoverText": ""
                                                             },
                                                             "C": {
-                                                                "text": "C: Peilverhoging in voormalige buitendijkse gebieden (oeverlanden) is mogelijk.",
+                                                                "text": "Peilverhoging in voormalige buitendijkse gebieden (oeverlanden) is mogelijk.",
                                                                 "hoverText": ""
                                                             }
                                                         }
                                                     },
                                                     {
                                                         "labels": "BCD",
-                                                        "text": "B, C en D: Houd rekening met het binnendijkse overstromingsrisico en zet in op gevolgdberperking."
+                                                        "text": "Houd rekening met het binnendijkse overstromingsrisico en zet in op gevolgberperking."
                                                     },
                                                     {
                                                         "labels": "E",
-                                                        "text": "E: Houd beschermingszones rond primaire en regionale keringen en dammen vrij van bebouwing. Op waterstaatwerken en beschermingszones is geen bebouwing toegestaan."
+                                                        "text": "Houd beschermingszones rond primaire en regionale keringen en dammen vrij van bebouwing. Op waterstaatwerken en beschermingszones is geen bebouwing toegestaan."
                                                     }
                                                 ]
                                             }
@@ -1228,7 +1231,7 @@
                                     },
                                     {
                                         "title": "Waterbeschikbaarheid",
-                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Vitale Infrastructuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Zeeland ligt in de Delta; hierdoor zijn de aanvoermogelijkheden voor zoetwater beperkt en is het grootste deel van het gebied afhankelijk van regenwater wat in de bodem en het oppervlaktewatersysteem wordt opgeslagen. Door klimaatverandering zullen de perioden van droogte steeds langer zijn en neemt de zoute kwel toe waardoor er minder zoetwater beschikbaar zal zijn. Tegelijkertijd neemt de vraag naar zoetwater toe door de toenemende watervraag voor industrie en datacenters.<br><br>Als er onvoldoende water beschikbaar is om in de gewenste zoetwatervraag te voorzien treedt de verdringingsreeks in werking. Deze prioriteert de watervoorziening voor de stabiliteit van dijken en zoetwaterafhankelijke natuur waar onomkeerbare droogteschade kan optreden, daarna komen pas de nutsvoorzieningen en daarna de overige gebruikers.<br><br>Bij toenemende hitte en aanhoudende droogte zal de watervraag voor het koelen van vitale infrastructuur (zoals wegen en beweegbare bruggen) en de koeling van energieen elektriciteitsvoorzieningen toenemen. Door zout water als bron te gebruiken of door genoeg oppervlaktewateren en waterbergingen te realiseren bij bedrijven- en industriegebieden kan er worden gezorgd dat er voldoende water beschikbaar.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1245,19 +1248,19 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Gebieden die worden aangevoerd vanuit het Volkerak-Zoommeer kunnen in zeer droge perioden kwetsbaar zijn voor watertekorten. De beschikbaarheid van zoetwater zal in de toekomst niet altijd meer vanzelfsprekend zijn."
+                                                        "text": "Gebieden die worden aangevoerd vanuit het Volkerak-Zoommeer kunnen in zeer droge perioden kwetsbaar zijn voor watertekorten. De beschikbaarheid van zoetwater zal in de toekomst niet altijd meer vanzelfsprekend zijn."
                                                     },
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: In gebieden met zoet grondwater (grondwaterbellen van >15m dik) kan bij neerslagtekorten water uit de bodem worden benut."
+                                                        "text": "In gebieden met zoet grondwater (grondwaterbellen van >15m dik) kan bij neerslagtekorten water uit de bodem worden benut."
                                                     },
                                                     {
                                                         "labels": "C",
-                                                        "text": "C: In gebieden zonder wateraanvoer of zoet grondwater (of met beperkingen voor onttrekkingen) zal in drogere perioden de zoetwatervoorziening odner druk komen te staan."
+                                                        "text": "In gebieden zonder wateraanvoer of zoet grondwater (of met beperkingen voor onttrekkingen) zal in drogere perioden de zoetwatervoorziening odner druk komen te staan."
                                                     },
                                                     {
                                                         "labels": "C",
-                                                        "text": "C: In gebieden die gebruik kunnen maken van zoet grondwater, maar die liggen binnen de bufferzones van Natura 2000 gebieden, dient rekening te worden gehouden met beperkingen voor onttrekkingen in drogere perioden."
+                                                        "text": "In gebieden die gebruik kunnen maken van zoet grondwater, maar die liggen binnen de bufferzones van Natura 2000 gebieden, dient rekening te worden gehouden met beperkingen voor onttrekkingen in drogere perioden."
                                                     }
                                                 ]
                                             }
@@ -1270,7 +1273,7 @@
                                 "steps": [
                                     {
                                         "title": "Signaalkaart",
-                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1340,21 +1343,21 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "BC",
-                                                        "text": "B en C: Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).",
+                                                        "text": "Ontwikkel waterneutraal (of -positief). Zorg dat toekomstige ontwikkelingen de druk op het waterafvoersysteem niet vergroten (door het water binnen het projectgebied te bergen).",
                                                         "subLabels": {
                                                             "B": {
-                                                                "text": "B: Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen.",
+                                                                "text": "Tot 20 cm water op het maaiveld mag niet leiden tot schade aan gebouwen.",
                                                                 "hoverText": ""
                                                             },
                                                             "C": {
-                                                                "text": "C: Ontwikkel waterbestendig bij >20cm wateroverlast; denk aan tijdelijke (tot 1 jaar) of floodproof woningen (geen water in de woning) en extra waterberging.",
+                                                                "text": "Ontwikkel waterbestendig bij >20cm wateroverlast; denk aan tijdelijke (tot 1 jaar) of floodproof woningen (geen water in de woning) en extra waterberging.",
                                                                 "hoverText": ""
                                                             }
                                                         }
                                                     },
                                                     {
                                                         "labels": "C",
-                                                        "text": "C: Ontwikkel waterbestending in gebieden waar regenwater zich verzamelt (geen water in de woning); denk aan tijdelijke (tot 15 jaar) of floodproof woningen, extra waterberging en voorkom afwenteling."
+                                                        "text": "Ontwikkel waterbestending in gebieden waar regenwater zich verzamelt (geen water in de woning); denk aan tijdelijke (tot 15 jaar) of floodproof woningen, extra waterberging en voorkom afwenteling."
                                                     }
                                                 ]
                                             }
@@ -1379,21 +1382,21 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "BC",
-                                                        "text": "B, C: Houd rekening met meer frequente overstromingen in buitendijkse (waterbergende) gebieden (zee-invloedsgebied of oeverland).",
+                                                        "text": "Houd rekening met meer frequente overstromingen in buitendijkse (waterbergende) gebieden (zee-invloedsgebied of oeverland).",
                                                         "subLabels": {
                                                             "B": {
-                                                                "text": "B: De inspanning voor adaptatie in buitendijkse gebieden wordt steeds groter (eigen verantwoordelijkheid eigenaren).",
+                                                                "text": "De inspanning voor adaptatie in buitendijkse gebieden wordt steeds groter (eigen verantwoordelijkheid eigenaren).",
                                                                 "hoverText": ""
                                                             },
                                                             "C": {
-                                                                "text": "C: Peilverhoging in voormalige buitendijkse gebieden (oeverlanden) is mogelijk.",
+                                                                "text": "Peilverhoging in voormalige buitendijkse gebieden (oeverlanden) is mogelijk.",
                                                                 "hoverText": ""
                                                             }
                                                         }
                                                     },
                                                     {
                                                         "labels": "E",
-                                                        "text": "E: Houd beschermingszones rond primaire en regionale keringen en dammen vrij van bebouwing. Op waterstaatwerken en beschermingszones is geen bebouwing toegestaan."
+                                                        "text": "Houd beschermingszones rond primaire en regionale keringen en dammen vrij van bebouwing. Op waterstaatwerken en beschermingszones is geen bebouwing toegestaan."
                                                     }
                                                 ]
                                             }
@@ -1401,7 +1404,7 @@
                                     },
                                     {
                                         "title": "Waterbeschikbaarheid",
-                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Zeeland ligt in de Delta; hierdoor zijn de aanvoermogelijkheden voor zoetwater beperkt en is het grootste deel van het gebied afhankelijk van regenwater wat in de bodem en het oppervlaktewatersysteem wordt opgeslagen. Door klimaatverandering zullen de perioden van droogte steeds langer zijn en neemt de zoute kwel toe waardoor er minder zoetwater beschikbaar zal zijn. Ook de productie van drinkwater loopt tegen grenzen aan. Tegelijkertijd neemt de vraag naar zoetwater en drinkwater toe door de toenemende bevolking, water voor industrie en datacenters en de toename van de hoeveelheid stedelijk groen.<br><br>De recreatiesector is een van de grote watervragers in Zeeland. Doordat er met name tijdens de zomer veel recreanten zijn neemt de druk op de waterbeschikbaarheid juist in deze vaak droge periode toe. Het beperken van het watergebruik is daarbij essentieel. Door in te zetten op het bergen en infiltreren of hergebruiken van regenwater kan de watervraag voor bijvoorbeeld het doorspoelen van toiletten of het bewateren van groen worden beperkt.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1419,19 +1422,19 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Gebieden die worden aangevoerd vanuit het Volkerak-Zoommeer kunnen in zeer droge perioden kwetsbaar zijn voor watertekorten. De beschikbaarheid van zoetwater zal in de toekomst niet altijd meer vanzelfsprekend zijn."
+                                                        "text": "Gebieden die worden aangevoerd vanuit het Volkerak-Zoommeer kunnen in zeer droge perioden kwetsbaar zijn voor watertekorten. De beschikbaarheid van zoetwater zal in de toekomst niet altijd meer vanzelfsprekend zijn."
                                                     },
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: In gebieden met zoet grondwater (grondwaterbellen van >15m dik) kan bij neerslagtekorten water uit de bodem worden benut."
+                                                        "text": "In gebieden met zoet grondwater (grondwaterbellen van >15m dik) kan bij neerslagtekorten water uit de bodem worden benut."
                                                     },
                                                     {
                                                         "labels": "C",
-                                                        "text": "C: In gebieden zonder wateraanvoer of zoet grondwater (of met beperkingen voor onttrekkingen) zal in drogere perioden de zoetwatervoorziening odner druk komen te staan."
+                                                        "text": "In gebieden zonder wateraanvoer of zoet grondwater (of met beperkingen voor onttrekkingen) zal in drogere perioden de zoetwatervoorziening odner druk komen te staan."
                                                     },
                                                     {
                                                         "labels": "C",
-                                                        "text": "C: In gebieden die gebruik kunnen maken van zoet grondwater, maar die liggen binnen de bufferzones van Natura 2000 gebieden, dient rekening te worden gehouden met beperkingen voor onttrekkingen in drogere perioden."
+                                                        "text": "In gebieden die gebruik kunnen maken van zoet grondwater, maar die liggen binnen de bufferzones van Natura 2000 gebieden, dient rekening te worden gehouden met beperkingen voor onttrekkingen in drogere perioden."
                                                     }
                                                 ]
                                             }
@@ -1439,7 +1442,7 @@
                                     },
                                     {
                                         "title": "Waterkwaliteit",
-                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Door hogere (water)temperaturen, lozingen, toenemende riooloverstorten bij hevige regenval en de uitspoeling van nutriënten neemt de druk op de waterkwalteit toe. Hierdoor kan zuurstofloosheid, blauwalg, vissterfte en botulisme ontstaan en neemt het risico op biologische vervuiling van het water toe. Dit vergroot de kans op infectieziekten bij recreatief gebruik.<br><br>Door in te zetten op het verbeteren van rioolwaterzuiveringsinstallaties en het zo inrichten van de openbare ruimte dat afstromend regenwater wordt gezuiverd, wordt voorkomen dat verontreinigingen in het oppervlaktewater terechtkomen. Robuustere watersystemen met ruimte voor waterplanten, voldoende waterdiepte, goede doorstroming, een goede oeverinrichting en het voorkomen van riooloverstorten, nutriëntenuitspoeling of de inlaat van gebiedsvreemd, nutriëntrijk water, dragen bij aan het voorkomen van slechte waterkwaliteit.<br><br><strong>Voorbeelden maatregelen</strong><hr><br><br>-De aanleg van helofytenfilters. In gebieden waar afstromend of drainagewater vanuit landelijk gebied (met nutriënten of gewasbeschermingsmiddelen) of stedelijk gebied (met vervuiling vanaf verharde oppervlakken zoals wegen) in waterlopen terecht komt, kan dit water worden opgevangen en gefiltreerd in een groene waterberging met een helofytenfilter. Dit natuurlijke filter neemt nutriënten en verontreinigingen op uit het water en zorgt voor een natuurlijke zuivering voordat het water afstroomt in het oppervlaktewater.<br><br>-Het beperken van riooloverstorten. Oppervlaktewateren hebben na een overstort enkele jaren nodig om te herstellen en de oorspronkelijke waterkwaliteit terug te krijgen. Daarom moeten met name de overstorten op deze wateren worden voorkomen. Voor ontwikkelingen kan er gebruik worden gemaakt van de zogenaamde 'Waterkwaliteitscheck' waarbij een microbiologische risico-inventarisatie kan worden gemaakt voor stedelijke waterconcepten.<br><br>-Het aanleggen van een nazuiveringsmoeras nabij RWZI’s. Doorstroom- en zuiveringsmoerassen nabij rioolwaterzuiveringsinstallaties (RWZI's) hebben een positieve invloed op de milieukwaliteit van effluent dat uit de rioolwaterzuiveringen komt.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1458,7 +1461,7 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Bij onvoldoende aanvoer en temperatuurstijging van het water neemt de kans op directe vervuiling in zwemwater toe. Zorg voor voldoende robuuste (zwem)waterlichamen voor dagrecreatie."
+                                                        "text": "Bij onvoldoende aanvoer en temperatuurstijging van het water neemt de kans op directe vervuiling in zwemwater toe. Zorg voor voldoende robuuste (zwem)waterlichamen voor dagrecreatie."
                                                     }
                                                 ]
 
@@ -1467,7 +1470,7 @@
                                     },
                                     {
                                         "title": "Hitte",
-                                        "html": "<div>Indicatoren voor Hitte in de categorie Recreatie.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Door de klimaatverandering zal het aantal hete dagen sterk toenemen. Bebouwing en grote waterlichamen kunnen op hete dagen veel warmte absorberen en deze 's nachts weer afgeven.<br><br>Zorg dat nieuwe ontwikkelingen beperkt bijdragen aan het stedelijk hitte-eiland effect, door in te zetten op aangepast materiaalgebruik, veel groen en schaduw. Aangezien recreatieparken en -woningen in de zomerperiode een piekgebruik kennen, is het belangrijk om rekening te houden met hitte. Hittebestendig ontwikkelen en het creëren van voldoende mogelijkheden om natuurlijk te koelen zijn essentieel voor nieuwbouw. Zorg voor voldoende koele plekken, koele routes en uitloopgebieden met schaduw (bosschages) of schoon zwemwater.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1485,15 +1488,15 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Grote waterlichamen warmen op bij lange perioden met hoge temperaturen en geven 's nachts warmte af. Bij grote wateren draagt dit bij aan het stedelijk hitte-eiland effect. Dit kan nadelige effecten hebben op de gezondheid."
+                                                        "text": "Grote waterlichamen warmen op bij lange perioden met hoge temperaturen en geven 's nachts warmte af. Bij grote wateren draagt dit bij aan het stedelijk hitte-eiland effect. Dit kan nadelige effecten hebben op de gezondheid."
                                                     },
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Bij een gevoelstemperatuur van meer dan 45°C kan het bebouwde gebied sterk opwarmen, met hittestress en gezondheidsrisico's als gevolg. Ouderen, jongere kinderen en chronisch zieken zijn hiervoor extra kwetsbaar. Bij langdurige hitte kunnen kleine waterlichamen waterkwaliteitsproblemen veroorzaken met gevolgen voor de volksgezondheid."
+                                                        "text": "Bij een gevoelstemperatuur van meer dan 45°C kan het bebouwde gebied sterk opwarmen, met hittestress en gezondheidsrisico's als gevolg. Ouderen, jongere kinderen en chronisch zieken zijn hiervoor extra kwetsbaar. Bij langdurige hitte kunnen kleine waterlichamen waterkwaliteitsproblemen veroorzaken met gevolgen voor de volksgezondheid."
                                                     },
                                                     {
                                                         "labels": "C",
-                                                        "text": "C: In stedelijke gevieden met veel verharding kan warmte 's nachts blijven hangen. Dit draagt bij aan het stedelijk hitte-eiland effect en kan nadelige effecten hebben op de gezondheid. Neem maatregelen om verharding en opwarming te berperken."
+                                                        "text": "In stedelijke gevieden met veel verharding kan warmte 's nachts blijven hangen. Dit draagt bij aan het stedelijk hitte-eiland effect en kan nadelige effecten hebben op de gezondheid. Neem maatregelen om verharding en opwarming te berperken."
                                                     }
                                                 ]
                                             }
@@ -1506,7 +1509,7 @@
                                 "steps": [
                                     {
                                         "title": "Signaalkaart",
-                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1563,7 +1566,7 @@
                                     },
                                     {
                                         "title": "Waterveiligheid",
-                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Ten behoeve van het garanderen van de sterkte van de keringen zijn er reserveringszones rondom de kering die kunnen worden gebruikt voor eventuele versterkingsopgaven. Veel van deze reserveringszones worden momenteel gebruikt als agrarische gronden. Voor agrariërs wordt afgeraden om extra investeringen te doen in gebieden die worden gecategoriseerd als beschermingszones van de keringen.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1577,13 +1580,33 @@
                                         "layers": [
         
                                             {
-                                                "id": "12002"
+                                                "id": "12002",
+                                                "legendOptions": [
+                                                    {
+                                                        "labels": "BC",
+                                                        "text": "Houd rekening met meer frequente overstromingen in buitendijkse (waterbergende) gebieden (zee-invloedsgebied of oeverland). Buitendijkse gebieden die frequent overstromen zijn op termijn niet geschikt voor landbouwvormen met vollegrondsgewassen en voor gebouwen ten begoeve van veeteelt.",
+                                                        "subLabels": {
+                                                            "B": {
+                                                                "text": "De inspanning voor adaptatie in buitendijkse gebieden wordt steeds groter (eigen verantwoordelijkheid eigenaren).",
+                                                                "hoverText": ""
+                                                            },
+                                                            "C": {
+                                                                "text": "Peilverhoging in voormalige buitendijkse gebieden (oeverlanden) is mogelijk.",
+                                                                "hoverText": ""
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        "labels": "B",
+                                                        "text": "Beschermingszones rondom primaire en regionale keringen en dammen kunnen in beslag worden genomen voor versterkingen en uitbreidingen van de keringen."
+                                                    }
+                                                ]
                                             }
                                         ]
                                     },
                                     {
                                         "title": "Waterbeschikbaarheid",
-                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Zeeland ligt in de Delta; hierdoor zijn de aanvoermogelijkheden voor zoetwater beperkt en is het grootste deel van het gebied afhankelijk van grond- en regenwater wat in de bodem en het oppervlaktewatersysteem wordt opgeslagen. Door klimaatverandering zullen de perioden van droogte steeds langer en vaker voorkomen en neemt de hoeveelheid zoute kwel toe. Hierdoor zal er minder zoetwater beschikbaar zijn en zal er vaker zout in het oppervlaktewater en in de wortelzones van gewassen terechtkomen, terwijl door de toenemende temperaturen de verdamping van gewassen (en daarmee de zoetwaterbehoefte) wordt vergroot.<br><br>Door de beperkte waterbeschikbaarheid is Zeeland al koploper in slim watergebruik voor de landbouw, en daarmee een inspirerend voorbeeld voor veel andere gebieden. Door de toenemende watervraag en de steeds beperktere aanvoer zal er verder moeten worden ingezet op het beperken van het gebruik en het vasthouden en slim benutten van regen- en grondwater. Denk bijvoorbeeld aan (dubbele) irrigatiesystemen, gevarieerde zout- of droogteresistente gewassen en het investeren in efficiëntere toekomstbestendige drainage en precisielandbouw. Door in te zetten op het verbeteren van de bodemkwaliteit- en structuur kan het waterbergend en infiltrerend vermogen van de bodem worden verbeterd.<br><br><strong>Voorbeelden maatregelen</strong><hr><br>-Peilgestuurde drainage zorgt voor een gelijkmatiger waterpeil en draagt bij aan een stabielere, gezonde bodemstructuur (en vermindert verslemping).<br><br>-Druppelirrigatie geeft middels waterslangen (op of onder het maaiveld) druppelsgewijs water af waardoor meer water het gewas bereikt en het verdampingsverlies wordt verminderd.<br><br>-In gebieden met brak grondwater, blijft het zoete regenwater (wat in gewicht lichter is dan zoutwater) in de bodem drijven op het zoute water. Deze zoetwaterbel kan worden gebruikt om landbouwgewassen op te telen. Door actieve infiltratie van zoetwater (op de daarvoor geschikte gronden zoals zand), kan deze zoetwaterbel vergroot worden.<br><br>-Door het bedekt houden van bodems in de winter (bijvoorbeeld met klaver, mengteelten en vanggewassen) met diepwortelende gewassen kan het water worden vastgehouden en infiltreren en worden nutriënten beter vastgehouden (voorkomen uit- en afspoeling).</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1600,30 +1623,29 @@
                                                 "id": "12003",
                                                 "legendOptions": [
                                                     {
-                                                        "labels": "BC",
-                                                        "text": "B, C: Houd rekening met meer frequente overstromingen in buitendijkse (waterbergende) gebieden (zee-invloedsgebied of oeverland). Buitendijkse gebieden die frequent overstromen zijn op termijn niet geschikt voor landbouwvormen met vollegrondsgewassen en voor gebouwen ten begoeve van veeteelt.",
-                                                        "subLabels": {
-                                                            "B": {
-                                                                "text": "B: De inspanning voor adaptatie in buitendijkse gebieden wordt steeds groter (eigen verantwoordelijkheid eigenaren).",
-                                                                "hoverText": ""
-                                                            },
-                                                            "C": {
-                                                                "text": "C: Peilverhoging in voormalige buitendijkse gebieden (oeverlanden) is mogelijk.",
-                                                                "hoverText": ""
-                                                            }
-                                                        }
+                                                        "labels": "B",
+                                                        "text": "Gebieden die worden aangevoerd vanuit het Volkerak-Zoommeer kunnen in zeer droge perioden kwetsbaar zijn voor watertekorten. De beschikbaarheid van zoetwater zal in de toekomst niet altijd meer vanzelfsprekend zijn. Zet in op gezonde bodemcondities (kwaliteit en structuur) om water langer vast te kunnen houden in de bodem."
                                                     },
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Beschermingszones rondom primaire en regionale keringen en dammen kunnen in beslag worden genomen voor versterkingen en uitbreidingen van de keringen."
+                                                        "text": "In gebieden met zoet grondwater (grondwaterbellen van >15m dik) kan bij neerslagtekorten water uit de bodem worden benut."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "In gebieden zonder wateraanvoer of zoet grondwater (of met beperkingen voor onttrekkingen) zal in drogere perioden de zoetwatervoorziening onder druk komen te staan. Aanpassing aan de agrarische bedrijfsvoering kan om grote investeringen vragen. Hierbij is het belangrijk dat haalbare landbouw, landbouw is met een bedrijfsvoering die past bij de locatie en met een positief verdienmodel."
+                                                    },
+                                                    {
+                                                        "labels": "C",
+                                                        "text": "In gebieden die gebruik kunnen maken van zoet grondwater maar die liggen binnen de bufferzones van Natura 2000 gebieden dienen rekening te houden met beperkingen voor onttrekkingen in drogere perioden."
                                                     }
                                                 ]
+                                                
                                             }
                                         ]
                                     },
                                     {
                                         "title": "Waterkwaliteit",
-                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Door hogere (water)temperaturen, lozingen, toenemende riooloverstorten bij hevige regenval en de uitspoeling van nutriënten neemt de druk op de waterkwalteit toe. Hierdoor kan zuurstofloosheid, blauwalg, vissterfte en botulisme ontstaan en neemt het risico op biologische vervuiling van het water toe. Dit vergroot de kans op infectieziekten bij recreatief gebruik.<br><br>Landbouw draagt door de uitspoeling van nutriënten bij aan de verslechtering van de waterkwaliteit. Door zuinig om te gaan met nutriënten en de uitspoeling te beperken kan de waterkwaliteit worden verbeterd. Robuustere watersystemen met ruimte voor waterplanten, voldoende waterdiepte, goede doorstroming en inrichting van de oevers helpen de waterkwaliteit te verbeteren. Ook is het belangrijk de instroom van nutriëntrijk water uit landbouwgebieden op andere wateren (en natuurgebieden) te beperken, bijvoorbeeld door nutriëntrijk water bij piekbuien niet af te laten wateren op het Veerse meer, maar direct op zee.<br><br><strong>Voorbeelden maatregelen</strong><hr><br>-Door zoetwaterbufferzones rondom natuurgebieden te creëren, wordt voorkomen dat gebiedsvreemd water moet worden ingelaten. Deze natuurlijke buffers werken als een spons en kunnen water vanuit het naastgelegen natuurgebied in tijden van overlast bergen en in tijden van droogte vertraagd terug leveren.<br><br>-Voor sloten kan worden gedacht aan een aangepast slootprofiel (bv. diepere zones voor overwintering van fauna en wateraanvoer en -afvoer, luwe zones als paaiplaatsen). In tijden van droogte kunnen ondiepe delen droogvallen. Met de aanleg van terrastaluds (een verdiepte zone van 1–3 m breed) kan ruimte worden geboden aan waterplanten. Dit versterkt het moerassige karakter en ecologische waarden. Door een oeverzone in te richten die als buffer kan dienen, spoelen er minder meststoffen en nutriënten het water in.<br><br>-Het verbeteren van de bodemcondities kan worden bereikt door het toevoegen van extra organisch materiaal en het gebruik van bodembedekkers. Een betere bodemdoorlaatbaarheid en een hoger organisch stofgehalte verminderen de afspoeling en maken de bodem minder gevoelig voor de uitspoeling van nutriënten.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1641,15 +1663,15 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Grote delen van Zeeland zijn afhankelijk van regenwater. Bij het uitblijven van neerslag en temperatuurstijging kunnen problemen ontstaan met de waterkwaliteit (zuurstofloosheid, sterfte van waterdieren, blauwalg)."
+                                                        "text": "Grote delen van Zeeland zijn afhankelijk van regenwater. Bij het uitblijven van neerslag en temperatuurstijging kunnen problemen ontstaan met de waterkwaliteit (zuurstofloosheid, sterfte van waterdieren, blauwalg)."
                                                     },
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: In gebieden met (zoute) kwel komt fosfaatrijk water naar boven."
+                                                        "text": "In gebieden met (zoute) kwel komt fosfaatrijk water naar boven."
                                                     },
                                                     {
                                                         "labels": "D",
-                                                        "text": "D: Door zowel nattere als drogere condities worden landbouwgronden gevoeliger voor uitspoeling. Dit brengt extra inspanningen voor de waterkwaliteit met zich mee. Daarmee komen KRW doelen verder onder druk te staan."
+                                                        "text": "Door zowel nattere als drogere condities worden landbouwgronden gevoeliger voor uitspoeling. Dit brengt extra inspanningen voor de waterkwaliteit met zich mee. Daarmee komen KRW doelen verder onder druk te staan."
                                                     }
                                                 ]
                                             }
@@ -1657,7 +1679,7 @@
                                     },
                                     {
                                         "title": "Hitte",
-                                        "html": "<div>Indicatoren voor Hitte in de categorie Landbouw.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Door de klimaatverandering zal het aantal hete dagen sterk toenemen. Toenemende hitte (gevoelstemperatuur) in het landelijk gebied kan impact hebben op gewassen en vee. Gewassen die gevoelig zijn voor hitte, zullen minder rendabel worden. Er zal een vraag ontstaan naar gewassen die beter tegen hitte en droogte kunnen (minder verdampen) en minder gevoelig zijn voor ziekten en insecten.<br><br>Vee heeft tijdens hete perioden schaduw en meer water nodig. Hiervoor gelden dan ook verschillende richtlijnen voor het stallen en transport van vee. In graslanden kunnen bomen in en langs weides schaduw bieden, wat het dierenwelzijn ten goede komt. Bomen in weides zorgen bovendien voor de productie van stuifmeel en nectar voor (wilde) bijen en helpen de biodiversiteit te verbeteren.<br><br><strong>Voorbeelden maatregelen</strong><hr><br>-Voorbeelden van hittebestendige voedergewassen zijn bijvoorbeeld Sorghum (subtropisch gewas dat een korte groeitijd heeft en weinig vocht en bemesting nodig heeft) en voederbieten.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1675,11 +1697,11 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Hitte kan impact hebben op gewassen en beplanting boven een gevoelstemperatuur van 41°C. Gewassen en beplanting die gevoelig zijn voor hitte kunnen minder rendabel worden. Daarnaast kan hitte de verdamping en verdroging versterken."
+                                                        "text": "Hitte kan impact hebben op gewassen en beplanting boven een gevoelstemperatuur van 41°C. Gewassen en beplanting die gevoelig zijn voor hitte kunnen minder rendabel worden. Daarnaast kan hitte de verdamping en verdroging versterken."
                                                     },
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Vee kan bij hoge termperaturen (meer dan 27°C) of gebrek aan schaduw hittestress ervaren."
+                                                        "text": "Vee kan bij hoge termperaturen (meer dan 27°C) of gebrek aan schaduw hittestress ervaren."
                                                     }
                                                 ]
                                             }
@@ -1692,7 +1714,7 @@
                                 "steps": [
                                     {
                                         "title": "Signaalkaart",
-                                        "html": "<div>Signaalkaart (totaalkaart) voor de gebruiksfunctie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1711,7 +1733,7 @@
                                     },
                                     {
                                         "title": "Waterveiligheid",
-                                        "html": "<div>Indicatoren voor Waterveiligheid in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1728,7 +1750,7 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Beschermingszones rondom primaire en regionale keringen en dammen kunnen in beslag worden genomen voor versterkingen en uitbreiding van de keringen."
+                                                        "text": "Beschermingszones rondom primaire en regionale keringen en dammen kunnen in beslag worden genomen voor versterkingen en uitbreiding van de keringen."
                                                     }
                                                 ]
                                             }
@@ -1736,7 +1758,7 @@
                                     },
                                     {
                                         "title": "Waterbeschikbaarheid",
-                                        "html": "<div>Indicatoren voor Waterbeschikbaarheid in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1753,7 +1775,7 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Het kan uitdagend zijn bestaande natuur (die afhankelijk zijn van zoet water en kwetsbaar zijn voor droogte of verzilting) in stand te houden."
+                                                        "text": "Het kan uitdagend zijn bestaande natuur (die afhankelijk zijn van zoet water en kwetsbaar zijn voor droogte of verzilting) in stand te houden."
                                                     }
                                                 ]
                                             }
@@ -1761,7 +1783,7 @@
                                     },
                                     {
                                         "title": "Waterkwaliteit",
-                                        "html": "<div>Indicatoren voor Waterkwaliteit in de categorie Natuur.<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                                        "html": "<div>Door natuurgebieden te beschermen tegen de inlaat van nutriëntrijk, gebiedsvreemd water, zal de waterkwaliteit worden verbeterd (of de negatieve impact van de slechte waterkwaliteit worden beperkt). Hierbij kunnen de volgende maatregelen worden genomen.</div>",
                                         "globeOpacity": 100,
                                         "terrain": "PDOK Terrain",
                                         "camera": {
@@ -1778,7 +1800,7 @@
                                                 "legendOptions": [
                                                     {
                                                         "labels": "B",
-                                                        "text": "B: Bij wateren die opwarmen neemt het zuurstofgehalte af en de kans op wieren en blauwalg toe. DIt kan impact hebben op de huidige natuurwaarden en -doeltypen. Indien er voldoende water beschikbaar is kan het waterpeil op nieveau worden gehouden."
+                                                        "text": "Bij wateren die opwarmen neemt het zuurstofgehalte af en de kans op wieren en blauwalg toe. DIt kan impact hebben op de huidige natuurwaarden en -doeltypen. Indien er voldoende water beschikbaar is kan het waterpeil op nieveau worden gehouden."
                                                     }
                                                 ]
                                             }
@@ -1828,11 +1850,18 @@
         },
         {
             "id": "geocoder",
-            "enabled": true
+            "enabled": true,
+            "settings": {
+                "name": "locatieserver"
+            }
         },
         {
             "id": "modeswitcher",
             "enabled": true
+        },
+        {
+            "id": "flyCamera",
+            "enabled": false
         }
     ]
 }
