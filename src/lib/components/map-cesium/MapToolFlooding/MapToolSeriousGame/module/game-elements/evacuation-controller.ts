@@ -129,15 +129,15 @@ export class EvacuationController {
 
 	public deleteEvacuation(evacuation: Evacuation, setGraph: boolean = true): void {
 		this.roadNetwork.onEvacuationDelete(evacuation, setGraph);
-		evacuation.hexagon.removeEvacuation(evacuation);
+		evacuation.destroy();
 		this.game.save();
 	}
 
 	public cancelHexagonEvacuation(hexagon: Hexagon, time: number = get(this.elapsedTime)): void {
 		get(hexagon.evacuations).forEach((evacuation: Evacuation) => {
-			this.roadNetwork.onEvacuationDelete(evacuation);
-			hexagon.removeEvacuation(evacuation);
+			this.deleteEvacuation(evacuation, false);
 		});
+		this.roadNetwork.cleanSetRoutingGraph(time);
 	}
 
  	private addMouseEvents(): void {

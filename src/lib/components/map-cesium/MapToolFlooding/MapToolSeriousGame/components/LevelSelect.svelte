@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import { _ } from "svelte-i18n";
 	import { Button } from "carbon-components-svelte";
-	import { GameConsole, PlayOutlineFilled, TrashCan, WatsonHealthSaveSeries } from "carbon-icons-svelte";
+	import { FloodWarning, GameConsole, PlayOutlineFilled, TrashCan, WatsonHealthSaveSeries } from "carbon-icons-svelte";
 	import { Notification, notifications, NotificationType } from "../external-dependencies";
 	import type { GameController } from "../module/game-controller";
 
@@ -32,18 +32,24 @@
 	</div>
 	{#if $savedGames.length > 0}
 		{#each $savedGames as savedGame}
-			<div class="level">
+			<div class="level save-game">
 				<div class="level-header">
-					<div >
-						<div class="level-name">{savedGame.level}</div>
+					<div>
+						<div class="level-name">
+							<FloodWarning size={20} color={"#9ccddc"} />
+							<span>{savedGame.level}</span>
+						</div>
 						<div>{savedGame.name}</div>
 					</div>
-					<p>{$_("game.lastSave")}: {new Date(savedGame.lastUpdate).toLocaleDateString("nl-NL", {
-						day: "numeric",
-						month: "short",
-						hour: "2-digit",
-						minute: "2-digit"
-					})}</p>
+					<span>
+						<span class="date-no-wrap">{$_("game.lastSave")}:</span>
+						<span class="date-no-wrap date">{new Date(savedGame.lastUpdate).toLocaleDateString("nl-NL", {
+							day: "numeric",
+							month: "short",
+							hour: "2-digit",
+							minute: "2-digit"
+						})}</span>
+					</span>
 				</div>
 				<div class="button-container">
 					<Button
@@ -88,7 +94,10 @@
 	{#each levels as level}
 		<div class="level">
 			<div class="description">
-				<div class="level-name">{level.name}</div>
+				<div class="level-name">
+					<FloodWarning size={20} color={"#9ccddc"} />
+					<span>{level.name}</span>
+				</div>
 				<p>{level.description}</p>
 			</div>
 			<div class="button-container">
@@ -169,6 +178,10 @@
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 	}
 
+	.save-game {
+		line-height: 1.4;
+	}
+
 	.level-header {
 		display: flex;
 		justify-content: space-between;
@@ -179,12 +192,24 @@
 		font-size: 1.125rem;
 		font-weight: bold;
 		color: #9ccddc;
-		margin: 0;
+		display: flex;
+		align-items: center;
+		column-gap: 0.6rem;
+		margin-bottom: 0.5rem;
 	}
 	
 	.button-container {
 		display: flex;
 		justify-content: flex-end;
+	}
+
+	.date-no-wrap {
+		flex-wrap: nowrap;
+		white-space: nowrap;
+		color: #9ccddc;
+	}
+	.date-no-wrap.date {
+		font-weight: 800;
 	}
 
 </style>

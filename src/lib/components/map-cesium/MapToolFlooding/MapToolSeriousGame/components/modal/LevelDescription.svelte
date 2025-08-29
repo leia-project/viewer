@@ -56,6 +56,9 @@
 		color: var(--game-color-text);
 		font-size: 1.25rem;
 		margin: 1rem 0 2rem;
+		display: flex;
+		flex-direction: column;
+		row-gap: 0.75rem;
 	}
 
 </style>

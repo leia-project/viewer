@@ -53,7 +53,7 @@ export class Game extends Dispatcher {
 
 	public floodLayerController: FloodLayerController;
 	public evacuationController: EvacuationController;
-	public loaded: Readable<boolean>;
+	public loaded: Writable<boolean> = writable(false);
 	public started: boolean = false;
 
 	constructor(map: Map, gameConfig: IGameConfig, breach: Breach, floodToolSettings: FloodToolSettings, marvin?: MarvinApp, savedGame?: ISavedGame) {
@@ -88,16 +88,16 @@ export class Game extends Dispatcher {
 			this.map.options.dateTime.set(realTime);
 		});
 
-		this.loaded = derived(
+		const dataLoaded = derived(
 			[this.floodLayerController.floodLayer.loaded, this.evacuationController.hexagonLayer.loaded, this.evacuationController.roadNetwork.loaded],
 			([$f, $h, $r]) => {
 				return $f && $h && $r;
 			}
 		);
 
-		const loadedUnsubscriber = this.loaded.subscribe((loaded) => {
+		const loadedUnsubscriber = dataLoaded.subscribe((loaded) => {
 			if (loaded) {
-				if (savedGame) this.setSavedState(savedGame);
+				if (savedGame) this.setSavedState(savedGame).then(() => this.loaded.set(true));
 				loadedUnsubscriber();
 			}
 		});
@@ -262,8 +262,12 @@ export class Game extends Dispatcher {
 		this.dispatch("game-saved", {});
 	}
 
-	public setSavedState(savedGame: ISavedGame): void {
+	public async setSavedState(savedGame: ISavedGame): Promise<void> {
 		this.evacuationController.preload(savedGame.evacuations, savedGame.measures);
+		const passedSteps = this.gameConfig.timesteps.filter((t) => t <= savedGame.elapsedTime);
+		for (const step of passedSteps) {
+			await this.evacuationController.hexagonLayer.updateFloodDepths(step);
+		}
 		this.setStep(savedGame.elapsedTime);
 	}
 	
@@ -401,29 +405,43 @@ export class Game extends Dispatcher {
 	}
 
 	public get timeseriesEvacuated(): Array<{ time: number, value: number }> {
-		const timeseries: Array<{ time: number, value: number }> = [];
+		const timeseries: Array<{ time: number, value: number }> = [{
+			time: this.gameConfig.timesteps[0] - 1,
+			value: 0
+		}];
 		get(this.evacuationController.evacuations).forEach((evacuation) => {
-			const existingEntry = timeseries.find((t) => t.time === evacuation.time);
+			const evacuationTimeSinceBreach = evacuation.time - Game.breachStartOffsetInHours;
+			const existingEntry = timeseries.find((t) => t.time === evacuationTimeSinceBreach);
 			if (existingEntry) {
 				existingEntry.value += evacuation.numberOfPersons;
 			} else {
-				timeseries.push({ time: evacuation.time, value: evacuation.numberOfPersons });
+				timeseries.push({ time: evacuationTimeSinceBreach, value: evacuation.numberOfPersons });
 			}
 		});
 		timeseries.sort((a, b) => a.time - b.time);
+		if (timeseries.length > 1 && timeseries[timeseries.length - 1].time !== this.gameConfig.timesteps[this.gameConfig.timesteps.length - 1] - Game.breachStartOffsetInHours) {
+			timeseries.push({
+				time: this.gameConfig.timesteps[this.gameConfig.timesteps.length - 1] - Game.breachStartOffsetInHours,
+				value: 0
+			});
+		}
 		return timeseries;
 	}
 
 	public get timeseriesVictims(): Array<{ time: number, value: number }> {
-		const timeseries: Array<{ time: number, value: number }> = [];
+		const timeseries: Array<{ time: number, value: number }> = [{
+			time: 0,
+			value: 0
+		}];
 		this.evacuationController.hexagonLayer.hexagons.forEach((hex) => {
 			const victims = get(hex.victims);
 			if (victims > 0 && hex.floodedAt) {
-				const existingEntry = timeseries.find((t) => t.time === hex.floodedAt);
+				const floodedAtSinceBreach = hex.floodedAt - Game.breachStartOffsetInHours;
+				const existingEntry = timeseries.find((t) => t.time === floodedAtSinceBreach);
 				if (existingEntry) {
 					existingEntry.value += victims;
 				} else {
-					timeseries.push({ time: hex.floodedAt, value: victims });
+					timeseries.push({ time: floodedAtSinceBreach, value: victims });
 				}
 			}
 		});

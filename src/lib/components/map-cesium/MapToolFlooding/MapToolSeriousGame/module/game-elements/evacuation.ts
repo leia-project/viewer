@@ -125,6 +125,8 @@ export class Evacuation {
 
 	public destroy(): void {
 		this.hexagon.removeEvacuation(this);
+		if (this.interval) clearInterval(this.interval);
+		this.hide();
 	}
 
 }

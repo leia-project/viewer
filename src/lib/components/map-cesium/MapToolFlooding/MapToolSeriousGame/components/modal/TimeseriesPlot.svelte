@@ -16,7 +16,7 @@
 	}
 
 	$: plotOptions = {
-		style: `background-color: blue; color: green; `,
+		style: ``,
 		monospace: true,
 		width: 750,
 		height: 300,
@@ -39,25 +39,24 @@
 			domain: maxX ? [0, maxX] : undefined
 		},
 		marks: [
-			/* 
-			The victims line does not work yet because the floodedAt is set dynamically as the game is played
 			Plot.line(
 				victims.map(d => [d.time, d.value]),
-				{ stroke: "lightgrey", strokeWidth: 3 }
+				{ stroke: "red", strokeWidth: 3 }
 			), 
-			*/
 			Plot.line(
 				evacuated.map(d => [d.time, d.value]),
 				{ stroke: "lightgrey", strokeWidth: 3 }
 			)
 
-/* 			verticalRules.map(({x, stroke, strokeWidth}) => 
+			/*
+ 			verticalRules.map(({x, stroke, strokeWidth}) => 
 				Plot.ruleX([x], { stroke: "rgb(160, 160, 160)", strokeWidth: strokeWidth })
 			),
 
 			horizontalRules.map(({y, stroke, strokeWidth}) => 
 				Plot.ruleY([y], { stroke, strokeWidth: strokeWidth, strokeDasharray: "6 5" })
-			) */
+			)
+			*/
 		]
 	};
 
@@ -69,6 +68,5 @@
 
 </script>
 
-{#if evacuated.length > 1}
-	<div class="plot" use:renderPlot />
-{/if}
+
+<div class="plot" use:renderPlot />

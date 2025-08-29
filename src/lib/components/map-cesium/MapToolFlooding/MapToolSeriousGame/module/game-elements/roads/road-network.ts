@@ -279,7 +279,7 @@ export class RoadNetwork {
 	public onEvacuationDelete(evacuation: Evacuation, setGraph: boolean = true): void {
 		// remove loads from road segments
 		evacuation.route.forEach((routeSegment) => {
-			routeSegment.removeLoad(evacuation.numberOfPersons, get(this.elapsedTime));
+			routeSegment.removeLoad(evacuation.numberOfCars, get(this.elapsedTime));
 		});
 
 		// update graph

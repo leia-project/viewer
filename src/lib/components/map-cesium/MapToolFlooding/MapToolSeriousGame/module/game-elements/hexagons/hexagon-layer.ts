@@ -19,6 +19,7 @@ export class HexagonLayer {
 	public loaded: Writable<boolean> = writable(false);
 
 	private pgRestAPI = new PGRestAPI();
+	private scenarios: Array<string>;
 	public visible: Writable<boolean> = writable(true);
 	public use2DMode: Writable<boolean> = writable(true);
 	private hexagonEntities: Cesium.CustomDataSource = new Cesium.CustomDataSource();
@@ -49,6 +50,7 @@ export class HexagonLayer {
 	constructor(evacuationController: EvacuationController, scenarios: Array<string>, outline: Array<[lon: number, lat: number]>) {
 		this.map = evacuationController.map;
 		this.outline = outline;
+		this.scenarios = scenarios;
 		this.loadHexagons();
 		this.selectedHexagon.subscribe((hexagon: Hexagon | undefined) => {
 			// highlight the accompanied evacuation
@@ -89,7 +91,7 @@ export class HexagonLayer {
 				this.hoverBoxTimeOut = setTimeout(() => this.hexagonHoverBox?.$destroy(), 400);
 			}
 		});
-		evacuationController.elapsedTime.subscribe((time: number) => this.updateFloodDepths(scenarios, time));
+		evacuationController.elapsedTime.subscribe((time: number) => this.updateFloodDepths(time, this.scenarios));
 		this.visible.subscribe((b) => this.toggleHexagons(b));
 		this.use2DMode.subscribe((b) => this.toggle2D3DModeHexagons(b));
 		this.alpha.subscribe((alpha: number) => {
@@ -138,7 +140,7 @@ export class HexagonLayer {
 	}
 
 
-	private async updateFloodDepths(scenarios: Array<string>, time: number): Promise<void> {
+	public async updateFloodDepths(time: number, scenarios: Array<string> = this.scenarios): Promise<void> {
 		const h3FloodDepths = await this.pgRestAPI.getFloodHexagons(this.outline, 7, scenarios, time);
 		const updatedHexIds = new Set<string>();
 		h3FloodDepths.forEach((floodHex: FloodHexagon) => {

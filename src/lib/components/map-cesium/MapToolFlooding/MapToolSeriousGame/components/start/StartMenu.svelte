@@ -50,6 +50,7 @@
 					bind:value={$gameName}
 					placeholder="Game name"
 					class="name-input"
+					maxlength="300"
 				/>
 			</div>
 		</div>
