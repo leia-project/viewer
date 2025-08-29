@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
-	import { Badge, SkipBackSolidFilled, SkipForwardSolidFilled, TimeFilled } from "carbon-icons-svelte";
-	import Timer from "../icons/carbon/Timer.svelte";
+	import { Badge, SkipBackSolidFilled, SkipForwardSolidFilled, Timer } from "carbon-icons-svelte";
+	import TimeFilled from "../icons/carbon/TimeFilled.svelte";
 	import type { Game } from "../module/game";
 	import Pill from "./general/Pill.svelte";
 	import GameButton from "./general/GameButton.svelte";
