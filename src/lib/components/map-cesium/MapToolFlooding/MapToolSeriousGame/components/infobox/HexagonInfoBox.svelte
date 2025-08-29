@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
 	import type { Writable } from "svelte/store";
-	import { HexagonVerticalOutline } from "carbon-icons-svelte";
 	import type { Map } from "../../external-dependencies";
 	import type { Hexagon } from "../../module/game-elements/hexagons/hexagon";
 	import type { EvacuationController } from "../../module/game-elements/evacuation-controller";
 	import InfoBox from "./InfoBox.svelte";
 	import MarvinInfoBoxAddOn from "./MarvinInfoBoxAddOn.svelte";
 	import EvacuateAction from "../data/evacuation-overview/EvacuateAction.svelte";
+	import HexagonVerticalOutline from "../../icons/carbon/HexagonVerticalOutline.svelte";
 
 	export let hexagon: Hexagon;
 	export let store: Writable<Hexagon | undefined>;
@@ -18,17 +18,13 @@
 	export let evacuationController: EvacuationController;
 
 
-	const scenario = evacuationController.game.gameConfig.scenario;
-	const timestep = evacuationController.elapsedTime;;
-
 	const evacuated = hexagon.totalEvacuated;
 
 	const marvinQuestions: Array<string> = [
-		"Where is the closest medical service for area $h3_id?",
+		`Where is the closest medical service for area ${hexagon.hex}?`,
 
-
-		// my own
-		"What is the population of this hexagon?"
+		// Not trained:
+		//`What is the population density for area ${hexagon.hex}?`
 	];
 
 </script>

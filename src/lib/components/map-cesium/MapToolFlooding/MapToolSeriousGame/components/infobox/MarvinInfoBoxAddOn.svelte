@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from "svelte";
 	import { writable } from "svelte/store";
 	import { fade } from "svelte/transition";
-	import { QuestionAnswering } from "carbon-icons-svelte";
+	import QuestionAnswering from "../../icons/carbon/QuestionAnswering.svelte";
 	import { DrawnGeometry, MarvinAvatar, NotificationType, QA } from "../../external-dependencies";
 	import type { Game } from "../../module/game";
 

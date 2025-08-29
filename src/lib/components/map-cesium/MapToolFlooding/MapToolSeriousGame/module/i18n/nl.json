@@ -51,7 +51,13 @@
 			"returnToGame": "Terug naar het spel",
 			"percentageEvacuated": "Percentage geëvacueerd",
 			"unneededEvacuated": "Onnodig geëvacueerd",
-			"finalScore": "Eindscore"
+			"evacuatedRequired": "Geëvacueerd (nodig)",
+			"finalScore": "Eindscore",
+			"summary": "Samenvatting",
+			"maxCarLoad": "Max. voertuigbelasting",
+			"measuresTaken": "Genomen maatregelen",
+			"noMeasuresApplied": "Er zijn geen maatregelen toegepast",
+			"progressOverTime": "Verloop door de tijd"
 		},
 		"buttons": {
 			"save": "Opslaan",
@@ -81,6 +87,7 @@
 		"inhabitants": "Inwoners",
 		"evacuated": "Geëvacueerd",
 		"victims": "Slachtoffers",
+		"numberOfPeople": "Aantal mensen",
 		"loading": "Inladen",
 		"roadNetwork": "Wegennetwerk",
 		"hexagon": "Hexagon",
@@ -89,6 +96,7 @@
 		"expansion": "Uitbreiding",
 		"maxFloodDepth": "Max. waterdiepte",
 		"flooded": "Overstroomde",
+		"road": "Weg",
 		"roads": "Wegen",
 		"roadSection": "Wegdeel",
 		"roadSections": "Wegdelen",

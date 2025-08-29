@@ -6,6 +6,11 @@
 
 	const load = segment.load;
 
+	const marvinQuestions: Array<string> = [
+		//my own
+		"When does this road become flooded in scenario $scenario?"
+	];
+
 </script>
 
 

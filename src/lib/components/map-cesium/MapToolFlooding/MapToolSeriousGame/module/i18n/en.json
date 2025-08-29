@@ -51,7 +51,13 @@
 			"returnToGame": "Return to game",
 			"percentageEvacuated": "Percentage evacuated",
 			"unneededEvacuated": "Unneeded evacuated",
-			"finalScore": "Final Score"
+			"evacuatedRequired": "Evacuated (required)",
+			"finalScore": "Final Score",
+			"summary": "Summary",
+			"maxCarLoad": "Max. car load",
+			"measuresTaken": "Measures taken",
+			"noMeasuresApplied": "No measures were applied",
+			"progressOverTime": "Progress over time"
 		},
 		"buttons": {
 			"save": "Save",
@@ -81,6 +87,7 @@
 		"inhabitants": "Inhabitants",
 		"evacuated": "Evacuated",
 		"victims": "Victims",
+		"numberOfPeople": "Number of people",
 		"loading": "Loading",
 		"roadNetwork": "Road network",
 		"hexagon": "Hexagon",
@@ -89,6 +96,7 @@
 		"expansion": "Expansion",
 		"maxFloodDepth": "Max. flood depth",
 		"flooded": "Flooded",
+		"road": "Road",
 		"roads": "Roads",
 		"roadSection": "Road section",
 		"roadSections": "Road sections",

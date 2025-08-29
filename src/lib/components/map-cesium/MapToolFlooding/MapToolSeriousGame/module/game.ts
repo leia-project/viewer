@@ -379,7 +379,7 @@ export class Game extends Dispatcher {
 
 		const evacuatedUnneeded = get(this.evacuationController.evacuations).reduce((sum, e) => {
 			const hexagon = this.evacuationController.hexagonLayer.hexagons.find((h) => h.hex === e.hexagon.hex);
-			if (hexagon && (!hexagon.floodedAt || (e.time < hexagon.floodedAt - 1))) {
+			if (hexagon && !hexagon.floodedAt) {
 				return sum + e.numberOfPersons;
 			}
 			return sum;
@@ -426,6 +426,54 @@ export class Game extends Dispatcher {
 			});
 		}
 		return timeseries;
+	}
+
+	public get timeseriesEvacuatedSplit(): {
+		needed: Array<{ time: number; value: number }>;
+		unneeded: Array<{ time: number; value: number }>;
+	} {
+		const makeTimeseries = (): Array<{ time: number; value: number }> => [
+			{ time: this.gameConfig.timesteps[0] - 1, value: 0 }
+		];
+
+		const needed = makeTimeseries();
+		const unneeded = makeTimeseries();
+
+		get(this.evacuationController.evacuations).forEach((evacuation) => {
+			const evacuationTimeSinceBreach = evacuation.time - Game.breachStartOffsetInHours;
+
+			const hexagon = this.evacuationController.hexagonLayer.hexagons.find(
+				(h) => h.hex === evacuation.hexagon.hex
+			);
+			const isUnneeded = hexagon && !hexagon.floodedAt;
+			const series = isUnneeded ? unneeded : needed;
+
+			const existingEntry = series.find((t) => t.time === evacuationTimeSinceBreach);
+			if (existingEntry) {
+				existingEntry.value += evacuation.numberOfPersons;
+			} else {
+				series.push({ time: evacuationTimeSinceBreach, value: evacuation.numberOfPersons });
+			}
+		});
+
+		[needed, unneeded].forEach((series) => {
+			series.sort((a, b) => a.time - b.time);
+			if (
+				series.length > 1 &&
+				series[series.length - 1].time !==
+					this.gameConfig.timesteps[this.gameConfig.timesteps.length - 1] -
+						Game.breachStartOffsetInHours
+			) {
+				series.push({
+					time:
+						this.gameConfig.timesteps[this.gameConfig.timesteps.length - 1] -
+						Game.breachStartOffsetInHours,
+					value: 0
+				});
+			}
+		});
+
+		return { needed, unneeded };
 	}
 
 	public get timeseriesVictims(): Array<{ time: number, value: number }> {
