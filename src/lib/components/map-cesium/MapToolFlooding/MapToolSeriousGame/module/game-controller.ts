@@ -101,19 +101,41 @@ export class GameController {
 		get(this.map.layers).forEach((layer) => {
 			layer.visible.set(false);
 		});
+		this.tryAddGameLayers();
+	}
+
+	// Layers dynamically fetched from an external DMS may not be immediately available in the layer library
+	private tryAddGameLayers(retries: number = 10, delay: number = 3000): void {
+		let layerNotFound: boolean = false;
+
 		if (this.backgroundLayer) {
 			this.backgroundLayer.added.set(true);
 			const layer = get(this.map.layers).find((l) => l.id === this.backgroundLayer?.id);
-			layer?.visible.set(true);
+			if (layer) {
+				layer.visible.set(true);
+			} else {
+				layerNotFound = true;
+			}
 		}
-		this.settings.generalLayerIds.forEach((id) => {
+		const gameLayerIds = [
+			...this.settings.generalLayerIds,
+			...this.settings.roles.flatMap((role) => role.layerIds)
+		];
+		gameLayerIds.forEach((id) => {
 			const layerConfig = this.map.layerLibrary.findLayer(id);
 			if (layerConfig) {
 				layerConfig.added.set(true);
 				const layer = get(this.map.layers).find((l) => l.id === layerConfig.id);
 				layer?.visible.set(false);
+			} else {
+				layerNotFound = true;
 			}
 		});
+
+		if (layerNotFound && retries > 0) {
+			console.warn(`Some layers not found, retrying in ${delay}ms... (${retries} retries left)`);
+			setTimeout(() => this.tryAddGameLayers(retries - 1, delay), delay);
+		}
 	}
 
 	private removeGameLayers(): void {
@@ -121,7 +143,11 @@ export class GameController {
 		if (!cachedLayerIds.includes(this.backgroundLayer.id)) {
 			this.backgroundLayer.added.set(false);
 		}
-		this.settings.generalLayerIds.forEach((id) => {
+		const gameLayerIds = [
+			...this.settings.generalLayerIds,
+			...this.settings.roles.flatMap((role) => role.layerIds)
+		];
+		gameLayerIds.forEach((id) => {
 			if (cachedLayerIds.includes(id)) return;
 			const layer = this.map.layerLibrary.findLayer(id);
 			if (layer) {

@@ -370,7 +370,7 @@
             "settings": {
                 "backgroundLayerId": "1",
                 "generalLayerIds": ["2", "3", "4", "5"],
-                "roleLayers": [
+                "roles": [
                     {
                         "role": "GHOR",
                         "layerIds": ["6"],
