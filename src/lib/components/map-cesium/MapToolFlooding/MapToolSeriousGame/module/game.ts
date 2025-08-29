@@ -144,11 +144,19 @@ export class Game extends Dispatcher {
 		this.forwarding.set(true);
 		this.elapsedTimeDynamic.set(get(this.elapsedTime));
 		this.elapsedTime.update((value) => this.getAdjacentStep(value, direction) ?? value);
-		this.notificationLog.send({
-			title: "Game",
-			message: `Time ${direction === "next" ? "forwarded" : "rewinded"} to ${get(this.elapsedTimeSinceBreach)} hours since breach.`,
-			type: NotificationType.INFO
-		});
+
+		let message = get(_)("game.timeNotification.message")
+			.replace("$1", get(_)("game.timeNotification." + (direction === "next" ? "forwarded" : "rewinded")))
+			.replace("$2", get(this.elapsedTimeSinceBreach).toString());
+		if (get(this.elapsedTimeSinceBreach) === 0 && direction === "next") {
+ 			message = this.gameConfig.breachNotification;
+		} else {
+			this.notificationLog.send({
+				title: "Game",
+				message: message,
+				type: NotificationType.INFO
+			});
+		}
 
 		if (this.interval) {
 			clearInterval(this.interval);
@@ -379,16 +387,16 @@ export class Game extends Dispatcher {
 
 		const evacuatedRequired = victims + evacuatedNeeded;
 
-		const score = Math.max(0, Math.round(
-			6 * (evacuatedRequired - evacuatedUnneeded) / (evacuatedRequired + 20)
-		));
+		const maxScore = Math.max(1, evacuatedNeeded); // Prevent division by zero
+		const rawScore = Math.max(0, evacuatedNeeded - victims - 0.2 * evacuatedUnneeded);
+		const normalizedScore = Math.max(0, Math.round((rawScore / maxScore) * 10));
 
 		return {
 			evacuatedNeeded: evacuatedNeeded,
 			evacuatedUnneeded: evacuatedUnneeded,
 			victims: victims,
 			evacuatedRequired: evacuatedRequired,
-			score: score
+			score: normalizedScore
 		};
 	}
 

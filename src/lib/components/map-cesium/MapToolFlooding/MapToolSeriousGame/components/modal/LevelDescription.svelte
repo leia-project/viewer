@@ -22,7 +22,7 @@
 	{/if}
 	<div class="level-text">
 		<div class="level-title">{game.gameConfig.name}</div>
-		<div class="level-description">{game.gameConfig.scenarioDescription}</div>
+		<div class="level-description">{@html game.gameConfig.scenarioDescription}</div>
 		<GameButton
 			buttonText="Start"
 			icon={PlayOutlineFilled}

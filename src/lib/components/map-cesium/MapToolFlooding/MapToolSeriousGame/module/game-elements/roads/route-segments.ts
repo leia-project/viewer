@@ -179,6 +179,20 @@ export class RoadNetworkLayer {
 		});
 	}
 
+	public mostLoadedSegments(limit: number): Array<RouteSegment> {
+		const sortedSegments = [...this.segments].sort((a, b) => {
+			return b.peakLoad - a.peakLoad;
+		});
+		const uniqueSegmentsMap = new Map<string, RouteSegment>();
+		sortedSegments.forEach((segment) => {
+			if (!uniqueSegmentsMap.has(segment.feature.properties.name)) {
+				uniqueSegmentsMap.set(segment.feature.properties.name, segment);
+			}
+		});
+		const uniqueSegments = Array.from(uniqueSegmentsMap.values());
+		return uniqueSegments.slice(0, limit);
+	}
+
 	public removeFromMap(): void {
 		if (this.polylinePrimitive) {
 			this.map.viewer.scene.primitives.remove(this.polylinePrimitive);
@@ -255,6 +269,9 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 	public elapsedTime: Writable<number>;
 	public loadPerTimeStep: Map<number, number> = new Map(); // Load per time step
 	public isOverloaded: Writable<boolean> = writable(false);
+	public get peakLoad(): number {
+		return Math.max(...Array.from(this.loadPerTimeStep.values()), 0);
+	}
 
 	private map: CesiumMap;
 	public lineInstance: RouteSegmentLineInstance;
@@ -350,11 +367,11 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 			duration: 0.7,
 			onUpdate: () => {
 				this.lineInstance.update(this.displayedLoad, this.capacity);
-				//this.extractionPoint?.updateAttributes(this.displayedLoad, this.capacity);
+				this.extractionPoint?.updateAttributes(this.displayedLoad, this.capacity);
 				this.map.refresh();
 			}
 		});
-		this.extractionPoint?.updateAttributes(this.displayedLoad, newCapacity);
+		//this.extractionPoint?.updateAttributes(this.displayedLoad, newCapacity);
 		this.extractionPoint?.updateArrow(newCapacity);
 	}
 

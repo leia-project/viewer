@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onDestroy, onMount } from "svelte";
+	import { onDestroy, onMount, type ComponentType } from "svelte";
 	import { _ } from "svelte-i18n";
 	import { slide } from "svelte/transition";
 	import { Layers, ToolKit, TrafficEvent, WaveHeight } from "carbon-icons-svelte";
@@ -10,6 +10,8 @@
 	import GameButton from "../general/GameButton.svelte";
 	import LayerManager from "../layer-manager/LayerManager.svelte";
 	import MeasureOverview from "./measures/MeasureOverview.svelte";
+	import TutorialEvacuation from "./tutorial/TutorialEvacuation.svelte";
+	import { NotificationType } from "../../external-dependencies";
 
 	export let gameController: GameController;
 
@@ -33,6 +35,17 @@
 		document.removeEventListener("mousedown", handleClickOutside);
 	});
 
+	function showTutorial(component: ComponentType): void {
+		$activeGame?.notificationLog.send({
+			type: NotificationType.INFO,
+			title: "Tutorial",
+			message: "",
+			component: {
+				component: component
+			}
+		});
+	}
+
 </script>
 
 
@@ -40,7 +53,7 @@
 	{#if $activeGame}
 		<div class="data-menu-content">
 			{#if selectedMenu === 0}
-				<MenuContent title={$_("game.layerManager")} icon={Layers}>
+				<MenuContent title={$_("game.layerManager")} icon={Layers} on:icon-clicked={() => showTutorial(TutorialEvacuation)}>
 					<LayerManager {gameController} />
 				</MenuContent>
 			{:else if selectedMenu === 1 && !$inPreparationPhase}

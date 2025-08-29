@@ -373,7 +373,16 @@
                 "roleLayers": [
                     {
                         "role": "GHOR",
-                        "layerIds": ["6"]
+                        "layerIds": ["6"],
+                        "marvinQuestions": [
+                            "Which areas with high population density (above average) are more than $minute minutes away from nearest medical service (hospital, general practice, pharmacy), with driving speed = $speed km/hr?",
+		                    "Which medical services (gezondheidszorgfunctie) have less than $route major evacuation routes falls within a buffer of $buffer km?",
+                        	"How many medical services are available in each area (hospital, general practice)?",
+                        	"Which hexagons have top $rank highest medical service pressure (hospital, general practice)?",
+                    		"What areas have poor medical service accessibility (2 km away from the nearest hospital and general practice, and 1.5km away from the nearest pharmacy)?",
+                       		"How many medical services are available in each area (hospital, general practice)?",
+	                    	"Which areas have the fewest medical services within a $RADIUS km radius (gezondheidszorgfunctie)?"
+                        ]
                     },
                     {
                         "role": "defensie",
@@ -381,26 +390,35 @@
                     },
                     {
                         "role": "brandweer",
+                        "layerIds": [],
+                        "marvinQuestions": [
+                            "Which areas with high population density (above average) are more than 10 minutes away from nearest fire station (driving speed = 50 km/hr)?",
+                            "How many vulnerable buildings (zeerKwetsbaar, kwetsbaar) are there in each area?",
+                         	"How many shelters are available in each area?"
+                        ]
+                    },
+                    {
+                        "role": "politie",
                         "layerIds": []
                     },
                     {
-                        "role": "police",
+                        "role": "waterbeheer",
                         "layerIds": []
                     }
                 ],
                 "levels": [
                     {
-                        "name": "Middelburg",
-                        "description": "The city of Middelburg is under water. Can you save the city?",
-                        "scenarioDescription": "Het is een natte novemberochtend. Na dagenlange regenval en harde zuidwestenwind bereikt het waterpeil in de Westerschelde een recordhoogte. Om 09:45 uur meldt het water-schap een dreigende situatie bij een dijktraject ten oosten van Vlissingen.",
-                        "breachNotification": "Rond 10:30 uur vindt een dijkdoorbraak plaats vlakbij Ritthem. Grote hoeveelheden water stromen het ach-terland in richting Middelburg, waarbij de polders snel vollopen.",
+                        "name": "Vlissingen",
+                        "description": "Dagenlange regenval en een aanhoudende zuidwestenwind hebben de waterstanden in de Westerschelde tot recordhoogte doen stijgen. Bij een dijktraject ten oosten van Vlissingen is sprake van een acute dreiging.",
+                        "scenarioDescription": "<div>Dagenlange regenval en een aanhoudende zuidwestenwind hebben de waterstanden in de Westerschelde tot recordhoogte doen stijgen. Het waterschap sloeg vanmorgen alarm: bij een dijktraject ten oosten van Vlissingen is sprake van een acute dreiging. De exacte zwakke plek in de dijk is nog onduidelijk, maar het risico op een doorbraak wordt met de minuut groter.</div><div>De druk op het crisisoverleg is groot: bij een doorbraak kan zeewater snel het achterland instromen, met gevolgen voor woonwijken, infrastructuur en vitale voorzieningen. Het scenario waar men jarenlang voor heeft geoefend, lijkt nu werkelijkheid te worden.</div><div>Voorlopig blijft de situatie onzeker. De komende uren zijn beslissend: houdt de dijk stand, of breekt het water door?</div>",
+                        "breachNotification": "Rond 10:30 uur vindt een dijkdoorbraak plaats vlakbij Ritthem. Grote hoeveelheden water stromen het achterland in richting Middelburg, waarbij de polders snel vollopen.",
                         "thumbnail": "https://www.zeeuwseankers.nl/data/uploads/201401281652e7d23263076.jpg",
-                        "breachTimeDateString": "2023-10-01T05:00:00+02:00",
+                        "breachTimeDateString": "2023-10-01T10:30:00+02:00",
                         "breach": "WSNoo-DP760",
                         "scenario": "100000",
                         "personsPerCar": 4,
                         "preparationPhase": true,
-                        "timesteps": [-2, 4, 4.5, 6, 12],
+                        "timesteps": [1, 4, 4.5, 6, 10],
                         "homeView": {
                             "x": 3.76833,
                             "y": 50.96871,

@@ -1,13 +1,17 @@
 
 import { get, writable, type Writable, type Unsubscriber } from "svelte/store";
 import { Dispatcher, NotificationType } from "../external-dependencies";
+import type { ComponentType } from "svelte";
 
 
 export interface INotification {
 	type: NotificationType;
 	title: string;
 	message: string;
-	component?: any;
+	component?: {
+		component: ComponentType;
+		props?: { [key: string]: any };
+	};
 	duration?: number;
 }
 
