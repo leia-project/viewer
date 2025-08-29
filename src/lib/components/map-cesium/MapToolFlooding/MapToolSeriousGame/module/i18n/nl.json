@@ -15,6 +15,7 @@
 		},
 		"capacity": "Capaciteit",
 		"load": "Belasting",
+		"currentLoad": "Actuele belasting",
 		"maxSpeed": "Max. snelheid",
 		"cars": "voertuigen",
 		"welcome": "Welkom",

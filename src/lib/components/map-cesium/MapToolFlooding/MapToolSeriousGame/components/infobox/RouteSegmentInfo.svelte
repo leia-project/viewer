@@ -38,7 +38,7 @@
 		</span>
 	</div>
 	<div class="route-segment-info">
-		<span class="info-label">{$_("game.load")}</span>
+		<span class="info-label">{$_("game.currentLoad")}</span>
 		<span class="route-segment-value">
 			<span>{Math.round($load).toLocaleString('nl-NL')}</span>
 			<span>{$_("game.cars")}</span>
@@ -64,7 +64,7 @@
 
 	.route-segment-info {
 		display: grid;
-		grid-template-columns: 100px 1fr;
+		grid-template-columns: 120px 1fr;
 	}
 
 	.info-label {

@@ -14,6 +14,7 @@
 	export let type: "hover" | "selected";
 	export let icon: any;
 	export let selectStore: Writable<T | undefined> | undefined = undefined;
+	export let hoverStore: Writable<T | undefined> | undefined = undefined;
 
 
 	onMount(() => {
@@ -47,7 +48,8 @@
 	}
 
 	function onMouseEnter(event: MouseEvent): void {
-		if (get(store) !== item) store.set(item);
+				console.log('hovering item in infobox', get(store), item);
+	if (get(store) !== item) store.set(item);
 		clearTimeout(timeout);
 		opacity = 100;
 		event.stopPropagation();
@@ -66,8 +68,13 @@
 		z-index: {type === 'selected' ? 2 : 1}; 
 		pointer-events: {type === 'selected' ? 'auto' : 'none'}
 	"
-	on:mouseenter={(e) => { if (type === "hover") onMouseEnter(e) }}
-	on:mouseleave={() => { if (type === "hover") opacity = 0; }}
+	on:mouseenter={(e) => {
+		if (type === "hover") onMouseEnter(e);
+		else if (type === "selected" && hoverStore && get(hoverStore) !== item) store.set(item);
+	}}
+	on:mouseleave={() => {
+		if (type === "hover") opacity = 0;
+	}}
 	on:click={() => {
 		if (selectStore && get(selectStore) !== item) selectStore.set(item);
 	}}

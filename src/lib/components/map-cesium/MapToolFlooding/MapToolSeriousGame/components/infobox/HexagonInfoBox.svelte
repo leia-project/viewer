@@ -12,6 +12,7 @@
 	export let hexagon: Hexagon;
 	export let store: Writable<Hexagon | undefined>;
 	export let selectStore: Writable<Hexagon | undefined> | undefined = undefined;
+	export let hoverStore: Writable<T | undefined> | undefined = undefined;
 	export let timeout: NodeJS.Timeout | undefined;
 	export let map: Map;
 	export let type: "hover" | "selected";
@@ -38,6 +39,7 @@
 	{type}
 	icon={HexagonVerticalOutline}
 	{selectStore}
+	{hoverStore}
 >
 	<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 	<div class="hexagon-info-box">

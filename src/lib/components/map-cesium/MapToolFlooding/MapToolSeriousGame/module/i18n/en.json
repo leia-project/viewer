@@ -15,6 +15,7 @@
 		},
 		"capacity": "Capacity",
 		"load": "Load",
+		"currentLoad": "Current load",
 		"maxSpeed": "Max speed",
 		"cars": "cars",
 		"welcome": "Welcome",

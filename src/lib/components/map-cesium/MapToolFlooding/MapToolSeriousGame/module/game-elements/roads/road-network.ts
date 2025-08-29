@@ -62,6 +62,7 @@ export class RoadNetwork {
 		this.selectedNode.subscribe((node) => {
 			this.selectSubscribe(node);
 			if (node instanceof RouteSegment || node instanceof Measure) {
+				if (node instanceof RouteSegment && node.extractionPoint) return; // Don't show fixed select box for extraction points
 				this.hoverBox?.$destroy();
 				this.selectBox?.$destroy();
 				if (this.selectTimeOut) clearTimeout(this.selectTimeOut);
@@ -73,7 +74,8 @@ export class RoadNetwork {
 						timeout: this.selectTimeOut,
 						map: this.map,
 						type: "selected",
-						notificationLog: notificationLog
+						notificationLog: notificationLog,
+						hoverStore: this.hoveredNode,
 					}
 				});
 			} else {

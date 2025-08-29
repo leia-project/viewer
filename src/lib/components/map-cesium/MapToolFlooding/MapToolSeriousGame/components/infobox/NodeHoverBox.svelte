@@ -12,6 +12,7 @@
 	export let node: RouteSegment | Measure;
 	export let store: Writable<RouteSegment | Measure | undefined>;
 	export let selectStore: Writable<RouteSegment | Measure | undefined> | undefined = undefined;
+	export let hoverStore: Writable<RouteSegment | Measure | undefined> | undefined = undefined;
 	export let timeout: NodeJS.Timeout | undefined;
 	export let map: Map;
 	export let type: "hover" | "selected";
@@ -34,6 +35,7 @@
 	{type}
 	{icon}
 	{selectStore}
+	{hoverStore}
 >
 	{#if node instanceof RouteSegment}
 		<RouteSegmentInfo segment={node} />
