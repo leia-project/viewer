@@ -70,7 +70,7 @@
 	"
 	on:mouseenter={(e) => {
 		if (type === "hover") onMouseEnter(e);
-		else if (type === "selected" && hoverStore && get(hoverStore) !== item) store.set(item);
+		else if (type === "selected" && hoverStore && get(hoverStore) !== item) hoverStore.set(undefined);
 	}}
 	on:mouseleave={() => {
 		if (type === "hover") opacity = 0;

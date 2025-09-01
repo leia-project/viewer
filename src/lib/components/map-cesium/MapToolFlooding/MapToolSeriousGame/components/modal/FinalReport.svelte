@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
 	import { _ } from "svelte-i18n";
+	import { get } from "svelte/store";
 	import { GameConsole } from "carbon-icons-svelte";
 	import type { Game } from "../../module/game";
 	import TimeseriesPlot from "./TimeseriesPlot.svelte";
 	import GameButton from "../general/GameButton.svelte";
-	import { get } from "svelte/store";
 
 	export let game: Game;
 

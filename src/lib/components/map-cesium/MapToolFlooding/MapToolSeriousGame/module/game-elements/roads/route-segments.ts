@@ -267,6 +267,8 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 	public capacityPerHour: number;
 	public capacity: number; // Extraction capacity per time step
 	public elapsedTime: Writable<number>;
+	public timeGaps: Readable<{ before?: number, after?: number }>;
+
 	public loadPerTimeStep: Map<number, number> = new Map(); // Load per time step
 	public isOverloaded: Writable<boolean> = writable(false);
 	public get peakLoad(): number {
@@ -288,15 +290,15 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 		this.capacityPerHour = feature.properties.capaciteit;
 		this.capacity = this.capacityPerHour;
 		this.elapsedTime = elapsedTime;
+		this.timeGaps = timeGaps;
 		this.map = map;
 		this.lineInstance = new RouteSegmentLineInstance(this.feature.properties.fid, this.feature.geometry.coordinates);
 		if (isExtractionPoint) {
-			this.extractionPoint = new ExtractionPoint(this.map, this.feature.properties.fid.toString(), this.position, this.capacity, timeGaps);
+			this.extractionPoint = new ExtractionPoint(this.map, this.feature.properties.fid.toString(), this.position, this.capacityPerHour, timeGaps);
 		}
 		elapsedTime.subscribe(() => this.updateLoad());
-		timeGaps.subscribe((gaps) => {
-			const timeAfter = gaps.after || 0;
-			this.updateCapacity(timeAfter * this.capacityPerHour);
+		timeGaps.subscribe(() => {
+			this.updateCapacity(this.capacityPerHour);
 		});
 	}
 
@@ -355,13 +357,15 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 	}
 
 	private setLoad(newLoad: number): void {
-		this.lineInstance.update(newLoad, this.capacity);
-		this.extractionPoint?.updateAttributes(newLoad, this.capacity);
 		this.load.set(Math.round(newLoad));
+		const normalizedLoad = Math.min(newLoad / (get(this.timeGaps).after || 1), this.capacityPerHour);
+		this.lineInstance.update(this.capacityPerHour, normalizedLoad);
+		this.extractionPoint?.updateAttributes(this.capacityPerHour, normalizedLoad);
 		this.map.refresh();
 	}
 
-	public updateCapacity(newCapacity: number): void {
+	public updateCapacity(newCapacityPerHour: number): void {
+		/* 
 		gsap.to(this, {
 			capacity: newCapacity,
 			duration: 0.7,
@@ -371,8 +375,11 @@ export class RouteSegment extends RoutingNode<IEdgeFeature> {
 				this.map.refresh();
 			}
 		});
-		//this.extractionPoint?.updateAttributes(this.displayedLoad, newCapacity);
-		this.extractionPoint?.updateArrow(newCapacity);
+		*/
+		this.capacityPerHour = newCapacityPerHour;
+		this.capacity = this.capacityPerHour * (get(this.timeGaps).after || 1);
+		this.extractionPoint?.updateAttributes(this.capacityPerHour, Math.min(this.displayedLoad, this.capacityPerHour));
+		this.extractionPoint?.updateArrow(this.capacityPerHour);
 	}
 
 	public highlight(b: boolean): void {
@@ -426,7 +433,7 @@ export class RouteSegmentLineInstance {
 		return geometryInstance;
 	}
 
-	public update(load: number, capacity: number): void {
+	public update(capacity: number, load: number): void {
 		this.color = this.getColor(load, capacity);
 		if (this.parentPrimitive?.ready) {
 			const attributes = this.parentPrimitive.getGeometryInstanceAttributes(this.lineInstanceID);
@@ -561,18 +568,16 @@ class ExtractionPoint {
 		return [bottom, top];
 	}
 
-	public updateAttributes(load: number = this.loadScratch, capacity: number = this.capacityScratch): void {
+	public updateAttributes(capacityPerHour: number = this.capacityScratch, load: number = this.loadScratch): void {
 		this.loadScratch = load;
-		this.capacityScratch = capacity;
+		this.capacityScratch = capacityPerHour;
 		if (this.parentPrimitive?.ready) {
-			const normalizedLoad = load / (get(this.timeGaps).after || 1);
-			const normalizedCapacity = capacity / (get(this.timeGaps).after || 1);
 			const attributesBottom = this.parentPrimitive?.getGeometryInstanceAttributes(this.geometryID);
 			const attributesTop = this.parentPrimitive?.getGeometryInstanceAttributes(this.geometryID + "-top");
 			attributesBottom.offsetBottom = [0];
-			attributesBottom.offsetTop = [normalizedLoad];
-			attributesTop.offsetBottom = [normalizedLoad];
-			attributesTop.offsetTop = [normalizedCapacity];
+			attributesBottom.offsetTop = [load];
+			attributesTop.offsetBottom = [load];
+			attributesTop.offsetTop = [capacityPerHour];
 		}
 	}
 
@@ -596,11 +601,10 @@ class ExtractionPoint {
 		this.selectArrow3D[1].show = b;
 	}
 
-	public updateArrow(newCapacity: number = this.capacityScratch): void {
+	public updateArrow(capacityPerHour: number = this.capacityScratch): void {
 		if (this.map.viewer.entities.contains(this.selectArrow3D[0])) this.map.viewer.entities.remove(this.selectArrow3D[0]);
 		if (this.map.viewer.entities.contains(this.selectArrow3D[1])) this.map.viewer.entities.remove(this.selectArrow3D[1]);
-		const normalizedCapacity = newCapacity / (get(this.timeGaps).after || 1);
-		this.selectArrow3D = this.createSelectArrow3D(normalizedCapacity);
+		this.selectArrow3D = this.createSelectArrow3D(capacityPerHour);
 	}
 
 	private createSelectArrow3D(base: number): [head: Cesium.Entity, shaft: Cesium.Entity] {
@@ -652,7 +656,7 @@ class ExtractionPoint {
 	}
 
 	public flyTo(): void {
-		const boundingSpheres = this.geometryInstances.map(instance => instance.geometry.boundingSphere);
+		const boundingSpheres = this.geometryInstances.map(instance => instance.geometry.boundingSphere).filter(bs => !!bs);
 		const boundingSphere = Cesium.BoundingSphere.fromBoundingSpheres(boundingSpheres);
 		this.map.viewer.camera.flyToBoundingSphere(boundingSphere);
 	}

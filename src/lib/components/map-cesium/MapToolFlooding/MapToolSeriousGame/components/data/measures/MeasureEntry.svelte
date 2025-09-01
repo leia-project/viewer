@@ -12,6 +12,8 @@
 	const toggleEnabled = measure.toggleEnabled;
 	const show = measure.show;
 
+	const available = measure.routeSegments.length > 0;
+
 	const hoveredNode = roadNetwork.hoveredNode;
 
 	function hover(h: boolean): void {
@@ -23,29 +25,31 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
 {#if $show}
-	<div class="measure-entry" on:mouseenter={() => hover(true)} on:mouseleave={() => hover(false)} class:hovered={$hoveredNode === measure}>
-		<div class="apply-toggle" class:toggleEnabled={$toggleEnabled} 
+	<div class="measure-entry" on:mouseenter={() => hover(true)} on:mouseleave={() => hover(false)} class:hovered={$hoveredNode === measure} class:available>
+		<div class="apply-toggle" class:toggleEnabled={$toggleEnabled}
 			on:click={() => {
 				if ($toggleEnabled) applied.set(!$applied);
 			}
 		}>
 			{#if $applied}
-				<CheckmarkFilled color="#30e630" />
+				<CheckmarkFilled {...{ size: 16, color: "#30e630" }} />
 			{:else}
-				<CloseFilled color="#de2f10" />
+				<CloseFilled {...{ size: 16, color: "#de2f10" }} />
 			{/if}
 		</div>
 		<div class="measure-details">
 			<div class="measure-type">{$_(`game.measureTypes.${measure.config.type}`)}</div>
 			<div class="measure-name">{measure.config.name}</div>
 		</div>
-		<GameButton
-			size={15}
-			icon={ZoomIn}
-			hasTooltip={false}
-			borderHighlight={false}
-			on:click={() => measure.flyTo()}
-		/>
+		{#if available}
+			<GameButton
+				size={15}
+				icon={ZoomIn}
+				hasTooltip={false}
+				borderHighlight={false}
+				on:click={() => measure.flyTo()}
+			/>
+		{/if}
 	</div>
 {/if}
 
@@ -58,13 +62,16 @@
 		justify-content: space-between;
 		column-gap: 1rem;
 	}
+	.measure-entry:not(.available) {
+		opacity: 0.5;
+	}
 
 	.apply-toggle {
 		height: 100%;
 		padding: 0.25rem;
 	}
 
-	.apply-toggle.toggleEnabled:hover {
+	.available .apply-toggle.toggleEnabled:hover {
 		cursor: pointer;
 		filter: brightness(70%);
 	}
@@ -82,7 +89,7 @@
 		align-items: center;
 	}
 
-	.hovered .measure-name {
+	.hovered.available .measure-name {
 		color: var(--game-color-highlight);
 	}
 

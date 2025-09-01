@@ -26,6 +26,7 @@ export abstract class Measure {
 	private map: Map;
 	public routeSegments: Array<RouteSegment> = [];
 	public applied: Writable<boolean> = writable(false);
+	protected applyCheck: boolean = false;
 
 	public position: Cesium.Cartesian3 = new Cesium.Cartesian3(0, 0, 0);
 	private billboard: Cesium.Entity;
@@ -64,10 +65,12 @@ export abstract class Measure {
 
 	private subscribeApply(): void {
 		this.applyUnsubscriber = this.applied.subscribe((applied) => {
-			if (applied) {
+			if (applied && !this.applyCheck) {
 				this.routeSegments.forEach((segment) => this.applyTo(segment));
-			} else {
+				this.applyCheck = true;
+			} else if (!applied && this.applyCheck) {
 				this.routeSegments.forEach((segment) => this.removeFrom(segment));
+				this.applyCheck = false;
 			}
 			if (this.billboard.billboard) this.billboard.billboard.show = applied ? Measure.constantFalse : Measure.constantTrue;
 			if (this.billboardApplied.billboard) this.billboardApplied.billboard.show = applied ? Measure.constantTrue : Measure.constantFalse;
@@ -237,6 +240,8 @@ export abstract class Measure {
 }
 
 
+// Supposing each segment can only have one type of measure:
+
 export class WidenMeasure extends Measure {
 
 	constructor(config: IMeasureConfig, map: Map) {
@@ -284,9 +289,11 @@ export class BlockMeasure extends Measure {
 	}
 
 	public applyTo(routeSegment: RouteSegment): void {
+		routeSegment.updateCapacity(0);
 	}
 
 	public removeFrom(routeSegment: RouteSegment): void {
+		routeSegment.updateCapacity(routeSegment.feature.properties.capaciteit);
 	}
 
 	public inPreparationPhase(inPreparation: boolean): void {

@@ -24,6 +24,7 @@
 	let gameController: GameController;
 
 	map.configLoaded.subscribe(async (loaded: boolean) => {
+		if (!loaded) return;
 		const floodTool = map.toolSettings.find((tool: { id: string, settings: any}) => tool.id === "flooding");
 		if (!floodTool) {
 			console.error("Flooding tool settings not found. Settings are required to initialize the Serious Game.");

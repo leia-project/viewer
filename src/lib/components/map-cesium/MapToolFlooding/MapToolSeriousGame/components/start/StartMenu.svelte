@@ -212,6 +212,11 @@
 		text-align: left;
 	}
 
+	.loading-status p {
+		flex-wrap: nowrap;
+		white-space: nowrap;
+	}
+
 	.credits {
 		margin-top: 2rem;
 		color: var(--game-color-highlight);

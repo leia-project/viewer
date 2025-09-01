@@ -56,6 +56,7 @@
 						<BaseLayer
 							visible={rL.visible}
 							title={rL.title}
+							map={gameController.map}
 						/>
 					{/each}
 				</div>

@@ -1,9 +1,25 @@
 <script lang="ts">
+	import { onMount } from "svelte";
+	import type { Unsubscriber, Writable } from "svelte/store";
 	import { Checkbox } from "carbon-components-svelte";
-	import type { Writable } from "svelte/store";
+	import type { Map } from "../../external-dependencies";
 	
 	export let visible: Writable<boolean>;
-	export let title: string;
+	export let title: string; 
+	export let map: Map | undefined = undefined;
+
+	onMount(() => {
+		let unsubscribe: Unsubscriber | undefined = undefined;
+		if (title === "DTB 3D") {
+			unsubscribe = visible.subscribe((v) => {
+				if (map) {
+					map.viewer.scene.globe.translucency.enabled = v;
+					map.options.globeOpacity.set(v ? 10 : 100);
+				}
+			})
+		}
+		return () => unsubscribe?.();
+	});
 	
 </script>
 
