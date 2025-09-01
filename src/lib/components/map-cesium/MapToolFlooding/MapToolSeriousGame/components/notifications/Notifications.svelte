@@ -74,7 +74,6 @@
 		display: flex;
 		flex-direction: column;
 		row-gap: 0.5rem;
-		z-index: 3;
 	}
 	.notifications {
 		max-height: 50vh;
@@ -82,7 +81,6 @@
 		-ms-overflow-style: none; 
 		scrollbar-width: none; 
 		pointer-events: auto;
-		z-index: 3;
 	}
 	.notifications::-webkit-scrollbar {
 		display: none;

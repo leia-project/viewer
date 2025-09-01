@@ -44,7 +44,7 @@
 {#if $inGame && $activeGame}
 	{#key $activeGame}
 		<div id="game-container">
-			<div id="top-left">
+			<div class="game-slot" id="top-left">
 				<Notifications notificationLog={$activeGame.notificationLog}>
 					<svelte:fragment slot="extra-buttons">
 						<GameButton
@@ -57,15 +57,15 @@
 					</svelte:fragment>
 				</Notifications>
 			</div>
-			<div id="top-center">
+			<div class="game-slot" id="top-center">
 				{#if !$inPreparationPhase}
 					<GameStats game={$activeGame} />
 				{/if}
 			</div>
-			<div id="top-right">
+			<div class="game-slot" id="top-right">
 				<MarvinMenu app={marvinApp} />
 			</div>
-			<div id="bottom">
+			<div class="game-slot" id="bottom">
 				<div id="bottom-left">
 					<DataMenu {gameController} />
 				</div>
@@ -101,7 +101,8 @@
 		--game-color-highlight: #9ccddc;
 		--game-color-text: #ffffff;
 	}
-	#game-container > div {
+
+	.game-slot {
 		z-index: 10;
 	}
 
@@ -111,6 +112,7 @@
 		left: 0;
 		display: flex;
 		justify-content: flex-start;
+		z-index: 222;
 	}
 	#top-center {
 		position: absolute;
@@ -130,7 +132,6 @@
 		overflow-x: hidden;
 		pointer-events: none;
 	}
-
 	#bottom {
 		position: absolute;
 		bottom: 0;
@@ -148,4 +149,5 @@
 		justify-content: flex-end;
 		align-items: center;
 	}
+
 </style>

@@ -8,6 +8,7 @@
 	import { icon as iconAmbulance } from "./role-icons/icon-ambulance";
 	import { icon as iconFirefighter } from "./role-icons/icon-firefighter";
 	import { icon as iconTank } from "./role-icons/icon-tank";
+	import { icon as iconWaterbeheer } from "./role-icons/icon-waterbeheer";
 
 	export let gameController: GameController;
 
@@ -18,7 +19,8 @@
 		politie: iconPolice,
 		brandweer: iconFirefighter,
 		ambulance: iconAmbulance,
-		ghor: iconAmbulance
+		ghor: iconAmbulance,
+		waterbeheer: iconWaterbeheer
 	};
 
 	const svgFallback = `

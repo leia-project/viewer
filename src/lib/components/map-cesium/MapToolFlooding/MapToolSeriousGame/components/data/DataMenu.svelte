@@ -3,15 +3,18 @@
 	import { _ } from "svelte-i18n";
 	import { slide } from "svelte/transition";
 	import { Layers, ToolKit, TrafficEvent, WaveHeight } from "carbon-icons-svelte";
-	import type { GameController } from "../../module/game-controller";
-	import EvacuationOverview from "./evacuation-overview/EvacuationOverview.svelte";
-	import FloodModelControl from "./FloodModelControl.svelte";
-	import MenuContent from "./MenuContent.svelte";
-	import GameButton from "../general/GameButton.svelte";
-	import LayerManager from "../layer-manager/LayerManager.svelte";
-	import MeasureOverview from "./measures/MeasureOverview.svelte";
-	import TutorialEvacuation from "./tutorial/TutorialEvacuation.svelte";
 	import { NotificationType } from "../../external-dependencies";
+	import type { GameController } from "../../module/game-controller";
+	import GameButton from "../general/GameButton.svelte";
+	import MenuContent from "./MenuContent.svelte";
+	import LayerManager from "../layer-manager/LayerManager.svelte";
+	import FloodModelControl from "./FloodModelControl.svelte";
+	import EvacuationOverview from "./evacuation-overview/EvacuationOverview.svelte";
+	import MeasureOverview from "./measures/MeasureOverview.svelte";
+	import TutorialLayerManager from "./tutorial/TutorialLayerManager.svelte";
+	import TutorialFloodControl from "./tutorial/TutorialFloodControl.svelte";
+	import TutorialEvacuation from "./tutorial/TutorialEvacuation.svelte";
+	import TutorialMeasures from "./tutorial/TutorialMeasures.svelte";
 
 	export let gameController: GameController;
 
@@ -35,11 +38,11 @@
 		document.removeEventListener("mousedown", handleClickOutside);
 	});
 
-	function showTutorial(component: ComponentType): void {
+	function showTutorial(component: ComponentType, type: string): void {
 		$activeGame?.notificationLog.send({
 			type: NotificationType.INFO,
-			title: "Tutorial",
-			message: "",
+			title: `Tutorial: ${type}`,
+			message: `tutorial-${type}`,
 			component: {
 				component: component
 			}
@@ -53,19 +56,36 @@
 	{#if $activeGame}
 		<div class="data-menu-content">
 			{#if selectedMenu === 0}
-				<MenuContent title={$_("game.layerManager")} icon={Layers} on:icon-clicked={() => showTutorial(TutorialEvacuation)}>
+				<MenuContent 
+					title={$_("game.layerManager")} 
+					icon={Layers} 
+					on:icon-clicked={() => showTutorial(TutorialLayerManager, $_("game.layerManager"))}
+				>
 					<LayerManager {gameController} />
 				</MenuContent>
 			{:else if selectedMenu === 1 && !$inPreparationPhase}
-				<MenuContent title={$_("game.floodModel")} icon={WaveHeight}>
-					<FloodModelControl game={$activeGame} />
+				<MenuContent
+					title={$_("game.floodModel")}
+					icon={WaveHeight}
+					on:icon-clicked={() => showTutorial(TutorialFloodControl, $_("game.floodModel"))}
+				>
+					<FloodModelControl game={$activeGame}
+				/>
 				</MenuContent>
 			{:else if selectedMenu === 2 && !$inPreparationPhase}
-				<MenuContent title={$_("game.evacuations")} icon={TrafficEvent}>
+				<MenuContent
+					title={$_("game.evacuations")}
+					icon={TrafficEvent}
+					on:icon-clicked={() => showTutorial(TutorialEvacuation, $_("game.evacuations"))}
+				>
 					<EvacuationOverview game={$activeGame} />
 				</MenuContent>
 			{:else if selectedMenu === 3}
-				<MenuContent title={$_("game.measures")} icon={ToolKit}>
+				<MenuContent
+					title={$_("game.measures")}
+					icon={ToolKit}
+					on:icon-clicked={() => showTutorial(TutorialMeasures, $_("game.measures"))}
+				>
 					<MeasureOverview game={$activeGame} />
 				</MenuContent>
 			{/if}

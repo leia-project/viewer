@@ -35,10 +35,11 @@
 		"roles": {
 			"defensie": "Defense",
 			"gemeente": "Municipality",
-			"waterschap": "Water Board",
 			"politie": "Police",
 			"brandweer": "Fire Department",
-			"ambulance": "Ambulance"
+			"ambulance": "Ambulance",
+			"waterschap": "Water Board",
+			"waterbeheer": "Water management"
 		},
 		"menu": {
 			"noLayersForRole": "No layers available for this role.",

@@ -49,9 +49,10 @@
 		<div class="content">
 			<span class="notification-title">{@html notification.title}</span>
 			<hr>
-			<p class="notification-message">{@html notification.message}</p>
 			{#if notification.component?.component}
 				<svelte:component this={notification.component.component} {...notification.component.props} />
+			{:else if notification.message}
+				<p class="notification-message">{@html notification.message}</p>
 			{/if}
 		</div>
 	</div>

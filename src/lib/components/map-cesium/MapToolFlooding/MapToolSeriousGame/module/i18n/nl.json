@@ -35,10 +35,11 @@
 		"roles": {
 			"defensie": "Defensie",
 			"gemeente": "Gemeente",
-			"waterschap": "Waterschap",
 			"politie": "Politie",
 			"brandweer": "Brandweer",
-			"ambulance": "Ambulance"
+			"ambulance": "Ambulance",
+			"waterschap": "Waterschap",
+			"waterbeheer": "Waterbeheer"
 		},
 		"menu": {
 			"noLayersForRole": "Geen lagen beschikbaar voor deze rol.",
