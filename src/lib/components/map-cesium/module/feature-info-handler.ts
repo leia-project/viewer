@@ -89,11 +89,15 @@ export class FeatureInfoHandler {
         const id = Cesium.defaultValue(picked.id, picked.primitive.id);
         
         if (id instanceof Cesium.Entity) {
-            this.highlightEntity(id); //Implement this?
-            return this.cesiumEntityGetFeatureInfo(id);
+            const info = this.cesiumEntityGetFeatureInfo(id);
+            if (info) {
+                this.highlightEntity(id);
+                return info;
+            }
+            return undefined;
         }
 
-        if (picked instanceof Cesium.Cesium3DTileFeature) {     
+        if (picked instanceof Cesium.Cesium3DTileFeature) {
             this.highlight3DTileFeature(picked);
             return this.cesium3dTileFeatureToFeatureInfo(picked);
         }

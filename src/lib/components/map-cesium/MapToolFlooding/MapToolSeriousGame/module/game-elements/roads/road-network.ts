@@ -317,7 +317,7 @@ export class RoadNetwork {
 		const pickedItem = this.getPickedItem(picked);
 		this.selectedNode.set(pickedItem);
 
-		if (picked?.primitive instanceof Cesium.Primitive && picked?.id && picked.id.startsWith("extraction-")) {
+		if (picked?.primitive instanceof Cesium.Primitive && typeof picked?.id === "string" && picked.id.startsWith("extraction-")) {
 			const itemId = picked.id.replace("extraction-", "");
 			const extractionPointId = this.extractionPointIds.find((id) => id === itemId);
 			if (extractionPointId) {

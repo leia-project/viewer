@@ -279,6 +279,9 @@ export class Map extends MapCore {
 		//viewer.scene.globe.translucency.frontFaceAlphaByDistance.nearValue = 0.5;
 		//viewer.scene.globe.translucency.frontFaceAlphaByDistance.farValue = 0.5;
 
+		// Disable default zoom/tracking on double click for entities
+		viewer.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+
 		return viewer;
 	}
 
