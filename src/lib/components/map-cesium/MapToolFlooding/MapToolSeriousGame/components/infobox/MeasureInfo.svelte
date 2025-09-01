@@ -50,7 +50,7 @@
 		{#if type === "selected" && $toggleEnabled}
 			<div class="measure-actions">
 				<GameButton
-					buttonText={$applied ? $_("game.buttons.apply") : $_("game.buttons.undo")}
+					buttonText={$applied ? $_("game.buttons.undo") : $_("game.buttons.apply")}
 					icon={ToolKit}
 					hasTooltip={false}
 					borderHighlight={false}
