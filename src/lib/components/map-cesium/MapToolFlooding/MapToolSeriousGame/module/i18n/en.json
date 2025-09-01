@@ -93,6 +93,7 @@
 		"roadNetwork": "Road network",
 		"hexagon": "Hexagon",
 		"hexagons": "Hexagons",
+		"floods": "Floods",
 		"floodModel": "Flood model",
 		"expansion": "Expansion",
 		"maxFloodDepth": "Max. flood depth",

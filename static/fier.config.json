@@ -375,13 +375,12 @@
                         "role": "GHOR",
                         "layerIds": ["6"],
                         "marvinQuestions": [
-                            "Which areas with high population density (above average) are more than $minute minutes away from nearest medical service (hospital, general practice, pharmacy), with driving speed = $speed km/hr?",
-		                    "Which medical services (gezondheidszorgfunctie) have less than $route major evacuation routes falls within a buffer of $buffer km?",
+                            "Which areas with high population density (above average) are more than 15 minutes away from nearest medical service (hospital, general practice, pharmacy), with driving speed = 60 km/hr?",
                         	"How many medical services are available in each area (hospital, general practice)?",
-                        	"Which hexagons have top $rank highest medical service pressure (hospital, general practice)?",
+                        	"Which hexagons have top 10 highest medical service pressure (hospital, general practice)?",
                     		"What areas have poor medical service accessibility (2 km away from the nearest hospital and general practice, and 1.5km away from the nearest pharmacy)?",
                        		"How many medical services are available in each area (hospital, general practice)?",
-	                    	"Which areas have the fewest medical services within a $RADIUS km radius (gezondheidszorgfunctie)?"
+	                    	"Which areas have the fewest medical services within a 3 km radius (gezondheidszorgfunctie)?"
                         ]
                     },
                     {

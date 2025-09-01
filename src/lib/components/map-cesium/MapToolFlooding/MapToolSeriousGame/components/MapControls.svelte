@@ -36,15 +36,17 @@
 
 		// Healthcare
 		`Which routes have passible flood depth for ambulance (flood depth < 0.4) in scenario ${game.scenarioName} at timestep ${timestep}?`,
-		`Which medical services are no longer reachable by road within the distance of $radius meters in scenario ${game.scenarioName} at timestep ${timestep}?`
+		`Which medical services are no longer reachable by road within the distance of 500 meters in scenario ${game.scenarioName} at timestep ${timestep}?`
 	];
 
 	/* unused questions:
- 		"Which areas have roads with capacity less than $volume or travel time larger than $hour hr nearby?",
+		"Which areas have roads with capacity less than $volume or travel time larger than $hour hr nearby?",
 		"Which roads require more than $minute minutes travel time even under high safety condition?",
 		"Which roads have a traffic capacity greater than $volume vehicles per hour under any safety condition?",
 		"Which roads passing top $rank high density areas need more hours to pass through?",
 		"Where are the most $RANK populated areas?",
+
+ 		"Which medical services (gezondheidszorgfunctie) have less than $route major evacuation routes falls within a buffer of $buffer km?",
 
 		// with specific timesteps
 		"Which roads exceed flood depth of 0.5 in scenario $scenario at timestep $timestep?",

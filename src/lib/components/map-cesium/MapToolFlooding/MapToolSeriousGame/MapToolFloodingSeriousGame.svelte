@@ -15,7 +15,7 @@
 	
 	const icon: any = GameConsole;
 
-	const tool = new MapToolMenuOption("flooding-serious-game", icon, "Serious Game - Floods", false, "600px");
+	const tool = new MapToolMenuOption("flooding-serious-game", icon, `Serious Game - Overstromingen`, false, "600px");
 	registerTool(tool);
 
 	addMarvini18n();
