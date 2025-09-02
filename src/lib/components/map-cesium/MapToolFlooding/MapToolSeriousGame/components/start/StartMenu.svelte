@@ -89,7 +89,7 @@
 					<img class="credits-logo invert" src="https://storage.googleapis.com/sogelink-research-public/images/logo-sogelink.png" alt="Logo Sogelink" >
 					<img class="credits-logo invert" src="https://dw-consultancy.nl/wp-content/uploads/2024/08/Logo-1-1024x461.png" alt="Logo Dutch Wildfire Consultancy" >
 					<img class="credits-logo invert" src="https://iiw.kuleuven.be/onderzoek/advise/meet_an_engineer/sweco-logo-voor-office-en-online-lindsey.png/@@images/image.png" alt="Logo Sweco" >
-					<img class="credits-logo" src="https://climateintelligence.eu/wp-content/uploads/2021/09/6-HKV.png" alt="Logo Sweco" >
+					<img class="credits-logo" src="https://climateintelligence.eu/wp-content/uploads/2021/09/6-HKV.png" alt="Logo HKV" >
 				</div>
 			</div>
 			{#if gameLoaded}

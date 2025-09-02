@@ -71,7 +71,7 @@
 				<span>{$floodedSegments.length}</span>
 				<span>
 					{$_("game.flooded").toLowerCase()}
-					{($floodedHexagons === 1 ? $_("game.roadSection") : $_("game.roadSections")).toLowerCase()}
+					{($floodedSegments.length === 1 ? $_("game.roadSection") : $_("game.roadSections")).toLowerCase()}
 				</span>
 			</div>
 		</div>
@@ -102,13 +102,15 @@
 			hideLabel={true}
 			hideTextInput={true}
 		/>
-		<GameButton
-			size={15}
-			icon={Reset}
-			hasTooltip={false}
-			borderHighlight={true}
-			on:click={() => selectedTime.set($simulationTime)}
-		/>
+		<div class="reset-button">
+			<GameButton
+				size={15}
+				icon={Reset}
+				hasTooltip={false}
+				borderHighlight={true}
+				on:click={() => selectedTime.set($simulationTime)}
+			/>
+		</div>
 	</div>
 </div>
 
@@ -182,6 +184,10 @@
 		text-align: right;
 		margin-right: 1rem;
 		font-weight: 600;
+	}
+
+	.reset-button {
+		margin-left: 1rem;
 	}
 
 </style>

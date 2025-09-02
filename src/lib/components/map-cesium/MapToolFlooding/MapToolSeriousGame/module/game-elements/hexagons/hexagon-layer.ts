@@ -163,7 +163,7 @@ export class HexagonLayer {
 		const appearance = new Cesium.MaterialAppearance({
 			material: this.material,
 			flat: true,
-			translucent: true,
+			translucent: false,
 			vertexShaderSource: vertexShader,
 			fragmentShaderSource: fragmentShader,
 			renderState: {

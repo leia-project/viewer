@@ -27,7 +27,7 @@
 		`When will vulnerable areas (higher than average) lose all accessible roads (flood_depth > 0.5m) in scenario ${game.scenarioName}?`,
 		`When will high-density areas (above average) lose all passible roads (flood_depth > 0.5m) in scenario ${game.scenarioName}?`,
 		`Current timestep is ${timestep}, which roads became newly flooded compared to previous timestep (interval=6) in scenario ${game.scenarioName}?`,
-		`"Which vulnearble areas (above average) have flooeded roads (flood depth > 0.5) in scenario ${game.scenarioName} at timestep ${timestep}?`,
+		`Which vulnearble areas (above average) have flooeded roads (flood depth > 0.5) in scenario ${game.scenarioName} at timestep ${timestep}?`,
 		`Which vulnerable areas (above average) cannot be reached by ambulance in scenario ${game.scenarioName} at timestep ${timestep}?`,
 
 		// Firefighter
