@@ -597,6 +597,7 @@ class ExtractionPoint {
 		*/
 		if (b && !this.map.viewer.entities.contains(this.selectArrow3D[0])) this.map.viewer.entities.add(this.selectArrow3D[0]);
 		if (b && !this.map.viewer.entities.contains(this.selectArrow3D[1])) this.map.viewer.entities.add(this.selectArrow3D[1]);
+		if (!get(this.timeGaps).after) b = false; // Boths time gaps 0 means we are in preparation phase, no evacuations possible --> always hide arrow
 		this.selectArrow3D[0].show = b;
 		this.selectArrow3D[1].show = b;
 	}

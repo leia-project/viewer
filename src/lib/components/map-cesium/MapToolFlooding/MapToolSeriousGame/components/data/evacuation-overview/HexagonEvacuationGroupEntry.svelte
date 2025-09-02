@@ -1,12 +1,15 @@
 <script lang="ts">
-	import { createEventDispatcher } from "svelte";
+	import { createEventDispatcher, onDestroy } from "svelte";
 	import { derived } from "svelte/store";
+	import { _ } from "svelte-i18n";
 	import { Button } from "carbon-components-svelte";
 	import { TrashCan, UserFilled, ViewFilled, ViewOffFilled } from "carbon-icons-svelte";
+	import type { Map } from "../../../external-dependencies";
 	import GameButton from "../../general/GameButton.svelte";
 	import type { EvacuationGroup } from "../../../module/game-elements/evacuation-controller";
 
 	export let evacuationGroup: EvacuationGroup;
+	export let map: Map;
 
 	const shown = derived(evacuationGroup.evacuations.map(e => e.shown), $shown => $shown.some(s => s));
 
@@ -14,15 +17,37 @@
 
 	const dispatch = createEventDispatcher();
 
+	function onMouseEnter(): void {
+		evacuationGroup.evacuations.forEach((evacuation) => {
+			evacuation.route.forEach((segment) => segment.highlight(true));
+		});
+		evacuationGroup.hexagon.highlight("hover");
+		map.refresh();
+	}
+
+	function onMouseLeave(): void {
+		evacuationGroup.evacuations.forEach((evacuation) => {
+			evacuation.route.forEach((segment) => segment.highlight(false));
+		});
+		evacuationGroup.hexagon.unhighlight("hover");
+		map.refresh();
+	}
+
+	onDestroy(() => {
+		onMouseLeave();
+	});
+
 </script>
 
 
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions a11y-click-events-have-key-events -->
-<li class="evacuation-entry">
+<li class="evacuation-entry" on:mouseenter={onMouseEnter} on:mouseleave={onMouseLeave}>
 	<Button
 		kind="danger"
 		icon={TrashCan}
 		size="small"
+		iconDescription={$_("game.buttons.delete")}
+		tooltipPosition="right"
 		on:click={() => dispatch("delete")}
 	/>
 	<div class="col">

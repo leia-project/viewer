@@ -14,7 +14,7 @@
 			unsubscribe = visible.subscribe((v) => {
 				if (map) {
 					map.viewer.scene.globe.translucency.enabled = v;
-					map.options.globeOpacity.set(v ? 10 : 100);
+					map.options.globeOpacity.set(v ? 35 : 100);
 				}
 			})
 		}

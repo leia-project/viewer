@@ -12,7 +12,7 @@
 	const maxY = [...victims, ...evacuated].reduce((max, d) => Math.max(max, d.value), 0);
 
 	$: plotOptions = {
-		style: ``,
+		style: `background-color: transparent;`,
 		monospace: true,
 		width: 750,
 		height: 300,

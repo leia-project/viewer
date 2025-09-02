@@ -106,6 +106,7 @@
 			{#if evacuationGroup.time === $elapsedTime}
 				<HexagonEvacuationGroupEntry
 					{evacuationGroup}
+					map={game.map}
 					on:delete={() => deleteEvacuationGroup(evacuationGroup)}
 				/>
 			{/if}
