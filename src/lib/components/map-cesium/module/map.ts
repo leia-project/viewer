@@ -273,6 +273,9 @@ export class Map extends MapCore {
 		viewer.scene.globe.depthTestAgainstTerrain = true;
 		viewer.scene.globe.translucency.enabled = true;
 
+		// Disable default double click zoom
+		viewer.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+
 		//viewer.clock.onTick.addEventListener((clock) => this._update(clock));
 		//viewer.scene.globe.terrainExaggeration = 50;
 		//this._addSilhouette(viewer)
