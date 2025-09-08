@@ -959,6 +959,7 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 |description|A short description to describe the story|string|
 |width|The width of the story menu|string|
 |force2DMode|Sets the camera to 2D mode and prevents users from switching camera mode while the story is open|boolean|
+|staticCamera|Keeps camera location the same after drawing and between steps|boolean|
 |requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
 |baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
 |chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
@@ -976,6 +977,7 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 				"description": "Description of my story",
 				"width": "600px",
 				"force2DMode": false,
+				"staticCamera": false,
 				"requestPolygonArea": {
 					"enabled": false,
 					"statisticsApi": "https://virtueel.dev.zeeland.nl/ko_api/analyze"

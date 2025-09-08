@@ -104,6 +104,7 @@
 				const storyDescription = story.description;
 				const storyWidth = story.width;
 				const storyForce2DMode = story.force2DMode ?? false;
+				const storyStaticCamera = story.staticCamera ?? false;
 				const storyRequestPolygonArea = story.requestPolygonArea.enabled ?? false;
 				const storyStatisticsApi = story.requestPolygonArea.statisticsApi ?? "https://virtueel.dev.zeeland.nl/ko_api/analyze";
 				baseLayerId = story.baseLayerId ?? "";
@@ -151,7 +152,7 @@
 					}
 					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForce2DMode, storyRequestPolygonArea, storyStatisticsApi));
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForce2DMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi));
 			}
 		}
 		stories = loadedStories;
