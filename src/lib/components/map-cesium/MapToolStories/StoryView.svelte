@@ -130,7 +130,9 @@
 
 				const boundingSphere = Cesium.BoundingSphere.fromVertices(vertices, Cesium.Cartesian3.ZERO, 3);
 				const polygonCameraLocation = getCameraPositionFromBoundingSphere(boundingSphere, use3DMode);
-				cesiumMap.flyTo(polygonCameraLocation);
+				if (!story.staticCamera) {
+					cesiumMap.flyTo(polygonCameraLocation);
+				}
 			}
 		}
 	});
@@ -239,7 +241,9 @@
 		}
 
 		if (activeStep) {
-			cesiumMap.flyTo(polygonCameraLocation ?? activeStep.cameraLocation);
+			if (!story.staticCamera) {
+				cesiumMap.flyTo(polygonCameraLocation ?? activeStep.cameraLocation);
+			}
 			if (activeStep.layers) {
 				if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
 					storyLayers.forEach(layer => layer.visible.set(false));
