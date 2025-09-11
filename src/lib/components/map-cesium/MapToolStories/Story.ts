@@ -8,6 +8,7 @@ export class Story {
     public storyChapters: Array<StoryChapter>;
     public width: string | undefined;
     public force2DMode: boolean | undefined;
+    public staticCamera: boolean | undefined;
     public requestPolygonArea: boolean | undefined;
     public statisticsApi: string;
     
@@ -16,6 +17,7 @@ export class Story {
                 storyChapters: Array<StoryChapter>, 
                 width: string | undefined = undefined, 
                 force2DMode: boolean | undefined, 
+                staticCamera: boolean | undefined,
                 requestPolygonArea: boolean | undefined,
                 statisticsApi: string) {
         this.name = name;
@@ -23,6 +25,7 @@ export class Story {
         this.storyChapters = storyChapters;
         this.width = width;
         this.force2DMode = force2DMode;
+        this.staticCamera = staticCamera;
         this.requestPolygonArea = requestPolygonArea;
         this.statisticsApi = statisticsApi;
     }
