@@ -225,18 +225,27 @@
 
 
 	currentPage.subscribe((page) => {
+		console.log("Current page changed to:", page);
 		if (story.force2DMode) {
 			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
 		} // Set this again because apparently OnMount is slower than a subscribe :/
 		const index = page - 1;
+		
 
 		const activeEntry = flattenedSteps[index];
 		activeChapter = activeEntry.chapter;
 		activeChapterSteps = activeChapter.steps;
 		activeStep = activeEntry.step;
 
+		console.log("index:", index);
+		console.log("activeStep:", activeStep);
+		console.log("activeChapter:", activeChapter);
+		console.log("activeChapterSteps:", activeChapterSteps);
+
+
 		// if clicked on nav index, scroll to step automatically
 		if (lastInputType === "click") {
+			console.log("Scrolling to step due to click input");
 			scrollToStep(index);
 		}
 
@@ -590,93 +599,95 @@
 	<div class="content" bind:this={content}>
 		<div style="height:{navHeight}px" />
 		{#each flattenedSteps as { step, chapter }, index}
-			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
-				<div class="step-heading heading-01">
-					{chapter.title}
-				</div>
-				<div class="step-heading heading-04">
-					{step.title}
-				</div>
-				<div class="step-heading-sub heading-03">
-					{$_("tools.stories.description")}
-				</div>
-				{@html step.html}
-				<!-- {#each step.layers ?? [] as layer}
-					Layer {layer.id}: {layer.featureName}
-				{/each} -->
-				
-				<!-- <div class="step-heading-sub heading-03">
-					{$_("tools.stories.statistics")}
-				</div> -->
-				<br>
-				<div class="step-stats">
-					{#if story.requestPolygonArea}
-						{#if distributions && distributions[index]}
-							<StoryChart data={distributions[index]} />
-							<br><br><br>
-							{#if layerLegends[index].generalLegendText}
-								<div class="legendary-text mb">
-									{@html layerLegends[index].generalLegendText}
-								</div>
-							{/if}
-							<ul>
-								{#if layerLegends[index].legendOptions}
-									{#each layerLegends[index].legendOptions as legendEntry}
-										{#if shouldShowLegend(legendEntry, distributions[index])}
-											<li style="margin-bottom: 2rem;">
-												<div style=" display: grid; grid-template-columns: 5rem 1fr;">
-													{#if legendEntry.labels}
-														<!-- Label images inline -->
-														<div style="margin-left: 0.5rem; display: flex; justify-content: center; align-items: center;">
-															{#each Array.from(legendEntry.labels) as char, i}
-																{#if isLabel(char)}
-																	<div class="legend-letter legend-letter-m" style="background-color: {getColorFromLabel(char)}; transform: translateX(-{42.5 * i}%; z-index: {10 - i};">
-																		{char}
-																	</div>
+			{#if chapter === activeChapter}
+				<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
+					<div class="step-heading heading-01">
+						{chapter.title}
+					</div>
+					<div class="step-heading heading-04">
+						{step.title}
+					</div>
+					<div class="step-heading-sub heading-03">
+						{$_("tools.stories.description")}
+					</div>
+					{@html step.html}
+					<!-- {#each step.layers ?? [] as layer}
+						Layer {layer.id}: {layer.featureName}
+					{/each} -->
+					
+					<!-- <div class="step-heading-sub heading-03">
+						{$_("tools.stories.statistics")}
+					</div> -->
+					<br>
+					<div class="step-stats">
+						{#if story.requestPolygonArea}
+							{#if distributions && distributions[index]}
+								<StoryChart data={distributions[index]} />
+								<br><br><br>
+								{#if layerLegends[index].generalLegendText}
+									<div class="legendary-text mb">
+										{@html layerLegends[index].generalLegendText}
+									</div>
+								{/if}
+								<ul>
+									{#if layerLegends[index].legendOptions}
+										{#each layerLegends[index].legendOptions as legendEntry}
+											{#if shouldShowLegend(legendEntry, distributions[index])}
+												<li style="margin-bottom: 2rem;">
+													<div style=" display: grid; grid-template-columns: 5rem 1fr;">
+														{#if legendEntry.labels}
+															<!-- Label images inline -->
+															<div style="margin-left: 0.5rem; display: flex; justify-content: center; align-items: center;">
+																{#each Array.from(legendEntry.labels) as char, i}
+																	{#if isLabel(char)}
+																		<div class="legend-letter legend-letter-m" style="background-color: {getColorFromLabel(char)}; transform: translateX(-{42.5 * i}%; z-index: {10 - i};">
+																			{char}
+																		</div>
+																	{/if}
+																{/each}
+															</div>
+														{/if}
+														<div class="legendary-text">
+															{legendEntry.text}
+														</div>
+													</div>
+													{#if legendEntry.subLabels}
+														<ul>
+															{#each Array.from(legendEntry.labels) as label}
+																{#if isLabel(label) && legendEntry.subLabels[label]}
+																	{#if distributions[index].find(d => d.group === label && d.value > 0)}
+																		<li class="legend-letter-with-text legendary-text">
+																			<!-- Image before text per sublabel -->
+																			<div class="legend-letter legend-letter-s" style="background-color: {getColorFromLabel(label)};">
+																				{label}
+																			</div>
+																			<div>
+																				{legendEntry.subLabels[label].text}
+																			</div>
+																		</li>
+																	{/if}
 																{/if}
 															{/each}
-														</div>
+														</ul>
 													{/if}
-													<div class="legendary-text">
-														{legendEntry.text}
-													</div>
-												</div>
-												{#if legendEntry.subLabels}
-													<ul>
-														{#each Array.from(legendEntry.labels) as label}
-															{#if isLabel(label) && legendEntry.subLabels[label]}
-																{#if distributions[index].find(d => d.group === label && d.value > 0)}
-																	<li class="legend-letter-with-text legendary-text">
-																		<!-- Image before text per sublabel -->
-																		<div class="legend-letter legend-letter-s" style="background-color: {getColorFromLabel(label)};">
-																			{label}
-																		</div>
-																		<div>
-																			{legendEntry.subLabels[label].text}
-																		</div>
-																	</li>
-																{/if}
-															{/if}
-														{/each}
-													</ul>
-												{/if}
-											</li>
-										{/if}
-									{/each}
-								{/if}
-							</ul>
-						{:else if $hasDrawnPolygon}
-							<StoryChart data={undefined} loading={true} />
-						{:else}
-							<StoryChart data={undefined} />
+												</li>
+											{/if}
+										{/each}
+									{/if}
+								</ul>
+							{:else if $hasDrawnPolygon}
+								<StoryChart data={undefined} loading={true} />
+							{:else}
+								<StoryChart data={undefined} />
+							{/if}
 						{/if}
-					{/if}
+					</div>
+					<div class="tag">
+						<Tag>{chapter.title}</Tag>
+						<Tag>{index + 1}</Tag>
+					</div>
 				</div>
-				<div class="tag">
-					<Tag>{chapter.title}</Tag>
-					<Tag>{index + 1}</Tag>
-				</div>
-			</div>
+			{/if}
 		{/each}
 		<!-- <div style="height:{height}px" /> -->
 	</div>
