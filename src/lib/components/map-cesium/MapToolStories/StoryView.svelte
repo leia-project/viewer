@@ -26,6 +26,7 @@
 	import { polygonStore } from './PolygonEntityStore';
 	import StoryChart from "./StoryChart.svelte";
 	import ChoroplethMap from "carbon-icons-svelte/lib/ChoroplethMap.svelte";
+	import StoryChartDownloadButton from "./StoryChartDownloadButton.svelte";
 
 	type SubLabel = {
 		text: string;
@@ -139,11 +140,11 @@
 
 	// Flatten the steps across all chapters so we can access the correct step based on the index
 	let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
-		story.storyChapters.forEach((chapter) => {
-			chapter.steps.forEach((step) => {
-				flattenedSteps.push({ step, chapter });
-			});
+	story.storyChapters.forEach((chapter) => {
+		chapter.steps.forEach((step) => {
+			flattenedSteps.push({ step, chapter });
 		});
+	});
 
 	onMount(() => {
 		if (story.force2DMode) {
@@ -500,6 +501,13 @@
 			{story.name}
 		</div>
 		<div class="nav-controls">
+			{#if story.requestPolygonArea}
+				{#if distributions}
+					<!-- {#if distributions.length > 0} -->
+						<StoryChartDownloadButton data={distributions} {story} />
+					<!-- {/if} -->
+				{/if}
+			{/if}
 			<div class="download-pdf">
 				<Button
 					kind={"tertiary"}
@@ -524,7 +532,7 @@
 						kind={"primary"}
 						iconDescription={showPolygonMenu ? `${$_("general.open")} ${$_("tools.stories.projectAreaTool")}` : `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
 						tooltipPosition="top"
-						icon={$showPolygonMenu ? ChevronDown : ChevronUp}
+						icon={$showPolygonMenu ? ChevronUp : ChevronDown}
 						on:click={() => $showPolygonMenu = !$showPolygonMenu} 
 					/>
 				</div>

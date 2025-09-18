@@ -327,7 +327,7 @@
             {$_("tools.stories.deletePolygon")}
         </Button>
     </div>
-    <br><hr><br>
+    <br><br>
 {/if}
 
 <style>
