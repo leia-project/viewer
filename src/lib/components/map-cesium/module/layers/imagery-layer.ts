@@ -63,4 +63,15 @@ export abstract class CesiumImageryLayer extends CesiumLayer<ImageryLayer> {
 		opacity = opacity / 100;
 		return opacity > 1 ? 1.0 : opacity < 0 ? 0 : opacity;
 	}
+
+	public refreshLayer(): void {
+		console.log("Trying to refresh layer...");
+		console.log(this.source, "refresh source");
+		if (this.source && this.source.show) {
+			this.hide();
+			this.show();
+			this.map.refresh();
+			console.log("Layer refreshed");
+		}
+	}
 }
