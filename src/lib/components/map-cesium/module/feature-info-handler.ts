@@ -113,7 +113,7 @@ export class FeatureInfoHandler {
             for (let x = 0; x < propNames.length; x++) {
                 records.push(new FeatureInfoRecord(propNames[x], props[propNames[x]]));
             }
-            return new FeatureInfo("", entity.name ?? "", records); // TODO: Figure out if config ID can be retrieved
+            return new FeatureInfo(entity.name ?? "", records); // TODO: Figure out if config ID can be retrieved
         } else {
             return undefined;
         }
@@ -169,7 +169,7 @@ export class FeatureInfoHandler {
         const selectedLayer = this.map.getLayerById(configId);
         if (selectedLayer?.config.disablePopup) return undefined;
 
-        return new FeatureInfo(configId ? configId : "", title, records);
+        return new FeatureInfo(title, records);
     }
 
     private async pickImageryLayers(position: Cesium.Cartesian2): Promise<FeatureInfo | undefined> {
@@ -205,7 +205,7 @@ export class FeatureInfoHandler {
         const selectedLayer = this.map.getLayerById(configId);
         if (selectedLayer?.config.disablePopup) return undefined;
 
-        return new FeatureInfo(configId ? configId : "", title ? title : "-", records);
+        return new FeatureInfo(title ? title : "-", records);
     }
 
     private getCesium3DTileFeatureName(feature: Cesium.Cesium3DTileFeature) {
