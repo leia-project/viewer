@@ -282,6 +282,7 @@ Layer definition
 |attribution|Attribution for the layer data, to be displayed at at layer information page|string|
 |metadata|An array of {"key":"somekey","value":"somevalue"} pairs, to store custom metadata which is shown in the layer library|array[KeyValue]|
 |transparent|True if layer can be transparent|boolean|
+|disablePopup|True if the feature info popup should be turned off|boolean|
 |opacity|Number between 0 (opaque) and 100 (transparent)|number|
 |cameraPosition|Default camera position, when set a zoom to icon is displayed for the layer in the layer manager|cameraPosition, same as parameters for [startPosition](###startPosition)|
 |settings|Technical settings for the layer, this can differ between layer types, see LayerSettings below|LayerSettings|
