@@ -46,7 +46,8 @@
               "intro": "Introductie",
               "movement": "Beweging",
               "library": "Bibliotheek",
-              "search": "Zoeken"
+              "search": "Zoeken",
+              "flood": "Overstroming"
             },
             "movement": {
               "headingZoom": "Zoom in/uit",
@@ -73,6 +74,13 @@
               "description": "Als u meer lagen wilt toevoegen bovenop de geconfigureerde lagen in de viewer, kunt u dit doen met behulp van de bibliotheek",
               "openLibrary": "Om de lagenbibliotheek te openen, klikt u op de knop 'map' aan de linkerkant",
               "libraryDescription": "Gebruik de zoekbalk onderaan om de gewenste lagen te zoeken of klik door de getoonde groepen. Klik op de laag om meer informatie over de laag weer te geven, schakel het selectievakje in om de laag aan de kaart toe te voegen of druk op de knop 'Toevoegen aan kaart' in de laagbeschrijvingsweergave"
+            },
+            "flood": {
+              "headingFloodOpen": "Open de overstromingstool",
+              "headingUsingFlood": "Gebruik van de overstromingstool",
+              "description": "De overstromingstool stelt u in staat om overstromingen in het gebied te simuleren en te analyseren.",
+              "openFlood": "Om de overstromingstool te openen, klikt u op de knop 'overstroming' aan de linkerkant",
+              "floodDescription": "Gebruik de verschillende opties in de overstromingstool om de simulatie aan te passen en uit te voeren."
             }
         },
         "config_switcher": {

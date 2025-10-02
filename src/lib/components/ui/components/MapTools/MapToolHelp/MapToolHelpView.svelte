@@ -1,8 +1,47 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import { Tabs, Tab } from "carbon-components-svelte";
     import { Modal } from "carbon-components-svelte";
     import { _ } from "svelte-i18n";
+    import { getContext } from "svelte";
+    import { get } from "svelte/store";
+    
+       // Initialize with default values
+    let map: any;
+    let floodingTool: any = { enabled: false };
+    
+    onMount(() => {
+        try {
+            // Safely get map from context
+            const context = getContext<any>("mapTools");
+            if (context && context.map) {
+                map = context.map;
+                
+                // Subscribe to config changes if available
+                if (map.configLoaded) {
+                    map.configLoaded.subscribe((loaded: boolean) => {
+                        if (loaded && map.config && map.config.tools) {
+                            const tool = map.config.tools.find((t: any) => t.id === "flooding");
+                            if (tool) {
+                                floodingTool = tool;
+                                console.log(tool.enabled, 'floodTool');
+                            }
+                        }
+                    });
+                }
+                
+                // Initialize with current config if available
+                if (map.config && map.config.tools) {
+                    const tool = map.config.tools.find((t: any) => t.id === "flooding");
+                    if (tool) {
+                        floodingTool = tool;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error accessing map context:", error);
+        }
+    });
 
     export let txtTitle: string;
     export let txtIntro: string;
@@ -27,10 +66,12 @@
         e.stopPropagation();
         e.stopImmediatePropagation();
     }
+
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <help>
+    
     
     <Modal
         open={true}
@@ -55,6 +96,9 @@
                     <Tab label={$_("tools.help.tabs.intro")} />
                     <Tab label={$_("tools.help.tabs.movement")} />
                     <Tab label={$_("tools.help.tabs.library")} />
+                    {#if floodingTool && floodingTool.enabled}
+                        <Tab label={$_("tools.help.tabs.flood")} />
+                    {/if}
                 </Tabs>
             </div>
 
@@ -129,6 +173,29 @@
                         </div>
 
                         <img src="{base}/images/help_library_2.png" style="width:100%" alt="library view" />
+                    {/if}
+
+                    {#if selectedTab === 3 && floodingTool && floodingTool.enabled}
+
+                        <div class="img-library">
+                            <img src="{base}/images/help_flood_1.png" alt="flood icon" />
+                        </div>
+
+                        <div class="body-02">
+                            {$_("tools.help.flood.description")}<br /><br />
+                        </div>
+
+                        <div class="heading-02">{$_("tools.help.flood.headingFloodOpen")}</div>
+                        <div class="body-02">
+                            {$_("tools.help.flood.openFlood")}<br /><br />
+                        </div>
+
+                        <div class="heading-02">{$_("tools.help.flood.headingUsingFlood")}</div>
+                        <div class="body-02">
+                            {$_("tools.help.flood.floodDescription")}<br /><br />
+                        </div>
+
+                        <img src="{base}/images/help_flood_2.png" style="width:100%" alt="flood view" />
                     {/if}
                 </div>
             </div>
