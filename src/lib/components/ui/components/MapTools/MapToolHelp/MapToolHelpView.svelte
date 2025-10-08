@@ -6,36 +6,20 @@
     import { getContext } from "svelte";
     import { get } from "svelte/store";
     
-       // Initialize with default values
-    let map: any;
-    let floodingTool: any = { enabled: false };
+    // const { map } = getContext<any>("mapTools");
+	import { app } from '$lib/app/app';
+
+	$: map = get(app.map);
+
+    // let floodingTool: any = { enabled: false };
+    let floodingToolEnabled: boolean = false
     
     onMount(() => {
         try {
-            // Safely get map from context
-            const context = getContext<any>("mapTools");
-            if (context && context.map) {
-                map = context.map;
-                
-                // Subscribe to config changes if available
-                if (map.configLoaded) {
-                    map.configLoaded.subscribe((loaded: boolean) => {
-                        if (loaded && map.config && map.config.tools) {
-                            const tool = map.config.tools.find((t: any) => t.id === "flooding");
-                            if (tool) {
-                                floodingTool = tool;
-                                console.log(tool.enabled, 'floodTool');
-                            }
-                        }
-                    });
-                }
-                
-                // Initialize with current config if available
+            if (map) {
                 if (map.config && map.config.tools) {
-                    const tool = map.config.tools.find((t: any) => t.id === "flooding");
-                    if (tool) {
-                        floodingTool = tool;
-                    }
+                    let floodingTool = map.config.tools.find((t: any) => t.id === "flooding");
+                    floodingToolEnabled = floodingTool ? floodingTool.enabled : false;
                 }
             }
         } catch (error) {
@@ -96,7 +80,7 @@
                     <Tab label={$_("tools.help.tabs.intro")} />
                     <Tab label={$_("tools.help.tabs.movement")} />
                     <Tab label={$_("tools.help.tabs.library")} />
-                    {#if floodingTool && floodingTool.enabled}
+                    {#if floodingToolEnabled}
                         <Tab label={$_("tools.help.tabs.flood")} />
                     {/if}
                 </Tabs>
@@ -175,10 +159,9 @@
                         <img src="{base}/images/help_library_2.png" style="width:100%" alt="library view" />
                     {/if}
 
-                    {#if selectedTab === 3 && floodingTool && floodingTool.enabled}
-
+                    {#if selectedTab === 3 && floodingToolEnabled}
                         <div class="img-library">
-                            <img src="{base}/images/help_flood_1.png" alt="flood icon" />
+                            <img src="{base}/images/help_flood_open.png" alt="flood icon" />
                         </div>
 
                         <div class="body-02">
@@ -192,10 +175,25 @@
 
                         <div class="heading-02">{$_("tools.help.flood.headingUsingFlood")}</div>
                         <div class="body-02">
-                            {$_("tools.help.flood.floodDescription")}<br /><br />
+                            {$_("tools.help.flood.floodBreachDescription")}<br /><br />
                         </div>
 
-                        <img src="{base}/images/help_flood_2.png" style="width:100%" alt="flood view" />
+                        <img src="{base}/images/help_flood_breach.png" style="width:100%" alt="breach selection" />
+
+                        <br /> <br />
+
+                        <div class="img-library">
+                            <img src="{base}/images/help_flood_menu.png" style="height:500px" alt="flood view" />
+                        </div>
+
+                        <div class="body-02">
+                            {$_("tools.help.flood.floodMenuDescription")}<br /><br />
+                        </div>
+                        
+                        <div class="heading-02">{$_("tools.help.flood.headingMeasureDepth")}</div>
+                        <div class="body-02">
+                            {$_("tools.help.flood.measureDepthDescription")}<br /><br />
+                        </div>
                     {/if}
                 </div>
             </div>
