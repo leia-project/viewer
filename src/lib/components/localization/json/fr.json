@@ -45,7 +45,8 @@
             "intro": "Introduction",
             "movement": "Mouvement",
             "library": "Bibliothèque",
-            "search": "Recherche"
+            "search": "Recherche",
+            "flood": "Inondation"
           },
           "movement": {
             "headingZoom": "Zoom avant/arrière",
@@ -76,7 +77,7 @@
               "headingUsingFlood": "Utilisation de l'outil d'inondation",
               "description": "L'outil d'inondation vous permet de simuler et d'analyser les inondations dans la région.",
               "openFlood": "Pour ouvrir l'outil d'inondation, cliquez sur le bouton 'inondation' sur le côté gauche",
-              "floodBreachDescription": "Sélectionnez d'abord un emplacement de brèche en cliquant sur une icône de brèche sur la carte.",
+              "floodBreachDescription": "Sélectionnez d'abord un emplacement de brèche en cliquant sur une icône de brèche sur la carte. Ceci servira de point de départ pour la simulation d'inondation.",
               "floodMenuDescription": "Utilisez ensuite les différentes options de l'outil d'inondation pour personnaliser et exécuter la simulation. Choisissez d'abord le scénario souhaité, par exemple 1:3000 ans. Vous pouvez ensuite utiliser le 'curseur de temps' pour jouer le scénario. Utilisez le bouton 'Jouer' pour que le scénario se déroule automatiquement, ou utilisez les flèches pour visualiser l'inondation étape par étape.",
               "headingMeasureDepth": "Mesurer la profondeur",
               "measureDepthDescription": "Pour mesurer la profondeur de l'eau à un endroit précis, activez le bouton 'Mesurer la profondeur' puis cliquez sur une zone inondée à l'endroit souhaité. L'outil ne peut être utilisé que lorsque vous êtes zoomé, car la hauteur du terrain est alors correctement chargée."
