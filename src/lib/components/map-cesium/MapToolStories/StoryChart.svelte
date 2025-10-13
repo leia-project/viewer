@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { EChartsOption } from 'echarts';
 	import { echarts, echartsLoading } from './echarts';
 	import { _ } from "svelte-i18n";
 	
@@ -23,7 +24,7 @@
 		toolTipText = $_("tools.stories.requestDrawPolygon");
 	}
 
-	let option = {
+	let option: EChartsOption = {
 		color: color, 
 		title: {
 			text: $_("tools.stories.storyChartTitle"),
