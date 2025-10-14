@@ -5,27 +5,38 @@
     import { _ } from "svelte-i18n";
     import { getContext } from "svelte";
     import { get } from "svelte/store";
+    import TabIntro from './Tabs/TabIntro.svelte';
+    import TabMovement from './Tabs/TabMovement.svelte';
+    import TabLibrary from './Tabs/TabLibrary.svelte';
+    import TabFlooding from "./Tabs/TabFlooding.svelte";
+    import TabStories from "./Tabs/TabStories.svelte";
     
     // const { map } = getContext<any>("mapTools");
 	import { app } from '$lib/app/app';
+	import Divider from "../../Divider/Divider.svelte";
 
 	$: map = get(app.map);
 
     // let floodingTool: any = { enabled: false };
     let floodingToolEnabled: boolean = false
-    
+    let storyToolEnabled: boolean = false
+   
     onMount(() => {
         try {
             if (map) {
                 if (map.config && map.config.tools) {
                     let floodingTool = map.config.tools.find((t: any) => t.id === "flooding");
                     floodingToolEnabled = floodingTool ? floodingTool.enabled : false;
+                    let storyTool = map.config.tools.find((t: any) => t.id === "stories");
+                    storyToolEnabled = storyTool ? storyTool.enabled : false;
                 }
             }
         } catch (error) {
             console.error("Error accessing map context:", error);
         }
     });
+    
+    const base = process.env.APP_URL;
 
     export let txtTitle: string;
     export let txtIntro: string;
@@ -33,7 +44,6 @@
 
     let selectedTab = 0;
     const dispatch = createEventDispatcher();
-    const base = process.env.APP_URL;
 
     function removeFromViewDontShowAgain(e: any): void {
         handleE(e);
@@ -73,7 +83,8 @@
         on:submit={(e) => {
             removeFromView(e);
         }}
-    >
+    
+        >
         <div class="wrapper">
             <div class="tabs">
                 <Tabs bind:selected={selectedTab}>
@@ -83,117 +94,32 @@
                     {#if floodingToolEnabled}
                         <Tab label={$_("tools.help.tabs.flood")} />
                     {/if}
+                    {#if storyToolEnabled}
+                        <Tab label={$_("tools.help.tabs.stories")} />
+                    {/if}
                 </Tabs>
             </div>
 
             <div class="content">
                 <div>
                     {#if selectedTab === 0}
-                        {@html txtIntro}
+                        <TabIntro txtIntro={txtIntro}/>
                     {/if}
 
                     {#if selectedTab === 1}
-                        <div class="heading-02">{$_("tools.help.movement.headingZoom")}</div>
-                        <div class="video">
-                            <video autoplay loop muted style="width:100%">
-                                <source src="{base}/images/movement.mp4" type="video/mp4" />
-                            </video>
-                        </div>
-                        <div class="body-02">
-                            {$_("tools.help.movement.zoomDescription")}<br />
-                            {$_("tools.help.movement.zoomOption1")}<br />
-                            {$_("tools.help.movement.zoomOption2")}<br />
-                            {$_("tools.help.movement.zoomOption3")}<br /><br />
-                        </div>
-
-                        <div class="heading-02">{$_("tools.help.movement.headingRotatePitch")}</div>
-
-                        <div class="body-02">
-                            {$_("tools.help.movement.rotatePitchDescription")} <br />
-                            {$_("tools.help.movement.rotatePitchOption1")} <br />
-                            {@html $_("tools.help.movement.rotatePitchOption2")}<br /><br />
-                        </div>
-
-                        <div class="heading-02">{$_("tools.help.movement.headingButtons")}</div>
-                        <div class="body-02">{$_("tools.help.movement.buttonsDescription")}</div>
-
-                        <div class="button">
-                            <img src="{base}/images/map_home.png" alt="home" />
-                            <div class="body-01">{$_("tools.help.movement.buttonsHome")}</div>
-                        </div>
-
-                        <div class="button">
-                            <img src="{base}/images/map_compass.png" alt="compass" />
-                            <div class="body-01">{$_("tools.help.movement.buttonsCompass")}</div>
-                        </div>
-
-                        <div class="button">
-                            <img src="{base}/images/map_zoom_in.png" alt="zoom-in" />
-                            <div class="body-01">{$_("tools.help.movement.buttonsZoomIn")}</div>
-                        </div>
-                        <div class="button">
-                            <img src="{base}/images/map_zoom_out.png" alt="zoom-out" />
-                            <div class="body-01">{$_("tools.help.movement.buttonsZoomOut")}</div>
-                        </div>
+                        <TabMovement {base}{_}/>
                     {/if}
 
                     {#if selectedTab === 2}
-                        <div class="img-library">
-                            <img src="{base}/images/help_library_1.png" alt="library icon" />
-                        </div>
-
-                        <div class="body-02">
-                            {$_("tools.help.library.description")}<br /><br />
-                        </div>
-
-                        <div class="heading-02">{$_("tools.help.library.headingLibraryOpen")}</div>
-                        <div class="body-02">
-                            {$_("tools.help.library.openLibrary")}<br /><br />
-                        </div>
-
-                        <div class="heading-02">{$_("tools.help.library.headingUsingLibrary")}</div>
-                        <div class="body-02">
-                            {$_("tools.help.library.libraryDescription")}<br /><br />
-                        </div>
-
-                        <img src="{base}/images/help_library_2.png" style="width:100%" alt="library view" />
+                        <TabLibrary {base}{_}/>
                     {/if}
 
                     {#if selectedTab === 3 && floodingToolEnabled}
-                        <div class="img-library">
-                            <img src="{base}/images/help_flood_open.png" alt="flood icon" />
-                        </div>
+                        <TabFlooding {base}{_}/>
+                    {/if}
 
-                        <div class="body-02">
-                            {$_("tools.help.flood.description")}<br /><br />
-                        </div>
-
-                        <div class="heading-02">{$_("tools.help.flood.headingFloodOpen")}</div>
-                        <div class="body-02">
-                            {$_("tools.help.flood.openFlood")}<br /><br />
-                        </div>
-
-                        <div class="heading-02">{$_("tools.help.flood.headingUsingFlood")}</div>
-                        <div class="body-02">
-                            {$_("tools.help.flood.floodBreachDescription")}<br /><br />
-                        </div>
-
-                        <img src="{base}/images/help_flood_breach.png" style="width:100%" alt="breach selection" />
-
-                        <br /> <br />
-
-                        <div class="img-library">
-                            <img src="{base}/images/help_flood_menu.png" style="height:500px" alt="flood view" />
-                        </div>
-
-                        <div class="body-02">
-                            {$_("tools.help.flood.floodMenuDescription")}<br /><br />
-                        </div>
-                        
-                        <div class="heading-02">{$_("tools.help.flood.headingMeasureDepth")}</div>
-                        <div class="body-02">
-                            {$_("tools.help.flood.measureDepthDescription")}<br /><br />
-                        </div>
+                    {#if selectedTab === 4 && storyToolEnabled}
+                        <TabStories {_}/>
                     {/if}
                 </div>
             </div>
@@ -246,36 +172,7 @@
         line-height: 5px;
     }
 
-    .button {
-        display: flex;
-        margin-top: var(--cds-spacing-03);
-    }
-
-    .button .body-01 {
-        padding-left: var(--cds-spacing-05);
-        height: 100%;
-        padding-top: var(--cds-spacing-04);
-    }
-
-    .video {
-        margin-top: var(--cds-spacing-05);
-        margin-left: var(--cds-spacing-05);
-        width: 100%;
-        text-align: center;
-    }
-
     :global(a:hover[role=tab]) {
         text-decoration: none;
-    }
-
-    video {
-        border: 1px solid var(--cds-ui-03);
-        float: right;
-    }
-
-    .img-library {
-        float: right;
-        border: 1px solid var(--cds-ui-03);
-        margin-left: var(--cds-spacing-05);
     }
 </style>
