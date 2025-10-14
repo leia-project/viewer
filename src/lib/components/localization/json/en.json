@@ -47,7 +47,8 @@
             "movement": "Movement",
             "library": "Library",
             "search": "Search",
-            "flood": "Flooding"
+            "flood": "Flooding",
+            "stories": "Stories"
           },
           "movement": {
             "headingZoom": "Zooming in/out",
@@ -84,6 +85,9 @@
               "floodMenuDescription": "After that, use the different options in the flooding tool to customize and run the simulation. First choose the desired scenario, for example 1:3000 years. Then you can use the 'Time slider' to play the scenario. Use the 'Play' button to automatically play the scenario, or use the arrows to view the flood step by step.",
               "headingMeasureDepth": "Measure depth",
               "measureDepthDescription": "To measure the water depth at a specific location, turn on the 'Measure depth' button and then click on a flooded area at the desired location. The tool can only be used when zoomed in, as the terrain height is then loaded correctly."
+            },
+             "stories": {
+              "intro": "Open the stories tool"
             }
         },
         "layerLibrary": {
