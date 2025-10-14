@@ -718,6 +718,15 @@
             }
         },
         {
+      "id": "flooding",
+      "enabled": true,
+      "settings": {
+        "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
+        "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson"
+      }
+    },
+
+        {
             "id": "layermanager",
             "enabled": true,
             "settings": {}

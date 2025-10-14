@@ -1,8 +1,31 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import { Tabs, Tab } from "carbon-components-svelte";
     import { Modal } from "carbon-components-svelte";
     import { _ } from "svelte-i18n";
+    import { getContext } from "svelte";
+    import { get } from "svelte/store";
+    
+    // const { map } = getContext<any>("mapTools");
+	import { app } from '$lib/app/app';
+
+	$: map = get(app.map);
+
+    // let floodingTool: any = { enabled: false };
+    let floodingToolEnabled: boolean = false
+    
+    onMount(() => {
+        try {
+            if (map) {
+                if (map.config && map.config.tools) {
+                    let floodingTool = map.config.tools.find((t: any) => t.id === "flooding");
+                    floodingToolEnabled = floodingTool ? floodingTool.enabled : false;
+                }
+            }
+        } catch (error) {
+            console.error("Error accessing map context:", error);
+        }
+    });
 
     export let txtTitle: string;
     export let txtIntro: string;
@@ -27,10 +50,12 @@
         e.stopPropagation();
         e.stopImmediatePropagation();
     }
+
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <help>
+    
     
     <Modal
         open={true}
@@ -55,6 +80,9 @@
                     <Tab label={$_("tools.help.tabs.intro")} />
                     <Tab label={$_("tools.help.tabs.movement")} />
                     <Tab label={$_("tools.help.tabs.library")} />
+                    {#if floodingToolEnabled}
+                        <Tab label={$_("tools.help.tabs.flood")} />
+                    {/if}
                 </Tabs>
             </div>
 
@@ -129,6 +157,43 @@
                         </div>
 
                         <img src="{base}/images/help_library_2.png" style="width:100%" alt="library view" />
+                    {/if}
+
+                    {#if selectedTab === 3 && floodingToolEnabled}
+                        <div class="img-library">
+                            <img src="{base}/images/help_flood_open.png" alt="flood icon" />
+                        </div>
+
+                        <div class="body-02">
+                            {$_("tools.help.flood.description")}<br /><br />
+                        </div>
+
+                        <div class="heading-02">{$_("tools.help.flood.headingFloodOpen")}</div>
+                        <div class="body-02">
+                            {$_("tools.help.flood.openFlood")}<br /><br />
+                        </div>
+
+                        <div class="heading-02">{$_("tools.help.flood.headingUsingFlood")}</div>
+                        <div class="body-02">
+                            {$_("tools.help.flood.floodBreachDescription")}<br /><br />
+                        </div>
+
+                        <img src="{base}/images/help_flood_breach.png" style="width:100%" alt="breach selection" />
+
+                        <br /> <br />
+
+                        <div class="img-library">
+                            <img src="{base}/images/help_flood_menu.png" style="height:500px" alt="flood view" />
+                        </div>
+
+                        <div class="body-02">
+                            {$_("tools.help.flood.floodMenuDescription")}<br /><br />
+                        </div>
+                        
+                        <div class="heading-02">{$_("tools.help.flood.headingMeasureDepth")}</div>
+                        <div class="body-02">
+                            {$_("tools.help.flood.measureDepthDescription")}<br /><br />
+                        </div>
                     {/if}
                 </div>
             </div>

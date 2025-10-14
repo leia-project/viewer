@@ -41,12 +41,13 @@
             "title": "Digital-Twin Viewer",
             "close": "Sluiten",
             "closeDontShowOnStart": "Sluit en geef niet meer weer bij opstarten",
-            "intro": "<div class='body-02'>A digital twin is a digital representation of an intended or actual real-world physical product, system, or process (a physical twin) that serves as the effectively indistinguishable digital counterpart of it for practical purposes, such as simulation, integration, testing, monitoring, and maintenance.<br><br>For more information on how to use the viewer see the different topics</div><br><div style='display:flex; justify-content: center;'></div>",
+            "intro": "<div class='body-02'>Een digital twin is een digitale representatie van een beoogd of bestaand fysiek product, systeem of proces dat dient als een vrijwel identieke digitale tegenhanger voor praktische doeleinden, zoals simulatie, integratie, testen, monitoring en onderhoud.<br><br>Voor meer informatie over het gebruik van de viewer, zie de verschillende onderwerpen</div><br><div style='display:flex; justify-content: center;'></div>",
             "tabs": {
               "intro": "Introductie",
               "movement": "Beweging",
               "library": "Bibliotheek",
-              "search": "Zoeken"
+              "search": "Zoeken",
+              "flood": "Overstroming"
             },
             "movement": {
               "headingZoom": "Zoom in/uit",
@@ -73,6 +74,16 @@
               "description": "Als u meer lagen wilt toevoegen bovenop de geconfigureerde lagen in de viewer, kunt u dit doen met behulp van de bibliotheek",
               "openLibrary": "Om de lagenbibliotheek te openen, klikt u op de knop 'map' aan de linkerkant",
               "libraryDescription": "Gebruik de zoekbalk onderaan om de gewenste lagen te zoeken of klik door de getoonde groepen. Klik op de laag om meer informatie over de laag weer te geven, schakel het selectievakje in om de laag aan de kaart toe te voegen of druk op de knop 'Toevoegen aan kaart' in de laagbeschrijvingsweergave"
+            },
+            "flood": {
+              "headingFloodOpen": "Open de overstromingstool",
+              "headingUsingFlood": "Gebruik van de overstromingstool",
+              "description": "De overstromingstool stelt u in staat om overstromingen in het gebied te simuleren en te analyseren.",
+              "openFlood": "Om de overstromingstool te openen, klikt u op de knop 'overstroming' aan de linkerkant",
+              "floodBreachDescription": "Selecteer eerst een breslocatie door op de kaart een bresicoon aan te klikken. Dit zal fungeren als het startpunt voor de overstromingssimulatie.",
+              "floodMenuDescription": "Gebruik vervolgens de verschillende opties in de overstromingstool om de simulatie aan te passen en uit te voeren. Kies eerst het gewenste scenario, bijvoorbeeld 1:3000 jaar. Vervolgens kun je de 'Tijd slider' gebruiken om het scenario af te spelen. Gebruik de 'Play' knop om automatisch het scenario zich te laten afspelen, of gebruik de pijltjes om per tijdstap de overstroming te bekijken.",
+              "headingMeasureDepth": "Diepte meten",
+              "measureDepthDescription": "Om de waterdiepte op een specifieke locatie te meten, zet de 'Diepte meten' knop aan en klik vervolgens op een overstroomd gebied op de gewenste locatie. De tool kan alleen gebruikt worden als je ingezoomd bent, omdat de terreinhoogte dan juist ingeladen wordt."
             }
         },
         "config_switcher": {
