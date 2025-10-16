@@ -40,14 +40,18 @@
           "title": "Digital-Twin Viewer",
           "close": "Fermer",
           "closeDontShowOnStart": "Fermer et ne pas afficher au démarrage",
-          "intro": "<div class='body-02'>A digital twin is a digital representation of an intended or actual real-world physical product, system, or process (a physical twin) that serves as the effectively indistinguishable digital counterpart of it for practical purposes, such as simulation, integration, testing, monitoring, and maintenance.<br><br>For more information on how to use the viewer see the different topics</div><br><div style='display:flex; justify-content: center;'></div>",
           "tabs": {
             "intro": "Introduction",
             "movement": "Mouvement",
             "library": "Bibliothèque",
             "search": "Recherche",
-            "flood": "Inondation"
+            "flood": "Inondation",
+            "stories": "Histoires"
           },
+          "intro": {
+                "introDescription": "Un Digital Twin est une représentation digitale d’un produit, système ou processus physique existant ou prévu, qui sert de contrepartie numérique quasiment identique à des fins pratiques telles que la simulation, l’intégration, les tests, la surveillance et la maintenance.",
+                "moreInfo": "Pour plus d’informations sur l’utilisation du viewer, consultez les différents sujets."
+            },
           "movement": {
             "headingZoom": "Zoom avant/arrière",
             "zoomDescription": "Le zoom avant et arrière peut être effectué de 3 manières différentes:",
@@ -81,6 +85,9 @@
               "floodMenuDescription": "Utilisez ensuite les différentes options de l'outil d'inondation pour personnaliser et exécuter la simulation. Choisissez d'abord le scénario souhaité, par exemple 1:3000 ans. Vous pouvez ensuite utiliser le 'curseur de temps' pour jouer le scénario. Utilisez le bouton 'Jouer' pour que le scénario se déroule automatiquement, ou utilisez les flèches pour visualiser l'inondation étape par étape.",
               "headingMeasureDepth": "Mesurer la profondeur",
               "measureDepthDescription": "Pour mesurer la profondeur de l'eau à un endroit précis, activez le bouton 'Mesurer la profondeur' puis cliquez sur une zone inondée à l'endroit souhaité. L'outil ne peut être utilisé que lorsque vous êtes zoomé, car la hauteur du terrain est alors correctement chargée."
+            },
+            "stories": {
+              "intro": "Ouvre l’outil d’histoire."
             }
         },
         "layerLibrary": {

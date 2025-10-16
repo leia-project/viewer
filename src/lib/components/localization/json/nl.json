@@ -41,7 +41,6 @@
             "title": "Digital-Twin Viewer",
             "close": "Sluiten",
             "closeDontShowOnStart": "Sluit en geef niet meer weer bij opstarten",
-            "intro": "<div class='body-02'>Een digital twin is een digitale representatie van een beoogd of bestaand fysiek product, systeem of proces dat dient als een vrijwel identieke digitale tegenhanger voor praktische doeleinden, zoals simulatie, integratie, testen, monitoring en onderhoud.<br><br>Voor meer informatie over het gebruik van de viewer, zie de verschillende onderwerpen</div><br><div style='display:flex; justify-content: center;'></div>",
             "tabs": {
               "intro": "Introductie",
               "movement": "Beweging",
@@ -49,6 +48,10 @@
               "search": "Zoeken",
               "flood": "Overstroming",
               "stories": "Verhalen"
+            },
+            "intro": {
+                "introDescription": "Een digital twin is een digitale representatie van een beoogd of bestaand fysiek product, systeem of proces dat dient als een vrijwel identieke digitale tegenhanger voor praktische doeleinden, zoals simulatie, integratie, testen, monitoring en onderhoud.",
+                "moreInfo": "Voor meer informatie over het gebruik van de viewer, zie de verschillende onderwerpen"
             },
             "movement": {
               "headingZoom": "Zoom in/uit",
@@ -86,7 +89,7 @@
               "headingMeasureDepth": "Diepte meten",
               "measureDepthDescription": "Om de waterdiepte op een specifieke locatie te meten, zet de 'Diepte meten' knop aan en klik vervolgens op een overstroomd gebied op de gewenste locatie. De tool kan alleen gebruikt worden als je ingezoomd bent, omdat de terreinhoogte dan juist ingeladen wordt."
             },
-             "stories": {
+            "stories": {
               "intro": "Open de verhaal tool"
             }
         },
