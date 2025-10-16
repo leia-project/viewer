@@ -38,7 +38,7 @@
 
     const base = process.env.APP_URL;
     export let txtTitle: string;
-    export let txtIntro: string;
+    // export let txtIntro: string;
     export let showOnStart: boolean;
 
     let selectedTab = 0;
@@ -51,11 +51,11 @@
     }
       
     $: tabs = [
-        { label: $_("tools.help.tabs.intro"), component: TabIntro, enabled: true, props: { txtIntro } },
-        { label: $_("tools.help.tabs.movement"), component: TabMovement, enabled: true, props: {_, base}},
-        { label: $_("tools.help.tabs.library"), component: TabLibrary, enabled: true, props: {_, base}},
-        { label: $_("tools.help.tabs.flood"), component: TabFlooding, enabled: floodingToolEnabled, props: {_, base}},
-        { label: $_("tools.help.tabs.stories"), component: TabStories, enabled: storyToolEnabled, props: {_}}
+        { label: $_("tools.help.tabs.intro"), component: TabIntro, enabled: true, props: { _ } },
+        { label: $_("tools.help.tabs.movement"), component: TabMovement, enabled: true, props: { _, base }},
+        { label: $_("tools.help.tabs.library"), component: TabLibrary, enabled: true, props: { _, base }},
+        { label: $_("tools.help.tabs.flood"), component: TabFlooding, enabled: floodingToolEnabled, props: { _, base }},
+        { label: $_("tools.help.tabs.stories"), component: TabStories, enabled: storyToolEnabled, props: { _ }}
     ] as ITabComponent[];
 
     $: enabledTabs = tabs.filter(tab => tab.enabled);
