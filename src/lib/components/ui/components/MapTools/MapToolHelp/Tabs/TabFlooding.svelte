@@ -1,6 +1,6 @@
 <script lang="ts">    
     export let _: any;
-    export let base: any; 
+    export let base: string; 
 </script>
 
 <div class="img-library">

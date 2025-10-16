@@ -1,6 +1,6 @@
 <script lang="ts">
     export let _: any;
-    export const base = process.env.APP_URL;
+    export let base: string;
 </script>
 
 <div class="heading-02">{$_("tools.help.movement.headingZoom")}</div>
