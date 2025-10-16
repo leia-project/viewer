@@ -9,7 +9,10 @@
 	let color: Array<string>;
 	let toolTipText: string;
 
-	if (data) {
+	$: hasActualData = data && data.length > 0 && data.some(item => item.value > 0);
+
+
+	$: if (hasActualData) {
 		// Change name 'group' to 'name' for compatibility with echarts
 		cleanData = data.map(item => ({ name: item.group, value: item.value }));
 		color = ['#339966', '#99ffcc', '#ffff99', '#ffcc66', '#9c4110']; // A B C D E colors
@@ -17,13 +20,13 @@
 	}
 	else {
 		cleanData = [
-			{ name: $_("tools.stories.storyChartNoData"), value: 0 }
+			{ name: $_("tools.stories.storyChartNoData"), value: 1 }
 		];
 		color = ['#cccccc']; // Grey color for no data
 		toolTipText = $_("tools.stories.requestDrawPolygon");
 	}
 
-	let option = {
+	$: option = {
 		color: color, 
 		title: {
 			text: $_("tools.stories.storyChartTitle"),
