@@ -20,7 +20,7 @@
     // let floodingTool: any = { enabled: false };
     let floodingToolEnabled: boolean = false
     let storyToolEnabled: boolean = false
-   
+
     onMount(() => {
         try {
             if (map) {
@@ -35,14 +35,31 @@
             console.error("Error accessing map context:", error);
         }
     });
-    
-    const base = process.env.APP_URL;
 
+    const base = process.env.APP_URL;
     export let txtTitle: string;
     export let txtIntro: string;
     export let showOnStart: boolean;
 
     let selectedTab = 0;
+
+    interface ITabComponent {
+        label: string;
+        component: typeof TabIntro | typeof TabMovement | typeof TabLibrary | typeof TabFlooding | typeof TabStories;
+        enabled: boolean;
+        props?: any;
+    }
+      
+    $: tabs = [
+        { label: $_("tools.help.tabs.intro"), component: TabIntro, enabled: true, props: { txtIntro } },
+        { label: $_("tools.help.tabs.movement"), component: TabMovement, enabled: true, props: {_, base}},
+        { label: $_("tools.help.tabs.library"), component: TabLibrary, enabled: true, props: {_, base}},
+        { label: $_("tools.help.tabs.flood"), component: TabFlooding, enabled: floodingToolEnabled, props: {_, base}},
+        { label: $_("tools.help.tabs.stories"), component: TabStories, enabled: storyToolEnabled, props: {_}}
+    ] as ITabComponent[];
+
+    $: enabledTabs = tabs.filter(tab => tab.enabled);
+    
     const dispatch = createEventDispatcher();
 
     function removeFromViewDontShowAgain(e: any): void {
@@ -83,45 +100,21 @@
         on:submit={(e) => {
             removeFromView(e);
         }}
-    
         >
+
         <div class="wrapper">
             <div class="tabs">
                 <Tabs bind:selected={selectedTab}>
-                    <Tab label={$_("tools.help.tabs.intro")} />
-                    <Tab label={$_("tools.help.tabs.movement")} />
-                    <Tab label={$_("tools.help.tabs.library")} />
-                    {#if floodingToolEnabled}
-                        <Tab label={$_("tools.help.tabs.flood")} />
-                    {/if}
-                    {#if storyToolEnabled}
-                        <Tab label={$_("tools.help.tabs.stories")} />
-                    {/if}
+                    {#each enabledTabs as { label }, index}
+                            <Tab label={label} />
+                    {/each}
                 </Tabs>
             </div>
 
             <div class="content">
-                <div>
-                    {#if selectedTab === 0}
-                        <TabIntro txtIntro={txtIntro}/>
-                    {/if}
-
-                    {#if selectedTab === 1}
-                        <TabMovement {base}{_}/>
-                    {/if}
-
-                    {#if selectedTab === 2}
-                        <TabLibrary {base}{_}/>
-                    {/if}
-
-                    {#if selectedTab === 3 && floodingToolEnabled}
-                        <TabFlooding {base}{_}/>
-                    {/if}
-
-                    {#if selectedTab === 4 && storyToolEnabled}
-                        <TabStories {_}/>
-                    {/if}
-                </div>
+                {#if enabledTabs[selectedTab].enabled}
+                    <svelte:component this={enabledTabs[selectedTab].component} {...enabledTabs[selectedTab].props} />
+                {/if}
             </div>
         </div>
     </Modal>
