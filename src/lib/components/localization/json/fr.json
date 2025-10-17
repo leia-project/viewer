@@ -36,58 +36,58 @@
             "attribution": "Attribution"
         },
         "help": {
-          "help": "Aide",
-          "title": "Digital-Twin Viewer",
-          "close": "Fermer",
-          "closeDontShowOnStart": "Fermer et ne pas afficher au démarrage",
-          "tabs": {
-            "intro": "Introduction",
-            "movement": "Mouvement",
-            "library": "Bibliothèque",
-            "search": "Recherche",
-            "flood": "Inondation",
-            "stories": "Histoires"
-          },
-          "intro": {
+            "help": "Aide",
+            "title": "Digital-Twin Viewer",
+            "close": "Fermer",
+            "closeDontShowOnStart": "Fermer et ne pas afficher au démarrage",
+            "tabs": {
+                "intro": "Introduction",
+                "movement": "Mouvement",
+                "library": "Bibliothèque",
+                "search": "Recherche",
+                "flood": "Inondation",
+                "stories": "Histoires"
+            },
+            "intro": {
                 "introDescription": "Un Digital Twin est une représentation digitale d’un produit, système ou processus physique existant ou prévu, qui sert de contrepartie numérique quasiment identique à des fins pratiques telles que la simulation, l’intégration, les tests, la surveillance et la maintenance.",
                 "moreInfo": "Pour plus d’informations sur l’utilisation du viewer, consultez les différents sujets."
             },
-          "movement": {
-            "headingZoom": "Zoom avant/arrière",
-            "zoomDescription": "Le zoom avant et arrière peut être effectué de 3 manières différentes:",
-            "zoomOption1": "1) Faites défiler vers le haut ou vers le bas pour effectuer un zoom avant ou arrière.",
-            "zoomOption2": "2) Maintenez le bouton droit de votre souris enfoncé et déplacez la souris vers le haut ou vers le bas pour un zoom fluide.",
-            "zoomOption3": "3) Utilisez les boutons de zoom avant et arrière en bas à droite.",
-            "headingRotatePitch": "Rotation & inclinaison",
-            "rotatePitchDescription": "Vous pouvez faire pivoter et incliner la caméra, ou l'incliner sous la surface. Deux méthodes sont possibles.",
-            "rotatePitchOption1": "1) Appuyez sur la molette de votre souris et déplacez la souris.",
-            "rotatePitchOption2": "2) Maintenez la touche <help-key>ctrl</help-key> de votre clavier et le bouton gauche de votre souris enfoncés et déplacez la souris.",
-            "headingButtons": "Boutons de carte",
-            "buttonsDescription": "En bas à droite, vous trouverez quelques boutons de carte.",
-            "buttonsHome": "Réinitialiser la vue à la position de départ",
-            "buttonsCompass": "Réinitialiser le cap vers le nord",
-            "buttonsZoomIn": "Zoom avant",
-            "buttonsZoomOut": "Zoom arrière"
-          },
-          "library": {
-            "headingLibraryOpen": "Ouvrir Bibliothèque de Calques",
-            "headingUsingLibrary": "Utilisation de la Bibliothèque de Calques",
-            "description": "Si vous souhaitez ajouter d'autres calques au-dessus des calques configurés dans la visionneuse, vous pouvez le faire à l'aide de la bibliothèque de calques",
-            "openLibrary": "Pour ouvrir la bibliothèque de calques, cliquez sur le bouton 'dossier' sur le côté gauche",
-            "libraryDescription": "Utilisez la barre de recherche en bas pour rechercher les couches souhaitées ou parcourez les groupes affichés. Pour afficher plus d'informations sur la couche, cliquez dessus. Pour l'ajouter à la carte, cochez la case correspondante ou cliquez sur le bouton 'Ajouter à la Carte' dans la description de la couche."
-          },
-          "flood": {
-              "headingFloodOpen": "Ouvrir l'outil d'inondation",
-              "headingUsingFlood": "Utilisation de l'outil d'inondation",
-              "description": "L'outil d'inondation vous permet de simuler et d'analyser les inondations dans la région.",
-              "openFlood": "Pour ouvrir l'outil d'inondation, cliquez sur le bouton 'inondation' sur le côté gauche",
-              "floodBreachDescription": "Sélectionnez d'abord un emplacement de brèche en cliquant sur une icône de brèche sur la carte. Ceci servira de point de départ pour la simulation d'inondation.",
-              "floodMenuDescription": "Utilisez ensuite les différentes options de l'outil d'inondation pour personnaliser et exécuter la simulation. Choisissez d'abord le scénario souhaité, par exemple 1:3000 ans. Vous pouvez ensuite utiliser le 'curseur de temps' pour jouer le scénario. Utilisez le bouton 'Jouer' pour que le scénario se déroule automatiquement, ou utilisez les flèches pour visualiser l'inondation étape par étape.",
-              "headingMeasureDepth": "Mesurer la profondeur",
-              "measureDepthDescription": "Pour mesurer la profondeur de l'eau à un endroit précis, activez le bouton 'Mesurer la profondeur' puis cliquez sur une zone inondée à l'endroit souhaité. L'outil ne peut être utilisé que lorsque vous êtes zoomé, car la hauteur du terrain est alors correctement chargée."
+            "movement": {
+                "headingZoom": "Zoom avant/arrière",
+                "zoomDescription": "Le zoom avant et arrière peut être effectué de 3 manières différentes:",
+                "zoomOption1": "1) Faites défiler vers le haut ou vers le bas pour effectuer un zoom avant ou arrière.",
+                "zoomOption2": "2) Maintenez le bouton droit de votre souris enfoncé et déplacez la souris vers le haut ou vers le bas pour un zoom fluide.",
+                "zoomOption3": "3) Utilisez les boutons de zoom avant et arrière en bas à droite.",
+                "headingRotatePitch": "Rotation & inclinaison",
+                "rotatePitchDescription": "Vous pouvez faire pivoter et incliner la caméra, ou l'incliner sous la surface. Deux méthodes sont possibles.",
+                "rotatePitchOption1": "1) Appuyez sur la molette de votre souris et déplacez la souris.",
+                "rotatePitchOption2": "2) Maintenez la touche <help-key>ctrl</help-key> de votre clavier et le bouton gauche de votre souris enfoncés et déplacez la souris.",
+                "headingButtons": "Boutons de carte",
+                "buttonsDescription": "En bas à droite, vous trouverez quelques boutons de carte.",
+                "buttonsHome": "Réinitialiser la vue à la position de départ",
+                "buttonsCompass": "Réinitialiser le cap vers le nord",
+                "buttonsZoomIn": "Zoom avant",
+                "buttonsZoomOut": "Zoom arrière"
+            },
+            "library": {
+                "headingLibraryOpen": "Ouvrir Bibliothèque de Calques",
+                "headingUsingLibrary": "Utilisation de la Bibliothèque de Calques",
+                "description": "Si vous souhaitez ajouter d'autres calques au-dessus des calques configurés dans la visionneuse, vous pouvez le faire à l'aide de la bibliothèque de calques",
+                "openLibrary": "Pour ouvrir la bibliothèque de calques, cliquez sur le bouton 'dossier' sur le côté gauche",
+                "libraryDescription": "Utilisez la barre de recherche en bas pour rechercher les couches souhaitées ou parcourez les groupes affichés. Pour afficher plus d'informations sur la couche, cliquez dessus. Pour l'ajouter à la carte, cochez la case correspondante ou cliquez sur le bouton 'Ajouter à la Carte' dans la description de la couche."
+            },
+            "flood": {
+                "headingFloodOpen": "Ouvrir l'outil d'inondation",
+                "headingUsingFlood": "Utilisation de l'outil d'inondation",
+                "description": "L'outil d'inondation vous permet de simuler et d'analyser les inondations dans la région.",
+                "openFlood": "Pour ouvrir l'outil d'inondation, cliquez sur le bouton 'inondation' sur le côté gauche",
+                "floodBreachDescription": "Sélectionnez d'abord un emplacement de brèche en cliquant sur une icône de brèche sur la carte. Ceci servira de point de départ pour la simulation d'inondation.",
+                "floodMenuDescription": "Utilisez ensuite les différentes options de l'outil d'inondation pour personnaliser et exécuter la simulation. Choisissez d'abord le scénario souhaité, par exemple 1:3000 ans. Vous pouvez ensuite utiliser le 'curseur de temps' pour jouer le scénario. Utilisez le bouton 'Jouer' pour que le scénario se déroule automatiquement, ou utilisez les flèches pour visualiser l'inondation étape par étape.",
+                "headingMeasureDepth": "Mesurer la profondeur",
+                "measureDepthDescription": "Pour mesurer la profondeur de l'eau à un endroit précis, activez le bouton 'Mesurer la profondeur' puis cliquez sur une zone inondée à l'endroit souhaité. L'outil ne peut être utilisé que lorsque vous êtes zoomé, car la hauteur du terrain est alors correctement chargée."
             },
             "stories": {
-              "intro": "Ouvre l’outil d’histoire."
+                "intro": "Ouvre l’outil d’histoire."
             }
         },
         "layerLibrary": {
