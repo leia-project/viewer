@@ -52,7 +52,7 @@
 	export let textStepBack: string;
 	export let textStepForward: string;
 	export let layerLegends: Array<LegendOptions>; 
-	export let baseLayerId: string;
+	export let baseLayerId: string | undefined;
 
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
 	const dispatch = createEventDispatcher();
@@ -170,7 +170,10 @@
 		// Return to step where user left
 		currentPage.set(savedStepNumber);
 		setTimeout(() => { scrollToStep(savedStepNumber-1) }, 150); // Timeout when height of images is not explicitly set
-		baseLayer = copyLayerById(baseLayerId);
+		if (baseLayerId) {
+			baseLayer = copyLayerById(baseLayerId);
+			if (!baseLayer) baseLayerId = undefined;
+		}
 	});
 
 
@@ -474,7 +477,7 @@
 		const url = URL.createObjectURL(blob);
 		const link = document.createElement('a');
 		link.href = url;
-		link.download = 'MyDocument.pdf';
+		link.download = 'MyDocument.pdf'; // TODO: Add appropriate filename
 		link.click();
 		URL.revokeObjectURL(url); // cleanup
 	}
@@ -500,24 +503,28 @@
 			{story.name}
 		</div>
 		<div class="nav-controls">
-			<div class="download-pdf">
-				<Button
-					kind={"tertiary"}
-					iconDescription={$_("tools.stories.downloadPDF")}
-					tooltipPosition="top"
-					icon={DocumentDownload}
-					on:click={downloadPDF} 
-				/>
-			</div>
-			<div class="toggle-basemap">
-				<Button
-					kind="tertiary"
-					iconDescription={$baseMapVisible ? `${$_("general.close")} ${$_("tools.stories.basemap")}` : `${$_("general.open")} ${$_("tools.stories.basemap")}`}
-					tooltipPosition="top"
-					icon={ChoroplethMap}
-					on:click={() => $baseMapVisible = !$baseMapVisible}
-				/>
-			</div>
+			{#if story.requestPolygonArea}
+				<div class="download-pdf">
+					<Button
+						kind={"tertiary"}
+						iconDescription={$_("tools.stories.downloadPDF")}
+						tooltipPosition="top"
+						icon={DocumentDownload}
+						on:click={downloadPDF} 
+					/>
+				</div>
+			{/if}
+			{#if baseLayerId}
+				<div class="toggle-basemap">
+					<Button
+						kind="tertiary"
+						iconDescription={$baseMapVisible ? `${$_("general.close")} ${$_("tools.stories.basemap")}` : `${$_("general.open")} ${$_("tools.stories.basemap")}`}
+						tooltipPosition="top"
+						icon={ChoroplethMap}
+						on:click={() => $baseMapVisible = !$baseMapVisible}
+					/>
+				</div>
+			{/if}
 			{#if story.requestPolygonArea}
 				<div class="draw-polygon">
 					<Button

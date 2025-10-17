@@ -83,14 +83,18 @@
                 "headingFloodOpen": "Open de overstromingstool",
                 "headingUsingFlood": "Gebruik van de overstromingstool",
                 "description": "De overstromingstool stelt u in staat om overstromingen in het gebied te simuleren en te analyseren.",
-                "openFlood": "Om de overstromingstool te openen, klikt u op de knop 'overstroming' aan de linkerkant",
+                "openFlood": "Om de overstromingstool te openen, klikt u op de knop 'overstroming' aan de linkerkant.",
                 "floodBreachDescription": "Selecteer eerst een breslocatie door op de kaart een bresicoon aan te klikken. Dit zal fungeren als het startpunt voor de overstromingssimulatie.",
                 "floodMenuDescription": "Gebruik vervolgens de verschillende opties in de overstromingstool om de simulatie aan te passen en uit te voeren. Kies eerst het gewenste scenario, bijvoorbeeld 1:3000 jaar. Vervolgens kun je de 'Tijd slider' gebruiken om het scenario af te spelen. Gebruik de 'Play' knop om automatisch het scenario zich te laten afspelen, of gebruik de pijltjes om per tijdstap de overstroming te bekijken.",
                 "headingMeasureDepth": "Diepte meten",
                 "measureDepthDescription": "Om de waterdiepte op een specifieke locatie te meten, zet de 'Diepte meten' knop aan en klik vervolgens op een overstroomd gebied op de gewenste locatie. De tool kan alleen gebruikt worden als je ingezoomd bent, omdat de terreinhoogte dan juist ingeladen wordt."
             },
             "stories": {
-                "intro": "Open de verhaal tool"
+                "description": "Bekijk met de verhalenmodule voorgemaakte rondleidingen die een verhaal vertellen.",
+                "headingOpenStories": "Verhalen openen",
+                "openStories": "Open de verhalenmodule door op de 'Verhalen' knop aan de linkerkant te klikken. Selecteer een verhaal uit de lijst om de rondleiding te starten.",
+                "headingStoryNavigation": "Navigeren",
+                "storyNavigation": "Gebruik de hoofdstuk- en paginaknoppen om door het verhaal te navigeren, of scroll naar beneden in het menu om door te gaan naar de volgende pagina. U kunt op elk moment het verhaal sluiten door op de knop 'Terug naar overzicht' te klikken."
             }
         },
         "config_switcher": {

@@ -83,14 +83,18 @@
                 "headingFloodOpen": "Open the flooding tool",
                 "headingUsingFlood": "Using the flooding tool",
                 "description": "The flooding tool enables you to simulate and analyze floods in the area.",
-                "openFlood": "To open the flooding tool, click the 'flooding' button on the left side",
+                "openFlood": "To open the flooding tool, click the 'flooding' button on the left side.",
                 "floodBreachDescription": "First select a breach location by clicking on a breach icon on the map. This will act as the starting point for the flood simulation.",
                 "floodMenuDescription": "After that, use the different options in the flooding tool to customize and run the simulation. First choose the desired scenario, for example 1:3000 years. Then you can use the 'Time slider' to play the scenario. Use the 'Play' button to automatically play the scenario, or use the arrows to view the flood step by step.",
                 "headingMeasureDepth": "Measure depth",
                 "measureDepthDescription": "To measure the water depth at a specific location, turn on the 'Measure depth' button and then click on a flooded area at the desired location. The tool can only be used when zoomed in, as the terrain height is then loaded correctly."
             },
             "stories": {
-                "intro": "Open the stories tool"
+                "description": "This module allows you to view pre-made tours that tell a story.",
+                "headingOpenStories": "Opening Stories",
+                "openStories": "Open the story tool by clicking the 'Stories' button on the left side. Select a story from the list to start the tour.",
+                "headingStoryNavigation": "Navigation",
+                "storyNavigation": "Use the chapter and page buttons to move through the story, or simply scroll down in the menu. You can go back to the overview at any time by clicking the 'Back to overview' button."
             }
         },
         "layerLibrary": {

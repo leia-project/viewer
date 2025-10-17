@@ -29,7 +29,7 @@
 	let stories = new Array<Story>();
 	let selectedStory: Story | undefined;
 	let stepNumber: number;
-	let baseLayerId: string;
+	let baseLayerId: string | undefined;
 
 	let tool = new MapToolMenuOption(id, icon, label);
 	const layers = cesiumMap.layers;
@@ -100,15 +100,15 @@
 			// Load all stories
 			for (let i = 0; i < configStories.length; i++) {
 				const story = configStories[i];
-				const storyName = story.name;
-				const storyDescription = story.description;
-				const storyWidth = story.width;
-				const storyForce2DMode = story.force2DMode ?? false;
-				const storyStaticCamera = story.staticCamera ?? false;
-				const storyRequestPolygonArea = story.requestPolygonArea.enabled ?? false;
-				const storyStatisticsApi = story.requestPolygonArea.statisticsApi ?? "https://virtueel.dev.zeeland.nl/ko_api/analyze";
-				baseLayerId = story.baseLayerId ?? "";
-				const storyChapters = new Array<StoryChapter>();
+				const storyName: string = story.name;
+				const storyDescription: string = story.description;
+				const storyWidth: string = story.width;
+				const storyForce2DMode: boolean = story.force2DMode ?? false;
+				const storyStaticCamera: boolean = story.staticCamera ?? false;
+				const storyRequestPolygonArea:boolean = story.requestPolygonArea.enabled ?? false;
+				const storyStatisticsApi: string | undefined = story.requestPolygonArea.statisticsApi ?? undefined;
+				const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
+				baseLayerId = story.baseLayerId ?? undefined;
 
 				// Load all chapter groups
 				const chapterGroups = story.chapterGroups;

@@ -53,7 +53,7 @@
         { label: $_("tools.help.tabs.movement"), component: TabMovement, enabled: true, props: { _, base }},
         { label: $_("tools.help.tabs.library"), component: TabLibrary, enabled: true, props: { _, base }},
         { label: $_("tools.help.tabs.flood"), component: TabFlooding, enabled: floodingToolEnabled, props: { _, base }},
-        { label: $_("tools.help.tabs.stories"), component: TabStories, enabled: storyToolEnabled, props: { _ }}
+        { label: $_("tools.help.tabs.stories"), component: TabStories, enabled: storyToolEnabled, props: { _, base }}
     ] as ITabComponent[];
 
     $: enabledTabs = tabs.filter(tab => tab.enabled);

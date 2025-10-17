@@ -3,10 +3,9 @@
     export let base: string; 
 </script>
 
+<div class="heading-04">{$_("tools.help.tabs.flood")}</div>
 
-<div class="img-left">
-    <img src="{base}/images/help_flood_open.png" alt="flood icon" />
-</div>
+
 
 <div class="body-02">
     {$_("tools.help.flood.description")}
@@ -15,6 +14,10 @@
 <div class="heading-02">{$_("tools.help.flood.headingFloodOpen")}</div>
 <div class="body-02">
     {$_("tools.help.flood.openFlood")}
+</div>
+
+<div class="img-left">
+    <img src="{base}/images/help_flood_open.png" alt="flood icon" />
 </div>
 
 <div class="heading-02">{$_("tools.help.flood.headingUsingFlood")}</div>
