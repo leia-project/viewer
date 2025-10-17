@@ -1,10 +1,11 @@
 <script lang="ts">
     import * as Cesium from "cesium";
 	import { _ } from "svelte-i18n";
-    import { Button, Tooltip } from "carbon-components-svelte";
+    import { Button, TooltipIcon } from "carbon-components-svelte";
 	import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import AreaCustom from "carbon-icons-svelte/lib/AreaCustom.svelte";
     import Checkmark from "carbon-icons-svelte/lib/Checkmark.svelte";
+    import Information from "carbon-icons-svelte/lib/Information.svelte";
 	import { Map } from "../module/map";
 	import type { Story } from "./Story";
 	import { StoryLayer } from "./StoryLayer";
@@ -290,9 +291,12 @@
         <div>
             <div class="title-with-tooltip">
                 <h4>{$_("tools.stories.drawPolygon")}</h4>
-                <Tooltip align="start" direction="right">
-                    {$_("tools.stories.drawPolygonText")}
-                </Tooltip>
+                <TooltipIcon  
+                    align="start"
+                    direction="right"
+                    tooltipText={$_("tools.stories.drawPolygonText")}
+                    icon={Information}
+                />
             </div>
         </div>
     {/if}
