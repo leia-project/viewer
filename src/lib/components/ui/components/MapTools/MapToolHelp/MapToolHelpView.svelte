@@ -17,7 +17,6 @@
 
 	$: map = get(app.map);
 
-    // let floodingTool: any = { enabled: false };
     let floodingToolEnabled: boolean = false
     let storyToolEnabled: boolean = false
 
@@ -38,7 +37,6 @@
 
     const base = process.env.APP_URL;
     export let txtTitle: string;
-    // export let txtIntro: string;
     export let showOnStart: boolean;
 
     let selectedTab = 0;
@@ -82,14 +80,13 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <help>
-    
-    
     <Modal
         open={true}
         modalHeading={txtTitle}
         primaryButtonText="{$_("tools.help.close")}"
         secondaryButtonText={ showOnStart ? $_("tools.help.closeDontShowOnStart") : ""}
-        style="margin-bottom: 0"
+        size="lg"
+        style="margin-bottom: 0;"
         on:click:button--secondary={(e) => {
             removeFromViewDontShowAgain(e);
         }}
@@ -104,7 +101,7 @@
 
         <div class="wrapper">
             <div class="tabs">
-                <Tabs bind:selected={selectedTab}>
+                <Tabs autoWidth bind:selected={selectedTab}>
                     {#each enabledTabs as { label }, index}
                             <Tab label={label} />
                     {/each}
