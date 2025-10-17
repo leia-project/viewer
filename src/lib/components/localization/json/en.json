@@ -251,6 +251,7 @@
             "statistics": "Statistics",
             "storyChartTitle": "Class distribution",
             "storyChartNoData": "No Data",
+            "storyChartNoDataInPolygon": "No data in the drawn project area",
             "basemap": "Basemap",
             "requestDrawPolygon": "Draw a project area to retrieve data",
             "drawPolygon": "Draw Project Area",
