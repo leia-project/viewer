@@ -2,12 +2,93 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="description" content="Svelte demo app" />
+		<meta name="description" content="Klimaatonderlegger" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.ico" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Klimaatonderlegger</title> <!-- Added explicit title for clarity and SEO -->
 		%sveltekit.head%
+		<style>
+			/* Help screen styles */
+			.help-screen {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background overlay */
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				z-index: 1000; /* Ensure it's on top of other content */
+				padding: 20px; /* Add padding to prevent content from touching screen edges */
+				box-sizing: border-box; /* Include padding in the element's total width and height */
+			}
+
+			.help-screen-content {
+				background-color: white;
+				padding: 30px; /* Increased padding for better spacing */
+				border-radius: 8px; /* Slightly more rounded corners */
+				max-width: 800px; /* Set a reasonable max-width for readability on large screens */
+				width: 100%; /* Ensure it takes full width up to max-width */
+				max-height: 80%;
+				overflow-y: auto; /* Enable scrolling if content is too long */
+				box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Added a subtle shadow for depth */
+				color: #333; /* Default text color for content */
+				line-height: 1.6; /* Improved line height for readability */
+			}
+
+			.help-screen-content h2 {
+				margin-top: 0;
+				color: #222; /* Slightly darker heading color for contrast */
+				margin-bottom: 20px;
+			}
+
+			.help-screen-content p {
+				margin-bottom: 15px; /* Added margin below paragraphs */
+			}
+
+			.help-screen-content ol {
+				list-style-type: decimal;
+				margin-left: 25px; /* Indent ordered list */
+				margin-bottom: 15px;
+			}
+
+			.help-screen-content ol li {
+				margin-bottom: 8px; /* Spacing between list items */
+			}
+
+			.help-screen-content b {
+				font-weight: 700; /* Ensure bold text is clearly visible */
+			}
+
+			.help-screen-content a {
+				color: #007bff; /* Standard link color */
+				text-decoration: underline;
+			}
+			.help-screen-content a:hover {
+				text-decoration: none;
+			}
+		</style>
 	</head>
 	<body>
 		<div id="svelte">%sveltekit.body%</div>
+
+		{#if $page.data.projectsToolEnabled}
+			<div class="help-screen" role="dialog" aria-modal="true" aria-labelledby="help-screen-title">
+				<div class="help-screen-content">
+					<h2 id="help-screen-title">Projects Tool Help</h2>
+					<p>Welcome to the Projects Tool help section. This guide will walk you through the essential functionalities to get you started with managing your projects effectively.</p>
+					<p>Here's how to use it:</p>
+					<ol>
+						<li><b>Creating a project:</b> To begin, locate and click the "New Project" button. A new project entry will instantly appear, ready for you to input its details and tasks.</li>
+						<li><b>Adding tasks:</b> Once you have a project, you can add individual tasks to it. Simply enter the task description into the designated field and press Enter.</li>
+						<li><b>Saving:</b> Your progress is automatically saved as you add or modify tasks, ensuring that you never lose any of your valuable work.</li>
+						<li><b>Editing a task:</b> To make changes to an existing task, double-click on the task item. An editable input field will appear, allowing you to update the task description.</li>
+						<li><b>Deleting a task:</b> To remove a task, double-click on the task to activate its edit mode, and then click the "Delete" button. Confirm your action if prompted.</li>
+					</ol>
+					<p>For further assistance, detailed documentation, or to report an issue, please do not hesitate to contact our support team at <a href="mailto:support@example.com">support@example.com</a>.</p>
+				</div>
+			</div>
+		{/if}
 	</body>
 </html>
