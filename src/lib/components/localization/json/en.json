@@ -37,53 +37,64 @@
             "attribution": "Attribution"
         },
         "help": {
-          "help": "Help",
-          "title": "Digital-Twin Viewer",
-          "close": "Close",
-          "closeDontShowOnStart": "Close and don't show on startup",
-          "intro": "<div class='body-02'>A digital twin is a digital representation of an intended or actual real-world physical product, system, or process (a physical twin) that serves as the effectively indistinguishable digital counterpart of it for practical purposes, such as simulation, integration, testing, monitoring, and maintenance.<br><br>For more information on how to use the viewer see the different topics</div><br><div style='display:flex; justify-content: center;'></div>",
-          "tabs": {
-            "intro": "Introduction",
-            "movement": "Movement",
-            "library": "Library",
-            "search": "Search",
-            "flood": "Flooding"
-          },
-          "movement": {
-            "headingZoom": "Zooming in/out",
-            "zoomDescription": "Zooming in and out can be done in 3 different ways:",
-            "zoomOption1": "1) Scroll up or down to zoom in or out.",
-            "zoomOption2": "2) Hold your right mouse button and move the mouse up or down for seamless zooming.",
-            "zoomOption3": "3) Use the zoom in and out buttons in the bottom right.",
-            "headingRotatePitch": "Rotate & Pitch",
-            "rotatePitchDescription": "You can rotate and pitch the camera, it is also possible to pitch the camera below the surface. This can be done in 2 different ways.",
-            "rotatePitchOption1": "1) Press down your mouse scroll wheel and move the mouse around.",
-            "rotatePitchOption2": "2) Hold down the <help-key>ctrl</help-key> key on your keyboard and your left mouse button and move the mouse around.",
-            "headingButtons": "Map Buttons",
-            "buttonsDescription": "On the bottom right some map buttons can be found.",
-            "buttonsFlyMode": "Activate FlyMode",
-            "buttonsWalkMode": "Activate WalkMode",
-            "buttonsHome": "Reset the view to the start position",
-            "buttonsCompass": "Reset the heading to North",
-            "buttonsZoomIn": "Zoom in",
-            "buttonsZoomOut": "Zoom out"
-          },
-          "library": {
-            "headingLibraryOpen": "Open Layer Library",
-            "headingUsingLibrary": "Using the Layer Library",
-            "description": "If you want to add more layers on top of the configured layers in the viewer you can do so using the layer library",
-            "openLibrary": "To open the layer library click the 'folder' button on the left side",
-            "libraryDescription": "Use the search bar on the bottom to search for desired layers or click trough the shown groups. To show more information about the layer click the layer, to add the layer to the map, enable the checkbox or press the 'Add to map' button in the layer description view"
-          },
-          "flood": {
-              "headingFloodOpen": "Open the flooding tool",
-              "headingUsingFlood": "Using the flooding tool",
-              "description": "The flooding tool enables you to simulate and analyze floods in the area.",
-              "openFlood": "To open the flooding tool, click the 'flooding' button on the left side",
-              "floodBreachDescription": "First select a breach location by clicking on a breach icon on the map. This will act as the starting point for the flood simulation.",
-              "floodMenuDescription": "After that, use the different options in the flooding tool to customize and run the simulation. First choose the desired scenario, for example 1:3000 years. Then you can use the 'Time slider' to play the scenario. Use the 'Play' button to automatically play the scenario, or use the arrows to view the flood step by step.",
-              "headingMeasureDepth": "Measure depth",
-              "measureDepthDescription": "To measure the water depth at a specific location, turn on the 'Measure depth' button and then click on a flooded area at the desired location. The tool can only be used when zoomed in, as the terrain height is then loaded correctly."
+            "help": "Help",
+            "title": "Digital-Twin Viewer",
+            "close": "Close",
+            "closeDontShowOnStart": "Close and don't show on startup",
+            "tabs": {
+                "intro": "Introduction",
+                "movement": "Movement",
+                "library": "Library",
+                "search": "Search",
+                "flood": "Flooding",
+                "stories": "Stories"
+            },
+            "intro": {
+                "introDescription": "A digital twin is a digital representation of a intended or existing physical product, system, or process that serves as a virtually identical digital counterpart for practical purposes, such as simulation, integration, testing, monitoring, and maintenance.",
+                "moreInfo": "For more information on using the viewer, see the various topics."    
+            },
+            "movement": {
+                "headingZoom": "Zooming in/out",
+                "zoomDescription": "Zooming in and out can be done in 3 different ways:",
+                "zoomOption1": "1) Scroll up or down to zoom in or out.",
+                "zoomOption2": "2) Hold your right mouse button and move the mouse up or down for seamless zooming.",
+                "zoomOption3": "3) Use the zoom in and out buttons in the bottom right.",
+                "headingRotatePitch": "Rotate & Pitch",
+                "rotatePitchDescription": "You can rotate and pitch the camera, it is also possible to pitch the camera below the surface. This can be done in 2 different ways.",
+                "rotatePitchOption1": "1) Press down your mouse scroll wheel and move the mouse around.",
+                "rotatePitchOption2": "2) Hold down the <help-key>ctrl</help-key> key on your keyboard and your left mouse button and move the mouse around.",
+                "headingButtons": "Map Buttons",
+                "buttonsDescription": "On the bottom right some map buttons can be found.",
+                "buttonsFlyMode": "Activate FlyMode",
+                "buttonsWalkMode": "Activate WalkMode",
+                "buttonsHome": "Reset the view to the start position",
+                "buttonsCompass": "Reset the heading to North",
+                "buttonsZoomIn": "Zoom in",
+                "buttonsZoomOut": "Zoom out"
+            },
+            "library": {
+                "headingLibraryOpen": "Open Layer Library",
+                "headingUsingLibrary": "Using the Layer Library",
+                "description": "If you want to add more layers on top of the configured layers in the viewer you can do so using the layer library",
+                "openLibrary": "To open the layer library click the 'folder' button on the left side",
+                "libraryDescription": "Use the search bar on the bottom to search for desired layers or click trough the shown groups. To show more information about the layer click the layer, to add the layer to the map, enable the checkbox or press the 'Add to map' button in the layer description view"
+            },
+            "flood": {
+                "headingFloodOpen": "Open the flooding tool",
+                "headingUsingFlood": "Using the flooding tool",
+                "description": "The flooding tool enables you to simulate and analyze floods in the area.",
+                "openFlood": "To open the flooding tool, click the 'flooding' button on the left side.",
+                "floodBreachDescription": "First select a breach location by clicking on a breach icon on the map. This will act as the starting point for the flood simulation.",
+                "floodMenuDescription": "After that, use the different options in the flooding tool to customize and run the simulation. First choose the desired scenario, for example 1:3000 years. Then you can use the 'Time slider' to play the scenario. Use the 'Play' button to automatically play the scenario, or use the arrows to view the flood step by step.",
+                "headingMeasureDepth": "Measure depth",
+                "measureDepthDescription": "To measure the water depth at a specific location, turn on the 'Measure depth' button and then click on a flooded area at the desired location. The tool can only be used when zoomed in, as the terrain height is then loaded correctly."
+            },
+            "stories": {
+                "description": "This module allows you to view pre-made tours that tell a story.",
+                "headingOpenStories": "Opening Stories",
+                "openStories": "Open the story tool by clicking the 'Stories' button on the left side. Select a story from the list to start the tour.",
+                "headingStoryNavigation": "Navigation",
+                "storyNavigation": "Use the chapter and page buttons to move through the story, or simply scroll down in the menu. You can go back to the overview at any time by clicking the 'Back to overview' button."
             }
         },
         "layerLibrary": {
