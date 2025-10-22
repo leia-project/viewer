@@ -75,6 +75,7 @@ Base configuration for the viewer such as start position, UI colors.
 |-|-|-|
 |startPosition|Startposition of the camera|[startPosition](#startposition)|
 |startCameraMode3D|Choose to start the camera in 2D or 3D mode|boolean|
+|startToolOpen|Choose the id of the map tool you want the viewer to start with already opened. Current support: `layermanager`, `stories`|string|
 |colors|Colors to use in de app, for more info check Carbon Design|[colors](#colors)|
 |title|The title shown in the top bar of the viewer|string|
 |subTitle|Subtitle shown in the top bar after the title|string|

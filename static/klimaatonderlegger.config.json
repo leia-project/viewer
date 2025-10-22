@@ -549,6 +549,7 @@
             "duration": 1.50
         },
         "startCameraMode3D": false,
+        "startToolOpen": "stories",
         "colors": {
             "ui-background": "#ffffff",
             "interactive-01": "#214170",
@@ -718,14 +719,13 @@
             }
         },
         {
-      "id": "flooding",
-      "enabled": true,
-      "settings": {
-        "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
-        "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson"
-      }
-    },
-
+            "id": "flooding",
+            "enabled": true,
+            "settings": {
+                "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
+                "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson"
+            }
+        },
         {
             "id": "layermanager",
             "enabled": true,
