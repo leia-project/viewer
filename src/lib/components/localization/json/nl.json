@@ -269,6 +269,7 @@
             "statistics": "Statistieken",
             "storyChartTitle": "Verdeling per klasse",
             "storyChartNoData": "Geen Data",
+            "storyChartNoDataInPolygon": "Geen data in het getekende projectgebied",
             "basemap": "Achtergrondkaart",
             "requestDrawPolygon": "Teken een projectgebied in om data op te halen",
             "drawPolygon": "Teken Projectgebied",
