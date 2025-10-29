@@ -38,7 +38,8 @@
 	const base = process.env.APP_URL;
 	let mapVisible = true;
 	let interfaceVisible = true;
-	
+	const aliasDict: { [key: string]: string | undefined } = {};
+
 	const map = app.map;
 	$: layers = $map ? $map.layers : [];
 	$: library = $map ? $map.layerLibrary : undefined;
@@ -56,14 +57,18 @@
 				if (loaded) {
 					if (map.toolSettings) {
 						setEnabledMapTools(map.toolSettings);
-					}
+	
+						for (const setting of map.toolSettings) {
+    						const alias = setting.settings ? setting.settings.alias : undefined;
+    						aliasDict[setting.id] = alias;
+						}
 
 					if (map.viewerSettings) {
 						settings.set(map.viewerSettings);
 						if (map.viewerSettings.colors) {
 							setColorTokens(map.viewerSettings.colors);
 						}
-					}
+					}}	
 				}
 			});
 		}
@@ -125,7 +130,7 @@
 			>
 				{#if $enabledTools.includes("layerlibrary")}
 					<MapToolLayerLibrary
-						label={$_("tools.layerLibrary.label")}
+						label={aliasDict['layerlibrary'] ?? $_("tools.layerLibrary.label")}
 					/>
 				{/if}
 
@@ -133,7 +138,7 @@
 					<MapToolLayerManager
 						layers={$layers}
 						library={library}
-						label={$_("tools.layerManager.label")}
+						label={aliasDict['layerManager'] ?? $_("tools.layerManager.label")}
 						textBaselayers={$_("tools.layerManager.baseLayers")}
 						textThematicLayers={$_("tools.layerManager.thematicLayer")}
 						textOpacity={$_("tools.layerManager.opacity")}
@@ -148,7 +153,7 @@
 
 				{#if $enabledTools.includes("flooding")}
 					<MapToolFlooding 
-						label={$_("tools.flooding.label")}
+						label={aliasDict['flooding'] ?? $_("tools.flooding.label")}
 						scenario={$_('tools.flooding.scenario')}
 						chosenBreach={$_('tools.flooding.chosenBreach')}
 						noBreachSelected={$_('tools.flooding.noBreachSelected')}
@@ -160,7 +165,7 @@
 
 				{#if $enabledTools.includes("bookmarks")}
 					<MapToolBookmark
-						label={$_("tools.bookmarks.label")}
+						label={aliasDict['bookmarks'] ?? $_("tools.bookmarks.label")}
 						textTitle={$_("tools.bookmarks.title")}
 						textSave={$_("tools.bookmarks.save")}
 						textCancel={$_("tools.bookmarks.cancel")}
@@ -187,7 +192,7 @@
 
 				{#if $enabledTools.includes("measure")}
 					<MapToolCesiumMeasure
-						label={$_("tools.measure.label")}
+						label={aliasDict['measure'] ?? $_("tools.measure.label")}
 						textNoMeasurements={$_("tools.measure.noMeasurement")}
 						textNoMeasurementsSubtitle={$_("tools.measure.noMeasurementSubtitle")}
 						textAdd={$_("tools.measure.add")}
@@ -205,7 +210,7 @@
 
 				{#if $enabledTools.includes("projects")}
 					<MapToolProjects
-						label={$_("tools.projects.label")}
+						label={aliasDict['projects'] ?? $_("tools.projects.label")}
 					/>
 				{/if}
 
@@ -264,7 +269,7 @@
 
 				{#if $enabledTools.includes("stories")}
 					<MapToolStories
-						label={$_("tools.stories.label")}
+						label={aliasDict['stories'] ?? $_("tools.stories.label")}
 						textBack={$_("tools.stories.back")}
 						textStepBack={$_("tools.stories.stepBack")}
 						textStepForward={$_("tools.stories.stepForward")}
