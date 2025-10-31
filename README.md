@@ -1034,6 +1034,25 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 }
 ```
 
+#### language
+
+Tool to enable switching between different languages. If this tool is not included or disabled, Dutch is used.
+
+|value|description|type|
+|-|-|-|
+|startLanguage|Defines which language the viewer should open with. If not defined, the selected language will be remembered between sessions. Currently supports `en`, `nl`, and `fr`.|string
+
+```json
+{
+	"id": "language",
+	"enabled": true,
+	"settings": {
+		"startLanguage": "en"
+	}
+}
+```
+
+
 #### flycamera
 
 Tool for navigation. With this tool the user is able to have free roam around the map by selecting either an aerial POV or ground POV.

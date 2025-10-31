@@ -4,10 +4,10 @@
 	import { HeaderAction, HeaderPanelDivider } from 'carbon-components-svelte';
 	import { RadioButtonGroup, RadioButton } from 'carbon-components-svelte';
 
-	import Earth from 'carbon-icons-svelte/lib/EarthFilled.svelte';
+	import Translate from "carbon-icons-svelte/lib/Translate.svelte";
 </script>
 
-<HeaderAction icon={Earth} closeIcon={Earth} title="{$_('tools.language.setLanguage')}">
+<HeaderAction icon={Translate} closeIcon={Translate} title="{$_('tools.language.setLanguage')}">
 	<div class="content">
 		<div class="wrapper shell">
 			<div class="heading-03" title="{$_('tools.language.setLanguage')}">{$_('tools.language.setLanguage')}</div>
