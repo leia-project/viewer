@@ -8,6 +8,8 @@
 	import { Button, InlineNotification } from "carbon-components-svelte";
 
 	import * as Cesium from "cesium";
+	
+	import { _ } from "svelte-i18n";
 
 	import type { Map } from "../module/map";
 	import { MapMeasurement } from "../module/map-measurement";
@@ -21,20 +23,18 @@
 
 	export let label: string = "Measure";
 	export let showOnBottom: boolean = false;
-	export let textNoMeasurements: string = "No Measurements:";
-	export let textNoMeasurementsSubtitle: string =
-		"Click the add button to create a new measurement.";
-	export let textAdd: string = "Add new measurement";
-
-	export let textEditMeasurement: string = "Edit Measurement";
-	export let textTitle: string = "Title";
-	export let textDefaultTitle: string = "Measurement";
-	export let textSave: string = "Save";
-	export let textRecord: string = "Set camera position to current view";
-	export let textDelete: string = "Delete";
-	export let textCameraPosition: string = "Camera position";
-	export let textTotalLength: string = "Total length";
-	export let textMeasurementPoints: string = "Measurement Points";
+	export let textNoMeasurements: string = $_("tools.measure.noMeasurement");
+	export let textNoMeasurementsSubtitle: string = $_("tools.measure.noMeasurementSubtitle");
+	export let textAdd: string = $_("tools.measure.add");
+	export let textEditMeasurement: string = $_("tools.measure.edit");
+	export let textTitle: string = $_("tools.measure.title");
+	export let textDefaultTitle: string = $_("tools.measure.defaultTitle");
+	export let textSave: string = $_("tools.measure.save");
+	export let textRecord: string = $_("tools.measure.record");
+	export let textDelete: string = $_("tools.measure.delete");
+	export let textCameraPosition: string = $_("tools.measure.cameraPosition");
+	export let textTotalLength: string = $_("tools.measure.totalLength");
+	export let textMeasurementPoints: string = $_("tools.measure.points");
 
 	let tool = new MapToolMenuOption(id, icon, label, showOnBottom);
 	$: { tool.label.set(label); }

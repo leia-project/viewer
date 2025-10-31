@@ -13,6 +13,7 @@
 	import StoryView from "./StoryView.svelte";
 	import { StoryLayer } from "./StoryLayer";
 
+	import { _ } from "svelte-i18n";
 	import { page } from "$app/stores";
 	import { StoryChapter } from "./StoryChapter";
 	
@@ -21,9 +22,9 @@
 	let id: string = "stories";
 	export let icon: any = Book;
 	export let label: string = "Stories";
-	export let textBack: string = "Back to overview";
-	export let textStepBack: string = "Step backward";
-	export let textStepForward: string = "Step forward";
+	export let textBack: string = $_("tools.stories.back");
+	export let textStepBack: string = $_("tools.stories.stepBack");
+	export let textStepForward: string = $_("tools.stories.stepForward");
 	let cesiumMap = map as Map;
 
 	let stories = new Array<Story>();

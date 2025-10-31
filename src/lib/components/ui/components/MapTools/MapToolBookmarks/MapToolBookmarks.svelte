@@ -10,6 +10,7 @@
     import Close from "carbon-icons-svelte/lib/Close.svelte";
     import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import Add from "carbon-icons-svelte/lib/Add.svelte";
+    import { _ } from "svelte-i18n";
 
     const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
@@ -17,16 +18,16 @@
     export let icon: any = Bookmark;
     export let label: string = "Bookmarks";
     export let bookmarks: Array<CameraLocation> = new Array<CameraLocation>();
-    export let textTitle: string = "Title";
-    export let textDescription: string = "Description";
-    export let textSave: string = "Save";
-    export let textCancel: string = "Cancel";
-    export let textDelete: string = "Delete";
-    export let textAdd: string = "Add New Bookmark";
-    export let textNoBookmarks: string = "No bookmarks";
-    export let textNoBookmarksSubtitle: string = "Press the add button to add a new bookmark";
-    export let textInfoCameraPosition = "Camera";
-    export let textInfoCameraPositionSubtitle = "The current camera view will be stored as bookmark location";
+    export let textTitle: string = $_("tools.bookmarks.title");
+    export let textDescription: string = $_("tools.bookmarks.description");
+    export let textSave: string = $_("tools.bookmarks.save");
+    export let textCancel: string = $_("tools.bookmarks.cancel");
+    export let textDelete: string = $_("tools.bookmarks.delete");
+    export let textAdd: string = $_("tools.bookmarks.add");
+    export let textNoBookmarks: string = $_("tools.bookmarks.noBookmarks");
+    export let textNoBookmarksSubtitle: string = $_("tools.bookmarks.noBookmarksSubtitle");
+    export let textInfoCameraPosition = $_("tools.bookmarks.cameraPosition");
+    export let textInfoCameraPositionSubtitle = $_("tools.bookmarks.cameraPositionSubtitle");
 
 
     let tool = new MapToolMenuOption(id, icon, label);

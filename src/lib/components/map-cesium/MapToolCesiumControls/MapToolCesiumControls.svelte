@@ -7,6 +7,8 @@
 	import { Button, Checkbox } from "carbon-components-svelte";
 	import { Slider } from "carbon-components-svelte";
 
+	import { _ } from "svelte-i18n";
+
 	import {
 		RadioButtonGroup,
 		RadioButton,
@@ -25,50 +27,49 @@
 	export let label: string = "Map Settings";
 	export let showOnBottom: boolean = true;
 
-	export let textSunPosition: string = "Sun Position";
-	export let textSunPositionDate: string = "Date";
-	export let textSunPositionHour: string = "Hour UTC";
+	export let textSunPosition: string = $_("tools.controls.sunPosition");
+	export let textSunPositionDate: string = $_("tools.controls.sunPositionDate");
+	export let textSunPositionHour: string = $_("tools.controls.sunPositionHour");
 
-	export let textQuality: string = "Quality";
-	export let textRendering: string = "Rendering";
-	export let textEnvironment: string = "Environment";
-	export let textDebug: string = "Debug";
+	export let textQuality: string = $_("tools.controls.quality");
+	export let textRendering: string = $_("tools.controls.rendering");
+	export let textEnvironment: string = $_("tools.controls.environment");
+	export let textDebug: string = $_("tools.controls.debug");
 
-	export let textLow: string = "Low";
-	export let textMedium: string = "Medium";
-	export let textHigh: string = "High";
-	export let textCustom: string = "Custom";
+	export let textLow: string = $_("tools.controls.low");
+	export let textMedium: string = $_("tools.controls.medium");
+	export let textHigh: string = $_("tools.controls.high");
+	export let textCustom: string = $_("tools.controls.custom");
 
-	export let textShadows: string = "Shadows";
-	export let textFXAA: string = "FXAA";
-	export let textMSAA: string = "MSAA";
-	export let textAnimate: string = "Animate";
+	export let textShadows: string = $_("tools.controls.shadows");
+	export let textFXAA: string = $_("tools.controls.fxaa");
+	export let textMSAA: string = $_("tools.controls.msaa");
+	export let textAnimate: string = $_("tools.controls.animate");
 
-	export let textResolutionScale: string = "Resolution Scale";
-	export let textMaximumScreenspaceError: string = "Maximum Screenspace Error";
-	export let textGroundAtmosphere: string = "Ground Atmosphere";
-	export let textSkyAtmosphere: string = "Sky Atmosphere";
-	export let textLighting: string = "Lighting";
-	export let textFog: string = "Fog";
-	export let textHighDynamicRange: string = "High Dynamic Range";
+	export let textResolutionScale: string = $_("tools.controls.resolutionScale");
+	export let textMaximumScreenspaceError: string = $_("tools.controls.maximumScreenspaceError");
+	export let textGroundAtmosphere: string = $_("tools.controls.groundAtmosphere");
+	export let textSkyAtmosphere: string = $_("tools.controls.skyAtmosphere");
+	export let textLighting: string = $_("tools.controls.lighting");
+	export let textFog: string = $_("tools.controls.fog");
+	export let textHighDynamicRange: string = $_("tools.controls.dynamicRange");
 
-	export let textPointCloud: string = "Point Clouds";
+	export let textPointCloud: string = $_("tools.controls.pointCloud");
 
-	export let textPointCloudAttenuation: string = "Attenuation";
-	export let textPointCloudAttenuationMaximum: string = "Attenuation Maximum";
-	export let textPointCloudAttenuationErrorScale: string = "Attenuation Geometric Error Scale";
-	export let textPointCloudAttenuationBaseResolution: string = "Attenuation Base resolution";
+	export let textPointCloudAttenuation: string = $_("tools.controls.pointCloudAttenuation");
+	export let textPointCloudAttenuationMaximum: string = $_("tools.controls.pointCloudAttenuationMaximum");
+	export let textPointCloudAttenuationErrorScale: string = $_("tools.controls.pointCloudAttenuationErrorScale");
+	export let textPointCloudAttenuationBaseResolution: string = $_("tools.controls.pointCloudAttenuationBaseResolution");
 
-	export let textPointCloudEDL: string = "Eye Dome Lighting";
-	export let textPointCloudEDLRadius: string = "Eye Dome Lighting Radius";
-	export let textPointCloudEDLStrength: string = "Eye Dome Lighting Strength";
+	export let textPointCloudEDL: string = $_("tools.controls.pointCloudEDL");
+	export let textPointCloudEDLRadius: string = $_("tools.controls.pointCloudEDLRadius");
+	export let textPointCloudEDLStrength: string = $_("tools.controls.pointCloudEDLStrength");
 
-	export let textFPSCounter: string = "FPS Counter";
-	export let textInspector: string = "Tile Inspector";
-	export let textMouseCoordinates: string = "Coordinates";
+	export let textFPSCounter: string = $_("tools.controls.FPSCounter");
+	export let textInspector: string = $_("tools.controls.inspector");
+	export let textMouseCoordinates: string = $_("tools.controls.coordinates");
 
-	export let textEnableDragDropFiles: string = "Drag and drop files";
-
+	export let textEnableDragDropFiles: string = $_("tools.controls.dragAndDropFiles");
 	export let cesiumMap: Map = map;
 
 	let updatingSettings: boolean = true;

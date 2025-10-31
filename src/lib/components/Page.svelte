@@ -38,11 +38,90 @@
 	const base = process.env.APP_URL;
 	let mapVisible = true;
 	let interfaceVisible = true;
-	
+
+	const userToolOrder: { id: any; ranking: any; }[] = []; 
+	const aliasDict: { [key: string]: string | undefined } = {};
 	const map = app.map;
 	$: layers = $map ? $map.layers : [];
 	$: library = $map ? $map.layerLibrary : undefined;
 	$: title = $settings.title ? $settings.title + ' - ' + $settings.subTitle : $_('general.loading')
+	
+    // $: toolOrder = {
+    //     layerlibrary: MapToolLayerLibrary,
+    //     layermanager: MapToolLayerManager,
+    //     bookmarks: MapToolBookmark,
+    //     flooding: MapToolFlooding,
+    //     stories: MapToolStories,
+    //     projects: MapToolProjects,
+    //     featureinfo: MapToolFeatureInfo,
+    //     measure: MapToolCesiumMeasure,
+    //     info: MapToolInfo,
+    //     help: MapToolHelp,
+    //     cesium: MapToolCesiumControls,
+    //     config_switcher: MapToolConfigSwitcher,
+    // };
+
+
+	let toolOrder = {
+        layerlibrary: MapToolLayerLibrary,
+        layermanager: MapToolLayerManager,
+        bookmarks: MapToolBookmark,
+        flooding: MapToolFlooding,
+        stories: MapToolStories,
+        projects: MapToolProjects,
+        featureinfo: MapToolFeatureInfo,
+        measure: MapToolCesiumMeasure,
+        info: MapToolInfo,
+        help: MapToolHelp,
+        cesium: MapToolCesiumControls,
+        config_switcher: MapToolConfigSwitcher,
+    };
+
+    const orderedKeys = [
+        'layerlibrary',
+        'layermanager',
+        'flooding',
+		'stories',
+        'projects',
+        'featureinfo',
+        'bookmarks',
+        'measure',
+        'info',
+        'help',
+        'cesium',
+        'config_switcher'
+    ];
+
+	function toolProps(toolKey: string) {
+		if (toolKey === 'layerlibrary') {
+			return {label: aliasDict['layerLibrary'] ?? $_("tools.layerLibrary.label") };  
+		} else if (toolKey === 'layermanager') {
+			return { layers: $layers, library, label: aliasDict['layerManager'] ?? $_("tools.layerManager.label") };
+		} else if (toolKey === 'flooding') {
+			return { label: aliasDict['flooding'] ?? $_("tools.flooding.label") };
+		} else if (toolKey === 'bookmarks') {
+			return { label: aliasDict['bookmarks'] ?? $_("tools.bookmarks.label") };
+		} else if (toolKey === 'featureinfo') {
+			return { label: $_("tools.featureInfo.label") };
+		} else if (toolKey === 'theme') {
+			return {};
+		} else if (toolKey === 'measure') {
+			return { label: aliasDict['measure'] ?? $_("tools.measure.label") };
+		} else if (toolKey === 'projects') {
+			return { label: aliasDict['projects'] ?? $_("tools.projects.label") };
+		} else if (toolKey === 'info') {
+			return { attribution: Attributions, txtViewerTitle: undefined, txtViewerDescription: undefined, label: $_("tools.info.info") };
+		} else if (toolKey === 'help') {
+			return { label: $_("tools.help.help") };
+		} else if (toolKey === 'cesium') {
+			return { label: $_("tools.controls.label") };
+		} else if (toolKey === 'config_switcher') {
+			return {};
+		} else if (toolKey === 'stories') {
+			return { label: aliasDict['stories'] ?? $_("tools.stories.label") };
+		}
+		return {};
+	}
 
 	map.subscribe((map) => {
 		if (map) {
@@ -58,6 +137,30 @@
 						setEnabledMapTools(map.toolSettings);
 					}
 
+					for (const setting of map.toolSettings) {
+    						const alias = setting.settings ? setting.settings.alias : undefined;
+    						aliasDict[setting.id] = alias;
+									
+						if (setting.settings && setting.settings.ranking) {
+							userToolOrder.push({
+								id: setting.id, ranking: setting.settings.ranking
+							});
+    					}	
+
+						let orderedToolOrder = {};
+
+					orderedKeys.forEach(key => {
+						if (toolOrder.hasOwnProperty(key)) {
+							orderedToolOrder[key] = toolOrder[key];
+						}
+					});
+
+					$: toolOrder = orderedToolOrder;
+					}
+
+					console.log(userToolOrder)
+					console.log(toolOrder)
+					
 					if (map.viewerSettings) {
 						settings.set(map.viewerSettings);
 						if (map.viewerSettings.colors) {
@@ -123,153 +226,15 @@
 				expandText={$_("tools.menu.expand")}
 				collapseText={$_("tools.menu.collapse")}
 			>
-				{#if $enabledTools.includes("layerlibrary")}
-					<MapToolLayerLibrary
-						label={$_("tools.layerLibrary.label")}
-					/>
-				{/if}
-
-				{#if $enabledTools.includes("layermanager")}
-					<MapToolLayerManager
-						layers={$layers}
-						library={library}
-						label={$_("tools.layerManager.label")}
-						textBaselayers={$_("tools.layerManager.baseLayers")}
-						textThematicLayers={$_("tools.layerManager.thematicLayer")}
-						textOpacity={$_("tools.layerManager.opacity")}
-						textLegend={$_("tools.layerManager.legend")}
-					>
-						<CesiumBackgroundControls
-							slot="backgroundControls"
-							textOpacity={$_("tools.backgroundControls.opacity")}
+				{#each Object.keys(toolOrder) as toolKey}
+					{#if $enabledTools.includes(toolKey)}
+						<svelte:component
+							this={toolOrder[toolKey]}
+							label={aliasDict[toolKey] ?? $_(`tools.${toolKey}.label`)}
+							{...toolProps(toolKey)}
 						/>
-					</MapToolLayerManager>
-				{/if}
-
-				{#if $enabledTools.includes("flooding")}
-					<MapToolFlooding 
-						label={$_("tools.flooding.label")}
-						scenario={$_('tools.flooding.scenario')}
-						chosenBreach={$_('tools.flooding.chosenBreach')}
-						noBreachSelected={$_('tools.flooding.noBreachSelected')}
-						otherBreaches={$_('tools.flooding.otherBreaches')}
-						searchBreach={$_('tools.flooding.searchBreach')}
-						noResults={$_('tools.flooding.noResults')}
-					/>
-				{/if}
-
-				{#if $enabledTools.includes("bookmarks")}
-					<MapToolBookmark
-						label={$_("tools.bookmarks.label")}
-						textTitle={$_("tools.bookmarks.title")}
-						textSave={$_("tools.bookmarks.save")}
-						textCancel={$_("tools.bookmarks.cancel")}
-						textDelete={$_("tools.bookmarks.delete")}
-						textAdd={$_("tools.bookmarks.add")}
-						textDescription={$_("tools.bookmarks.description")}
-						textInfoCameraPosition={$_("tools.bookmarks.cameraPosition")}
-						textInfoCameraPositionSubtitle={$_("tools.bookmarks.cameraPositionSubtitle")}
-						textNoBookmarks={$_("tools.bookmarks.noBookmarks")}
-						textNoBookmarksSubtitle={$_("tools.bookmarks.noBookmarksSubtitle")}
-					/>
-				{/if}
-
-				{#if $enabledTools.includes("featureinfo")}
-					<MapToolFeatureInfo
-						label={$_("tools.featureInfo.label")}
-						textNoData={$_("tools.featureInfo.noData")}
-					/>
-				{/if}
-
-				{#if $enabledTools.includes("theme")}
-					<MapToolTheme />
-				{/if}
-
-				{#if $enabledTools.includes("measure")}
-					<MapToolCesiumMeasure
-						label={$_("tools.measure.label")}
-						textNoMeasurements={$_("tools.measure.noMeasurement")}
-						textNoMeasurementsSubtitle={$_("tools.measure.noMeasurementSubtitle")}
-						textAdd={$_("tools.measure.add")}
-						textEditMeasurement={$_("tools.measure.edit")}
-						textTitle={$_("tools.measure.title")}
-						textDefaultTitle={$_("tools.measure.defaultTitle")}
-						textSave={$_("tools.measure.save")}
-						textRecord={$_("tools.measure.record")}
-						textDelete={$_("tools.measure.delete")}
-						textCameraPosition={$_("tools.measure.cameraPosition")}
-						textTotalLength={$_("tools.measure.totalLength")}
-						textMeasurementPoints={$_("tools.measure.points")}
-					/>
-				{/if}
-
-				{#if $enabledTools.includes("projects")}
-					<MapToolProjects
-						label={$_("tools.projects.label")}
-					/>
-				{/if}
-
-				{#if $enabledTools.includes("info")}
-					<MapToolInfo attribution={Attributions} txtViewerTitle={undefined} txtViewerDescription={undefined} />
-				{/if}
-
-				{#if $enabledTools.includes("help")}
-					<MapToolHelp />
-				{/if}
-
-				{#if $enabledTools.includes("cesium")}
-					<MapToolCesiumControls
-						label={$_("tools.controls.label")}
-						textSunPosition={$_("tools.controls.sunPosition")}
-						textSunPositionDate={$_("tools.controls.sunPositionDate")}
-						textSunPositionHour={$_("tools.controls.sunPositionHour")}
-						textQuality={$_("tools.controls.quality")}
-						textRendering={$_("tools.controls.rendering")}
-						textEnvironment={$_("tools.controls.environment")}
-						textDebug={$_("tools.controls.debug")}
-						textLow={$_("tools.controls.low")}
-						textMedium={$_("tools.controls.medium")}
-						textHigh={$_("tools.controls.high")}
-						textCustom={$_("tools.controls.custom")}
-						textAnimate={$_("tools.controls.animate")}
-						textFXAA={$_("tools.controls.fxaa")}
-						textFog={$_("tools.controls.fog")}
-						textGroundAtmosphere={$_("tools.controls.groundAtmosphere")}
-						textHighDynamicRange={$_("tools.controls.dynamicRange")}
-						textLighting={$_("tools.controls.lighting")}
-						textMSAA={$_("tools.controls.msaa")}
-						textMaximumScreenspaceError={$_("tools.controls.maximumScreenspaceError")}
-						textResolutionScale={$_("tools.controls.resolutionScale")}
-						textShadows={$_("tools.controls.shadows")}
-						textSkyAtmosphere={$_("tools.controls.skyAtmosphere")}
-						textFPSCounter={$_("tools.controls.FPSCounter")}
-						textInspector={$_("tools.controls.inspector")}
-						textMouseCoordinates={$_("tools.controls.coordinates")}
-						textPointCloud={$_("tools.controls.pointCloud")}
-						textPointCloudAttenuation={$_("tools.controls.pointCloudAttenuation")}
-						textPointCloudAttenuationBaseResolution={$_(
-							"tools.controls.pointCloudAttenuationBaseResolution"
-						)}
-						textPointCloudAttenuationErrorScale={$_("tools.controls.pointCloudAttenuationErrorScale")}
-						textPointCloudAttenuationMaximum={$_("tools.controls.pointCloudAttenuationMaximum")}
-						textPointCloudEDL={$_("tools.controls.pointCloudEDL")}
-						textPointCloudEDLRadius={$_("tools.controls.pointCloudEDLRadius")}
-						textPointCloudEDLStrength={$_("tools.controls.pointCloudEDLStrength")}
-					/>
-				{/if}
-
-				{#if $enabledTools.includes("config_switcher")}
-					<MapToolConfigSwitcher />
-				{/if}
-
-				{#if $enabledTools.includes("stories")}
-					<MapToolStories
-						label={$_("tools.stories.label")}
-						textBack={$_("tools.stories.back")}
-						textStepBack={$_("tools.stories.stepBack")}
-						textStepForward={$_("tools.stories.stepForward")}
-					/>
-				{/if}
+					{/if}
+				{/each}
 
 			</MapToolMenu>
 		{/if}

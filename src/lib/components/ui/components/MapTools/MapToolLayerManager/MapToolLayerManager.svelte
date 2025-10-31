@@ -13,19 +13,22 @@
     import { LayerManagerGroup } from "$lib/components/map-core/layer-manager-group"
 	import type { LayerLibrary } from "$lib/components/map-core/layer-library";
 	import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
+
+    import { _ } from "svelte-i18n";
+
     const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
     let id: string = "layermanager";
     export let icon: any = Layers;
-    export let label: string = "Layermanager";
+    export let label: string;
     export let layers: Array<Layer>;
     export let library: LayerLibrary;
-    export let textBaselayers: string = "Baselayers";
-    export let textThematicLayers: string = "Thematic layers";
+    export let textBaselayers: string = $_("tools.layerManager.baseLayers");
+    export let textThematicLayers: string = $_("tools.layerManager.thematicLayer");
     let textMyLayers: string = "My layers";
     let textDragDroppedLayers: string = "Drag and dropped layers";
-    export let textOpacity: string = "Opacity:";
-    export let textLegend: string = "Legend";
+    export let textOpacity: string = $_("tools.layerManager.opacity");
+    export let textLegend: string = $_("tools.layerManager.legend");
 
     // register this tool
     let tool = new MapToolMenuOption(id, icon, label);
