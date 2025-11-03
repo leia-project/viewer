@@ -10,7 +10,44 @@
 	import type { CameraLocation } from "$lib/components/map-core/camera-location";
 
 	const { registerTool, selectedTool, map } = getContext<any>('mapTools');
+	
+	let geojsonFile: HTMLInputElement;
 
+	function triggerUpload() {
+	geojsonFile.click();
+	}
+
+	function handleFileSelect(event: Event) {
+	const file = (event.target as HTMLInputElement).files?.[0];
+	if (!file) return;
+
+	if (!file.name.endsWith('.geojson')) {
+		alert('Please upload a valid .geojson file');
+		return;
+	}
+
+	const reader = new FileReader();
+	reader.onload = (e) => {
+		try {
+		const geojson = JSON.parse(e.target?.result as string);
+
+		// Validate that all features are simple Polygons
+		if (geojson.features.some((f: any) => f.geometry.type !== 'Polygon')) {
+			alert('Only simple Polygons are supported');
+			return;
+		}
+
+		// Add to map (replace mapLayer with your actual map reference)
+		L.geoJSON(geojson).addTo(map); // If using Cesium, convert GeoJSON to Cesium polygon
+		} catch (err) {
+		alert('Invalid GeoJSON file');
+		console.error(err);
+		}
+	};
+	reader.readAsText(file);
+	}
+
+	
 	let id: string = 'theme';
 	let icon: any = Legend;
 	let label: Writable<string> = writable('Thema');
@@ -178,6 +215,13 @@
 							role="listitem"
 						>
 							<div class="legend-rect" style="background-color:{entry.color};" />
+							<!-- GeoJSON Upload Button -->
+							<div style="margin-top: 1rem;">
+							<input type="file" bind:this={geojsonFile} accept=".geojson" on:change={handleFileSelect} style="display:none" />
+							<button class="bx--btn bx--btn--primary" on:click={triggerUpload}>
+								Upload GeoJSON
+							</button>
+							</div>
 							<div class="legend-label">{entry.label}</div>
 						</div>
 					{/each}
@@ -218,4 +262,9 @@
 		float: left;
 		margin-right: 0.5rem;
 	}
+	.bx--btn {
+	margin-top: 0.5rem;
+	width: 100%;
+	}
+
 </style>
