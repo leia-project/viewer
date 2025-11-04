@@ -106,6 +106,7 @@ export class Game extends Dispatcher {
 	}
 
 	public exit(): void {
+		this.save();
 		this.removeFloodLayers();
 		this.evacuationController.removeFromMap();
 		this.removeBreachIcon();

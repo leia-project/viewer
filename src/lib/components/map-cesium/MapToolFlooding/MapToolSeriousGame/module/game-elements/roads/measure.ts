@@ -3,6 +3,7 @@ import * as Cesium from "cesium";
 import type { Map } from "../../../external-dependencies";
 import type { RouteSegment } from "./route-segments";
 import { iconMap, processSVG } from "../../asset-icons";
+import type { RoadNetwork } from "./road-network";
 
 
 export interface IMeasureConfig {
@@ -23,6 +24,7 @@ export abstract class Measure {
 	private static constantFalse = new Cesium.ConstantProperty(false);
 
 	public config: IMeasureConfig;
+	private roadNetwork: RoadNetwork;
 	private map: Map;
 	public routeSegments: Array<RouteSegment> = [];
 	public applied: Writable<boolean> = writable(false);
@@ -41,9 +43,10 @@ export abstract class Measure {
 	public toggleEnabled: Writable<boolean> = writable(true);
 	private applyUnsubscriber?: () => void;
 
-	constructor(config: IMeasureConfig, map: Map) {
+	constructor(config: IMeasureConfig, roadNetwork: RoadNetwork) {
 		this.config = config;
-		this.map = map;
+		this.roadNetwork = roadNetwork;
+		this.map = roadNetwork.map;
 		this.billboard = this.createBillboard("#F4F6F8", "default");
 		this.billboardApplied = this.createBillboard("#00BFFF", "applied"); // #AFEEEE
 		this.toggleEnabled.subscribe((enabled) => {
@@ -75,6 +78,7 @@ export abstract class Measure {
 			if (this.billboard.billboard) this.billboard.billboard.show = applied ? Measure.constantFalse : Measure.constantTrue;
 			if (this.billboardApplied.billboard) this.billboardApplied.billboard.show = applied ? Measure.constantTrue : Measure.constantFalse;
 			this.map.refresh();
+			this.roadNetwork.cleanSetRoutingGraph();
 		});
 	}
 
@@ -244,8 +248,8 @@ export abstract class Measure {
 
 export class WidenMeasure extends Measure {
 
-	constructor(config: IMeasureConfig, map: Map) {
-		super(config, map);
+	constructor(config: IMeasureConfig, roadNetwork: RoadNetwork) {
+		super(config, roadNetwork);
 	}
 
 	public applyTo(routeSegment: RouteSegment): void {
@@ -265,8 +269,8 @@ export class WidenMeasure extends Measure {
 
 export class RaiseMeasure extends Measure {
 
-	constructor(config: IMeasureConfig, map: Map) {
-		super(config, map);
+	constructor(config: IMeasureConfig, roadNetwork: RoadNetwork) {
+		super(config, roadNetwork);
 	}
 
 	public applyTo(routeSegment: RouteSegment): void {
@@ -284,8 +288,8 @@ export class RaiseMeasure extends Measure {
 
 export class BlockMeasure extends Measure {
 
-	constructor(config: IMeasureConfig, map: Map) {
-		super(config, map);
+	constructor(config: IMeasureConfig, roadNetwork: RoadNetwork) {
+		super(config, roadNetwork);
 	}
 
 	public applyTo(routeSegment: RouteSegment): void {

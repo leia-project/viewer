@@ -105,7 +105,7 @@ export class EvacuationController {
 			return;
 		}
 		const newEvacuations = routeResults.map((routeResult) => {
-			return new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint, routeResult.numberOfPersons, routeResult.evacuatedCars, timeStep, this.map);
+			return new Evacuation(routeResult.route, hexagon, routeResult.extractionPoint, Math.round(routeResult.numberOfPersons), routeResult.evacuatedCars, timeStep, this.map);
   		});
 		const aggregatedEvacuations = this.aggregateEvacuations(newEvacuations);
 		hexagon.addEvacuations(aggregatedEvacuations);

@@ -111,7 +111,7 @@ export class RoadNetwork {
 			this.elapsedTime.subscribe((time: number) => this.cleanSetRoutingGraph(time));
 			this.floodLayerController.floodedRoadsLayer.source.setupPromise?.then(() => {
 				this.floodLayerController.floodedRoadsLayer.source.OgcFeaturesLoaderCesium.on("featuresLoaded", () => {
-					this.cleanSetRoutingGraph(get(this.elapsedTime));
+					this.cleanSetRoutingGraph();
 				});
 			});
 			this.loaded.set(true);
@@ -150,7 +150,7 @@ export class RoadNetwork {
 	}
 */
 
-	public async cleanSetRoutingGraph(time: number): Promise<void> {
+	public async cleanSetRoutingGraph(time: number = get(this.elapsedTime)): Promise<void> {
 		const floodedRoadFeatures = this.floodLayerController.floodedRoadsLayer.source.OgcFeaturesLoaderCesium.features || [];
 		const floodedSegments = floodedRoadFeatures.map((f: GeoJSONFeature) => [f.properties.wvk_id, parseFloat(f.properties.flood_depth)] as [string, number]) || [];
 		const floodedSegmentsWithMeasures = floodedSegments.map(([id, floodHeight]) => {
@@ -175,11 +175,11 @@ export class RoadNetwork {
 		const measureConfig: Array<IMeasureConfig> = measuresJSON;
 		const measures = measureConfig.map((c) => {
 			if (c.type === "widen") {
-				return new WidenMeasure(c, this.map);
+				return new WidenMeasure(c, this);
 			} else if (c.type === "raise") {
-				return new RaiseMeasure(c, this.map);
+				return new RaiseMeasure(c, this);
 			} else if (c.type === "block") {
-				return new BlockMeasure(c, this.map);
+				return new BlockMeasure(c, this);
 			}
 		});
 		this.measures = measures.filter((m) => m !== undefined) as Array<Measure>;
@@ -284,7 +284,7 @@ export class RoadNetwork {
 		});
 
 		// update graph
-		if (setGraph) this.cleanSetRoutingGraph(get(this.elapsedTime));
+		if (setGraph) this.cleanSetRoutingGraph();
 	}
 
 	private getPickedItem(picked: any): RouteSegment | Measure | undefined {
