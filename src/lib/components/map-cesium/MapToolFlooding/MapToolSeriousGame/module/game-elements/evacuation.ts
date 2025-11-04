@@ -44,7 +44,7 @@ export class Evacuation {
 			name: route.feature.properties.fid.toString(),
 			wall: {
 				positions: linePositions,
-				material: Cesium.Color.DARKGRAY.withAlpha(0.65)
+				material: Cesium.Color.DODGERBLUE.withAlpha(0.75)
 			},
 			properties: route.feature.properties,
 			show: false
@@ -86,7 +86,7 @@ export class Evacuation {
 				height += evac.numberOfPersons
 			}
 		}
-		return (height / 14) + 50;
+		return (height / 8) + 150;
 	}
 
 	public display(evacuationArray: Array<Evacuation>): void {

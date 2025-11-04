@@ -18,7 +18,7 @@ export class OgcFeaturesLayer extends CesiumLayer<OgcFeaturesProviderCesium> {
     }
 
     public async addToMap(): Promise<void> {
-        this.source.init(get(this.visible));
+        await this.source.init(get(this.visible));
     }
 
     public removeFromMap(): void {

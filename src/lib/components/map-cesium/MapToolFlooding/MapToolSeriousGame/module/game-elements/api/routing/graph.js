@@ -60,9 +60,9 @@ export async function getNetwork(networkArea, networkType) {
   return networks[networkArea + networkType];
 }
 
-export async function getNetworkPGRest(networkArea, networkType, polgyon) {
+export async function getNetworkPGRest(networkArea, networkType, polgyon, force) {
   const pgRestAPI = new PGRestAPI();
-  if (networks[networkArea + networkType] === undefined) {
+  if (networks[networkArea + networkType] === undefined || force) {
     networks[networkArea + networkType] = {};
     const basePath = `${dataPath}/${networkArea}/${networkType}`;
 

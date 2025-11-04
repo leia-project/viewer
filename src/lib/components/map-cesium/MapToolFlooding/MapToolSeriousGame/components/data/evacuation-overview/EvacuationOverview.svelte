@@ -102,7 +102,7 @@
 </div>
 {#if $evacuationsGrouped.length > 0}
 	<ul class="evacuation-list">
-		{#each $evacuationsGrouped as evacuationGroup}
+		{#each $evacuationsGrouped as evacuationGroup (evacuationGroup)}
 			{#if evacuationGroup.time === $elapsedTime}
 				<HexagonEvacuationGroupEntry
 					{evacuationGroup}

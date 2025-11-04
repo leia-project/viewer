@@ -41,7 +41,7 @@
 {:else}
 	<div class="time-control">
 		<div class="button-container" style="justify-content: flex-end;">
-			{#if $timeGaps.before && buttonsEnabled}
+			{#if buttonsEnabled}
 				<GameButton
 					icon={SkipBackSolidFilled}
 					hasTooltip={true}
@@ -49,7 +49,13 @@
 					borderHighlight={true}
 					on:click={() => game.changeStep("previous")}
 				>
-					<svelte:fragment slot="popover">{$_("game.buttons.rewind")} (—{$timeGaps.before} {$_("game.hours")})</svelte:fragment>
+					<svelte:fragment slot="popover">
+						{#if $timeGaps.before}
+							{$_("game.buttons.rewind")} (—{$timeGaps.before} {$_("game.hours")})
+						{:else}
+							{$_("game.preparationPhase")}
+						{/if}	
+					</svelte:fragment>
 				</GameButton>
 			{/if}
 		</div>

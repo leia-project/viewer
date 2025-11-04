@@ -57,7 +57,6 @@ export class RoadNetwork {
 				if (segment.extractionPoint) segment.activeExtractionPoint = segment === selectedExtractionPoint;
 			})
 		});
-		this.init();
 
 		this.selectedNode.subscribe((node) => {
 			this.selectSubscribe(node);
@@ -105,7 +104,7 @@ export class RoadNetwork {
 		});
 	}
 
-	private async init(): Promise<void> {
+	public async init(): Promise<void> {
 		this.loadMeasures();
 		try {
 			await this.loadRoadNetwork();
@@ -122,7 +121,7 @@ export class RoadNetwork {
 	}
 
 	private async loadRoadNetwork(): Promise<void> {
-		const network = await getNetworkPGRest("zeeland_datacore", "car", this.outline); //await fetch("/data/zeeland_2/car/edges.geojson");
+		const network = await getNetworkPGRest("zeeland_datacore", "car", this.outline, true); //await fetch("/data/zeeland_2/car/edges.geojson");
 		network.edges.features.forEach((feature: RouteFeature) => {
 			const segment = this.roadNetworkLayer.add(feature, false);
 			for (const measure of this.measures) {

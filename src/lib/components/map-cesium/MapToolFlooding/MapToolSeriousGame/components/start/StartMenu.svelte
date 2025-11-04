@@ -85,7 +85,7 @@
 			<div class="credits">
 				<div>Een samenwerking van:</div>
 				<div class="credits-logos">
-					<img class="credits-logo invert" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Logo_ZeelandProvince.svg/2560px-Logo_ZeelandProvince.svg.png" alt="Logo Province Zeeland" >
+					<img class="credits-logo invert" src="https://www.zeelandfilmcommission.nl/wp-content/uploads/2023/01/Provincie-Zeeland-logo-trans.png" alt="Logo Province Zeeland" >
 					<img class="credits-logo invert" src="https://storage.googleapis.com/sogelink-research-public/images/logo-sogelink.png" alt="Logo Sogelink" >
 					<img class="credits-logo invert" src="https://dw-consultancy.nl/wp-content/uploads/2024/08/Logo-1-1024x461.png" alt="Logo Dutch Wildfire Consultancy" >
 					<img class="credits-logo invert" src="https://iiw.kuleuven.be/onderzoek/advise/meet_an_engineer/sweco-logo-voor-office-en-online-lindsey.png/@@images/image.png" alt="Logo Sweco" >

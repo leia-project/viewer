@@ -41,7 +41,7 @@ export class Game extends Dispatcher {
 	public timeGaps: Readable<{ before?: number, after?: number }> = derived(this.elapsedTime, ($t) => {
 		const timeBefore = this.getAdjacentStep($t, "previous");
 		const timeAfter = this.getAdjacentStep($t, "next");
-		const before = timeBefore !== undefined ? $t - timeBefore : undefined;
+		const before = timeBefore !== undefined && timeBefore !== -999 ? $t - timeBefore : undefined;
 		const after = timeAfter !== undefined ? timeAfter - $t : undefined;
 		return { before, after };
 	});
@@ -72,10 +72,12 @@ export class Game extends Dispatcher {
 		this.elapsedTimeDynamicSinceBreach = derived(this.elapsedTimeDynamic, ($t) => $t - Game.breachStartOffsetInHours);
 		this.elapsedTimeDynamicFormatted = derived(this.elapsedTimeDynamicSinceBreach, ($t) => this.getFormattedTime($t));
 
-		this.floodLayerController.loadNewScenario(breach, gameConfig.scenario).then(() => {
-			this.addFloodLayers();
-		});
 		this.evacuationController = new EvacuationController(this, this.floodLayerController);
+		this.floodLayerController.loadNewScenario(breach, gameConfig.scenario).then(() => {
+			this.addFloodLayers().then(() => {
+				this.evacuationController.roadNetwork.init();
+			})
+		});
 
 		this.startTime = new Date(gameConfig.breachTimeDateString).getTime() - Game.breachStartOffsetInHours * 3600 * 1000;
 		if (!gameConfig.preparationPhase) {
@@ -112,10 +114,10 @@ export class Game extends Dispatcher {
 		}
 	}
 
-	private addFloodLayers(): void {
+	private async addFloodLayers(): Promise<void> {
 		this.floodLayerController.floodLayer.addToMap();
-		this.floodLayerController.floodedRoadsLayer.addToMap();
 		this.floodLayerController.floodLayer.show();
+		await this.floodLayerController.floodedRoadsLayer.addToMap();
 		this.floodLayerController.floodedRoadsLayer.show();
 		this.floodLayerController.addTimeSubscriber();
 	}
@@ -134,8 +136,8 @@ export class Game extends Dispatcher {
 
 		if (direction === "next" && stepIndex < timesteps.length - 1) {
 			return timesteps[stepIndex + 1];
-		} else if (direction === "previous" && stepIndex > 0) {
-			return timesteps[stepIndex - 1];
+		} else if (direction === "previous") {
+			return stepIndex > 0 ? timesteps[stepIndex - 1] : -999;
 		}
 		return undefined;
 	}
@@ -150,7 +152,7 @@ export class Game extends Dispatcher {
 			.replace("$2", get(this.elapsedTimeSinceBreach).toString());
 		if (get(this.elapsedTimeSinceBreach) === 0 && direction === "next") {
  			message = this.gameConfig.breachNotification;
-		} else {
+		} else { 
 			this.notificationLog.send({
 				title: "Game",
 				message: message,
@@ -163,7 +165,7 @@ export class Game extends Dispatcher {
 		}
 
 		const newTime = get(this.elapsedTime);
-		if (newTime !== get(this.elapsedTimeDynamic)) {
+		if (newTime !== get(this.elapsedTimeDynamic) && newTime !== -999) {
 			const view = new CameraLocation(
 				this.gameConfig.floodView.x,
 				this.gameConfig.floodView.y,
@@ -200,6 +202,8 @@ export class Game extends Dispatcher {
 					this.interval = undefined;
 				}
 			}, 50);
+		} else {
+			this.setStep(newTime);
 		}
 		this.save();
 	}
