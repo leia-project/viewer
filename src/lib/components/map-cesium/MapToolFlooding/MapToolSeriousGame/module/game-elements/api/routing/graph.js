@@ -102,6 +102,9 @@ function getEdgeById(network, id, idField) {
 }
 
 export async function disableGraphEdges(networkArea, networkType, edgeIds, idField = 'id') {
+  if (networks[networkArea + networkType] === undefined) {
+    return;
+  }
   const network = await getNetwork(networkArea, networkType);
   if (!network.disabledGraphEntries) {
     network.disabledGraphEntries = {};
@@ -157,6 +160,9 @@ export async function enableGraphEdges(networkArea, networkType, edgeIds, idFiel
 }
 
 export async function resetGraphToDefault(networkArea, networkType) {
+  if (networks[networkArea + networkType] === undefined) {
+    return;
+  }
   const network = await getNetwork(networkArea, networkType);
   let disabledGraphEntries = network.disabledGraphEntries;
   if (!disabledGraphEntries) {
