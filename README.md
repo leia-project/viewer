@@ -699,7 +699,7 @@ The info tool will display attribution from used libraries in the viewer and som
 
 #### geocoder
 
-Geocoder tool, located at the right corner of the header instead of the toolbar, the user can search for locations using and zoom to locations using this tool. By default the Dutch Locatieserver geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. For international geocoding, OSM's Nominatim can be used: https://nominatim.openstreetmap.org.
+Geocoder tool, located at the right corner of the header instead of the toolbar. The user can search for locations using and zoom to locations using this tool. By default the Dutch Locatieserver geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. For international geocoding, OSM's Nominatim can be used: https://nominatim.openstreetmap.org.
 
 |value|description|type|
 |-|-|-|
@@ -1036,7 +1036,7 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 
 #### language
 
-Tool to enable switching between different languages. If this tool is not included or disabled, Dutch is used.
+Header tool to enable switching between different languages. If this tool is not included or disabled, Dutch is used.
 
 |value|description|type|
 |-|-|-|
@@ -1049,6 +1049,17 @@ Tool to enable switching between different languages. If this tool is not includ
 	"settings": {
 		"startLanguage": "en"
 	}
+}
+```
+
+#### github
+
+Header tool to enable a link to the GitHub project page.
+
+```json
+{
+	"id": "github",
+	"enabled": true
 }
 ```
 
