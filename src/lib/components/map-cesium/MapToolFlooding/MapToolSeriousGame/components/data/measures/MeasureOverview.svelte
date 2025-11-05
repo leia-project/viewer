@@ -33,7 +33,7 @@
 
 <div class="measure-list">
 	<div class="measure-list-title">{$_("game.available")}</div>
-	{#each $enabledMeasures as measure}
+	{#each $enabledMeasures as measure (measure.config.id)}
 		<MeasureEntry {measure} {roadNetwork} />
 	{/each}
 </div>
@@ -43,7 +43,7 @@
 
 	<div class="measure-list">
 		<div class="measure-list-title">{$_("game.unavailable")} in {$inPreparationPhase ? $_("game.preparationPhase") : $_("game.evacuationPhase")}</div>
-		{#each $disabledMeasures as measure}
+		{#each $disabledMeasures as measure (measure.config.id)}
 			<MeasureEntry {measure} {roadNetwork} />
 		{/each}
 	</div>

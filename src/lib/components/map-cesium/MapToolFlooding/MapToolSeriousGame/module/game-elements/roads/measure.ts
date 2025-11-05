@@ -75,9 +75,7 @@ export abstract class Measure {
 				this.routeSegments.forEach((segment) => this.removeFrom(segment));
 				this.applyCheck = false;
 			}
-			if (this.billboard.billboard) this.billboard.billboard.show = applied ? Measure.constantFalse : Measure.constantTrue;
-			if (this.billboardApplied.billboard) this.billboardApplied.billboard.show = applied ? Measure.constantTrue : Measure.constantFalse;
-			this.map.refresh();
+			this.setBillboard(applied);
 			this.roadNetwork.cleanSetRoutingGraph();
 		});
 	}
@@ -93,6 +91,12 @@ export abstract class Measure {
 			this.routeSegments.splice(index, 1);
 			this.updateEntities();
 		}
+	}
+
+	private setBillboard(applied: boolean): void {
+		if (this.billboard.billboard) this.billboard.billboard.show = applied ? Measure.constantFalse : Measure.constantTrue;
+		if (this.billboardApplied.billboard) this.billboardApplied.billboard.show = applied ? Measure.constantTrue : Measure.constantFalse;
+		this.map.refresh();
 	}
 
 	public empty(): void {
@@ -138,6 +142,7 @@ export abstract class Measure {
 			this.map.viewer.entities.remove(this.billboardApplied);
 		}
 		this.billboardApplied = this.createBillboard(enabled ? "#00BFFF" : "#306e82ff", "applied");
+		this.setBillboard(get(this.applied));
 	}
 
 	private updateEntities(): void {
