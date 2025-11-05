@@ -415,7 +415,7 @@
                         "breachTimeDateString": "2023-10-01T11:30:00+02:00",
                         "breach": "WSNoo-DP760",
                         "scenario": "100000",
-                        "personsPerCar": 4,
+                        "personsPerCar": 2.5,
                         "preparationPhase": true,
                         "timesteps": [1, 4, 4.5, 6, 10],
                         "homeView": {
@@ -447,7 +447,7 @@
                         "breachTimeDateString": "2023-10-01T14:00:00+02:00",
                         "breach": "OS-dp_165",
                         "scenario": "3000",
-                        "personsPerCar": 4,
+                        "personsPerCar": 2.5,
                         "preparationPhase": true,
                         "timesteps": [1, 4, 6, 9, 12, 16],
                         "homeView": {
@@ -479,7 +479,7 @@
                         "breachTimeDateString": "2023-10-08T15:00:00+02:00",
                         "breach": "Schelde-Rijnkanaal_19_KM",
                         "scenario": "3000",
-                        "personsPerCar": 4,
+                        "personsPerCar": 2.5,
                         "preparationPhase": true,
                         "timesteps": [1, 4, 4.5, 6, 12, 24, 48, 72],
                         "homeView": {
