@@ -29,6 +29,23 @@
     <img src="{base}/images/help_story_navigation.png" style="width:100%" alt="story navigation" />
 </div>
 
+<div class="heading-02">{$_("tools.help.stories.headingStoryDrawArea")}</div>
+<div class="body-02">
+    {$_("tools.help.stories.storyDrawArea")}
+</div>
+
+<div class="img">
+    <img src="{base}/images/help_story_draw_area.png" style="width:100%" alt="story navigation" />
+</div>
+
+<div class="heading-02">{$_("tools.help.stories.headingStoryDataDonut")}</div>
+<div class="body-02">
+    {$_("tools.help.stories.storyDataDonut")}
+</div>
+
+<div class="img">
+    <img src="{base}/images/help_story_data_donut.png" style="width:100%" alt="story navigation" />
+</div>
 
 <style>
     [class*="img"] {
