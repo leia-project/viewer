@@ -91,7 +91,11 @@
                 "headingOpenStories": "Ouverture des histoires",
                 "openStories": "Ouvrez le module histoires en cliquant sur le bouton 'Histoires' sur le côté gauche. Sélectionnez une histoire dans la liste pour démarrer la visite.",
                 "headingStoryNavigation": "Navigation",
-                "storyNavigation": "Utilisez les boutons de chapitre et de page pour naviguer dans l'histoire, ou faites défiler vers le bas dans le menu pour passer à la page suivante. Vous pouvez fermer l'histoire à tout moment en cliquant sur le bouton 'Retour à l'aperçu'."
+                "storyNavigation": "Utilisez les boutons de chapitre et de page pour naviguer dans l'histoire, ou faites défiler vers le bas dans le menu pour passer à la page suivante. Vous pouvez fermer l'histoire à tout moment en cliquant sur le bouton 'Retour à l'aperçu'.",
+                "headingStoryDrawArea": "Dessiner une zone de projet",
+                "storyDrawArea": "Certaines histoires nécessitent que vous dessiniez une zone de projet sur la carte. Cette zone sera utilisée pour générer une répartition des classes à l'intérieur du polygone dessiné. Pour dessiner une zone de projet, cliquez sur le bouton 'Dessiner la zone de projet', puis cliquez sur la carte pour créer un polygone. Cliquez avec le bouton droit de la souris sur la carte ou cliquez sur 'Terminer le dessin' pour terminer le dessin.",
+                "headingStoryDataDonut": "Graphique des données de la zone de projet",
+                "storyDataDonut": "Dans les histoires qui contiennent une zone de projet, un graphique en anneau est affiché pour représenter la répartition des différentes classes à l'intérieur de la zone dessinée. En survolant un segment, le pourcentage qu'il représente est affiché."
             }
         },
         "layerLibrary": {
@@ -255,7 +259,7 @@
             "storyChartNoData": "Aucune donnée",
             "storyChartNoDataInPolygon": "Aucune donnée dans la zone de projet dessinée",
             "basemap": "Calque d'arrière-plan",
-            "requestDrawPolygon": "Dessinez une zone de projet pour récupérer les données",
+            "requestDrawPolygon": "Dessinez une zone de projet",
             "drawPolygon": "Dessiner la Zone de Projet",
             "finishPolygon": "Terminer la Zone de Projet",
             "drawPolygonText": "Cliquez sur le bouton 'Dessiner la Zone de Projet' pour commencer à dessiner sur la carte. Cliquez pour créer un polygone. Cliquez avec le bouton droit de la souris sur la carte pour terminer le dessin.",

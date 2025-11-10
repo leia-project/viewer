@@ -94,7 +94,11 @@
                 "headingOpenStories": "Opening Stories",
                 "openStories": "Open the story tool by clicking the 'Stories' button on the left side. Select a story from the list to start the tour.",
                 "headingStoryNavigation": "Navigation",
-                "storyNavigation": "Use the chapter and page buttons to move through the story, or simply scroll down in the menu. You can go back to the overview at any time by clicking the 'Back to overview' button."
+                "storyNavigation": "Use the chapter (top row) and page buttons (bottom row) to move through the story, or simply scroll down in the menu. You can go back to the overview at any time by clicking the 'Back to overview' button.",
+                "headingStoryDrawArea": "Drawing a Project Area",
+                "storyDrawArea": "Some stories require you to draw a project area on the map. This area will be used to generate a a distribution of classes within the drawn polygon. To draw a project area, click the 'Draw Project Area' button and then click on the map to create a polygon. Right-click on the map or click 'Finish Drawing' to finish drawing.",
+                "headingStoryDataDonut": "Project Area Data Chart",
+                "storyDataDonut": "In stories that contain a project area, a donut chart is shown to represent the distribution of different classes within the drawn area. Hovering over a segment will show the percentage it represents."
             }
         },
         "layerLibrary": {
@@ -264,7 +268,7 @@
             "storyChartNoData": "No Data",
             "storyChartNoDataInPolygon": "No data in the drawn project area",
             "basemap": "Basemap",
-            "requestDrawPolygon": "Draw a project area to retrieve data",
+            "requestDrawPolygon": "Draw a project area",
             "drawPolygon": "Draw Project Area",
             "finishPolygon": "Finish Project Area",
             "drawPolygonText": "Click on the 'Draw Project Area' button to start drawing on the map. Click to create a polygon. Right-click on the map to finish drawing.",

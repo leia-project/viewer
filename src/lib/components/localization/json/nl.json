@@ -94,7 +94,11 @@
                 "headingOpenStories": "Verhalen openen",
                 "openStories": "Open de verhalenmodule door op de 'Verhalen' knop aan de linkerkant te klikken. Selecteer een verhaal uit de lijst om de rondleiding te starten.",
                 "headingStoryNavigation": "Navigeren",
-                "storyNavigation": "Gebruik de hoofdstuk- en paginaknoppen om door het verhaal te navigeren, of scroll naar beneden in het menu om door te gaan naar de volgende pagina. U kunt op elk moment het verhaal sluiten door op de knop 'Terug naar overzicht' te klikken."
+                "storyNavigation": "Gebruik de hoofdstuk- (bovenste rij) en paginaknoppen (onderste rij) om door het verhaal te navigeren, of scroll naar beneden in het menu om door te gaan naar de volgende pagina. U kunt op elk moment het verhaal sluiten door op de knop 'Terug naar overzicht' te klikken.",
+                "headingStoryDrawArea": "Een projectgebied tekenen",
+                "storyDrawArea": "Sommige verhalen vereisen dat u een projectgebied op de kaart tekent. Dit gebied wordt gebruikt om een verdeling van klassen binnen het getekende polygon te genereren. Om een projectgebied te tekenen, klikt u op de knop 'Teken projectgebied' en klikt u vervolgens op de kaart om punten neer te zetten en zo een polygon te creëren. Klik met de rechtermuisknop op de kaart of klik op 'Voltooi Projectgebied' om het tekenen te voltooien.",
+                "headingStoryDataDonut": "Projectgebied Data Grafiek",
+                "storyDataDonut": "In verhalen die een projectgebied bevatten, wordt een donutgrafiek weergegeven om de verdeling van verschillende klassen binnen het getekende gebied te weergeven. Wanneer u met de muis over een segment beweegt, wordt het percentage weergegeven."
             }
         },
         "config_switcher": {
@@ -271,7 +275,7 @@
             "storyChartNoData": "Geen Data",
             "storyChartNoDataInPolygon": "Geen data in het getekende projectgebied",
             "basemap": "Achtergrondkaart",
-            "requestDrawPolygon": "Teken een projectgebied in om data op te halen",
+            "requestDrawPolygon": "Teken een projectgebied in",
             "drawPolygon": "Teken Projectgebied",
             "finishPolygon": "Voltooi Projectgebied",
             "drawPolygonText": "Klik op de 'Teken projectgebied' knop om te beginnen met tekenen op de kaart. Klik om een vlak te creëren. Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.",
