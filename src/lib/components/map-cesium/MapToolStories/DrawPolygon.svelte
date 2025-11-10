@@ -329,10 +329,7 @@
             </div>
         </div>
     {/if}
-    
-    {#if errorMessage}
-        <div class="error-message">{errorMessage}</div>
-    {/if}
+
 
     <div class="buttons">
         <Button 
@@ -364,6 +361,11 @@
             {$_("tools.stories.deletePolygon")}
         </Button>
     </div>
+
+    {#if errorMessage}
+        <div class="error-message">{errorMessage}</div>
+    {/if}
+
     <br><hr><br>
 {/if}
 
@@ -386,7 +388,7 @@
     }
     .error-message {
     background-color: var(--cds-support-warning-background, #fff3cd);
-    border: 1px solid var(--cds-support-warning, #ffc107);
+    border: 1px solid var(--cds-active-danger, #ffc107);
     color: var(--cds-text-warning, #856404);
     padding: 0.75rem;
     margin: 1rem;
