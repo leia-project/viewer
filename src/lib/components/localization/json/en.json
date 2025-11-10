@@ -301,5 +301,11 @@
             "searchBreach": "Search breach",
             "timeSlider": "Time slider"
         }
+    },
+    "errors": {
+        "Drawing": {
+            "invalidPolygon": "Invalid polygon: The polygon must have at least 3 points and cannot intersect itself."
+        }
     }
+
 }

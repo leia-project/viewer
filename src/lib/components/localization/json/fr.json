@@ -292,5 +292,12 @@
             "searchBreach": "Recherche d'une brèche",
             "timeSlider": "Curseur de temps"
         }
+    },
+    "errors": {
+        "Drawing": {
+            "invalidPolygon": "Le polygone ne peut pas se croiser lui-même !"
+        }
     }
+
+
 }

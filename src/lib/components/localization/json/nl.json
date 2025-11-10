@@ -308,5 +308,11 @@
             "searchBreach": "Zoek bres",
             "timeSlider": "Tijd slider"
         }
+    },
+    "errors": {
+        "Drawing": {
+            "invalidPolygon": "Ongeldig polygoon: Zorg ervoor dat het polygoon zichzelf niet snijdt."
+        }
     }
+
 }

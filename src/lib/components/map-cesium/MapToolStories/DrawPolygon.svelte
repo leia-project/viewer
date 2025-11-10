@@ -70,8 +70,11 @@
     function checkPolygonForSelfIntersection(): boolean {
         const kinks = turf.kinks(geojson);
         if (kinks.features.length > 1) {
+            errorMessage = $_("errors.Drawing.invalidPolygon")
+            console.warn(errorMessage);
             return false;
         } else {
+            errorMessage = "";
             return true;
         }
     }
@@ -104,6 +107,7 @@
         if (hasDrawnPolygon || isDrawing) {
             return;
         }
+        errorMessage = "";
         isDrawing = true;
         selectedAction = "draw";
         handler = new Cesium.ScreenSpaceEventHandler(map.viewer.canvas);
@@ -325,6 +329,10 @@
             </div>
         </div>
     {/if}
+    
+    {#if errorMessage}
+        <div class="error-message">{errorMessage}</div>
+    {/if}
 
     <div class="buttons">
         <Button 
@@ -376,5 +384,14 @@
         z-index: 99;
         margin-top: 0.5rem;
     }
-    
+    .error-message {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    color: #856404;
+    padding: 0.75rem;
+    margin: 1rem;
+    border-radius: 0.25rem;
+    text-align: center;
+    font-weight: 500;
+    }
 </style>
