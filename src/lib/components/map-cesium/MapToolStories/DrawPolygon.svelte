@@ -47,22 +47,23 @@
         }
     });
 
+    let errorMessage = "";
+
     function checkPolygonOverlap(): boolean {
         if (!geojson || existingPolygons.length === 0) {
-            return true; // No overlap if no existing polygons
+            return true;
         }
 
-        const newPolygon = geojson
-
         for (let i = 0; i < existingPolygons.length; i++) {
-            const existingPolygon = turf.polygon(existingPolygons[i].geometry.coordinates);
-            const intersection = turf.intersect(newPolygon, existingPolygon);
+            const overlaps = turf.booleanIntersects(geojson, existingPolygons[i]);
             
-            if (intersection) {
-                console.warn("Polygon overlaps with existing polygon");
+            if (overlaps) {
+                errorMessage = "Polygon overlaps with existing polygon!";
+                console.warn(errorMessage);
                 return false;
             }
         }
+        errorMessage = "";
         return true;
     }
 
