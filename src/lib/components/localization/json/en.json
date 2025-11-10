@@ -304,7 +304,7 @@
     },
     "errors": {
         "Drawing": {
-            "invalidPolygon": "Invalid polygon: The polygon must have at least 3 points and cannot intersect itself."
+            "invalidPolygon": "Invalid polygon: The polygon cannot intersect itself."
         }
     }
 

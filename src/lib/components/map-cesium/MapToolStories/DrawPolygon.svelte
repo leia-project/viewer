@@ -69,7 +69,7 @@
 
     function checkPolygonForSelfIntersection(): boolean {
         const kinks = turf.kinks(geojson);
-        if (kinks.features.length > 1) {
+        if (kinks.features.length > 0) {
             errorMessage = $_("errors.Drawing.invalidPolygon")
             console.warn(errorMessage);
             return false;
@@ -385,9 +385,9 @@
         margin-top: 0.5rem;
     }
     .error-message {
-    background-color: #fff3cd;
-    border: 1px solid #ffc107;
-    color: #856404;
+    background-color: var(--cds-support-warning-background, #fff3cd);
+    border: 1px solid var(--cds-support-warning, #ffc107);
+    color: var(--cds-text-warning, #856404);
     padding: 0.75rem;
     margin: 1rem;
     border-radius: 0.25rem;
