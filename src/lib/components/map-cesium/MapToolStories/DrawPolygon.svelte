@@ -30,7 +30,7 @@
     let redPoints: Cesium.Entity[] = [];
     let selectedAction: 'draw' | 'delete' | undefined = undefined;
     let geojson: any;
-    
+    let existingPolygons: any[] = [];  // ADD THIS LINE
 
     onMount(() => {
         const storedPolygonData = get(polygonStore);
@@ -47,6 +47,24 @@
         }
     });
 
+    function checkPolygonOverlap(): boolean {
+        if (!geojson || existingPolygons.length === 0) {
+            return true; // No overlap if no existing polygons
+        }
+
+        const newPolygon = geojson
+
+        for (let i = 0; i < existingPolygons.length; i++) {
+            const existingPolygon = turf.polygon(existingPolygons[i].geometry.coordinates);
+            const intersection = turf.intersect(newPolygon, existingPolygon);
+            
+            if (intersection) {
+                console.warn("Polygon overlaps with existing polygon");
+                return false;
+            }
+        }
+        return true;
+    }
 
     function checkPolygonForSelfIntersection(): boolean {
         const kinks = turf.kinks(geojson);
@@ -154,6 +172,12 @@
         if (!checkPolygonForSelfIntersection()) {
             return;
         }
+
+        if (!checkPolygonOverlap()) {
+            return;
+        }
+
+        existingPolygons.push(geojson);  
 
         handler.destroy();
         if (activeShape) { 
