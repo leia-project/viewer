@@ -24,52 +24,52 @@
 
 	export let id: string = "cesiumcontrols";
 	export let icon: any = Settings;
-	export let label: string = "Map Settings";
+	export let label: string = $_("tools.cesium.label");
 	export let showOnBottom: boolean = true;
 
-	export let textSunPosition: string = $_("tools.controls.sunPosition");
-	export let textSunPositionDate: string = $_("tools.controls.sunPositionDate");
-	export let textSunPositionHour: string = $_("tools.controls.sunPositionHour");
+	export let textSunPosition: string = $_("tools.cesium.sunPosition");
+	export let textSunPositionDate: string = $_("tools.cesium.sunPositionDate");
+	export let textSunPositionHour: string = $_("tools.cesium.sunPositionHour");
 
-	export let textQuality: string = $_("tools.controls.quality");
-	export let textRendering: string = $_("tools.controls.rendering");
-	export let textEnvironment: string = $_("tools.controls.environment");
-	export let textDebug: string = $_("tools.controls.debug");
+	export let textQuality: string = $_("tools.cesium.quality");
+	export let textRendering: string = $_("tools.cesium.rendering");
+	export let textEnvironment: string = $_("tools.cesium.environment");
+	export let textDebug: string = $_("tools.cesium.debug");
 
-	export let textLow: string = $_("tools.controls.low");
-	export let textMedium: string = $_("tools.controls.medium");
-	export let textHigh: string = $_("tools.controls.high");
-	export let textCustom: string = $_("tools.controls.custom");
+	export let textLow: string = $_("tools.cesium.low");
+	export let textMedium: string = $_("tools.cesium.medium");
+	export let textHigh: string = $_("tools.cesium.high");
+	export let textCustom: string = $_("tools.cesium.custom");
 
-	export let textShadows: string = $_("tools.controls.shadows");
-	export let textFXAA: string = $_("tools.controls.fxaa");
-	export let textMSAA: string = $_("tools.controls.msaa");
-	export let textAnimate: string = $_("tools.controls.animate");
+	export let textShadows: string = $_("tools.cesium.shadows");
+	export let textFXAA: string = $_("tools.cesium.fxaa");
+	export let textMSAA: string = $_("tools.cesium.msaa");
+	export let textAnimate: string = $_("tools.cesium.animate");
 
-	export let textResolutionScale: string = $_("tools.controls.resolutionScale");
-	export let textMaximumScreenspaceError: string = $_("tools.controls.maximumScreenspaceError");
-	export let textGroundAtmosphere: string = $_("tools.controls.groundAtmosphere");
-	export let textSkyAtmosphere: string = $_("tools.controls.skyAtmosphere");
-	export let textLighting: string = $_("tools.controls.lighting");
-	export let textFog: string = $_("tools.controls.fog");
-	export let textHighDynamicRange: string = $_("tools.controls.dynamicRange");
+	export let textResolutionScale: string = $_("tools.cesium.resolutionScale");
+	export let textMaximumScreenspaceError: string = $_("tools.cesium.maximumScreenspaceError");
+	export let textGroundAtmosphere: string = $_("tools.cesium.groundAtmosphere");
+	export let textSkyAtmosphere: string = $_("tools.cesium.skyAtmosphere");
+	export let textLighting: string = $_("tools.cesium.lighting");
+	export let textFog: string = $_("tools.cesium.fog");
+	export let textHighDynamicRange: string = $_("tools.cesium.dynamicRange");
 
-	export let textPointCloud: string = $_("tools.controls.pointCloud");
+	export let textPointCloud: string = $_("tools.cesium.pointCloud");
 
-	export let textPointCloudAttenuation: string = $_("tools.controls.pointCloudAttenuation");
-	export let textPointCloudAttenuationMaximum: string = $_("tools.controls.pointCloudAttenuationMaximum");
-	export let textPointCloudAttenuationErrorScale: string = $_("tools.controls.pointCloudAttenuationErrorScale");
-	export let textPointCloudAttenuationBaseResolution: string = $_("tools.controls.pointCloudAttenuationBaseResolution");
+	export let textPointCloudAttenuation: string = $_("tools.cesium.pointCloudAttenuation");
+	export let textPointCloudAttenuationMaximum: string = $_("tools.cesium.pointCloudAttenuationMaximum");
+	export let textPointCloudAttenuationErrorScale: string = $_("tools.cesium.pointCloudAttenuationErrorScale");
+	export let textPointCloudAttenuationBaseResolution: string = $_("tools.cesium.pointCloudAttenuationBaseResolution");
 
-	export let textPointCloudEDL: string = $_("tools.controls.pointCloudEDL");
-	export let textPointCloudEDLRadius: string = $_("tools.controls.pointCloudEDLRadius");
-	export let textPointCloudEDLStrength: string = $_("tools.controls.pointCloudEDLStrength");
+	export let textPointCloudEDL: string = $_("tools.cesium.pointCloudEDL");
+	export let textPointCloudEDLRadius: string = $_("tools.cesium.pointCloudEDLRadius");
+	export let textPointCloudEDLStrength: string = $_("tools.cesium.pointCloudEDLStrength");
 
-	export let textFPSCounter: string = $_("tools.controls.FPSCounter");
-	export let textInspector: string = $_("tools.controls.inspector");
-	export let textMouseCoordinates: string = $_("tools.controls.coordinates");
+	export let textFPSCounter: string = $_("tools.cesium.FPSCounter");
+	export let textInspector: string = $_("tools.cesium.inspector");
+	export let textMouseCoordinates: string = $_("tools.cesium.coordinates");
 
-	export let textEnableDragDropFiles: string = $_("tools.controls.dragAndDropFiles");
+	export let textEnableDragDropFiles: string = $_("tools.cesium.dragAndDropFiles");
 	export let cesiumMap: Map = map;
 
 	let updatingSettings: boolean = true;

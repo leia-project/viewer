@@ -30,13 +30,13 @@
             "search": "Rechercher emplacement"
         },
         "info": {
-            "info": "Information",
+            "label": "Information",
             "close": "Fermer",
             "general": "Open 3D Viewer, produit par Sogelink (anciennement Geodan) et Provincie Zeeland.",
             "attribution": "Attribution"
         },
         "help": {
-            "help": "Aide",
+            "label": "Aide",
             "title": "Digital-Twin Viewer",
             "close": "Fermer",
             "closeDontShowOnStart": "Fermer et ne pas afficher au démarrage",
@@ -207,7 +207,7 @@
             "totalLength": "Longueur totale",
             "points": "Points"
         },
-        "controls": {
+        "cesium": {
             "label": "Paramètres de la carte",
             "sunPosition": "Position du soleil",
             "sunPositionDate": "Date",

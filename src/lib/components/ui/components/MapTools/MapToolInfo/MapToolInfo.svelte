@@ -13,7 +13,7 @@
     export let icon: any = Information;
     export let label: string = "Info";
 
-    export let txtTitle = get(_)("tools.info.info");
+    export let txtTitle = get(_)("tools.info.label");
     export let txtClose = get(_)("tools.info.close");
     export let txtGeneral = get(_)("tools.info.general");
     export let txtAttribution = get(_)("tools.info.attribution");

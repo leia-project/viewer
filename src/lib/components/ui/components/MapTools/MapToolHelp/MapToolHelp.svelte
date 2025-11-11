@@ -11,7 +11,7 @@
 
     let id: string = "help";
     export let icon: any = Help;
-    export let label: string = get(_)("tools.help.help");
+    export let label: string = get(_)("tools.help.label");
     export let txtTitle = get(_)("tools.help.title");
     export let txtIntro = get(_)("tools.help.intro");
 

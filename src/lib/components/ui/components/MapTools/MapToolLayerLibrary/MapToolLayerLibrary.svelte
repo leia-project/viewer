@@ -20,7 +20,7 @@
     const { registerTool, getMapContainer, map } = getContext<any>("mapTools");
     const localStorageLocation = "library.customLayers";
 
-    let id: string = "layerlibrary";
+    let id: string = "layerLibrary";
     export let icon: any = Folder;
     export let label: string = get(_)("tools.layerLibrary.label");
     export let txtTitle = get(_)("tools.layerLibrary.label");

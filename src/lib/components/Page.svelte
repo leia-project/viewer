@@ -63,13 +63,13 @@
 
 
 	let toolOrder = {
-        layerlibrary: MapToolLayerLibrary,
-        layermanager: MapToolLayerManager,
+        layerLibrary: MapToolLayerLibrary,
+        layerManager: MapToolLayerManager,
         bookmarks: MapToolBookmark,
         flooding: MapToolFlooding,
         stories: MapToolStories,
         projects: MapToolProjects,
-        featureinfo: MapToolFeatureInfo,
+        featureInfo: MapToolFeatureInfo,
         measure: MapToolCesiumMeasure,
         info: MapToolInfo,
         help: MapToolHelp,
@@ -78,12 +78,12 @@
     };
 
     const orderedKeys = [
-        'layerlibrary',
-        'layermanager',
+        'layerLibrary',
+        'layerManager',
         'flooding',
 		'stories',
         'projects',
-        'featureinfo',
+        'featureInfo',
         'bookmarks',
         'measure',
         'info',
@@ -93,32 +93,32 @@
     ];
 
 	function toolProps(toolKey: string) {
-		if (toolKey === 'layerlibrary') {
-			return {label: aliasDict['layerLibrary'] ?? $_("tools.layerLibrary.label") };  
-		} else if (toolKey === 'layermanager') {
-			return { layers: $layers, library, label: aliasDict['layerManager'] ?? $_("tools.layerManager.label") };
+		if (toolKey === 'layerLibrary') {
+			return { };  
+		} else if (toolKey === 'layerManager') {
+			return { layers: $layers, library };
 		} else if (toolKey === 'flooding') {
-			return { label: aliasDict['flooding'] ?? $_("tools.flooding.label") };
+			return { };
 		} else if (toolKey === 'bookmarks') {
-			return { label: aliasDict['bookmarks'] ?? $_("tools.bookmarks.label") };
-		} else if (toolKey === 'featureinfo') {
-			return { label: $_("tools.featureInfo.label") };
+			return { };
+		} else if (toolKey === 'featureInfo') {
+			return { };
 		} else if (toolKey === 'theme') {
 			return {};
 		} else if (toolKey === 'measure') {
-			return { label: aliasDict['measure'] ?? $_("tools.measure.label") };
+			return { };
 		} else if (toolKey === 'projects') {
-			return { label: aliasDict['projects'] ?? $_("tools.projects.label") };
+			return { };
 		} else if (toolKey === 'info') {
-			return { attribution: Attributions, txtViewerTitle: undefined, txtViewerDescription: undefined, label: $_("tools.info.info") };
+			return { attribution: Attributions, txtViewerTitle: undefined, txtViewerDescription: undefined };
 		} else if (toolKey === 'help') {
-			return { label: $_("tools.help.help") };
+			return { };
 		} else if (toolKey === 'cesium') {
-			return { label: $_("tools.controls.label") };
+			return { };
 		} else if (toolKey === 'config_switcher') {
 			return {};
 		} else if (toolKey === 'stories') {
-			return { label: aliasDict['stories'] ?? $_("tools.stories.label") };
+			return { };
 		}
 		return {};
 	}
@@ -147,7 +147,7 @@
 							});
     					}	
 
-						let orderedToolOrder = {};
+					let orderedToolOrder = {};
 
 					orderedKeys.forEach(key => {
 						if (toolOrder.hasOwnProperty(key)) {
@@ -180,6 +180,7 @@
 			}
 		}
 		enabledTools.set(tools);
+		console.log('enabled tools list' + tools)
 	}
 
 	function setColorTokens(tokens: any) {

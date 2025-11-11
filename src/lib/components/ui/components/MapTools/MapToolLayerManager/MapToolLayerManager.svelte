@@ -18,7 +18,7 @@
 
     const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-    let id: string = "layermanager";
+    let id: string = "layerManager";
     export let icon: any = Layers;
     export let label: string;
     export let layers: Array<Layer>;
