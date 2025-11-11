@@ -26,9 +26,12 @@
 		if (map) {
 			map.configLoaded.subscribe((loaded) => {
 				if (loaded) {
-					let languageSettings = map.config.tools.find((t: any) => t.id === "language")?.settings;
-					if (languageSettings && languageSettings.startLanguage) {
-						selectedLanguage.set(languageSettings.startLanguage);
+					let languageTool = map.config.tools.find((t: any) => t.id === "language");
+					let languageSettings = languageTool?.settings;
+					if (languageTool.enabled) {
+						if (languageSettings && languageSettings.startLanguage) {
+							selectedLanguage.set(languageSettings.startLanguage);
+						}
 					}
 				}
 			});
