@@ -305,5 +305,11 @@
             "searchBreach": "Search breach",
             "timeSlider": "Time slider"
         }
+    },
+    "errors": {
+        "Drawing": {
+            "invalidPolygon": "Invalid polygon: The polygon cannot intersect itself."
+        }
     }
+
 }

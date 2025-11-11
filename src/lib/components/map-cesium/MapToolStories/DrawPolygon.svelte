@@ -30,7 +30,7 @@
     let redPoints: Cesium.Entity[] = [];
     let selectedAction: 'draw' | 'delete' | undefined = undefined;
     let geojson: any;
-    
+    let existingPolygons: any[] = [];  // ADD THIS LINE
 
     onMount(() => {
         const storedPolygonData = get(polygonStore);
@@ -47,12 +47,34 @@
         }
     });
 
+    let errorMessage = "";
+
+    function checkPolygonOverlap(): boolean {
+        if (!geojson || existingPolygons.length === 0) {
+            return true;
+        }
+
+        for (let i = 0; i < existingPolygons.length; i++) {
+            const overlaps = turf.booleanIntersects(geojson, existingPolygons[i]);
+            
+            if (overlaps) {
+                errorMessage = "Polygon overlaps with existing polygon!";
+                console.warn(errorMessage);
+                return false;
+            }
+        }
+        errorMessage = "";
+        return true;
+    }
 
     function checkPolygonForSelfIntersection(): boolean {
         const kinks = turf.kinks(geojson);
-        if (kinks.features.length > 1) {
+        if (kinks.features.length > 0) {
+            errorMessage = $_("errors.Drawing.invalidPolygon")
+            console.warn(errorMessage);
             return false;
         } else {
+            errorMessage = "";
             return true;
         }
     }
@@ -85,6 +107,7 @@
         if (hasDrawnPolygon || isDrawing) {
             return;
         }
+        errorMessage = "";
         isDrawing = true;
         selectedAction = "draw";
         handler = new Cesium.ScreenSpaceEventHandler(map.viewer.canvas);
@@ -154,6 +177,12 @@
         if (!checkPolygonForSelfIntersection()) {
             return;
         }
+
+        if (!checkPolygonOverlap()) {
+            return;
+        }
+
+        existingPolygons.push(geojson);  
 
         handler.destroy();
         if (activeShape) { 
@@ -301,6 +330,7 @@
         </div>
     {/if}
 
+
     <div class="buttons">
         <Button 
             icon={isDrawing ? Checkmark : AreaCustom}
@@ -331,6 +361,11 @@
             {$_("tools.stories.deletePolygon")}
         </Button>
     </div>
+
+    {#if errorMessage}
+        <div class="error-message">{errorMessage}</div>
+    {/if}
+
     <br><hr><br>
 {/if}
 
@@ -351,5 +386,14 @@
         z-index: 99;
         margin-top: 0.5rem;
     }
-    
+    .error-message {
+    background-color: var(--cds-support-warning-background, #fff3cd);
+    border: 1px solid var(--cds-active-danger, #ffc107);
+    color: var(--cds-text-warning, #856404);
+    padding: 0.75rem;
+    margin: 1rem;
+    border-radius: 0.25rem;
+    text-align: center;
+    font-weight: 500;
+    }
 </style>
