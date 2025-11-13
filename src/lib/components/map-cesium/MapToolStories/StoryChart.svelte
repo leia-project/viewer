@@ -8,11 +8,25 @@
 	let cleanData: Array<{ name: string; value: number }> = [];
 	let color: Array<string>;
 	let toolTipText: string;
+	
+	// labels visible under the donut chart
+	const ALL_GROUPS = ["A", "B", "C", "D", "E"];
+
 
 	if (data) {
 		// Change name 'group' to 'name' for compatibility with echarts
-		cleanData = data.map(item => ({ name: item.group, value: item.value }));
-		color = ['#339966', '#99ffcc', '#ffff99', '#ffcc66', '#9c4110']; // A B C D E colors
+		const fullData = ALL_GROUPS.map(g => {
+			const found = data.find(item => item.group === g);
+			return {
+				name: g,
+				value: found ? found.value : 0
+			};
+		});
+
+		cleanData = fullData;
+
+		// Colors for A–E
+		color = ['#339966', '#99ffcc', '#ffff99', '#ffcc66', '#9c4110']; 
 		toolTipText = '{b}: {d}%'; // Show group name and percentage
 	}
 	else {
