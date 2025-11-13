@@ -16,18 +16,31 @@
 
     let id: string = "bookmarks";
     export let icon: any = Bookmark;
-    export let label: string = "Bookmarks";
     export let bookmarks: Array<CameraLocation> = new Array<CameraLocation>();
-    export let textTitle: string = $_("tools.bookmarks.title");
-    export let textDescription: string = $_("tools.bookmarks.description");
-    export let textSave: string = $_("tools.bookmarks.save");
-    export let textCancel: string = $_("tools.bookmarks.cancel");
-    export let textDelete: string = $_("tools.bookmarks.delete");
-    export let textAdd: string = $_("tools.bookmarks.add");
-    export let textNoBookmarks: string = $_("tools.bookmarks.noBookmarks");
-    export let textNoBookmarksSubtitle: string = $_("tools.bookmarks.noBookmarksSubtitle");
-    export let textInfoCameraPosition = $_("tools.bookmarks.cameraPosition");
-    export let textInfoCameraPositionSubtitle = $_("tools.bookmarks.cameraPositionSubtitle");
+
+    export let label: string;
+    export let textTitle: string;
+    export let textDescription: string;
+    export let textSave: string;
+    export let textCancel: string;
+    export let textDelete: string;
+    export let textAdd: string;
+    export let textNoBookmarks: string;
+    export let textNoBookmarksSubtitle: string;
+    export let textInfoCameraPosition: string;
+    export let textInfoCameraPositionSubtitle: string;
+
+    $: label = $_("tools.bookmarks.label");
+    $: textTitle = $_("tools.bookmarks.title");
+    $: textDescription = $_("tools.bookmarks.description");
+    $: textSave = $_("tools.bookmarks.save");
+    $: textCancel = $_("tools.bookmarks.cancel");
+    $: textDelete = $_("tools.bookmarks.delete");
+    $: textAdd = $_("tools.bookmarks.add");
+    $: textNoBookmarks = $_("tools.bookmarks.noBookmarks");
+    $: textNoBookmarksSubtitle = $_("tools.bookmarks.noBookmarksSubtitle");
+    $: textInfoCameraPosition = $_("tools.bookmarks.cameraPosition");
+    $: textInfoCameraPositionSubtitle = $_("tools.bookmarks.cameraPositionSubtitle");
 
 
     let tool = new MapToolMenuOption(id, icon, label);

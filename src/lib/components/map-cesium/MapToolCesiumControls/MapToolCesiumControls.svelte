@@ -24,52 +24,80 @@
 
 	export let id: string = "cesiumcontrols";
 	export let icon: any = Settings;
-	export let label: string = $_("tools.cesium.label");
 	export let showOnBottom: boolean = true;
 
-	export let textSunPosition: string = $_("tools.cesium.sunPosition");
-	export let textSunPositionDate: string = $_("tools.cesium.sunPositionDate");
-	export let textSunPositionHour: string = $_("tools.cesium.sunPositionHour");
+	export let label: string;
+	export let textSunPosition: string;
+	export let textSunPositionDate: string;
+	export let textSunPositionHour: string;
+	export let textQuality: string;
+	export let textRendering: string;
+	export let textEnvironment: string;
+	export let textDebug: string;
+	export let textLow: string;
+	export let textMedium: string;
+	export let textHigh: string;
+	export let textCustom: string;
+	export let textShadows: string;
+	export let textFXAA: string;
+	export let textMSAA: string;
+	export let textAnimate: string;
+	export let textResolutionScale: string;
+	export let textMaximumScreenspaceError: string;
+	export let textGroundAtmosphere: string;
+	export let textSkyAtmosphere: string;
+	export let textLighting: string;
+	export let textFog: string;
+	export let textHighDynamicRange: string;
+	export let textPointCloud: string;
+	export let textPointCloudAttenuation: string;
+	export let textPointCloudAttenuationMaximum: string;
+	export let textPointCloudAttenuationErrorScale: string;
+	export let textPointCloudAttenuationBaseResolution: string;
+	export let textPointCloudEDL: string;
+	export let textPointCloudEDLRadius: string;
+	export let textPointCloudEDLStrength: string;
+	export let textFPSCounter: string;
+	export let textInspector: string;
+	export let textMouseCoordinates: string;
+	export let textEnableDragDropFiles: string;
 
-	export let textQuality: string = $_("tools.cesium.quality");
-	export let textRendering: string = $_("tools.cesium.rendering");
-	export let textEnvironment: string = $_("tools.cesium.environment");
-	export let textDebug: string = $_("tools.cesium.debug");
-
-	export let textLow: string = $_("tools.cesium.low");
-	export let textMedium: string = $_("tools.cesium.medium");
-	export let textHigh: string = $_("tools.cesium.high");
-	export let textCustom: string = $_("tools.cesium.custom");
-
-	export let textShadows: string = $_("tools.cesium.shadows");
-	export let textFXAA: string = $_("tools.cesium.fxaa");
-	export let textMSAA: string = $_("tools.cesium.msaa");
-	export let textAnimate: string = $_("tools.cesium.animate");
-
-	export let textResolutionScale: string = $_("tools.cesium.resolutionScale");
-	export let textMaximumScreenspaceError: string = $_("tools.cesium.maximumScreenspaceError");
-	export let textGroundAtmosphere: string = $_("tools.cesium.groundAtmosphere");
-	export let textSkyAtmosphere: string = $_("tools.cesium.skyAtmosphere");
-	export let textLighting: string = $_("tools.cesium.lighting");
-	export let textFog: string = $_("tools.cesium.fog");
-	export let textHighDynamicRange: string = $_("tools.cesium.dynamicRange");
-
-	export let textPointCloud: string = $_("tools.cesium.pointCloud");
-
-	export let textPointCloudAttenuation: string = $_("tools.cesium.pointCloudAttenuation");
-	export let textPointCloudAttenuationMaximum: string = $_("tools.cesium.pointCloudAttenuationMaximum");
-	export let textPointCloudAttenuationErrorScale: string = $_("tools.cesium.pointCloudAttenuationErrorScale");
-	export let textPointCloudAttenuationBaseResolution: string = $_("tools.cesium.pointCloudAttenuationBaseResolution");
-
-	export let textPointCloudEDL: string = $_("tools.cesium.pointCloudEDL");
-	export let textPointCloudEDLRadius: string = $_("tools.cesium.pointCloudEDLRadius");
-	export let textPointCloudEDLStrength: string = $_("tools.cesium.pointCloudEDLStrength");
-
-	export let textFPSCounter: string = $_("tools.cesium.FPSCounter");
-	export let textInspector: string = $_("tools.cesium.inspector");
-	export let textMouseCoordinates: string = $_("tools.cesium.coordinates");
-
-	export let textEnableDragDropFiles: string = $_("tools.cesium.dragAndDropFiles");
+	$: label = $_("tools.cesium.label");
+	$: textSunPosition = $_("tools.cesium.sunPosition");
+	$: textSunPositionDate = $_("tools.cesium.sunPositionDate");
+	$: textSunPositionHour = $_("tools.cesium.sunPositionHour");
+	$: textQuality = $_("tools.cesium.quality");
+	$: textRendering = $_("tools.cesium.rendering");
+	$: textEnvironment = $_("tools.cesium.environment");
+	$: textDebug = $_("tools.cesium.debug");
+	$: textLow = $_("tools.cesium.low");
+	$: textMedium = $_("tools.cesium.medium");
+	$: textHigh = $_("tools.cesium.high");
+	$: textCustom = $_("tools.cesium.custom");
+	$: textShadows = $_("tools.cesium.shadows");
+	$: textFXAA = $_("tools.cesium.fxaa");
+	$: textMSAA = $_("tools.cesium.msaa");
+	$: textAnimate = $_("tools.cesium.animate");
+	$: textResolutionScale = $_("tools.cesium.resolutionScale");
+	$: textMaximumScreenspaceError = $_("tools.cesium.maximumScreenspaceError");
+	$: textGroundAtmosphere = $_("tools.cesium.groundAtmosphere");
+	$: textSkyAtmosphere = $_("tools.cesium.skyAtmosphere");
+	$: textLighting = $_("tools.cesium.lighting");
+	$: textFog = $_("tools.cesium.fog");
+	$: textHighDynamicRange = $_("tools.cesium.dynamicRange");
+	$: textPointCloud = $_("tools.cesium.pointCloud");
+	$: textPointCloudAttenuation = $_("tools.cesium.pointCloudAttenuation");
+	$: textPointCloudAttenuationMaximum = $_("tools.cesium.pointCloudAttenuationMaximum");
+	$: textPointCloudAttenuationErrorScale = $_("tools.cesium.pointCloudAttenuationErrorScale");
+	$: textPointCloudAttenuationBaseResolution = $_("tools.cesium.pointCloudAttenuationBaseResolution");
+	$: textPointCloudEDL = $_("tools.cesium.pointCloudEDL");
+	$: textPointCloudEDLRadius = $_("tools.cesium.pointCloudEDLRadius");
+	$: textPointCloudEDLStrength = $_("tools.cesium.pointCloudEDLStrength");
+	$: textFPSCounter = $_("tools.cesium.FPSCounter");
+	$: textInspector = $_("tools.cesium.inspector");
+	$: textMouseCoordinates = $_("tools.cesium.coordinates");
+	$: textEnableDragDropFiles = $_("tools.cesium.dragAndDropFiles");
+	
 	export let cesiumMap: Map = map;
 
 	let updatingSettings: boolean = true;

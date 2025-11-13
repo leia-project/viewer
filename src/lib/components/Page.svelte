@@ -46,38 +46,7 @@
 	$: library = $map ? $map.layerLibrary : undefined;
 	$: title = $settings.title ? $settings.title + ' - ' + $settings.subTitle : $_('general.loading')
 	
-    // $: toolOrder = {
-    //     layerlibrary: MapToolLayerLibrary,
-    //     layermanager: MapToolLayerManager,
-    //     bookmarks: MapToolBookmark,
-    //     flooding: MapToolFlooding,
-    //     stories: MapToolStories,
-    //     projects: MapToolProjects,
-    //     featureinfo: MapToolFeatureInfo,
-    //     measure: MapToolCesiumMeasure,
-    //     info: MapToolInfo,
-    //     help: MapToolHelp,
-    //     cesium: MapToolCesiumControls,
-    //     config_switcher: MapToolConfigSwitcher,
-    // };
-
-
-	let toolOrder = {
-        layerLibrary: MapToolLayerLibrary,
-        layerManager: MapToolLayerManager,
-        bookmarks: MapToolBookmark,
-        flooding: MapToolFlooding,
-        stories: MapToolStories,
-        projects: MapToolProjects,
-        featureInfo: MapToolFeatureInfo,
-        measure: MapToolCesiumMeasure,
-        info: MapToolInfo,
-        help: MapToolHelp,
-        cesium: MapToolCesiumControls,
-        config_switcher: MapToolConfigSwitcher,
-    };
-
-    const orderedKeys = [
+	const orderedKeys = [
         'layerLibrary',
         'layerManager',
         'flooding',
@@ -91,6 +60,21 @@
         'cesium',
         'config_switcher'
     ];
+
+	$: toolOrder = {
+        layerLibrary: MapToolLayerLibrary,
+        layerManager: MapToolLayerManager,
+        bookmarks: MapToolBookmark,
+        flooding: MapToolFlooding,
+        stories: MapToolStories,
+        projects: MapToolProjects,
+        featureInfo: MapToolFeatureInfo,
+        measure: MapToolCesiumMeasure,
+        info: MapToolInfo,
+        help: MapToolHelp,
+        cesium: MapToolCesiumControls,
+        config_switcher: MapToolConfigSwitcher,
+    };
 
 	function toolProps(toolKey: string) {
 		if (toolKey === 'layerLibrary') {
@@ -146,21 +130,8 @@
 								id: setting.id, ranking: setting.settings.ranking
 							});
     					}	
-
-					let orderedToolOrder = {};
-
-					orderedKeys.forEach(key => {
-						if (toolOrder.hasOwnProperty(key)) {
-							orderedToolOrder[key] = toolOrder[key];
-						}
-					});
-
-					$: toolOrder = orderedToolOrder;
 					}
 
-					console.log(userToolOrder)
-					console.log(toolOrder)
-					
 					if (map.viewerSettings) {
 						settings.set(map.viewerSettings);
 						if (map.viewerSettings.colors) {
@@ -196,6 +167,7 @@
 	setContext("page", {
 		app
 	})
+
 </script>
 
 <svelte:head>

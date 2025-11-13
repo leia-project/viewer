@@ -22,9 +22,14 @@
 
     let id: string = "layerLibrary";
     export let icon: any = Folder;
-    export let label: string = get(_)("tools.layerLibrary.label");
-    export let txtTitle = get(_)("tools.layerLibrary.label");
-    export let txtClose = get(_)("tools.layerLibrary.close");
+    
+    export let label: string; 
+    export let txtTitle: string;
+    export let txtClose: string;
+    
+    $: label = get(_)("tools.layerLibrary.label"); 
+    $: txtTitle  = get(_)("tools.layerLibrary.label");
+    $: txtClose = get(_)("tools.layerLibrary.close");
 
     let view: MapToolLibraryView | undefined = undefined;
     let tool = new MapToolMenuOption(id, icon, label, false, undefined, true, false);

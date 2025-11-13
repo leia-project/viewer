@@ -20,21 +20,35 @@
 	const icon: any = Ruler;
 	const cesiumMap: Map = map;
 	let loaded: boolean = false;
-
-	export let label: string = "Measure";
 	export let showOnBottom: boolean = false;
-	export let textNoMeasurements: string = $_("tools.measure.noMeasurement");
-	export let textNoMeasurementsSubtitle: string = $_("tools.measure.noMeasurementSubtitle");
-	export let textAdd: string = $_("tools.measure.add");
-	export let textEditMeasurement: string = $_("tools.measure.edit");
-	export let textTitle: string = $_("tools.measure.title");
-	export let textDefaultTitle: string = $_("tools.measure.defaultTitle");
-	export let textSave: string = $_("tools.measure.save");
-	export let textRecord: string = $_("tools.measure.record");
-	export let textDelete: string = $_("tools.measure.delete");
-	export let textCameraPosition: string = $_("tools.measure.cameraPosition");
-	export let textTotalLength: string = $_("tools.measure.totalLength");
-	export let textMeasurementPoints: string = $_("tools.measure.points");
+	
+	export let label: string;
+	export let textNoMeasurements: string;
+	export let textNoMeasurementsSubtitle: string;
+	export let textAdd: string;
+	export let textEditMeasurement: string;
+	export let textTitle: string;
+	export let textDefaultTitle: string;
+	export let textSave: string;
+	export let textRecord: string;
+	export let textDelete: string;
+	export let textCameraPosition: string;
+	export let textTotalLength: string;
+	export let textMeasurementPoints: string;
+
+	$: label = $_("tools.measure.label");
+	$: textNoMeasurements = $_("tools.measure.noMeasurement");
+	$: textNoMeasurementsSubtitle = $_("tools.measure.noMeasurementSubtitle");
+	$: textAdd = $_("tools.measure.add");
+	$: textEditMeasurement = $_("tools.measure.edit");
+	$: textTitle = $_("tools.measure.title");
+	$: textDefaultTitle = $_("tools.measure.defaultTitle");
+	$: textSave = $_("tools.measure.save");
+	$: textRecord = $_("tools.measure.record");
+	$: textDelete = $_("tools.measure.delete");
+	$: textCameraPosition = $_("tools.measure.cameraPosition");
+	$: textTotalLength = $_("tools.measure.totalLength");
+	$: textMeasurementPoints = $_("tools.measure.points");
 
 	let tool = new MapToolMenuOption(id, icon, label, showOnBottom);
 	$: { tool.label.set(label); }

@@ -11,21 +11,29 @@
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-	export let label: string = "Flooding";
-	export let scenario: string = $_('tools.flooding.scenario');
-	export let chosenBreach: string = $_('tools.flooding.chosenBreach');
-	export let noBreachSelected: string = $_('tools.flooding.noBreachSelected');
-	export let otherBreaches: string = $_('tools.flooding.otherBreaches');
-	export let searchBreach: string = $_('tools.flooding.searchBreach');
-	export let noResults: string = $_('tools.flooding.noResults');
+	export let label: string;
+  	export let scenario: string;
+  	export let chosenBreach: string;
+	export let noBreachSelected: string;
+	export let otherBreaches: string;
+	export let searchBreach: string;
+	export let noResults: string;
+
+  	$: label = $_('tools.flooding.label');
+  	$: scenario = $_('tools.flooding.scenario');
+  	$: chosenBreach = $_('tools.flooding.chosenBreach');
+	$: noBreachSelected = $_('tools.flooding.noBreachSelected');
+	$: otherBreaches = $_('tools.flooding.otherBreaches');
+	$: searchBreach = $_('tools.flooding.searchBreach');
+	$: noResults = $_('tools.flooding.noResults');
 
 	const id: string = "flooding";
 	const icon: any = WaveHeight;
 	const showOnBottom: boolean = false;
 
 	const tool = new MapToolMenuOption(id, icon, label, showOnBottom);
+	$: { tool.label.set(label); }
 	registerTool(tool);
-
 
 	const selectedScenario: Writable<string | undefined> = writable(undefined);
 

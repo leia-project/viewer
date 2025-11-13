@@ -13,8 +13,12 @@
 
     let id: string = "featureinfo";
     export let icon: any = Information;
-    export let label: string = $_("tools.featureInfo.label");
-    export const textNoData: string = $_("tools.featureInfo.noData");
+    
+    export let label: string;
+    export let textNoData: string;
+
+    $: label = $_("tools.featureInfo.label");
+    $: textNoData = $_("tools.featureInfo.noData");
 
     let featureInfoView: FeatureInfoView | undefined = undefined;
     let tool = new MapToolMenuOption(id, icon, label, false, undefined, false);

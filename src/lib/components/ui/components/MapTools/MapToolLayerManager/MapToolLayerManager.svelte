@@ -23,12 +23,19 @@
     export let label: string;
     export let layers: Array<Layer>;
     export let library: LayerLibrary;
-    export let textBaselayers: string = $_("tools.layerManager.baseLayers");
-    export let textThematicLayers: string = $_("tools.layerManager.thematicLayer");
+    
     let textMyLayers: string = "My layers";
     let textDragDroppedLayers: string = "Drag and dropped layers";
-    export let textOpacity: string = $_("tools.layerManager.opacity");
-    export let textLegend: string = $_("tools.layerManager.legend");
+    
+    export let textBaselayers: string;
+    export let textThematicLayers: string;
+    export let textOpacity: string;
+    export let textLegend: string;
+
+    $: textBaselayers = $_("tools.layerManager.baseLayers");
+    $: textThematicLayers = $_("tools.layerManager.thematicLayer");
+    $: textOpacity = $_("tools.layerManager.opacity");
+    $: textLegend = $_("tools.layerManager.legend");
 
     // register this tool
     let tool = new MapToolMenuOption(id, icon, label);
