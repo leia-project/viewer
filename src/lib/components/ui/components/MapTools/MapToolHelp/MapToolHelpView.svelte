@@ -17,13 +17,43 @@
 
 	$: map = get(app.map);
 
+    let customIntroText: string | undefined = undefined;
+    let downloadButtonEnabled: boolean | undefined = undefined;
+    let downloadButtonUrl: string | undefined = undefined;
+    let downloadButtonLabel: string |undefined = undefined;
+
     let floodingToolEnabled: boolean = false
     let storyToolEnabled: boolean = false
+
+    //TODO: Integrate this properly
+    interface IDownloadButton {
+        enabled: boolean;
+        url: string;
+        label: string;
+    }
+
+    let downloadButton: IDownloadButton | undefined = undefined;
 
     onMount(() => {
         try {
             if (map) {
                 if (map.config && map.config.tools) {
+                    // Prepare intro tab data
+                    let helpTool = map.config.tools.find((t: any) => t.id === "help");
+
+                    customIntroText = helpTool.settings.introSettings.customDescription ?? undefined;
+                    downloadButtonEnabled = helpTool.settings.introSettings.downloadButton?.enabled ?? false;
+                    downloadButtonUrl = helpTool.settings.introSettings.downloadButton?.url ?? undefined;
+                    downloadButtonLabel = helpTool.settings.introSettings.downloadButton?.label ?? undefined;
+                    if (downloadButtonEnabled && downloadButtonUrl && downloadButtonLabel) {
+                        downloadButton = {
+                            enabled: downloadButtonEnabled,
+                            url: downloadButtonUrl,
+                            label: downloadButtonLabel
+                        };
+                    }
+                    
+                    // Prepare flooding/story tab data
                     let floodingTool = map.config.tools.find((t: any) => t.id === "flooding");
                     floodingToolEnabled = floodingTool ? floodingTool.enabled : false;
                     let storyTool = map.config.tools.find((t: any) => t.id === "stories");
@@ -49,7 +79,12 @@
     }
       
     $: tabs = [
-        { label: $_("tools.help.tabs.intro"), component: TabIntro, enabled: true, props: { _ } },
+        { 
+            label: $_("tools.help.tabs.intro"), 
+            component: TabIntro, 
+            enabled: true, 
+            props: { customIntroText, downloadButton } 
+        },
         { label: $_("tools.help.tabs.movement"), component: TabMovement, enabled: true, props: { _, base }},
         { label: $_("tools.help.tabs.library"), component: TabLibrary, enabled: true, props: { _, base }},
         { label: $_("tools.help.tabs.flood"), component: TabFlooding, enabled: floodingToolEnabled, props: { _, base }},
