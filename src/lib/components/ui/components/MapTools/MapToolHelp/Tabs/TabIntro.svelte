@@ -10,8 +10,6 @@
     $: introText = customIntroText ?? $_("tools.help.intro.introDescription");
     $: downloadPDFButton = downloadButton ?? undefined;
 
-    console.log("Intro tab download button:", downloadPDFButton);
-
 </script>
 
 
