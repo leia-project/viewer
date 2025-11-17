@@ -3,7 +3,7 @@
 	import { setContext } from "svelte";
 	import { get, writable } from "svelte/store";
 
-	import { _ } from "svelte-i18n";
+	import { _, dictionary } from "svelte-i18n";
 	import CesiumBackgroundControls from "$lib/components/map-cesium/CesiumBackgroundControls.svelte";
 	import HeaderUtilityGeocoder from "$lib/components/map-cesium/Header/HeaderUtilityGeocoder/HeaderUtilityGeocoder.svelte";
 	import MapToolCesiumMeasure from "$lib/components/map-cesium/MapToolCesiumMeasure/MapToolCesiumMeasure.svelte";
@@ -32,6 +32,9 @@
 	import { HeaderActionLink } from "carbon-components-svelte";
 	import POVMapControls from "./ui/components/MapControls/POVMapControls.svelte";
 	import HeaderUtilityModeSwitcher from "./map-cesium/Header/HeaderUtilityModeSwitcher/HeaderUtilityModeSwitcher.svelte";
+	import type { List } from "echarts";
+	import { OgcFeaturesLoaderCesiumDynamic } from "./map-cesium/module/providers/ogc-features-provider";
+	import { filter } from "@observablehq/plot";
 
 	const settings = writable<any>({});
 	const enabledTools = writable<Array<string>>(new Array<string>());
@@ -39,41 +42,33 @@
 	let mapVisible = true;
 	let interfaceVisible = true;
 
-	const userToolOrder: { id: any; ranking: any; }[] = []; 
+	const userToolOrder: Record<string, number> = {};
 	const aliasDict: { [key: string]: string | undefined } = {};
 	const map = app.map;
 	$: layers = $map ? $map.layers : [];
 	$: library = $map ? $map.layerLibrary : undefined;
 	$: title = $settings.title ? $settings.title + ' - ' + $settings.subTitle : $_('general.loading')
 	
+	let orderedToolOrder:any = {};
+	
 	const orderedKeys = [
-        'layerLibrary',
+		'layerLibrary',
         'layerManager',
         'flooding',
 		'stories',
         'projects',
-        'featureInfo',
         'bookmarks',
         'measure',
-        'info',
-        'help',
-        'cesium',
-        'config_switcher'
-    ];
+    ]; // Standard order of top left tools in toolmenu
 
 	$: toolOrder = {
         layerLibrary: MapToolLayerLibrary,
         layerManager: MapToolLayerManager,
-        bookmarks: MapToolBookmark,
         flooding: MapToolFlooding,
         stories: MapToolStories,
         projects: MapToolProjects,
-        featureInfo: MapToolFeatureInfo,
+		bookmarks: MapToolBookmark,
         measure: MapToolCesiumMeasure,
-        info: MapToolInfo,
-        help: MapToolHelp,
-        cesium: MapToolCesiumControls,
-        config_switcher: MapToolConfigSwitcher,
     };
 
 	function toolProps(toolKey: string) {
@@ -126,11 +121,11 @@
     						aliasDict[setting.id] = alias;
 									
 						if (setting.settings && setting.settings.ranking) {
-							userToolOrder.push({
-								id: setting.id, ranking: setting.settings.ranking
-							});
+							 userToolOrder[setting.id] = setting.settings.ranking;
     					}	
 					}
+
+					toolOrder = createToolOrder(map.toolSettings);
 
 					if (map.viewerSettings) {
 						settings.set(map.viewerSettings);
@@ -151,7 +146,6 @@
 			}
 		}
 		enabledTools.set(tools);
-		console.log('enabled tools list' + tools)
 	}
 
 	function setColorTokens(tokens: any) {
@@ -162,6 +156,42 @@
 				light[tokenKey as keyof typeof light] = tokens[tokenKey];
 			}
 		}
+	}
+
+	function createToolOrder(toolSettings: any) {
+		const enabledToolIds = new Set(
+			toolSettings
+				.filter((tool: { enabled: boolean; }) => tool.enabled)
+				.map((tool: { id: string; }) => tool.id)
+		); 
+		const filteredOrderedKeys = orderedKeys.filter(key => enabledToolIds.has(key)); 
+		
+		const filteredToolOrder = Object.fromEntries(
+			Object.entries(toolOrder)
+			.filter(([key]) => enabledToolIds.has(key))
+		);
+					
+		const sortedUserKeys = Object.entries(userToolOrder)
+			.map(([key, ranking]) => ({ key, ranking: ranking - 1})) // map config tool positions (0-based index)
+			.sort((a, b) => b.ranking - a.ranking); // sort config tool positions high to low
+
+		for (const { key, ranking } of sortedUserKeys) {
+			const index = filteredOrderedKeys.indexOf(key);
+			if (index > -1) {
+				filteredOrderedKeys.splice(index, 1); // delete tool in array
+			}	
+			filteredOrderedKeys.splice(Math.min(ranking, filteredOrderedKeys.length), 0, key); // reinsert tool based on config position into array
+		}
+
+		filteredOrderedKeys.forEach(key => {
+			if (filteredToolOrder.hasOwnProperty(key)) {
+				orderedToolOrder[key] = filteredToolOrder[key];
+			}
+		});
+		
+		toolOrder = orderedToolOrder;
+
+		return toolOrder
 	}
 
 	setContext("page", {
@@ -199,7 +229,7 @@
 				expandText={$_("tools.menu.expand")}
 				collapseText={$_("tools.menu.collapse")}
 			>
-				{#each Object.keys(toolOrder) as toolKey}
+				{#each Object.keys(toolOrder) as toolKey }
 					{#if $enabledTools.includes(toolKey)}
 						<svelte:component
 							this={toolOrder[toolKey]}
@@ -208,6 +238,33 @@
 						/>
 					{/if}
 				{/each}
+
+				{#if $enabledTools.includes("theme")}
+					<MapToolTheme />
+				{/if}
+
+				{#if $enabledTools.includes("featureinfo")}
+					<MapToolFeatureInfo	
+						label={$_("tools.featureInfo.label")}
+						textNoData={$_("tools.featureInfo.noData")}/>
+				{/if}
+
+				{#if $enabledTools.includes("info")}
+					<MapToolInfo />
+				{/if}
+
+				{#if $enabledTools.includes("help")}
+					<MapToolHelp />
+				{/if}
+
+				{#if $enabledTools.includes("cesium")}
+					<MapToolCesiumControls />
+				{/if}
+
+				{#if $enabledTools.includes("config_switcher")}
+					<MapToolConfigSwitcher />
+				{/if}
+
 
 			</MapToolMenu>
 		{/if}
