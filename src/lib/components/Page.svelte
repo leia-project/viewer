@@ -110,8 +110,12 @@
 				{#if $enabledTools.includes("modeswitcher")}
 					<HeaderUtilityModeSwitcher />
 				{/if}
-				<Language />
-				<HeaderActionLink title="Visit GitHub" icon={LogoGithub} href="https://github.com/leia-project" target="_blank"/>
+				{#if $enabledTools.includes("language")}
+					<Language />
+				{/if}
+				{#if $enabledTools.includes("github")}
+					<HeaderActionLink title="Visit GitHub" icon={LogoGithub} href="https://github.com/leia-project" target="_blank"/>
+				{/if}
 			</div>
 		</div>
 	</Header>
