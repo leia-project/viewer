@@ -800,15 +800,22 @@ The help tool can be opend from the toolbar or configured to open on startup of 
 |title|The title to show in the introduction tab|string|
 |intro|Introduction text with more information or help, can contain HTML so adding images/videos is supported|string (HTML supported)|
 |showOnStart|Show the popup on opening the viewer, can be disabled by the user after the first time|boolean|
+|introSettings|Custom settings for the intro tab. Includes a custom description and download button.|object|
 
 ```json
 {
 	"id": "help",
 	"enabled": true,
 	"settings": {
-		"title": "Titel",
-		"intro": "<img style='float: right;max-width: 15rem' src='https://www.image.domain/my_image.jpg' /> <div class='body-02'>Some contextual information.</div>",
-		"showOnStart": true
+		"showOnStart": true,
+		"introSettings": { 
+			"customDescription": "<div>This is a custom HTML description.</div>",
+			"downloadButton": {
+				"enabled": true,
+				"url": "https://www.example.com/myfile.pdf",
+				"label": "Download PDF Data"
+			}
+		}
 	}
 }
 ```

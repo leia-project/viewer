@@ -50,8 +50,7 @@
                 "stories": "Verhalen"
             },
             "intro": {
-                "introDescription": "Een digital twin is een digitale representatie van een beoogd of bestaand fysiek product, systeem of proces dat dient als een vrijwel identieke digitale tegenhanger voor praktische doeleinden, zoals simulatie, integratie, testen, monitoring en onderhoud.",
-                "moreInfo": "Voor meer informatie over het gebruik van de viewer, zie de verschillende onderwerpen"
+                "introDescription": "Een digital twin is een digitale representatie van een beoogd of bestaand fysiek product, systeem of proces dat dient als een vrijwel identieke digitale tegenhanger voor praktische doeleinden, zoals simulatie, integratie, testen, monitoring en onderhoud. Voor meer informatie over het gebruik van de viewer, zie de verschillende onderwerpen."
             },
             "movement": {
                 "headingZoom": "Zoom in/uit",

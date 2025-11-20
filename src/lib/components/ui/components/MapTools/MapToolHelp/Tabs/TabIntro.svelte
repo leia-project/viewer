@@ -14,11 +14,8 @@
 
 
 <div class="body-02">
-    {@html introText}<br /><br />
-</div>
-
-<div class="body-02">
-    {$_("tools.help.intro.moreInfo")}
+    {@html introText}
+    <br />
 </div>
 
 {#if downloadPDFButton?.enabled}
