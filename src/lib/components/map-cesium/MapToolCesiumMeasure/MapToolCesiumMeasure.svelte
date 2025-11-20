@@ -22,7 +22,7 @@
 	let loaded: boolean = false;
 	export let showOnBottom: boolean = false;
 	
-	export let label: string;
+	export let label: string | undefined;
 	export let textNoMeasurements: string;
 	export let textNoMeasurementsSubtitle: string;
 	export let textAdd: string;
@@ -36,7 +36,7 @@
 	export let textTotalLength: string;
 	export let textMeasurementPoints: string;
 
-	$: label = $_("tools.measure.label");
+	$: label = label ?? $_("tools.measure.label");
 	$: textNoMeasurements = $_("tools.measure.noMeasurement");
 	$: textNoMeasurementsSubtitle = $_("tools.measure.noMeasurementSubtitle");
 	$: textAdd = $_("tools.measure.add");

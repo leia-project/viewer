@@ -20,12 +20,12 @@
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
 	export let icon: any = Book;
-	export let label: string;
+	export let label: string | undefined;
 	export let textBack: string;
 	export let textStepBack: string;
 	export let textStepForward: string;
 
-	$: label = $_("tools.stories.label");
+	$: label = label ?? $_("tools.stories.label");
 	$: textBack = $_("tools.stories.back");
 	$: textStepBack = $_("tools.stories.stepBack");
 	$: textStepForward = $_("tools.stories.stepForward");

@@ -11,7 +11,7 @@
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-	export let label: string;
+	export let label: string | undefined;
   	export let scenario: string;
   	export let chosenBreach: string;
 	export let noBreachSelected: string;
@@ -19,7 +19,7 @@
 	export let searchBreach: string;
 	export let noResults: string;
 
-  	$: label = $_('tools.flooding.label');
+  	$: label = label ?? $_('tools.flooding.label');
   	$: scenario = $_('tools.flooding.scenario');
   	$: chosenBreach = $_('tools.flooding.chosenBreach');
 	$: noBreachSelected = $_('tools.flooding.noBreachSelected');

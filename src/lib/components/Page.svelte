@@ -78,25 +78,13 @@
 			return { layers: $layers, library };
 		} else if (toolKey === 'flooding') {
 			return { };
-		} else if (toolKey === 'bookmarks') {
-			return { };
-		} else if (toolKey === 'featureInfo') {
-			return { };
-		} else if (toolKey === 'theme') {
-			return {};
-		} else if (toolKey === 'measure') {
+		} else if (toolKey === 'stories') {
 			return { };
 		} else if (toolKey === 'projects') {
 			return { };
-		} else if (toolKey === 'info') {
-			return { attribution: Attributions, txtViewerTitle: undefined, txtViewerDescription: undefined };
-		} else if (toolKey === 'help') {
+		} else if (toolKey === 'bookmarks') {
 			return { };
-		} else if (toolKey === 'cesium') {
-			return { };
-		} else if (toolKey === 'config_switcher') {
-			return {};
-		} else if (toolKey === 'stories') {
+		} else if (toolKey === 'measure') {
 			return { };
 		}
 		return {};
@@ -120,8 +108,8 @@
     						const alias = setting.settings ? setting.settings.alias : undefined;
     						aliasDict[setting.id] = alias;
 									
-						if (setting.settings && setting.settings.ranking) {
-							 userToolOrder[setting.id] = setting.settings.ranking;
+						if (setting.settings && setting.settings.position) {
+							 userToolOrder[setting.id] = setting.settings.position;
     					}	
 					}
 
@@ -173,15 +161,15 @@
 		);
 					
 		const sortedUserKeys = Object.entries(userToolOrder)
-			.map(([key, ranking]) => ({ key, ranking: ranking - 1})) // map config tool positions (0-based index)
-			.sort((a, b) => b.ranking - a.ranking); // sort config tool positions high to low
+			.map(([key, position]) => ({ key, position: position - 1})) // map config tool positions (0-based index)
+			.sort((a, b) => b.position - a.position); // sort config tool positions high to low
 
-		for (const { key, ranking } of sortedUserKeys) {
+		for (const { key, position } of sortedUserKeys) {
 			const index = filteredOrderedKeys.indexOf(key);
 			if (index > -1) {
 				filteredOrderedKeys.splice(index, 1); // delete tool in array
 			}	
-			filteredOrderedKeys.splice(Math.min(ranking, filteredOrderedKeys.length), 0, key); // reinsert tool based on config position into array
+			filteredOrderedKeys.splice(Math.min(position, filteredOrderedKeys.length), 0, key); // reinsert tool based on config position into array
 		}
 
 		filteredOrderedKeys.forEach(key => {
@@ -245,9 +233,7 @@
 				{/if}
 
 				{#if $enabledTools.includes("featureInfo")}
-					<MapToolFeatureInfo	
-						label={$_("tools.featureInfo.label")}
-						textNoData={$_("tools.featureInfo.noData")}/>
+					<MapToolFeatureInfo	/>
 				{/if}
 
 				{#if $enabledTools.includes("info")}

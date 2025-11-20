@@ -16,8 +16,8 @@
 	export let icon: any = MapIcon;
 	export let showOnBottom: boolean = false;
 
-	export let label: string;
-	$: label = $_("tools.projects.label");
+	export let label: string | undefined;
+	$: label = label ?? $_("tools.projects.label");
 
 	let projects: Writable<Array<CesiumProject>> = writable(new Array());
 	let selectedProject: Writable<CesiumProject | undefined> = writable(undefined);

@@ -20,7 +20,7 @@
 
     let id: string = "layerManager";
     export let icon: any = Layers;
-    export let label: string;
+    export let label: string | undefined;
     export let layers: Array<Layer>;
     export let library: LayerLibrary;
     
@@ -32,6 +32,7 @@
     export let textOpacity: string;
     export let textLegend: string;
 
+    $: label = label ?? $_("tools.layerManager.label")
     $: textBaselayers = $_("tools.layerManager.baseLayers");
     $: textThematicLayers = $_("tools.layerManager.thematicLayer");
     $: textOpacity = $_("tools.layerManager.opacity");

@@ -23,11 +23,11 @@
     let id: string = "layerLibrary";
     export let icon: any = Folder;
     
-    export let label: string; 
+    export let label: string | undefined; 
     export let txtTitle: string;
     export let txtClose: string;
     
-    $: label = get(_)("tools.layerLibrary.label"); 
+    $: label = label ?? get(_)("tools.layerLibrary.label"); 
     $: txtTitle  = get(_)("tools.layerLibrary.label");
     $: txtClose = get(_)("tools.layerLibrary.close");
 

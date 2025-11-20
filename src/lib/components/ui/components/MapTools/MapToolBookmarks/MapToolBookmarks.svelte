@@ -18,7 +18,7 @@
     export let icon: any = Bookmark;
     export let bookmarks: Array<CameraLocation> = new Array<CameraLocation>();
 
-    export let label: string;
+    export let label: string | undefined;
     export let textTitle: string;
     export let textDescription: string;
     export let textSave: string;
@@ -30,7 +30,7 @@
     export let textInfoCameraPosition: string;
     export let textInfoCameraPositionSubtitle: string;
 
-    $: label = $_("tools.bookmarks.label");
+    $: label = label ?? $_("tools.bookmarks.label");
     $: textTitle = $_("tools.bookmarks.title");
     $: textDescription = $_("tools.bookmarks.description");
     $: textSave = $_("tools.bookmarks.save");
