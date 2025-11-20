@@ -164,6 +164,7 @@
 				.filter((tool: { enabled: boolean; }) => tool.enabled)
 				.map((tool: { id: string; }) => tool.id)
 		); 
+
 		const filteredOrderedKeys = orderedKeys.filter(key => enabledToolIds.has(key)); 
 		
 		const filteredToolOrder = Object.fromEntries(
@@ -243,7 +244,7 @@
 					<MapToolTheme />
 				{/if}
 
-				{#if $enabledTools.includes("featureinfo")}
+				{#if $enabledTools.includes("featureInfo")}
 					<MapToolFeatureInfo	
 						label={$_("tools.featureInfo.label")}
 						textNoData={$_("tools.featureInfo.noData")}/>
@@ -264,10 +265,9 @@
 				{#if $enabledTools.includes("config_switcher")}
 					<MapToolConfigSwitcher />
 				{/if}
-
-
 			</MapToolMenu>
 		{/if}
+
 		{#if mapVisible}
 			<div class="map-body">
 				<div class="map-wrapper">

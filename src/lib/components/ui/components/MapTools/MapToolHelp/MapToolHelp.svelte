@@ -18,7 +18,7 @@
 
     $: label = $_("tools.help.label");
     $: txtTitle = $_("tools.help.title");
-    $: txtIntro = $_("tools.help.intro");
+    $: txtIntro = $_("tools.help.intro.introDescription");
 
     let helpView: MapToolHelpView | undefined = undefined;
     let tool = new MapToolMenuOption(id, icon, label, true, undefined, true, false);
