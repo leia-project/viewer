@@ -591,23 +591,19 @@ Multiple tools can be enabled and configured for the viewer trough the config fi
 
 Library with layers from the config with an option to add connectors to other systems, there is currently only a connector for CKAN available. From the layer library, a user can view additional information about a layer and add or remove layers to the map.
 
-|value|description|type|
-|-|-|-|
-|connectors|Array of connectors|Array<Connector>|
-
-
-**CKAN connector**
-|value|description|type|
-|-|-|-|
-|type|Type of connector, currently supported ```ckan```|string|
-|url|URL to the service/file|string|
-|organizations|Optional: Array of strings defining which CKAN organizations (```organization names```) to retrieve the layers from|Array<string>|
-|groups|Optional: Array of strings defining which CKAN groups (```group names```) to retrieve the layers from|Array<string>|
-|packages|Optional: Array of strings defining which CKAN packages (```package names```) to retrieve|Array<string>|
-|backgroundLayers|Optional: Resources (```resource names``` or ```resource ids```) that should be treated as background layers|Array<string>|
-|layersAddedOn|Optional: Resources (```resource names``` or ```resource ids```) that should be added to the layer manager upon opening the viewer and turned on|Array<string>|
-|layersAddedOff|Optional: Resources (```resource names``` or ```resource ids```) that should be added to the layer manager upon opening the viewer and turned off|Array<string>|
-|useTags|Optional: If set to ```true```, it is possible to filter datasets in the Library based on their tags. Default: ```false```|boolean|
+|value||description|type|
+|-|-|-|-|
+|alias||**Optional**: Different name for the tool showing in the viewer|string|
+|position||**Optional**: Change the default position of the tool in the top left toolbar|integer|
+|connectors|type|Type of connector, currently supported ```ckan```|string|
+||url|URL to the service/file|string|
+||organizations|**Optional**: Array of strings defining which CKAN organizations (```organization names```) to retrieve the layers from|Array<string>|
+||groups|**Optional**: Array of strings defining which CKAN groups (```group names```) to retrieve the layers from|Array<string>|
+||packages|**Optional**: Array of strings defining which CKAN packages (```package names```) to retrieve|Array<string>|
+||backgroundLayers|**Optional**: Resources (```resource names``` or ```resource ids```) that should be treated as background layers|Array<string>|
+||layersAddedOn|**Optional**: Resources (```resource names``` or ```resource ids```) that should be added to the layer manager upon opening the viewer and turned on|Array<string>|
+||layersAddedOff|**Optional**: Resources (```resource names``` or ```resource ids```) that should be added to the layer manager upon opening the viewer and turned off|Array<string>|
+|useTags||**Optional**: If set to ```true```, it is possible to filter datasets in the Library based on their tags. Default: ```false```|boolean|
 
 
 ```json
@@ -615,6 +611,8 @@ Library with layers from the config with an option to add connectors to other sy
 	"id": "layerlibrary",
 	"enabled": true,
 	"settings": {
+		"alias": "Mylibrary",
+		"position": 1
 		"connectors": [{
 			"type": "ckan",
 			"url": "https://data.beta.geodan.nl",
@@ -636,11 +634,20 @@ Library with layers from the config with an option to add connectors to other sy
 
 Layer manager to show the layers that are added to the map. From this tool a user can switch background layers, enable/disable layers and use more layer-specific functions such as switching themes, zooming to a pre-set camera location, changing opacity and more. There are currently no extra settings to be configured for the layerManager.
 
+|value|description|type|
+|-|-|-|
+|alias|**Optional**: Different name for the tool showing in the viewer|string|
+|position|**Optional**: Change the default position of the tool in the top left toolbar|integer|
+
+
 ```json
 {
 	"id": "layermanager",
 	"enabled": true,
-	"settings": {}
+	"settings": {
+		"alias": "My layers",
+		"position": 2
+	}
 }
 ```
 
@@ -838,23 +845,27 @@ In order for the config switcher to work, you must configure the environment var
 
 This tool can be used to add bookmarks to the viewer, the bookmarks set trough the config are not removable by the user. Users are able to add their own bookmarks which are stored in local-storage.
 
-|value|description|type|
-|-|-|-|
-|title|The title of the bookmark|string|
-|description|The description of the bookmark|string|
-|x|Longitude position of the camera|number|
-|y|Latitude position of the camera|number|
-|z|Height of the camera in meters|number|
-|heading|Heading of the camera (Rotation)|number|
-|pitch|Pitch of the camera (up/down) where -90 is looking down, 0 is forward, 90 is up|number|
-|duration|Time to fly to the locaton in seconds|number|
+|value||description|type|
+|-|-|-|-|
+|alias||**Optional**: Different name for the tool showing in the viewer|string|
+|position||**Optional**: Change the default position of the tool in the top left toolbar|integer|
+|bookmarks|title|The title of the bookmark|string|
+||description|The description of the bookmark|string|
+||x|Longitude position of the camera|number|
+||y|Latitude position of the camera|number|
+||z|Height of the camera in meters|number|
+||heading|Heading of the camera (Rotation)|number|
+||pitch|Pitch of the camera (up/down) where -90 is looking down, 0 is forward, 90 is up|number|
+||duration|Time to fly to the locaton in seconds|number|
 
 ```json
 {
 	"id": "bookmarks",
 	"enabled": true,
 	"settings": {
-		"bookmarks": [
+		"alias": "My bookmarks", 
+		"position": 3,
+		"bookmarks": [	
 			{
 				"title": "3DNL Urmond",
 				"description": "Cyclomedia",
@@ -883,20 +894,24 @@ This tool can be used to add bookmarks to the viewer, the bookmarks set trough t
 #### projects
 This tool can be used to add projects with project-specific layers. The project will be cut-out from the viewer according to the input polygon. The ```openProject``` option can be set to directly open a project when loading the viewer.
 
-|value|description|type|
-|-|-|-|
-|openProject|The name of the project you want to open when loading the viewer. Leave this empty if you don't want to open a project by default.|string
-|name|The name of the project|string|
-|description|A description for the project|string|
-|polygon|An array of coordinates describing the project delimitation|array of [lon: number, lat: number]|
-|layers|An array of layer id's to be shown for the project|array|
-|cameraPosition|The default camera position|cameraLocation|
+|value||description|type
+|-|-|-|-|
+|alias||**Optional**: Different name for the tool showing in the viewer|string|
+|position||**Optional**: Change the default position of the tool in the top left toolbar|integer|
+|openProject||The name of the project you want to open when loading the viewer. Leave this empty if you don't want to open a project by default.|string
+|projects|name|The name of the project|string|
+||description|A description for the project|string|
+||polygon|An array of coordinates describing the project delimitation|array of [lon: number, lat: number]|
+||layers|An array of layer id's to be shown for the project|array|
+||cameraPosition|The default camera position|cameraLocation|
 
 ```json
 {
 	"id": "projects",
 	"enabled": true,
 	"settings": {
+		"alias":"My projects",
+		"position": 4,
 		"openProject": "My project name",
 		"projects": [
 			{
@@ -943,11 +958,19 @@ This tool can be used to add projects with project-specific layers. The project 
 
 Measuring tool accessible through the toolbar, with this tool the user can add 3d measurements to the viewer. No additional settings are needed. Measurements are stored in local storage.
 
+|value|description|type|
+|-|-|-|
+|alias|**Optional**: Different name for the tool showing in the viewer|string|
+|position|**Optional**: Change the default position of the tool in the top left toolbar|integer|
+
 ```json
 {
 	"id": "measure",
 	"enabled": true,
-	"settings": {}
+	"settings": {
+		"alias": "Measure (distance) 📏",
+		"position": 5
+	}
 }
 ```
 
@@ -955,17 +978,19 @@ Measuring tool accessible through the toolbar, with this tool the user can add 3
 
 Tool for storymapping. Create and show multiple stories in the viewer. Each story can contain multiple chapters with steps which the user can click through. Each chapter has an id, title, button text (shorthand for longer titles) and steps. Each step has a title and description (HTML), a fly-to location, and a set of layers with their settings (id, style, opacity). A story can be opened directly in the viewer through the 'story' search parameter, for example: "https://some-site.nl/?story=mystoryname".
 
-|value|description|type|
-|-|-|-|
-|name|The name of the story|string
-|description|A short description to describe the story|string|
-|width|The width of the story menu|string|
-|force2DMode|Sets the camera to 2D mode and prevents users from switching camera mode while the story is open|boolean|
-|staticCamera|Keeps camera location the same after drawing and between steps|boolean|
-|requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
-|baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
-|chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
-|chapterGroups|Groups the chapter ids refer to|object|
+|value||description|type|
+|-|-|-|-|
+|alias||**Optional**: Different name for the tool showing in the viewer|string|
+|position||**Optional**: Change the default position of the tool in the top left toolbar|integer|
+|stories|name|The name of the story|string|
+||description|A short description to describe the story|string|
+||width|The width of the story menu|string|
+||force2DMode|Sets the camera to 2D mode and prevents users from switching camera mode while the story is open|boolean|
+||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
+||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
+||baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
+||chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
+||chapterGroups|Groups the chapter ids refer to|object|
 
 ```json
 
@@ -973,6 +998,8 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 	"id": "stories",
 	"enabled": true,
 	"settings": {
+		"alias":"My Stories",
+		"position": 6,
 		"stories": [
 			{
 				"name": "My Story",
