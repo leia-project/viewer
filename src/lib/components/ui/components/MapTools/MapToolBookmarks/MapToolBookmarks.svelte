@@ -10,23 +10,37 @@
     import Close from "carbon-icons-svelte/lib/Close.svelte";
     import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import Add from "carbon-icons-svelte/lib/Add.svelte";
+    import { _ } from "svelte-i18n";
 
     const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
     let id: string = "bookmarks";
     export let icon: any = Bookmark;
-    export let label: string = "Bookmarks";
     export let bookmarks: Array<CameraLocation> = new Array<CameraLocation>();
-    export let textTitle: string = "Title";
-    export let textDescription: string = "Description";
-    export let textSave: string = "Save";
-    export let textCancel: string = "Cancel";
-    export let textDelete: string = "Delete";
-    export let textAdd: string = "Add New Bookmark";
-    export let textNoBookmarks: string = "No bookmarks";
-    export let textNoBookmarksSubtitle: string = "Press the add button to add a new bookmark";
-    export let textInfoCameraPosition = "Camera";
-    export let textInfoCameraPositionSubtitle = "The current camera view will be stored as bookmark location";
+
+    export let label: string | undefined;
+    export let textTitle: string;
+    export let textDescription: string;
+    export let textSave: string;
+    export let textCancel: string;
+    export let textDelete: string;
+    export let textAdd: string;
+    export let textNoBookmarks: string;
+    export let textNoBookmarksSubtitle: string;
+    export let textInfoCameraPosition: string;
+    export let textInfoCameraPositionSubtitle: string;
+
+    $: label = label ?? $_("tools.bookmarks.label");
+    $: textTitle = $_("tools.bookmarks.title");
+    $: textDescription = $_("tools.bookmarks.description");
+    $: textSave = $_("tools.bookmarks.save");
+    $: textCancel = $_("tools.bookmarks.cancel");
+    $: textDelete = $_("tools.bookmarks.delete");
+    $: textAdd = $_("tools.bookmarks.add");
+    $: textNoBookmarks = $_("tools.bookmarks.noBookmarks");
+    $: textNoBookmarksSubtitle = $_("tools.bookmarks.noBookmarksSubtitle");
+    $: textInfoCameraPosition = $_("tools.bookmarks.cameraPosition");
+    $: textInfoCameraPositionSubtitle = $_("tools.bookmarks.cameraPositionSubtitle");
 
 
     let tool = new MapToolMenuOption(id, icon, label);

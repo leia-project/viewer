@@ -31,13 +31,13 @@
             "search": "Zoek Locatie"
         },
         "info": {
-            "info": "Informatie",
+            "label": "Informatie",
             "close": "Sluiten",
             "general": "Open 3D viewer, een product door Sogelink (voorheen Geodan) en Provincie Zeeland.",
             "attribution": "Naamsvermelding"
         },
         "help": {
-            "help": "Help",
+            "label": "Help",
             "title": "Digital-Twin Viewer",
             "close": "Sluiten",
             "closeDontShowOnStart": "Sluit en geef niet meer weer bij opstarten",
@@ -226,7 +226,7 @@
             "totalLength": "Totale lengte",
             "points": "Punten"
         },
-        "controls": {
+        "cesium": {
             "label": "Kaart Instellingen",
             "sunPosition": "Zon Positie",
             "sunPositionDate": "Datum",
