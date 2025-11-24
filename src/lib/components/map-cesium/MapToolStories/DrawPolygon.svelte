@@ -49,35 +49,25 @@
 
     let errorMessage = "";
 
-    function checkPolygonOverlap(): boolean {
-        if (!geojson || existingPolygons.length === 0) {
-            return true;
-        }
-
-        for (let i = 0; i < existingPolygons.length; i++) {
-            const overlaps = turf.booleanIntersects(geojson, existingPolygons[i]);
-            
-            if (overlaps) {
-                errorMessage = "Polygon overlaps with existing polygon!";
-                console.warn(errorMessage);
-                return false;
-            }
-        }
-        errorMessage = "";
-        return true;
+function checkPolygonForSelfIntersection(): boolean {
+    // Remove the duplicate closing point before checking
+    const coords = geojson.geometry.coordinates[0].slice(0, -1);
+    const tempGeojson = {
+        type: "Feature",
+        geometry: { type: "Polygon", coordinates: [coords] },
+        properties: {}
+    };
+    
+    const kinks = turf.kinks(tempGeojson);
+    if (kinks.features.length > 0) {
+        errorMessage = $_("errors.Drawing.invalidPolygon");
+        console.warn(errorMessage);
+        return false;
     }
-
-    function checkPolygonForSelfIntersection(): boolean {
-        const kinks = turf.kinks(geojson);
-        if (kinks.features.length > 0) {
-            errorMessage = $_("errors.Drawing.invalidPolygon")
-            console.warn(errorMessage);
-            return false;
-        } else {
-            errorMessage = "";
-            return true;
-        }
-    }
+    
+    errorMessage = "";
+    return true;
+}
     
     function transformDistribution(distribution: Record<string, number>): { group: string; value: number }[] {
 		const result: { group: string; value: number }[] = [];
@@ -178,9 +168,6 @@
             return;
         }
 
-        if (!checkPolygonOverlap()) {
-            return;
-        }
 
         existingPolygons.push(geojson);  
 
