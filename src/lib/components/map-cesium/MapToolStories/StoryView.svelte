@@ -531,7 +531,7 @@
 						kind={"primary"}
 						iconDescription={showPolygonMenu ? `${$_("general.open")} ${$_("tools.stories.projectAreaTool")}` : `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
 						tooltipPosition="top"
-						icon={$showPolygonMenu ? ChevronDown : ChevronUp}
+						icon={$showPolygonMenu ? ChevronUp : ChevronDown}
 						on:click={() => $showPolygonMenu = !$showPolygonMenu} 
 					/>
 				</div>
