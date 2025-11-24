@@ -28,7 +28,7 @@
 				if (loaded) {
 					let languageTool = map.config.tools.find((t: any) => t.id === "language");
 					let languageSettings = languageTool?.settings;
-					if (languageTool.enabled) {
+					if (languageTool && languageTool.enabled) {
 						if (languageSettings && languageSettings.startLanguage) {
 							selectedLanguage.set(languageSettings.startLanguage);
 						}
