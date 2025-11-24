@@ -41,10 +41,10 @@
                     // Prepare intro tab data
                     let helpTool = map.config.tools.find((t: any) => t.id === "help");
 
-                    customIntroText = helpTool.settings.introSettings.customDescription ?? undefined;
-                    downloadButtonEnabled = helpTool.settings.introSettings.downloadButton?.enabled ?? false;
-                    downloadButtonUrl = helpTool.settings.introSettings.downloadButton?.url ?? undefined;
-                    downloadButtonLabel = helpTool.settings.introSettings.downloadButton?.label ?? undefined;
+                    customIntroText = helpTool.settings.introSettings?.customDescription ?? undefined;
+                    downloadButtonEnabled = helpTool.settings.introSettings?.downloadButton?.enabled ?? false;
+                    downloadButtonUrl = helpTool.settings.introSettings?.downloadButton?.url ?? undefined;
+                    downloadButtonLabel = helpTool.settings.introSettings?.downloadButton?.label ?? undefined;
                     if (downloadButtonEnabled && downloadButtonUrl && downloadButtonLabel) {
                         downloadButton = {
                             enabled: downloadButtonEnabled,
