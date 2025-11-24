@@ -8,6 +8,8 @@
 	import { Button, InlineNotification } from "carbon-components-svelte";
 
 	import * as Cesium from "cesium";
+	
+	import { _ } from "svelte-i18n";
 
 	import type { Map } from "../module/map";
 	import { MapMeasurement } from "../module/map-measurement";
@@ -18,23 +20,35 @@
 	const icon: any = Ruler;
 	const cesiumMap: Map = map;
 	let loaded: boolean = false;
-
-	export let label: string = "Measure";
 	export let showOnBottom: boolean = false;
-	export let textNoMeasurements: string = "No Measurements:";
-	export let textNoMeasurementsSubtitle: string =
-		"Click the add button to create a new measurement.";
-	export let textAdd: string = "Add new measurement";
+	
+	export let label: string | undefined;
+	export let textNoMeasurements: string;
+	export let textNoMeasurementsSubtitle: string;
+	export let textAdd: string;
+	export let textEditMeasurement: string;
+	export let textTitle: string;
+	export let textDefaultTitle: string;
+	export let textSave: string;
+	export let textRecord: string;
+	export let textDelete: string;
+	export let textCameraPosition: string;
+	export let textTotalLength: string;
+	export let textMeasurementPoints: string;
 
-	export let textEditMeasurement: string = "Edit Measurement";
-	export let textTitle: string = "Title";
-	export let textDefaultTitle: string = "Measurement";
-	export let textSave: string = "Save";
-	export let textRecord: string = "Set camera position to current view";
-	export let textDelete: string = "Delete";
-	export let textCameraPosition: string = "Camera position";
-	export let textTotalLength: string = "Total length";
-	export let textMeasurementPoints: string = "Measurement Points";
+	$: label = label ?? $_("tools.measure.label");
+	$: textNoMeasurements = $_("tools.measure.noMeasurement");
+	$: textNoMeasurementsSubtitle = $_("tools.measure.noMeasurementSubtitle");
+	$: textAdd = $_("tools.measure.add");
+	$: textEditMeasurement = $_("tools.measure.edit");
+	$: textTitle = $_("tools.measure.title");
+	$: textDefaultTitle = $_("tools.measure.defaultTitle");
+	$: textSave = $_("tools.measure.save");
+	$: textRecord = $_("tools.measure.record");
+	$: textDelete = $_("tools.measure.delete");
+	$: textCameraPosition = $_("tools.measure.cameraPosition");
+	$: textTotalLength = $_("tools.measure.totalLength");
+	$: textMeasurementPoints = $_("tools.measure.points");
 
 	let tool = new MapToolMenuOption(id, icon, label, showOnBottom);
 	$: { tool.label.set(label); }

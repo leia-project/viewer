@@ -7,6 +7,8 @@
 	import { Button, Checkbox } from "carbon-components-svelte";
 	import { Slider } from "carbon-components-svelte";
 
+	import { _ } from "svelte-i18n";
+
 	import {
 		RadioButtonGroup,
 		RadioButton,
@@ -22,53 +24,80 @@
 
 	export let id: string = "cesiumcontrols";
 	export let icon: any = Settings;
-	export let label: string = "Map Settings";
 	export let showOnBottom: boolean = true;
 
-	export let textSunPosition: string = "Sun Position";
-	export let textSunPositionDate: string = "Date";
-	export let textSunPositionHour: string = "Hour UTC";
+	export let label: string;
+	export let textSunPosition: string;
+	export let textSunPositionDate: string;
+	export let textSunPositionHour: string;
+	export let textQuality: string;
+	export let textRendering: string;
+	export let textEnvironment: string;
+	export let textDebug: string;
+	export let textLow: string;
+	export let textMedium: string;
+	export let textHigh: string;
+	export let textCustom: string;
+	export let textShadows: string;
+	export let textFXAA: string;
+	export let textMSAA: string;
+	export let textAnimate: string;
+	export let textResolutionScale: string;
+	export let textMaximumScreenspaceError: string;
+	export let textGroundAtmosphere: string;
+	export let textSkyAtmosphere: string;
+	export let textLighting: string;
+	export let textFog: string;
+	export let textHighDynamicRange: string;
+	export let textPointCloud: string;
+	export let textPointCloudAttenuation: string;
+	export let textPointCloudAttenuationMaximum: string;
+	export let textPointCloudAttenuationErrorScale: string;
+	export let textPointCloudAttenuationBaseResolution: string;
+	export let textPointCloudEDL: string;
+	export let textPointCloudEDLRadius: string;
+	export let textPointCloudEDLStrength: string;
+	export let textFPSCounter: string;
+	export let textInspector: string;
+	export let textMouseCoordinates: string;
+	export let textEnableDragDropFiles: string;
 
-	export let textQuality: string = "Quality";
-	export let textRendering: string = "Rendering";
-	export let textEnvironment: string = "Environment";
-	export let textDebug: string = "Debug";
-
-	export let textLow: string = "Low";
-	export let textMedium: string = "Medium";
-	export let textHigh: string = "High";
-	export let textCustom: string = "Custom";
-
-	export let textShadows: string = "Shadows";
-	export let textFXAA: string = "FXAA";
-	export let textMSAA: string = "MSAA";
-	export let textAnimate: string = "Animate";
-
-	export let textResolutionScale: string = "Resolution Scale";
-	export let textMaximumScreenspaceError: string = "Maximum Screenspace Error";
-	export let textGroundAtmosphere: string = "Ground Atmosphere";
-	export let textSkyAtmosphere: string = "Sky Atmosphere";
-	export let textLighting: string = "Lighting";
-	export let textFog: string = "Fog";
-	export let textHighDynamicRange: string = "High Dynamic Range";
-
-	export let textPointCloud: string = "Point Clouds";
-
-	export let textPointCloudAttenuation: string = "Attenuation";
-	export let textPointCloudAttenuationMaximum: string = "Attenuation Maximum";
-	export let textPointCloudAttenuationErrorScale: string = "Attenuation Geometric Error Scale";
-	export let textPointCloudAttenuationBaseResolution: string = "Attenuation Base resolution";
-
-	export let textPointCloudEDL: string = "Eye Dome Lighting";
-	export let textPointCloudEDLRadius: string = "Eye Dome Lighting Radius";
-	export let textPointCloudEDLStrength: string = "Eye Dome Lighting Strength";
-
-	export let textFPSCounter: string = "FPS Counter";
-	export let textInspector: string = "Tile Inspector";
-	export let textMouseCoordinates: string = "Coordinates";
-
-	export let textEnableDragDropFiles: string = "Drag and drop files";
-
+	$: label = $_("tools.cesium.label");
+	$: textSunPosition = $_("tools.cesium.sunPosition");
+	$: textSunPositionDate = $_("tools.cesium.sunPositionDate");
+	$: textSunPositionHour = $_("tools.cesium.sunPositionHour");
+	$: textQuality = $_("tools.cesium.quality");
+	$: textRendering = $_("tools.cesium.rendering");
+	$: textEnvironment = $_("tools.cesium.environment");
+	$: textDebug = $_("tools.cesium.debug");
+	$: textLow = $_("tools.cesium.low");
+	$: textMedium = $_("tools.cesium.medium");
+	$: textHigh = $_("tools.cesium.high");
+	$: textCustom = $_("tools.cesium.custom");
+	$: textShadows = $_("tools.cesium.shadows");
+	$: textFXAA = $_("tools.cesium.fxaa");
+	$: textMSAA = $_("tools.cesium.msaa");
+	$: textAnimate = $_("tools.cesium.animate");
+	$: textResolutionScale = $_("tools.cesium.resolutionScale");
+	$: textMaximumScreenspaceError = $_("tools.cesium.maximumScreenspaceError");
+	$: textGroundAtmosphere = $_("tools.cesium.groundAtmosphere");
+	$: textSkyAtmosphere = $_("tools.cesium.skyAtmosphere");
+	$: textLighting = $_("tools.cesium.lighting");
+	$: textFog = $_("tools.cesium.fog");
+	$: textHighDynamicRange = $_("tools.cesium.dynamicRange");
+	$: textPointCloud = $_("tools.cesium.pointCloud");
+	$: textPointCloudAttenuation = $_("tools.cesium.pointCloudAttenuation");
+	$: textPointCloudAttenuationMaximum = $_("tools.cesium.pointCloudAttenuationMaximum");
+	$: textPointCloudAttenuationErrorScale = $_("tools.cesium.pointCloudAttenuationErrorScale");
+	$: textPointCloudAttenuationBaseResolution = $_("tools.cesium.pointCloudAttenuationBaseResolution");
+	$: textPointCloudEDL = $_("tools.cesium.pointCloudEDL");
+	$: textPointCloudEDLRadius = $_("tools.cesium.pointCloudEDLRadius");
+	$: textPointCloudEDLStrength = $_("tools.cesium.pointCloudEDLStrength");
+	$: textFPSCounter = $_("tools.cesium.FPSCounter");
+	$: textInspector = $_("tools.cesium.inspector");
+	$: textMouseCoordinates = $_("tools.cesium.coordinates");
+	$: textEnableDragDropFiles = $_("tools.cesium.dragAndDropFiles");
+	
 	export let cesiumMap: Map = map;
 
 	let updatingSettings: boolean = true;

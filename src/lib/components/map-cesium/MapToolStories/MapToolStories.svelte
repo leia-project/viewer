@@ -13,27 +13,30 @@
 	import StoryView from "./StoryView.svelte";
 	import { StoryLayer } from "./StoryLayer";
 
+	import { _ } from "svelte-i18n";
 	import { page } from "$app/stores";
 	import { StoryChapter } from "./StoryChapter";
 	
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-	let id: string = "stories";
 	export let icon: any = Book;
-	export let label: string = "Stories";
-	export let textBack: string = "Back to overview";
-	export let textStepBack: string = "Step backward";
-	export let textStepForward: string = "Step forward";
-	let cesiumMap = map as Map;
+	export let label: string | undefined;
+	export let textBack: string;
+	export let textStepBack: string;
+	export let textStepForward: string;
 
+	$: label = label ?? $_("tools.stories.label");
+	$: textBack = $_("tools.stories.back");
+	$: textStepBack = $_("tools.stories.stepBack");
+	$: textStepForward = $_("tools.stories.stepForward");
+
+	let id: string = "stories";
+	let cesiumMap = map as Map;
 	let stories = new Array<Story>();
 	let selectedStory: Story | undefined;
 	let stepNumber: number;
 	let baseLayerId: string | undefined;
-
 	let tool = new MapToolMenuOption(id, icon, label);
-	const layers = cesiumMap.layers;
-
 	type LegendOptions = {
 		generalLegendText: string;
 		legendOptions: {
@@ -41,6 +44,7 @@
 		};
 	};
 	const layerLegends: Array<LegendOptions> = [];
+	const layers = cesiumMap.layers;
 
 	$: { tool.label.set(label); }
 	registerTool(tool);
