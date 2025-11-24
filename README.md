@@ -594,7 +594,7 @@ Library with layers from the config with an option to add connectors to other sy
 |value||description|type|
 |-|-|-|-|
 |alias||**Optional**: Different name for the tool showing in the viewer|string|
-|position||**Optional**: Change the default position of the tool in the top left toolbar|integer|
+|position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
 |connectors|type|Type of connector, currently supported ```ckan```|string|
 ||url|URL to the service/file|string|
 ||organizations|**Optional**: Array of strings defining which CKAN organizations (```organization names```) to retrieve the layers from|Array<string>|
@@ -637,7 +637,7 @@ Layer manager to show the layers that are added to the map. From this tool a use
 |value|description|type|
 |-|-|-|
 |alias|**Optional**: Different name for the tool showing in the viewer|string|
-|position|**Optional**: Change the default position of the tool in the top left toolbar|integer|
+|position|**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
 
 
 ```json
@@ -848,7 +848,7 @@ This tool can be used to add bookmarks to the viewer, the bookmarks set trough t
 |value||description|type|
 |-|-|-|-|
 |alias||**Optional**: Different name for the tool showing in the viewer|string|
-|position||**Optional**: Change the default position of the tool in the top left toolbar|integer|
+|position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
 |bookmarks|title|The title of the bookmark|string|
 ||description|The description of the bookmark|string|
 ||x|Longitude position of the camera|number|
@@ -897,7 +897,7 @@ This tool can be used to add projects with project-specific layers. The project 
 |value||description|type
 |-|-|-|-|
 |alias||**Optional**: Different name for the tool showing in the viewer|string|
-|position||**Optional**: Change the default position of the tool in the top left toolbar|integer|
+|position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
 |openProject||The name of the project you want to open when loading the viewer. Leave this empty if you don't want to open a project by default.|string
 |projects|name|The name of the project|string|
 ||description|A description for the project|string|
@@ -961,7 +961,7 @@ Measuring tool accessible through the toolbar, with this tool the user can add 3
 |value|description|type|
 |-|-|-|
 |alias|**Optional**: Different name for the tool showing in the viewer|string|
-|position|**Optional**: Change the default position of the tool in the top left toolbar|integer|
+|position|**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
 
 ```json
 {
@@ -981,7 +981,7 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 |value||description|type|
 |-|-|-|-|
 |alias||**Optional**: Different name for the tool showing in the viewer|string|
-|position||**Optional**: Change the default position of the tool in the top left toolbar|integer|
+|position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
 |stories|name|The name of the story|string|
 ||description|A short description to describe the story|string|
 ||width|The width of the story menu|string|
