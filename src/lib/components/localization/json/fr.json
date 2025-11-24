@@ -49,8 +49,7 @@
                 "stories": "Histoires"
             },
             "intro": {
-                "introDescription": "Un Digital Twin est une représentation digitale d’un produit, système ou processus physique existant ou prévu, qui sert de contrepartie numérique quasiment identique à des fins pratiques telles que la simulation, l’intégration, les tests, la surveillance et la maintenance.",
-                "moreInfo": "Pour plus d’informations sur l’utilisation du viewer, consultez les différents sujets."
+                "introDescription": "Un Digital Twin est une représentation digitale d’un produit, système ou processus physique existant ou prévu, qui sert de contrepartie numérique quasiment identique à des fins pratiques telles que la simulation, l’intégration, les tests, la surveillance et la maintenance. Pour plus d’informations sur l’utilisation du viewer, consultez les différents sujets."
             },
             "movement": {
                 "headingZoom": "Zoom avant/arrière",
