@@ -2,6 +2,7 @@
     import { getContext } from "svelte";
     import { MapToolMenuOption } from "../../MapToolMenu/MapToolMenuOption";
     import LayerManagerGroups from "$lib/components/ui/components/MapTools/MapToolLayerManager/LayerManagerGroups.svelte";
+	import CesiumBackgroundControls from "$lib/components/map-cesium/CesiumBackgroundControls.svelte";
 
     import Layers from "carbon-icons-svelte/lib/Layers.svelte";
     import { RadioButtonGroup, RadioButton, Accordion } from "carbon-components-svelte";    
@@ -140,7 +141,9 @@
             {/each}
         </RadioButtonGroup>
 
-        <slot name="backgroundControls" />
+        <CesiumBackgroundControls
+			textOpacity={$_("tools.backgroundControls.opacity")}
+		/>
 
 		<div class="bx--label thematic-label">
 			{textThematicLayers}
