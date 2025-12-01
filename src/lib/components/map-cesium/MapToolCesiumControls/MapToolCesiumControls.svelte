@@ -17,6 +17,11 @@
 	} from "carbon-components-svelte";
 	import Settings from "carbon-icons-svelte/lib/Settings.svelte";
 
+	import {
+		Accordion,
+		AccordionItem
+	} from "carbon-components-svelte";
+
 	import type { Map } from "../module/map";
 	import type { Writable } from "svelte/store";
 
@@ -61,6 +66,7 @@
 	export let textInspector: string;
 	export let textMouseCoordinates: string;
 	export let textEnableDragDropFiles: string;
+	export let textAdvanced: string;
 
 	$: label = $_("tools.cesium.label");
 	$: textSunPosition = $_("tools.cesium.sunPosition");
@@ -97,7 +103,8 @@
 	$: textInspector = $_("tools.cesium.inspector");
 	$: textMouseCoordinates = $_("tools.cesium.coordinates");
 	$: textEnableDragDropFiles = $_("tools.cesium.dragAndDropFiles");
-	
+	$: textAdvanced = $_("tools.cesium.advanced");
+
 	export let cesiumMap: Map = map;
 
 	let updatingSettings: boolean = true;
@@ -287,132 +294,123 @@
 			<RadioButton labelText={textHigh} value="high" />
 			<RadioButton labelText={textCustom} value="custom" />
 		</RadioButtonGroup>
-
-		<Divider />
-		<div class="heading-01">
-			{textRendering}
-		</div>
-
-		<Checkbox labelText={textFXAA} bind:checked={$fxaa} />
-
-		<Slider
-			hideTextInput
-			fullWidth
-			min={1}
-			max={8}
-			step={1}
-			labelText={`${textMSAA}: ${$msaa}`}
-			bind:value={$msaa}
-		/>
-		<Slider
-			hideTextInput
-			fullWidth
-			min={0.1}
-			max={4}
-			step={0.1}
-			labelText={`${textResolutionScale}: ${$resolutionScale.toFixed(1)}`}
-			bind:value={$resolutionScale}
-		/>
-		<Slider
-			hideTextInput
-			fullWidth
-			min={1}
-			max={3}
-			step={0.1}
-			labelText={`${textMaximumScreenspaceError}: ${$maximunScreenSpaceError.toFixed(1)}`}
-			bind:value={$maximunScreenSpaceError}
-		/>
-
-		<Divider />
-
-		<div class="heading-01">
-			{textEnvironment}
-		</div>
-
-		<Checkbox labelText={textAnimate} bind:checked={$animate} />
-		<Checkbox labelText={textShadows} bind:checked={$shadows} />
-		<Checkbox labelText={textLighting} bind:checked={$lighting} />
-		<Checkbox labelText={textGroundAtmosphere} bind:checked={$groundAtmosphere} />
-		<Checkbox labelText={textSkyAtmosphere} bind:checked={$skyAtmosphere} />
-		<Checkbox labelText={textFog} bind:checked={$fog} />
-		<Checkbox labelText={textHighDynamicRange} bind:checked={$highDynamicRange} />
-
-		<Divider />
-		<div class="heading-01">
-			{textDebug}
-		</div>
-
-		<Checkbox labelText={textFPSCounter} bind:checked={$fpsCounter} />
-		<Checkbox labelText={textInspector} bind:checked={$inspector} />
-		<Checkbox labelText={textMouseCoordinates} bind:checked={$showMouseCoordinates} />		
-		<Checkbox labelText="Camera position" bind:checked={$showCameraPosition} />	
-		<Checkbox labelText={textEnableDragDropFiles} bind:checked={$enableDragDropFiles} />
-
-		<Divider />
-		<div class="heading-01">{textPointCloud}</div>
-
-		<Checkbox labelText={textPointCloudAttenuation} bind:checked={$pointCloudAttenuation} />
-		<Checkbox labelText={textPointCloudEDL} bind:checked={$pointCloudEdl} />
-
-		{#if $pointCloudAttenuation}
-			<Slider
-				hideTextInput
-				fullWidth
-				min={0}
-				max={2}
-				step={0.1}
-				labelText={`${textPointCloudAttenuationErrorScale}: ${$pointCloudAttenuationErrorScale.toFixed(
-					1
-				)}`}
-				bind:value={$pointCloudAttenuationErrorScale}
-			/>
-
-			<Slider
-				hideTextInput
-				fullWidth
-				min={0}
-				max={30}
-				step={1}
-				labelText={`${textPointCloudAttenuationMaximum}: ${$pointCloudAttenuationMaximum.toFixed(
-					1
-				)}`}
-				bind:value={$pointCloudAttenuationMaximum}
-			/>
-
-			<Slider
-				hideTextInput
-				fullWidth
-				min={0}
-				max={10}
-				step={0.2}
-				labelText={`${textPointCloudAttenuationBaseResolution}: ${$pointCloudAttenuationBaseResolution.toFixed(
-					1
-				)}`}
-				bind:value={$pointCloudAttenuationBaseResolution}
-			/>
-		{/if}
-
-		{#if $pointCloudEdl}
-			<Slider
-				hideTextInput
-				fullWidth
-				min={0}
-				max={10}
-				step={0.1}
-				labelText={`${textPointCloudEDLStrength}: ${$pointCloudEDLStrength.toFixed(1)}`}
-				bind:value={$pointCloudEDLStrength}
-			/>
-			<Slider
-				hideTextInput
-				fullWidth
-				min={0}
-				max={10}
-				step={0.1}
-				labelText={`${textPointCloudEDLRadius}: ${$pointCloudEDLRadius.toFixed(1)}`}
-				bind:value={$pointCloudEDLRadius}
-			/>
-		{/if}
 	</div>
+	
+		<Accordion>
+			<AccordionItem title={textRendering}>
+			<Checkbox labelText={textFXAA} bind:checked={$fxaa} />
+
+				<Slider
+					hideTextInput
+					fullWidth
+					min={1}
+					max={8}
+					step={1}
+					labelText={`${textMSAA}: ${$msaa}`}
+					bind:value={$msaa}
+				/>
+				<Slider
+					hideTextInput
+					fullWidth
+					min={0.1}
+					max={4}
+					step={0.1}
+					labelText={`${textResolutionScale}: ${$resolutionScale.toFixed(1)}`}
+					bind:value={$resolutionScale}
+				/>
+				<Slider
+					hideTextInput
+					fullWidth
+					min={1}
+					max={3}
+					step={0.1}
+					labelText={`${textMaximumScreenspaceError}: ${$maximunScreenSpaceError.toFixed(1)}`}
+					bind:value={$maximunScreenSpaceError}
+				/>
+			</AccordionItem>
+
+		<AccordionItem title={textEnvironment}>
+			<Checkbox labelText={textAnimate} bind:checked={$animate} />
+			<Checkbox labelText={textShadows} bind:checked={$shadows} />
+			<Checkbox labelText={textLighting} bind:checked={$lighting} />
+			<Checkbox labelText={textGroundAtmosphere} bind:checked={$groundAtmosphere} />
+			<Checkbox labelText={textSkyAtmosphere} bind:checked={$skyAtmosphere} />
+			<Checkbox labelText={textFog} bind:checked={$fog} />
+			<Checkbox labelText={textHighDynamicRange} bind:checked={$highDynamicRange} />
+		</AccordionItem>
+
+		<AccordionItem title={textDebug}>
+			<Checkbox labelText={textFPSCounter} bind:checked={$fpsCounter} />
+			<Checkbox labelText={textInspector} bind:checked={$inspector} />
+			<Checkbox labelText={textMouseCoordinates} bind:checked={$showMouseCoordinates} />
+			<Checkbox labelText="Camera position" bind:checked={$showCameraPosition} />
+			<Checkbox labelText={textEnableDragDropFiles} bind:checked={$enableDragDropFiles} />
+		</AccordionItem>
+
+		<AccordionItem title={textPointCloud}>
+			<Checkbox labelText={textPointCloudAttenuation} bind:checked={$pointCloudAttenuation} />
+			<Checkbox labelText={textPointCloudEDL} bind:checked={$pointCloudEdl} />
+
+				{#if $pointCloudAttenuation}
+					<Slider
+						hideTextInput
+						fullWidth
+						min={0}
+						max={2}
+						step={0.1}
+						labelText={`${textPointCloudAttenuationErrorScale}: ${$pointCloudAttenuationErrorScale.toFixed(
+							1
+						)}`}
+						bind:value={$pointCloudAttenuationErrorScale}
+					/>
+
+					<Slider
+						hideTextInput
+						fullWidth
+						min={0}
+						max={30}
+						step={1}
+						labelText={`${textPointCloudAttenuationMaximum}: ${$pointCloudAttenuationMaximum.toFixed(
+							1
+						)}`}
+						bind:value={$pointCloudAttenuationMaximum}
+					/>
+
+					<Slider
+						hideTextInput
+						fullWidth
+						min={0}
+						max={10}
+						step={0.2}
+						labelText={`${textPointCloudAttenuationBaseResolution}: ${$pointCloudAttenuationBaseResolution.toFixed(
+							1
+						)}`}
+						bind:value={$pointCloudAttenuationBaseResolution}
+					/>
+				{/if}
+
+				{#if $pointCloudEdl}
+					<Slider
+						hideTextInput
+						fullWidth
+						min={0}
+						max={10}
+						step={0.1}
+						labelText={`${textPointCloudEDLStrength}: ${$pointCloudEDLStrength.toFixed(1)}`}
+						bind:value={$pointCloudEDLStrength}
+					/>
+					<Slider
+						hideTextInput
+						fullWidth
+						min={0}
+						max={10}
+						step={0.1}
+						labelText={`${textPointCloudEDLRadius}: ${$pointCloudEDLRadius.toFixed(1)}`}
+						bind:value={$pointCloudEDLRadius}
+					/>
+				{/if}
+		</AccordionItem>
+	</Accordion>
 {/if}
 
 <style>
