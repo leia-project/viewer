@@ -4,7 +4,6 @@
 	import { get, writable } from "svelte/store";
 
 	import { _, dictionary } from "svelte-i18n";
-	import CesiumBackgroundControls from "$lib/components/map-cesium/CesiumBackgroundControls.svelte";
 	import HeaderUtilityGeocoder from "$lib/components/map-cesium/Header/HeaderUtilityGeocoder/HeaderUtilityGeocoder.svelte";
 	import MapToolCesiumMeasure from "$lib/components/map-cesium/MapToolCesiumMeasure/MapToolCesiumMeasure.svelte";
 	import MapToolCesiumControls from "$lib/components/map-cesium/MapToolCesiumControls/MapToolCesiumControls.svelte";
