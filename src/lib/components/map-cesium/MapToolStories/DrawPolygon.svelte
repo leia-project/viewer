@@ -14,6 +14,8 @@
 	import { get, type Writable } from "svelte/store";
     import { onMount, onDestroy } from 'svelte';
     import { polygonStore } from './PolygonEntityStore';
+    import { FileUploaderButton } from "carbon-components-svelte";
+    import { FileUploaderItem } from "carbon-components-svelte";
  
     export let map: Map;
     export let story: Story;
@@ -31,6 +33,9 @@
     let selectedAction: 'draw' | 'delete' | undefined = undefined;
     let geojson: any;
     let existingPolygons: any[] = [];  // ADD THIS LINE
+    let uploadedFile: any[] = [];
+    let validationErrors: Record<string, string> = {};
+    let fileUploaded: boolean = false;
 
     onMount(() => {
         const storedPolygonData = get(polygonStore);
@@ -232,6 +237,31 @@
 
         showPolygonMenu.set(false);
     }
+
+    function handleFinishedUpload() {
+        let storyLayers: Array<StoryLayer> = story.getStoryLayers();
+        
+        for (let i = 0; i < storyLayers.length; i++) {
+            sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi)
+            .then(apiResponse => {
+                const transformed = transformDistribution(apiResponse.distribution);
+                distributions[i] = transformed;
+            })
+            .catch(error => 
+                console.error("Error: ", error)
+            );
+            
+        }
+        selectedAction = undefined;
+        polygonArea = area(geojson)
+        polygonStore.set({
+            polygonEntity,
+            redPoints,
+            distributions
+        });
+
+        showPolygonMenu.set(false);
+    }
     
     function deletePolygon() {
         if (handler && !handler.isDestroyed()) {
@@ -313,13 +343,51 @@
         deletePolygon();
     });
 
+    function handleFiles(e: CustomEvent<readonly File[]>) {
+        uploadedFile = [...e.detail];
+
+        if (uploadedFile.length > 0) {
+            const file = uploadedFile[0];
+            validationErrors = {};
+
+            if (file.name.endsWith(".geojson")) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const content = event.target?.result as string;
+                    try {
+                        let geojsonFile = JSON.parse(content);
+                        geojson = geojsonFile.features[0];
+
+                        if (!checkPolygonForSelfIntersection()) {
+                            return;
+                        }
+
+                         if (!checkPolygonOverlap()) {
+                            return;
+                        }
+                        
+                        map.viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geojsonFile, {clampToGround: true, fill: Cesium.Color.RED.withAlpha(0.4)}));
+                        
+                        fileUploaded = true;
+
+                    } catch (err) {
+                        validationErrors = { ...validationErrors, [file.name]: `Error parsing GeoJSON. ${err}` }; 
+                    };     
+                };
+                reader.readAsText(file);
+            } else {
+                validationErrors = { ...validationErrors, [file.name]: "Invalid file type. Only .geojson allowed." }; 
+            };
+        }; 
+    };
+
 </script>
 
 {#if $showPolygonMenu}
     {#if !hasDrawnPolygon}
         <div>
             <div class="title-with-tooltip">
-                <h4>{$_("tools.stories.drawPolygon")}</h4>
+                <h4>{$_("tools.stories.polygonTitle")}</h4>
                 <TooltipIcon  
                     align="start"
                     direction="right"
@@ -330,36 +398,87 @@
         </div>
     {/if}
 
-
     <div class="buttons">
-        <Button 
-            icon={isDrawing ? Checkmark : AreaCustom}
-            kind={isDrawing ? "primary" : "tertiary"}
-            disabled={hasDrawnPolygon}
-            on:click={() => {
-                isDrawing ? handleFinishDrawing() : draw();
-            }}
-        >
-            {isDrawing ? $_("tools.stories.finishPolygon") : $_("tools.stories.drawPolygon")}
-        </Button>
+        <div class="left-column">
+            <Button 
+                icon={isDrawing ? Checkmark : AreaCustom}
+                kind={isDrawing ? "primary" : "tertiary"}
+                disabled={hasDrawnPolygon || fileUploaded}
+                
+                on:click={() => {
+                    isDrawing ? handleFinishDrawing() : draw();
+                }}
+            >
+                {isDrawing ? $_("tools.stories.finishPolygon") : $_("tools.stories.drawPolygon")}
+            </Button>
+            
+            <FileUploaderButton 
+                disabled={isDrawing}
+                kind="tertiary" 
+                size="default"
+                accept={[".geojson", ".gpkg"]}
+                labelText={fileUploaded ? $_("tools.stories.uploadPolygon") : $_("tools.stories.uploadPolygon")}
+                on:change={handleFiles}
+            />
 
-        <Button 
-            kind="danger"
-            tooltipPosition="bottom"
-            icon={TrashCan}
-            disabled={!isDrawing && !hasDrawnPolygon}
-            on:click={() => {
-            deletePolygon();
-            polygonStore.set({
-                polygonEntity: null,
-                redPoints: [],
-                distributions: []
-            });
-            hasDrawnPolygon = false;
-            }}
-        >
-            {$_("tools.stories.deletePolygon")}
-        </Button>
+            {#each uploadedFile as file}
+                {#if validationErrors[file.name]}
+                    <FileUploaderItem
+                        id={file.name}
+                        name={file.name}
+                        invalid
+                        errorSubject={validationErrors[file.name]}
+                        status="edit"
+                        on:delete={(e) => {
+                            uploadedFile = [];
+                        }}
+                    />
+                {:else}
+                    <FileUploaderItem
+                        id={file.name}
+                        name={file.name}
+                        status="edit"
+                        on:delete={(e) => {
+                            uploadedFile = [];
+                            map.viewer.dataSources.removeAll();
+                            fileUploaded = false;
+                        }}
+                    />
+                {/if}
+            {/each}
+       
+        </div>
+
+        <div class="right-column">
+            <Button 
+                class="delete-polygon-button"
+                kind="danger"
+                tooltipPosition="bottom"
+                icon={TrashCan}
+                disabled={!isDrawing && !hasDrawnPolygon}
+                on:click={() => {
+                    // if drawing is active, deletePolygon, if upload is active, on:click={() => (files = [])}
+                    deletePolygon();
+                    polygonStore.set({
+                        polygonEntity: null,
+                        redPoints: [],
+                        distributions: []
+                    });
+                    hasDrawnPolygon = false;
+                }}
+            >
+                {$_("tools.stories.deletePolygon")}
+            </Button>
+
+            {#if fileUploaded}
+                <Button
+                    on:click={handleFinishedUpload}
+                    icon={ Checkmark }
+                >
+                    {$_("tools.stories.finishPolygon")}
+                </Button>
+            {/if}
+        </div>
     </div>
 
     {#if errorMessage}
@@ -369,13 +488,29 @@
     <br><hr><br>
 {/if}
 
-<style>
+<style> 
 
     .buttons {
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
+        align-items: flex-start;
+        width: 100%;
+        margin-top: 1rem;
         gap: 1rem;
-        margin: 1rem;
+    }
+
+    .left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
     }
 
     .title-with-tooltip {
@@ -386,14 +521,16 @@
         z-index: 99;
         margin-top: 0.5rem;
     }
+
     .error-message {
-    background-color: var(--cds-support-warning-background, #fff3cd);
-    border: 1px solid var(--cds-active-danger, #ffc107);
-    color: var(--cds-text-warning, #856404);
-    padding: 0.75rem;
-    margin: 1rem;
-    border-radius: 0.25rem;
-    text-align: center;
-    font-weight: 500;
+        background-color: var(--cds-support-warning-background, #fff3cd);
+        border: 1px solid var(--cds-active-danger, #ffc107);
+        color: var(--cds-text-warning, #856404);
+        padding: 0.75rem;
+        margin: 1rem;
+        border-radius: 0.25rem;
+        text-align: center;
+        font-weight: 500;
     }
+
 </style>
