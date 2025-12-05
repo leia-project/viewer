@@ -10,12 +10,13 @@
 	import type { Story } from "./Story";
 	import { StoryLayer } from "./StoryLayer";
     import area from '@turf/area';
-    import * as turf from '@turf/turf';
+    import * as turf from '@turf/turf'; 
 	import { get, type Writable } from "svelte/store";
     import { onMount, onDestroy } from 'svelte';
     import { polygonStore } from './PolygonEntityStore';
     import { FileUploaderButton } from "carbon-components-svelte";
     import { FileUploaderItem } from "carbon-components-svelte";
+	import { parse } from "cookie";
  
     export let map: Map;
     export let story: Story;
@@ -23,7 +24,8 @@
     export let polygonArea: number;
     export let hasDrawnPolygon: boolean;
     export let showPolygonMenu: Writable<boolean>;
-        
+    
+    let scene    
     let polygonEntity: Cesium.Entity | null = null;
     let isDrawing = false;
     let handler: Cesium.ScreenSpaceEventHandler;
@@ -345,38 +347,43 @@
 
     function handleFiles(e: CustomEvent<readonly File[]>) {
         uploadedFile = [...e.detail];
-
         if (uploadedFile.length > 0) {
             const file = uploadedFile[0];
             validationErrors = {};
-
             if (file.name.endsWith(".geojson")) {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const content = event.target?.result as string;
                     try {
                         let geojsonFile = JSON.parse(content);
-                        geojson = geojsonFile.features[0];
-
-                        if (!checkPolygonForSelfIntersection()) {
-                            return;
-                        }
-
-                         if (!checkPolygonOverlap()) {
-                            return;
-                        }
-                        
-                        map.viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geojsonFile, {clampToGround: true, fill: Cesium.Color.RED.withAlpha(0.4)}));
-                        
-                        fileUploaded = true;
-
+                        if (geojsonFile.features.length === 1) {
+                            const feature = geojsonFile.features[0];
+                            if (feature.geometry && feature.geometry.type === "Polygon"){
+                                try {
+                                    geojson = geojsonFile.features[0];
+                                    if (!checkPolygonForSelfIntersection()) {return;}
+                                    if (!checkPolygonOverlap()) {return;}
+                                    map.viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geojsonFile, { clampToGround: true, fill: Cesium.Color.RED.withAlpha(0.6) }))
+                                        .then(() => {
+                                            map.viewer.scene.requestRender();
+                                        })
+                                    fileUploaded = true;
+                                } catch (err) {
+                                    validationErrors = { ...validationErrors, [file.name]: `Error parsing GeoJSON. ${err}` };
+                                }
+                            } else {
+                                validationErrors = { ...validationErrors, [file.name]: "GeoJSON must be of type 'Polygon', no 'multipolygon','line' or 'point' allowed."};
+                            }
+                        } else {
+                            validationErrors = { ...validationErrors, [file.name]: "GeoJSON must contain exactly one feature."};
+                        };
                     } catch (err) {
-                        validationErrors = { ...validationErrors, [file.name]: `Error parsing GeoJSON. ${err}` }; 
-                    };     
+                        validationErrors = { ...validationErrors, [file.name]: `Error parsing GeoJSON. ${err}` };
+                    };
                 };
-                reader.readAsText(file);
+                reader.readAsText(file);                
             } else {
-                validationErrors = { ...validationErrors, [file.name]: "Invalid file type. Only .geojson allowed." }; 
+                validationErrors = { ...validationErrors, [file.name]: "Invalid file type. Only .geojson or .gpkg allowed." }; 
             };
         }; 
     };
@@ -417,7 +424,7 @@
                 kind="tertiary" 
                 size="default"
                 accept={[".geojson", ".gpkg"]}
-                labelText={fileUploaded ? $_("tools.stories.uploadPolygon") : $_("tools.stories.uploadPolygon")}
+                labelText={validationErrors ? $_("tools.stories.uploadPolygon") : (fileUploaded ? $_("tools.stories.uploadPolygon") : $_("tools.stories.uploadPolygon"))}
                 on:change={handleFiles}
             />
 
@@ -437,12 +444,7 @@
                     <FileUploaderItem
                         id={file.name}
                         name={file.name}
-                        status="edit"
-                        on:delete={(e) => {
-                            uploadedFile = [];
-                            map.viewer.dataSources.removeAll();
-                            fileUploaded = false;
-                        }}
+                        status= "complete"
                     />
                 {/if}
             {/each}
@@ -455,16 +457,22 @@
                 kind="danger"
                 tooltipPosition="bottom"
                 icon={TrashCan}
-                disabled={!isDrawing && !hasDrawnPolygon}
+                disabled={!isDrawing && !hasDrawnPolygon && !fileUploaded}
                 on:click={() => {
-                    // if drawing is active, deletePolygon, if upload is active, on:click={() => (files = [])}
-                    deletePolygon();
-                    polygonStore.set({
-                        polygonEntity: null,
-                        redPoints: [],
-                        distributions: []
-                    });
-                    hasDrawnPolygon = false;
+                    if (fileUploaded){
+                        uploadedFile = [];
+                        map.viewer.dataSources.removeAll();
+                        map.viewer.scene.requestRender();
+                        fileUploaded = false;
+                    } else {
+                        deletePolygon();
+                        polygonStore.set({
+                            polygonEntity: null,
+                            redPoints: [],
+                            distributions: []
+                        });
+                        hasDrawnPolygon = false;
+                    };
                 }}
             >
                 {$_("tools.stories.deletePolygon")}
