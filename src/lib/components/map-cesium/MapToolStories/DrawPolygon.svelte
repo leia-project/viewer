@@ -17,7 +17,11 @@
     import { FileUploaderButton } from "carbon-components-svelte";
     import { FileUploaderItem } from "carbon-components-svelte";
 	import { parse } from "cookie";
- 
+    import initGdalJs from 'gdal3.js';
+    import workerUrl from 'gdal3.js/dist/package/gdal3.js?url'
+    import dataUrl from 'gdal3.js/dist/package/gdal3WebAssembly.data?url'
+    import wasmUrl from 'gdal3.js/dist/package/gdal3WebAssembly.wasm?url'
+
     export let map: Map;
     export let story: Story;
     export let distributions: Array<{ group: string; value: number }[]> = [];
@@ -25,7 +29,6 @@
     export let hasDrawnPolygon: boolean;
     export let showPolygonMenu: Writable<boolean>;
     
-    let scene    
     let polygonEntity: Cesium.Entity | null = null;
     let isDrawing = false;
     let handler: Cesium.ScreenSpaceEventHandler;
@@ -38,6 +41,7 @@
     let uploadedFile: any[] = [];
     let validationErrors: Record<string, string> = {};
     let fileUploaded: boolean = false;
+    const paths = {wasm: wasmUrl, data: dataUrl, js: workerUrl};
 
     onMount(() => {
         const storedPolygonData = get(polygonStore);
@@ -345,6 +349,7 @@
         deletePolygon();
     });
 
+
     function handleFiles(e: CustomEvent<readonly File[]>) {
         uploadedFile = [...e.detail];
         if (uploadedFile.length > 0) {
@@ -358,34 +363,58 @@
                         let geojsonFile = JSON.parse(content);
                         if (geojsonFile.features.length === 1) {
                             const feature = geojsonFile.features[0];
-                            if (feature.geometry && feature.geometry.type === "Polygon"){
+                            if (feature.geometry && feature.geometry.type === "Polygon") {
                                 try {
-                                    geojson = geojsonFile.features[0];
-                                    if (!checkPolygonForSelfIntersection()) {return;}
-                                    if (!checkPolygonOverlap()) {return;}
-                                    map.viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geojsonFile, { clampToGround: true, fill: Cesium.Color.RED.withAlpha(0.6) }))
-                                        .then(() => {
-                                            map.viewer.scene.requestRender();
-                                        })
+                                    geojson = feature;
+                                    if (!checkPolygonForSelfIntersection()) return;
+                                    if (!checkPolygonOverlap()) return;
+                                    map.viewer.dataSources
+                                        .add(Cesium.GeoJsonDataSource.load(geojsonFile, {clampToGround: true, fill: Cesium.Color.RED.withAlpha(0.6),})) 
+                                        .then(() => {map.viewer.scene.requestRender();});
                                     fileUploaded = true;
                                 } catch (err) {
-                                    validationErrors = { ...validationErrors, [file.name]: `Error parsing GeoJSON. ${err}` };
+                                    validationErrors = {...validationErrors, [file.name]: `Error parsing GeoJSON. ${err}`};
                                 }
                             } else {
-                                validationErrors = { ...validationErrors, [file.name]: "GeoJSON must be of type 'Polygon', no 'multipolygon','line' or 'point' allowed."};
+                                validationErrors = {...validationErrors, [file.name]: "GeoJSON must be of type 'Polygon', no 'multipolygon','line' or 'point' allowed."};
                             }
                         } else {
-                            validationErrors = { ...validationErrors, [file.name]: "GeoJSON must contain exactly one feature."};
-                        };
+                            validationErrors = {...validationErrors, [file.name]: "GeoJSON must contain exactly one feature."};
+                        }
                     } catch (err) {
-                        validationErrors = { ...validationErrors, [file.name]: `Error parsing GeoJSON. ${err}` };
-                    };
+                        validationErrors = {...validationErrors, [file.name]: `Error parsing GeoJSON. ${err}`};
+                    }
                 };
-                reader.readAsText(file);                
+                reader.readAsText(file);
+            } else if (file.name.endsWith(".gpkg")) {
+                initGdalJs({paths}).then(async (Gdal) => {
+                    const result = (await Gdal.open(file)).datasets[0];
+                    const options = ['-f', 'GeoJSON', '-t_srs', 'EPSG:4326'];
+                    const outPath = await Gdal.ogr2ogr(result, options);
+                    const bytes = await Gdal.getFileBytes(outPath);
+                    const geojsonText = new TextDecoder("utf-8").decode(bytes);
+                    let geojson = JSON.parse(geojsonText);
+                    const feature = geojson.features[0];
+                    if (feature.geometry && feature.geometry.type === "Polygon") {
+                        try {
+                            geojson = feature;
+                            map.viewer.dataSources
+                                .add(Cesium.GeoJsonDataSource.load(geojson, {clampToGround: true, fill: Cesium.Color.RED.withAlpha(0.6),})) 
+                                .then(() => {map.viewer.scene.requestRender();});
+                            fileUploaded = true;
+                        } catch (err) {
+                            validationErrors = {...validationErrors, [file.name]: `Error parsing GeoPackage. ${err}`};
+                        };
+                    } else {
+                        validationErrors = {...validationErrors, [file.name]: "GeoPackage must be of type 'Polygon', no 'multipolygon','line' or 'point' allowed."};
+                    }
+                });   
             } else {
-                validationErrors = { ...validationErrors, [file.name]: "Invalid file type. Only .geojson or .gpkg allowed." }; 
+                validationErrors = {
+                    ...validationErrors, [file.name]: "Invalid file type. Only .geojson or .gpkg allowed.",
+                };
             };
-        }; 
+        };
     };
 
 </script>
