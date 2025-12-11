@@ -277,7 +277,7 @@
             "polygonTitle": "Projectgebied", 
             "requestDrawPolygon": "Teken een projectgebied in",
             "uploadPolygon": "Projectgebied Uploaden",
-            "drawPolygon": "Teken Projectgebied",
+            "drawPolygon": "Projectgebied Tekenen",
             "finishPolygon": "Voltooi Projectgebied",
             "drawPolygonText": "Klik op de 'Teken projectgebied' knop om te beginnen met tekenen op de kaart. Klik om een vlak te creëren. Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.",
             "deletePolygon": "Verwijder Projectgebied",

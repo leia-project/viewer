@@ -14,8 +14,8 @@
 	import { get, type Writable } from "svelte/store";
     import { onMount, onDestroy } from 'svelte';
     import { polygonStore } from './PolygonEntityStore';
-    import { FileUploaderButton } from "carbon-components-svelte";
     import { FileUploaderItem } from "carbon-components-svelte";
+    import CustomFileUploader from "./CustomFileUploader.svelte";
 	import { parse } from "cookie";
     import initGdalJs from 'gdal3.js';
     import workerUrl from 'gdal3.js/dist/package/gdal3.js?url'
@@ -388,31 +388,30 @@
                 reader.readAsText(file);
             } else if (file.name.endsWith(".gpkg")) {
                 initGdalJs({paths}).then(async (Gdal) => {
-                    const result = (await Gdal.open(file)).datasets[0];
-                    const options = ['-f', 'GeoJSON', '-t_srs', 'EPSG:4326'];
-                    const outPath = await Gdal.ogr2ogr(result, options);
-                    const bytes = await Gdal.getFileBytes(outPath);
-                    const geojsonText = new TextDecoder("utf-8").decode(bytes);
-                    let geojson = JSON.parse(geojsonText);
-                    const feature = geojson.features[0];
-                    if (feature.geometry && feature.geometry.type === "Polygon") {
+                    if (((await Gdal.open(file)).datasets.length) === 1) {
                         try {
-                            geojson = feature;
-                            map.viewer.dataSources
-                                .add(Cesium.GeoJsonDataSource.load(geojson, {clampToGround: true, fill: Cesium.Color.RED.withAlpha(0.6),})) 
-                                .then(() => {map.viewer.scene.requestRender();});
-                            fileUploaded = true;
+                            const result = (await Gdal.open(file)).datasets[0];
+                            const options = ['-f', 'GeoJSON', '-t_srs', 'EPSG:4326'];
+                            const outPath = await Gdal.ogr2ogr(result, options);
+                            const bytes = await Gdal.getFileBytes(outPath);
+                            let geojson = JSON.parse(new TextDecoder("utf-8").decode(bytes)).features[0];
+                            if (geojson.geometry && geojson.geometry.type === "Polygon") {
+                                map.viewer.dataSources
+                                    .add(Cesium.GeoJsonDataSource.load(geojson, {clampToGround: true, fill: Cesium.Color.RED.withAlpha(0.6),})) 
+                                    .then(() => {map.viewer.scene.requestRender();});
+                                fileUploaded = true;                
+                            } else {
+                                validationErrors = {...validationErrors, [file.name]: "GeoPackage must be of type 'Polygon', no 'multipolygon','line' or 'point' allowed."};
+                            };
                         } catch (err) {
                             validationErrors = {...validationErrors, [file.name]: `Error parsing GeoPackage. ${err}`};
                         };
                     } else {
-                        validationErrors = {...validationErrors, [file.name]: "GeoPackage must be of type 'Polygon', no 'multipolygon','line' or 'point' allowed."};
-                    }
+                        validationErrors = {...validationErrors, [file.name]: "GeoPackage must contain exactly one layer."};
+                    };
                 });   
             } else {
-                validationErrors = {
-                    ...validationErrors, [file.name]: "Invalid file type. Only .geojson or .gpkg allowed.",
-                };
+                validationErrors = {...validationErrors, [file.name]: "Invalid file type. Only .geojson or .gpkg allowed.",};
             };
         };
     };
@@ -447,11 +446,11 @@
             >
                 {isDrawing ? $_("tools.stories.finishPolygon") : $_("tools.stories.drawPolygon")}
             </Button>
-            
-            <FileUploaderButton 
-                disabled={isDrawing}
-                kind="tertiary" 
-                size="default"
+
+            <CustomFileUploader
+                kind = "tertiary"
+                multiple = {false} 
+                disabled={isDrawing || fileUploaded}
                 accept={[".geojson", ".gpkg"]}
                 labelText={validationErrors ? $_("tools.stories.uploadPolygon") : (fileUploaded ? $_("tools.stories.uploadPolygon") : $_("tools.stories.uploadPolygon"))}
                 on:change={handleFiles}
