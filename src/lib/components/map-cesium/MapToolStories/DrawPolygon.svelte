@@ -388,7 +388,7 @@
                 reader.readAsText(file);
             } else if (file.name.endsWith(".gpkg")) {
                 initGdalJs({paths}).then(async (Gdal) => {
-                    if (((await Gdal.open(file)).datasets.length) === 1) {
+                    if (((await Gdal.open(file)).datasets[0].info.layers.length) === 1) {
                         try {
                             const result = (await Gdal.open(file)).datasets[0];
                             const options = ['-f', 'GeoJSON', '-t_srs', 'EPSG:4326'];
