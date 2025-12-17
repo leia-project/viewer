@@ -24,9 +24,9 @@
 	import DrawPolygon from "./DrawPolygon.svelte";
 	import { getCameraPositionFromBoundingSphere } from "../module/utils/layer-utils";
 	import { polygonStore } from './PolygonEntityStore';
-	import StoryChart from "./StoryChart.svelte";
+	import StoryChart from "./StoryChart/StoryChart.svelte";
 	import ChoroplethMap from "carbon-icons-svelte/lib/ChoroplethMap.svelte";
-	import StoryChartDownloadButton from "./StoryChartDownloadButton.svelte";
+	import StoryChartDownloadButton from "./StoryChart/StoryChartDownloadButton.svelte";
 
 	type SubLabel = {
 		text: string;

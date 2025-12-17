@@ -1,7 +1,17 @@
 <script lang="ts">
 	import type { EChartsOption } from 'echarts';
-	import { echarts, echartsLoading } from './echarts';
+	import { echarts, echartsLoading } from '../echarts';
+	import * as charts from 'echarts';
+
 	import { _ } from "svelte-i18n";
+
+	// import { doc } from "./StoryChartDownloadButton.svelte";
+	// $: { console.log("Imported doc:", doc.getCreationDate()) };
+
+	// function addChartImageToPage(image: any, pageIndex: number) {
+    //     doc.setPage(pageIndex);
+    //     doc.addImage(image, 'PNG', 15, 40, 180, 100); // Adjust position and size as needed
+    // }
 	
 	export let data: Array<{ group: string; value: number }> | undefined;
 	export let loading: boolean = false;
@@ -64,6 +74,21 @@
 			}
 		]
 	};
+
+	function echartsGetImage(option: EChartsOption): string {
+		const chart: charts.ECharts = charts.init();
+		chart.setOption(option);
+		const chartImage: string = chart.getDataURL({
+			type: 'png',
+			pixelRatio: 2,
+			backgroundColor: '#fff',
+		});
+
+		return chartImage;
+	}
+
+	// let chartImage: string = echartsGetImage(option);
+	// TODO: Add it to the PDF doc
 </script>
 
 {#if loading}
