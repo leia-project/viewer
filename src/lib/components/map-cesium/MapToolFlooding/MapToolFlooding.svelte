@@ -67,12 +67,11 @@
 		}
 	});
 
-	activeBreach.subscribe((breach) => {
-		if (breach && !$selectedTool) {
-			$selectedTool = tool
-		}
-	});
-
+activeBreach.subscribe((breach) => {
+    if (breach) {
+        $selectedTool = tool
+    }
+});
 </script>
 
 

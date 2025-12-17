@@ -288,8 +288,8 @@
             "speed": "Snelheid",
             "play": "Play",
             "pause": "Pauze",
-            "previous": "Vorige",
-            "next": "Volgende",
+            "previous": "Vorige vorige tijdstap",
+            "next": "Volgende tijdstap",
             "currentTime": "Huidige tijd",
             "animationControls": "Animatie-widget",
             "showWayPoints": "Toon waypoints",
@@ -311,7 +311,7 @@
             "noResults": "Geen resultaten",
             "noBreachSelected": "Geen bres geselecteerd",
             "searchBreach": "Zoek bres",
-            "timeSlider": "Tijd slider"
+            "timeSlider": "Tijdsbalk"
         }
     },
     "errors": {
