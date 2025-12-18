@@ -95,9 +95,13 @@
 
     function setDefaultSelectedTool(tool: MapToolMenuOption) {
         const startToolOpen: string | undefined = map.viewerSettings.startToolOpen ?? undefined;
+        // console.log('opening setDefaultSelectedTool called for:', tool.id, 'startToolOpen:', startToolOpen, 'match:', tool.id === startToolOpen);
+
         if (tool.id === startToolOpen) {
             // Create a synthetic event to simulate a tool click
             // Needed to make layerlibrary open on start
+            // console.log('Opening tool:', tool.id);
+
             const e = new CustomEvent('toolOpen', {
                 detail: { source: 'startToolOpen' }
             });

@@ -91,6 +91,7 @@
         "title": "FIER",
         "subTitle": "3D Leia Viewer",
         "logo": "images/leia_logo.png",
+        "startToolOpen": "flooding",
         "startPosition": {
             "x": 3.96280,
             "y": 51.49285,

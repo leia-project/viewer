@@ -62,17 +62,21 @@
 				}
 			})
 
-			// Directly activate story from searchParams
-			const queriedStory = $page.data.story;
-			if(!queriedStory) return;
-			for (let i = 0; i < stories.length; i++) {
-				if (stories[i].name.toLowerCase() === queriedStory.toLowerCase()) {
-					$selectedTool = tool;
-					activateStory(stories[i]);
-					return;
-				}
+		// Directly activate story from searchParams
+		const queriedStory = $page.data.story;
+		//const startToolOpen = map.viewerSettings.startToolOpen;
+
+		// Only auto-open from URL if no startToolOpen is configured
+		if(!queriedStory) return;
+
+		for (let i = 0; i < stories.length; i++) {
+			if (stories[i].name.toLowerCase() === queriedStory.toLowerCase()) {
+				$selectedTool = tool;
+				activateStory(stories[i]);
+				return;
 			}
 		}
+	}
 	});
 
 	function getUrlAndFeatureNameForLayer(id: string): { url: string | undefined; featureName: string | undefined } {

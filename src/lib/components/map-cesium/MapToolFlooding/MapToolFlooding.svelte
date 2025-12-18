@@ -36,12 +36,14 @@
 	let floodLayerController: FloodLayerController | undefined;
 	
 	tool.settings.subscribe(async(settings?: FloodToolSettings) => {
+		//console.log('opening Flooding tool settings:', settings);
 		if (settings) {
 			floodLayerController = new FloodLayerController(map, settings, activeBreach, selectedScenario);
 			const breachCollection = await fetch(settings.breachUrl).then((res) => res.json());
 			breaches = breachCollection.features;
 			floodLayerController.addBreaches(breaches);
 			setSearchResults();
+			//console.log('opening Flooding tool initialized with breaches:', breaches);
 		}
 	});
 
