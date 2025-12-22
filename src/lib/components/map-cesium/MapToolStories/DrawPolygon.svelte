@@ -114,9 +114,7 @@
         if (hasDrawnPolygon || isDrawing) {
             return;
         }
-        uploadButtonEnabled = false;
-        deleteButtonEnabled = true;
-        completeButtonEnabled = true;
+        setButtonStates(undefined, false, true, true);
 
         isDrawing = true;
         selectedAction = "draw";
@@ -213,10 +211,7 @@
         hasUploadedPolygon = false;
         isDrawing = false;
 
-        drawButtonEnabled = false;
-        uploadButtonEnabled = false;
-        deleteButtonEnabled = true;
-        completeButtonEnabled = false;
+        setButtonStates(false, false, true, false);
         
         // sendAPIUpResponse();
         let storyLayers: Array<StoryLayer> = story.getStoryLayers();
@@ -269,10 +264,7 @@
         hasUploadedPolygon = true;
         uploadedFile = [];
 
-        drawButtonEnabled = false;
-        uploadButtonEnabled = false;
-        deleteButtonEnabled = true;
-        completeButtonEnabled = false;
+        setButtonStates(false, false, true, false);
 
         showPolygonMenu.set(false);
     }
@@ -387,20 +379,21 @@
                                         }
                                     });
                                     fileUploaded = true;
+                                    setButtonStates(false, false, true, true);
                                 } catch (err) {
-                                    completeButtonEnabled = false;
+                                    setButtonStates(false, false, true, false);
                                     validationErrors = {...validationErrors, [file.name]: `Error parsing GeoJSON. ${err}`};
                                 }
                             } else {
-                                completeButtonEnabled = false;
+                                setButtonStates(false, false, true, false);
                                 validationErrors = {...validationErrors, [file.name]: "GeoJSON must be of type 'Polygon', no 'multipolygon','line' or 'point' allowed."};
                             }
                         } else {
-                            completeButtonEnabled = false;
+                            setButtonStates(false, false, true, false);
                             validationErrors = {...validationErrors, [file.name]: "GeoJSON must contain exactly one feature."};
                         }
                     } catch (err) {
-                        completeButtonEnabled = false;
+                        setButtonStates(false, false, true, false);
                         validationErrors = {...validationErrors, [file.name]: `Error parsing GeoJSON. ${err}`};
                     }
                 };
@@ -427,30 +420,34 @@
                                         clampToGround: true
                                     }
                                 });
-                                fileUploaded = true;                
+                                fileUploaded = true;     
+                                setButtonStates(false, false, true, true);
                             } else {
-                                completeButtonEnabled = false;
+                                setButtonStates(false, false, true, false);
                                 validationErrors = {...validationErrors, [file.name]: "GeoPackage must be of type 'Polygon', no 'multipolygon','line' or 'point' allowed."};
                             };
                         } catch (err) {
-                            completeButtonEnabled = false;
+                            setButtonStates(false, false, true, false);
                             validationErrors = {...validationErrors, [file.name]: `Error parsing GeoPackage. ${err}`};
                         };
                     } else {
-                        completeButtonEnabled = false;
+                        setButtonStates(false, false, true, false);
                         validationErrors = {...validationErrors, [file.name]: "GeoPackage must contain exactly one layer."};
                     };
                 });   
             } else {
-                completeButtonEnabled = false;
-                validationErrors = {...validationErrors, [file.name]: "Invalid file type. Only .geojson or .gpkg allowed.",};
+                setButtonStates(false, false, true, false);
+                validationErrors = {...validationErrors, [file.name]: "Invalid file type. Only .geojson or .gpkg allowed."};
             };
         };
-        drawButtonEnabled = false;
-        uploadButtonEnabled = false;
-        deleteButtonEnabled = true;
-        completeButtonEnabled = true;
         hasUploadedPolygon = true;
+    };
+
+    function setButtonStates(drawButton?: boolean, uploadButton?: boolean, deleteButton?: boolean, completeButton?: boolean) {
+        if (drawButton !== undefined) drawButtonEnabled = drawButton;
+        if (uploadButton !== undefined) uploadButtonEnabled = uploadButton;
+        if (deleteButton !== undefined) deleteButtonEnabled = deleteButton;
+        if (completeButton !== undefined) completeButtonEnabled = completeButton;
     };
 
 </script>
@@ -523,10 +520,7 @@
                 icon={TrashCan}
                 disabled={!deleteButtonEnabled}
                 on:click={() => {
-                    uploadButtonEnabled = true;
-                    drawButtonEnabled = true;
-                    deleteButtonEnabled = false;
-                    completeButtonEnabled = false;
+                    setButtonStates(true, true, false, false);
 
                     // Reset polygon data
                     deletePolygon();
