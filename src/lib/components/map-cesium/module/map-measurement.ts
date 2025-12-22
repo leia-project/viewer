@@ -198,7 +198,8 @@ export class MapMeasurement {
 				color: this.pointFill,
 				pixelSize: 10,
 				outlineColor: this.pointOutline,
-				outlineWidth: 1
+				outlineWidth: 1,
+				disableDepthTestDistance: Number.POSITIVE_INFINITY
 			},     
             label: {
                 text: `${index}`,
