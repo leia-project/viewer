@@ -1,6 +1,6 @@
 <script lang="ts">
     import * as Cesium from "cesium";
-	import { _ } from "svelte-i18n";
+	import { _, t } from "svelte-i18n";
     import { Button, TooltipIcon } from "carbon-components-svelte";
 	import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import AreaCustom from "carbon-icons-svelte/lib/AreaCustom.svelte";
@@ -16,6 +16,7 @@
     import { polygonStore } from './PolygonEntityStore';
     import { FileUploaderItem } from "carbon-components-svelte";
     import CustomFileUploader from "./CustomFileUploader.svelte";
+    import { InlineNotification } from "carbon-components-svelte";
 	import { parse } from "cookie";
     import initGdalJs from 'gdal3.js';
     import workerUrl from 'gdal3.js/dist/package/gdal3.js?url'
@@ -28,7 +29,7 @@
     export let polygonArea: number;
     export let hasDrawnPolygon: boolean;
     export let showPolygonMenu: Writable<boolean>;
-    
+
     let polygonEntity: Cesium.Entity | null = null;
     let isDrawing = false;
     let handler: Cesium.ScreenSpaceEventHandler;
@@ -37,10 +38,17 @@
     let redPoints: Cesium.Entity[] = [];
     let selectedAction: 'draw' | 'delete' | undefined = undefined;
     let geojson: any;
-    let existingPolygons: any[] = [];  // ADD THIS LINE
     let uploadedFile: any[] = [];
     let validationErrors: Record<string, string> = {};
     let fileUploaded: boolean = false;
+    let hasUploadedPolygon: boolean = false;
+    let errorMessage: string;
+
+    let drawButtonEnabled: boolean = true;
+    let uploadButtonEnabled: boolean = true;
+    let deleteButtonEnabled: boolean = false;
+    let completeButtonEnabled: boolean = false;
+
     const paths = {wasm: wasmUrl, data: dataUrl, js: workerUrl};
 
     onMount(() => {
@@ -50,42 +58,30 @@
             polygonEntity = storedPolygonData.polygonEntity;
             map.viewer.entities.add(polygonEntity);
 
-            redPoints = storedPolygonData.redPoints;
-            redPoints.forEach((point) => map.viewer.entities.add(point));
+            // Not manditory
+            if (redPoints) {
+                redPoints = storedPolygonData.redPoints;
+                redPoints.forEach((point) => map.viewer.entities.add(point));
+            }
 
             distributions = storedPolygonData.distributions;
             hasDrawnPolygon = true;
         }
+
+        drawButtonEnabled = storedPolygonData.polygonEntity ? false : true;
+        uploadButtonEnabled = storedPolygonData.polygonEntity ? false : true;
+        deleteButtonEnabled = storedPolygonData.polygonEntity ? true : false;
     });
 
-    let errorMessage = "";
-
-    function checkPolygonOverlap(): boolean {
-        if (!geojson || existingPolygons.length === 0) {
-            return true;
-        }
-
-        for (let i = 0; i < existingPolygons.length; i++) {
-            const overlaps = turf.booleanIntersects(geojson, existingPolygons[i]);
-            
-            if (overlaps) {
-                errorMessage = "Polygon overlaps with existing polygon!";
-                console.warn(errorMessage);
-                return false;
-            }
-        }
-        errorMessage = "";
-        return true;
-    }
 
     function checkPolygonForSelfIntersection(): boolean {
-        const kinks = turf.kinks(geojson);
-        if (kinks.features.length > 0) {
+        const kinks = turf.kinks(geojson); // 1 kink is from closing the polygon
+
+        if (kinks.features.length > 1) {
             errorMessage = $_("errors.Drawing.invalidPolygon")
             console.warn(errorMessage);
             return false;
         } else {
-            errorMessage = "";
             return true;
         }
     }
@@ -118,7 +114,10 @@
         if (hasDrawnPolygon || isDrawing) {
             return;
         }
-        errorMessage = "";
+        uploadButtonEnabled = false;
+        deleteButtonEnabled = true;
+        completeButtonEnabled = true;
+
         isDrawing = true;
         selectedAction = "draw";
         handler = new Cesium.ScreenSpaceEventHandler(map.viewer.canvas);
@@ -189,12 +188,6 @@
             return;
         }
 
-        if (!checkPolygonOverlap()) {
-            return;
-        }
-
-        existingPolygons.push(geojson);  
-
         handler.destroy();
         if (activeShape) { 
             map.viewer.entities.remove(activeShape);
@@ -217,7 +210,13 @@
         activeShape = undefined;
 
         hasDrawnPolygon = true;
+        hasUploadedPolygon = false;
         isDrawing = false;
+
+        drawButtonEnabled = false;
+        uploadButtonEnabled = false;
+        deleteButtonEnabled = true;
+        completeButtonEnabled = false;
         
         // sendAPIUpResponse();
         let storyLayers: Array<StoryLayer> = story.getStoryLayers();
@@ -244,7 +243,7 @@
         showPolygonMenu.set(false);
     }
 
-    function handleFinishedUpload() {
+    function handleFinishUpload() {
         let storyLayers: Array<StoryLayer> = story.getStoryLayers();
         
         for (let i = 0; i < storyLayers.length; i++) {
@@ -265,6 +264,15 @@
             redPoints,
             distributions
         });
+
+        hasDrawnPolygon = true;
+        hasUploadedPolygon = true;
+        uploadedFile = [];
+
+        drawButtonEnabled = false;
+        uploadButtonEnabled = false;
+        deleteButtonEnabled = true;
+        completeButtonEnabled = false;
 
         showPolygonMenu.set(false);
     }
@@ -366,22 +374,33 @@
                             if (feature.geometry && feature.geometry.type === "Polygon") {
                                 try {
                                     geojson = feature;
-                                    if (!checkPolygonForSelfIntersection()) return;
-                                    if (!checkPolygonOverlap()) return;
-                                    map.viewer.dataSources
-                                        .add(Cesium.GeoJsonDataSource.load(geojsonFile, {clampToGround: true, fill: Cesium.Color.RED.withAlpha(0.6),})) 
-                                        .then(() => {map.viewer.scene.requestRender();});
+                                    const coords = geojson.geometry.coordinates[0];
+                                    const positions = coords.map(([lng, lat]: [number, number]) =>
+                                        Cesium.Cartesian3.fromDegrees(lng, lat)
+                                    );
+                                    polygonEntity = map.viewer.entities.add({
+                                        polyline: {
+                                            positions: positions,
+                                            width: 2,
+                                            material: Cesium.Color.RED,
+                                            clampToGround: true
+                                        }
+                                    });
                                     fileUploaded = true;
                                 } catch (err) {
+                                    completeButtonEnabled = false;
                                     validationErrors = {...validationErrors, [file.name]: `Error parsing GeoJSON. ${err}`};
                                 }
                             } else {
+                                completeButtonEnabled = false;
                                 validationErrors = {...validationErrors, [file.name]: "GeoJSON must be of type 'Polygon', no 'multipolygon','line' or 'point' allowed."};
                             }
                         } else {
+                            completeButtonEnabled = false;
                             validationErrors = {...validationErrors, [file.name]: "GeoJSON must contain exactly one feature."};
                         }
                     } catch (err) {
+                        completeButtonEnabled = false;
                         validationErrors = {...validationErrors, [file.name]: `Error parsing GeoJSON. ${err}`};
                     }
                 };
@@ -396,24 +415,42 @@
                             const bytes = await Gdal.getFileBytes(outPath);
                             let geojson = JSON.parse(new TextDecoder("utf-8").decode(bytes)).features[0];
                             if (geojson.geometry && geojson.geometry.type === "Polygon") {
-                                map.viewer.dataSources
-                                    .add(Cesium.GeoJsonDataSource.load(geojson, {clampToGround: true, fill: Cesium.Color.RED.withAlpha(0.6),})) 
-                                    .then(() => {map.viewer.scene.requestRender();});
+                                const coords = geojson.geometry.coordinates[0];
+                                const positions = coords.map(([lng, lat]: [number, number]) =>
+                                    Cesium.Cartesian3.fromDegrees(lng, lat)
+                                );
+                                polygonEntity = map.viewer.entities.add({
+                                    polyline: {
+                                        positions: positions,
+                                        width: 2,
+                                        material: Cesium.Color.RED,
+                                        clampToGround: true
+                                    }
+                                });
                                 fileUploaded = true;                
                             } else {
+                                completeButtonEnabled = false;
                                 validationErrors = {...validationErrors, [file.name]: "GeoPackage must be of type 'Polygon', no 'multipolygon','line' or 'point' allowed."};
                             };
                         } catch (err) {
+                            completeButtonEnabled = false;
                             validationErrors = {...validationErrors, [file.name]: `Error parsing GeoPackage. ${err}`};
                         };
                     } else {
+                        completeButtonEnabled = false;
                         validationErrors = {...validationErrors, [file.name]: "GeoPackage must contain exactly one layer."};
                     };
                 });   
             } else {
+                completeButtonEnabled = false;
                 validationErrors = {...validationErrors, [file.name]: "Invalid file type. Only .geojson or .gpkg allowed.",};
             };
         };
+        drawButtonEnabled = false;
+        uploadButtonEnabled = false;
+        deleteButtonEnabled = true;
+        completeButtonEnabled = true;
+        hasUploadedPolygon = true;
     };
 
 </script>
@@ -436,21 +473,20 @@
     <div class="buttons">
         <div class="left-column">
             <Button 
-                icon={isDrawing ? Checkmark : AreaCustom}
+                icon={AreaCustom}
                 kind={isDrawing ? "primary" : "tertiary"}
-                disabled={hasDrawnPolygon || fileUploaded}
-                
+                disabled={!drawButtonEnabled} 
                 on:click={() => {
-                    isDrawing ? handleFinishDrawing() : draw();
+                    draw();
                 }}
             >
-                {isDrawing ? $_("tools.stories.finishPolygon") : $_("tools.stories.drawPolygon")}
+                {$_("tools.stories.drawPolygon")}
             </Button>
 
             <CustomFileUploader
                 kind = "tertiary"
                 multiple = {false} 
-                disabled={isDrawing || fileUploaded}
+                disabled={!uploadButtonEnabled}
                 accept={[".geojson", ".gpkg"]}
                 labelText={validationErrors ? $_("tools.stories.uploadPolygon") : (fileUploaded ? $_("tools.stories.uploadPolygon") : $_("tools.stories.uploadPolygon"))}
                 on:change={handleFiles}
@@ -485,40 +521,49 @@
                 kind="danger"
                 tooltipPosition="bottom"
                 icon={TrashCan}
-                disabled={!isDrawing && !hasDrawnPolygon && !fileUploaded}
+                disabled={!deleteButtonEnabled}
                 on:click={() => {
-                    if (fileUploaded){
-                        uploadedFile = [];
-                        map.viewer.dataSources.removeAll();
-                        map.viewer.scene.requestRender();
-                        fileUploaded = false;
-                    } else {
-                        deletePolygon();
-                        polygonStore.set({
-                            polygonEntity: null,
-                            redPoints: [],
-                            distributions: []
-                        });
-                        hasDrawnPolygon = false;
-                    };
+                    uploadButtonEnabled = true;
+                    drawButtonEnabled = true;
+                    deleteButtonEnabled = false;
+                    completeButtonEnabled = false;
+
+                    // Reset polygon data
+                    deletePolygon();
+                    polygonStore.set({
+                        polygonEntity: null,
+                        redPoints: [],
+                        distributions: []
+                    });
+                    uploadedFile = [];
+                    distributions = [];
+                    hasDrawnPolygon = false;
+                    hasUploadedPolygon = false;
                 }}
             >
                 {$_("tools.stories.deletePolygon")}
             </Button>
 
-            {#if fileUploaded}
-                <Button
-                    on:click={handleFinishedUpload}
-                    icon={ Checkmark }
-                >
-                    {$_("tools.stories.finishPolygon")}
-                </Button>
-            {/if}
+            <Button
+                on:click={() => {
+                    isDrawing ? handleFinishDrawing() : handleFinishUpload();
+                }}
+                icon={ Checkmark }
+                disabled={!completeButtonEnabled}
+            >
+                {$_("tools.stories.finishPolygon")}
+            </Button>
         </div>
     </div>
 
     {#if errorMessage}
-        <div class="error-message">{errorMessage}</div>
+        <InlineNotification
+            lowContrast
+            timeout={5000}
+            title="Error"
+            subtitle={errorMessage}
+            on:close={() => { errorMessage = ""; }}
+        />
     {/if}
 
     <br><hr><br>
@@ -556,17 +601,6 @@
         position: relative;
         z-index: 99;
         margin-top: 0.5rem;
-    }
-
-    .error-message {
-        background-color: var(--cds-support-warning-background, #fff3cd);
-        border: 1px solid var(--cds-active-danger, #ffc107);
-        color: var(--cds-text-warning, #856404);
-        padding: 0.75rem;
-        margin: 1rem;
-        border-radius: 0.25rem;
-        text-align: center;
-        font-weight: 500;
     }
 
 </style>
