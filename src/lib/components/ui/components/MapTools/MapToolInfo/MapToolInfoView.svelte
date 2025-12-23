@@ -5,7 +5,7 @@
     import { get } from "svelte/store";
     import { Attribution } from "$lib/components/ui/models/Attribution";
 
-    export let txtTitle = get(_)("tools.info.info");
+    export let txtTitle = get(_)("tools.info.label");
     export let txtClose = get(_)("tools.info.close");
     export let txtGeneral = get(_)("tools.info.general");
     export let txtAttribution = get(_)("tools.info.attribution");
