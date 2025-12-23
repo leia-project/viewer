@@ -64,6 +64,7 @@
 	export let textPointCloudEDLStrength: string;
 	export let textFPSCounter: string;
 	export let textInspector: string;
+	export let textCameraPosition: string;
 	export let textMouseCoordinates: string;
 	export let textEnableDragDropFiles: string;
 	export let textAdvanced: string;
@@ -101,6 +102,7 @@
 	$: textPointCloudEDLStrength = $_("tools.cesium.pointCloudEDLStrength");
 	$: textFPSCounter = $_("tools.cesium.FPSCounter");
 	$: textInspector = $_("tools.cesium.inspector");
+	$: textCameraPosition = $_("tools.cesium.cameraPosition");
 	$: textMouseCoordinates = $_("tools.cesium.coordinates");
 	$: textEnableDragDropFiles = $_("tools.cesium.dragAndDropFiles");
 	$: textAdvanced = $_("tools.cesium.advanced");
@@ -296,38 +298,38 @@
 		</RadioButtonGroup>
 	</div>
 	
-		<Accordion>
-			<AccordionItem title={textRendering}>
-			<Checkbox labelText={textFXAA} bind:checked={$fxaa} />
+	<Accordion>
+		<AccordionItem title={textRendering}>
+		<Checkbox labelText={textFXAA} bind:checked={$fxaa} />
 
-				<Slider
-					hideTextInput
-					fullWidth
-					min={1}
-					max={8}
-					step={1}
-					labelText={`${textMSAA}: ${$msaa}`}
-					bind:value={$msaa}
-				/>
-				<Slider
-					hideTextInput
-					fullWidth
-					min={0.1}
-					max={4}
-					step={0.1}
-					labelText={`${textResolutionScale}: ${$resolutionScale.toFixed(1)}`}
-					bind:value={$resolutionScale}
-				/>
-				<Slider
-					hideTextInput
-					fullWidth
-					min={1}
-					max={3}
-					step={0.1}
-					labelText={`${textMaximumScreenspaceError}: ${$maximunScreenSpaceError.toFixed(1)}`}
-					bind:value={$maximunScreenSpaceError}
-				/>
-			</AccordionItem>
+			<Slider
+				hideTextInput
+				fullWidth
+				min={1}
+				max={8}
+				step={1}
+				labelText={`${textMSAA}: ${$msaa}`}
+				bind:value={$msaa}
+			/>
+			<Slider
+				hideTextInput
+				fullWidth
+				min={0.1}
+				max={4}
+				step={0.1}
+				labelText={`${textResolutionScale}: ${$resolutionScale.toFixed(1)}`}
+				bind:value={$resolutionScale}
+			/>
+			<Slider
+				hideTextInput
+				fullWidth
+				min={1}
+				max={3}
+				step={0.1}
+				labelText={`${textMaximumScreenspaceError}: ${$maximunScreenSpaceError.toFixed(1)}`}
+				bind:value={$maximunScreenSpaceError}
+			/>
+		</AccordionItem>
 
 		<AccordionItem title={textEnvironment}>
 			<Checkbox labelText={textAnimate} bind:checked={$animate} />
@@ -343,7 +345,7 @@
 			<Checkbox labelText={textFPSCounter} bind:checked={$fpsCounter} />
 			<Checkbox labelText={textInspector} bind:checked={$inspector} />
 			<Checkbox labelText={textMouseCoordinates} bind:checked={$showMouseCoordinates} />
-			<Checkbox labelText="Camera position" bind:checked={$showCameraPosition} />
+			<Checkbox labelText={textCameraPosition} bind:checked={$showCameraPosition} />
 			<Checkbox labelText={textEnableDragDropFiles} bind:checked={$enableDragDropFiles} />
 		</AccordionItem>
 

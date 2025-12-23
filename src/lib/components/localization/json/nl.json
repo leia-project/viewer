@@ -253,6 +253,8 @@
             "FPSCounter": "FPS Teller",
             "inspector": "Tegel Inspecteur",
             "coordinates": "Coördinaten",
+            "cameraPosition": "Camera Positie",
+            "dragAndDropFiles": "Bestanden Inslepen",
             "pointCloud": "Puntenwolken",
             "pointCloudAttenuation": "Attenuation",
             "pointCloudAttenuationBaseResolution": "Attenuation Basis Resolutie",

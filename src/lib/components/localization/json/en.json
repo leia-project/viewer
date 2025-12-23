@@ -246,6 +246,8 @@
             "FPSCounter": "FPS Counter",
             "inspector": "Tile Inspector",
             "coordinates": "Coordinates",
+            "cameraPosition": "Camera Position",
+            "dragAndDropFiles": "Drag and Drop Files",
             "pointCloud": "Point Clouds",
             "pointCloudAttenuation": "Attenuation",
             "pointCloudAttenuationBaseResolution": "Attenuation Base Resolution",
