@@ -9,8 +9,9 @@
 
     export let data: Array<{ group: string; value: number }[]>;
     export let story: Story;
-    
-    export let doc = new jsPDF();
+
+    let doc: jsPDF;
+    export let chartImages: Array<string>;
 
     // import { option } from "./StoryChart.svelte";
     // console.log("Imported chart option:", option);
@@ -45,6 +46,7 @@
         if (!data) return undefined;
 
         // Add file header to first page
+        doc = new jsPDF();
         const storyHeader = `${story.name}\n${story.description}\n`;
         const currentDate = new Date();
         const dateHeader = `Downloaded on: ${currentDate.toLocaleDateString()} ${currentDate.toLocaleTimeString()}\n\n`;
@@ -66,6 +68,7 @@
                 });
             }
             doc.text(content, 10, 10); // Add text to current page
+            doc.addImage(chartImages[index], 'PNG', 15, 40, 180, 100);
             // TODO: add images/charts to current page
         });
 
@@ -98,8 +101,8 @@
     icon = {GeneratePdf}
     iconDescription={$_("tools.stories.downloadPDF")}
     tooltipPosition="top"
+    disabled={!data || data.length === 0}
     on:click= {() => {
-        console.log("Download chart data:", data);
         const fileName = formatContent(mockData);
         if (fileName) downloadData(fileName);
     }}

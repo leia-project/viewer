@@ -7,7 +7,6 @@
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
 	import ChevronDown from "carbon-icons-svelte/lib/ChevronDown.svelte";
 	import ChevronUp from "carbon-icons-svelte/lib/ChevronUp.svelte";
-	import { DocumentDownload } from "carbon-icons-svelte";
 	import "@carbon/charts-svelte/styles.css";
 
 	import type { Story } from "./Story";
@@ -27,6 +26,10 @@
 	import StoryChart from "./StoryChart/StoryChart.svelte";
 	import ChoroplethMap from "carbon-icons-svelte/lib/ChoroplethMap.svelte";
 	import StoryChartDownloadButton from "./StoryChart/StoryChartDownloadButton.svelte";
+
+	let chartImages: Array<string> = [];
+
+	$: {console.log("Chart images updated:", chartImages);}
 
 	type SubLabel = {
 		text: string;
@@ -468,18 +471,6 @@
 		return ['A', 'B', 'C', 'D', 'E'].includes(label);
 	}
 
-	async function downloadPDF() {
-		const response = await fetch('/Teksten_Conceptrapportage_Klimaatonderlegger Zeeland_Defacto.pdf');
-		const blob = await response.blob();
-
-		const url = URL.createObjectURL(blob);
-		const link = document.createElement('a');
-		link.href = url;
-		link.download = 'MyDocument.pdf';
-		link.click();
-		URL.revokeObjectURL(url); // cleanup
-	}
-
 
 	function getColorFromLabel(label: string) {
 		return labelToColor[label];
@@ -504,19 +495,10 @@
 			{#if story.requestPolygonArea}
 				{#if distributions}
 					<!-- {#if distributions.length > 0} -->
-						<StoryChartDownloadButton data={distributions} {story} />
+						<StoryChartDownloadButton bind:data={distributions} {story} bind:chartImages={chartImages} />
 					<!-- {/if} -->
 				{/if}
 			{/if}
-			<div class="download-pdf">
-				<Button
-					kind={"tertiary"}
-					iconDescription={$_("tools.stories.downloadPDF")}
-					tooltipPosition="top"
-					icon={DocumentDownload}
-					on:click={downloadPDF} 
-				/>
-			</div>
 			<div class="toggle-basemap">
 				<Button
 					kind="tertiary"
@@ -555,7 +537,6 @@
 			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={showPolygonMenu}/>
 		{/if}
 		<div class="chapter-buttons">
-			
 				{#each story.storyChapters as chapter, index}
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}
@@ -580,18 +561,6 @@
 				bind:lastInputType ={lastInputType}
 				{flattenedSteps}
 			/>
-
-			<!-- <PaginationNav
-				forwardText={textStepForward}
-				backwardText={textStepBack}
-				bind:page={$currentPage}
-				total={flattenedSteps.length}
-				{shown}
-				loop
-				onmousedown={() => {
-					lastInputType = "click";
-				}}
-			/> -->
 		</div>
 	</div>
 
@@ -608,7 +577,9 @@
 				<div class="step-heading-sub heading-03">
 					{$_("tools.stories.description")}
 				</div>
-				{@html step.html}
+				<div>
+					{@html step.html}
+				</div>
 				<!-- {#each step.layers ?? [] as layer}
 					Layer {layer.id}: {layer.featureName}
 				{/each} -->
@@ -620,7 +591,7 @@
 				<div class="step-stats">
 					{#if story.requestPolygonArea}
 						{#if distributions && distributions[index]}
-							<StoryChart data={distributions[index]} />
+							<StoryChart data={distributions[index]} bind:chartImages={chartImages}/>
 							<br><br><br>
 							{#if layerLegends[index].generalLegendText}
 								<div class="legendary-text mb">

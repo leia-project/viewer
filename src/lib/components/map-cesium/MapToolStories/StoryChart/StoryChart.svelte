@@ -12,9 +12,11 @@
     //     doc.setPage(pageIndex);
     //     doc.addImage(image, 'PNG', 15, 40, 180, 100); // Adjust position and size as needed
     // }
+
 	
 	export let data: Array<{ group: string; value: number }> | undefined;
 	export let loading: boolean = false;
+	export let chartImages: Array<string>;
 
 	let cleanData: Array<{ name: string; value: number }> = [];
 	let color: Array<string>;
@@ -87,8 +89,10 @@
 		return chartImage;
 	}
 
-	// let chartImage: string = echartsGetImage(option);
-	// TODO: Add it to the PDF doc
+	// TODO: Causes error for some reason
+	// if (chartImages) {
+    // 	chartImages = [...chartImages, echartsGetImage(option)];
+	// }
 </script>
 
 {#if loading}
