@@ -56,6 +56,13 @@
             "https://iconscout.com/free-icon/aim-183_722670",
             "Creative Commons Attribution 4"
         ), 
+        new Attribution(
+            "jsPDF",
+            "Used to generate a summary PDF based on input data in the Stories tool.",
+            "parallax",
+            "https://github.com/parallax/jsPDF",
+            "MIT"
+        )
     );
 
     $: att = [...attribution, ...tostiAttribution];
