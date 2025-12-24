@@ -3,7 +3,7 @@
 	import * as Cesium from "cesium";
 	import { onMount, getContext, onDestroy, createEventDispatcher } from "svelte";
 	import { writable, get, type Writable } from "svelte/store";
-	import { Button, PaginationNav, Tag, Loading } from "carbon-components-svelte";
+	import { Button, Tag, SliderSkeleton } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
 	import ChevronDown from "carbon-icons-svelte/lib/ChevronDown.svelte";
 	import ChevronUp from "carbon-icons-svelte/lib/ChevronUp.svelte";
@@ -26,6 +26,7 @@
 	import { polygonStore } from './PolygonEntityStore';
 	import StoryChart from "./StoryChart.svelte";
 	import ChoroplethMap from "carbon-icons-svelte/lib/ChoroplethMap.svelte";
+	import StoryOpacitySlider from "./StoryOpacitySlider.svelte";
 
 	type SubLabel = {
 		text: string;
@@ -113,6 +114,7 @@
 		}
 	}
 	
+
 	// Fly to polygon entity when its drawn
 	const unsubscribePolygonEntity = polygonStore.subscribe(polygon => {
 		if (polygon?.polygonEntity) {
@@ -137,6 +139,7 @@
 		}
 	});
 
+
 	// Flatten the steps across all chapters so we can access the correct step based on the index
 	let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
 		story.storyChapters.forEach((chapter) => {
@@ -144,6 +147,7 @@
 				flattenedSteps.push({ step, chapter });
 			});
 		});
+
 
 	onMount(() => {
 		if (story.force2DMode) {
@@ -190,6 +194,7 @@
 		baseLayer = undefined;
 	});
 
+
 	function copyLayerById(id: string): Layer | undefined {
 		const originalLayer = getLayerById(id);
 		const libraryLayer = getLibraryLayer(id);
@@ -203,17 +208,19 @@
 			isBackground: libraryLayer.isBackground,
 			defaultOn: true,
 			defaultAddToManager: true,
-			opacity: libraryLayer.opacity,
+			opacity: libraryLayer.opacity ?? 100,
 		});
 
 		const newLayer = map.addLayer(config);
 		return newLayer;
 	}
 
+
 	function getLayerById(id: string): Layer | undefined {
 		const layers = get(map.layers);
 		return layers.find(layer => layer.id === id);
 	}
+
 
 	function onScroll() {
 		if (lastInputType === "scroll") {
@@ -274,7 +281,6 @@
 					if (libraryLayer) {
 						const layerConfig = storyLayerToLayerConfig(activeStep.layers[i], libraryLayer);
 						const layer = map.addLayer(layerConfig);
-						console.log("hiiding layer:", layer.id);
 
 						if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
 							// No polyon drawn but is required
@@ -343,9 +349,7 @@
 			lc.settings.defaultTheme = storyLayer.style;	
 		}
 
-		if (storyLayer.opacity) {
-			lc.opacity = storyLayer.opacity;
-		}
+		lc.opacity = storyLayer.opacity ?? layerConfig.opacity;
 
 		return lc;
 	}
@@ -679,6 +683,20 @@
 						{/if}
 					{/if}
 				</div>
+				<div class="opacity-controls">
+					{#each step.layers ?? [] as layer}
+						{#await (async () => {
+							while (!getAdded(layer.id.toString())) {
+								await new Promise(r => setTimeout(r, 100));
+							}
+							return getAdded(layer.id.toString());
+						})() then addedLayer}
+							<StoryOpacitySlider layer={addedLayer} />
+						{:catch}
+							<SliderSkeleton hideLabel />
+						{/await}
+					{/each}
+				</div>
 				<div class="tag">
 					<Tag>{chapter.title}</Tag>
 					<Tag>{index + 1}</Tag>
@@ -786,6 +804,10 @@
 	.step--active {
 		opacity: 1;
 		background: var(--cds-ui-02);
+	}
+
+	.opacity-controls {
+		margin-top: 0.5rem;
 	}
 
 	.tag {
