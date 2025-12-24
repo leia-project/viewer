@@ -2,6 +2,7 @@
     import { getContext } from "svelte";
     import { MapToolMenuOption } from "../../MapToolMenu/MapToolMenuOption";
     import LayerManagerGroups from "$lib/components/ui/components/MapTools/MapToolLayerManager/LayerManagerGroups.svelte";
+	import CesiumBackgroundControls from "$lib/components/map-cesium/CesiumBackgroundControls.svelte";
 
     import Layers from "carbon-icons-svelte/lib/Layers.svelte";
     import { RadioButtonGroup, RadioButton, Accordion } from "carbon-components-svelte";    
@@ -13,19 +14,30 @@
     import { LayerManagerGroup } from "$lib/components/map-core/layer-manager-group"
 	import type { LayerLibrary } from "$lib/components/map-core/layer-library";
 	import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
+
+    import { _ } from "svelte-i18n";
+
     const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-    let id: string = "layermanager";
+    let id: string = "layerManager";
     export let icon: any = Layers;
-    export let label: string = "Layermanager";
+    export let label: string | undefined;
     export let layers: Array<Layer>;
     export let library: LayerLibrary;
-    export let textBaselayers: string = "Baselayers";
-    export let textThematicLayers: string = "Thematic layers";
+    
     let textMyLayers: string = "My layers";
     let textDragDroppedLayers: string = "Drag and dropped layers";
-    export let textOpacity: string = "Opacity:";
-    export let textLegend: string = "Legend";
+    
+    export let textBaselayers: string;
+    export let textThematicLayers: string;
+    export let textOpacity: string;
+    export let textLegend: string;
+
+    $: label = label ?? $_("tools.layerManager.label")
+    $: textBaselayers = $_("tools.layerManager.baseLayers");
+    $: textThematicLayers = $_("tools.layerManager.thematicLayer");
+    $: textOpacity = $_("tools.layerManager.opacity");
+    $: textLegend = $_("tools.layerManager.legend");
 
     // register this tool
     let tool = new MapToolMenuOption(id, icon, label);
@@ -129,7 +141,9 @@
             {/each}
         </RadioButtonGroup>
 
-        <slot name="backgroundControls" />
+        <CesiumBackgroundControls
+			textOpacity={$_("tools.backgroundControls.opacity")}
+		/>
 
 		<div class="bx--label thematic-label">
 			{textThematicLayers}

@@ -11,21 +11,29 @@
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-	export let label: string = "Flooding";
-	export let scenario: string = "Scenario";
-	export let chosenBreach: string = "Chosen breach";
-	export let noBreachSelected: string = "No breach selected";
-	export let otherBreaches: string = "Other breaches";
-	export let searchBreach: string = "Search for a breach";
-	export let noResults: string = "No results";
+	export let label: string | undefined;
+  	export let scenario: string;
+  	export let chosenBreach: string;
+	export let noBreachSelected: string;
+	export let otherBreaches: string;
+	export let searchBreach: string;
+	export let noResults: string;
+
+  	$: label = label ?? $_('tools.flooding.label');
+  	$: scenario = $_('tools.flooding.scenario');
+  	$: chosenBreach = $_('tools.flooding.chosenBreach');
+	$: noBreachSelected = $_('tools.flooding.noBreachSelected');
+	$: otherBreaches = $_('tools.flooding.otherBreaches');
+	$: searchBreach = $_('tools.flooding.searchBreach');
+	$: noResults = $_('tools.flooding.noResults');
 
 	const id: string = "flooding";
 	const icon: any = WaveHeight;
 	const showOnBottom: boolean = false;
 
 	const tool = new MapToolMenuOption(id, icon, label, showOnBottom);
+	$: { tool.label.set(label); }
 	registerTool(tool);
-
 
 	const selectedScenario: Writable<string | undefined> = writable(undefined);
 

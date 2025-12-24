@@ -531,7 +531,7 @@
 						kind={"primary"}
 						iconDescription={showPolygonMenu ? `${$_("general.open")} ${$_("tools.stories.projectAreaTool")}` : `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
 						tooltipPosition="top"
-						icon={$showPolygonMenu ? ChevronDown : ChevronUp}
+						icon={$showPolygonMenu ? ChevronUp : ChevronDown}
 						on:click={() => $showPolygonMenu = !$showPolygonMenu} 
 					/>
 				</div>
@@ -629,7 +629,7 @@
 							<ul>
 								{#if layerLegends[index].legendOptions}
 									{#each layerLegends[index].legendOptions as legendEntry}
-										{#if shouldShowLegend(legendEntry, distributions[index])}
+										<!--{#if shouldShowLegend(legendEntry, distributions[index])}-->
 											<li style="margin-bottom: 2rem;">
 												<div style=" display: grid; grid-template-columns: 5rem 1fr;">
 													{#if legendEntry.labels}
@@ -652,7 +652,7 @@
 													<ul>
 														{#each Array.from(legendEntry.labels) as label}
 															{#if isLabel(label) && legendEntry.subLabels[label]}
-																{#if distributions[index].find(d => d.group === label && d.value > 0)}
+																<!--{#if distributions[index].find(d => d.group === label && d.value > 0)}-->
 																	<li class="legend-letter-with-text legendary-text">
 																		<!-- Image before text per sublabel -->
 																		<div class="legend-letter legend-letter-s" style="background-color: {getColorFromLabel(label)};">
@@ -662,13 +662,13 @@
 																			{legendEntry.subLabels[label].text}
 																		</div>
 																	</li>
-																{/if}
+																<!--{/if}-->
 															{/if}
 														{/each}
 													</ul>
 												{/if}
 											</li>
-										{/if}
+										<!--{/if}-->
 									{/each}
 								{/if}
 							</ul>

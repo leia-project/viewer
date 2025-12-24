@@ -6,13 +6,19 @@
 
     import type { MouseLocation } from "$lib/components/map-core/mouse-location";
     import { FeatureInfoRequestOptions } from "$lib/components/map-core/FeatureInfo/feature-info-request-options";
+    
+    import { _ } from "svelte-i18n";
 
     const { registerTool, map, getMapContainer } = getContext<any>("mapTools");
 
     let id: string = "featureinfo";
     export let icon: any = Information;
-    export let label: string = "Feature Info";
-    export const textNoData: string = "No Data, Click on the map to request Feature Info";
+    
+    export let label: string;
+    export let textNoData: string;
+
+    $: label = $_("tools.featureInfo.label");
+    $: textNoData = $_("tools.featureInfo.noData");
 
     let featureInfoView: FeatureInfoView | undefined = undefined;
     let tool = new MapToolMenuOption(id, icon, label, false, undefined, false);
