@@ -82,13 +82,10 @@
             console.warn(errorMessage);
             return false;
         } else {
+            errorMessage = "";
             return true;
         }
     }
-    
-    errorMessage = "";
-    return true;
-}
     
     function transformDistribution(distribution: Record<string, number>): { group: string; value: number }[] {
 		const result: { group: string; value: number }[] = [];
