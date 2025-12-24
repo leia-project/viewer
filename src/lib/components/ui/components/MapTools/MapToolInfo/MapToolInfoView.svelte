@@ -50,12 +50,19 @@
             "MIT"
         ),
         new Attribution(
-                     "Aim Logo Icon",
+            "Aim Logo Icon",
             "Used as a position selection marker for the human perspective.",
             "Pixel Icons",
             "https://iconscout.com/free-icon/aim-183_722670",
             "Creative Commons Attribution 4"
         ), 
+        new Attribution(
+            "gdal3.js",
+            "Used for geopackage data processing.",
+            "bugra9",
+            "https://github.com/bugra9/gdal3.js",
+            "LGPL-2.1 license"
+        )
     );
 
     $: att = [...attribution, ...tostiAttribution];
