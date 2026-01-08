@@ -1,19 +1,42 @@
 import * as charts from 'echarts';
+import { exportDataPages } from './StoryChart/StoryChartExportDataPages';
 
 
-export function echarts(node: any, option: any) {
+export function echarts(node: any, params: { option: charts.EChartsOption; index: number; dataDefined: boolean }) {
 	const chart: charts.ECharts = charts.init(node);
-	chart.setOption(option);
-	const chartImage: string = chart.getDataURL({
-		type: 'png',
-		pixelRatio: 2,
-		backgroundColor: '#fff',
-    });
-}
+	chart.setOption(params.option);
+	if (params.dataDefined) {
+		setTimeout(() => { // Wait for chart animation to finish
+			exportDataPages.update(dataPages => {
+				let page = dataPages.pages.find(p => p.index === params.index);
+				if (!page) {
+					page = { index: params.index, content: undefined, image: echartsGetImage(chart) };
+					dataPages.pages.push(page);
+				}
+				else {
+					page.image = echartsGetImage(chart);
+				}
+				return dataPages;
+			});
+		}, 1000);
+	}
+};
 
 
 export function echartsLoading(node: any, option: any) {
 	const chart: charts.ECharts = charts.init(node);
 	chart.showLoading();
 	chart.setOption(option);
-}
+};
+
+
+function echartsGetImage(chart: charts.ECharts): string {
+	// const chart: charts.ECharts = charts.init();
+	const chartImage: string = chart.getDataURL({
+		type: 'png',
+		pixelRatio: 2,
+		backgroundColor: '#fff',
+	});
+
+	return chartImage;
+};

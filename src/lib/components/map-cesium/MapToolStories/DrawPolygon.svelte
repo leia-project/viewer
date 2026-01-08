@@ -13,6 +13,7 @@
 	import { get, type Writable } from "svelte/store";
     import { onMount, onDestroy } from 'svelte';
     import { polygonStore } from './PolygonEntityStore';
+    import { exportDataPages } from "./StoryChart/StoryChartExportDataPages";
  
     export let map: Map;
     export let story: Story;
@@ -315,13 +316,17 @@
             icon={TrashCan}
             disabled={!isDrawing && !hasDrawnPolygon}
             on:click={() => {
-            deletePolygon();
-            polygonStore.set({
-                polygonEntity: null,
-                redPoints: [],
-                distributions: []
-            });
-            hasDrawnPolygon = false;
+                deletePolygon();
+                polygonStore.set({
+                    polygonEntity: null,
+                    redPoints: [],
+                    distributions: []
+                });
+                hasDrawnPolygon = false;
+                exportDataPages.set({
+                    pages: [],
+                    ready: false
+                });
             }}
         >
             {$_("tools.stories.deletePolygon")}

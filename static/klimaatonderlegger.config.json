@@ -833,7 +833,7 @@
                         "staticCamera": true,
                         "requestPolygonArea": {
                             "enabled": true,
-                            "statisticsApi": "https://virtueel.dev.zeeland.nl/ko_api/analyze"
+                            "statisticsApi": "http://localhost:8000/analyze"
                         },
                         "baseLayerId": "001",
                         "chapters": [

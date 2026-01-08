@@ -26,10 +26,8 @@
 	import StoryChart from "./StoryChart/StoryChart.svelte";
 	import ChoroplethMap from "carbon-icons-svelte/lib/ChoroplethMap.svelte";
 	import StoryChartDownloadButton from "./StoryChart/StoryChartDownloadButton.svelte";
+	import { exportDataPages } from "./StoryChart/StoryChartExportDataPages";
 
-	let chartImages: Array<string> = [];
-
-	$: {console.log("Chart images updated:", chartImages);}
 
 	type SubLabel = {
 		text: string;
@@ -493,11 +491,9 @@
 		</div>
 		<div class="nav-controls">
 			{#if story.requestPolygonArea}
-				{#if distributions}
 					<!-- {#if distributions.length > 0} -->
-						<StoryChartDownloadButton bind:data={distributions} {story} bind:chartImages={chartImages} />
+						<StoryChartDownloadButton bind:data={distributions} {story} />
 					<!-- {/if} -->
-				{/if}
 			{/if}
 			<div class="toggle-basemap">
 				<Button
@@ -591,7 +587,7 @@
 				<div class="step-stats">
 					{#if story.requestPolygonArea}
 						{#if distributions && distributions[index]}
-							<StoryChart data={distributions[index]} bind:chartImages={chartImages}/>
+							<StoryChart data={distributions[index]} { index } />
 							<br><br><br>
 							{#if layerLegends[index].generalLegendText}
 								<div class="legendary-text mb">
@@ -645,9 +641,9 @@
 								{/if}
 							</ul>
 						{:else if $hasDrawnPolygon}
-							<StoryChart data={undefined} loading={true} />
+							<StoryChart data={undefined} { index } loading={true} />
 						{:else}
-							<StoryChart data={undefined} />
+							<StoryChart data={undefined} { index } />
 						{/if}
 					{/if}
 				</div>

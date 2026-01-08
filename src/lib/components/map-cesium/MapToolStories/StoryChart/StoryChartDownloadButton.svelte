@@ -6,33 +6,13 @@
 	import type { StoryChapter } from "../StoryChapter";
 	import type { Story } from "../Story";
     import { jsPDF } from "jspdf";
+    import { exportDataPages } from "./StoryChartExportDataPages";
+	import { get } from "svelte/store";
 
     export let data: Array<{ group: string; value: number }[]>;
     export let story: Story;
 
     let doc: jsPDF;
-    export let chartImages: Array<string>;
-
-    // import { option } from "./StoryChart.svelte";
-    // console.log("Imported chart option:", option);
-
-    // Make some mock data
-    let mockData: Array<{ group: string; value: number }[]> = [
-        [
-            { group: "A", value: 10 },
-            { group: "B", value: 20 },
-            { group: "C", value: 30 },
-        ],
-        [
-            { group: "A", value: 15 },
-            { group: "B", value: 25 },
-            { group: "C", value: 35 },
-        ],
-        [
-            { group: "A", value: 5 },
-            { group: "B", value: 10 }
-        ],
-    ];
 
     // Flatten the steps across all chapters so we can access the correct step based on the index
 	let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
@@ -41,6 +21,7 @@
 			flattenedSteps.push({ step, chapter });
 		});
 	});
+
 
     function formatContent(data: Array<{ group: string; value: number }[]>) {
         if (!data) return undefined;
@@ -61,15 +42,32 @@
             content += `Chapter: ${chapter.title}\n`;
             content += `Step: ${step.title}\n`;
             
-            // Add all groups and values for this data point
+            // Add all groups and values for this data point as percentages
             if (data[index]) {
+                const total = data[index].reduce((sum, item) => sum + item.value, 0);
                 data[index].forEach(item => {
-                    content += `${item.group}: ${item.value}\n`;
+                    const percentage = total > 0 ? ((item.value / total) * 100).toFixed(2) : '0.00';
+                    content += `${item.group}: ${percentage}%\n`;
                 });
             }
+
+            //add content to exportDataPages store
+            exportDataPages.update(dataPages => {
+                let existingPage = dataPages.pages.find(page => page.index === index);
+                if (!existingPage) {
+                    dataPages.pages.push({ index, content: content, image: undefined });
+                }
+                else {
+                    existingPage.content = content;
+                }
+                return dataPages;
+            });
+
             doc.text(content, 10, 10); // Add text to current page
-            doc.addImage(chartImages[index], 'PNG', 15, 40, 180, 100);
-            // TODO: add images/charts to current page
+
+            const image = get(exportDataPages).pages.find(page => page.index === index)?.image;
+            if (image) doc.addImage(image, 'PNG', 15, 80, 180, 100);
+            // doc.addImage(chartImages[index], 'PNG', 15, 40, 180, 100);
         });
 
         const token = randomFilenameToken();
@@ -77,6 +75,7 @@
 
         return fileName;
     }
+
 
     function downloadData(fileName: string) {
         doc.save(fileName + '.pdf');
@@ -92,21 +91,23 @@
 
     export function addChartImageToPage(image: any, pageIndex: number) {
         doc.setPage(pageIndex);
-        doc.addImage(image, 'PNG', 15, 40, 180, 100); // Adjust position and size as needed
+        doc.addImage(image, 'JPEG', 150, 1000, 180, 100); // Adjust position and size as needed
     }
 </script>
 
+<!-- disabled={!$exportDataPages.ready} -->
 <Button
     kind={"tertiary"}
     icon = {GeneratePdf}
     iconDescription={$_("tools.stories.downloadPDF")}
     tooltipPosition="top"
-    disabled={!data || data.length === 0}
+    disabled={!data}
     on:click= {() => {
-        const fileName = formatContent(mockData);
+        const fileName = formatContent(data);
         if (fileName) downloadData(fileName);
     }}
 />
+
 <style>
 
 </style>

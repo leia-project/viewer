@@ -2,8 +2,11 @@
 	import type { EChartsOption } from 'echarts';
 	import { echarts, echartsLoading } from '../echarts';
 	import * as charts from 'echarts';
+	import { exportDataPages } from './StoryChartExportDataPages';
 
 	import { _ } from "svelte-i18n";
+	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
 
 	// import { doc } from "./StoryChartDownloadButton.svelte";
 	// $: { console.log("Imported doc:", doc.getCreationDate()) };
@@ -16,19 +19,24 @@
 	
 	export let data: Array<{ group: string; value: number }> | undefined;
 	export let loading: boolean = false;
-	export let chartImages: Array<string>;
+	export let index: number;
+	// export let chartImages: Array<string>;
 
 	let cleanData: Array<{ name: string; value: number }> = [];
 	let color: Array<string>;
 	let toolTipText: string;
+	let dataDefined: boolean;
+
 
 	if (data) {
+		dataDefined = true;
 		// Change name 'group' to 'name' for compatibility with echarts
 		cleanData = data.map(item => ({ name: item.group, value: item.value }));
 		color = ['#339966', '#99ffcc', '#ffff99', '#ffcc66', '#9c4110']; // A B C D E colors
 		toolTipText = '{b}: {d}%'; // Show group name and percentage
 	}
 	else {
+		dataDefined = false;
 		cleanData = [
 			{ name: $_("tools.stories.storyChartNoData"), value: 0 }
 		];
@@ -77,28 +85,19 @@
 		]
 	};
 
-	function echartsGetImage(option: EChartsOption): string {
-		const chart: charts.ECharts = charts.init();
-		chart.setOption(option);
-		const chartImage: string = chart.getDataURL({
-			type: 'png',
-			pixelRatio: 2,
-			backgroundColor: '#fff',
-		});
-
-		return chartImage;
-	}
-
-	// TODO: Causes error for some reason
-	// if (chartImages) {
-    // 	chartImages = [...chartImages, echartsGetImage(option)];
+	
+	
+	// $: if (data) {
+	// 	console.log("Generating chart image for index:", index);
+	// 	exportDataPages.update(dataPages => (dataPages.pages[index].image = echartsGetImage(option), dataPages));
+	// 	console.log("Updated exportDataPages store:", get(exportDataPages));
 	// }
 </script>
 
 {#if loading}
 	<div class={"container"} use:echartsLoading={option} />
 {:else}
-	<div class={"container"} use:echarts={option} />
+	<div class={"container"} use:echarts={{ option: option, index: index, dataDefined: dataDefined }} />
 {/if}
 
 <style>
