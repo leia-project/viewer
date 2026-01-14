@@ -407,7 +407,7 @@
                             const options = ['-f', 'GeoJSON', '-t_srs', 'EPSG:4326'];
                             const outPath = await Gdal.ogr2ogr(result, options);
                             const bytes = await Gdal.getFileBytes(outPath);
-                            let geojson = JSON.parse(new TextDecoder("utf-8").decode(bytes)).features[0];
+                            geojson = JSON.parse(new TextDecoder("utf-8").decode(bytes)).features[0];
                             if (geojson.geometry && geojson.geometry.type === "Polygon") {
                                 const coords = geojson.geometry.coordinates[0];
                                 const positions = coords.map(([lng, lat]: [number, number]) =>
