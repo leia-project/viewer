@@ -324,8 +324,7 @@
                 });
                 hasDrawnPolygon = false;
                 exportDataPages.set({
-                    pages: [],
-                    ready: false
+                    pages: []
                 });
             }}
         >

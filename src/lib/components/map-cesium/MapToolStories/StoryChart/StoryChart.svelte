@@ -1,26 +1,12 @@
 <script lang="ts">
 	import type { EChartsOption } from 'echarts';
 	import { echarts, echartsLoading } from '../echarts';
-	import * as charts from 'echarts';
-	import { exportDataPages } from './StoryChartExportDataPages';
-
 	import { _ } from "svelte-i18n";
-	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
-
-	// import { doc } from "./StoryChartDownloadButton.svelte";
-	// $: { console.log("Imported doc:", doc.getCreationDate()) };
-
-	// function addChartImageToPage(image: any, pageIndex: number) {
-    //     doc.setPage(pageIndex);
-    //     doc.addImage(image, 'PNG', 15, 40, 180, 100); // Adjust position and size as needed
-    // }
 
 	
 	export let data: Array<{ group: string; value: number }> | undefined;
 	export let loading: boolean = false;
 	export let index: number;
-	// export let chartImages: Array<string>;
 
 	let cleanData: Array<{ name: string; value: number }> = [];
 	let color: Array<string>;
@@ -80,18 +66,11 @@
 				labelLine: {
 					show: false
 				},
-				data: cleanData
+				data: cleanData,
+				animationDuration: 0,
 			}
 		]
 	};
-
-	
-	
-	// $: if (data) {
-	// 	console.log("Generating chart image for index:", index);
-	// 	exportDataPages.update(dataPages => (dataPages.pages[index].image = echartsGetImage(option), dataPages));
-	// 	console.log("Updated exportDataPages store:", get(exportDataPages));
-	// }
 </script>
 
 {#if loading}

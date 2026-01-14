@@ -8,9 +8,13 @@
     import { jsPDF } from "jspdf";
     import { exportDataPages } from "./StoryChartExportDataPages";
 	import { get } from "svelte/store";
+    import type { LegendItem, LegendOptions } from "../LegendOptions";
+	import type { Map } from "../../module/map";
 
     export let data: Array<{ group: string; value: number }[]>;
     export let story: Story;
+    export let layerLegends: Array<LegendOptions>;
+    export let map: Map;
 
     let doc: jsPDF;
 
@@ -21,6 +25,9 @@
 			flattenedSteps.push({ step, chapter });
 		});
 	});
+    const storyLength = flattenedSteps.length;
+
+    $: disableDownloadButton = $exportDataPages.pages.length < storyLength || $exportDataPages.pages.some(page => page.image === undefined);
 
 
     function formatContent(data: Array<{ group: string; value: number }[]>) {
@@ -28,58 +35,131 @@
 
         // Add file header to first page
         doc = new jsPDF();
-        const storyHeader = `${story.name}\n${story.description}\n`;
+
+        setHeadingFont(doc);
+        let frontPageContent = `${story.name}\n${story.description}\n`;
         const currentDate = new Date();
-        const dateHeader = `Downloaded on: ${currentDate.toLocaleDateString()} ${currentDate.toLocaleTimeString()}\n\n`;
-        const headerContent = storyHeader + dateHeader;
-        doc.text(headerContent, 10, 10);
+        const dateHeader = `Downloaded on: ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}\n\n`;
+        frontPageContent += dateHeader;
+        addSplitText(doc, frontPageContent, 15, 15, 180);
+
+        const canvas = map.viewer.canvas;
+        const mapImage = canvas.toDataURL("image/jpeg", 1.0);
+        const aspectRatio = canvas.width / canvas.height;
+        const imageHeight = 120;
+        const imageWidth = imageHeight * aspectRatio;
+        doc.addImage(mapImage, 'JPEG', 15, 60, imageWidth, imageHeight);
 
         // Loop through each step and add data to seperate pages
+        // Use seperate page for each step's text and image
         flattenedSteps.forEach((flattenedStep, index) => {
-            doc.addPage(); // Add a new page for each step
-            let content = '';
             const { step, chapter } = flattenedStep;
-            content += `Chapter: ${chapter.title}\n`;
-            content += `Step: ${step.title}\n`;
+            doc.addPage();
+
+            // Page header
+            setHeadingFont(doc);
+            let stepHeader = `${chapter.title}\n`;
+            stepHeader += `Step: ${step.title}\n`;
+            addSplitText(doc, stepHeader, 15, 15, 180);
+
+            // Page content
+            setNormalFont(doc);
+            let content = '';
+            const generalLegendText = (layerLegends[index]?.generalLegendText || '').replace(/<[^>]*>/g, ''); // Strip HTML tags
+            if (generalLegendText) content += `${generalLegendText}\n\n`;
+
+            const legendItems = layerLegends[index]?.legendOptions || undefined;
+            if (legendItems) {
+                content += `Legend labels:\n`;
+                legendItems.forEach((item: LegendItem) => {
+                    const labels = item.labels || 'N/A';
+                    const labelWord = labels.length > 1 ? 'Labels' : 'Label';
+                    const formattedLabels = labels.length > 1 
+                        ? labels.split('').join(', ') 
+                        : labels;
+                    content += `* ${labelWord}: ${formattedLabels}\n`;
+
+                    const text = item.text || 'N/A';
+                    content += `${text}\n\n`;
+
+                    const subLabels = item.subLabels;
+                    if (subLabels && typeof subLabels === 'object') {
+                        Object.entries(subLabels).forEach(([key, value]) => {
+                            content += `\t- ${key}: ${value.text}\n\n`;
+                        });
+                    }
+                });
+            };
             
             // Add all groups and values for this data point as percentages
             if (data[index]) {
+                content += `Class distribution:\n`;
                 const total = data[index].reduce((sum, item) => sum + item.value, 0);
                 data[index].forEach(item => {
                     const percentage = total > 0 ? ((item.value / total) * 100).toFixed(2) : '0.00';
                     content += `${item.group}: ${percentage}%\n`;
                 });
-            }
+            };
 
-            //add content to exportDataPages store
-            exportDataPages.update(dataPages => {
-                let existingPage = dataPages.pages.find(page => page.index === index);
-                if (!existingPage) {
-                    dataPages.pages.push({ index, content: content, image: undefined });
-                }
-                else {
-                    existingPage.content = content;
-                }
-                return dataPages;
-            });
+            // Add text to page
+            addSplitText(doc, content, 15, 30, 180); 
 
-            doc.text(content, 10, 10); // Add text to current page
-
+            // Add image to new page
             const image = get(exportDataPages).pages.find(page => page.index === index)?.image;
-            if (image) doc.addImage(image, 'PNG', 15, 80, 180, 100);
-            // doc.addImage(chartImages[index], 'PNG', 15, 40, 180, 100);
+            if (image) {
+                doc.addPage(); 
+                setHeadingFont(doc);
+                addSplitText(doc, stepHeader, 15, 15, 180);
+                doc.addImage(image, 'PNG', 15, 30, 198, 110);
+            }
         });
 
         const token = randomFilenameToken();
         const fileName = story.name + '_data_' + token;
 
         return fileName;
-    }
+    };
+
+    
+    function addSplitText(doc: jsPDF, text: string, x: number = 15, y: number = 15, maxWidth: number = 180) {
+        const splitText = doc.splitTextToSize(text, maxWidth);
+        doc.text(splitText, x, y);
+    };
+
+
+    function setHeadingFont(doc: jsPDF) {
+        doc.setFontSize(18);
+        doc.setFont("helvetica", "bold");
+    };
+
+
+    function setNormalFont(doc: jsPDF) {
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+    };
 
 
     function downloadData(fileName: string) {
         doc.save(fileName + '.pdf');
-    }
+        cleanupMemory();
+    };
+
+
+    function cleanupMemory() {
+        if (doc) {
+            doc = null as any;
+        }
+
+        // Clear all stored images from the exportDataPages store
+        exportDataPages.update(state => ({
+            ...state,
+            pages: state.pages.map(page => ({
+                ...page,
+                image: undefined
+            }))
+        }));
+    };
+
 
     // Random filename token string generator
     function randomFilenameToken(length: number = 8) {
@@ -87,21 +167,16 @@
         const bytes = new Uint8Array(length);
         crypto.getRandomValues(bytes);
         return Array.from(bytes, b => chars[b % chars.length]).join('');
-    }
+    };
 
-    export function addChartImageToPage(image: any, pageIndex: number) {
-        doc.setPage(pageIndex);
-        doc.addImage(image, 'JPEG', 150, 1000, 180, 100); // Adjust position and size as needed
-    }
 </script>
 
-<!-- disabled={!$exportDataPages.ready} -->
 <Button
     kind={"tertiary"}
     icon = {GeneratePdf}
     iconDescription={$_("tools.stories.downloadPDF")}
     tooltipPosition="top"
-    disabled={!data}
+    disabled={disableDownloadButton}
     on:click= {() => {
         const fileName = formatContent(data);
         if (fileName) downloadData(fileName);

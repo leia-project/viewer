@@ -26,26 +26,8 @@
 	import StoryChart from "./StoryChart/StoryChart.svelte";
 	import ChoroplethMap from "carbon-icons-svelte/lib/ChoroplethMap.svelte";
 	import StoryChartDownloadButton from "./StoryChart/StoryChartDownloadButton.svelte";
-	import { exportDataPages } from "./StoryChart/StoryChartExportDataPages";
+	import type { SubLabel, LegendItem, LegendOptions } from "./LegendOptions";
 
-
-	type SubLabel = {
-		text: string;
-		hoverText: string;
-	};
-
-	type LegendItem = {
-		labels: string;
-		text: string;
-		subLabels?: {
-			[key: string]: SubLabel;
-		};
-	};
-
-	type LegendOptions = {
-		generalLegendText: string;
-		legendOptions: LegendItem[];
-	};
 
 	export let map: Map;
 	export let story: Story;
@@ -492,7 +474,7 @@
 		<div class="nav-controls">
 			{#if story.requestPolygonArea}
 					<!-- {#if distributions.length > 0} -->
-						<StoryChartDownloadButton bind:data={distributions} {story} />
+						<StoryChartDownloadButton bind:data={distributions} {story} {layerLegends} {map}/>
 					<!-- {/if} -->
 			{/if}
 			<div class="toggle-basemap">

@@ -4,6 +4,7 @@
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 
 	import type { Map } from "../module/map";
+	import type { LegendOptions } from "./LegendOptions";
 
 	import Book from "carbon-icons-svelte/lib/Book.svelte";
 	import { StoryStep } from "./StoryStep";
@@ -33,13 +34,6 @@
 
 	let tool = new MapToolMenuOption(id, icon, label);
 	const layers = cesiumMap.layers;
-
-	type LegendOptions = {
-		generalLegendText: string;
-		legendOptions: {
-			[key: string]: string;
-		};
-	};
 	const layerLegends: Array<LegendOptions> = [];
 
 	$: { tool.label.set(label); }

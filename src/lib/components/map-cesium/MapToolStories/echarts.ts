@@ -6,19 +6,17 @@ export function echarts(node: any, params: { option: charts.EChartsOption; index
 	const chart: charts.ECharts = charts.init(node);
 	chart.setOption(params.option);
 	if (params.dataDefined) {
-		setTimeout(() => { // Wait for chart animation to finish
-			exportDataPages.update(dataPages => {
-				let page = dataPages.pages.find(p => p.index === params.index);
-				if (!page) {
-					page = { index: params.index, content: undefined, image: echartsGetImage(chart) };
-					dataPages.pages.push(page);
-				}
-				else {
-					page.image = echartsGetImage(chart);
-				}
-				return dataPages;
-			});
-		}, 1000);
+		exportDataPages.update(dataPages => {
+			let page = dataPages.pages.find(p => p.index === params.index);
+			if (!page) {
+				page = { index: params.index, image: echartsGetImage(chart) };
+				dataPages.pages.push(page);
+			}
+			else {
+				page.image = echartsGetImage(chart);
+			}
+			return dataPages;
+		});
 	}
 };
 
