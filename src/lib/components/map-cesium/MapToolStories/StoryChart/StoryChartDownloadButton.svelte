@@ -58,19 +58,25 @@
 
             // Page header
             setHeadingFont(doc);
-            let stepHeader = `${chapter.title}\n`;
-            stepHeader += `Step: ${step.title}\n`;
-            addSplitText(doc, stepHeader, 15, 15, 180);
+            let stepHeader = `${chapter.title} - ${step.title}\n`;
+            addSplitText(doc, stepHeader, 15, 20, 180);
 
             // Page content
             setNormalFont(doc);
             let content = '';
+
+            const stepDescription = step.html || '';
+            if (stepDescription) {
+                const cleanedDescription = stepDescription.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
+                content += `${cleanedDescription}\n\n`;
+            }
+
             const generalLegendText = (layerLegends[index]?.generalLegendText || '').replace(/<[^>]*>/g, ''); // Strip HTML tags
             if (generalLegendText) content += `${generalLegendText}\n\n`;
 
             const legendItems = layerLegends[index]?.legendOptions || undefined;
             if (legendItems) {
-                content += `Legend labels:\n`;
+                content += `\nHandelingsperspectief\n\n`;
                 legendItems.forEach((item: LegendItem) => {
                     const labels = item.labels || 'N/A';
                     const labelWord = labels.length > 1 ? 'Labels' : 'Label';
@@ -90,18 +96,9 @@
                     }
                 });
             };
-            
-            // Add all groups and values for this data point as percentages
-            if (data[index]) {
-                content += `Class distribution:\n`;
-                const total = data[index].reduce((sum, item) => sum + item.value, 0);
-                data[index].forEach(item => {
-                    const percentage = total > 0 ? ((item.value / total) * 100).toFixed(2) : '0.00';
-                    content += `${item.group}: ${percentage}%\n`;
-                });
-            };
 
             // Add text to page
+            content = content.trim();
             addSplitText(doc, content, 15, 30, 180); 
 
             // Add image to new page
@@ -109,8 +106,21 @@
             if (image) {
                 doc.addPage(); 
                 setHeadingFont(doc);
-                addSplitText(doc, stepHeader, 15, 15, 180);
+                addSplitText(doc, stepHeader, 15, 20, 180);
                 doc.addImage(image, 'PNG', 15, 30, 198, 110);
+
+                // Add all groups and values for this data point as percentages
+                if (data[index]) {
+                    setSubheadingFont(doc);
+                    let legendText = `Percentage per klasse:\n`;
+                    const total = data[index].reduce((sum, item) => sum + item.value, 0);
+                    data[index].forEach(item => {
+                        const percentage = total > 0 ? ((item.value / total) * 100).toFixed(2) : '0.00';
+                        legendText += `${item.group}: ${percentage}%\n`;
+                    });
+                    // Add legend text to page
+                    addSplitText(doc, legendText, 15, 150, 180); 
+                };
             }
         });
 
@@ -133,8 +143,14 @@
     };
 
 
+    function setSubheadingFont(doc: jsPDF) {
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+    };
+
+
     function setNormalFont(doc: jsPDF) {
-        doc.setFontSize(12);
+        doc.setFontSize(10);
         doc.setFont("helvetica", "normal");
     };
 
