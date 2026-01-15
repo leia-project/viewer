@@ -113,13 +113,13 @@ export class FeatureInfoHandler {
             for (let x = 0; x < propNames.length; x++) {
                 records.push(new FeatureInfoRecord(propNames[x], props[propNames[x]]));
             }
-            return new FeatureInfo(entity.name ?? "", records);
+            return new FeatureInfo(entity.name ?? "", records); // TODO: Figure out if config ID can be retrieved
         } else {
             return undefined;
         }
     }
 
-    private cesium3dTileFeatureToFeatureInfo(feature: Cesium.Cesium3DTileFeature): FeatureInfo {
+    private cesium3dTileFeatureToFeatureInfo(feature: Cesium.Cesium3DTileFeature): FeatureInfo | undefined {
         const records = new Array<FeatureInfoRecord>();
         const propertyNames = feature.getPropertyIds();
         const length = propertyNames.length;
@@ -153,15 +153,21 @@ export class FeatureInfoHandler {
 
         let title = this.getCesium3DTileFeatureName(feature);
 
-        const tiltesetTitle = feature.tileset["title"];
+        //@ts-ignore
+        const configId = feature.tileset.config_id;
+        //@ts-ignore
+        const tiltesetTitle = feature.tileset.title;
+
         if (tiltesetTitle) {
             title = tiltesetTitle;
         } else {
-            const configId = feature.tileset["config_id"];
             if (configId) {
                 title = this.getLayerName(configId);
             }
         }
+
+        const selectedLayer = this.map.getLayerById(configId);
+        if (selectedLayer?.config.disablePopup) return undefined;
 
         return new FeatureInfo(title, records);
     }
@@ -195,6 +201,9 @@ export class FeatureInfoHandler {
         if (configId) {
             title = this.getLayerName(configId);
         }
+
+        const selectedLayer = this.map.getLayerById(configId);
+        if (selectedLayer?.config.disablePopup) return undefined;
 
         return new FeatureInfo(title ? title : "-", records);
     }

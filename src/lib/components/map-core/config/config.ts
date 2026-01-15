@@ -47,6 +47,7 @@ export class Config extends Dispatcher {
                 attribution: c.attribution,
                 metadata: c.metadata,
                 transparent: c.transparent,
+                disablePopup: c.disablePopup,
                 opacity: c.opacity,
                 cameraPosition: c.cameraPosition,
                 settings: c.settings

@@ -14,17 +14,29 @@
 	let dataDefined: boolean;
 
 
-	if (data) {
+	const hasNonZeroData = data && data.length > 0 && data.some(item => item.value > 0);
+
+	// Data exists and has non-zero values
+	if (data && hasNonZeroData) {
 		dataDefined = true;
 		// Change name 'group' to 'name' for compatibility with echarts
 		cleanData = data.map(item => ({ name: item.group, value: item.value }));
 		color = ['#339966', '#99ffcc', '#ffff99', '#ffcc66', '#9c4110']; // A B C D E colors
 		toolTipText = '{b}: {d}%'; // Show group name and percentage
 	}
+	// Data exists but not in project area (all values are 0 or array is empty)
+	else if (data && !hasNonZeroData) {
+		cleanData = [
+			{ name: $_("tools.stories.storyChartNoData"), value: 1 }
+		];
+		color = ['#cccccc']; // Grey color for no data
+		toolTipText = $_("tools.stories.storyChartNoDataInPolygon");
+	}
+	// No project area defined
 	else {
 		dataDefined = false;
 		cleanData = [
-			{ name: $_("tools.stories.storyChartNoData"), value: 0 }
+			{ name: $_("tools.stories.storyChartNoData"), value: 1 }
 		];
 		color = ['#cccccc']; // Grey color for no data
 		toolTipText = $_("tools.stories.requestDrawPolygon");
@@ -82,6 +94,6 @@
 <style>
 	.container {
 		width: 100%;
-		height: 300px;
+		height: 200px;
 	}
 </style>

@@ -19,6 +19,7 @@ export class LayerConfig {
     public metadataUrl!: string;
     public metadataLink: string;
     public transparent: boolean = false;
+    public disablePopup: boolean = false;
     public opacity!: number;
     public settings!: any;
     public cameraPosition: CameraLocation;

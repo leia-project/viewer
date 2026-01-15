@@ -31,48 +31,73 @@
             "search": "Zoek Locatie"
         },
         "info": {
-            "info": "Informatie",
+            "label": "Informatie",
             "close": "Sluiten",
             "general": "Open 3D viewer, een product door Sogelink (voorheen Geodan) en Provincie Zeeland.",
             "attribution": "Naamsvermelding"
         },
         "help": {
-            "help": "Help",
+            "label": "Help",
             "title": "Digital-Twin Viewer",
             "close": "Sluiten",
             "closeDontShowOnStart": "Sluit en geef niet meer weer bij opstarten",
-            "intro": "<div class='body-02'>A digital twin is a digital representation of an intended or actual real-world physical product, system, or process (a physical twin) that serves as the effectively indistinguishable digital counterpart of it for practical purposes, such as simulation, integration, testing, monitoring, and maintenance.<br><br>For more information on how to use the viewer see the different topics</div><br><div style='display:flex; justify-content: center;'></div>",
             "tabs": {
-              "intro": "Introductie",
-              "movement": "Beweging",
-              "library": "Bibliotheek",
-              "search": "Zoeken"
+                "intro": "Introductie",
+                "movement": "Beweging",
+                "library": "Bibliotheek",
+                "search": "Zoeken",
+                "flood": "Overstroming",
+                "stories": "Verhalen"
+            },
+            "intro": {
+                "introDescription": "Een digital twin is een digitale representatie van een beoogd of bestaand fysiek product, systeem of proces dat dient als een vrijwel identieke digitale tegenhanger voor praktische doeleinden, zoals simulatie, integratie, testen, monitoring en onderhoud. Voor meer informatie over het gebruik van de viewer, zie de verschillende onderwerpen."
             },
             "movement": {
-              "headingZoom": "Zoom in/uit",
-              "zoomDescription": "In en uit zoomen kan op 3 verschillende manieren gedaan worden:",
-              "zoomOption1": "1) Scroll omhoog of omlaag met je muis scroll wheel om in of uit te zoomen.",
-              "zoomOption2": "2) Houd uw rechtermuisknop ingedrukt en beweeg de muis omhoog of omlaag om naadloos te zoomen.",
-              "zoomOption3": "3) Gebruik de in- en uitzoomknoppen rechtsonder.",
-              "headingRotatePitch": "Roteren & Pitchen",
-              "rotatePitchDescription": "U kunt de camera roteren en pitchen, het is ook mogelijk om de camera onder de oppervlakte te richten om zo in de bodem te kijken. Dit kan op 2 verschillende manieren.",
-              "rotatePitchOption1": "1) Druk het scrollwieltje van je muis in en beweeg de muis rond.",
-              "rotatePitchOption2": "2) Houd de <help-key>ctrl</help-key> toets op uw toetsenbord en uw linkermuisknop en beweeg de muis rond.",
-              "headingButtons": "Kaart Knoppen",
-              "buttonsDescription": "Rechtsonder zijn enkele knoppen te vinden.",
-              "buttonsFlyMode": "Activeer FlyMode",
-              "buttonsWalkMode": "Activeer WalkMode",
-              "buttonsHome": "Reset het aanzicht naar de startpositie",
-              "buttonsCompass": "Reset de camera naar het noorden",
-              "buttonsZoomIn": "Zoom in",
-              "buttonsZoomOut": "Zoom out"
+                "headingZoom": "Zoom in/uit",
+                "zoomDescription": "In en uit zoomen kan op 3 verschillende manieren gedaan worden:",
+                "zoomOption1": "1) Scroll omhoog of omlaag met je muis scroll wheel om in of uit te zoomen.",
+                "zoomOption2": "2) Houd uw rechtermuisknop ingedrukt en beweeg de muis omhoog of omlaag om naadloos te zoomen.",
+                "zoomOption3": "3) Gebruik de in- en uitzoomknoppen rechtsonder.",
+                "headingRotatePitch": "Roteren & Pitchen",
+                "rotatePitchDescription": "U kunt de camera roteren en pitchen, het is ook mogelijk om de camera onder de oppervlakte te richten om zo in de bodem te kijken. Dit kan op 2 verschillende manieren.",
+                "rotatePitchOption1": "1) Druk het scrollwieltje van je muis in en beweeg de muis rond.",
+                "rotatePitchOption2": "2) Houd de <help-key>ctrl</help-key> toets op uw toetsenbord en uw linkermuisknop en beweeg de muis rond.",
+                "headingButtons": "Kaart Knoppen",
+                "buttonsDescription": "Rechtsonder zijn enkele knoppen te vinden.",
+                "buttonsFlyMode": "Activeer FlyMode",
+                "buttonsWalkMode": "Activeer WalkMode",
+                "buttonsHome": "Reset het aanzicht naar de startpositie",
+                "buttonsCompass": "Reset de camera naar het noorden",
+                "buttonsZoomIn": "Zoom in",
+                "buttonsZoomOut": "Zoom out"
             },
             "library": {
-              "headingLibraryOpen": "Open de bibliotheek",
-              "headingUsingLibrary": "Gebruik van de bibliotheek",
-              "description": "Als u meer lagen wilt toevoegen bovenop de geconfigureerde lagen in de viewer, kunt u dit doen met behulp van de bibliotheek",
-              "openLibrary": "Om de lagenbibliotheek te openen, klikt u op de knop 'map' aan de linkerkant",
-              "libraryDescription": "Gebruik de zoekbalk onderaan om de gewenste lagen te zoeken of klik door de getoonde groepen. Klik op de laag om meer informatie over de laag weer te geven, schakel het selectievakje in om de laag aan de kaart toe te voegen of druk op de knop 'Toevoegen aan kaart' in de laagbeschrijvingsweergave"
+                "headingLibraryOpen": "Open de bibliotheek",
+                "headingUsingLibrary": "Gebruik van de bibliotheek",
+                "description": "Als u meer lagen wilt toevoegen bovenop de geconfigureerde lagen in de viewer, kunt u dit doen met behulp van de bibliotheek",
+                "openLibrary": "Om de lagenbibliotheek te openen, klikt u op de knop 'map' aan de linkerkant",
+                "libraryDescription": "Gebruik de zoekbalk onderaan om de gewenste lagen te zoeken of klik door de getoonde groepen. Klik op de laag om meer informatie over de laag weer te geven, schakel het selectievakje in om de laag aan de kaart toe te voegen of druk op de knop 'Toevoegen aan kaart' in de laagbeschrijvingsweergave"
+            },
+            "flood": {
+                "headingFloodOpen": "Open de overstromingstool",
+                "headingUsingFlood": "Gebruik van de overstromingstool",
+                "description": "De overstromingstool stelt u in staat om overstromingen in het gebied te simuleren en te analyseren.",
+                "openFlood": "Om de overstromingstool te openen, klikt u op de knop 'overstroming' aan de linkerkant.",
+                "floodBreachDescription": "Selecteer eerst een breslocatie door op de kaart een bresicoon aan te klikken. Dit zal fungeren als het startpunt voor de overstromingssimulatie.",
+                "floodMenuDescription": "Gebruik vervolgens de verschillende opties in de overstromingstool om de simulatie aan te passen en uit te voeren. Kies eerst het gewenste scenario, bijvoorbeeld 1:3000 jaar. Vervolgens kun je de 'Tijd slider' gebruiken om het scenario af te spelen. Gebruik de 'Play' knop om automatisch het scenario zich te laten afspelen, of gebruik de pijltjes om per tijdstap de overstroming te bekijken.",
+                "headingMeasureDepth": "Diepte meten",
+                "measureDepthDescription": "Om de waterdiepte op een specifieke locatie te meten, zet de 'Diepte meten' knop aan en klik vervolgens op een overstroomd gebied op de gewenste locatie. De tool kan alleen gebruikt worden als je ingezoomd bent, omdat de terreinhoogte dan juist ingeladen wordt."
+            },
+            "stories": {
+                "description": "Bekijk met de verhalenmodule voorgemaakte rondleidingen die een verhaal vertellen.",
+                "headingOpenStories": "Verhalen openen",
+                "openStories": "Open de verhalenmodule door op de 'Verhalen' knop aan de linkerkant te klikken. Selecteer een verhaal uit de lijst om de rondleiding te starten.",
+                "headingStoryNavigation": "Navigeren",
+                "storyNavigation": "Gebruik de hoofdstuk- (bovenste rij) en paginaknoppen (onderste rij) om door het verhaal te navigeren, of scroll naar beneden in het menu om door te gaan naar de volgende pagina. U kunt op elk moment het verhaal sluiten door op de knop 'Terug naar overzicht' te klikken.",
+                "headingStoryDrawArea": "Een projectgebied tekenen",
+                "storyDrawArea": "Sommige verhalen vereisen dat u een projectgebied op de kaart tekent. Dit gebied wordt gebruikt om een verdeling van klassen binnen het getekende polygon te genereren. Om een projectgebied te tekenen, klikt u op de knop 'Teken projectgebied' en klikt u vervolgens op de kaart om punten neer te zetten en zo een polygon te creëren. Klik met de rechtermuisknop op de kaart of klik op 'Voltooi Projectgebied' om het tekenen te voltooien.",
+                "headingStoryDataDonut": "Projectgebied Data Grafiek",
+                "storyDataDonut": "In verhalen die een projectgebied bevatten, wordt een donutgrafiek weergegeven om de verdeling van verschillende klassen binnen het getekende gebied te weergeven. Wanneer u met de muis over een segment beweegt, wordt het percentage weergegeven."
             }
         },
         "config_switcher": {
@@ -201,7 +226,7 @@
             "totalLength": "Totale lengte",
             "points": "Punten"
         },
-        "controls": {
+        "cesium": {
             "label": "Kaart Instellingen",
             "sunPosition": "Zon Positie",
             "sunPositionDate": "Datum",
@@ -228,6 +253,8 @@
             "FPSCounter": "FPS Teller",
             "inspector": "Tegel Inspecteur",
             "coordinates": "Coördinaten",
+            "cameraPosition": "Camera Positie",
+            "dragAndDropFiles": "Bestanden Inslepen",
             "pointCloud": "Puntenwolken",
             "pointCloudAttenuation": "Attenuation",
             "pointCloudAttenuationBaseResolution": "Attenuation Basis Resolutie",
@@ -247,9 +274,12 @@
             "statistics": "Statistieken",
             "storyChartTitle": "Verdeling per klasse",
             "storyChartNoData": "Geen Data",
+            "storyChartNoDataInPolygon": "Geen data in het getekende projectgebied",
             "basemap": "Achtergrondkaart",
-            "requestDrawPolygon": "Teken een projectgebied in om data op te halen",
-            "drawPolygon": "Teken Projectgebied",
+            "polygonTitle": "Projectgebied", 
+            "requestDrawPolygon": "Teken een projectgebied in",
+            "uploadPolygon": "Projectgebied Uploaden",
+            "drawPolygon": "Projectgebied Tekenen",
             "finishPolygon": "Voltooi Projectgebied",
             "drawPolygonText": "Klik op de 'Teken projectgebied' knop om te beginnen met tekenen op de kaart. Klik om een vlak te creëren. Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.",
             "deletePolygon": "Verwijder Projectgebied",
@@ -285,5 +315,11 @@
             "searchBreach": "Zoek bres",
             "timeSlider": "Tijd slider"
         }
+    },
+    "errors": {
+        "Drawing": {
+            "invalidPolygon": "Ongeldig polygoon: Zorg ervoor dat het polygoon zichzelf niet snijdt."
+        }
     }
+
 }

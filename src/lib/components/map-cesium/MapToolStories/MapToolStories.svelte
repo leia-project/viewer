@@ -14,27 +14,32 @@
 	import StoryView from "./StoryView.svelte";
 	import { StoryLayer } from "./StoryLayer";
 
+	import { _ } from "svelte-i18n";
 	import { page } from "$app/stores";
 	import { StoryChapter } from "./StoryChapter";
 	
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-	let id: string = "stories";
 	export let icon: any = Book;
-	export let label: string = "Stories";
-	export let textBack: string = "Back to overview";
-	export let textStepBack: string = "Step backward";
-	export let textStepForward: string = "Step forward";
-	let cesiumMap = map as Map;
+	export let label: string | undefined;
+	export let textBack: string;
+	export let textStepBack: string;
+	export let textStepForward: string;
 
+	$: label = label ?? $_("tools.stories.label");
+	$: textBack = $_("tools.stories.back");
+	$: textStepBack = $_("tools.stories.stepBack");
+	$: textStepForward = $_("tools.stories.stepForward");
+
+	let id: string = "stories";
+	let cesiumMap = map as Map;
 	let stories = new Array<Story>();
 	let selectedStory: Story | undefined;
 	let stepNumber: number;
-	let baseLayerId: string;
-
+	let baseLayerId: string | undefined;
 	let tool = new MapToolMenuOption(id, icon, label);
-	const layers = cesiumMap.layers;
 	const layerLegends: Array<LegendOptions> = [];
+	const layers = cesiumMap.layers;
 
 	$: { tool.label.set(label); }
 	registerTool(tool);
@@ -42,6 +47,7 @@
 	$: {
 		tool.width.set(selectedStory?.width ?? "");
 	}
+
 	selectedTool.subscribe((selected: MapToolMenuOption) => {
 		if (tool === selected && selectedStory) {
 			tool.width.set(selectedStory.width ?? "");
@@ -94,15 +100,15 @@
 			// Load all stories
 			for (let i = 0; i < configStories.length; i++) {
 				const story = configStories[i];
-				const storyName = story.name;
-				const storyDescription = story.description;
-				const storyWidth = story.width;
-				const storyForce2DMode = story.force2DMode ?? false;
-				const storyStaticCamera = story.staticCamera ?? false;
-				const storyRequestPolygonArea = story.requestPolygonArea.enabled ?? false;
-				const storyStatisticsApi = story.requestPolygonArea.statisticsApi ?? "https://virtueel.dev.zeeland.nl/ko_api/analyze";
-				baseLayerId = story.baseLayerId ?? "";
-				const storyChapters = new Array<StoryChapter>();
+				const storyName: string = story.name;
+				const storyDescription: string = story.description;
+				const storyWidth: string = story.width;
+				const storyForce2DMode: boolean = story.force2DMode ?? false;
+				const storyStaticCamera: boolean = story.staticCamera ?? false;
+				const storyRequestPolygonArea:boolean = story.requestPolygonArea.enabled ?? false;
+				const storyStatisticsApi: string | undefined = story.requestPolygonArea.statisticsApi ?? undefined;
+				const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
+				baseLayerId = story.baseLayerId ?? undefined;
 
 				// Load all chapter groups
 				const chapterGroups = story.chapterGroups;

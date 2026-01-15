@@ -3,7 +3,7 @@
 	import * as Cesium from "cesium";
 	import { onMount, getContext, onDestroy, createEventDispatcher } from "svelte";
 	import { writable, get, type Writable } from "svelte/store";
-	import { Button, PaginationNav, Tag, Loading } from "carbon-components-svelte";
+	import { Button, Tag, SliderSkeleton } from "carbon-components-svelte";
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
 	import ChevronDown from "carbon-icons-svelte/lib/ChevronDown.svelte";
 	import ChevronUp from "carbon-icons-svelte/lib/ChevronUp.svelte";
@@ -25,6 +25,7 @@
 	import { polygonStore } from './PolygonEntityStore';
 	import StoryChart from "./StoryChart/StoryChart.svelte";
 	import ChoroplethMap from "carbon-icons-svelte/lib/ChoroplethMap.svelte";
+	import StoryOpacitySlider from "./StoryOpacitySlider.svelte";
 	import StoryChartDownloadButton from "./StoryChart/StoryChartDownloadButton.svelte";
 	import type { SubLabel, LegendItem, LegendOptions } from "./LegendOptions";
 
@@ -36,7 +37,7 @@
 	export let textStepBack: string;
 	export let textStepForward: string;
 	export let layerLegends: Array<LegendOptions>; 
-	export let baseLayerId: string;
+	export let baseLayerId: string | undefined;
 
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
 	const dispatch = createEventDispatcher();
@@ -97,6 +98,7 @@
 		}
 	}
 	
+
 	// Fly to polygon entity when its drawn
 	const unsubscribePolygonEntity = polygonStore.subscribe(polygon => {
 		if (polygon?.polygonEntity) {
@@ -121,6 +123,7 @@
 		}
 	});
 
+
 	// Flatten the steps across all chapters so we can access the correct step based on the index
 	let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
 	story.storyChapters.forEach((chapter) => {
@@ -128,6 +131,7 @@
 			flattenedSteps.push({ step, chapter });
 		});
 	});
+
 
 	onMount(() => {
 		if (story.force2DMode) {
@@ -154,7 +158,10 @@
 		// Return to step where user left
 		currentPage.set(savedStepNumber);
 		setTimeout(() => { scrollToStep(savedStepNumber-1) }, 150); // Timeout when height of images is not explicitly set
-		baseLayer = copyLayerById(baseLayerId);
+		if (baseLayerId) {
+			baseLayer = copyLayerById(baseLayerId);
+			if (!baseLayer) baseLayerId = undefined;
+		}
 	});
 
 
@@ -171,6 +178,7 @@
 		baseLayer = undefined;
 	});
 
+
 	function copyLayerById(id: string): Layer | undefined {
 		const originalLayer = getLayerById(id);
 		const libraryLayer = getLibraryLayer(id);
@@ -184,17 +192,19 @@
 			isBackground: libraryLayer.isBackground,
 			defaultOn: true,
 			defaultAddToManager: true,
-			opacity: libraryLayer.opacity,
+			opacity: libraryLayer.opacity ?? 100,
 		});
 
 		const newLayer = map.addLayer(config);
 		return newLayer;
 	}
 
+
 	function getLayerById(id: string): Layer | undefined {
 		const layers = get(map.layers);
 		return layers.find(layer => layer.id === id);
 	}
+
 
 	function onScroll() {
 		if (lastInputType === "scroll") {
@@ -255,7 +265,6 @@
 					if (libraryLayer) {
 						const layerConfig = storyLayerToLayerConfig(activeStep.layers[i], libraryLayer);
 						const layer = map.addLayer(layerConfig);
-						console.log("hiiding layer:", layer.id);
 
 						if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
 							// No polyon drawn but is required
@@ -324,9 +333,7 @@
 			lc.settings.defaultTheme = storyLayer.style;	
 		}
 
-		if (storyLayer.opacity) {
-			lc.opacity = storyLayer.opacity;
-		}
+		lc.opacity = storyLayer.opacity ?? layerConfig.opacity;
 
 		return lc;
 	}
@@ -451,6 +458,18 @@
 		return ['A', 'B', 'C', 'D', 'E'].includes(label);
 	}
 
+	async function downloadPDF() {
+		const response = await fetch('/Teksten_Conceptrapportage_Klimaatonderlegger Zeeland_Defacto.pdf');
+		const blob = await response.blob();
+
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = 'MyDocument.pdf'; // TODO: Add appropriate filename
+		link.click();
+		URL.revokeObjectURL(url); // cleanup
+	}
+
 
 	function getColorFromLabel(label: string) {
 		return labelToColor[label];
@@ -473,19 +492,21 @@
 		</div>
 		<div class="nav-controls">
 			{#if story.requestPolygonArea}
-					<!-- {#if distributions.length > 0} -->
-						<StoryChartDownloadButton bind:data={distributions} {story} {layerLegends} {map}/>
-					<!-- {/if} -->
+				<!-- {#if distributions.length > 0} -->
+					<StoryChartDownloadButton bind:data={distributions} {story} {layerLegends} {map}/>
+				<!-- {/if} -->
 			{/if}
-			<div class="toggle-basemap">
-				<Button
-					kind="tertiary"
-					iconDescription={$baseMapVisible ? `${$_("general.close")} ${$_("tools.stories.basemap")}` : `${$_("general.open")} ${$_("tools.stories.basemap")}`}
-					tooltipPosition="top"
-					icon={ChoroplethMap}
-					on:click={() => $baseMapVisible = !$baseMapVisible}
-				/>
-			</div>
+			{#if baseLayerId}
+				<div class="toggle-basemap">
+					<Button
+						kind="tertiary"
+						iconDescription={$baseMapVisible ? `${$_("general.close")} ${$_("tools.stories.basemap")}` : `${$_("general.open")} ${$_("tools.stories.basemap")}`}
+						tooltipPosition="top"
+						icon={ChoroplethMap}
+						on:click={() => $baseMapVisible = !$baseMapVisible}
+					/>
+				</div>
+			{/if}
 			{#if story.requestPolygonArea}
 				<div class="draw-polygon">
 					<Button
@@ -579,7 +600,7 @@
 							<ul>
 								{#if layerLegends[index].legendOptions}
 									{#each layerLegends[index].legendOptions as legendEntry}
-										{#if shouldShowLegend(legendEntry, distributions[index])}
+										<!--{#if shouldShowLegend(legendEntry, distributions[index])}-->
 											<li style="margin-bottom: 2rem;">
 												<div style=" display: grid; grid-template-columns: 5rem 1fr;">
 													{#if legendEntry.labels}
@@ -602,7 +623,7 @@
 													<ul>
 														{#each Array.from(legendEntry.labels) as label}
 															{#if isLabel(label) && legendEntry.subLabels[label]}
-																{#if distributions[index].find(d => d.group === label && d.value > 0)}
+																<!--{#if distributions[index].find(d => d.group === label && d.value > 0)}-->
 																	<li class="legend-letter-with-text legendary-text">
 																		<!-- Image before text per sublabel -->
 																		<div class="legend-letter legend-letter-s" style="background-color: {getColorFromLabel(label)};">
@@ -612,13 +633,13 @@
 																			{legendEntry.subLabels[label].text}
 																		</div>
 																	</li>
-																{/if}
+																<!--{/if}-->
 															{/if}
 														{/each}
 													</ul>
 												{/if}
 											</li>
-										{/if}
+										<!--{/if}-->
 									{/each}
 								{/if}
 							</ul>
@@ -628,6 +649,20 @@
 							<StoryChart data={undefined} { index } />
 						{/if}
 					{/if}
+				</div>
+				<div class="opacity-controls">
+					{#each step.layers ?? [] as layer}
+						{#await (async () => {
+							while (!getAdded(layer.id.toString())) {
+								await new Promise(r => setTimeout(r, 100));
+							}
+							return getAdded(layer.id.toString());
+						})() then addedLayer}
+							<StoryOpacitySlider layer={addedLayer} />
+						{:catch}
+							<SliderSkeleton hideLabel />
+						{/await}
+					{/each}
 				</div>
 				<div class="tag">
 					<Tag>{chapter.title}</Tag>
@@ -736,6 +771,10 @@
 	.step--active {
 		opacity: 1;
 		background: var(--cds-ui-02);
+	}
+
+	.opacity-controls {
+		margin-top: 0.5rem;
 	}
 
 	.tag {

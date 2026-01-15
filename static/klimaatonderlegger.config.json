@@ -534,6 +534,8 @@
             "pitch": -89.9,
             "duration": 1.50
         },
+        "startCameraMode3D": false,
+        "startToolOpen": "stories",
         "colors": {
             "ui-background": "#ffffff",
             "interactive-01": "#214170",
@@ -698,6 +700,14 @@
             }
         },
         {
+            "id": "flooding",
+            "enabled": true,
+            "settings": {
+                "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
+                "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson"
+            }
+        },
+        {
             "id": "layerManager",
             "enabled": true,
             "settings": {}
@@ -720,11 +730,11 @@
             "settings": {
                 "showOnStart": true,
                 "introSettings": { 
-                    "customDescription": "<div>This is a custom HTML description.</div>",
+                    "customDescription": "<div>De signaalkaarten geven vanuit water, bodem en klimaatverandering inzicht in de geschiktheid van een gebied voor de gebruiksfuncties bebouwd gebied, vitale infrastructuur, recreatie, landbouw en natuur. Door bij ontwikkelingen, bedrijfsvoering en locatiekeuzen beter rekening te houden met condities vanuit klimaatverandering en het water- en bodemsysteem wordt afwenteling voorkomen.</div><br><div>De kaarten zijn gebaseerd op verschillende brongegevens. Deze gegevens verschillen in nauwkeurigheid en in gebruikte klimaatgegevens en er is sprake van hydrologische modelberekeningen. Per kaart zijn de brongegevens vermeld. Hoewel aan de totstandkoming van deze resultaten de uiterste zorg en aandacht is besteed, is het mogelijk dat de inhoud niet overal volledig en/of juist is. Aan de kaarten zijn geen rechten te ontlenen.</div>",
                     "downloadButton": {
                         "enabled": true,
-                        "url": "https://www.example.com/myfile.pdf",
-                        "label": "Download PDF Data"
+                        "url": "https://www.ciz.nl/test-download",
+                        "label": "Download Signaalkaarten PDF"
                     }
                 }
             }

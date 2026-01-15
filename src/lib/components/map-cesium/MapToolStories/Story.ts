@@ -10,7 +10,7 @@ export class Story {
     public force2DMode: boolean | undefined;
     public staticCamera: boolean | undefined;
     public requestPolygonArea: boolean | undefined;
-    public statisticsApi: string;
+    public statisticsApi: string | undefined;
     
     constructor(name: string, 
                 description: string, 
@@ -19,7 +19,7 @@ export class Story {
                 force2DMode: boolean | undefined, 
                 staticCamera: boolean | undefined,
                 requestPolygonArea: boolean | undefined,
-                statisticsApi: string) {
+                statisticsApi: string | undefined) {
         this.name = name;
         this.description = description;
         this.storyChapters = storyChapters;

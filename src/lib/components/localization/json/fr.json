@@ -30,47 +30,72 @@
             "search": "Rechercher emplacement"
         },
         "info": {
-            "info": "Information",
+            "label": "Information",
             "close": "Fermer",
             "general": "Open 3D Viewer, produit par Sogelink (anciennement Geodan) et Provincie Zeeland.",
             "attribution": "Attribution"
         },
         "help": {
-          "help": "Aide",
-          "title": "Digital-Twin Viewer",
-          "close": "Fermer",
-          "closeDontShowOnStart": "Fermer et ne pas afficher au démarrage",
-          "intro": "<div class='body-02'>A digital twin is a digital representation of an intended or actual real-world physical product, system, or process (a physical twin) that serves as the effectively indistinguishable digital counterpart of it for practical purposes, such as simulation, integration, testing, monitoring, and maintenance.<br><br>For more information on how to use the viewer see the different topics</div><br><div style='display:flex; justify-content: center;'></div>",
-          "tabs": {
-            "intro": "Introduction",
-            "movement": "Mouvement",
-            "library": "Bibliothèque",
-            "search": "Recherche"
-          },
-          "movement": {
-            "headingZoom": "Zoom avant/arrière",
-            "zoomDescription": "Le zoom avant et arrière peut être effectué de 3 manières différentes:",
-            "zoomOption1": "1) Faites défiler vers le haut ou vers le bas pour effectuer un zoom avant ou arrière.",
-            "zoomOption2": "2) Maintenez le bouton droit de votre souris enfoncé et déplacez la souris vers le haut ou vers le bas pour un zoom fluide.",
-            "zoomOption3": "3) Utilisez les boutons de zoom avant et arrière en bas à droite.",
-            "headingRotatePitch": "Rotation & inclinaison",
-            "rotatePitchDescription": "Vous pouvez faire pivoter et incliner la caméra, ou l'incliner sous la surface. Deux méthodes sont possibles.",
-            "rotatePitchOption1": "1) Appuyez sur la molette de votre souris et déplacez la souris.",
-            "rotatePitchOption2": "2) Maintenez la touche <help-key>ctrl</help-key> de votre clavier et le bouton gauche de votre souris enfoncés et déplacez la souris.",
-            "headingButtons": "Boutons de carte",
-            "buttonsDescription": "En bas à droite, vous trouverez quelques boutons de carte.",
-            "buttonsHome": "Réinitialiser la vue à la position de départ",
-            "buttonsCompass": "Réinitialiser le cap vers le nord",
-            "buttonsZoomIn": "Zoom avant",
-            "buttonsZoomOut": "Zoom arrière"
-          },
-          "library": {
-            "headingLibraryOpen": "Ouvrir Bibliothèque de Calques",
-            "headingUsingLibrary": "Utilisation de la Bibliothèque de Calques",
-            "description": "Si vous souhaitez ajouter d'autres calques au-dessus des calques configurés dans la visionneuse, vous pouvez le faire à l'aide de la bibliothèque de calques",
-            "openLibrary": "Pour ouvrir la bibliothèque de calques, cliquez sur le bouton 'dossier' sur le côté gauche",
-            "libraryDescription": "Utilisez la barre de recherche en bas pour rechercher les couches souhaitées ou parcourez les groupes affichés. Pour afficher plus d'informations sur la couche, cliquez dessus. Pour l'ajouter à la carte, cochez la case correspondante ou cliquez sur le bouton 'Ajouter à la Carte' dans la description de la couche."
-          }
+            "label": "Aide",
+            "title": "Digital-Twin Viewer",
+            "close": "Fermer",
+            "closeDontShowOnStart": "Fermer et ne pas afficher au démarrage",
+            "tabs": {
+                "intro": "Introduction",
+                "movement": "Mouvement",
+                "library": "Bibliothèque",
+                "search": "Recherche",
+                "flood": "Inondation",
+                "stories": "Histoires"
+            },
+            "intro": {
+                "introDescription": "Un Digital Twin est une représentation digitale d’un produit, système ou processus physique existant ou prévu, qui sert de contrepartie numérique quasiment identique à des fins pratiques telles que la simulation, l’intégration, les tests, la surveillance et la maintenance. Pour plus d’informations sur l’utilisation du viewer, consultez les différents sujets."
+            },
+            "movement": {
+                "headingZoom": "Zoom avant/arrière",
+                "zoomDescription": "Le zoom avant et arrière peut être effectué de 3 manières différentes:",
+                "zoomOption1": "1) Faites défiler vers le haut ou vers le bas pour effectuer un zoom avant ou arrière.",
+                "zoomOption2": "2) Maintenez le bouton droit de votre souris enfoncé et déplacez la souris vers le haut ou vers le bas pour un zoom fluide.",
+                "zoomOption3": "3) Utilisez les boutons de zoom avant et arrière en bas à droite.",
+                "headingRotatePitch": "Rotation & inclinaison",
+                "rotatePitchDescription": "Vous pouvez faire pivoter et incliner la caméra, ou l'incliner sous la surface. Deux méthodes sont possibles.",
+                "rotatePitchOption1": "1) Appuyez sur la molette de votre souris et déplacez la souris.",
+                "rotatePitchOption2": "2) Maintenez la touche <help-key>ctrl</help-key> de votre clavier et le bouton gauche de votre souris enfoncés et déplacez la souris.",
+                "headingButtons": "Boutons de carte",
+                "buttonsDescription": "En bas à droite, vous trouverez quelques boutons de carte.",
+                "buttonsHome": "Réinitialiser la vue à la position de départ",
+                "buttonsCompass": "Réinitialiser le cap vers le nord",
+                "buttonsZoomIn": "Zoom avant",
+                "buttonsZoomOut": "Zoom arrière"
+            },
+            "library": {
+                "headingLibraryOpen": "Ouvrir Bibliothèque de Calques",
+                "headingUsingLibrary": "Utilisation de la Bibliothèque de Calques",
+                "description": "Si vous souhaitez ajouter d'autres calques au-dessus des calques configurés dans la visionneuse, vous pouvez le faire à l'aide de la bibliothèque de calques",
+                "openLibrary": "Pour ouvrir la bibliothèque de calques, cliquez sur le bouton 'dossier' sur le côté gauche",
+                "libraryDescription": "Utilisez la barre de recherche en bas pour rechercher les couches souhaitées ou parcourez les groupes affichés. Pour afficher plus d'informations sur la couche, cliquez dessus. Pour l'ajouter à la carte, cochez la case correspondante ou cliquez sur le bouton 'Ajouter à la Carte' dans la description de la couche."
+            },
+            "flood": {
+                "headingFloodOpen": "Ouvrir l'outil d'inondation",
+                "headingUsingFlood": "Utilisation de l'outil d'inondation",
+                "description": "L'outil d'inondation vous permet de simuler et d'analyser les inondations dans la région.",
+                "openFlood": "Pour ouvrir l'outil d'inondation, cliquez sur le bouton 'inondation' sur le côté gauche.",
+                "floodBreachDescription": "Sélectionnez d'abord un emplacement de brèche en cliquant sur une icône de brèche sur la carte. Ceci servira de point de départ pour la simulation d'inondation.",
+                "floodMenuDescription": "Utilisez ensuite les différentes options de l'outil d'inondation pour personnaliser et exécuter la simulation. Choisissez d'abord le scénario souhaité, par exemple 1:3000 ans. Vous pouvez ensuite utiliser le 'curseur de temps' pour jouer le scénario. Utilisez le bouton 'Jouer' pour que le scénario se déroule automatiquement, ou utilisez les flèches pour visualiser l'inondation étape par étape.",
+                "headingMeasureDepth": "Mesurer la profondeur",
+                "measureDepthDescription": "Pour mesurer la profondeur de l'eau à un endroit précis, activez le bouton 'Mesurer la profondeur' puis cliquez sur une zone inondée à l'endroit souhaité. L'outil ne peut être utilisé que lorsque vous êtes zoomé, car la hauteur du terrain est alors correctement chargée."
+            },
+            "stories": {
+                "description": "Affichez avec le module histoires des visites préfabriquées qui racontent une histoire.",
+                "headingOpenStories": "Ouverture des histoires",
+                "openStories": "Ouvrez le module histoires en cliquant sur le bouton 'Histoires' sur le côté gauche. Sélectionnez une histoire dans la liste pour démarrer la visite.",
+                "headingStoryNavigation": "Navigation",
+                "storyNavigation": "Utilisez les boutons de chapitre et de page pour naviguer dans l'histoire, ou faites défiler vers le bas dans le menu pour passer à la page suivante. Vous pouvez fermer l'histoire à tout moment en cliquant sur le bouton 'Retour à l'aperçu'.",
+                "headingStoryDrawArea": "Dessiner une zone de projet",
+                "storyDrawArea": "Certaines histoires nécessitent que vous dessiniez une zone de projet sur la carte. Cette zone sera utilisée pour générer une répartition des classes à l'intérieur du polygone dessiné. Pour dessiner une zone de projet, cliquez sur le bouton 'Dessiner la zone de projet', puis cliquez sur la carte pour créer un polygone. Cliquez avec le bouton droit de la souris sur la carte ou cliquez sur 'Terminer le dessin' pour terminer le dessin.",
+                "headingStoryDataDonut": "Graphique des données de la zone de projet",
+                "storyDataDonut": "Dans les histoires qui contiennent une zone de projet, un graphique en anneau est affiché pour représenter la répartition des différentes classes à l'intérieur de la zone dessinée. En survolant un segment, le pourcentage qu'il représente est affiché."
+            }
         },
         "layerLibrary": {
             "label": "Bibliothèque",
@@ -185,9 +210,9 @@
             "totalLength": "Longueur totale",
             "points": "Points"
         },
-        "controls": {
-            "label": "Paramètres de la carte",
-            "sunPosition": "Position du soleil",
+        "cesium": {
+            "label": "Paramètres de la Carte",
+            "sunPosition": "Position du Soleil",
             "sunPositionDate": "Date",
             "sunPositionHour": "Heure UTC",
             "quality": "Qualité",
@@ -200,23 +225,25 @@
             "custom": "Personnalisée",
             "animate": "Animer",
             "fxaa": "FXAA",
-            "fog": "Fog",
-            "groundAtmosphere": "Ground Atmosphere",
+            "fog": "Brouillard",
+            "groundAtmosphere": "Atmosphère Terrestre",
             "dynamicRange": "HDR",
-            "lighting": "Lighting",
+            "lighting": "Éclairage",
             "msaa": "MSAA",
-            "maximumScreenspaceError": "Level of Detail",
-            "resolutionScale": "Resolution Scale",
-            "shadows": "Shadows",
+            "maximumScreenspaceError": "Niveau de Détail",
+            "resolutionScale": "Échelle de Résolution",
+            "shadows": "Ombres",
             "skyAtmosphere": "Sky Atmosphere",
-            "FPSCounter": "FPS Counter",
-            "inspector": "Tile Inspector",
-            "coordinates": "Coordinates",
+            "FPSCounter": "Compteur FPS",
+            "inspector": "Inspecteur de Carreaux",
+            "coordinates": "Coordonnés",
+            "cameraPosition": "Position de da Caméra",
+            "dragAndDropFiles": "Glisser-Déposer des Fichiers",
             "pointCloud": "Point Clouds",
-            "pointCloudAttenuation": "Attenuation",
-            "pointCloudAttenuationBaseResolution": "Attenuation Base Resolution",
-            "pointCloudAttenuationErrorScale": "Attenuation Geometric Error Scale",
-            "pointCloudAttenuationMaximum": "Attenuation Maximum",
+            "pointCloudAttenuation": "Atténuation",
+            "pointCloudAttenuationBaseResolution": "Atténuation Base Resolution",
+            "pointCloudAttenuationErrorScale": "Atténuation Geometric Error Scale",
+            "pointCloudAttenuationMaximum": "Atténuation Maximum",
             "pointCloudEDL": "Eye Dome Lighting",
             "pointCloudEDLRadius": "Eye Dome Lighting Radius",
             "pointCloudEDLStrength": "Eye Dome Lighting Strength",
@@ -231,12 +258,14 @@
             "statistics": "Statistiques",
             "storyChartTitle": "Distribution des classes",
             "storyChartNoData": "Aucune donnée",
+            "storyChartNoDataInPolygon": "Aucune donnée dans la zone de projet dessinée",
             "basemap": "Calque d'arrière-plan",
-            "requestDrawPolygon": "Dessinez une zone de projet pour récupérer les données",
-            "drawPolygon": "Dessiner la Zone de Projet",
-            "finishPolygon": "Terminer la Zone de Projet",
+            "requestDrawPolygon": "Dessinez une zone de projet",
+            "drawPolygon": "Dessiner la Zone",
+            "uploadPolygon": "Télécharger la Zone",
+            "finishPolygon": "Terminer la Zone",
             "drawPolygonText": "Cliquez sur le bouton 'Dessiner la Zone de Projet' pour commencer à dessiner sur la carte. Cliquez pour créer un polygone. Cliquez avec le bouton droit de la souris sur la carte pour terminer le dessin.",
-            "deletePolygon": "Supprimer la Zone de Projet",
+            "deletePolygon": "Supprimer la Zone",
             "projectAreaTool": "Outil de Zone de Projet",
             "downloadPDF": "Générer et télécharger le PDF"
         },
@@ -269,5 +298,12 @@
             "searchBreach": "Recherche d'une brèche",
             "timeSlider": "Curseur de temps"
         }
+    },
+    "errors": {
+        "Drawing": {
+            "invalidPolygon": "Le polygone ne peut pas se croiser lui-même !"
+        }
     }
+
+
 }

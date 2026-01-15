@@ -7,6 +7,8 @@
 	import { Button, Checkbox } from "carbon-components-svelte";
 	import { Slider } from "carbon-components-svelte";
 
+	import { _ } from "svelte-i18n";
+
 	import {
 		RadioButtonGroup,
 		RadioButton,
@@ -15,6 +17,11 @@
 	} from "carbon-components-svelte";
 	import Settings from "carbon-icons-svelte/lib/Settings.svelte";
 
+	import {
+		Accordion,
+		AccordionItem
+	} from "carbon-components-svelte";
+
 	import type { Map } from "../module/map";
 	import type { Writable } from "svelte/store";
 
@@ -22,52 +29,83 @@
 
 	export let id: string = "cesiumcontrols";
 	export let icon: any = Settings;
-	export let label: string = "Map Settings";
 	export let showOnBottom: boolean = true;
 
-	export let textSunPosition: string = "Sun Position";
-	export let textSunPositionDate: string = "Date";
-	export let textSunPositionHour: string = "Hour UTC";
+	export let label: string;
+	export let textSunPosition: string;
+	export let textSunPositionDate: string;
+	export let textSunPositionHour: string;
+	export let textQuality: string;
+	export let textRendering: string;
+	export let textEnvironment: string;
+	export let textDebug: string;
+	export let textLow: string;
+	export let textMedium: string;
+	export let textHigh: string;
+	export let textCustom: string;
+	export let textShadows: string;
+	export let textFXAA: string;
+	export let textMSAA: string;
+	export let textAnimate: string;
+	export let textResolutionScale: string;
+	export let textMaximumScreenspaceError: string;
+	export let textGroundAtmosphere: string;
+	export let textSkyAtmosphere: string;
+	export let textLighting: string;
+	export let textFog: string;
+	export let textHighDynamicRange: string;
+	export let textPointCloud: string;
+	export let textPointCloudAttenuation: string;
+	export let textPointCloudAttenuationMaximum: string;
+	export let textPointCloudAttenuationErrorScale: string;
+	export let textPointCloudAttenuationBaseResolution: string;
+	export let textPointCloudEDL: string;
+	export let textPointCloudEDLRadius: string;
+	export let textPointCloudEDLStrength: string;
+	export let textFPSCounter: string;
+	export let textInspector: string;
+	export let textCameraPosition: string;
+	export let textMouseCoordinates: string;
+	export let textEnableDragDropFiles: string;
+	export let textAdvanced: string;
 
-	export let textQuality: string = "Quality";
-	export let textRendering: string = "Rendering";
-	export let textEnvironment: string = "Environment";
-	export let textDebug: string = "Debug";
-
-	export let textLow: string = "Low";
-	export let textMedium: string = "Medium";
-	export let textHigh: string = "High";
-	export let textCustom: string = "Custom";
-
-	export let textShadows: string = "Shadows";
-	export let textFXAA: string = "FXAA";
-	export let textMSAA: string = "MSAA";
-	export let textAnimate: string = "Animate";
-
-	export let textResolutionScale: string = "Resolution Scale";
-	export let textMaximumScreenspaceError: string = "Maximum Screenspace Error";
-	export let textGroundAtmosphere: string = "Ground Atmosphere";
-	export let textSkyAtmosphere: string = "Sky Atmosphere";
-	export let textLighting: string = "Lighting";
-	export let textFog: string = "Fog";
-	export let textHighDynamicRange: string = "High Dynamic Range";
-
-	export let textPointCloud: string = "Point Clouds";
-
-	export let textPointCloudAttenuation: string = "Attenuation";
-	export let textPointCloudAttenuationMaximum: string = "Attenuation Maximum";
-	export let textPointCloudAttenuationErrorScale: string = "Attenuation Geometric Error Scale";
-	export let textPointCloudAttenuationBaseResolution: string = "Attenuation Base resolution";
-
-	export let textPointCloudEDL: string = "Eye Dome Lighting";
-	export let textPointCloudEDLRadius: string = "Eye Dome Lighting Radius";
-	export let textPointCloudEDLStrength: string = "Eye Dome Lighting Strength";
-
-	export let textFPSCounter: string = "FPS Counter";
-	export let textInspector: string = "Tile Inspector";
-	export let textMouseCoordinates: string = "Coordinates";
-
-	export let textEnableDragDropFiles: string = "Drag and drop files";
+	$: label = $_("tools.cesium.label");
+	$: textSunPosition = $_("tools.cesium.sunPosition");
+	$: textSunPositionDate = $_("tools.cesium.sunPositionDate");
+	$: textSunPositionHour = $_("tools.cesium.sunPositionHour");
+	$: textQuality = $_("tools.cesium.quality");
+	$: textRendering = $_("tools.cesium.rendering");
+	$: textEnvironment = $_("tools.cesium.environment");
+	$: textDebug = $_("tools.cesium.debug");
+	$: textLow = $_("tools.cesium.low");
+	$: textMedium = $_("tools.cesium.medium");
+	$: textHigh = $_("tools.cesium.high");
+	$: textCustom = $_("tools.cesium.custom");
+	$: textShadows = $_("tools.cesium.shadows");
+	$: textFXAA = $_("tools.cesium.fxaa");
+	$: textMSAA = $_("tools.cesium.msaa");
+	$: textAnimate = $_("tools.cesium.animate");
+	$: textResolutionScale = $_("tools.cesium.resolutionScale");
+	$: textMaximumScreenspaceError = $_("tools.cesium.maximumScreenspaceError");
+	$: textGroundAtmosphere = $_("tools.cesium.groundAtmosphere");
+	$: textSkyAtmosphere = $_("tools.cesium.skyAtmosphere");
+	$: textLighting = $_("tools.cesium.lighting");
+	$: textFog = $_("tools.cesium.fog");
+	$: textHighDynamicRange = $_("tools.cesium.dynamicRange");
+	$: textPointCloud = $_("tools.cesium.pointCloud");
+	$: textPointCloudAttenuation = $_("tools.cesium.pointCloudAttenuation");
+	$: textPointCloudAttenuationMaximum = $_("tools.cesium.pointCloudAttenuationMaximum");
+	$: textPointCloudAttenuationErrorScale = $_("tools.cesium.pointCloudAttenuationErrorScale");
+	$: textPointCloudAttenuationBaseResolution = $_("tools.cesium.pointCloudAttenuationBaseResolution");
+	$: textPointCloudEDL = $_("tools.cesium.pointCloudEDL");
+	$: textPointCloudEDLRadius = $_("tools.cesium.pointCloudEDLRadius");
+	$: textPointCloudEDLStrength = $_("tools.cesium.pointCloudEDLStrength");
+	$: textFPSCounter = $_("tools.cesium.FPSCounter");
+	$: textInspector = $_("tools.cesium.inspector");
+	$: textCameraPosition = $_("tools.cesium.cameraPosition");
+	$: textMouseCoordinates = $_("tools.cesium.coordinates");
+	$: textEnableDragDropFiles = $_("tools.cesium.dragAndDropFiles");
+	$: textAdvanced = $_("tools.cesium.advanced");
 
 	export let cesiumMap: Map = map;
 
@@ -258,132 +296,123 @@
 			<RadioButton labelText={textHigh} value="high" />
 			<RadioButton labelText={textCustom} value="custom" />
 		</RadioButtonGroup>
-
-		<Divider />
-		<div class="heading-01">
-			{textRendering}
-		</div>
-
+	</div>
+	
+	<Accordion>
+		<AccordionItem title={textRendering}>
 		<Checkbox labelText={textFXAA} bind:checked={$fxaa} />
 
-		<Slider
-			hideTextInput
-			fullWidth
-			min={1}
-			max={8}
-			step={1}
-			labelText={`${textMSAA}: ${$msaa}`}
-			bind:value={$msaa}
-		/>
-		<Slider
-			hideTextInput
-			fullWidth
-			min={0.1}
-			max={4}
-			step={0.1}
-			labelText={`${textResolutionScale}: ${$resolutionScale.toFixed(1)}`}
-			bind:value={$resolutionScale}
-		/>
-		<Slider
-			hideTextInput
-			fullWidth
-			min={1}
-			max={3}
-			step={0.1}
-			labelText={`${textMaximumScreenspaceError}: ${$maximunScreenSpaceError.toFixed(1)}`}
-			bind:value={$maximunScreenSpaceError}
-		/>
-
-		<Divider />
-
-		<div class="heading-01">
-			{textEnvironment}
-		</div>
-
-		<Checkbox labelText={textAnimate} bind:checked={$animate} />
-		<Checkbox labelText={textShadows} bind:checked={$shadows} />
-		<Checkbox labelText={textLighting} bind:checked={$lighting} />
-		<Checkbox labelText={textGroundAtmosphere} bind:checked={$groundAtmosphere} />
-		<Checkbox labelText={textSkyAtmosphere} bind:checked={$skyAtmosphere} />
-		<Checkbox labelText={textFog} bind:checked={$fog} />
-		<Checkbox labelText={textHighDynamicRange} bind:checked={$highDynamicRange} />
-
-		<Divider />
-		<div class="heading-01">
-			{textDebug}
-		</div>
-
-		<Checkbox labelText={textFPSCounter} bind:checked={$fpsCounter} />
-		<Checkbox labelText={textInspector} bind:checked={$inspector} />
-		<Checkbox labelText={textMouseCoordinates} bind:checked={$showMouseCoordinates} />		
-		<Checkbox labelText="Camera position" bind:checked={$showCameraPosition} />	
-		<Checkbox labelText={textEnableDragDropFiles} bind:checked={$enableDragDropFiles} />
-
-		<Divider />
-		<div class="heading-01">{textPointCloud}</div>
-
-		<Checkbox labelText={textPointCloudAttenuation} bind:checked={$pointCloudAttenuation} />
-		<Checkbox labelText={textPointCloudEDL} bind:checked={$pointCloudEdl} />
-
-		{#if $pointCloudAttenuation}
 			<Slider
 				hideTextInput
 				fullWidth
-				min={0}
-				max={2}
-				step={0.1}
-				labelText={`${textPointCloudAttenuationErrorScale}: ${$pointCloudAttenuationErrorScale.toFixed(
-					1
-				)}`}
-				bind:value={$pointCloudAttenuationErrorScale}
-			/>
-
-			<Slider
-				hideTextInput
-				fullWidth
-				min={0}
-				max={30}
+				min={1}
+				max={8}
 				step={1}
-				labelText={`${textPointCloudAttenuationMaximum}: ${$pointCloudAttenuationMaximum.toFixed(
-					1
-				)}`}
-				bind:value={$pointCloudAttenuationMaximum}
+				labelText={`${textMSAA}: ${$msaa}`}
+				bind:value={$msaa}
 			/>
-
 			<Slider
 				hideTextInput
 				fullWidth
-				min={0}
-				max={10}
-				step={0.2}
-				labelText={`${textPointCloudAttenuationBaseResolution}: ${$pointCloudAttenuationBaseResolution.toFixed(
-					1
-				)}`}
-				bind:value={$pointCloudAttenuationBaseResolution}
-			/>
-		{/if}
-
-		{#if $pointCloudEdl}
-			<Slider
-				hideTextInput
-				fullWidth
-				min={0}
-				max={10}
+				min={0.1}
+				max={4}
 				step={0.1}
-				labelText={`${textPointCloudEDLStrength}: ${$pointCloudEDLStrength.toFixed(1)}`}
-				bind:value={$pointCloudEDLStrength}
+				labelText={`${textResolutionScale}: ${$resolutionScale.toFixed(1)}`}
+				bind:value={$resolutionScale}
 			/>
 			<Slider
 				hideTextInput
 				fullWidth
-				min={0}
-				max={10}
+				min={1}
+				max={3}
 				step={0.1}
-				labelText={`${textPointCloudEDLRadius}: ${$pointCloudEDLRadius.toFixed(1)}`}
-				bind:value={$pointCloudEDLRadius}
+				labelText={`${textMaximumScreenspaceError}: ${$maximunScreenSpaceError.toFixed(1)}`}
+				bind:value={$maximunScreenSpaceError}
 			/>
-		{/if}
-	</div>
+		</AccordionItem>
+
+		<AccordionItem title={textEnvironment}>
+			<Checkbox labelText={textAnimate} bind:checked={$animate} />
+			<Checkbox labelText={textShadows} bind:checked={$shadows} />
+			<Checkbox labelText={textLighting} bind:checked={$lighting} />
+			<Checkbox labelText={textGroundAtmosphere} bind:checked={$groundAtmosphere} />
+			<Checkbox labelText={textSkyAtmosphere} bind:checked={$skyAtmosphere} />
+			<Checkbox labelText={textFog} bind:checked={$fog} />
+			<Checkbox labelText={textHighDynamicRange} bind:checked={$highDynamicRange} />
+		</AccordionItem>
+
+		<AccordionItem title={textDebug}>
+			<Checkbox labelText={textFPSCounter} bind:checked={$fpsCounter} />
+			<Checkbox labelText={textInspector} bind:checked={$inspector} />
+			<Checkbox labelText={textMouseCoordinates} bind:checked={$showMouseCoordinates} />
+			<Checkbox labelText={textCameraPosition} bind:checked={$showCameraPosition} />
+			<Checkbox labelText={textEnableDragDropFiles} bind:checked={$enableDragDropFiles} />
+		</AccordionItem>
+
+		<AccordionItem title={textPointCloud}>
+			<Checkbox labelText={textPointCloudAttenuation} bind:checked={$pointCloudAttenuation} />
+			<Checkbox labelText={textPointCloudEDL} bind:checked={$pointCloudEdl} />
+
+				{#if $pointCloudAttenuation}
+					<Slider
+						hideTextInput
+						fullWidth
+						min={0}
+						max={2}
+						step={0.1}
+						labelText={`${textPointCloudAttenuationErrorScale}: ${$pointCloudAttenuationErrorScale.toFixed(
+							1
+						)}`}
+						bind:value={$pointCloudAttenuationErrorScale}
+					/>
+
+					<Slider
+						hideTextInput
+						fullWidth
+						min={0}
+						max={30}
+						step={1}
+						labelText={`${textPointCloudAttenuationMaximum}: ${$pointCloudAttenuationMaximum.toFixed(
+							1
+						)}`}
+						bind:value={$pointCloudAttenuationMaximum}
+					/>
+
+					<Slider
+						hideTextInput
+						fullWidth
+						min={0}
+						max={10}
+						step={0.2}
+						labelText={`${textPointCloudAttenuationBaseResolution}: ${$pointCloudAttenuationBaseResolution.toFixed(
+							1
+						)}`}
+						bind:value={$pointCloudAttenuationBaseResolution}
+					/>
+				{/if}
+
+				{#if $pointCloudEdl}
+					<Slider
+						hideTextInput
+						fullWidth
+						min={0}
+						max={10}
+						step={0.1}
+						labelText={`${textPointCloudEDLStrength}: ${$pointCloudEDLStrength.toFixed(1)}`}
+						bind:value={$pointCloudEDLStrength}
+					/>
+					<Slider
+						hideTextInput
+						fullWidth
+						min={0}
+						max={10}
+						step={0.1}
+						labelText={`${textPointCloudEDLRadius}: ${$pointCloudEDLRadius.toFixed(1)}`}
+						bind:value={$pointCloudEDLRadius}
+					/>
+				{/if}
+		</AccordionItem>
+	</Accordion>
 {/if}
 
 <style>

@@ -11,16 +11,22 @@
 
     let id: string = "info";
     export let icon: any = Information;
-    export let label: string = "Info";
-
-    export let txtTitle = get(_)("tools.info.info");
-    export let txtClose = get(_)("tools.info.close");
-    export let txtGeneral = get(_)("tools.info.general");
-    export let txtAttribution = get(_)("tools.info.attribution");
     export let txtViewerTitle: string | undefined = undefined;
     export let txtViewerDescription: string | undefined = undefined;
     export let attribution: Array<Attribution> = new Array<Attribution>();
 
+    export let label: string;
+    export let txtTitle: string;
+    export let txtClose: string;
+    export let txtGeneral: string;
+    export let txtAttribution: string;
+
+    $: label = $_("tools.info.label");
+    $: txtTitle = $_("tools.info.label");
+    $: txtClose = $_("tools.info.close");
+    $: txtGeneral = $_("tools.info.general");
+    $: txtAttribution = $_("tools.info.attribution");
+    
     let infoView: MapToolInfoView | undefined = undefined;
     let tool = new MapToolMenuOption(id, icon, label, true, undefined, true, false);
     $: { tool.label.set(label); }

@@ -90,6 +90,19 @@
         }
 
         tool.settings.set(toolConfig.settings);
+        setDefaultSelectedTool(tool);
+    }
+
+    function setDefaultSelectedTool(tool: MapToolMenuOption) {
+        const startToolOpen: string | undefined = map.viewerSettings.startToolOpen ?? undefined;
+        if (tool.id === startToolOpen) {
+            // Create a synthetic event to simulate a tool click
+            // Needed to make layerlibrary open on start
+            const e = new CustomEvent('toolOpen', {
+                detail: { source: 'startToolOpen' }
+            });
+            selectTool(e, tool);
+        }
     }
 
     setContext("mapTools", {
@@ -121,14 +134,18 @@
 
     function selectTool(event: CustomEvent<any>, tool: MapToolMenuOption): void {
         if (tool.openMenuOnClick) {
-            if ($selectedTool === tool) {
-                selectedTool.set(undefined);
-            } else {
-                selectedTool.set(tool);
-            }
+            toggleSelectedTool(tool);
         }
 
-        tool.fireClick(event)
+        tool.fireClick(event);
+    }
+    
+    function toggleSelectedTool(tool: MapToolMenuOption): void {
+        if ($selectedTool === tool) {
+            selectedTool.set(undefined);
+        } else {
+            selectedTool.set(tool);
+        }
     }
 </script>
 
