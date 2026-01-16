@@ -145,7 +145,6 @@
                             heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN,
                         }
                     });
-                    map.refresh();
 
                     const isochrone: Isochrone = {
                         entity: isochroneEntity,
@@ -156,6 +155,7 @@
                         }
                     };
                     isochrones.push(isochrone);
+                    map.refresh();
                 });
                 console.log("Isochrones added to map:", isochrones);
             }
@@ -205,33 +205,33 @@
     kind="tertiary"
     disabled={!pointEntity || !apiKey}
     on:click={() => {
-            console.log("Calculate Isochrones clicked");
+        console.log("Calculate Isochrones clicked");
 
-            // Calculate coordinates from the point entity
-            if (!pointEntity) {
-                console.warn("No point entity defined for isochrone calculation");
-                return;
-            }
+        // Calculate coordinates from the point entity
+        if (!pointEntity) {
+            console.warn("No point entity defined for isochrone calculation");
+            return;
+        }
 
-            const coords = XYFromEntity(pointEntity);
-            if (!coords) {
-                console.warn("Failed to get coordinates from point entity");
-                return;
-            }
-            const { x, y } = coords;
+        const coords = XYFromEntity(pointEntity);
+        if (!coords) {
+            console.warn("Failed to get coordinates from point entity");
+            return;
+        }
+        const { x, y } = coords;
 
 
-            // Calculates isochrones and displays them on the map
-            calculateCarIosochrones(
-                x, 
-                y, 
-                [20, 20, 20],  // 20-minute isochrones
-                true, 
-                "time", 
-                0.99, 
-                apiKey
-            );
-        }}
+        // Calculates isochrones and displays them on the map
+        calculateCarIosochrones(
+            x, 
+            y, 
+            [20, 20, 20],  // 20-minute isochrones
+            true, 
+            "time", 
+            0.99, 
+            apiKey
+        );
+    }}
 >
     Calculate isochrones
 </Button>
