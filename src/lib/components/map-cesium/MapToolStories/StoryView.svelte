@@ -64,7 +64,7 @@
 	let polygonArea: number = 0;
 	let hasDrawnPolygon: Writable<boolean> = writable(false);
 	let polygonCameraLocation: CameraLocation | undefined = undefined; // Used instead of CL if project area is drawn by user
-	let distributions: Array<{ group: string; value: number }[]>;
+	let distributions: Array<{ group: string; value: number }[]> = [];
 	let showPolygonMenu: Writable<boolean> = writable(true);
 	let baseLayer: Layer | undefined;
 	let baseMapVisible = writable(true);

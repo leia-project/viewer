@@ -1,6 +1,6 @@
 <script lang="ts">
     import * as Cesium from "cesium";
-	import { _, t } from "svelte-i18n";
+	import { _ } from "svelte-i18n";
     import { Button, TooltipIcon } from "carbon-components-svelte";
 	import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import AreaCustom from "carbon-icons-svelte/lib/AreaCustom.svelte";
@@ -17,16 +17,16 @@
     import { FileUploaderItem } from "carbon-components-svelte";
     import CustomFileUploader from "./CustomFileUploader.svelte";
     import { InlineNotification } from "carbon-components-svelte";
-	import { parse } from "cookie";
     import initGdalJs from 'gdal3.js';
     import workerUrl from 'gdal3.js/dist/package/gdal3.js?url'
     import dataUrl from 'gdal3.js/dist/package/gdal3WebAssembly.data?url'
     import wasmUrl from 'gdal3.js/dist/package/gdal3WebAssembly.wasm?url'
     import { exportDataPages } from "./StoryChart/StoryChartExportDataPages";
 
+
     export let map: Map;
     export let story: Story;
-    export let distributions: Array<{ group: string; value: number }[]> = [];
+    export let distributions: Array<{ group: string; value: number }[]>;
     export let polygonArea: number;
     export let hasDrawnPolygon: boolean;
     export let showPolygonMenu: Writable<boolean>;
@@ -51,6 +51,7 @@
     let completeButtonEnabled: boolean = false;
 
     const paths = {wasm: wasmUrl, data: dataUrl, js: workerUrl};
+
 
     onMount(() => {
         const storedPolygonData = get(polygonStore);
