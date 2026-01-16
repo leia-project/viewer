@@ -7,7 +7,6 @@
 	import Exit from "carbon-icons-svelte/lib/Exit.svelte";
 	import ChevronDown from "carbon-icons-svelte/lib/ChevronDown.svelte";
 	import ChevronUp from "carbon-icons-svelte/lib/ChevronUp.svelte";
-	import { DocumentDownload } from "carbon-icons-svelte";
 	import "@carbon/charts-svelte/styles.css";
 
 	import type { Story } from "./Story";
@@ -24,27 +23,12 @@
 	import DrawPolygon from "./DrawPolygon.svelte";
 	import { getCameraPositionFromBoundingSphere } from "../module/utils/layer-utils";
 	import { polygonStore } from './PolygonEntityStore';
-	import StoryChart from "./StoryChart.svelte";
+	import StoryChart from "./StoryChart/StoryChart.svelte";
 	import ChoroplethMap from "carbon-icons-svelte/lib/ChoroplethMap.svelte";
 	import StoryOpacitySlider from "./StoryOpacitySlider.svelte";
+	import StoryChartDownloadButton from "./StoryChart/StoryChartDownloadButton.svelte";
+	import type { SubLabel, LegendItem, LegendOptions } from "./LegendOptions";
 
-	type SubLabel = {
-		text: string;
-		hoverText: string;
-	};
-
-	type LegendItem = {
-		labels: string;
-		text: string;
-		subLabels?: {
-			[key: string]: SubLabel;
-		};
-	};
-
-	type LegendOptions = {
-		generalLegendText: string;
-		legendOptions: LegendItem[];
-	};
 
 	export let map: Map;
 	export let story: Story;
@@ -80,7 +64,7 @@
 	let polygonArea: number = 0;
 	let hasDrawnPolygon: Writable<boolean> = writable(false);
 	let polygonCameraLocation: CameraLocation | undefined = undefined; // Used instead of CL if project area is drawn by user
-	let distributions: Array<{ group: string; value: number }[]>;
+	let distributions: Array<{ group: string; value: number }[]> = [];
 	let showPolygonMenu: Writable<boolean> = writable(true);
 	let baseLayer: Layer | undefined;
 	let baseMapVisible = writable(true);
@@ -142,11 +126,11 @@
 
 	// Flatten the steps across all chapters so we can access the correct step based on the index
 	let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
-		story.storyChapters.forEach((chapter) => {
-			chapter.steps.forEach((step) => {
-				flattenedSteps.push({ step, chapter });
-			});
+	story.storyChapters.forEach((chapter) => {
+		chapter.steps.forEach((step) => {
+			flattenedSteps.push({ step, chapter });
 		});
+	});
 
 
 	onMount(() => {
@@ -508,15 +492,9 @@
 		</div>
 		<div class="nav-controls">
 			{#if story.requestPolygonArea}
-				<div class="download-pdf">
-					<Button
-						kind={"tertiary"}
-						iconDescription={$_("tools.stories.downloadPDF")}
-						tooltipPosition="top"
-						icon={DocumentDownload}
-						on:click={downloadPDF} 
-					/>
-				</div>
+				<!-- {#if distributions.length > 0} -->
+					<StoryChartDownloadButton bind:data={distributions} {story} {layerLegends} {map}/>
+				<!-- {/if} -->
 			{/if}
 			{#if baseLayerId}
 				<div class="toggle-basemap">
@@ -558,7 +536,6 @@
 			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={showPolygonMenu}/>
 		{/if}
 		<div class="chapter-buttons">
-			
 				{#each story.storyChapters as chapter, index}
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}
@@ -583,18 +560,6 @@
 				bind:lastInputType ={lastInputType}
 				{flattenedSteps}
 			/>
-
-			<!-- <PaginationNav
-				forwardText={textStepForward}
-				backwardText={textStepBack}
-				bind:page={$currentPage}
-				total={flattenedSteps.length}
-				{shown}
-				loop
-				onmousedown={() => {
-					lastInputType = "click";
-				}}
-			/> -->
 		</div>
 	</div>
 
@@ -611,7 +576,9 @@
 				<div class="step-heading-sub heading-03">
 					{$_("tools.stories.description")}
 				</div>
-				{@html step.html}
+				<div>
+					{@html step.html}
+				</div>
 				<!-- {#each step.layers ?? [] as layer}
 					Layer {layer.id}: {layer.featureName}
 				{/each} -->
@@ -623,7 +590,7 @@
 				<div class="step-stats">
 					{#if story.requestPolygonArea}
 						{#if distributions && distributions[index]}
-							<StoryChart data={distributions[index]} />
+							<StoryChart data={distributions[index]} { index } />
 							<br><br><br>
 							{#if layerLegends[index].generalLegendText}
 								<div class="legendary-text mb">
@@ -677,9 +644,9 @@
 								{/if}
 							</ul>
 						{:else if $hasDrawnPolygon}
-							<StoryChart data={undefined} loading={true} />
+							<StoryChart data={undefined} { index } loading={true} />
 						{:else}
-							<StoryChart data={undefined} />
+							<StoryChart data={undefined} { index } />
 						{/if}
 					{/if}
 				</div>

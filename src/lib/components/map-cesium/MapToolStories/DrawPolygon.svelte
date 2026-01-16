@@ -1,6 +1,6 @@
 <script lang="ts">
     import * as Cesium from "cesium";
-	import { _, t } from "svelte-i18n";
+	import { _ } from "svelte-i18n";
     import { Button, TooltipIcon } from "carbon-components-svelte";
 	import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import AreaCustom from "carbon-icons-svelte/lib/AreaCustom.svelte";
@@ -17,15 +17,16 @@
     import { FileUploaderItem } from "carbon-components-svelte";
     import CustomFileUploader from "./CustomFileUploader.svelte";
     import { InlineNotification } from "carbon-components-svelte";
-	import { parse } from "cookie";
     import initGdalJs from 'gdal3.js';
     import workerUrl from 'gdal3.js/dist/package/gdal3.js?url'
     import dataUrl from 'gdal3.js/dist/package/gdal3WebAssembly.data?url'
     import wasmUrl from 'gdal3.js/dist/package/gdal3WebAssembly.wasm?url'
+    import { exportDataPages } from "./StoryChart/StoryChartExportDataPages";
+
 
     export let map: Map;
     export let story: Story;
-    export let distributions: Array<{ group: string; value: number }[]> = [];
+    export let distributions: Array<{ group: string; value: number }[]>;
     export let polygonArea: number;
     export let hasDrawnPolygon: boolean;
     export let showPolygonMenu: Writable<boolean>;
@@ -50,6 +51,7 @@
     let completeButtonEnabled: boolean = false;
 
     const paths = {wasm: wasmUrl, data: dataUrl, js: workerUrl};
+
 
     onMount(() => {
         const storedPolygonData = get(polygonStore);
@@ -212,22 +214,25 @@
         hasUploadedPolygon = false;
         isDrawing = false;
 
-        setButtonStates(false, false, true, false);
+        setButtonStates(false, false, false, false);
         
         // sendAPIUpResponse();
         let storyLayers: Array<StoryLayer> = story.getStoryLayers();
-        
+        let promises = [];
         for (let i = 0; i < storyLayers.length; i++) {
-            sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi)
-            .then(apiResponse => {
-                const transformed = transformDistribution(apiResponse.distribution);
-                distributions[i] = transformed;
-            })
-            .catch(error => 
-                console.error("Error: ", error)
-            );
-            
+            const p = sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi)
+                .then(apiResponse => {
+                    const transformed = transformDistribution(apiResponse.distribution);
+                    distributions[i] = transformed;
+                })
+                .catch(error => 
+                    console.error("Error: ", error)
+                );
+            promises.push(p);
         }
+        Promise.all(promises).then(() => {
+            setButtonStates(false, false, true, false);
+        });
         selectedAction = undefined;
         polygonArea = area(geojson)
         polygonStore.set({
@@ -241,18 +246,24 @@
 
     function handleFinishUpload() {
         let storyLayers: Array<StoryLayer> = story.getStoryLayers();
-        
+        setButtonStates(false, false, false, false);
+
+        let promises = [];
         for (let i = 0; i < storyLayers.length; i++) {
-            sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi)
-            .then(apiResponse => {
-                const transformed = transformDistribution(apiResponse.distribution);
-                distributions[i] = transformed;
-            })
-            .catch(error => 
-                console.error("Error: ", error)
-            );
-            
+            const p = sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi)
+                .then(apiResponse => {
+                    const transformed = transformDistribution(apiResponse.distribution);
+                    distributions[i] = transformed;
+                })
+                .catch(error => 
+                    console.error("Error: ", error)
+                );
+            promises.push(p);
         }
+        Promise.all(promises).then(() => {
+            setButtonStates(false, false, true, false);
+        });
+
         selectedAction = undefined;
         polygonArea = area(geojson)
         polygonStore.set({
@@ -264,8 +275,6 @@
         hasDrawnPolygon = true;
         hasUploadedPolygon = true;
         uploadedFile = [];
-
-        setButtonStates(false, false, true, false);
 
         showPolygonMenu.set(false);
     }
@@ -534,6 +543,14 @@
                     distributions = [];
                     hasDrawnPolygon = false;
                     hasUploadedPolygon = false;
+                    // Clear all stored images from the exportDataPages store
+                    exportDataPages.update(state => ({
+                        ...state,
+                        pages: state.pages.map(page => ({
+                            ...page,
+                            image: undefined
+                        }))
+                    }));
                 }}
             >
                 {$_("tools.stories.deletePolygon")}

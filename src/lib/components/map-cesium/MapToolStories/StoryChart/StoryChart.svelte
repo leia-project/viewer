@@ -1,18 +1,25 @@
 <script lang="ts">
-	import { echarts, echartsLoading } from './echarts';
+	import type { EChartsOption } from 'echarts';
+	import { echarts, echartsLoading } from '../echarts';
 	import { _ } from "svelte-i18n";
+
 	
 	export let data: Array<{ group: string; value: number }> | undefined;
 	export let loading: boolean = false;
+	export let index: number;
 
 	let cleanData: Array<{ name: string; value: number }> = [];
 	let color: Array<string>;
 	let toolTipText: string;
+	let dataDefined: boolean;
+
 
 	const hasNonZeroData = data && data.length > 0 && data.some(item => item.value > 0);
 
 	// Data exists and has non-zero values
 	if (data && hasNonZeroData) {
+		dataDefined = true;
+		// Change name 'group' to 'name' for compatibility with echarts
 		cleanData = data.map(item => ({ name: item.group, value: item.value }));
 		color = ['#339966', '#99ffcc', '#ffff99', '#ffcc66', '#9c4110']; // A B C D E colors
 		toolTipText = '{b}: {d}%'; // Show group name and percentage
@@ -27,6 +34,7 @@
 	}
 	// No project area defined
 	else {
+		dataDefined = false;
 		cleanData = [
 			{ name: $_("tools.stories.storyChartNoData"), value: 1 }
 		];
@@ -34,7 +42,7 @@
 		toolTipText = $_("tools.stories.requestDrawPolygon");
 	}
 
-	let option = {
+	let option: EChartsOption = {
 		color: color, 
 		title: {
 			text: $_("tools.stories.storyChartTitle"),
@@ -70,7 +78,8 @@
 				labelLine: {
 					show: false
 				},
-				data: cleanData
+				data: cleanData,
+				animationDuration: 0,
 			}
 		]
 	};
@@ -79,7 +88,7 @@
 {#if loading}
 	<div class={"container"} use:echartsLoading={option} />
 {:else}
-	<div class={"container"} use:echarts={option} />
+	<div class={"container"} use:echarts={{ option: option, index: index, dataDefined: dataDefined }} />
 {/if}
 
 <style>

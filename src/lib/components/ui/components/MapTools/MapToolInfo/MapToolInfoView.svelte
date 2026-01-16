@@ -62,6 +62,13 @@
             "bugra9",
             "https://github.com/bugra9/gdal3.js",
             "LGPL-2.1 license"
+        ),
+        new Attribution(
+            "jsPDF",
+            "Used to generate a summary PDF based on input data in the Stories tool.",
+            "parallax",
+            "https://github.com/parallax/jsPDF",
+            "MIT"
         )
     );
 

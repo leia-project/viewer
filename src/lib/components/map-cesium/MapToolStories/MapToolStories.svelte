@@ -4,6 +4,7 @@
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 
 	import type { Map } from "../module/map";
+	import type { LegendOptions } from "./LegendOptions";
 
 	import Book from "carbon-icons-svelte/lib/Book.svelte";
 	import { StoryStep } from "./StoryStep";
@@ -37,12 +38,6 @@
 	let stepNumber: number;
 	let baseLayerId: string | undefined;
 	let tool = new MapToolMenuOption(id, icon, label);
-	type LegendOptions = {
-		generalLegendText: string;
-		legendOptions: {
-			[key: string]: string;
-		};
-	};
 	const layerLegends: Array<LegendOptions> = [];
 	const layers = cesiumMap.layers;
 
@@ -52,6 +47,7 @@
 	$: {
 		tool.width.set(selectedStory?.width ?? "");
 	}
+
 	selectedTool.subscribe((selected: MapToolMenuOption) => {
 		if (tool === selected && selectedStory) {
 			tool.width.set(selectedStory.width ?? "");
