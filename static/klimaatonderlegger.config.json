@@ -534,6 +534,19 @@
                 "featureName": "waterkwaliteit_natuur_aggregated",
                 "contenttype": "image/png"
             }
+        },
+        {
+            "id": "99999",
+            "type": "geojson",
+            "title": "TEST Woonkernen",
+            "groupId": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "settings": {
+                "url": "http://localhost:8000/Woonkernen_info.geojson"
+            }
         }
     ],
     "viewer": {
@@ -549,7 +562,6 @@
             "duration": 1.50
         },
         "startCameraMode3D": false,
-        "startToolOpen": "stories",
         "colors": {
             "ui-background": "#ffffff",
             "interactive-01": "#214170",
@@ -707,7 +719,7 @@
     ],
     "tools": [
         {
-            "id": "layerlibrary",
+            "id": "layerLibrary",
             "enabled": true,
             "settings": {
                 "connectors": [
@@ -727,7 +739,7 @@
             }
         },
         {
-            "id": "layermanager",
+            "id": "layerManager",
             "enabled": true,
             "settings": {}
         },
@@ -1857,6 +1869,10 @@
                     }
                 ]
             }
+        },
+        {
+            "id": "isochrones",
+            "enabled": true
         },
         {
             "id": "measure",
