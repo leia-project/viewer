@@ -535,9 +535,14 @@
                     distributions = [];
                     hasDrawnPolygon = false;
                     hasUploadedPolygon = false;
-                    exportDataPages.set({
-                        pages: []
-                    });
+                    // Clear all stored images from the exportDataPages store
+                    exportDataPages.update(state => ({
+                        ...state,
+                        pages: state.pages.map(page => ({
+                            ...page,
+                            image: undefined
+                        }))
+                    }));
                 }}
             >
                 {$_("tools.stories.deletePolygon")}
