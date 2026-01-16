@@ -12,6 +12,11 @@
     export let map: Map;
 
     let fractionSmallestIsochrone: number = 0.5;
+    // 50% van deze mensen vestigt zich binnen 20 minuten van het gekozen punt (slider controlled)
+
+    // 30% van deze mensen vestigt zich binnen 40 minuten van het gekozen punt (derived)
+
+    // 20% van deze mensen vestigt zich binnen 60 minuten van het gekozen punt (derived)
 
     $: {console.log("Fraction Smallest Isochrone:", fractionSmallestIsochrone);}
 
