@@ -107,7 +107,7 @@
                 doc.addPage(); 
                 setHeadingFont(doc);
                 addSplitText(doc, stepHeader, 15, 20, 180);
-                doc.addImage(image, 'PNG', 15, 30, 198, 110);
+                doc.addImage(image, 'PNG', 15, 30, 250, 100);
 
                 // Add all groups and values for this data point as percentages
                 if (data[index]) {
