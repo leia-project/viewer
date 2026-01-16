@@ -19,7 +19,7 @@
 </div>
 
 {#if downloadPDFButton?.enabled}
-    <Button icon={DocumentPdf} href={downloadPDFButton.url}>
+    <Button icon={DocumentPdf} href={downloadPDFButton.url} target="_blank">
         {downloadPDFButton.label}
     </Button>
 {/if}

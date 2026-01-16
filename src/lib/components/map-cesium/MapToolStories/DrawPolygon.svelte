@@ -214,22 +214,25 @@
         hasUploadedPolygon = false;
         isDrawing = false;
 
-        setButtonStates(false, false, true, false);
+        setButtonStates(false, false, false, false);
         
         // sendAPIUpResponse();
         let storyLayers: Array<StoryLayer> = story.getStoryLayers();
-        
+        let promises = [];
         for (let i = 0; i < storyLayers.length; i++) {
-            sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi)
-            .then(apiResponse => {
-                const transformed = transformDistribution(apiResponse.distribution);
-                distributions[i] = transformed;
-            })
-            .catch(error => 
-                console.error("Error: ", error)
-            );
-            
+            const p = sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi)
+                .then(apiResponse => {
+                    const transformed = transformDistribution(apiResponse.distribution);
+                    distributions[i] = transformed;
+                })
+                .catch(error => 
+                    console.error("Error: ", error)
+                );
+            promises.push(p);
         }
+        Promise.all(promises).then(() => {
+            setButtonStates(false, false, true, false);
+        });
         selectedAction = undefined;
         polygonArea = area(geojson)
         polygonStore.set({
@@ -243,18 +246,24 @@
 
     function handleFinishUpload() {
         let storyLayers: Array<StoryLayer> = story.getStoryLayers();
-        
+        setButtonStates(false, false, false, false);
+
+        let promises = [];
         for (let i = 0; i < storyLayers.length; i++) {
-            sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi)
-            .then(apiResponse => {
-                const transformed = transformDistribution(apiResponse.distribution);
-                distributions[i] = transformed;
-            })
-            .catch(error => 
-                console.error("Error: ", error)
-            );
-            
+            const p = sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi)
+                .then(apiResponse => {
+                    const transformed = transformDistribution(apiResponse.distribution);
+                    distributions[i] = transformed;
+                })
+                .catch(error => 
+                    console.error("Error: ", error)
+                );
+            promises.push(p);
         }
+        Promise.all(promises).then(() => {
+            setButtonStates(false, false, true, false);
+        });
+
         selectedAction = undefined;
         polygonArea = area(geojson)
         polygonStore.set({
@@ -266,8 +275,6 @@
         hasDrawnPolygon = true;
         hasUploadedPolygon = true;
         uploadedFile = [];
-
-        setButtonStates(false, false, true, false);
 
         showPolygonMenu.set(false);
     }
