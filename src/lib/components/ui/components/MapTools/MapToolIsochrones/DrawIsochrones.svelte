@@ -4,6 +4,7 @@
 	import { Button } from "carbon-components-svelte";
 	import { onDestroy, onMount } from "svelte";
     import { PasswordInput } from "carbon-components-svelte";
+    import { InlineLoading } from "carbon-components-svelte";
 
 
     // TODO: rewrite isochrones to class with methods
@@ -15,6 +16,7 @@
     let pointEntity: Cesium.Entity | undefined;
     let handler: Cesium.ScreenSpaceEventHandler;
     let apiKey: string = "";
+    let loading: boolean = false;
 
     onMount(() => {
         console.log("DrawIsochroneCenter mounted");
@@ -117,6 +119,7 @@
         destroyHandler(); // Stop drawing
 
         try {
+            loading = true;
             const response = await fetch(apiUrl, {
                 method: "GET"
             });
@@ -164,6 +167,9 @@
             }
         } catch (error) {
             console.error("Failed to send request:", error);
+        }
+        finally {
+            loading = false;
         }
     };
 
@@ -233,7 +239,11 @@
         );
     }}
 >
-    Calculate isochrones
+    {#if loading}
+        <InlineLoading description="Calculating..." />
+    {:else}
+        Calculate isochrones
+    {/if}
 </Button>
 
 

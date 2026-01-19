@@ -5,7 +5,7 @@
 	import { onDestroy, onMount } from "svelte";
 
 
-    // TODO: rewrite isochrones to class with methods
+    // TODO: rewrite isochrones to class with methods with customdatasource array as  isochrones
     import type { Isochrone } from "./Isochrone";
     import { isochrones } from "./Isochrone";
 
