@@ -5,6 +5,7 @@
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import DrawIsochrones from "./DrawIsochrones.svelte";
 	import ControlIsochroneStyles from "./ControlIsochroneStyles.svelte";
+	import { IsochronesLayer } from "./isochrones-layer";
 
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
@@ -22,13 +23,16 @@
 	$: { tool.label.set(label); }
 	registerTool(tool);
 
+	
+	const isochronesLayer = new IsochronesLayer(map);
+
     
 
 
 </script>
 
 {#if $selectedTool === tool}
-	<DrawIsochrones {map} />
+	<DrawIsochrones {isochronesLayer} />
 
 	<ControlIsochroneStyles {map} />
 {/if}
