@@ -23,6 +23,10 @@
         isochronesLayer.removePointEntity();
     });
 
+    const coordinates = isochronesLayer.coordinates;
+    const apiKey = isochronesLayer.apiKey;
+    const dataLoading = isochronesLayer.dataLoading;
+
 </script>
 
 
@@ -39,20 +43,20 @@
 
 <PasswordInput
     labelText="API Key"
-    bind:value={isochronesLayer.apiKey}
+    bind:value={$apiKey}
     placeholder="Enter GeodanMaps API key here..."
 />
 
 
 <Button
     kind="tertiary"
-    disabled={!isochronesLayer.pointEntity || !isochronesLayer.apiKey}
+    disabled={!$coordinates || !$apiKey}
     on:click={() => {
         console.log("Calculate Isochrones clicked");
         isochronesLayer.entityToIsochrones();
     }}
 >
-    {#if isochronesLayer.dataLoading}
+    {#if $dataLoading}
         <InlineLoading description="Calculating..." />
     {:else}
         Calculate isochrones

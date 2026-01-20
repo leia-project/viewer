@@ -11,6 +11,13 @@
     $: fractionMediumIsochrone = remaining * 0.6; // 30/(30+20) = 0.6 of the remaining
     $: fractionBiggestIsochrone = remaining * 0.4; // 20/(30+20) = 0.4 of the remaining
 
+    // Update isochrone weights when fractions change
+    $: {
+        isochronesLayer.updateIsochroneWeight(1, fractionSmallestIsochrone);
+        isochronesLayer.updateIsochroneWeight(2, fractionMediumIsochrone);
+        isochronesLayer.updateIsochroneWeight(3, fractionBiggestIsochrone);
+    }
+
     onMount(() => {
         console.log("ControlIsochroneStyles mounted");
 
@@ -21,6 +28,7 @@
         console.log("ControlIsochroneStyles destroyed");
 
     });
+    
 </script>
 
 

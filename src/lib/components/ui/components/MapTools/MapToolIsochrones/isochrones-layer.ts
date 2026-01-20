@@ -1,11 +1,13 @@
 import * as Cesium from "cesium";
 import type { Map } from "$lib/components/map-cesium/module/map";
+import { get, writable, type Writable } from "svelte/store";
 
 
 type IsochroneProps = {
-    isochrone: number, // counting from inside to outside
+    index: number, // counting from inside to outside
     isochroneStart: number,
-    isochroneEnd: number
+    isochroneEnd: number,
+    weight: number // between 0 and 1
 };
 
 
@@ -20,10 +22,11 @@ export class IsochronesLayer {
     private dataSource: Cesium.CustomDataSource;
 
     public pointEntity: Cesium.Entity | undefined;
+    public coordinates: Writable<{ x: number, y: number } | undefined> = writable(undefined);
     public handler: Cesium.ScreenSpaceEventHandler | undefined;
-    public apiKey: string | undefined;
-    public dataLoading: boolean = false;
-    public isochrones: Array<Isochrone> = [];
+    public apiKey: Writable<string> = writable("");
+    public dataLoading: Writable<boolean> = writable(false);
+    public isochrones: Writable<Array<Isochrone>> = writable([]);
 
 
     constructor(map: Map) {
@@ -31,6 +34,36 @@ export class IsochronesLayer {
         this.dataSource = new Cesium.CustomDataSource();
 
         this.map.viewer.dataSources.add(this.dataSource);
+
+        this.isochrones.subscribe(isos => {
+            console.log("Isochrones updated:", isos);
+            isos.forEach(iso => {
+                console.log("Isochrone:", iso.props);
+                const weight = iso.props.weight;
+
+                if (weight < 0 || weight > 1) {
+                    console.warn("Weight must be between 0 and 1");
+                    return;
+                };
+
+                if (!iso.entity.polygon) {
+                    console.warn(`Isochrone polygon not found`);
+                    return;
+                };
+
+                // Create color based on weight: red (high weight) to yellow to green (low weight)
+                const color = Cesium.Color.fromHsl(
+                    ((1 - weight) * 120) / 360, // Hue: 0 degrees (red) at weight=1, 120 degrees (green) at weight=0
+                    1.0,                         // Saturation
+                    0.5,                         // Lightness
+                    0.5                          // Alpha
+                );
+
+                iso.entity.polygon.material = new Cesium.ColorMaterialProperty(color);
+            });
+
+            this.map.refresh();
+        });
     };
 
 
@@ -63,8 +96,9 @@ export class IsochronesLayer {
 
 
     public addIsochrones(): void {
-        if (this.isochrones.length > 0) {
-            this.isochrones.forEach(iso => {
+        const isos = get(this.isochrones);
+        if (isos.length > 0) {
+            isos.forEach(iso => {
                 this.dataSource.entities.add(iso.entity);
             });
             this.map.refresh();
@@ -73,8 +107,9 @@ export class IsochronesLayer {
 
 
     public removeIsochrones(): void {
-        if (this.isochrones.length > 0) {
-            this.isochrones.forEach(iso => {
+        const isos = get(this.isochrones);
+        if (isos.length > 0) {
+            isos.forEach(iso => {
                 this.dataSource.entities.remove(iso.entity);
             });
             this.map.refresh();
@@ -90,6 +125,61 @@ export class IsochronesLayer {
     };
 
 
+    public updateIsochroneWeight(index: number, weight: number): void {
+        if (weight < 0 || weight > 1) {
+            console.warn("Weight must be between 0 and 1");
+            return;
+        }
+
+        this.isochrones.update(isos => {
+            const updatedIsos = isos.map(iso => {
+                if (iso.props.index === index) {
+                    return {
+                        ...iso,
+                        props: {
+                            ...iso.props,
+                            weight: weight
+                        }
+                    };
+                }
+                return iso;
+            });
+            return updatedIsos;
+        });
+    };
+
+
+    public updateIsochroneColors(): void {
+        const isos = get(this.isochrones);
+        isos.forEach(iso => {
+            const properties = iso.props;
+            const weight = properties.weight;
+
+            if (weight < 0 || weight > 1) {
+                console.warn("Weight must be between 0 and 1");
+                return;
+            }
+
+            if (!iso.entity.polygon) {
+                console.warn(`Isochrone polygon not found`);
+                return;
+            }
+
+            // Create color based on weight: red (high weight) to yellow to green (low weight)
+            const color = Cesium.Color.fromHsl(
+                ((1 - weight) * 120) / 360, // Hue: 0 degrees (red) at weight=1, 120 degrees (green) at weight=0
+                1.0,                         // Saturation
+                0.5,                         // Lightness
+                0.5                          // Alpha
+            );
+
+            iso.entity.polygon.material = new Cesium.ColorMaterialProperty(color);
+        });
+
+        this.map.refresh();
+    };
+
+
     public drawPoint(): void {
         this.handler = new Cesium.ScreenSpaceEventHandler(this.map.viewer.canvas);
 
@@ -99,6 +189,8 @@ export class IsochronesLayer {
             if (!earthPosition) return;
 
             this.removePointEntity();
+
+            this.coordinates.set(this.longLatFromCartesian(earthPosition));
             
             this.pointEntity = this.dataSource.entities.add({
                 position: earthPosition,
@@ -106,11 +198,18 @@ export class IsochronesLayer {
                     pixelSize: 6,
                     color: Cesium.Color.RED,
                     disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                    heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN
                 },
             });
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     };
+
+    private longLatFromCartesian(cartesian: Cesium.Cartesian3): { x: number, y: number } {
+        const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+        const x = Cesium.Math.toDegrees(cartographic.longitude);
+        const y = Cesium.Math.toDegrees(cartographic.latitude);
+        return { x, y };
+    }
 
 
     // Uses GeodanMaps Isochrone API to calculate isochrones for car travel:
@@ -133,7 +232,7 @@ export class IsochronesLayer {
         this.destroyHandler(); // Stop drawing
 
         try {
-            this.dataLoading = true;
+            this.dataLoading.set(true);
             const response = await fetch(apiUrl, {
                 method: "GET"
             });
@@ -145,7 +244,10 @@ export class IsochronesLayer {
             // Process and display the isochrone polygons on the map
             if (data?.features) {
                 this.removeIsochrones();
-                data.features.forEach((feature: any) => {
+
+                const startWeights = [0.5, 0.3, 0.2]; // Example weights for 3 isochrones
+                const newIsochrones: Array<Isochrone> = [];
+                data.features.forEach((feature: any, index: number) => {
                     console.log("Isochrone Feature:", feature);
                     const props = feature.properties;
                     const isochroneNumber = props.isochrone;
@@ -158,23 +260,31 @@ export class IsochronesLayer {
                     const isochroneEntity = this.dataSource.entities.add({
                         polygon: {
                             hierarchy: new Cesium.PolygonHierarchy(coordinates),
-                            material: Cesium.Color.BLUE.withAlpha(0.3),
+                            material: Cesium.Color.WHITE.withAlpha(0.3),
                             heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN,
+                            height: 0
+                        },
+                        properties: {
+                            index: isochroneNumber,
+                            isochroneStart: isochroneStart,
+                            isochroneEnd: isochroneEnd,
                         }
                     });
 
                     const isochrone: Isochrone = {
                         entity: isochroneEntity,
                         props: {
-                            isochrone: isochroneNumber,
+                            index: isochroneNumber,
                             isochroneStart: isochroneStart,
-                            isochroneEnd: isochroneEnd
+                            isochroneEnd: isochroneEnd,
+                            weight: startWeights[index]
                         }
                     };
-                    this.isochrones.push(isochrone);
-                    this.map.refresh();
+                    newIsochrones.push(isochrone);
                 });
-                console.log("Isochrones added to map:", this.isochrones);
+                this.isochrones.set(newIsochrones);
+                this.map.refresh();
+                console.log("Isochrones added to map:", get(this.isochrones));
             }
             else {
                 console.warn("No features found in isochrone data");
@@ -183,37 +293,19 @@ export class IsochronesLayer {
             console.error("Failed to send request:", error);
         }
         finally {
-            this.dataLoading = false;
+            this.dataLoading.set(false);
         }
     };
 
-
-    private XYFromEntity(entity: Cesium.Entity): { x: number, y: number } | undefined {
-        if (!entity.position) return undefined;
-
-        const position = entity.position.getValue(Cesium.JulianDate.now());
-        if (!position) return undefined;
-
-        const cartographic = Cesium.Cartographic.fromCartesian(position);
-        const longitude = Cesium.Math.toDegrees(cartographic.longitude);
-        const latitude = Cesium.Math.toDegrees(cartographic.latitude);
-
-        return { x: longitude, y: latitude };
-    };
 
     public entityToIsochrones(): void {
-               // Calculate coordinates from the point entity
-        if (!this.pointEntity) {
-            console.warn("No point entity defined for isochrone calculation");
-            return;
-        }
-
-        if (!this.apiKey) {
+        if (!get(this.apiKey)) {
             console.warn("No API key defined for isochrone calculation");
             return;
         }
 
-        const coords = this.XYFromEntity(this.pointEntity);
+        // this.XYFromEntity(this.pointEntity);
+        const coords = get(this.coordinates);
         if (!coords) {
             console.warn("Failed to get coordinates from point entity");
             return;
@@ -229,7 +321,7 @@ export class IsochronesLayer {
             true, 
             "time", 
             0.99, 
-            this.apiKey
+            get(this.apiKey)
         );
     };
 };

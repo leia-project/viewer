@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getContext } from "svelte";
+	import { getContext, onMount } from "svelte";
 	import { _ } from "svelte-i18n";
     import Car from "carbon-icons-svelte/lib/Car.svelte";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
@@ -23,18 +23,27 @@
 	$: { tool.label.set(label); }
 	registerTool(tool);
 
-	
-	const isochronesLayer = new IsochronesLayer(map);
+	let isochronesLayer: IsochronesLayer;
 
+	onMount(() => {
+		console.log("MapToolIsochrones mounted");
+		if (map) {
+			map.ready.subscribe((ready: boolean) => {
+				if (ready) isochronesLayer = new IsochronesLayer(map);
+			});
+		}
+	});
     
 
 
 </script>
 
 {#if $selectedTool === tool}
-	<DrawIsochrones {isochronesLayer} />
+	{#if isochronesLayer}
+		<DrawIsochrones {isochronesLayer} />
 
-	<ControlIsochroneStyles {isochronesLayer} />
+		<ControlIsochroneStyles {isochronesLayer} />
+	{/if}
 {/if}
 
 
