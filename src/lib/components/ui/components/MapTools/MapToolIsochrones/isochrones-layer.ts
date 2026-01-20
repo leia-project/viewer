@@ -3,7 +3,7 @@ import type { Map } from "$lib/components/map-cesium/module/map";
 
 
 type IsochroneProps = {
-    isochrone: number,
+    isochrone: number, // counting from inside to outside
     isochroneStart: number,
     isochroneEnd: number
 };
@@ -44,12 +44,6 @@ export class IsochronesLayer {
         this.dataSource.show = false;
         this.map.refresh();
     };
-
-
-    public addProperties(): void {
-        // Add any specific properties for isochrones layer here
-    };
-
 
     
     public removePointEntity(): void {
