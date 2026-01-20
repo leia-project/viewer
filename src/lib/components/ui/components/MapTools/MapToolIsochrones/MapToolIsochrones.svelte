@@ -34,7 +34,7 @@
 {#if $selectedTool === tool}
 	<DrawIsochrones {isochronesLayer} />
 
-	<ControlIsochroneStyles {map} />
+	<ControlIsochroneStyles {isochronesLayer} />
 {/if}
 
 

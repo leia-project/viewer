@@ -27,7 +27,7 @@
 
 
 <Button
-    kind="tertiary"
+    kind={"tertiary"}
     on:click={() => {
         console.log("Draw Isochrone Center clicked")
         isochronesLayer.drawPoint();

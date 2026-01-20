@@ -1,15 +1,11 @@
 <script lang="ts">
-    import * as Cesium from "cesium";
-    import { Map } from "$lib/components/map-cesium/module/map";
     import { Slider } from "carbon-components-svelte";
 	import { onDestroy, onMount } from "svelte";
+	import type { IsochronesLayer } from "./isochrones-layer";
 
 
-    // TODO: rewrite isochrones to class with methods with customdatasource array as  isochrones
-    import type { Isochrone } from "./Isochrone";
-    import { isochrones } from "./Isochrone";
+    export let isochronesLayer: IsochronesLayer;
 
-    export let map: Map;
 
     let fractionSmallestIsochrone: number = 0.5;
     // 50% van deze mensen vestigt zich binnen 20 minuten van het gekozen punt (slider controlled)
