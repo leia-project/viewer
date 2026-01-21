@@ -300,6 +300,9 @@
             "noBreachSelected": "Aucune brèche sélectionnée",
             "searchBreach": "Recherche d'une brèche",
             "timeSlider": "Curseur de temps"
+        },
+        "isochrones": {
+            "label": "Isochrones"
         }
     },
     "errors": {

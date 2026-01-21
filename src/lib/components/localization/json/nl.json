@@ -316,6 +316,9 @@
             "noBreachSelected": "Geen bres geselecteerd",
             "searchBreach": "Zoek bres",
             "timeSlider": "Tijd slider"
+        },
+        "isochrones": {
+            "label": "Isochronen"
         }
     },
     "errors": {

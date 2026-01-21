@@ -15,7 +15,7 @@
 
 	export let label: string | undefined;
 
-  	$: label = label ?? "Isochrones";
+	$: label = label ?? $_('tools.isochrones.label');
 
 
 	const id: string = "isochrones";

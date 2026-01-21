@@ -309,6 +309,9 @@
             "noBreachSelected": "No breach selected",
             "searchBreach": "Search breach",
             "timeSlider": "Time slider"
+        },
+        "isochrones": {
+            "label": "Isochrones"
         }
     },
     "errors": {
