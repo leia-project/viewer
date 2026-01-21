@@ -56,7 +56,7 @@ export class IsochronesLayer {
                     ((1 - weight) * 120) / 360, // Hue: 0 degrees (red) at weight=1, 120 degrees (green) at weight=0
                     1.0,                         // Saturation
                     0.5,                         // Lightness
-                    0.5                          // Alpha
+                    0.7                           // Alpha
                 );
 
                 iso.entity.polygon.material = new Cesium.ColorMaterialProperty(color);
@@ -170,7 +170,7 @@ export class IsochronesLayer {
                 ((1 - weight) * 120) / 360, // Hue: 0 degrees (red) at weight=1, 120 degrees (green) at weight=0
                 1.0,                         // Saturation
                 0.5,                         // Lightness
-                0.5                          // Alpha
+                0.7                          // Alpha
             );
 
             iso.entity.polygon.material = new Cesium.ColorMaterialProperty(color);
@@ -247,6 +247,9 @@ export class IsochronesLayer {
 
                 const startWeights = [0.5, 0.3, 0.2]; // Example weights for 3 isochrones
                 const newIsochrones: Array<Isochrone> = [];
+                let hole: Cesium.PolygonHierarchy[] | undefined = undefined;
+                let hierarchy: Cesium.PolygonHierarchy;
+
                 data.features.forEach((feature: any, index: number) => {
                     console.log("Isochrone Feature:", feature);
                     const props = feature.properties;
@@ -257,12 +260,18 @@ export class IsochronesLayer {
                         return Cesium.Cartesian3.fromDegrees(coord[0], coord[1]);
                     });
 
+                    if (hole) {
+                        hierarchy = new Cesium.PolygonHierarchy(coordinates, hole);
+                    }
+                    else {
+                        hierarchy = new Cesium.PolygonHierarchy(coordinates);
+                    }
+
                     const isochroneEntity = this.dataSource.entities.add({
                         polygon: {
-                            hierarchy: new Cesium.PolygonHierarchy(coordinates),
-                            material: Cesium.Color.WHITE.withAlpha(0.3),
-                            heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN,
-                            height: 0
+                            hierarchy: hierarchy,
+                            material: Cesium.Color.WHITE.withAlpha(0.7),
+                            heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN
                         },
                         properties: {
                             index: isochroneNumber,
@@ -270,6 +279,10 @@ export class IsochronesLayer {
                             isochroneEnd: isochroneEnd,
                         }
                     });
+
+                    // Previous polygon becomes hole for next
+                    hole = [new Cesium.PolygonHierarchy(coordinates)];
+
 
                     const isochrone: Isochrone = {
                         entity: isochroneEntity,
