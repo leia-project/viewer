@@ -1,4 +1,5 @@
 import * as Cesium from "cesium";
+import * as turf from "@turf/turf";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { get, writable, type Writable } from "svelte/store";
 
@@ -283,6 +284,8 @@ export class IsochronesLayer {
                 const newIsochrones: Array<Isochrone> = [];
                 let hole: Cesium.PolygonHierarchy[] | undefined = undefined;
                 let hierarchy: Cesium.PolygonHierarchy;
+                
+                // TODO: Add increasing buffer around each isochrone to avoid holes extending beyond previous isochrones
 
                 data.features.forEach((feature: any, index: number) => {
                     console.log("Isochrone Feature:", feature);
