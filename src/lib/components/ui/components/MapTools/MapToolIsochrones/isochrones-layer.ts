@@ -75,6 +75,16 @@ export class IsochronesLayer {
     };
 
 
+    public resetLayer(): void {
+        this.removeIsochrones();
+        this.removePointEntity();
+        this.coordinates.set(undefined);
+        // this.apiKey.set("");
+
+        this.map.refresh();
+    }
+
+
     private redistributeWeights(isos: Array<Isochrone>): void {
         // When the first isochrone weight changes, adjust others proportionally
         if (isos.length > 0) {
@@ -138,14 +148,6 @@ export class IsochronesLayer {
         this.map.refresh();
     };
 
-    
-    public removePointEntity(): void {
-        if (this.pointEntity) {
-            this.dataSource.entities.remove(this.pointEntity);
-            this.map.refresh();
-        };
-    };
-
 
     public destroyHandler(): void {
         const handler = get(this.handler);
@@ -183,6 +185,14 @@ export class IsochronesLayer {
             this.dataSource.entities.add(this.pointEntity);
             this.map.refresh();
         }
+    };
+
+
+    public removePointEntity(): void {
+        if (this.pointEntity) {
+            this.dataSource.entities.remove(this.pointEntity);
+            this.map.refresh();
+        };
     };
 
 

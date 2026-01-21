@@ -8,6 +8,7 @@
 	import { IsochronesLayer } from "./isochrones-layer";
 	import IsochronesLegend from "./IsochronesLegend.svelte";
 	import ControlIsochroneValueRange from "./ControlIsochroneValueRange.svelte";
+	import { Button } from "carbon-components-svelte";
 
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
@@ -50,6 +51,15 @@
 		<ControlIsochroneStyles {isochronesLayer} />
 
 		<IsochronesLegend />
+
+		<Button
+			kind="danger"
+			on:click={() => {
+				isochronesLayer.resetLayer();
+			}}
+		>
+			Reset
+		</Button>
 	{/if}
 {/if}
 
