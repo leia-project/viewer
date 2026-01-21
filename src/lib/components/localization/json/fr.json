@@ -46,7 +46,8 @@
                 "library": "Bibliothèque",
                 "search": "Recherche",
                 "flood": "Inondation",
-                "stories": "Histoires"
+                "stories": "Histoires",
+                "isochrones": "Isochrones"
             },
             "intro": {
                 "introDescription": "Un Digital Twin est une représentation digitale d’un produit, système ou processus physique existant ou prévu, qui sert de contrepartie numérique quasiment identique à des fins pratiques telles que la simulation, l’intégration, les tests, la surveillance et la maintenance. Pour plus d’informations sur l’utilisation du viewer, consultez les différents sujets."
@@ -95,6 +96,9 @@
                 "storyDrawArea": "Certaines histoires nécessitent que vous dessiniez une zone de projet sur la carte. Cette zone sera utilisée pour générer une répartition des classes à l'intérieur du polygone dessiné. Pour dessiner une zone de projet, cliquez sur le bouton 'Dessiner la zone de projet', puis cliquez sur la carte pour créer un polygone. Cliquez avec le bouton droit de la souris sur la carte ou cliquez sur 'Terminer le dessin' pour terminer le dessin.",
                 "headingStoryDataDonut": "Graphique des données de la zone de projet",
                 "storyDataDonut": "Dans les histoires qui contiennent une zone de projet, un graphique en anneau est affiché pour représenter la répartition des différentes classes à l'intérieur de la zone dessinée. En survolant un segment, le pourcentage qu'il représente est affiché."
+            },
+            "isochrones": {
+                "description": "L'outil isochrones vous permet de visualiser les zones accessibles en voiture à partir d'un point donné en fonction du temps de déplacement."
             }
         },
         "layerLibrary": {
