@@ -30,45 +30,57 @@
 
 </script>
 
+<div class="buttons-container">
+    <div class=component>
+        <Button
+            kind={!$handler ? "tertiary" : "primary"}
+            on:click={() => {
+                console.log("Draw Isochrone Center clicked")
+                !$handler ? isochronesLayer.drawPoint() : isochronesLayer.destroyHandler();
+            }}
+        >
+            {#if !$handler}
+                Draw Isochrone Center
+            {:else}
+                Drawing Isochrone Center
+            {/if}
+        </Button>
+    </div>
 
-<Button
-    kind={!$handler ? "tertiary" : "primary"}
-    on:click={() => {
-        console.log("Draw Isochrone Center clicked")
-        !$handler ? isochronesLayer.drawPoint() : isochronesLayer.destroyHandler();
-    }}
->
-    {#if !$handler}
-        Draw Isochrone Center
-    {:else}
-        Drawing Isochrone Center
-    {/if}
-</Button>
+    <div class=component>
+        <PasswordInput
+            labelText="API Key"
+            bind:value={$apiKey}
+            placeholder="Enter GeodanMaps API key here..."
+        />
+    </div>
 
 
-<PasswordInput
-    labelText="API Key"
-    bind:value={$apiKey}
-    placeholder="Enter GeodanMaps API key here..."
-/>
-
-
-<Button
-    kind="tertiary"
-    disabled={!$coordinates || !$apiKey || $dataLoading}
-    on:click={() => {
-        console.log("Calculate Isochrones clicked");
-        isochronesLayer.entityToIsochrones();
-    }}
->
-    {#if $dataLoading}
-        <InlineLoading description="Calculating..." />
-    {:else}
-        Calculate isochrones
-    {/if}
-</Button>
+    <div class=component>
+        <Button
+            kind="tertiary"
+            disabled={!$coordinates || !$apiKey || $dataLoading}
+            on:click={() => {
+                console.log("Calculate Isochrones clicked");
+                isochronesLayer.entityToIsochrones();
+            }}
+        >
+            {#if $dataLoading}
+                <InlineLoading description="Calculating..." />
+            {:else}
+                Calculate isochrones
+            {/if}
+        </Button>
+    </div>
+</div>
 
 
 <style>
+    .buttons-container :global(button) {
+        width: 100%;
+    }
 
+    .component {
+        margin-bottom: 10px;
+    }
 </style>

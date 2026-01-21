@@ -39,15 +39,12 @@
 
 <style>
     .sliders {
-        display: flex;
-        flex-direction: column;
         align-items: center;
         margin: 10px auto;
         padding: 10px;
         background-color: var(--cds-ui-01);
         border-radius: 5px;
         border: 1px solid var(--cds-ui-03);
-        max-width: fit-content;
 	}
 
     .sliders:empty {

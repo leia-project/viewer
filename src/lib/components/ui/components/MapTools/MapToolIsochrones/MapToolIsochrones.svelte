@@ -44,28 +44,41 @@
 
 {#if $selectedTool === tool}
 	{#if isochronesLayer}
-		<DrawIsochrones {isochronesLayer} />
+		<div class="container">
+			<DrawIsochrones {isochronesLayer} />
 
-		<ControlIsochroneValueRange {isochronesLayer} />
+			<ControlIsochroneValueRange {isochronesLayer} />
 
-		<ControlIsochroneStyles {isochronesLayer} />
+			<ControlIsochroneStyles {isochronesLayer} />
 
-		<IsochronesLegend />
+			<div class="component">
+				<IsochronesLegend />
+			</div>
 
-		<Button
-			kind="danger"
-			on:click={() => {
-				isochronesLayer.resetLayer();
-			}}
-		>
-			Reset
-		</Button>
+			<div class="component">
+				<Button
+					kind="danger"
+					on:click={() => {
+						isochronesLayer.resetLayer();
+					}}
+				>
+					Reset
+				</Button>
+			</div>
+		</div>
 	{/if}
 {/if}
 
 
   
 <style>
+.container {
+	margin: 10px;
+	/* border: 1px solid var(--cds-ui-03); */
+}
 
+.component {
+    margin-bottom: 10px;
+}
 
 </style>
