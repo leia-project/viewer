@@ -26,18 +26,23 @@
     const coordinates = isochronesLayer.coordinates;
     const apiKey = isochronesLayer.apiKey;
     const dataLoading = isochronesLayer.dataLoading;
+    const handler = isochronesLayer.handler;
 
 </script>
 
 
 <Button
-    kind={"tertiary"}
+    kind={!$handler ? "tertiary" : "primary"}
     on:click={() => {
         console.log("Draw Isochrone Center clicked")
-        isochronesLayer.drawPoint();
-        }}
-    >
-    Draw Isochrone Center
+        !$handler ? isochronesLayer.drawPoint() : isochronesLayer.destroyHandler();
+    }}
+>
+    {#if !$handler}
+        Draw Isochrone Center
+    {:else}
+        Drawing Isochrone Center
+    {/if}
 </Button>
 
 
@@ -50,7 +55,7 @@
 
 <Button
     kind="tertiary"
-    disabled={!$coordinates || !$apiKey}
+    disabled={!$coordinates || !$apiKey || $dataLoading}
     on:click={() => {
         console.log("Calculate Isochrones clicked");
         isochronesLayer.entityToIsochrones();

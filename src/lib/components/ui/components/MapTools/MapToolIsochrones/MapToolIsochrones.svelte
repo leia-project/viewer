@@ -6,6 +6,8 @@
 	import DrawIsochrones from "./DrawIsochrones.svelte";
 	import ControlIsochroneStyles from "./ControlIsochroneStyles.svelte";
 	import { IsochronesLayer } from "./isochrones-layer";
+	import IsochronesLegend from "./IsochronesLegend.svelte";
+	import ControlIsochroneValueRange from "./ControlIsochroneValueRange.svelte";
 
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
@@ -24,6 +26,7 @@
 	registerTool(tool);
 
 	let isochronesLayer: IsochronesLayer;
+	// let startWeights: Array<number> = [0.5, 0.3, 0.2];
 
 	onMount(() => {
 		console.log("MapToolIsochrones mounted");
@@ -42,7 +45,11 @@
 	{#if isochronesLayer}
 		<DrawIsochrones {isochronesLayer} />
 
+		<ControlIsochroneValueRange {isochronesLayer} />
+
 		<ControlIsochroneStyles {isochronesLayer} />
+
+		<IsochronesLegend />
 	{/if}
 {/if}
 

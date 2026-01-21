@@ -23,20 +23,27 @@ export class IsochronesLayer {
 
     public pointEntity: Cesium.Entity | undefined;
     public coordinates: Writable<{ x: number, y: number } | undefined> = writable(undefined);
-    public handler: Cesium.ScreenSpaceEventHandler | undefined;
+    public handler: Writable<Cesium.ScreenSpaceEventHandler | undefined> = writable(undefined);
     public apiKey: Writable<string> = writable("");
     public dataLoading: Writable<boolean> = writable(false);
     public isochrones: Writable<Array<Isochrone>> = writable([]);
+    public startWeights: Array<number>; // Inside to outside, should total 1
+    public travelTime: number = 20; // in minutes
 
 
-    constructor(map: Map) {
+    constructor(map: Map, startWeights: Array<number> = [0.5, 0.3, 0.2]) {
         this.map = map;
-        this.dataSource = new Cesium.CustomDataSource();
+        this.startWeights = startWeights;
 
+        this.dataSource = new Cesium.CustomDataSource();
         this.map.viewer.dataSources.add(this.dataSource);
 
         this.isochrones.subscribe(isos => {
             console.log("Isochrones updated:", isos);
+
+            this.redistributeWeights(isos);
+
+            // Update colors based on calculated weights
             isos.forEach(iso => {
                 console.log("Isochrone:", iso.props);
                 const weight = iso.props.weight;
@@ -67,6 +74,58 @@ export class IsochronesLayer {
     };
 
 
+    private redistributeWeights(isos: Array<Isochrone>): void {
+        // When the first isochrone weight changes, adjust others proportionally
+        if (isos.length > 0) {
+            const firstWeight = isos[0].props.weight;
+            const remainingWeight = 1 - firstWeight;
+            
+            // Calculate the sum of the other start weights (excluding first)
+            const otherStartWeightsSum = this.startWeights.slice(1).reduce((sum, w) => sum + w, 0);
+            
+            // Update weights for all isochrones except the first
+            isos.forEach((iso, index) => {
+                if (index === 0) {
+                    // First isochrone keeps its weight
+                    iso.props.weight = firstWeight;
+                } else {
+                    // Other isochrones get proportional share of remaining weight
+                    if (otherStartWeightsSum > 0) {
+                        const newWeight = (this.startWeights[index] / otherStartWeightsSum) * remainingWeight;
+                        iso.props.weight = newWeight;
+                        
+                        // Also update the entity properties if they exist
+                        if (iso.entity.properties) {
+                            iso.entity.properties.weight = newWeight;
+                        }
+                    } else {
+                        // Fallback: distribute evenly if no start weights
+                        const newWeight = remainingWeight / (isos.length - 1);
+                        iso.props.weight = newWeight;
+                        
+                        // Also update the entity properties if they exist
+                        if (iso.entity.properties) {
+                            iso.entity.properties.weight = newWeight;
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+
+    public getIsochrone(index: number): Isochrone | undefined {
+        const isos = get(this.isochrones);
+        return isos.find(iso => iso.props.index === index);
+    }
+
+
+    public getIsochroneWeight(index: number): number | undefined {
+        const iso = this.getIsochrone(index);
+        return iso ? iso.props.weight : undefined;
+    }
+
+
     public show(): void {
         this.dataSource.show = true;
         this.map.refresh();
@@ -88,9 +147,10 @@ export class IsochronesLayer {
 
 
     public destroyHandler(): void {
-        if (this.handler && !this.handler.isDestroyed()) {
-            this.handler.destroy();
-            this.handler = undefined; // As defined in the documentation
+        const handler = get(this.handler);
+        if (handler && !handler.isDestroyed()) {
+            handler.destroy();
+            this.handler.set(undefined); // As defined in the documentation
         };
     };
 
@@ -149,42 +209,16 @@ export class IsochronesLayer {
     };
 
 
-    public updateIsochroneColors(): void {
-        const isos = get(this.isochrones);
-        isos.forEach(iso => {
-            const properties = iso.props;
-            const weight = properties.weight;
+    // public updateIsochroneColors(): void {
 
-            if (weight < 0 || weight > 1) {
-                console.warn("Weight must be between 0 and 1");
-                return;
-            }
-
-            if (!iso.entity.polygon) {
-                console.warn(`Isochrone polygon not found`);
-                return;
-            }
-
-            // Create color based on weight: red (high weight) to yellow to green (low weight)
-            const color = Cesium.Color.fromHsl(
-                ((1 - weight) * 120) / 360, // Hue: 0 degrees (red) at weight=1, 120 degrees (green) at weight=0
-                1.0,                         // Saturation
-                0.5,                         // Lightness
-                0.7                          // Alpha
-            );
-
-            iso.entity.polygon.material = new Cesium.ColorMaterialProperty(color);
-        });
-
-        this.map.refresh();
-    };
+    // };
 
 
     public drawPoint(): void {
-        this.handler = new Cesium.ScreenSpaceEventHandler(this.map.viewer.canvas);
+        this.handler.set(new Cesium.ScreenSpaceEventHandler(this.map.viewer.canvas));
 
         // Handle left click to create isochrone center point
-        this.handler.setInputAction((event: any) => {
+        get(this.handler)!.setInputAction((event: any) => {
             const earthPosition = this.map.viewer.scene.pickPosition(event.position);
             if (!earthPosition) return;
 
@@ -277,6 +311,7 @@ export class IsochronesLayer {
                             index: isochroneNumber,
                             isochroneStart: isochroneStart,
                             isochroneEnd: isochroneEnd,
+                            weight: startWeights[index]
                         }
                     });
 
@@ -324,13 +359,15 @@ export class IsochronesLayer {
             return;
         }
         const { x, y } = coords;
+        const travelTime = this.travelTime;
+        const travelSteps: Array<number> = this.startWeights.map((weight) => travelTime);
 
 
         // Calculates isochrones and displays them on the map
         this.calculateCarIosochrones(
             x, 
             y, 
-            [20, 20, 20],  // 20-minute isochrones
+            travelSteps,  // 20-minute isochrones
             true, 
             "time", 
             0.99, 
