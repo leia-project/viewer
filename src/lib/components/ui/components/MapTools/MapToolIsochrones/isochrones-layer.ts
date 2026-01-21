@@ -98,11 +98,11 @@ export class IsochronesLayer {
             isos.forEach((iso, index) => {
                 if (index === 0) {
                     // First isochrone keeps its weight
-                    iso.props.weight = firstWeight;
+                    iso.props.weight = Number(firstWeight.toFixed(2));
                 } else {
                     // Other isochrones get proportional share of remaining weight
                     if (otherStartWeightsSum > 0) {
-                        const newWeight = (this.startWeights[index] / otherStartWeightsSum) * remainingWeight;
+                        const newWeight = Number(((this.startWeights[index] / otherStartWeightsSum) * remainingWeight).toFixed(2));
                         iso.props.weight = newWeight;
                         
                         // Also update the entity properties if they exist
@@ -111,7 +111,7 @@ export class IsochronesLayer {
                         }
                     } else {
                         // Fallback: distribute evenly if no start weights
-                        const newWeight = remainingWeight / (isos.length - 1);
+                        const newWeight = Number((remainingWeight / (isos.length - 1)).toFixed(2));
                         iso.props.weight = newWeight;
                         
                         // Also update the entity properties if they exist
@@ -202,6 +202,8 @@ export class IsochronesLayer {
             return;
         }
 
+        const roundedWeight = Number(weight.toFixed(2));
+
         this.isochrones.update(isos => {
             const updatedIsos = isos.map(iso => {
                 if (iso.props.index === index) {
@@ -209,7 +211,7 @@ export class IsochronesLayer {
                         ...iso,
                         props: {
                             ...iso.props,
-                            weight: weight
+                            weight: roundedWeight
                         }
                     };
                 }

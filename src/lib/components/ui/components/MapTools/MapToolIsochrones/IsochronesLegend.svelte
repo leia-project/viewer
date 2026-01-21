@@ -1,5 +1,10 @@
 <script lang="ts">
     import * as Cesium from "cesium";
+	import type { IsochronesLayer } from "./isochrones-layer";
+
+    export let isochronesLayer: IsochronesLayer;
+
+    const isochrones = isochronesLayer.isochrones;
 
     const value_min = 0;
     const value_max = 10000; // Max people
@@ -23,17 +28,18 @@
 
 </script>
 
-<div class="legend-title">
-    Legend
-</div>
-<div class="legend-container">
-    <div class="values">
-        <div class="top-value">{value_max}</div>
-        <div class="bottom-value">{value_min}</div>
+{#if $isochrones.length > 0}
+    <div class="legend-title">
+        Legend
     </div>
-    <div class="legend" style="--color-0: {color_0}; --color-33: {color_33}; --color-66: {color_66}; --color-100: {color_100}"></div>
-</div>
-
+    <div class="legend-container">
+        <div class="values">
+            <div class="top-value">{value_max}</div>
+            <div class="bottom-value">{value_min}</div>
+        </div>
+        <div class="legend" style="--color-0: {color_0}; --color-33: {color_33}; --color-66: {color_66}; --color-100: {color_100}"></div>
+    </div>
+{/if}
 
 <style>
     .legend-title {

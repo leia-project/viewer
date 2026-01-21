@@ -25,7 +25,7 @@
 <div class="sliders">
     {#each $isochrones as isochrone, i}
         <Slider 
-            labelText={`Fraction ${isochrone.props.isochroneEnd} min Isochrone: ${isochrone.props.weight.toFixed(2)}`} 
+            labelText={`Fraction ${isochrone.props.isochroneEnd} min Isochrone: ${isochrone.props.weight}`} 
             hideTextInput 
             min={0} 
             max={1} 

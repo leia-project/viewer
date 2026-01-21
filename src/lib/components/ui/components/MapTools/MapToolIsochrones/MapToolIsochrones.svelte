@@ -52,7 +52,7 @@
 			<ControlIsochroneStyles {isochronesLayer} />
 
 			<div class="component">
-				<IsochronesLegend />
+				<IsochronesLegend {isochronesLayer}/>
 			</div>
 
 			<div class="component">
