@@ -79,6 +79,11 @@ export class IsochronesLayer {
     };
 
 
+    private saveApiKeyToStorage(): void {
+        localStorage.setItem(this.storageLocation, get(this.apiKey));
+    };
+
+
     public resetLayer(): void {
         this.removeIsochrones();
         this.removePointEntity();
@@ -86,10 +91,6 @@ export class IsochronesLayer {
         // this.apiKey.set("");
 
         this.map.refresh();
-    };
-
-    private saveApiKeyToStorage(): void {
-        localStorage.setItem(this.storageLocation, get(this.apiKey));
     };
 
 
