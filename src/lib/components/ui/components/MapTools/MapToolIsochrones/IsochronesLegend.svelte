@@ -51,7 +51,6 @@
     .legend-container {
         display: flex;
         flex-direction: column;
-        height: 100px;
     }
     
     .values {
@@ -78,7 +77,7 @@
             var(--color-0)
         );
         width: 100%;
-        height: 15%;
+        height: 15px;
         border: 1px var(--cds-border-strong) solid;
 
     }

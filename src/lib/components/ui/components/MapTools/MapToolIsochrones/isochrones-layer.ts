@@ -21,11 +21,12 @@ export type Isochrone = {
 export class IsochronesLayer {
     private map: Map;
     private dataSource: Cesium.CustomDataSource;
+    private storageLocation: string = "tool.isochrones.apiKey";
 
     public pointEntity: Cesium.Entity | undefined;
     public coordinates: Writable<{ x: number, y: number } | undefined> = writable(undefined);
     public handler: Writable<Cesium.ScreenSpaceEventHandler | undefined> = writable(undefined);
-    public apiKey: Writable<string> = writable("");
+    public apiKey: Writable<string>;
     public dataLoading: Writable<boolean> = writable(false);
     public isochrones: Writable<Array<Isochrone>> = writable([]);
     public startWeights: Array<number>; // Inside to outside, should total 1
@@ -35,6 +36,9 @@ export class IsochronesLayer {
     constructor(map: Map, startWeights: Array<number> = [0.5, 0.3, 0.2]) {
         this.map = map;
         this.startWeights = startWeights;
+
+        const storedKey = localStorage.getItem(this.storageLocation) || "";
+        this.apiKey = writable(storedKey);
 
         this.dataSource = new Cesium.CustomDataSource();
         this.map.viewer.dataSources.add(this.dataSource);
@@ -82,7 +86,11 @@ export class IsochronesLayer {
         // this.apiKey.set("");
 
         this.map.refresh();
-    }
+    };
+
+    private saveApiKeyToStorage(): void {
+        localStorage.setItem(this.storageLocation, get(this.apiKey));
+    };
 
 
     private redistributeWeights(isos: Array<Isochrone>): void {
@@ -128,13 +136,13 @@ export class IsochronesLayer {
     public getIsochrone(index: number): Isochrone | undefined {
         const isos = get(this.isochrones);
         return isos.find(iso => iso.props.index === index);
-    }
+    };
 
 
     public getIsochroneWeight(index: number): number | undefined {
         const iso = this.getIsochrone(index);
         return iso ? iso.props.weight : undefined;
-    }
+    };
 
 
     public show(): void {
@@ -345,6 +353,8 @@ export class IsochronesLayer {
                     };
                     newIsochrones.push(isochrone);
                 });
+                this.saveApiKeyToStorage();
+
                 this.isochrones.set(newIsochrones);
                 this.map.refresh();
                 console.log("Isochrones added to map:", get(this.isochrones));
