@@ -33,11 +33,11 @@
         Legend
     </div>
     <div class="legend-container">
-        <div class="values">
-            <div class="top-value">{value_max}</div>
-            <div class="bottom-value">{value_min}</div>
-        </div>
         <div class="legend" style="--color-0: {color_0}; --color-33: {color_33}; --color-66: {color_66}; --color-100: {color_100}"></div>
+        <div class="values">
+            <div class="min-value">{value_min}</div>
+            <div class="max-value">{value_max}</div>
+        </div>
     </div>
 {/if}
 
@@ -50,35 +50,35 @@
 
     .legend-container {
         display: flex;
+        flex-direction: column;
         height: 100px;
     }
     
     .values {
         display: flex;
         justify-content: space-between;
-        flex-direction: column;
+        flex-direction: row;
         height: 100%;
+        margin-top: 4px;
     }
 
-    .top-value {
-        font-size: 14px;
-        margin-right: 4px;
+    .max-value {
+        font-size: auto;
     }
 
-    .bottom-value {
-        font-size: 14px;
-        margin-right: 4px;
+    .min-value {
+        font-size: auto;
     }
 
     .legend {
-        background: linear-gradient(to bottom, 
+        background: linear-gradient(to left, 
             var(--color-100), 
             var(--color-66) 33%, 
             var(--color-33) 66%, 
             var(--color-0)
         );
-        width: 10%;
-        height: 100%;
+        width: 100%;
+        height: 15%;
         border: 1px var(--cds-border-strong) solid;
 
     }
