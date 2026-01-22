@@ -96,7 +96,7 @@
     }
 
     async function getConfigs(): Promise<void> {
-        const result = await fetch(`${process.env.CONFIG_SERVER_URL}/overview`);
+        const result = await fetch(`${process.env.CONFIG_SERVER_URL}/overview?mode=dt`);
         configs = await result.json();
     }
 

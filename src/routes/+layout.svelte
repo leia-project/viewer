@@ -43,7 +43,7 @@
 		// Look for name in URL that corresponds to a config name
 		if (!configUrl) {
 			if ($page.params.config) {
-				const response = await fetch(process.env.CONFIG_SERVER_URL + `/overview?q=${$page.params.config}`);
+				const response = await fetch(process.env.CONFIG_SERVER_URL + `/overview?mode=dt&q=${$page.params.config}`);
 				if (response.ok) {
 					const responseJson = await response.json();
 					configUrl = responseJson[0].url;
