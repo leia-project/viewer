@@ -215,15 +215,15 @@ export class IsochronesLayer {
     // };
 
 
-    // public removeIsochrones(): void {
-    //     const isos = get(this.isochrones);
-    //     if (isos.length > 0) {
-    //         isos.forEach(iso => {
-    //             this.dataSource.entities.remove(iso.entity);
-    //         });
-    //         this.map.refresh();
-    //     };
-    // };
+    public removeIsochrones(): void {
+        const isos = get(this.isochrones);
+        if (isos.length > 0) {
+            isos.forEach(iso => {
+                this.dataSource.entities.remove(iso.entity);
+            });
+            this.map.refresh();
+        };
+    };
 
 
     public addPointEntity(): void {
