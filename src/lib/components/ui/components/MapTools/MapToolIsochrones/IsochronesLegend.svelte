@@ -2,6 +2,7 @@
 	import { _ } from "svelte-i18n";
     import * as Cesium from "cesium";
 	import type { IsochronesLayer } from "./isochrones-layer";
+    import { slide } from "svelte/transition";
 
     export let isochronesLayer: IsochronesLayer;
 
@@ -30,18 +31,20 @@
 </script>
 
 {#if $isochrones.length > 0}
-    <div class="legend-title">
-        {$_('tools.isochrones.legendTitle')}
-    </div>
-    <div class="legend-container">
-        {#if $value_max === 0 }
-            <div class="legend" style="background: #808080;"></div>
-        {:else}
-            <div class="legend" style="--color-0: {color_0}; --color-33: {color_33}; --color-66: {color_66}; --color-100: {color_100}"></div>
-        {/if}
-        <div class="values">
-            <div class="min-value">{value_min}</div>
-            <div class="max-value">{$value_max}</div>
+    <div transition:slide={{ duration: 500 }}>
+        <div class="legend-title">
+            {$_('tools.isochrones.legendTitle')}
+        </div>
+        <div class="legend-container">
+            {#if $value_max === 0 }
+                <div class="legend" style="background: #808080;"></div>
+            {:else}
+                <div class="legend" style="--color-0: {color_0}; --color-33: {color_33}; --color-66: {color_66}; --color-100: {color_100}"></div>
+            {/if}
+            <div class="values">
+                <div class="min-value">{value_min}</div>
+                <div class="max-value">{$value_max}</div>
+            </div>
         </div>
     </div>
 {/if}

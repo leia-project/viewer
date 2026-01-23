@@ -11,15 +11,13 @@
 
 
     onMount(() => {
-        isochronesLayer.addIsochrones();
-        isochronesLayer.addPointEntity();
+        isochronesLayer.show();
     });
 
 
     onDestroy(() => {
         isochronesLayer.destroyHandler();
-        isochronesLayer.removeIsochrones();
-        isochronesLayer.removePointEntity();
+        isochronesLayer.hide();
     });
 
     const coordinates = isochronesLayer.coordinates;

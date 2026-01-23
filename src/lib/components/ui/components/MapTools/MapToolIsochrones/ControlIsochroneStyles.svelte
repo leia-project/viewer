@@ -3,6 +3,7 @@
     import { Slider } from "carbon-components-svelte";
 	import { onDestroy, onMount } from "svelte";
 	import type { IsochronesLayer } from "./isochrones-layer";
+	import { slide } from "svelte/transition";
 
 
     export let isochronesLayer: IsochronesLayer;
@@ -25,15 +26,17 @@
 
 <div class="sliders">
     {#each $isochrones as isochrone, i}
-        <Slider 
-            labelText={`${$_('tools.isochrones.settlementPercentage')} (${isochrone.props.isochroneEnd} min): ${Math.round(isochrone.props.weight * 100)}%`} 
-            hideTextInput 
-            min={0} 
-            max={1} 
-            step={0.01} 
-            bind:value={isochrone.props.weight}
-            disabled={isochrone.props.index !== 1}
-        />
+        <div transition:slide={{ duration: 500 }}>
+            <Slider 
+                labelText={`${$_('tools.isochrones.settlementPercentage')} (${isochrone.props.isochroneEnd} min): ${Math.round(isochrone.props.weight * 100)}%`} 
+                hideTextInput 
+                min={0} 
+                max={1} 
+                step={0.01} 
+                bind:value={isochrone.props.weight}
+                disabled={isochrone.props.index !== 1}
+            />
+        </div>
     {/each}
 </div>
 
