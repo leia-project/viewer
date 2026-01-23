@@ -1,5 +1,5 @@
 import * as Cesium from "cesium";
-import * as turf from "@turf/turf";
+// import * as turf from "@turf/turf";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { get, writable, type Writable } from "svelte/store";
 
@@ -46,8 +46,6 @@ export class IsochronesLayer {
         this.map.viewer.dataSources.add(this.dataSource);
 
         this.isochrones.subscribe(isos => {
-            console.log("Isochrones updated:", isos);
-
             this.redistributeWeights(isos);
             this.updateIsoColors(isos);
 
@@ -55,8 +53,6 @@ export class IsochronesLayer {
         });
 
         this.totalPopulation.subscribe(totalPop => {
-            console.log("Total population updated:", totalPop);
-            
             // Recalculate population for all isochrones when total population changes
             this.isochrones.update(isos => {
                 return isos.map(iso => {
@@ -354,7 +350,6 @@ export class IsochronesLayer {
                 // TODO: Add increasing buffer around each isochrone to avoid holes extending beyond previous isochrones
 
                 data.features.forEach((feature: any, index: number) => {
-                    console.log("Isochrone Feature:", feature);
                     const props = feature.properties;
                     const isochroneNumber = props.isochrone;
                     const isochroneStart = props.isochroneStart;
@@ -407,7 +402,6 @@ export class IsochronesLayer {
 
                 this.isochrones.set(newIsochrones);
                 this.map.refresh();
-                console.log("Isochrones added to map:", get(this.isochrones));
             }
             else {
                 console.warn("No features found in isochrone data");
