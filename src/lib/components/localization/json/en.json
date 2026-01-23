@@ -311,7 +311,17 @@
             "timeSlider": "Time slider"
         },
         "isochrones": {
-            "label": "Isochrones"
+            "label": "Isochrones",
+            "reset": "Reset",
+            "drawIsochroneCenter": "Draw development location",
+            "drawingIsochroneCenter": "Drawing",
+            "apiKey": "API Key",
+            "enterApiKey": "Enter GeodanMaps API key here...",
+            "calculate": "Calculate isochrones",
+            "calculating": "Calculating...",
+            "totalPopulation": "Total new residents",
+            "legendTitle": "Legend",
+            "settlementPercentage": "Settlement Percentage"
         }
     },
     "errors": {

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
     import { Slider } from "carbon-components-svelte";
 	import { onDestroy, onMount } from "svelte";
 	import type { IsochronesLayer } from "./isochrones-layer";
@@ -25,7 +26,7 @@
 <div class="sliders">
     {#each $isochrones as isochrone, i}
         <Slider 
-            labelText={`Fraction ${isochrone.props.isochroneEnd} min Isochrone: ${isochrone.props.weight}`} 
+            labelText={`${$_('tools.isochrones.settlementPercentage')} (${isochrone.props.isochroneEnd} min): ${Math.round(isochrone.props.weight * 100)}%`} 
             hideTextInput 
             min={0} 
             max={1} 

@@ -318,7 +318,17 @@
             "timeSlider": "Tijd slider"
         },
         "isochrones": {
-            "label": "Isochronen"
+            "label": "Isochronen",
+            "reset": "Resetten",
+            "drawIsochroneCenter": "Teken Locatie Ontwikkeling",
+            "drawingIsochroneCenter": "Aan het tekenen",
+            "apiKey": "API-sleutel",
+            "enterApiKey": "Voer GeodanMaps API-sleutel in...",
+            "calculate": "Bereken autoreistjidafstanden",
+            "calculating": "Berekenen...",
+            "totalPopulation": "Aantal nieuwe inwoners",
+            "legendTitle": "Legenda",
+            "settlementPercentage": "Vestigingspercentage"
         }
     },
     "errors": {

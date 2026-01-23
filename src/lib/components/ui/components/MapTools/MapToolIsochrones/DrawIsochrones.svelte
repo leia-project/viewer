@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import { Button } from "carbon-components-svelte";
 	import { onDestroy, onMount } from "svelte";
     import { PasswordInput } from "carbon-components-svelte";
@@ -10,14 +11,12 @@
 
 
     onMount(() => {
-        console.log("DrawIsochroneCenter mounted");
         isochronesLayer.addIsochrones();
         isochronesLayer.addPointEntity();
     });
 
 
     onDestroy(() => {
-        console.log("DrawIsochroneCenter destroyed");
         isochronesLayer.destroyHandler();
         isochronesLayer.removeIsochrones();
         isochronesLayer.removePointEntity();
@@ -35,23 +34,22 @@
         <Button
             kind={!$handler ? "tertiary" : "primary"}
             on:click={() => {
-                console.log("Draw Isochrone Center clicked")
                 !$handler ? isochronesLayer.drawPoint() : isochronesLayer.destroyHandler();
             }}
         >
             {#if !$handler}
-                Draw Isochrone Center
+                {$_('tools.isochrones.drawIsochroneCenter')}
             {:else}
-                Drawing Isochrone Center
+                {$_('tools.isochrones.drawingIsochroneCenter')}
             {/if}
         </Button>
     </div>
 
     <div class=component>
         <PasswordInput
-            labelText="API Key"
+            labelText={$_('tools.isochrones.apiKey')}
             bind:value={$apiKey}
-            placeholder="Enter GeodanMaps API key here..."
+            placeholder={$_('tools.isochrones.enterApiKey')}
         />
     </div>
 
@@ -61,14 +59,13 @@
             kind="tertiary"
             disabled={!$coordinates || !$apiKey || $dataLoading}
             on:click={() => {
-                console.log("Calculate Isochrones clicked");
                 isochronesLayer.entityToIsochrones();
             }}
         >
             {#if $dataLoading}
-                <InlineLoading description="Calculating..." />
+                <InlineLoading description={$_('tools.isochrones.calculating')} />
             {:else}
-                Calculate isochrones
+                {$_('tools.isochrones.calculate')}
             {/if}
         </Button>
     </div>

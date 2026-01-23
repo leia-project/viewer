@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
     import { Slider } from "carbon-components-svelte";
 	import { onDestroy, onMount } from "svelte";
 	import type { IsochronesLayer } from "./isochrones-layer";
@@ -13,7 +14,7 @@
 
 <Slider 
     hideTextInput 
-    labelText={"Total Population"}
+    labelText={$_('tools.isochrones.totalPopulation')}
     min={0}
     max={20000}
     step={1000}

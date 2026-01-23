@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getContext, onMount } from "svelte";
 	import { _ } from "svelte-i18n";
+	import { getContext, onMount } from "svelte";
     import Car from "carbon-icons-svelte/lib/Car.svelte";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import DrawIsochrones from "./DrawIsochrones.svelte";
@@ -30,7 +30,6 @@
 	// let startWeights: Array<number> = [0.5, 0.3, 0.2];
 
 	onMount(() => {
-		console.log("MapToolIsochrones mounted");
 		if (map) {
 			map.ready.subscribe((ready: boolean) => {
 				if (ready) isochronesLayer = new IsochronesLayer(map);
@@ -62,7 +61,7 @@
 						isochronesLayer.resetLayer();
 					}}
 				>
-					Reset
+					{$_('tools.isochrones.reset')}
 				</Button>
 			</div>
 		</div>

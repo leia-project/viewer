@@ -302,7 +302,17 @@
             "timeSlider": "Curseur de temps"
         },
         "isochrones": {
-            "label": "Isochrones"
+            "label": "Isochrones",
+            "reset": "Réinitialiser",
+            "drawIsochroneCenter": "Dessiner le centre des isochrones",
+            "drawingIsochroneCenter": "Dessin",
+            "apiKey": "Clé API",
+            "enterApiKey": "Entrez la clé API GeodanMaps ici...",
+            "calculate": "Calculer les isochrones",
+            "calculating": "Calcul en cours...",
+            "totalPopulation": "Total de nouveaux résidents",
+            "legendTitle": "Légende",
+            "settlementPercentages": "Répartition des établissements"
         }
     },
     "errors": {

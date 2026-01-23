@@ -1872,7 +1872,10 @@
         },
         {
             "id": "isochrones",
-            "enabled": true
+            "enabled": true,
+            "settings": {
+                "alias": "Vestigingsplanner"
+            }
         },
         {
             "id": "measure",
