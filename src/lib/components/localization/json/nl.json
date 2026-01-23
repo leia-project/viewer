@@ -47,7 +47,8 @@
                 "library": "Bibliotheek",
                 "search": "Zoeken",
                 "flood": "Overstroming",
-                "stories": "Verhalen"
+                "stories": "Verhalen",
+                "isochrones": "Isochronen"
             },
             "intro": {
                 "introDescription": "Een digital twin is een digitale representatie van een beoogd of bestaand fysiek product, systeem of proces dat dient als een vrijwel identieke digitale tegenhanger voor praktische doeleinden, zoals simulatie, integratie, testen, monitoring en onderhoud. Voor meer informatie over het gebruik van de viewer, zie de verschillende onderwerpen."
@@ -98,6 +99,9 @@
                 "storyDrawArea": "Sommige verhalen vereisen dat u een projectgebied op de kaart tekent. Dit gebied wordt gebruikt om een verdeling van klassen binnen het getekende polygon te genereren. Om een projectgebied te tekenen, klikt u op de knop 'Teken projectgebied' en klikt u vervolgens op de kaart om punten neer te zetten en zo een polygon te creëren. Klik met de rechtermuisknop op de kaart of klik op 'Voltooi Projectgebied' om het tekenen te voltooien.",
                 "headingStoryDataDonut": "Projectgebied Data Grafiek",
                 "storyDataDonut": "In verhalen die een projectgebied bevatten, wordt een donutgrafiek weergegeven om de verdeling van verschillende klassen binnen het getekende gebied te weergeven. Wanneer u met de muis over een segment beweegt, wordt het percentage weergegeven."
+            },
+            "isochrones": {
+                "description": "De isochronen tool stelt u in staat om gebieden te visualiseren die binnen een bepaalde tijdsperiode vanaf een specifieke locatie bereikt kunnen worden met de auto."
             }
         },
         "config_switcher": {
@@ -314,6 +318,19 @@
             "noBreachSelected": "Geen bres geselecteerd",
             "searchBreach": "Zoek bres",
             "timeSlider": "Tijd slider"
+        },
+        "isochrones": {
+            "label": "Isochronen",
+            "reset": "Resetten",
+            "drawIsochroneCenter": "Teken Locatie Ontwikkeling",
+            "drawingIsochroneCenter": "Aan het tekenen",
+            "apiKey": "API-sleutel",
+            "enterApiKey": "Voer GeodanMaps API-sleutel in...",
+            "calculate": "Bereken autoreistjidafstanden",
+            "calculating": "Berekenen...",
+            "totalPopulation": "Aantal nieuwe inwoners",
+            "legendTitle": "Legenda",
+            "settlementPercentage": "Vestigingspercentage"
         }
     },
     "errors": {

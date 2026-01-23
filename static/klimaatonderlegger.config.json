@@ -518,6 +518,19 @@
                 "featureName": "waterkwaliteit_natuur_totaal",
                 "contenttype": "image/png"
             }
+        },
+        {
+            "id": "99999",
+            "type": "geojson",
+            "title": "TEST Woonkernen",
+            "groupId": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "settings": {
+                "url": "http://localhost:8000/Woonkernen_info.geojson"
+            }
         }
     ],
     "viewer": {
@@ -535,7 +548,6 @@
             "duration": 1.50
         },
         "startCameraMode3D": false,
-        "startToolOpen": "stories",
         "colors": {
             "ui-background": "#ffffff",
             "interactive-01": "#214170",
@@ -1995,6 +2007,13 @@
                         ]
                     }
                 ]
+            }
+        },
+        {
+            "id": "isochrones",
+            "enabled": true,
+            "settings": {
+                "alias": "Vestigingsplanner"
             }
         },
         {

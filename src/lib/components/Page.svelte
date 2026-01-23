@@ -34,6 +34,7 @@
 	import type { List } from "echarts";
 	import { OgcFeaturesLoaderCesiumDynamic } from "./map-cesium/module/providers/ogc-features-provider";
 	import { filter } from "@observablehq/plot";
+	import MapToolIsochrones from "$lib/components/ui/components/MapTools/MapToolIsochrones/MapToolIsochrones.svelte";
 
 	const settings = writable<any>({});
 	const enabledTools = writable<Array<string>>(new Array<string>());
@@ -58,6 +59,7 @@
         'projects',
         'bookmarks',
         'measure',
+		'isochrones',
     ]; // Standard order of top left tools in toolmenu
 
 	$: toolOrder = {
@@ -68,6 +70,7 @@
         projects: MapToolProjects,
 		bookmarks: MapToolBookmark,
         measure: MapToolCesiumMeasure,
+		isochrones: MapToolIsochrones,
     };
 
 	function toolProps(toolKey: string) {
@@ -84,6 +87,8 @@
 		} else if (toolKey === 'bookmarks') {
 			return { };
 		} else if (toolKey === 'measure') {
+			return { };
+		} else if (toolKey === 'isochrones') {
 			return { };
 		}
 		return {};

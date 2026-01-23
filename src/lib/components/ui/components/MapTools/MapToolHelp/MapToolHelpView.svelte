@@ -10,10 +10,11 @@
     import TabLibrary from './Tabs/TabLibrary.svelte';
     import TabFlooding from "./Tabs/TabFlooding.svelte";
     import TabStories from "./Tabs/TabStories.svelte";
+    import TabIsochrones from "./Tabs/TabIsochrones.svelte";
     
     // const { map } = getContext<any>("mapTools");
 	import { app } from '$lib/app/app';
-	import Divider from "../../Divider/Divider.svelte";
+
 
 	$: map = get(app.map);
 
@@ -22,8 +23,9 @@
     let downloadButtonUrl: string | undefined = undefined;
     let downloadButtonLabel: string |undefined = undefined;
 
-    let floodingToolEnabled: boolean = false
-    let storyToolEnabled: boolean = false
+    let floodingToolEnabled: boolean = false;
+    let storyToolEnabled: boolean = false;
+    let isochronesToolEnabled: boolean = false;
 
     //TODO: Integrate this properly
     interface IDownloadButton {
@@ -53,11 +55,15 @@
                         };
                     }
                     
-                    // Prepare flooding/story tab data
+                    // Prepare data for optional tabs
                     let floodingTool = map.config.tools.find((t: any) => t.id === "flooding");
                     floodingToolEnabled = floodingTool ? floodingTool.enabled : false;
+
                     let storyTool = map.config.tools.find((t: any) => t.id === "stories");
                     storyToolEnabled = storyTool ? storyTool.enabled : false;
+
+                    let isochronesTool = map.config.tools.find((t: any) => t.id === "isochrones");
+                    isochronesToolEnabled = isochronesTool ? isochronesTool.enabled : false;
                 }
             }
         } catch (error) {
@@ -73,7 +79,7 @@
 
     interface ITabComponent {
         label: string;
-        component: typeof TabIntro | typeof TabMovement | typeof TabLibrary | typeof TabFlooding | typeof TabStories;
+        component: typeof TabIntro | typeof TabMovement | typeof TabLibrary | typeof TabFlooding | typeof TabStories | typeof TabIsochrones;
         enabled: boolean;
         props?: any;
     }
@@ -88,7 +94,8 @@
         { label: $_("tools.help.tabs.movement"), component: TabMovement, enabled: true, props: { _, base }},
         { label: $_("tools.help.tabs.library"), component: TabLibrary, enabled: true, props: { _, base }},
         { label: $_("tools.help.tabs.flood"), component: TabFlooding, enabled: floodingToolEnabled, props: { _, base }},
-        { label: $_("tools.help.tabs.stories"), component: TabStories, enabled: storyToolEnabled, props: { _, base }}
+        { label: $_("tools.help.tabs.stories"), component: TabStories, enabled: storyToolEnabled, props: { _, base }},
+        { label: $_("tools.help.tabs.isochrones"), component: TabIsochrones, enabled: isochronesToolEnabled, props: { _, base }},
     ] as ITabComponent[];
 
     $: enabledTabs = tabs.filter(tab => tab.enabled);
