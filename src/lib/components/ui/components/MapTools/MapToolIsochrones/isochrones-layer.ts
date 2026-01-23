@@ -108,6 +108,11 @@ export class IsochronesLayer {
                 if (index === 0) {
                     // First isochrone keeps its weight
                     iso.props.weight = Number(firstWeight.toFixed(2));
+                    
+                    // Also update the entity properties if they exist
+                    if (iso.entity.properties) {
+                        iso.entity.properties.weight = Number(firstWeight.toFixed(2));
+                    }
                 } else {
                     // Other isochrones get proportional share of remaining weight
                     if (otherStartWeightsSum > 0) {
