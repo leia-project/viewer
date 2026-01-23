@@ -8,7 +8,7 @@
     const isochrones = isochronesLayer.isochrones;
 
     const value_min = 0;
-    const value_max = 10000; // Max people
+    const value_max = isochronesLayer.totalPopulation;
 
     // Create gradient with multiple stops: green -> yellow -> orange -> red
     const color_0 = weightToColorString(0);     // green
@@ -34,10 +34,14 @@
         {$_('tools.isochrones.legendTitle')}
     </div>
     <div class="legend-container">
-        <div class="legend" style="--color-0: {color_0}; --color-33: {color_33}; --color-66: {color_66}; --color-100: {color_100}"></div>
+        {#if $value_max === 0 }
+            <div class="legend" style="background: #808080;"></div>
+        {:else}
+            <div class="legend" style="--color-0: {color_0}; --color-33: {color_33}; --color-66: {color_66}; --color-100: {color_100}"></div>
+        {/if}
         <div class="values">
             <div class="min-value">{value_min}</div>
-            <div class="max-value">{value_max}</div>
+            <div class="max-value">{$value_max}</div>
         </div>
     </div>
 {/if}

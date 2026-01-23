@@ -8,17 +8,18 @@
     export let isochronesLayer: IsochronesLayer;
 
     const isochrones = isochronesLayer.isochrones;
+    const value = isochronesLayer.totalPopulation;
     
 </script>
 
 
 <Slider 
     hideTextInput 
-    labelText={$_('tools.isochrones.totalPopulation')}
+    labelText={`${$_('tools.isochrones.totalPopulation')}: ${$value}`}
     min={0}
     max={20000}
     step={1000}
-    value={10000}
+    bind:value={$value}
 />
 
 

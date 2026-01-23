@@ -8,7 +8,8 @@ type IsochroneProps = {
     index: number, // counting from inside to outside
     isochroneStart: number,
     isochroneEnd: number,
-    weight: number // between 0 and 1
+    weight: number, // between 0 and 1
+    population: number
 };
 
 
@@ -31,6 +32,7 @@ export class IsochronesLayer {
     public isochrones: Writable<Array<Isochrone>> = writable([]);
     public startWeights: Array<number>; // Inside to outside, should total 1
     public travelTime: number = 20; // in minutes
+    public totalPopulation: Writable<number> = writable(10000); // TODO: make dynamic
 
 
     constructor(map: Map, startWeights: Array<number> = [0.5, 0.3, 0.2]) {
@@ -47,34 +49,33 @@ export class IsochronesLayer {
             console.log("Isochrones updated:", isos);
 
             this.redistributeWeights(isos);
-
-            // Update colors based on calculated weights
-            isos.forEach(iso => {
-                console.log("Isochrone:", iso.props);
-                const weight = iso.props.weight;
-
-                if (weight < 0 || weight > 1) {
-                    console.warn("Weight must be between 0 and 1");
-                    return;
-                };
-
-                if (!iso.entity.polygon) {
-                    console.warn(`Isochrone polygon not found`);
-                    return;
-                };
-
-                // Create color based on weight: red (high weight) to yellow to green (low weight)
-                const color = Cesium.Color.fromHsl(
-                    ((1 - weight) * 120) / 360, // Hue: 0 degrees (red) at weight=1, 120 degrees (green) at weight=0
-                    1.0,                         // Saturation
-                    0.5,                         // Lightness
-                    0.7                           // Alpha
-                );
-
-                iso.entity.polygon.material = new Cesium.ColorMaterialProperty(color);
-            });
+            this.updateIsoColors(isos);
 
             this.map.refresh();
+        });
+
+        this.totalPopulation.subscribe(totalPop => {
+            console.log("Total population updated:", totalPop);
+            
+            // Recalculate population for all isochrones when total population changes
+            this.isochrones.update(isos => {
+                return isos.map(iso => {
+                    const population = Math.round(iso.props.weight * totalPop);
+                    
+                    // Update entity properties if they exist
+                    if (iso.entity.properties) {
+                        iso.entity.properties.population = population;
+                    }
+                    
+                    return {
+                        ...iso,
+                        props: {
+                            ...iso.props,
+                            population: population
+                        }
+                    };
+                });
+            });
         });
     };
 
@@ -88,7 +89,6 @@ export class IsochronesLayer {
         this.removeIsochrones();
         this.removePointEntity();
         this.coordinates.set(undefined);
-        // this.apiKey.set("");
 
         this.map.refresh();
     };
@@ -103,39 +103,75 @@ export class IsochronesLayer {
             // Calculate the sum of the other start weights (excluding first)
             const otherStartWeightsSum = this.startWeights.slice(1).reduce((sum, w) => sum + w, 0);
             
+            const totalPop = get(this.totalPopulation);
+            
             // Update weights for all isochrones except the first
             isos.forEach((iso, index) => {
                 if (index === 0) {
                     // First isochrone keeps its weight
                     iso.props.weight = Number(firstWeight.toFixed(2));
+                    iso.props.population = Math.round(iso.props.weight * totalPop);
                     
                     // Also update the entity properties if they exist
                     if (iso.entity.properties) {
                         iso.entity.properties.weight = Number(firstWeight.toFixed(2));
+                        iso.entity.properties.population = iso.props.population;
                     }
                 } else {
                     // Other isochrones get proportional share of remaining weight
                     if (otherStartWeightsSum > 0) {
                         const newWeight = Number(((this.startWeights[index] / otherStartWeightsSum) * remainingWeight).toFixed(2));
                         iso.props.weight = newWeight;
+                        iso.props.population = Math.round(newWeight * totalPop);
                         
                         // Also update the entity properties if they exist
                         if (iso.entity.properties) {
                             iso.entity.properties.weight = newWeight;
+                            iso.entity.properties.population = iso.props.population;
                         }
                     } else {
                         // Fallback: distribute evenly if no start weights
                         const newWeight = Number((remainingWeight / (isos.length - 1)).toFixed(2));
                         iso.props.weight = newWeight;
+                        iso.props.population = Math.round(newWeight * totalPop);
                         
                         // Also update the entity properties if they exist
                         if (iso.entity.properties) {
                             iso.entity.properties.weight = newWeight;
+                            iso.entity.properties.population = iso.props.population;
                         }
                     }
                 }
             });
         }
+    };
+
+
+    private updateIsoColors(isos: Array<Isochrone>): void {
+        // Update colors based on calculated weights
+        isos.forEach(iso => {
+            const weight = iso.props.weight;
+
+            if (weight < 0 || weight > 1) {
+                console.warn("Weight must be between 0 and 1");
+                return;
+            };
+
+            if (!iso.entity.polygon) {
+                console.warn(`Isochrone polygon not found`);
+                return;
+            };
+
+            // Create color based on weight: red (high weight) to yellow to green (low weight)
+            const color = Cesium.Color.fromHsl(
+                ((1 - weight) * 120) / 360,  // Hue: 0 degrees (red) at weight=1, 120 degrees (green) at weight=0
+                1.0,                         // Saturation
+                0.5,                         // Lightness
+                0.7                          // Alpha
+            );
+
+            iso.entity.polygon.material = new Cesium.ColorMaterialProperty(color);
+        });
     };
 
 
@@ -217,6 +253,8 @@ export class IsochronesLayer {
         }
 
         const roundedWeight = Number(weight.toFixed(2));
+        const totalPop = get(this.totalPopulation);
+        const population = Math.round(roundedWeight * totalPop);
 
         this.isochrones.update(isos => {
             const updatedIsos = isos.map(iso => {
@@ -225,7 +263,8 @@ export class IsochronesLayer {
                         ...iso,
                         props: {
                             ...iso.props,
-                            weight: roundedWeight
+                            weight: roundedWeight,
+                            population: population
                         }
                     };
                 }
@@ -307,6 +346,7 @@ export class IsochronesLayer {
                 this.removeIsochrones();
 
                 const startWeights = [0.5, 0.3, 0.2]; // Example weights for 3 isochrones
+                const totalPop = get(this.totalPopulation);
                 const newIsochrones: Array<Isochrone> = [];
                 let hole: Cesium.PolygonHierarchy[] | undefined = undefined;
                 let hierarchy: Cesium.PolygonHierarchy;
@@ -319,6 +359,8 @@ export class IsochronesLayer {
                     const isochroneNumber = props.isochrone;
                     const isochroneStart = props.isochroneStart;
                     const isochroneEnd = props.isochroneEnd;
+                    const weight = startWeights[index];
+                    const population = Math.round(weight * totalPop);
                     const coordinates = feature.geometry.coordinates[0].map((coord: any) => {
                         return Cesium.Cartesian3.fromDegrees(coord[0], coord[1]);
                     });
@@ -340,7 +382,8 @@ export class IsochronesLayer {
                             index: isochroneNumber,
                             isochroneStart: isochroneStart,
                             isochroneEnd: isochroneEnd,
-                            weight: startWeights[index]
+                            weight: weight,
+                            population: population
                         }
                     });
 
@@ -354,7 +397,8 @@ export class IsochronesLayer {
                             index: isochroneNumber,
                             isochroneStart: isochroneStart,
                             isochroneEnd: isochroneEnd,
-                            weight: startWeights[index]
+                            weight: weight,
+                            population: population
                         }
                     };
                     newIsochrones.push(isochrone);
