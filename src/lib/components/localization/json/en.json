@@ -31,49 +31,78 @@
             "search": "Search Location"
         },
         "info": {
-            "info": "Information",
+            "label": "Information",
             "close": "Close",
             "general": "Open 3D viewer, product by Sogelink (formerly Geodan) and Provincie Zeeland.",
             "attribution": "Attribution"
         },
         "help": {
-          "help": "Help",
-          "title": "Digital-Twin Viewer",
-          "close": "Close",
-          "closeDontShowOnStart": "Close and don't show on startup",
-          "intro": "<div class='body-02'>A digital twin is a digital representation of an intended or actual real-world physical product, system, or process (a physical twin) that serves as the effectively indistinguishable digital counterpart of it for practical purposes, such as simulation, integration, testing, monitoring, and maintenance.<br><br>For more information on how to use the viewer see the different topics</div><br><div style='display:flex; justify-content: center;'></div>",
-          "tabs": {
-            "intro": "Introduction",
-            "movement": "Movement",
-            "library": "Library",
-            "search": "Search"
-          },
-          "movement": {
-            "headingZoom": "Zooming in/out",
-            "zoomDescription": "Zooming in and out can be done in 3 different ways:",
-            "zoomOption1": "1) Scroll up or down to zoom in or out.",
-            "zoomOption2": "2) Hold your right mouse button and move the mouse up or down for seamless zooming.",
-            "zoomOption3": "3) Use the zoom in and out buttons in the bottom right.",
-            "headingRotatePitch": "Rotate & Pitch",
-            "rotatePitchDescription": "You can rotate and pitch the camera, it is also possible to pitch the camera below the surface. This can be done in 2 different ways.",
-            "rotatePitchOption1": "1) Press down your mouse scroll wheel and move the mouse around.",
-            "rotatePitchOption2": "2) Hold down the <help-key>ctrl</help-key> key on your keyboard and your left mouse button and move the mouse around.",
-            "headingButtons": "Map Buttons",
-            "buttonsDescription": "On the bottom right some map buttons can be found.",
-            "buttonsFlyMode": "Activate FlyMode",
-            "buttonsWalkMode": "Activate WalkMode",
-            "buttonsHome": "Reset the view to the start position",
-            "buttonsCompass": "Reset the heading to North",
-            "buttonsZoomIn": "Zoom in",
-            "buttonsZoomOut": "Zoom out"
-          },
-          "library": {
-            "headingLibraryOpen": "Open Layer Library",
-            "headingUsingLibrary": "Using the Layer Library",
-            "description": "If you want to add more layers on top of the configured layers in the viewer you can do so using the layer library",
-            "openLibrary": "To open the layer library click the 'folder' button on the left side",
-            "libraryDescription": "Use the search bar on the bottom to search for desired layers or click trough the shown groups. To show more information about the layer click the layer, to add the layer to the map, enable the checkbox or press the 'Add to map' button in the layer description view"
-          }
+            "label": "Help",
+            "title": "Digital-Twin Viewer",
+            "close": "Close",
+            "closeDontShowOnStart": "Close and don't show on startup",
+            "tabs": {
+                "intro": "Introduction",
+                "movement": "Movement",
+                "library": "Library",
+                "search": "Search",
+                "flood": "Flooding",
+                "stories": "Stories",
+                "isochrones": "Isochrones"
+            },
+            "intro": {
+                "introDescription": "A digital twin is a digital representation of a intended or existing physical product, system, or process that serves as a virtually identical digital counterpart for practical purposes, such as simulation, integration, testing, monitoring, and maintenance. For more information on using the viewer, see the various topics."
+            },
+            "movement": {
+                "headingZoom": "Zooming in/out",
+                "zoomDescription": "Zooming in and out can be done in 3 different ways:",
+                "zoomOption1": "1) Scroll up or down to zoom in or out.",
+                "zoomOption2": "2) Hold your right mouse button and move the mouse up or down for seamless zooming.",
+                "zoomOption3": "3) Use the zoom in and out buttons in the bottom right.",
+                "headingRotatePitch": "Rotate & Pitch",
+                "rotatePitchDescription": "You can rotate and pitch the camera, it is also possible to pitch the camera below the surface. This can be done in 2 different ways.",
+                "rotatePitchOption1": "1) Press down your mouse scroll wheel and move the mouse around.",
+                "rotatePitchOption2": "2) Hold down the <help-key>ctrl</help-key> key on your keyboard and your left mouse button and move the mouse around.",
+                "headingButtons": "Map Buttons",
+                "buttonsDescription": "On the bottom right some map buttons can be found.",
+                "buttonsFlyMode": "Activate FlyMode",
+                "buttonsWalkMode": "Activate WalkMode",
+                "buttonsHome": "Reset the view to the start position",
+                "buttonsCompass": "Reset the heading to North",
+                "buttonsZoomIn": "Zoom in",
+                "buttonsZoomOut": "Zoom out"
+            },
+            "library": {
+                "headingLibraryOpen": "Open Layer Library",
+                "headingUsingLibrary": "Using the Layer Library",
+                "description": "If you want to add more layers on top of the configured layers in the viewer you can do so using the layer library",
+                "openLibrary": "To open the layer library click the 'folder' button on the left side",
+                "libraryDescription": "Use the search bar on the bottom to search for desired layers or click trough the shown groups. To show more information about the layer click the layer, to add the layer to the map, enable the checkbox or press the 'Add to map' button in the layer description view"
+            },
+            "flood": {
+                "headingFloodOpen": "Open the flooding tool",
+                "headingUsingFlood": "Using the flooding tool",
+                "description": "The flooding tool enables you to simulate and analyze floods in the area.",
+                "openFlood": "To open the flooding tool, click the 'flooding' button on the left side.",
+                "floodBreachDescription": "First select a breach location by clicking on a breach icon on the map. This will act as the starting point for the flood simulation.",
+                "floodMenuDescription": "After that, use the different options in the flooding tool to customize and run the simulation. First choose the desired scenario, for example 1:3000 years. Then you can use the 'Time slider' to play the scenario. Use the 'Play' button to automatically play the scenario, or use the arrows to view the flood step by step.",
+                "headingMeasureDepth": "Measure depth",
+                "measureDepthDescription": "To measure the water depth at a specific location, turn on the 'Measure depth' button and then click on a flooded area at the desired location. The tool can only be used when zoomed in, as the terrain height is then loaded correctly."
+            },
+            "stories": {
+                "description": "This module allows you to view pre-made tours that tell a story.",
+                "headingOpenStories": "Opening Stories",
+                "openStories": "Open the story tool by clicking the 'Stories' button on the left side. Select a story from the list to start the tour.",
+                "headingStoryNavigation": "Navigation",
+                "storyNavigation": "Use the chapter (top row) and page buttons (bottom row) to move through the story, or simply scroll down in the menu. You can go back to the overview at any time by clicking the 'Back to overview' button.",
+                "headingStoryDrawArea": "Drawing a Project Area",
+                "storyDrawArea": "Some stories require you to draw a project area on the map. This area will be used to generate a a distribution of classes within the drawn polygon. To draw a project area, click the 'Draw Project Area' button and then click on the map to create a polygon. Right-click on the map or click 'Finish Drawing' to finish drawing.",
+                "headingStoryDataDonut": "Project Area Data Chart",
+                "storyDataDonut": "In stories that contain a project area, a donut chart is shown to represent the distribution of different classes within the drawn area. Hovering over a segment will show the percentage it represents."
+            },
+            "isochrones": {
+                "description": "The isochrones tool allows you to visualize areas that can be reached by car within a certain time frame from a specific location."
+            }
         },
         "layerLibrary": {
             "label": "Library",
@@ -194,7 +223,7 @@
             "totalLength": "Total length",
             "points": "Points"
         },
-        "controls": {
+        "cesium": {
             "label": "Map Settings",
             "sunPosition": "Sun Position",
             "sunPositionDate": "Date",
@@ -221,6 +250,8 @@
             "FPSCounter": "FPS Counter",
             "inspector": "Tile Inspector",
             "coordinates": "Coordinates",
+            "cameraPosition": "Camera Position",
+            "dragAndDropFiles": "Drag and Drop Files",
             "pointCloud": "Point Clouds",
             "pointCloudAttenuation": "Attenuation",
             "pointCloudAttenuationBaseResolution": "Attenuation Base Resolution",
@@ -240,14 +271,17 @@
             "statistics": "Statistics",
             "storyChartTitle": "Class distribution",
             "storyChartNoData": "No Data",
+            "storyChartNoDataInPolygon": "No data in the drawn project area",
             "basemap": "Basemap",
-            "requestDrawPolygon": "Draw a project area to retrieve data",
-            "drawPolygon": "Draw Project Area",
-            "finishPolygon": "Finish Project Area",
+            "polygonTitle": "Project Area",
+            "requestDrawPolygon": "Draw a Project Area",
+            "drawPolygon": "Draw Area",
+            "uploadPolygon": "Upload a Project Area",
+            "finishPolygon": "Finish Area",
             "drawPolygonText": "Click on the 'Draw Project Area' button to start drawing on the map. Click to create a polygon. Right-click on the map to finish drawing.",
-            "deletePolygon": "Delete Project Area",
+            "deletePolygon": "Delete Area",
             "projectAreaTool": "Project Area Tool",
-            "downloadPDF": "Download PDF"
+            "downloadPDF": "Generate and download PDF"
         },
         "animation": {
             "speed": "Speed",
@@ -277,6 +311,25 @@
             "noBreachSelected": "No breach selected",
             "searchBreach": "Search breach",
             "timeSlider": "Time slider"
+        },
+        "isochrones": {
+            "label": "Isochrones",
+            "reset": "Reset",
+            "drawIsochroneCenter": "Draw development location",
+            "drawingIsochroneCenter": "Drawing",
+            "apiKey": "API Key",
+            "enterApiKey": "Enter GeodanMaps API key here...",
+            "calculate": "Calculate isochrones",
+            "calculating": "Calculating...",
+            "totalPopulation": "Total new residents",
+            "legendTitle": "Legend",
+            "settlementPercentage": "Settlement Percentage"
+        }
+    },
+    "errors": {
+        "Drawing": {
+            "invalidPolygon": "Invalid polygon: The polygon cannot intersect itself."
         }
     }
+
 }

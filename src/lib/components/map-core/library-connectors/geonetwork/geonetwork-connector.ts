@@ -66,7 +66,7 @@ export class GeoNetworkConnector implements LibraryConnector {
      */
     private async getLayerConfigs(group: LayerConfigGroup): Promise<Array<LayerConfig>> {
         try {
-            const suffix = `&topicCat=${group.title}&resultType=details&buildSummary=false&fast=index`;
+            const suffix = `&topicCat=${group.id}&resultType=details&buildSummary=false&fast=index`;
             const request = `${this.settings.url}/${this.endpointSearch}?_content_type=json&${suffix}&from=1&to=1000`;
             const result = await this.get(request);
 
@@ -105,7 +105,7 @@ export class GeoNetworkConnector implements LibraryConnector {
 
             // handle parent groups
             if (group['@count'] > 0) {
-                const lg = new LayerConfigGroup(group['@name'], group['@name'], parentId);
+                const lg = new LayerConfigGroup(group['@name'], group['@label'], parentId);
                 groups.push(lg);
             }
         }

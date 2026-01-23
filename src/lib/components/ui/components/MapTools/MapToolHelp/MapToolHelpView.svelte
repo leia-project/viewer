@@ -1,16 +1,106 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import { Tabs, Tab } from "carbon-components-svelte";
     import { Modal } from "carbon-components-svelte";
     import { _ } from "svelte-i18n";
+    import { getContext } from "svelte";
+    import { get } from "svelte/store";
+    import TabIntro from './Tabs/TabIntro.svelte';
+    import TabMovement from './Tabs/TabMovement.svelte';
+    import TabLibrary from './Tabs/TabLibrary.svelte';
+    import TabFlooding from "./Tabs/TabFlooding.svelte";
+    import TabStories from "./Tabs/TabStories.svelte";
+    import TabIsochrones from "./Tabs/TabIsochrones.svelte";
+    
+    // const { map } = getContext<any>("mapTools");
+	import { app } from '$lib/app/app';
 
+
+	$: map = get(app.map);
+
+    let customIntroText: string | undefined = undefined;
+    let downloadButtonEnabled: boolean | undefined = undefined;
+    let downloadButtonUrl: string | undefined = undefined;
+    let downloadButtonLabel: string |undefined = undefined;
+
+    let floodingToolEnabled: boolean = false;
+    let storyToolEnabled: boolean = false;
+    let isochronesToolEnabled: boolean = false;
+
+    //TODO: Integrate this properly
+    interface IDownloadButton {
+        enabled: boolean;
+        url: string;
+        label: string;
+    }
+
+    let downloadButton: IDownloadButton | undefined = undefined;
+
+    onMount(() => {
+        try {
+            if (map) {
+                if (map.config && map.config.tools) {
+                    // Prepare intro tab data
+                    let helpTool = map.config.tools.find((t: any) => t.id === "help");
+
+                    customIntroText = helpTool.settings.introSettings?.customDescription ?? undefined;
+                    downloadButtonEnabled = helpTool.settings.introSettings?.downloadButton?.enabled ?? false;
+                    downloadButtonUrl = helpTool.settings.introSettings?.downloadButton?.url ?? undefined;
+                    downloadButtonLabel = helpTool.settings.introSettings?.downloadButton?.label ?? undefined;
+                    if (downloadButtonEnabled && downloadButtonUrl && downloadButtonLabel) {
+                        downloadButton = {
+                            enabled: downloadButtonEnabled,
+                            url: downloadButtonUrl,
+                            label: downloadButtonLabel
+                        };
+                    }
+                    
+                    // Prepare data for optional tabs
+                    let floodingTool = map.config.tools.find((t: any) => t.id === "flooding");
+                    floodingToolEnabled = floodingTool ? floodingTool.enabled : false;
+
+                    let storyTool = map.config.tools.find((t: any) => t.id === "stories");
+                    storyToolEnabled = storyTool ? storyTool.enabled : false;
+
+                    let isochronesTool = map.config.tools.find((t: any) => t.id === "isochrones");
+                    isochronesToolEnabled = isochronesTool ? isochronesTool.enabled : false;
+                }
+            }
+        } catch (error) {
+            console.error("Error accessing map context:", error);
+        }
+    });
+
+    const base = process.env.APP_URL;
     export let txtTitle: string;
-    export let txtIntro: string;
     export let showOnStart: boolean;
 
     let selectedTab = 0;
+
+    interface ITabComponent {
+        label: string;
+        component: typeof TabIntro | typeof TabMovement | typeof TabLibrary | typeof TabFlooding | typeof TabStories | typeof TabIsochrones;
+        enabled: boolean;
+        props?: any;
+    }
+      
+    $: tabs = [
+        { 
+            label: $_("tools.help.tabs.intro"), 
+            component: TabIntro, 
+            enabled: true, 
+            props: { customIntroText, downloadButton } 
+        },
+        { label: $_("tools.help.tabs.movement"), component: TabMovement, enabled: true, props: { _, base }},
+        { label: $_("tools.help.tabs.library"), component: TabLibrary, enabled: true, props: { _, base }},
+        { label: $_("tools.help.tabs.flood"), component: TabFlooding, enabled: floodingToolEnabled, props: { _, base }},
+        { label: $_("tools.help.tabs.stories"), component: TabStories, enabled: storyToolEnabled, props: { _, base }},
+        { label: $_("tools.help.tabs.isochrones"), component: TabIsochrones, enabled: isochronesToolEnabled, props: { _, base }},
+    ] as ITabComponent[];
+
+    $: enabledTabs = tabs.filter(tab => tab.enabled);
+    
     const dispatch = createEventDispatcher();
-    const base = process.env.APP_URL;
 
     function removeFromViewDontShowAgain(e: any): void {
         handleE(e);
@@ -27,17 +117,18 @@
         e.stopPropagation();
         e.stopImmediatePropagation();
     }
+
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <help>
-    
     <Modal
         open={true}
         modalHeading={txtTitle}
         primaryButtonText="{$_("tools.help.close")}"
         secondaryButtonText={ showOnStart ? $_("tools.help.closeDontShowOnStart") : ""}
-        style="margin-bottom: 0"
+        size="lg"
+        style="margin-bottom: 0;"
         on:click:button--secondary={(e) => {
             removeFromViewDontShowAgain(e);
         }}
@@ -48,89 +139,21 @@
         on:submit={(e) => {
             removeFromView(e);
         }}
-    >
+        >
+
         <div class="wrapper">
             <div class="tabs">
-                <Tabs bind:selected={selectedTab}>
-                    <Tab label={$_("tools.help.tabs.intro")} />
-                    <Tab label={$_("tools.help.tabs.movement")} />
-                    <Tab label={$_("tools.help.tabs.library")} />
+                <Tabs autoWidth bind:selected={selectedTab}>
+                    {#each enabledTabs as { label }, index}
+                            <Tab label={label} />
+                    {/each}
                 </Tabs>
             </div>
 
             <div class="content">
-                <div>
-                    {#if selectedTab === 0}
-                        {@html txtIntro}
-                    {/if}
-
-                    {#if selectedTab === 1}
-                        <div class="heading-02">{$_("tools.help.movement.headingZoom")}</div>
-                        <div class="video">
-                            <video autoplay loop muted style="width:100%">
-                                <source src="{base}/images/movement.mp4" type="video/mp4" />
-                            </video>
-                        </div>
-                        <div class="body-02">
-                            {$_("tools.help.movement.zoomDescription")}<br />
-                            {$_("tools.help.movement.zoomOption1")}<br />
-                            {$_("tools.help.movement.zoomOption2")}<br />
-                            {$_("tools.help.movement.zoomOption3")}<br /><br />
-                        </div>
-
-                        <div class="heading-02">{$_("tools.help.movement.headingRotatePitch")}</div>
-
-                        <div class="body-02">
-                            {$_("tools.help.movement.rotatePitchDescription")} <br />
-                            {$_("tools.help.movement.rotatePitchOption1")} <br />
-                            {@html $_("tools.help.movement.rotatePitchOption2")}<br /><br />
-                        </div>
-
-                        <div class="heading-02">{$_("tools.help.movement.headingButtons")}</div>
-                        <div class="body-02">{$_("tools.help.movement.buttonsDescription")}</div>
-
-                        <div class="button">
-                            <img src="{base}/images/map_home.png" alt="home" />
-                            <div class="body-01">{$_("tools.help.movement.buttonsHome")}</div>
-                        </div>
-
-                        <div class="button">
-                            <img src="{base}/images/map_compass.png" alt="compass" />
-                            <div class="body-01">{$_("tools.help.movement.buttonsCompass")}</div>
-                        </div>
-
-                        <div class="button">
-                            <img src="{base}/images/map_zoom_in.png" alt="zoom-in" />
-                            <div class="body-01">{$_("tools.help.movement.buttonsZoomIn")}</div>
-                        </div>
-                        <div class="button">
-                            <img src="{base}/images/map_zoom_out.png" alt="zoom-out" />
-                            <div class="body-01">{$_("tools.help.movement.buttonsZoomOut")}</div>
-                        </div>
-                    {/if}
-
-                    {#if selectedTab === 2}
-                        <div class="img-library">
-                            <img src="{base}/images/help_library_1.png" alt="library icon" />
-                        </div>
-
-                        <div class="body-02">
-                            {$_("tools.help.library.description")}<br /><br />
-                        </div>
-
-                        <div class="heading-02">{$_("tools.help.library.headingLibraryOpen")}</div>
-                        <div class="body-02">
-                            {$_("tools.help.library.openLibrary")}<br /><br />
-                        </div>
-
-                        <div class="heading-02">{$_("tools.help.library.headingUsingLibrary")}</div>
-                        <div class="body-02">
-                            {$_("tools.help.library.libraryDescription")}<br /><br />
-                        </div>
-
-                        <img src="{base}/images/help_library_2.png" style="width:100%" alt="library view" />
-                    {/if}
-                </div>
+                {#if enabledTabs[selectedTab].enabled}
+                    <svelte:component this={enabledTabs[selectedTab].component} {...enabledTabs[selectedTab].props} />
+                {/if}
             </div>
         </div>
     </Modal>
@@ -181,36 +204,7 @@
         line-height: 5px;
     }
 
-    .button {
-        display: flex;
-        margin-top: var(--cds-spacing-03);
-    }
-
-    .button .body-01 {
-        padding-left: var(--cds-spacing-05);
-        height: 100%;
-        padding-top: var(--cds-spacing-04);
-    }
-
-    .video {
-        margin-top: var(--cds-spacing-05);
-        margin-left: var(--cds-spacing-05);
-        width: 100%;
-        text-align: center;
-    }
-
     :global(a:hover[role=tab]) {
         text-decoration: none;
-    }
-
-    video {
-        border: 1px solid var(--cds-ui-03);
-        float: right;
-    }
-
-    .img-library {
-        float: right;
-        border: 1px solid var(--cds-ui-03);
-        margin-left: var(--cds-spacing-05);
     }
 </style>

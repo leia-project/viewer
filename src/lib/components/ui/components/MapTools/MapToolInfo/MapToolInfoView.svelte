@@ -5,7 +5,7 @@
     import { get } from "svelte/store";
     import { Attribution } from "$lib/components/ui/models/Attribution";
 
-    export let txtTitle = get(_)("tools.info.info");
+    export let txtTitle = get(_)("tools.info.label");
     export let txtClose = get(_)("tools.info.close");
     export let txtGeneral = get(_)("tools.info.general");
     export let txtAttribution = get(_)("tools.info.attribution");
@@ -50,12 +50,26 @@
             "MIT"
         ),
         new Attribution(
-                     "Aim Logo Icon",
+            "Aim Logo Icon",
             "Used as a position selection marker for the human perspective.",
             "Pixel Icons",
             "https://iconscout.com/free-icon/aim-183_722670",
             "Creative Commons Attribution 4"
         ), 
+        new Attribution(
+            "gdal3.js",
+            "Used for geopackage data processing.",
+            "bugra9",
+            "https://github.com/bugra9/gdal3.js",
+            "LGPL-2.1 license"
+        ),
+        new Attribution(
+            "jsPDF",
+            "Used to generate a summary PDF based on input data in the Stories tool.",
+            "parallax",
+            "https://github.com/parallax/jsPDF",
+            "MIT"
+        )
     );
 
     $: att = [...attribution, ...tostiAttribution];

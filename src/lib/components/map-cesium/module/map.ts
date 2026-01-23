@@ -224,6 +224,9 @@ export class Map extends MapCore {
 			imageryProvider: false, //https://community.cesium.com/t/invalid-access-token-when-not-using-ion/7563/5
 			infoBox: false,
 			msaaSamples: 1,
+			contextOptions: {
+				webgl: {preserveDrawingBuffer: true}
+			}
 			
 		});
 
