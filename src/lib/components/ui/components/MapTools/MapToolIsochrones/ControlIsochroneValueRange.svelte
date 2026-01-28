@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
     import { Slider } from "carbon-components-svelte";
-	import { onDestroy, onMount } from "svelte";
 	import type { IsochronesLayer } from "./isochrones-layer";
 
 
     export let isochronesLayer: IsochronesLayer;
 
-    const isochrones = isochronesLayer.isochrones;
     const value = isochronesLayer.totalPopulation;
     
 </script>

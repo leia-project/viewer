@@ -71,6 +71,10 @@
 
 
 <style>
+    :global(.component .bx--inline-loading) {
+        min-height: 0;
+    }
+
     .buttons-container :global(button) {
         width: 100%;
     }
