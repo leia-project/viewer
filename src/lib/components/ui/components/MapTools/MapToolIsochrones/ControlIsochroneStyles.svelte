@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
     import { Slider } from "carbon-components-svelte";
-	import { onDestroy, onMount } from "svelte";
 	import type { IsochronesLayer } from "./isochrones-layer";
 	import { slide } from "svelte/transition";
 
@@ -10,17 +9,6 @@
 
     const isochrones = isochronesLayer.isochrones;
 
-
-    onMount(() => {
-        console.log("ControlIsochroneStyles mounted");
-
-    });
-
-
-    onDestroy(() => {
-        console.log("ControlIsochroneStyles destroyed");
-
-    });
     
 </script>
 
