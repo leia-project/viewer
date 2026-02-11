@@ -84,6 +84,7 @@ export class IsochronesLayer {
     public resetLayer(): void {
         this.removeIsochrones();
         this.removePointEntity();
+        this.destroyHandler();
         this.coordinates.set(undefined);
 
         this.map.refresh();
@@ -400,6 +401,136 @@ export class IsochronesLayer {
     }
 
 
+
+    // Uses self-hosted Isochrone API to calculate isochrones for car travel:
+    // https://giscience.github.io/openrouteservice/run-instance/running-with-docker
+    private async calculateCarIosochronesOS(
+        x: number,
+        y: number,
+        totalTime: number,
+        parts: number
+    ): Promise<void> {
+        const apiUrl = "http://localhost:8080/ors/v2/isochrones/driving-car";
+        const partialTime = Math.round(totalTime / parts);
+
+        const body = {
+            "id": "my_request",
+            "locations": [
+                [
+                    x,
+                    y
+                ]
+            ],
+            "location_type": "start",
+            "range": [
+                totalTime
+            ],
+            "range_type": "time",
+            "units": "m",
+            "options": {
+                "avoid_borders": "controlled"
+            },
+            "area_units": "m",
+            "intersections": false,
+            "attributes": [
+                "area"
+            ],
+            "interval": partialTime,
+            "smoothing": 0
+        };
+
+        this.destroyHandler(); // Stop drawing
+
+        try {
+            this.dataLoading.set(true);
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*', // Add CORS header
+                    'Access-Control-Allow-Methods': 'POST', // Allow methods
+                },
+                body: JSON.stringify(body),
+            });
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
+            const data = await response.json();
+            
+            // Process and display the isochrone polygons on the map
+            if (data?.features) {
+                this.removeIsochrones();
+
+                const startWeights = [0.5, 0.3, 0.2]; // Example weights for 3 isochrones
+                const totalPop = get(this.totalPopulation);
+                const newIsochrones: Array<Isochrone> = [];
+                let hole: Cesium.PolygonHierarchy[] | undefined = undefined;
+                let hierarchy: Cesium.PolygonHierarchy;
+                
+                data.features.forEach((feature: any, index: number) => {
+                    // const props = feature.properties;
+                    const isochroneNumber = index + 1;
+                    const isochroneStart = partialTime * index;
+                    const isochroneEnd = partialTime * (index + 1);
+                    const weight = startWeights[index];
+                    const population = Math.round(weight * totalPop);
+                    const coordinates = feature.geometry.coordinates[0].map((coord: any) => {
+                        return Cesium.Cartesian3.fromDegrees(coord[0], coord[1]);
+                    });
+
+                    if (hole) {
+                        hierarchy = new Cesium.PolygonHierarchy(coordinates, hole);
+                        console.log(`Creating isochrone ${isochroneNumber} with hole from previous isochrone`);
+                    }
+                    else {
+                        hierarchy = new Cesium.PolygonHierarchy(coordinates);
+                        console.log(`Creating isochrone ${isochroneNumber} without hole`);
+                    }
+
+                    const isochroneEntity = this.dataSource.entities.add({
+                        polygon: {
+                            hierarchy: hierarchy,
+                            material: Cesium.Color.WHITE.withAlpha(0.7),
+                            heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN
+                        },
+                        properties: {
+                            index: isochroneNumber,
+                            isochroneStart: isochroneStart,
+                            isochroneEnd: isochroneEnd,
+                            weight: weight,
+                            population: population
+                        }
+                    });
+                    // Previous polygon becomes hole for next
+                    hole = [new Cesium.PolygonHierarchy(coordinates)];
+
+                    const isochrone: Isochrone = {
+                        entity: isochroneEntity,
+                        props: {
+                            index: isochroneNumber,
+                            isochroneStart: isochroneStart,
+                            isochroneEnd: isochroneEnd,
+                            weight: weight,
+                            population: population
+                        }
+                    };
+                    newIsochrones.push(isochrone);
+                });
+                this.isochrones.set(newIsochrones);
+                this.map.refresh();
+            }
+            else {
+                console.warn("No features found in isochrone data");
+            }
+        } catch (error) {
+            console.error("Failed to send request:", error);
+        }
+        finally {
+            this.dataLoading.set(false);
+        }
+    }
+
+
     public entityToIsochrones(): void {
         if (!get(this.apiKey)) {
             console.warn("No API key defined for isochrone calculation");
@@ -412,17 +543,28 @@ export class IsochronesLayer {
             return;
         }
         const { x, y } = coords;
-        const travelSteps: Array<number> = this.startWeights.map(() => this.travelTime);
+        const travelSeconds = 3600;
+        const parts = 3;
 
-        // Calculates isochrones and displays them on the map
-        this.calculateCarIosochrones(
+        this.calculateCarIosochronesOS(
             x, 
             y, 
-            travelSteps,  // 20-minute isochrones
-            true, 
-            "time", 
-            0.99, 
-            get(this.apiKey)
+            travelSeconds,  // 20-minute isochrones
+            parts
         );
+
+        // const travelSteps: Array<number> = this.startWeights.map(() => this.travelTime);
+
+
+        // Calculates isochrones and displays them on the map
+        // this.calculateCarIosochrones(
+        //     x, 
+        //     y, 
+        //     travelSteps,  // 20-minute isochrones
+        //     true, 
+        //     "time", 
+        //     0.99, 
+        //     get(this.apiKey)
+        // );
     }
 };

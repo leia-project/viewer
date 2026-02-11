@@ -43,19 +43,19 @@
         </Button>
     </div>
 
-    <div class=component>
+    <!-- <div class=component>
         <PasswordInput
             labelText={$_('tools.isochrones.apiKey')}
             bind:value={$apiKey}
             placeholder={$_('tools.isochrones.enterApiKey')}
         />
-    </div>
+    </div> -->
 
 
     <div class=component>
         <Button
             kind="tertiary"
-            disabled={!$coordinates || !$apiKey || $dataLoading}
+            disabled={!$coordinates || $dataLoading}
             on:click={() => {
                 isochronesLayer.entityToIsochrones();
             }}
