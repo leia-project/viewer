@@ -27,10 +27,12 @@ export class IsochronesLayer {
     public pointEntity: Cesium.Entity | undefined;
     public coordinates: Writable<{ x: number, y: number } | undefined> = writable(undefined);
     public handler: Writable<Cesium.ScreenSpaceEventHandler | undefined> = writable(undefined);
-    public apiKey: Writable<string>;
+    // public apiKey: Writable<string>;
+    public apiUrl: string = "https://ors.bertha.geodan.nl/ors/v2/isochrones/driving-car"
     public dataLoading: Writable<boolean> = writable(false);
     public isochrones: Writable<Array<Isochrone>> = writable([]);
     public startWeights: Array<number>; // Inside to outside, should total 1
+    public parts: number; // Number of isochrones to generate
     public travelTime: number = 20; // in minutes
     public totalPopulation: Writable<number> = writable(10000); // TODO: make dynamic
 
@@ -38,9 +40,10 @@ export class IsochronesLayer {
     constructor(map: Map, startWeights: Array<number> = [0.5, 0.3, 0.2]) {
         this.map = map;
         this.startWeights = startWeights;
+        this.parts = this.startWeights.length;
 
         const storedKey = localStorage.getItem(this.storageLocation) || "";
-        this.apiKey = writable(storedKey);
+        // this.apiKey = writable(storedKey);
 
         this.dataSource = new Cesium.CustomDataSource();
         this.map.viewer.dataSources.add(this.dataSource);
@@ -76,9 +79,9 @@ export class IsochronesLayer {
     }
 
 
-    private saveApiKeyToStorage(): void {
-        localStorage.setItem(this.storageLocation, get(this.apiKey));
-    }
+    // private saveApiKeyToStorage(): void {
+    //     localStorage.setItem(this.storageLocation, get(this.apiKey));
+    // }
 
 
     public resetLayer(): void {
@@ -384,7 +387,7 @@ export class IsochronesLayer {
                     };
                     newIsochrones.push(isochrone);
                 });
-                this.saveApiKeyToStorage();
+                // this.saveApiKeyToStorage();
 
                 this.isochrones.set(newIsochrones);
                 this.map.refresh();
@@ -407,11 +410,9 @@ export class IsochronesLayer {
     private async calculateCarIosochronesOS(
         x: number,
         y: number,
-        totalTime: number,
-        parts: number
+        totalTime: number
     ): Promise<void> {
-        const apiUrl = "http://localhost:8080/ors/v2/isochrones/driving-car";
-        const partialTime = Math.round(totalTime / parts);
+        const partialTime = Math.round(totalTime / this.parts);
 
         const body = {
             "id": "my_request",
@@ -443,7 +444,7 @@ export class IsochronesLayer {
 
         try {
             this.dataLoading.set(true);
-            const response = await fetch(apiUrl, {
+            const response = await fetch(this.apiUrl, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -532,10 +533,10 @@ export class IsochronesLayer {
 
 
     public entityToIsochrones(): void {
-        if (!get(this.apiKey)) {
-            console.warn("No API key defined for isochrone calculation");
-            return;
-        }
+        // if (!get(this.apiKey)) {
+        //     console.warn("No API key defined for isochrone calculation");
+        //     return;
+        // }
 
         const coords = get(this.coordinates);
         if (!coords) {
@@ -543,28 +544,12 @@ export class IsochronesLayer {
             return;
         }
         const { x, y } = coords;
-        const travelSeconds = 3600;
-        const parts = 3;
+        const travelTimeSeconds = this.travelTime * 60 * this.parts; // Convert minutes to seconds
 
         this.calculateCarIosochronesOS(
             x, 
             y, 
-            travelSeconds,  // 20-minute isochrones
-            parts
+            travelTimeSeconds
         );
-
-        // const travelSteps: Array<number> = this.startWeights.map(() => this.travelTime);
-
-
-        // Calculates isochrones and displays them on the map
-        // this.calculateCarIosochrones(
-        //     x, 
-        //     y, 
-        //     travelSteps,  // 20-minute isochrones
-        //     true, 
-        //     "time", 
-        //     0.99, 
-        //     get(this.apiKey)
-        // );
     }
 };
