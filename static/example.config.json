@@ -118,6 +118,23 @@
                     }
                 ]
             }
+        },
+        {
+           "id": "4",
+            "type": "wms",
+            "title": "PDOK Buurten",
+            "groupId": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": true,
+            "transparent": false,
+            "opacity": 0,
+            "settings": {
+                "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
+                "featureName": "Buurten",
+                "contenttype": "image/jpeg"
+            }
         }
     ],
     "viewer": {
