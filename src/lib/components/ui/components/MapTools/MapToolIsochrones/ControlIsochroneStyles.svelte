@@ -19,7 +19,9 @@
                 labelText={`${$_('tools.isochrones.settlementPercentage')} (${Math.round(isochrone.props.isochroneEnd / 60)} min): ${Math.round(isochrone.props.weight * 100)}%`} 
                 hideTextInput 
                 min={0} 
-                max={1} 
+                minLabel="0%"
+                max={1}
+                maxLabel="100%"
                 step={0.01} 
                 bind:value={isochrone.props.weight}
                 disabled={isochrone.props.index !== 1}

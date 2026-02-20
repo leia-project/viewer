@@ -1,7 +1,8 @@
 import * as Cesium from "cesium";
-// import * as turf from "@turf/turf";
+import * as turf from "@turf/turf";
 import type { Map } from "$lib/components/map-cesium/module/map";
 import { get, writable, type Writable } from "svelte/store";
+import type { GeoJsonLayer } from "$lib/components/map-cesium/module/layers/geojson-layer";
 
 
 type IsochroneProps = {
@@ -9,7 +10,9 @@ type IsochroneProps = {
     isochroneStart: number,
     isochroneEnd: number,
     weight: number, // between 0 and 1
-    population: number
+    population: number,
+    accountedPopulation: number, // Population in exisiting data that falls within the isochrone
+    unaccountedPopulation: number // Population minus accountedPopulation
 };
 
 
@@ -21,6 +24,9 @@ export type Isochrone = {
 
 export class IsochronesLayer {
     private map: Map;
+    public dataLayer: GeoJsonLayer;
+    private dataAttribute: string;
+    private conversionFactor: number = 0.021; // TODO DEBUG REVER TO 2.1 - Estimated factor to convert data attribute value to population
     private dataSource: Cesium.CustomDataSource;
     private storageLocation: string = "tool.isochrones.apiKey";
 
@@ -37,12 +43,14 @@ export class IsochronesLayer {
     public totalPopulation: Writable<number> = writable(10000); // TODO: make dynamic
 
 
-    constructor(map: Map, startWeights: Array<number> = [0.5, 0.3, 0.2]) {
+    constructor(map: Map, dataLayer: GeoJsonLayer, dataAttribute: string, startWeights: Array<number> = [0.5, 0.3, 0.2]) {
         this.map = map;
+        this.dataLayer = dataLayer;
+        this.dataAttribute = dataAttribute;
         this.startWeights = startWeights;
         this.parts = this.startWeights.length;
 
-        const storedKey = localStorage.getItem(this.storageLocation) || "";
+        // const storedKey = localStorage.getItem(this.storageLocation) || "";
         // this.apiKey = writable(storedKey);
 
         this.dataSource = new Cesium.CustomDataSource();
@@ -60,20 +68,111 @@ export class IsochronesLayer {
             this.isochrones.update(isos => {
                 return isos.map(iso => {
                     const population = Math.round(iso.props.weight * totalPop);
+                    const unaccountedPopulation = population - iso.props.accountedPopulation;
                     
                     // Update entity properties if they exist
                     if (iso.entity.properties) {
                         iso.entity.properties.population = population;
+                        iso.entity.properties.unaccountedPopulation = unaccountedPopulation;
                     }
                     
                     return {
                         ...iso,
                         props: {
                             ...iso.props,
-                            population: population
+                            population: population,
+                            unaccountedPopulation: unaccountedPopulation
                         }
                     };
                 });
+            });
+        });
+
+    }
+
+
+    public addDataValuesToIsochrones(): void {
+        const dataSource = this.dataLayer.source;
+        const entities = dataSource.entities.values;
+        console.log("Entities in data source: ", entities);
+        entities.forEach(entity => {
+            if (entity.polygon && entity.properties) {
+                console.log(`Processing entity ${entity.id} with properties: `, entity.properties);
+
+                const isos = get(this.isochrones);
+                if (!isos || isos.length === 0) {
+                    console.warn("No isochrones available to check for centroid inclusion");
+                    return;
+                }
+
+                for (let i = 0; i < isos.length; i++) {
+                    const iso = isos[i];
+                    let accounted = 0; // MAX possible value is 142.953
+
+                    if (iso.entity.polygon) {
+                        // calculate centroid of polygon
+                        const hierarchy = entity.polygon.hierarchy?.getValue(Cesium.JulianDate.now());
+                        const centroid = Cesium.BoundingSphere.fromPoints(hierarchy.positions).center;
+                        const turfCoord = turf.point([centroid.x, centroid.y]);
+                        const isoPolygon = iso.entity.polygon.hierarchy?.getValue(Cesium.JulianDate.now()).positions.map((pos: Cesium.Cartesian3) => [pos.x, pos.y]);
+                        const turfIsoPolygon = turf.polygon([isoPolygon]);
+
+                        const isInsideIso = turf.booleanPointInPolygon(turfCoord, turfIsoPolygon);
+
+                        // Add data attribute value to isochrone properties if centroid is within isochrone polygon
+                        if (isInsideIso) {
+                            console.log(`Centroid of entity ${entity.id} is inside isochrone ${iso.props.index}`);
+
+                            // Calculate population that is accounted for with existing building plans
+                            if (entity.properties?.[this.dataAttribute]) {
+                                accounted = Math.round(entity.properties[this.dataAttribute] * this.conversionFactor);
+                                console.log(`Accounted value for entity ${entity.id} is ${accounted}`);
+                            }
+                            else {
+                                console.warn(`Data attribute ${this.dataAttribute} not found in entity properties`);
+                            }
+
+                            // DEBUG: add each centroid as entity to the map
+                            this.map.viewer.entities.add({
+                                position: centroid,
+                                point: {
+                                    pixelSize: 4,
+                                    color: Cesium.Color.BLUE,
+                                    disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                                    heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN
+                                },
+                            });
+                            this.map.refresh();
+
+                            // Update accountedPopulation and the entity properties
+                            iso.props.accountedPopulation += accounted;
+
+                            if (iso.entity.properties) {
+                                iso.entity.properties.accountedPopulation = iso.props.accountedPopulation;
+                            }
+
+                        }
+                        // break; // Stop checking other isochrones for this entity since it can only be in one
+                    }
+                }
+            }
+        });
+
+        this.isochrones.update(isos => {
+            return isos.map(iso => {
+                const unaccountedPopulation = iso.props.population - iso.props.accountedPopulation;
+
+                if (iso.entity.properties) {
+                    iso.entity.properties.unaccountedPopulation = unaccountedPopulation;
+                }
+
+                return {
+                    ...iso,
+                    props: {
+                        ...iso.props,
+                        unaccountedPopulation: unaccountedPopulation
+                    }
+                };
             });
         });
     }
@@ -111,11 +210,13 @@ export class IsochronesLayer {
                     // First isochrone keeps its weight
                     iso.props.weight = Number(firstWeight.toFixed(2));
                     iso.props.population = Math.round(iso.props.weight * totalPop);
+                    iso.props.unaccountedPopulation = iso.props.population - iso.props.accountedPopulation;
                     
                     // Also update the entity properties if they exist
                     if (iso.entity.properties) {
                         iso.entity.properties.weight = Number(firstWeight.toFixed(2));
                         iso.entity.properties.population = iso.props.population;
+                        iso.entity.properties.unaccountedPopulation = iso.props.unaccountedPopulation;
                     }
                 } else {
                     // Other isochrones get proportional share of remaining weight
@@ -123,22 +224,26 @@ export class IsochronesLayer {
                         const newWeight = Number(((this.startWeights[index] / otherStartWeightsSum) * remainingWeight).toFixed(2));
                         iso.props.weight = newWeight;
                         iso.props.population = Math.round(newWeight * totalPop);
+                        iso.props.unaccountedPopulation = iso.props.population - iso.props.accountedPopulation;
                         
                         // Also update the entity properties if they exist
                         if (iso.entity.properties) {
                             iso.entity.properties.weight = newWeight;
                             iso.entity.properties.population = iso.props.population;
+                            iso.entity.properties.unaccountedPopulation = iso.props.unaccountedPopulation;
                         }
                     } else {
                         // Fallback: distribute evenly if no start weights
                         const newWeight = Number((remainingWeight / (isos.length - 1)).toFixed(2));
                         iso.props.weight = newWeight;
                         iso.props.population = Math.round(newWeight * totalPop);
+                        iso.props.unaccountedPopulation = iso.props.population - iso.props.accountedPopulation;
                         
                         // Also update the entity properties if they exist
                         if (iso.entity.properties) {
                             iso.entity.properties.weight = newWeight;
                             iso.entity.properties.population = iso.props.population;
+                            iso.entity.properties.unaccountedPopulation = iso.props.unaccountedPopulation;
                         }
                     }
                 }
@@ -248,12 +353,14 @@ export class IsochronesLayer {
         this.isochrones.update(isos => {
             const updatedIsos = isos.map(iso => {
                 if (iso.props.index === index) {
+                    const unaccountedPopulation = population - iso.props.accountedPopulation;
                     return {
                         ...iso,
                         props: {
                             ...iso.props,
                             weight: roundedWeight,
-                            population: population
+                            population: population,
+                            unaccountedPopulation: unaccountedPopulation
                         }
                     };
                 }
@@ -295,114 +402,6 @@ export class IsochronesLayer {
         const y = Cesium.Math.toDegrees(cartographic.latitude);
         return { x, y };
     }
-
-
-    // Uses GeodanMaps Isochrone API to calculate isochrones for car travel:
-    // https://services.geodan.nl/docs/api/?url=/docs/api/schema/routing_service-v2.yaml#/Travel%20times
-    private async calculateCarIosochrones(
-        x: number,
-        y: number,
-        steps: Array<number>,
-        overlap: boolean = true,            // optional
-        calculationMode: string = "time",   // optional
-        precision: number = 0.95,           // optional
-        apiKey: string                      // optional
-    ): Promise<void> {
-        const baseUrl = "https://services.geodan.nl/routing/v2/isochrone/auto";
-        const direction = "from";
-        const output = "polygon";
-        const stepParams = steps.map(step => `steps=${step}`).join("&");
-
-        const apiUrl = `${baseUrl}?x=${x}&y=${y}&direction=${direction}&${stepParams}&overlap=${overlap}&output=${output}&calculationMode=${calculationMode}&precision=${precision}${apiKey ? `&apikey=${apiKey}` : ""}`;
-        this.destroyHandler(); // Stop drawing
-
-        try {
-            this.dataLoading.set(true);
-            const response = await fetch(apiUrl, {
-                method: "GET"
-            });
-            if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
-            }
-            const data = await response.json();
-            
-            // Process and display the isochrone polygons on the map
-            if (data?.features) {
-                this.removeIsochrones();
-
-                const startWeights = [0.5, 0.3, 0.2]; // Example weights for 3 isochrones
-                const totalPop = get(this.totalPopulation);
-                const newIsochrones: Array<Isochrone> = [];
-                let hole: Cesium.PolygonHierarchy[] | undefined = undefined;
-                let hierarchy: Cesium.PolygonHierarchy;
-                
-                // TODO: Add increasing buffer around each isochrone to avoid holes extending beyond previous isochrones
-
-                data.features.forEach((feature: any, index: number) => {
-                    const props = feature.properties;
-                    const isochroneNumber = props.isochrone;
-                    const isochroneStart = props.isochroneStart;
-                    const isochroneEnd = props.isochroneEnd;
-                    const weight = startWeights[index];
-                    const population = Math.round(weight * totalPop);
-                    const coordinates = feature.geometry.coordinates[0].map((coord: any) => {
-                        return Cesium.Cartesian3.fromDegrees(coord[0], coord[1]);
-                    });
-
-                    if (hole) {
-                        hierarchy = new Cesium.PolygonHierarchy(coordinates, hole);
-                    }
-                    else {
-                        hierarchy = new Cesium.PolygonHierarchy(coordinates);
-                    }
-
-                    const isochroneEntity = this.dataSource.entities.add({
-                        polygon: {
-                            hierarchy: hierarchy,
-                            material: Cesium.Color.WHITE.withAlpha(0.7),
-                            heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN
-                        },
-                        properties: {
-                            index: isochroneNumber,
-                            isochroneStart: isochroneStart,
-                            isochroneEnd: isochroneEnd,
-                            weight: weight,
-                            population: population
-                        }
-                    });
-
-                    // Previous polygon becomes hole for next
-                    hole = [new Cesium.PolygonHierarchy(coordinates)];
-
-
-                    const isochrone: Isochrone = {
-                        entity: isochroneEntity,
-                        props: {
-                            index: isochroneNumber,
-                            isochroneStart: isochroneStart,
-                            isochroneEnd: isochroneEnd,
-                            weight: weight,
-                            population: population
-                        }
-                    };
-                    newIsochrones.push(isochrone);
-                });
-                // this.saveApiKeyToStorage();
-
-                this.isochrones.set(newIsochrones);
-                this.map.refresh();
-            }
-            else {
-                console.warn("No features found in isochrone data");
-            }
-        } catch (error) {
-            console.error("Failed to send request:", error);
-        }
-        finally {
-            this.dataLoading.set(false);
-        }
-    }
-
 
 
     // Uses self-hosted Isochrone API to calculate isochrones for car travel:
@@ -475,6 +474,7 @@ export class IsochronesLayer {
                     const isochroneEnd = partialTime * (index + 1);
                     const weight = startWeights[index];
                     const population = Math.round(weight * totalPop);
+                    const accountedPopulation = 0; // TODO, SHOULD BE UPDATED AS SOON AS ISOCHRONES ARE CALCULATED
                     const coordinates = feature.geometry.coordinates[0].map((coord: any) => {
                         return Cesium.Cartesian3.fromDegrees(coord[0], coord[1]);
                     });
@@ -488,10 +488,13 @@ export class IsochronesLayer {
                         console.log(`Creating isochrone ${isochroneNumber} without hole`);
                     }
 
+                    const unaccountedPopulation = population - accountedPopulation;
                     const isochroneEntity = this.dataSource.entities.add({
                         polygon: {
                             hierarchy: hierarchy,
                             material: Cesium.Color.WHITE.withAlpha(0.7),
+                            outline: true,
+                            outlineColor: Cesium.Color.BLACK,
                             heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN
                         },
                         properties: {
@@ -499,7 +502,9 @@ export class IsochronesLayer {
                             isochroneStart: isochroneStart,
                             isochroneEnd: isochroneEnd,
                             weight: weight,
-                            population: population
+                            population: population,
+                            accountedPopulation: accountedPopulation,
+                            unaccountedPopulation: unaccountedPopulation
                         }
                     });
                     // Previous polygon becomes hole for next
@@ -512,7 +517,9 @@ export class IsochronesLayer {
                             isochroneStart: isochroneStart,
                             isochroneEnd: isochroneEnd,
                             weight: weight,
-                            population: population
+                            population: population,
+                            accountedPopulation: accountedPopulation,
+                            unaccountedPopulation: unaccountedPopulation
                         }
                     };
                     newIsochrones.push(isochrone);
@@ -532,7 +539,7 @@ export class IsochronesLayer {
     }
 
 
-    public entityToIsochrones(): void {
+    public async entityToIsochrones(): Promise<void> {
         // if (!get(this.apiKey)) {
         //     console.warn("No API key defined for isochrone calculation");
         //     return;
@@ -546,7 +553,7 @@ export class IsochronesLayer {
         const { x, y } = coords;
         const travelTimeSeconds = this.travelTime * 60 * this.parts; // Convert minutes to seconds
 
-        this.calculateCarIosochronesOS(
+        await this.calculateCarIosochronesOS(
             x, 
             y, 
             travelTimeSeconds

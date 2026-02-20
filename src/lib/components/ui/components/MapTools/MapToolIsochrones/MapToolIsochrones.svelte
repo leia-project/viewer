@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
 	import { getContext, onMount } from "svelte";
-    import Car from "carbon-icons-svelte/lib/Car.svelte";
+    import Home from "carbon-icons-svelte/lib/Home.svelte";
 	import { MapToolMenuOption } from "$lib/components/ui/components/MapToolMenu/MapToolMenuOption";
 	import DrawIsochrones from "./DrawIsochrones.svelte";
 	import ControlIsochroneStyles from "./ControlIsochroneStyles.svelte";
@@ -19,7 +19,7 @@
 
 
 	const id: string = "isochrones";
-	const icon: any = Car;
+	const icon: any = Home;
 	const showOnBottom: boolean = false;
 
 	const tool = new MapToolMenuOption(id, icon, label, showOnBottom);
@@ -31,12 +31,24 @@
 
 	onMount(() => {
 		if (map) {
-			map.ready.subscribe((ready: boolean) => {
-				if (ready) isochronesLayer = new IsochronesLayer(map);
+			map.configLoaded.subscribe((loaded: boolean) => {
+				// map is already ready before config is loaded so we don't need to check map.ready with a subscribe
+				if (loaded && map.ready) {
+					console.log("Map is ready and config is loaded, initializing isochrones layer");
+					const isochronesTool = map.config.tools.find((t: any) => t.id === "isochrones");
+					const accountedPopulationGrowthLayerId: string = isochronesTool.settings.accountedPopulationGrowthLayerId;
+					const dataAttribute: string = isochronesTool.settings.accountedPopulationGrowthAttribute;
+					const dataLayer = map.getLayerById(accountedPopulationGrowthLayerId);
+					// if (!(dataLayer && dataLayer.type === "GeoJsonLayer")) {
+					// 	throw new Error("accountedPopulationGrowthLayerId must refer to a GeoJsonLayer");
+					// }
+
+					isochronesLayer = new IsochronesLayer(map, dataLayer, dataAttribute);
+				}
 			});
 		}
 	});
-    
+
 
 
 </script>
@@ -73,7 +85,6 @@
 <style>
 .container {
 	margin: 10px;
-	/* border: 1px solid var(--cds-ui-03); */
 }
 
 .component {

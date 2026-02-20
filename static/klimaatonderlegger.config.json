@@ -85,6 +85,24 @@
             }
         },
         {
+            "id": "006",
+            "type": "geojson",
+            "title": "TEST openbare_plandata_atinwoners_reproj",
+            "groupId": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "http://localhost:8000/openbare_plandata_atinwoners_reproj.geojson",
+                "clampToGround": true,
+                "style": {
+                    "stroke": "#0000ff",
+                    "strokeWidth": 10,
+                    "fill": "#ff0000"
+                }
+            }
+        },
+        {
             "id": "9000",
             "type": "wms",
             "title": "Bebouwing Signaalkaart (Totaal)",
@@ -518,27 +536,14 @@
                 "featureName": "waterkwaliteit_natuur_totaal",
                 "contenttype": "image/png"
             }
-        },
-        {
-            "id": "99999",
-            "type": "geojson",
-            "title": "TEST Woonkernen",
-            "groupId": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "transparent": true,
-            "settings": {
-                "url": "http://localhost:8000/Woonkernen_info.geojson"
-            }
         }
     ],
     "viewer": {
         "title": "Signaalkaarten",
         "subTitle": "Water- en Bodemsysteem",
         "logo": "images/Stempel_ZeelandVerandertMee.png",
-        "startCameraMode3D": false,
-        "startToolOpen": "stories",
+        "startCameraMode3D": true,
+        "startToolOpen": "layerManager",
         "startPosition": {
             "x": 3.8844,
             "y": 51.5986,
@@ -547,7 +552,6 @@
             "pitch": -89.9,
             "duration": 1.50
         },
-        "startCameraMode3D": false,
         "colors": {
             "ui-background": "#ffffff",
             "interactive-01": "#214170",
@@ -713,7 +717,7 @@
         },
         {
             "id": "flooding",
-            "enabled": true,
+            "enabled": false,
             "settings": {
                 "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
                 "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson"
@@ -769,12 +773,12 @@
                 "pointCloudAttenuationMaximum": 2,
                 "terrainProviders": [
                     {
+                        "title": "Uit"
+                    },
+                    {
                         "title": "Zeeland 1m",
                         "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
                         "vertexNormals": true
-                    },
-                    {
-                        "title": "Uit"
                     }
                 ]
             }
@@ -2013,7 +2017,9 @@
             "id": "isochrones",
             "enabled": true,
             "settings": {
-                "alias": "Vestigingsplanner"
+                "alias": "Vestigingsplanner",
+                "accountedPopulationGrowthLayerId": "006",
+                "accountedPopulationGrowthAttribute": "at_woonplekken" 
             }
         },
         {
