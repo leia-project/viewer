@@ -41,12 +41,10 @@ export class IsochronesLayer {
     ];
     private conversionFactor: number = 0.041; // TODO DEBUG REVER TO 2.1 - Estimated factor to convert data attribute value to population
     private dataSource: Cesium.CustomDataSource;
-    private storageLocation: string = "tool.isochrones.apiKey";
 
     public pointEntity: Cesium.Entity | undefined;
     public coordinates: Writable<{ x: number, y: number } | undefined> = writable(undefined);
     public handler: Writable<Cesium.ScreenSpaceEventHandler | undefined> = writable(undefined);
-    // public apiKey: Writable<string>;
     public apiUrl: string = "https://ors.bertha.geodan.nl/ors/v2/isochrones/driving-car"
     public dataLoading: Writable<boolean> = writable(false);
     public isochrones: Writable<Array<Isochrone>> = writable([]);
@@ -104,10 +102,10 @@ export class IsochronesLayer {
     public addDataValuesToIsochrones(): void {
         const dataSource = this.dataLayer.source;
         const entities = dataSource.entities.values;
-        console.log("Entities in data source: ", entities);
+        // console.log("Entities in data source: ", entities);
         entities.forEach(entity => {
             if (entity.polygon && entity.properties) {
-                console.log(`Processing entity ${entity.id} with properties: `, entity.properties);
+                // console.log(`Processing entity ${entity.id} with properties: `, entity.properties);
 
                 const isos = get(this.isochrones);
                 if (!isos || isos.length === 0) {
@@ -117,15 +115,24 @@ export class IsochronesLayer {
 
                 for (let i = 0; i < isos.length; i++) {
                     const iso = isos[i];
-                    let accounted = 0; // MAX possible value is 142.953
+                    let accounted = 0;
 
                     if (iso.entity.polygon) {
-                        // calculate centroid of polygon
                         const hierarchy = entity.polygon.hierarchy?.getValue(Cesium.JulianDate.now());
                         const centroid = Cesium.BoundingSphere.fromPoints(hierarchy.positions).center;
                         const turfCoord = turf.point([centroid.x, centroid.y]);
                         const isoPolygon = iso.entity.polygon.hierarchy?.getValue(Cesium.JulianDate.now()).positions.map((pos: Cesium.Cartesian3) => [pos.x, pos.y]);
                         const turfIsoPolygon = turf.polygon([isoPolygon]);
+
+                        // let turfIsoPolygonWithHoles = turfIsoPolygon;
+                        // if (i > 0) {
+                        //     const previousIso = isos[i - 1];
+                        //     if (previousIso.entity.polygon) {
+                        //         const previousIsoPolygon = previousIso.entity.polygon.hierarchy?.getValue(Cesium.JulianDate.now()).positions.map((pos: Cesium.Cartesian3) => [pos.x, pos.y]);
+                        //         const turfPreviousIsoPolygon = turf.polygon([previousIsoPolygon]);
+                        //         turfIsoPolygonWithHoles = turf.mask(turfPreviousIsoPolygon, turfIsoPolygon);
+                        //     }
+                        // }
 
                         const isInsideIso = turf.booleanPointInPolygon(turfCoord, turfIsoPolygon);
 
@@ -143,16 +150,16 @@ export class IsochronesLayer {
                             }
 
                             // DEBUG: add each centroid as entity to the map
-                            this.map.viewer.entities.add({
-                                position: centroid,
-                                point: {
-                                    pixelSize: 4,
-                                    color: Cesium.Color.BLUE,
-                                    disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                                    heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN
-                                },
-                            });
-                            this.map.refresh();
+                            // this.map.viewer.entities.add({
+                            //     position: centroid,
+                            //     point: {
+                            //         pixelSize: 4,
+                            //         color: Cesium.Color.BLUE,
+                            //         disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                            //         heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN
+                            //     },
+                            // });
+                            // this.map.refresh();
 
                             // Update accountedPopulation and the entity properties
                             iso.props.accountedPopulation += accounted;
@@ -161,8 +168,9 @@ export class IsochronesLayer {
                                 iso.entity.properties.accountedPopulation = iso.props.accountedPopulation;
                             }
 
+                            break; // Stop checking other isochrones since it can only be in one
+
                         }
-                        // break; // Stop checking other isochrones for this entity since it can only be in one
                     }
                 }
             }

@@ -87,19 +87,13 @@
         {
             "id": "006",
             "type": "geojson",
-            "title": "TEST openbare_plandata_atinwoners_reproj",
+            "title": "openbare_plandata_atinwoners_reproj",
             "groupId": "",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "https://geoserv.bertha.geodan.nl/geoserver/www/openbare_plandata_atinwoners_reproj.geojson",
-                "clampToGround": true,
-                "style": {
-                    "stroke": "#0000ff",
-                    "strokeWidth": 10,
-                    "fill": "#ff0000"
-                }
+                "url": "https://geoserv.bertha.geodan.nl/geoserver/www/openbare_plandata_atinwoners_reproj.geojson"
             }
         },
         {
