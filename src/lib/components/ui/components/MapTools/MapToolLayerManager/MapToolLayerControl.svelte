@@ -9,6 +9,7 @@
     import ErrorMessage from "$lib/components/ui/components/ErrorMessage/ErrorMessage.svelte"
 
     import type { Layer } from "$lib/components/map-core/layer";
+	import { CompositeEntityCollection } from "cesium";
 
     const { map } = getContext<any>("mapTools");
 
@@ -20,6 +21,8 @@
     let open: boolean;
     let imageValid: boolean = true;
     let descriptionValid: boolean = true;
+    let loading = true; 
+    let items: { id: string; text: string }[] = [];
 
     $: visible = layer.visible;
     $: opacity = layer.opacity;
@@ -48,83 +51,35 @@
             });
             const parsedXml = parser.parse(xmlText);
 
-            let styleNames = [];
+            let styleNames: { id: string; text: string }[] = [];
+            let idCounter = 0;
 
-    //         if (
-    //             parsedXml &&
-    //             parsedXml.WMS_Capabilities &&
-    //             parsedXml.WMS_Capabilities.Capability &&
-    //             parsedXml.WMS_Capabilities.Capability.Layer &&
-    //             Array.isArray(parsedXml.WMS_Capabilities.Capability.Layer)
-    //         ) {
-    //             // Iterate through each Layer object in the WMS capabilities
-    //             parsedXml.WMS_Capabilities.Capability.Layer.forEach(layer => {
-                        
-    //                 if (layer.Layer && Array.isArray(layer.Layer)) {
-    //                 layer.Layer.forEach(subLayer => {
-    //                 if (subLayer.Style) {
-    //                     if (Array.isArray(subLayer.Style)) {
-    //                     subLayer.Style.forEach(style => {
-    //                         styleNames.push({ id: style.Name, text: style.Title ? style.Title : style.Name });
-    //                     });
-    //                     } else {
-    //                     styleNames.push({ id: subLayer.Style.Name, text: subLayer.Style.Title ? subLayer.Style.Title : subLayer.Style.Name });
-    //                     }
-    //                 }
-    //                 })
-    //             } else {
-    //                 if (layer.Style) {
-    //                 if (Array.isArray(layer.Style)) {
-    //                     layer.Style.forEach(style => {
-    //                     styleNames.push({ id: style.Name, text: style.Title ? style.Title : style.Name });
-    //                     });
-    //                 } else {
-    //                     styleNames.push({ id: layer.Style.Name, text: layer.Style.Title ? layer.Style.Title : layer.Style.Name });
-    //                 }
-    //                 }
-    //             }
-    //             })
-    //         }
-    //         else if (
-    //             parsedXml &&
-    //             parsedXml.WMS_Capabilities &&
-    //             parsedXml.WMS_Capabilities.Capability &&
-    //             parsedXml.WMS_Capabilities.Capability.Layer &&
-    //             parsedXml.WMS_Capabilities.Capability.Layer.Style
-    //         ) {
-    //             const styles = parsedXml.WMS_Capabilities.Capability.Layer.Style;
-    //         }
+            if (parsedXml) {
+                const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
+                const layers = Array.isArray(layerData) ? layerData : [layerData];
 
-            return parsedXml
+                layers.forEach((layer: { Title: string; Style: { Title: any; }[]; }) => {
+                    if (layer.Title === "Buurten") {
+                        layer.Style.forEach((style: { Title: any; }) => {
+                            const stylename = style.Title;
+                            styleNames.push({
+                                id: idCounter.toString(),
+                                text: stylename
+                            });
+                            idCounter++;
+                        });
+                    };
+                });
+            };
+
+            return styleNames;
 
         } catch (error) {
             console.error("Error fetching WMS GetCapabilities:", error);
             return [];
-        }
+        };
     };
 
-    $: styles = getWMSStyleNames("https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0?service=WMS&request=GetCapabilities");
-    $: console.log("styles", styles);
-
-    const items = [
-        { id: "0", text: "wijkenbuurten_thema_buurten_gemeentewijkbuurt_omgevingsadressendichtheid_adres_km2" },
-        { id: "1", text: "BB" },
-        { id: "2", text: "CC" },
-        { id: "3", text: "DD" },
-        { id: "4", text: "EE" },
-        { id: "5", text: "FF" },
-        { id: "6", text: "GG" },
-        { id: "7", text: "HH" },
-        { id: "8", text: "II" },
-        { id: "9", text: "JJ" },
-        { id: "10", text: "KK" },
-        // { id: "11", text: "LL" },
-        // { id: "12", text: "MM" },
-        // { id: "13", text: "NN" },
-        // { id: "14", text: "OO" },
-        // { id: "15", text: "PP" },
-    ];
-    
     function removeLayer() {
         layer.remove();
     }
@@ -133,6 +88,19 @@
         const pos = layer.getLayerPosition();
         map.flyTo(pos);
     }
+
+    (async () => {
+        try {
+        items = await getWMSStyleNames(
+            "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0?service=WMS&request=GetCapabilities"
+        );
+        } catch(error) {
+        console.error("Failed to load styles:", error);
+        } finally {
+        loading = false;
+        }
+    })();
+
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -187,6 +155,9 @@
             <Slider hideTextInput labelText={textOpacity} min={0} max={100} bind:value={$opacity} />
         {/if}
         {#if layer.config.type === "wms"}
+            {#if loading}
+                <p>Loading styles...</p>
+            {:else}        
             <Dropdown
                 titleText="WMS Styling options"
                 size="sm"
@@ -196,6 +167,7 @@
                     console.log("Selected item:", e.detail);
                 }}
             />
+            {/if}
         {/if}
         {#if layer.config.legendSupported}
             <div class="label-01 legend-header">
