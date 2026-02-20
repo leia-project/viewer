@@ -68,7 +68,6 @@
                         <div
                             class="legend-marker"
                             style="--marker-left: {unaccountedToLegendPosition(isochrone.props.unaccountedPopulation, $value_max)}%;"
-                            title={`Isochrone ${isochrone.props.index}: ${Math.round(isochrone.props.unaccountedPopulation)}`}
                         ></div>
                     {/each}
                 </div>
@@ -125,7 +124,7 @@
     .legend-track {
         position: relative;
         height: 15px;
-        overflow: hidden;
+        overflow: visible;
     }
 
     .legend-markers {
@@ -135,15 +134,15 @@
         width: 100%;
         height: 100%;
         pointer-events: none;
-        overflow: hidden;
+        overflow: visible;
     }
 
     .legend-marker {
         position: absolute;
-        top: 0;
+        top: -2px;
         left: min(var(--marker-left), calc(100% - 1px));
         width: 0;
-        height: 100%;
+        height: 19px;
         border-left: 1px solid var(--cds-text-primary);
         box-sizing: border-box;
         transition: left 250ms ease;
