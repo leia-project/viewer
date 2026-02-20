@@ -131,12 +131,12 @@ export class IsochronesLayer {
 
                         // Add data attribute value to isochrone properties if centroid is within isochrone polygon
                         if (isInsideIso) {
-                            console.log(`Centroid of entity ${entity.id} is inside isochrone ${iso.props.index}`);
+                            // console.log(`Centroid of entity ${entity.id} is inside isochrone ${iso.props.index}`);
 
                             // Calculate population that is accounted for with existing building plans
                             if (entity.properties?.[this.dataAttribute]) {
                                 accounted = Math.round(entity.properties[this.dataAttribute] * this.conversionFactor);
-                                console.log(`Accounted value for entity ${entity.id} is ${accounted}`);
+                                // console.log(`Accounted value for entity ${entity.id} is ${accounted}`);
                             }
                             else {
                                 console.warn(`Data attribute ${this.dataAttribute} not found in entity properties`);

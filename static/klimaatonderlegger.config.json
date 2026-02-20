@@ -93,7 +93,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "settings": {
-                "url": "http://localhost:8000/openbare_plandata_atinwoners_reproj.geojson",
+                "url": "https://geoserv.bertha.geodan.nl/geoserver/www/openbare_plandata_atinwoners_reproj.geojson",
                 "clampToGround": true,
                 "style": {
                     "stroke": "#0000ff",
