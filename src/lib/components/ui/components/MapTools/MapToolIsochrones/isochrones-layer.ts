@@ -26,7 +26,20 @@ export class IsochronesLayer {
     private map: Map;
     public dataLayer: GeoJsonLayer;
     private dataAttribute: string;
-    private conversionFactor: number = 0.021; // TODO DEBUG REVER TO 2.1 - Estimated factor to convert data attribute value to population
+    private zeroOrNegativeColor: string = "#2DA44E";
+    private positiveUnaccountedPopulationColors: Array<string> = [
+        "#FEEBE7",
+        "#FCC6BB",
+        "#FAA18F",
+        "#F87C63",
+        "#F54927",
+        "#F4320B",
+        "#C82909",
+        "#9C2007",
+        "#701705",
+        "#440E03"
+    ];
+    private conversionFactor: number = 0.041; // TODO DEBUG REVER TO 2.1 - Estimated factor to convert data attribute value to population
     private dataSource: Cesium.CustomDataSource;
     private storageLocation: string = "tool.isochrones.apiKey";
 
@@ -253,30 +266,56 @@ export class IsochronesLayer {
 
 
     private updateIsoColors(isos: Array<Isochrone>): void {
-        // Update colors based on calculated weights
+        // Update colors based on unaccounted population ratio
+        const totalPop = get(this.totalPopulation);
+
         isos.forEach(iso => {
-            const weight = iso.props.weight;
-
-            if (weight < 0 || weight > 1) {
-                console.warn("Weight must be between 0 and 1");
-                return;
-            }
-
             if (!iso.entity.polygon) {
                 console.warn(`Isochrone polygon not found`);
                 return;
             }
 
-            // Create color based on weight: red (high weight) to yellow to green (low weight)
-            const color = Cesium.Color.fromHsl(
-                ((1 - weight) * 120) / 360,  // Hue: 0 degrees (red) at weight=1, 120 degrees (green) at weight=0
-                1.0,                         // Saturation
-                0.5,                         // Lightness
-                0.7                          // Alpha
-            );
+            const color = this.getIsoColor(iso.props.unaccountedPopulation, totalPop);
 
             iso.entity.polygon.material = new Cesium.ColorMaterialProperty(color);
         });
+    }
+
+
+    private getIsoColor(unaccountedPopulation: number, totalPopulation: number): Cesium.Color {
+        if (unaccountedPopulation <= 0 || totalPopulation <= 0) {
+            return Cesium.Color.fromCssColorString(this.zeroOrNegativeColor).withAlpha(0.7);
+        }
+
+        const clampedUnaccountedPopulation = Math.min(unaccountedPopulation, totalPopulation);
+        const normalizedUnaccountedPopulation = clampedUnaccountedPopulation / totalPopulation;
+
+        return this.getGradientColor(normalizedUnaccountedPopulation);
+    }
+
+
+    private getGradientColor(normalizedValue: number): Cesium.Color {
+        const clampedNormalizedValue = Math.max(0, Math.min(normalizedValue, 1));
+        const colorCount = this.positiveUnaccountedPopulationColors.length;
+
+        if (colorCount === 0) {
+            return Cesium.Color.fromCssColorString(this.zeroOrNegativeColor).withAlpha(0.7);
+        }
+
+        if (colorCount === 1) {
+            return Cesium.Color.fromCssColorString(this.positiveUnaccountedPopulationColors[0]).withAlpha(0.7);
+        }
+
+        const scaledIndex = clampedNormalizedValue * (colorCount - 1);
+        const lowerIndex = Math.floor(scaledIndex);
+        const upperIndex = Math.ceil(scaledIndex);
+        const interpolationFactor = scaledIndex - lowerIndex;
+
+        const lowerColor = Cesium.Color.fromCssColorString(this.positiveUnaccountedPopulationColors[lowerIndex]);
+        const upperColor = Cesium.Color.fromCssColorString(this.positiveUnaccountedPopulationColors[upperIndex]);
+        const interpolatedColor = Cesium.Color.lerp(lowerColor, upperColor, interpolationFactor, new Cesium.Color());
+
+        return interpolatedColor.withAlpha(0.7);
     }
 
 

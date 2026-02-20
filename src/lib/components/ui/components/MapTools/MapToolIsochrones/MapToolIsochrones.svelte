@@ -8,6 +8,7 @@
 	import { IsochronesLayer } from "./isochrones-layer";
 	import IsochronesLegend from "./IsochronesLegend.svelte";
 	import ControlIsochroneValueRange from "./ControlIsochroneValueRange.svelte";
+	import IsochronesDisclaimer from "./IsochronesDisclaimer.svelte";
 	import { Button } from "carbon-components-svelte";
 
 
@@ -65,8 +66,12 @@
 			<div class="component">
 				<IsochronesLegend {isochronesLayer}/>
 			</div>
-
+			
 			<div class="component">
+				<IsochronesDisclaimer />
+			</div>
+
+			<div class="component ">
 				<Button
 					kind="danger"
 					on:click={() => {
