@@ -6,8 +6,8 @@
 
     export let isochronesLayer: IsochronesLayer;
 
-    const isochrones = isochronesLayer.isochrones;
 
+    const isochrones = isochronesLayer.isochrones;
     const value_min = 0;
     const value_max = isochronesLayer.totalPopulation;
     const zeroBoundaryPercent = 10;

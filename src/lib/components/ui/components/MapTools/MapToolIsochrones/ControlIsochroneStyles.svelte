@@ -9,8 +9,8 @@
 
     const isochrones = isochronesLayer.isochrones;
 
-    
 </script>
+
 
 <div class="sliders">
     {#each $isochrones as isochrone, i}

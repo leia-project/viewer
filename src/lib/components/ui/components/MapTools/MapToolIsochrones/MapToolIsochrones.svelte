@@ -33,7 +33,6 @@
 	onMount(() => {
 		if (map) {
 			map.configLoaded.subscribe((loaded: boolean) => {
-				// map is already ready before config is loaded so we don't need to check map.ready with a subscribe
 				if (loaded && map.ready) {
 					console.log("Map is ready and config is loaded, initializing isochrones layer");
 					const isochronesTool = map.config.tools.find((t: any) => t.id === "isochrones");
@@ -50,9 +49,8 @@
 		}
 	});
 
-
-
 </script>
+
 
 {#if $selectedTool === tool}
 	{#if isochronesLayer}

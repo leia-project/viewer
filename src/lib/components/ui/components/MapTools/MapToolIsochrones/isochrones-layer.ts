@@ -27,7 +27,7 @@ export class IsochronesLayer {
     public dataLayer: GeoJsonLayer;
     private dataAttribute: string;
     private zeroOrNegativeColor: string = "#2DA44E";
-    private positiveUnaccountedPopulationColors: Array<string> = [
+    private positiveColors: Array<string> = [
         "#FEEBE7",
         "#FCC6BB",
         "#FAA18F",
@@ -62,9 +62,6 @@ export class IsochronesLayer {
         this.dataAttribute = dataAttribute;
         this.startWeights = startWeights;
         this.parts = this.startWeights.length;
-
-        // const storedKey = localStorage.getItem(this.storageLocation) || "";
-        // this.apiKey = writable(storedKey);
 
         this.dataSource = new Cesium.CustomDataSource();
         this.map.viewer.dataSources.add(this.dataSource);
@@ -191,11 +188,6 @@ export class IsochronesLayer {
     }
 
 
-    // private saveApiKeyToStorage(): void {
-    //     localStorage.setItem(this.storageLocation, get(this.apiKey));
-    // }
-
-
     public resetLayer(): void {
         this.removeIsochrones();
         this.removePointEntity();
@@ -296,14 +288,14 @@ export class IsochronesLayer {
 
     private getGradientColor(normalizedValue: number): Cesium.Color {
         const clampedNormalizedValue = Math.max(0, Math.min(normalizedValue, 1));
-        const colorCount = this.positiveUnaccountedPopulationColors.length;
+        const colorCount = this.positiveColors.length;
 
         if (colorCount === 0) {
             return Cesium.Color.fromCssColorString(this.zeroOrNegativeColor).withAlpha(0.7);
         }
 
         if (colorCount === 1) {
-            return Cesium.Color.fromCssColorString(this.positiveUnaccountedPopulationColors[0]).withAlpha(0.7);
+            return Cesium.Color.fromCssColorString(this.positiveColors[0]).withAlpha(0.7);
         }
 
         const scaledIndex = clampedNormalizedValue * (colorCount - 1);
@@ -311,8 +303,8 @@ export class IsochronesLayer {
         const upperIndex = Math.ceil(scaledIndex);
         const interpolationFactor = scaledIndex - lowerIndex;
 
-        const lowerColor = Cesium.Color.fromCssColorString(this.positiveUnaccountedPopulationColors[lowerIndex]);
-        const upperColor = Cesium.Color.fromCssColorString(this.positiveUnaccountedPopulationColors[upperIndex]);
+        const lowerColor = Cesium.Color.fromCssColorString(this.positiveColors[lowerIndex]);
+        const upperColor = Cesium.Color.fromCssColorString(this.positiveColors[upperIndex]);
         const interpolatedColor = Cesium.Color.lerp(lowerColor, upperColor, interpolationFactor, new Cesium.Color());
 
         return interpolatedColor.withAlpha(0.7);
@@ -445,7 +437,7 @@ export class IsochronesLayer {
 
     // Uses self-hosted Isochrone API to calculate isochrones for car travel:
     // https://giscience.github.io/openrouteservice/run-instance/running-with-docker
-    private async calculateCarIosochronesOS(
+    private async calculateCarIsochronesORS(
         x: number,
         y: number,
         totalTime: number
@@ -513,7 +505,7 @@ export class IsochronesLayer {
                     const isochroneEnd = partialTime * (index + 1);
                     const weight = startWeights[index];
                     const population = Math.round(weight * totalPop);
-                    const accountedPopulation = 0; // TODO, SHOULD BE UPDATED AS SOON AS ISOCHRONES ARE CALCULATED
+                    const accountedPopulation = 0;
                     const coordinates = feature.geometry.coordinates[0].map((coord: any) => {
                         return Cesium.Cartesian3.fromDegrees(coord[0], coord[1]);
                     });
@@ -579,11 +571,6 @@ export class IsochronesLayer {
 
 
     public async entityToIsochrones(): Promise<void> {
-        // if (!get(this.apiKey)) {
-        //     console.warn("No API key defined for isochrone calculation");
-        //     return;
-        // }
-
         const coords = get(this.coordinates);
         if (!coords) {
             console.warn("Failed to get coordinates from point entity");
@@ -592,7 +579,7 @@ export class IsochronesLayer {
         const { x, y } = coords;
         const travelTimeSeconds = this.travelTime * 60 * this.parts; // Convert minutes to seconds
 
-        await this.calculateCarIosochronesOS(
+        await this.calculateCarIsochronesORS(
             x, 
             y, 
             travelTimeSeconds
