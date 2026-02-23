@@ -2,7 +2,6 @@
 	import { _ } from "svelte-i18n";
 	import { Button } from "carbon-components-svelte";
 	import { onDestroy, onMount } from "svelte";
-    import { PasswordInput } from "carbon-components-svelte";
     import { InlineLoading } from "carbon-components-svelte";
 	import type { IsochronesLayer } from "./isochrones-layer";
 
@@ -21,7 +20,6 @@
     });
 
     const coordinates = isochronesLayer.coordinates;
-    const apiKey = isochronesLayer.apiKey;
     const dataLoading = isochronesLayer.dataLoading;
     const handler = isochronesLayer.handler;
 
@@ -44,20 +42,16 @@
     </div>
 
     <div class=component>
-        <PasswordInput
-            labelText={$_('tools.isochrones.apiKey')}
-            bind:value={$apiKey}
-            placeholder={$_('tools.isochrones.enterApiKey')}
-        />
-    </div>
-
-
-    <div class=component>
         <Button
             kind="tertiary"
-            disabled={!$coordinates || !$apiKey || $dataLoading}
-            on:click={() => {
-                isochronesLayer.entityToIsochrones();
+            disabled={!$coordinates || $dataLoading}
+            on:click={async () => {
+                await isochronesLayer.entityToIsochrones();
+
+                // Wait for polygon entities array to be populated
+                isochronesLayer.dataLayer.loaded?.then(async () => {
+                    isochronesLayer.addDataValuesToIsochrones();
+                });
             }}
         >
             {#if $dataLoading}

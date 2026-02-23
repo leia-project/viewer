@@ -157,7 +157,8 @@
 				color: Cesium.Color.RED,
 				pixelSize: 10,
 				outlineColor: Cesium.Color.BLACK,
-				outlineWidth: 1
+				outlineWidth: 1,
+				disableDepthTestDistance: Number.POSITIVE_INFINITY
 			}
 		});
 	}
