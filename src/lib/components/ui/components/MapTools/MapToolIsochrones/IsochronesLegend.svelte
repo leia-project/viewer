@@ -1,30 +1,55 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
-    import * as Cesium from "cesium";
 	import type { IsochronesLayer } from "./isochrones-layer";
     import { slide } from "svelte/transition";
+	import IsochronesLegendExplainer from "./IsochronesLegendExplainer.svelte";
 
     export let isochronesLayer: IsochronesLayer;
 
-    const isochrones = isochronesLayer.isochrones;
 
+    const isochrones = isochronesLayer.isochrones;
     const value_min = 0;
     const value_max = isochronesLayer.totalPopulation;
+    const zeroBoundaryPercent = 10;
 
-    // Create gradient with multiple stops: green -> yellow -> orange -> red
-    const color_0 = weightToColorString(0);     // green
-    const color_33 = weightToColorString(0.33); // yellow
-    const color_66 = weightToColorString(0.66); // orange
-    const color_100 = weightToColorString(1);   // red
+    const zeroOrNegativeColor = "#2DA44E";
+    const positiveValueColors = [
+        "#FEEBE7",
+        "#FCC6BB",
+        "#FAA18F",
+        "#F87C63",
+        "#F54927",
+        "#F4320B",
+        "#C82909",
+        "#9C2007",
+        "#701705",
+        "#440E03"
+    ];
+    const legendBackground = createContinuousGradient(positiveValueColors);
 
-    function weightToColorString(weight: number): string {
-        const color = Cesium.Color.fromHsl(
-            ((1 - weight) * 120) / 360,  // Hue: 0 degrees (red) at weight=1, 120 degrees (green) at weight=0
-            1.0,                         // Saturation
-            0.5,                         // Lightness
-            1.0                          // Alpha (removed transparency for better visibility)
-        );
-        return color.toCssHexString();
+    function createContinuousGradient(colors: Array<string>): string {
+        if (colors.length === 0) {
+            return "linear-gradient(to right, transparent, transparent)";
+        }
+
+        const positiveStops = colors
+            .map((color, index) => {
+                const ratio = index / (colors.length - 1);
+                const position = ratio * 100;
+                return `${color} ${position.toFixed(2)}%`;
+            })
+            .join(", ");
+
+        return `linear-gradient(to right, ${positiveStops})`;
+    }
+
+    function unaccountedToLegendPosition(unaccountedPopulation: number, maxPopulation: number): number {
+        if (maxPopulation <= 0) {
+            return 0;
+        }
+
+        const clampedValue = Math.max(0, Math.min(unaccountedPopulation, maxPopulation));
+        return (clampedValue / maxPopulation) * 100;
     }
 
 
@@ -36,17 +61,30 @@
             {$_('tools.isochrones.legendTitle')}
         </div>
         <div class="legend-container">
-            {#if $value_max === 0 }
-                <div class="legend" style="background: #808080;"></div>
-            {:else}
-                <div class="legend" style="--color-0: {color_0}; --color-33: {color_33}; --color-66: {color_66}; --color-100: {color_100}"></div>
-            {/if}
+            <div class="legend-track">
+                <div class="legend" style="background: {legendBackground};"></div>
+                <div class="legend-markers">
+                    {#each $isochrones as isochrone}
+                        <div
+                            class="legend-marker"
+                            style="--marker-left: {unaccountedToLegendPosition(isochrone.props.unaccountedPopulation, $value_max)}%;"
+                        ></div>
+                    {/each}
+                </div>
+            </div>
             <div class="values">
                 <div class="min-value">{value_min}</div>
                 <div class="max-value">{$value_max}</div>
             </div>
+
+            <div class="no-pressure">
+                <div class="legend-title no-pressure-heading">Geen druk</div>
+                <div class="no-pressure-box" style="width: {zeroBoundaryPercent}%; background: {zeroOrNegativeColor};"></div>
+            </div>
         </div>
     </div>
+
+    <IsochronesLegendExplainer />
 {/if}
 
 <style>
@@ -78,15 +116,49 @@
     }
 
     .legend {
-        background: linear-gradient(to left, 
-            var(--color-100), 
-            var(--color-66) 33%, 
-            var(--color-33) 66%, 
-            var(--color-0)
-        );
         width: 100%;
         height: 15px;
         border: 1px var(--cds-border-strong) solid;
+    }
 
+    .legend-track {
+        position: relative;
+        height: 15px;
+        overflow: visible;
+    }
+
+    .legend-markers {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: visible;
+    }
+
+    .legend-marker {
+        position: absolute;
+        top: -2px;
+        left: min(var(--marker-left), calc(100% - 1px));
+        width: 0;
+        height: 19px;
+        border-left: 1px solid var(--cds-text-primary);
+        box-sizing: border-box;
+        transition: left 250ms ease;
+    }
+
+    .no-pressure {
+        margin-top: 6px;
+        margin-bottom: 6px;
+    }
+
+    .no-pressure-heading {
+        margin-top: 0;
+    }
+
+    .no-pressure-box {
+        height: 15px;
+        border: 1px var(--cds-border-strong) solid;
     }
 </style>
