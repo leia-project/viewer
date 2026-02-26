@@ -124,6 +124,23 @@
             "type": "wms",
             "title": "PDOK Buurten",
             "groupId": "",
+            "legendUrl": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0/legend/buurten/wijkenbuurten_thema_buurten_gemeentewijkbuurt_omgevingsadressendichtheid_adres_km2.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": true,
+            "transparent": false,
+            "opacity": 0,
+            "settings": {
+                "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
+                "featureName": "buurten",
+                "contenttype": "image/jpeg"
+            }
+        },
+        {
+           "id": "5",
+            "type": "wms",
+            "title": "PDOK Wijken",
+            "groupId": "",
             "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -132,7 +149,24 @@
             "opacity": 0,
             "settings": {
                 "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
-                "featureName": "Buurten",
+                "featureName": "wijken",
+                "contenttype": "image/jpeg"
+            }
+        },
+        {
+            "id": "6",
+            "type": "wms",
+            "title": "PDOK Bevolkingskernen 2011",
+            "groupId": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": true,
+            "transparent": false,
+            "opacity": 0,
+            "settings": {
+                "url": "https://service.pdok.nl/cbs/bevolkingskernen-2011/wms/v1_0",
+                "featureName": "cbsbevolkingskernen2011",
                 "contenttype": "image/jpeg"
             }
         }

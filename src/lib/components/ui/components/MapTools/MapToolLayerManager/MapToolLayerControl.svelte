@@ -29,7 +29,7 @@
     $: customControls = layer.customControls;
     $: textOpacity = `${$_("tools.layerManager.opacity")} ` + $opacity + "%";
     
-    async function getWMSStyleNames(getCapabilitiesUrl: string) {
+    async function getWMSStyleNames(getCapabilitiesUrl: string, featureName: string) {
         try {
             const response = await fetch(getCapabilitiesUrl);
             if (!response.ok) {
@@ -53,15 +53,16 @@
 
             let styleNames: { id: string; text: string }[] = [];
             let idCounter = 0;
-
+            console.log("Parsed WMS Capabilities:", parsedXml);
             if (parsedXml) {
                 const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
                 const layers = Array.isArray(layerData) ? layerData : [layerData];
 
-                layers.forEach((layer: { Title: string; Style: { Title: any; }[]; }) => {
-                    if (layer.Title === "Buurten") {
+                layers.forEach((layer: { Name: string; Style: { Title: any; }[]; }) => {
+                    if (layer.Name === featureName) {
                         layer.Style.forEach((style: { Title: any; }) => {
                             const stylename = style.Title;
+                            console.log("Found style:", stylename);
                             styleNames.push({
                                 id: idCounter.toString(),
                                 text: stylename
@@ -88,19 +89,20 @@
         const pos = layer.getLayerPosition();
         map.flyTo(pos);
     }
-
-    (async () => {
-        try {
-        items = await getWMSStyleNames(
-            "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0?service=WMS&request=GetCapabilities"
-        );
-        } catch(error) {
-        console.error("Failed to load styles:", error);
-        } finally {
-        loading = false;
-        }
-    })();
-
+    
+    $: if (layer.config.type === "wms") {
+        let WMSurl = layer.config.settings?.url + "?service=WMS&request=GetCapabilities";
+        let featureName = layer.config.settings?.featureName;
+         (async () => {
+            try {
+            items = await getWMSStyleNames(WMSurl, featureName);
+            } catch(error) {
+            console.error("Failed to load styles:", error);
+            } finally {
+            loading = false;
+            }
+        })();
+    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -164,8 +166,10 @@
                 selectedId="0" 
                 items={items}
                 on:select={(e) => {
-                    console.log("Selected item:", e.detail);
-                }}
+                    const selected = items.find(i => i.id === e.detail.selectedId);
+                    if (layer && typeof layer.setWmsStyle === 'function' && selected) {
+                        layer.setWmsStyle(selected.text);
+                }}}
             />
             {/if}
         {/if}

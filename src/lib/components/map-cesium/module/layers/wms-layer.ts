@@ -16,8 +16,8 @@ export class WmsLayer extends CesiumImageryLayer {
 			parameters: {
 				transparent: true,
 				format: this.config.settings["contentType"] ? this.config.settings["contentType"] : "image/png",
+				styles: this.config.settings["style"] || "",
 			},
-
 		});
 		this.source = new Cesium.ImageryLayer(provider, {
 			alpha: this.getOpacity(this.config.opacity)
