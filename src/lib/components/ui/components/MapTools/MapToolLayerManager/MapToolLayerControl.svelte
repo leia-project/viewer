@@ -10,6 +10,7 @@
 
     import type { Layer } from "$lib/components/map-core/layer";
 	import { CompositeEntityCollection } from "cesium";
+	import { config } from "dotenv";
 
     const { map } = getContext<any>("mapTools");
 
@@ -52,22 +53,21 @@
             const parsedXml = parser.parse(xmlText);
 
             let styleNames: { id: string; text: string }[] = [];
-            let idCounter = 0;
             console.log("Parsed WMS Capabilities:", parsedXml);
             if (parsedXml) {
                 const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
                 const layers = Array.isArray(layerData) ? layerData : [layerData];
 
-                layers.forEach((layer: { Name: string; Style: { Title: any; }[]; }) => {
+                layers.forEach((layer: { Name: string; Style: { Title: any; Name: string; }[]; }) => {
                     if (layer.Name === featureName) {
-                        layer.Style.forEach((style: { Title: any; }) => {
+                        layer.Style.forEach((style) => {
                             const stylename = style.Title;
+                            const styleid = style.Name;
                             console.log("Found style:", stylename);
                             styleNames.push({
-                                id: idCounter.toString(),
+                                id: styleid,
                                 text: stylename
                             });
-                            idCounter++;
                         });
                     };
                 });
@@ -156,22 +156,17 @@
         {#if layer.config.opacitySupported}
             <Slider hideTextInput labelText={textOpacity} min={0} max={100} bind:value={$opacity} />
         {/if}
-        {#if layer.config.type === "wms"}
-            {#if loading}
-                <p>Loading styles...</p>
-            {:else}        
+        {#if layer.config.type === "wms"}        
             <Dropdown
                 titleText="WMS Styling options"
                 size="sm"
-                selectedId="0" 
+                selectedId={layer.config.settings?.styles || items[0]?.id} 
                 items={items}
                 on:select={(e) => {
-                    const selected = items.find(i => i.id === e.detail.selectedId);
-                    if (layer && typeof layer.setWmsStyle === 'function' && selected) {
-                        layer.setWmsStyle(selected.text);
-                }}}
+                    let WmsLayer = map.getLayerById(layer.config.id);
+                    WmsLayer.switchLayer(e.detail.selectedItem.id);
+                }}
             />
-            {/if}
         {/if}
         {#if layer.config.legendSupported}
             <div class="label-01 legend-header">

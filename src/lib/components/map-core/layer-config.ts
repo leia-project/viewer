@@ -14,6 +14,7 @@ export class LayerConfig {
     public isBackground: boolean = false;
     public defaultAddToManager: boolean = false;
     public defaultOn: boolean = false;
+    public styleDropDown: boolean = false;
     public attribution!: string;
     public metadata!: Array<{ key: string, value: string }>;
     public metadataUrl!: string;

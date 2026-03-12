@@ -129,7 +129,7 @@
             "defaultAddToManager": true,
             "defaultOn": true,
             "transparent": false,
-            "opacity": 0,
+            "opacity": 100,
             "settings": {
                 "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
                 "featureName": "buurten",
@@ -144,13 +144,13 @@
             "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
-            "defaultOn": true,
+            "defaultOn": false,
             "transparent": false,
             "opacity": 0,
             "settings": {
                 "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
                 "featureName": "wijken",
-                "contenttype": "image/jpeg"
+                "contenttype": "image/png"
             }
         },
         {
@@ -161,7 +161,7 @@
             "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
-            "defaultOn": true,
+            "defaultOn": false,
             "transparent": false,
             "opacity": 0,
             "settings": {
