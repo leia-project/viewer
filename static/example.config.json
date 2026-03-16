@@ -124,7 +124,7 @@
             "type": "wms",
             "title": "PDOK Buurten",
             "groupId": "",
-            "legendUrl": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0/legend/buurten/wijkenbuurten_thema_buurten_gemeentewijkbuurt_omgevingsadressendichtheid_adres_km2.png",
+            "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": true,

@@ -24,7 +24,8 @@
     let descriptionValid: boolean = true;
     let loading = true; 
     let items: { id: string; text: string }[] = [];
-
+    
+    $: legendUrl = layer.config.legendUrl;
     $: visible = layer.visible;
     $: opacity = layer.opacity;
     $: customControls = layer.customControls;
@@ -45,15 +46,15 @@
                 trimValues: true,
                 parseTagValue: true,
                 parseAttributeValue: true,
-                isArray: (tagName, jPath, isLeafNode, isAttribute) => {
+                isArray: (tagName) => {
                 if (tagName === 'Style') return true;
                 return false;
                 }
             });
+
             const parsedXml = parser.parse(xmlText);
 
             let styleNames: { id: string; text: string }[] = [];
-            console.log("Parsed WMS Capabilities:", parsedXml);
             if (parsedXml) {
                 const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
                 const layers = Array.isArray(layerData) ? layerData : [layerData];
@@ -61,12 +62,11 @@
                 layers.forEach((layer: { Name: string; Style: { Title: any; Name: string; }[]; }) => {
                     if (layer.Name === featureName) {
                         layer.Style.forEach((style) => {
-                            const stylename = style.Title;
-                            const styleid = style.Name;
-                            console.log("Found style:", stylename);
+                            const styleName = style.Title;
+                            const styleId = style.Name;
                             styleNames.push({
-                                id: styleid,
-                                text: stylename
+                                id: styleId,
+                                text: styleName
                             });
                         });
                     };
@@ -98,8 +98,6 @@
             items = await getWMSStyleNames(WMSurl, featureName);
             } catch(error) {
             console.error("Failed to load styles:", error);
-            } finally {
-            loading = false;
             }
         })();
     }
@@ -164,6 +162,7 @@
                 items={items}
                 on:select={(e) => {
                     let WmsLayer = map.getLayerById(layer.config.id);
+                    legendUrl = `${layer.config.settings?.url}/legend/${layer.config.settings?.featureName}/${e.detail.selectedItem.id}.png`;
                     WmsLayer.switchLayer(e.detail.selectedItem.id);
                 }}
             />
@@ -173,7 +172,7 @@
                 {$_("tools.layerManager.legend")}
             </div>
             {#if imageValid}
-                <img class="legend" src={layer.config.legendUrl} alt="legend" on:error="{()=>{imageValid = false}}" />
+                <img class="legend" src={legendUrl} alt="legend" on:error="{()=>{imageValid = false}}" />
             {/if}
             {#if !imageValid}
                 <ErrorMessage message="{$_("tools.layerManager.legendNotFoundText")}" />
