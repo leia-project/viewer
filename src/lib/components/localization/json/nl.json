@@ -286,7 +286,7 @@
         },
         "animation": {
             "speed": "Snelheid",
-            "play": "Play",
+            "play": "Afspelen",
             "pause": "Pauze",
             "previous": "Vorige tijdstap",
             "next": "Volgende tijdstap",

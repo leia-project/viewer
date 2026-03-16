@@ -8,6 +8,7 @@
     import ErrorMessage from "$lib/components/ui/components/ErrorMessage/ErrorMessage.svelte"
 
     import type { Layer } from "$lib/components/map-core/layer";
+    import * as Cesium from "cesium";
 
     const { map } = getContext<any>("mapTools");
 
@@ -33,6 +34,33 @@
         const pos = layer.getLayerPosition();
         map.flyTo(pos);
     }
+
+function applyWmsStyle(paramList: { [key: string]: string }[]) {
+    const src = (layer as any).source;
+    if (!src) return;
+    const viewer = map.viewer;
+    viewer.imageryLayers.remove(src, false);
+
+    // Merge the list of dictionaries into one params object
+    const params: { [key: string]: string } = {};
+    for (const item of paramList) {
+        const k = item.key ?? item.name ?? item.parameter;
+        if (k) params[k] = item.value;
+    }
+
+    const provider = new Cesium.WebMapServiceImageryProvider({
+        url: layer.config.settings.url,
+        layers: layer.config.settings.featureName,
+        parameters: {
+            transparent: true,
+            format: layer.config.settings.contentType ?? "image/png",
+            ...params,
+        },
+    });
+    (layer as any).source = new Cesium.ImageryLayer(provider, { alpha: src.alpha });
+    viewer.imageryLayers.add((layer as any).source);
+}
+
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
