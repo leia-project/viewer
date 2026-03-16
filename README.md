@@ -1,4 +1,4 @@
-# Leia Open Source 3D Viewer test test test 
+# Leia Open Source 3D Viewer test test test dit kan wel
 Generic 3D viewer for Digital Twin purposes. 
 
 _An initiative by Geodan and Provincie Zeeland._
