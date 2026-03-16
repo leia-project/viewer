@@ -121,7 +121,7 @@ export class FloodLayerController {
 			type: "icon",
 			groupId: this.layerConfigGroup.id,
 			isBackground: false,
-			defaultOn: false,
+			defaultOn: true,
 			defaultAddToManager: true,
 		});
 		this.map.layerLibrary.addLayerConfig(layerConfig);
