@@ -9,6 +9,7 @@
 	import ChevronUp from "carbon-icons-svelte/lib/ChevronUp.svelte";
 	import { DocumentDownload } from "carbon-icons-svelte";
 	import "@carbon/charts-svelte/styles.css";
+	import { jsPDF } from 'jspdf';
 
 	import type { Story } from "./Story";
 	import type { StoryStep } from "./StoryStep";
@@ -470,17 +471,87 @@
 		return ['A', 'B', 'C', 'D', 'E'].includes(label);
 	}
 
-	async function downloadPDF() {
-		const response = await fetch('/Teksten_Conceptrapportage_Klimaatonderlegger Zeeland_Defacto.pdf');
-		const blob = await response.blob();
 
-		const url = URL.createObjectURL(blob);
-		const link = document.createElement('a');
-		link.href = url;
-		link.download = 'MyDocument.pdf'; // TODO: Add appropriate filename
-		link.click();
-		URL.revokeObjectURL(url); // cleanup
-	}
+async function downloadPDF() {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const contentWidth = pageWidth - margin * 2;
+    let y = margin;
+
+    const logoImg = new Image();
+    logoImg.src = '/images/Zeeland_logo.png';
+    await new Promise<void>((resolve) => { logoImg.onload = () => resolve(); });
+    doc.addImage(logoImg, 'PNG', pageWidth - margin - 30, y, 30, 15);
+
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text(story.name, margin, y + 10);
+    y += 25;
+
+    doc.setDrawColor(200);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 10;
+    for (let i = 0; i < flattenedSteps.length; i++) {
+        const { step, chapter } = flattenedSteps[i];
+
+        if (y > 250) {
+            doc.addPage();
+            y = margin;
+        }
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text(chapter.title, margin, y);
+        y += 7;
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(step.title, margin, y);
+        y += 7;
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        const plainText = step.html.replace(/<[^>]*>/g, '');
+        const lines = doc.splitTextToSize(plainText, contentWidth);
+        doc.text(lines, margin, y);
+        y += lines.length * 5 + 5;
+
+        if (distributions && distributions[i]) {
+            const dist = distributions[i];
+            const colors: Record<string, [number, number, number]> = {
+                A: [51, 153, 102], B: [153, 255, 204],
+                C: [255, 255, 153], D: [255, 204, 102], E: [156, 65, 16]
+            };
+
+            for (const d of dist) {
+                if (d.value > 0) {
+                    const total = dist.reduce((sum, item) => sum + item.value, 0);
+                    const pct = ((d.value / total) * 100).toFixed(1);
+                    const color = colors[d.group] ?? [128, 128, 128];
+
+                    doc.setFillColor(color[0], color[1], color[2]);
+                    doc.circle(margin + 3, y - 1.5, 3, 'F');
+
+                    doc.setFontSize(10);
+                    doc.text(`${d.group}: ${pct}%`, margin + 10, y);
+                    y += 6;
+                }
+            }
+            y += 5;
+        }
+
+        doc.setDrawColor(220);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 8;
+    }
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text('Provincie Zeeland - Klimaatonderlegger', margin, pageHeight - 10);
+
+    doc.save('Klimaatonderlegger_Zeeland.pdf');
+}
 
 
 	function getColorFromLabel(label: string) {
@@ -620,7 +691,7 @@
 					{#if story.requestPolygonArea}
 						{#if distributions && distributions[index]}
 							<StoryChart data={distributions[index]} />
-							<br><br><br>
+							
 							{#if layerLegends[index].generalLegendText}
 								<div class="legendary-text mb">
 									{@html layerLegends[index].generalLegendText}
@@ -630,7 +701,7 @@
 								{#if layerLegends[index].legendOptions}
 									{#each layerLegends[index].legendOptions as legendEntry}
 										{#if shouldShowLegend(legendEntry, distributions[index])}
-											<li style="margin-bottom: 2rem;">
+											<li style="margin-bottom: 1rem;">
 												<div style=" display: grid; grid-template-columns: 5rem 1fr;">
 													{#if legendEntry.labels}
 														<!-- Label images inline -->
@@ -682,6 +753,9 @@
 				<div class="tag">
 					<Tag>{chapter.title}</Tag>
 					<Tag>{index + 1}</Tag>
+				</div>
+				<div class="step-logo">
+					<img src="/images/Zeeland_logo.png" alt="Provincie Zeeland" />
 				</div>
 			</div>
 		{/each}
@@ -830,4 +904,27 @@
 		height: 1.2rem;
 		font-size: 0.75rem;
 	}
+
+
+/* Logo at bottom of each step */
+.step-logo {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 1.5rem;
+	padding-top: 1rem;
+	border-top: 1px solid var(--cds-ui-03);
+}
+
+.step-logo img {
+	max-width: 100px;
+	height: auto;
+	opacity: 0.7;
+}
+
+/* Smooth step transitions */
+.step {
+	transition: opacity 0.3s ease, background-color 0.3s ease;
+	border-bottom: 1px solid var(--cds-ui-03);
+}
+
 </style>
