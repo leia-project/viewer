@@ -160,7 +160,7 @@
         doc.setFontSize(9);
         doc.setTextColor(130, 130, 130);
         const now = new Date();
-        y = addTextAtY(`Gegenereerd op ${now.toLocaleDateString('nl-NL')} om ${now.toLocaleTimeString('nl-NL')}`, MARGIN, y, CONTENT_WIDTH);
+        y = addTextAtY(`gecreëerd op ${now.toLocaleDateString('nl-NL')} om ${now.toLocaleTimeString('nl-NL')}`, MARGIN, y, CONTENT_WIDTH);
         doc.setTextColor(0, 0, 0);
         y += 3;
 
@@ -178,8 +178,8 @@
         } catch {}
 
         // === STEP PAGES ===
-        flattenedSteps.forEach((flattenedStep, index) => {
-            const { step, chapter } = flattenedStep;
+        for (let index = 0; index < flattenedSteps.length; index++) {
+            const { step, chapter } = flattenedSteps[index];
             doc.addPage();
             addPageHeader();
             y = CONTENT_TOP;
@@ -200,7 +200,7 @@
             y = addSeparatorLine(y);
             y += 2;
 
-            // Description — use safe text to avoid cut-off
+            // Description
             const stepDescription = step.html || '';
             if (stepDescription) {
                 const cleaned = stepDescription.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
@@ -252,26 +252,31 @@
                 });
             }
 
-            // === CHART + PERCENTAGES (same page if room) ===
+            // === CHART + PERCENTAGES ===
             const image = get(exportDataPages).pages.find(page => page.index === index)?.image;
-            const chartBlockHeight = CHART_SIZE + 10;
 
             if (image) {
-                y = ensureSpace(chartBlockHeight, y);
+                const dims = await getImageDimensions(image);
+                const aspectRatio = dims.width / dims.height;
+
+                const chartW = Math.min(CONTENT_WIDTH * 0.55, 90);
+                const chartH = chartW / aspectRatio;
+
+                y = ensureSpace(chartH + 10, y);
                 y += 3;
                 y = addSeparatorLine(y);
                 y += 2;
 
-                // Chart — square so donut keeps its shape
-                doc.addImage(image, 'PNG', MARGIN, y, CHART_SIZE, CHART_SIZE);
+                doc.addImage(image, 'PNG', MARGIN, y, chartW, chartH);
 
                 // Percentages beside the chart
                 if (data[index]) {
-                    const percX = MARGIN + CHART_SIZE + 10;
+                    const percX = MARGIN + chartW + 10;
+                    const percMaxW = CONTENT_WIDTH - chartW - 15;
                     let percY = y + 5;
                     doc.setFontSize(11);
                     doc.setFont('helvetica', 'bold');
-                    percY = addTextAtY('Verdeling per klasse:', percX, percY, CONTENT_WIDTH - CHART_SIZE - 15);
+                    percY = addTextAtY('Verdeling per klasse:', percX, percY, percMaxW);
                     percY += 2;
 
                     const total = data[index].reduce((sum, item) => sum + item.value, 0);
@@ -288,15 +293,15 @@
                             const c = colors[item.group] ?? [128, 128, 128];
                             doc.setFillColor(c[0], c[1], c[2]);
                             doc.circle(percX + 3, percY - 1.2, 2.5, 'F');
-                            percY = addTextAtY(`${item.group}: ${pct}%`, percX + 9, percY, 60);
+                            percY = addTextAtY(`${item.group}: ${pct}%`, percX + 9, percY, percMaxW);
                             percY += 1;
                         }
                     });
                 }
 
-                y += CHART_SIZE + 5;
+                y += chartH + 5;
             }
-        });
+        }
 
         // Footer on all pages (last, so page count is correct)
         addAllPageFooters();
@@ -322,6 +327,15 @@
         const bytes = new Uint8Array(length);
         crypto.getRandomValues(bytes);
         return Array.from(bytes, b => chars[b % chars.length]).join('');
+    }
+
+    function getImageDimensions(src: string): Promise<{ width: number; height: number }> {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+            img.onerror = () => resolve({ width: 160, height: 100 }); // safe fallback
+            img.src = src;
+        });
     }
 </script>
 
