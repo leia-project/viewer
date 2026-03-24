@@ -36,6 +36,7 @@
 				if (loaded && map.ready) {
 					console.log("Map is ready and config is loaded, initializing isochrones layer");
 					const isochronesTool = map.config.tools.find((t: any) => t.id === "isochrones");
+					const apiUrl = isochronesTool.settings.apiUrl;
 					const accountedPopulationGrowthLayerId: string = isochronesTool.settings.accountedPopulationGrowthLayerId;
 					const dataAttribute: string = isochronesTool.settings.accountedPopulationGrowthAttribute;
 					const dataLayer = map.getLayerById(accountedPopulationGrowthLayerId);
@@ -43,7 +44,7 @@
 					// 	throw new Error("accountedPopulationGrowthLayerId must refer to a GeoJsonLayer");
 					// }
 
-					isochronesLayer = new IsochronesLayer(map, dataLayer, dataAttribute);
+					isochronesLayer = new IsochronesLayer(map, apiUrl, dataLayer, dataAttribute);
 				}
 			});
 		}
