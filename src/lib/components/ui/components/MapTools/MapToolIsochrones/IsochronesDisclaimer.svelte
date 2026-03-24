@@ -36,7 +36,7 @@
         </p>
         <br>
         <p>
-            In het model van de huidige proof-of-concept (POC) versie zit ook een kleine rekenkundige inconsistentie, deze hebben we met wat tests voor deze POC gecorrigeerd. Voor een volgende doorontwikkelfase of implementatie in een andere omgeving biedt dit verbeterpotentieel voor het rekenmodel.
+            In het model van de huidige proof of concept (POC) versie zit ook een kleine rekenkundige inconsistentie, deze hebben we met wat tests voor deze POC gecorrigeerd. Voor een volgende doorontwikkelfase of implementatie in een andere omgeving biedt dit verbeterpotentieel voor het rekenmodel.
         </p>
     </Modal>
 {/if}
