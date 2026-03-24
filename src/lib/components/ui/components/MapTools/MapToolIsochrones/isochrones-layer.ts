@@ -24,6 +24,7 @@ export type Isochrone = {
 
 export class IsochronesLayer {
     private map: Map;
+    public apiUrl: string;
     public dataLayer: GeoJsonLayer;
     private dataAttribute: string;
     private zeroOrNegativeColor: string = "#2DA44E";
@@ -45,7 +46,6 @@ export class IsochronesLayer {
     public pointEntity: Cesium.Entity | undefined;
     public coordinates: Writable<{ x: number, y: number } | undefined> = writable(undefined);
     public handler: Writable<Cesium.ScreenSpaceEventHandler | undefined> = writable(undefined);
-    public apiUrl: string = "https://ors.bertha.geodan.nl/ors/v2/isochrones/driving-car"
     public dataLoading: Writable<boolean> = writable(false);
     public isochrones: Writable<Array<Isochrone>> = writable([]);
     public startWeights: Array<number>; // Inside to outside, should total 1
@@ -54,9 +54,10 @@ export class IsochronesLayer {
     public totalPopulation: Writable<number> = writable(10000); // TODO: make dynamic
 
 
-    constructor(map: Map, dataLayer: GeoJsonLayer, dataAttribute: string, startWeights: Array<number> = [0.5, 0.3, 0.2]) {
+    constructor(map: Map, apiUrl: string, dataLayer: GeoJsonLayer, dataAttribute: string, startWeights: Array<number> = [0.5, 0.3, 0.2]) {
         this.map = map;
         this.dataLayer = dataLayer;
+        this.apiUrl = apiUrl;
         this.dataAttribute = dataAttribute;
         this.startWeights = startWeights;
         this.parts = this.startWeights.length;
