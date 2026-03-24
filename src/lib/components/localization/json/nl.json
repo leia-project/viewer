@@ -323,6 +323,9 @@
             "searchBreach": "Zoek bres",
             "timeSlider": "Tijd slider"
         },
+        "rainStress": {
+            "label": "Extreme neerslag"
+        },
         "isochrones": {
             "label": "Isochronen",
             "reset": "Resetten",

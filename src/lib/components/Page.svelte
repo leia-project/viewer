@@ -19,6 +19,7 @@
 	import MapToolBookmark from "$lib/components/ui/components/MapTools/MapToolBookmarks/MapToolBookmarks.svelte";
 	import MapControls from "$lib/components/ui/components/MapControls/MapControls.svelte";
 	import MapToolFlooding from "./map-cesium/MapToolFlooding/MapToolFlooding.svelte";
+	import MapToolRainStress from "./map-cesium/MapToolRainStress/MapToolRainStress.svelte";	
 	import MapToolInfo from "$lib/components/ui/components/MapTools/MapToolInfo/MapToolInfo.svelte";
 	import NotificationView from "$lib/components/ui/components/Notifications/NotificationView.svelte";
 	import MapToolHelp from "$lib/components/ui/components/MapTools/MapToolHelp/MapToolHelp.svelte";
@@ -55,6 +56,7 @@
 		'layerLibrary',
         'layerManager',
         'flooding',
+		'rainStress',
 		'stories',
         'projects',
         'bookmarks',
@@ -66,6 +68,7 @@
         layerLibrary: MapToolLayerLibrary,
         layerManager: MapToolLayerManager,
         flooding: MapToolFlooding,
+		rainStress: MapToolRainStress,
         stories: MapToolStories,
         projects: MapToolProjects,
 		bookmarks: MapToolBookmark,
@@ -79,6 +82,8 @@
 		} else if (toolKey === 'layerManager') {
 			return { layers: $layers, library };
 		} else if (toolKey === 'flooding') {
+			return { };
+		} else if (toolKey === 'rainStress') {
 			return { };
 		} else if (toolKey === 'stories') {
 			return { };

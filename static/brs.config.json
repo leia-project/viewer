@@ -88,7 +88,7 @@
 
     ],
     "viewer": {
-        "title": "FIER",
+        "title": "Bovenregionale stresstest",
         "subTitle": "3D Leia Viewer",
         "logo": "images/leia_logo.png",
         "startPosition": {
@@ -158,7 +158,7 @@
     "groups": [],
     "tools": [
         {
-            "id": "layerlibrary",
+            "id": "layerLibrary",
             "enabled": true,
             "settings": {
                 "connectors": [
@@ -170,12 +170,12 @@
             }
         },
         {
-            "id": "layermanager",
+            "id": "layerManager",
             "enabled": true,
             "settings": {}
         },
         {
-            "id": "featureinfo",
+            "id": "featureInfo",
             "enabled": true
         },  
         {
@@ -315,8 +315,12 @@
             }
         },
         {
+            "id": "rainStress",
+            "enabled": false
+        },
+        {
             "id": "stories",
-            "enabled": true,
+            "enabled": false, 
             "settings": {
                 "stories": [
                     {
