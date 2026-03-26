@@ -83,6 +83,8 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 
 	public tools: Array<string>;
 
+	public activeFeature: Writable<any | undefined> = writable(undefined);
+	private featureItems: Array<any> = [];
 
 	private outlines: Cesium.CustomDataSource | undefined;
 	private outlineColor: Cesium.Color = Cesium.Color.BLACK;
@@ -535,4 +537,32 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
         }
 		this.map.refresh();
 	}
+
+	public flyToFeature(entity: Cesium.Entity): void {
+    this.map.viewer.flyTo(entity, {
+        duration: 1,
+        offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 0)
+    });
+}
+
+set activeStore(value: Writable<any | undefined>) {
+    this.activeFeature = value;
+    this.activeFeature.subscribe((feature) => {
+        if (!feature) return;
+        const entity = this.source.entities.values.find(e => {
+            const props = e.properties?.getValue(this.map.viewer.clock.currentTime);
+            return props?.name === feature.properties.name;
+        });
+        if (entity) this.flyToFeature(entity);
+    });
+}
+
+public async loadFeatures(items: Array<any>): Promise<void> {
+    this.featureItems = items;
+    const fc = { type: "FeatureCollection", features: items };
+    this.loaded = this.source.load(fc, { markerSymbol: '', clampToGround: this.clampToGround }).then(() => {});
+    await this.loaded;
+    this.setDefaultCameraPosition();
+    this.show();
+}
 }
