@@ -536,9 +536,9 @@ async function downloadPDF() {
     const pageHeight = doc.internal.pageSize.getHeight();
     doc.setFontSize(8);
     doc.setTextColor(150);
-    doc.text('Provincie Zeeland - Klimaatonderlegger', margin, pageHeight - 10);
+    doc.text('Provincie Zeeland - Signaalkaarten', margin, pageHeight - 10);
 
-    doc.save('Klimaatonderlegger_Zeeland.pdf');
+    doc.save('Signaalkaarten_Zeeland.pdf');
 }
 
 
