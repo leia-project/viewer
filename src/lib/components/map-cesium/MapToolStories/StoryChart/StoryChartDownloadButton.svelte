@@ -99,7 +99,7 @@
         }
         // Sogelink logo top-right
         if (sogelinkLogo) {
-            try { doc.addImage(sogelinkLogo, 'PNG', PAGE_WIDTH - MARGIN - 14, MARGIN - 2, 14, 14); } catch {}
+            try { doc.addImage(sogelinkLogo, 'PNG', PAGE_WIDTH - MARGIN - 18, MARGIN, 18, 13); } catch {}
         }
         // Thin line below header
         doc.setDrawColor(200, 200, 200);
@@ -113,7 +113,7 @@
             doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(150, 150, 150);
-            doc.text('Provincie Zeeland — Klimaatonderlegger', MARGIN, PAGE_HEIGHT - 12);
+            doc.text('Provincie Zeeland — Signaalkaarten', MARGIN, PAGE_HEIGHT - 12);
             doc.text(`Pagina ${i} / ${totalPages}`, PAGE_WIDTH - MARGIN - 25, PAGE_HEIGHT - 12);
             doc.setDrawColor(200, 200, 200);
             doc.line(MARGIN, PAGE_HEIGHT - 16, PAGE_WIDTH - MARGIN, PAGE_HEIGHT - 16);
@@ -220,36 +220,49 @@
                 doc.setFont('helvetica', 'normal');
             }
 
-            // Legend items
+            // Legend items + general legend text grouped under heading
             const legendItems = layerLegends[index]?.legendOptions;
-            if (legendItems) {
+            const generalLegendText2 = (layerLegends[index]?.generalLegendText || '').replace(/<[^>]*>/g, '');
+
+            if (legendItems || generalLegendText2) {
                 doc.setFontSize(11);
                 doc.setFont('helvetica', 'bold');
                 y = ensureSpace(8, y);
                 y = addTextAtY('Handelingsperspectief', MARGIN, y, CONTENT_WIDTH);
                 y += 2;
 
-                legendItems.forEach((item: LegendItem) => {
+                // General legend text directly under the heading
+                if (generalLegendText2) {
                     doc.setFontSize(10);
-                    doc.setFont('helvetica', 'bold');
-                    const labels = item.labels || '';
-                    const formattedLabels = labels.length > 1 ? labels.split('').join(', ') : labels;
-                    y = ensureSpace(12, y);
-                    y = addTextSafe(`Label${labels.length > 1 ? 's' : ''}: ${formattedLabels}`, MARGIN + 3, y, CONTENT_WIDTH - 5);
-
+                    doc.setFont('helvetica', 'italic');
+                    y = addTextSafe(generalLegendText2, MARGIN, y, CONTENT_WIDTH);
+                    y += 4;
                     doc.setFont('helvetica', 'normal');
-                    y = addTextSafe(item.text || '', MARGIN + 3, y, CONTENT_WIDTH - 5);
-                    y += 2;
+                }
 
-                    if (item.subLabels && typeof item.subLabels === 'object') {
-                        Object.entries(item.subLabels).forEach(([key, value]) => {
-                            y = ensureSpace(8, y);
-                            y = addTextSafe(`  ${key}: ${value.text}`, MARGIN + 8, y, CONTENT_WIDTH - 12);
-                            y += 1;
-                        });
-                    }
-                    y += 2;
-                });
+                if (legendItems) {
+                    legendItems.forEach((item: LegendItem) => {
+                        doc.setFontSize(10);
+                        doc.setFont('helvetica', 'bold');
+                        const labels = item.labels || '';
+                        const formattedLabels = labels.length > 1 ? labels.split('').join(', ') : labels;
+                        y = ensureSpace(12, y);
+                        y = addTextSafe(`Label${labels.length > 1 ? 's' : ''}: ${formattedLabels}`, MARGIN + 3, y, CONTENT_WIDTH - 5);
+
+                        doc.setFont('helvetica', 'normal');
+                        y = addTextSafe(item.text || '', MARGIN + 3, y, CONTENT_WIDTH - 5);
+                        y += 2;
+
+                        if (item.subLabels && typeof item.subLabels === 'object') {
+                            Object.entries(item.subLabels).forEach(([key, value]) => {
+                                y = ensureSpace(8, y);
+                                y = addTextSafe(`  ${key}: ${value.text}`, MARGIN + 8, y, CONTENT_WIDTH - 12);
+                                y += 1;
+                            });
+                        }
+                        y += 2;
+                    });
+                }
             }
 
             // === CHART + PERCENTAGES ===
@@ -292,8 +305,8 @@
                             const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0';
                             const c = colors[item.group] ?? [128, 128, 128];
                             doc.setFillColor(c[0], c[1], c[2]);
-                            doc.circle(percX + 3, percY - 1.2, 2.5, 'F');
-                            percY = addTextAtY(`${item.group}: ${pct}%`, percX + 9, percY, percMaxW);
+                            doc.roundedRect(percX, percY - 3, 6, 3.5, 1, 1, 'F');
+                            percY = addTextAtY(`${item.group}: ${pct}%`, percX + 8, percY, percMaxW);
                             percY += 1;
                         }
                     });
