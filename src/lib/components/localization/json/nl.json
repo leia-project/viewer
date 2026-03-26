@@ -324,7 +324,13 @@
             "timeSlider": "Tijd slider"
         },
         "rainStress": {
-            "label": "Extreme neerslag"
+            "label": "Extreme neerslag",
+            "chosenRegion": "Gekozen regio",
+            "noRegionSelected": "Geen regio geselecteerd",
+            "otherRegions": "Overige regio's",
+            "searchRegion": "Zoek regio",
+            "noResults": "Geen resultaten",
+            "scenario": "Scenario"
         },
         "isochrones": {
             "label": "Isochronen",

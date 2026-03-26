@@ -8,6 +8,7 @@ import type { Map } from "../map";
 import { CesiumLayer } from "./cesium-layer";
 import LayerControlGeoJson from "../../LayerControlGeoJSON/LayerControlGeoJSON.svelte";
 import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
+import { getCartesian2 } from "../utils/geo-utils";
 
 interface GeoJSON {
 	type: string;
@@ -84,6 +85,10 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public tools: Array<string>;
 
 
+	public activeFeature: Writable<any> = writable(undefined);
+	private _features: Array<any> = [];
+	private clickHandler: Cesium.ScreenSpaceEventHandler | undefined;
+
 	private outlines: Cesium.CustomDataSource | undefined;
 	private outlineColor: Cesium.Color = Cesium.Color.BLACK;
 	private outlineWidth: number = 5;
@@ -116,6 +121,49 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.clampToGround = this.config.settings.clampToGround ?? true;
     }
 
+	set activeStore(value: Writable<any>) {
+		this.activeFeature = value;
+	}
+
+	public async loadFeatures(features: Array<any>): Promise<void> {
+		this._features = features;
+		const featureCollection = {
+			type: "FeatureCollection",
+			features: features
+		};
+
+		await this.source.load(featureCollection, {
+			fill: this.config.settings.style?.fill ? Cesium.Color.fromCssColorString(this.config.settings.style.fill) : undefined,
+			markerSymbol: '',
+			clampToGround: this.clampToGround
+		});
+
+		this.loaded = Promise.resolve();
+		if (!this.config.cameraPosition) this.setDefaultCameraPosition();
+		this.source.show = true;
+		get(this.visible) ? this.show() : this.hide();
+		this.map.refresh();
+		this.addFeatureClickHandler();
+	}
+	
+	private addFeatureClickHandler(): void {
+		if (this.clickHandler) return;
+		this.clickHandler = new Cesium.ScreenSpaceEventHandler(this.map.viewer.scene.canvas);
+		this.clickHandler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
+			const location = getCartesian2(click);
+			if (!location) return;
+			const picked = this.map.viewer.scene.pick(location);
+			if (!picked?.id) return;
+			const entity = picked.id as Cesium.Entity;
+			if (!this.source.entities.contains(entity)) return;
+			const props = entity.properties?.getValue(this.map.viewer.clock.currentTime);
+			if (props) {
+				const feature = this._features.find(f => f.properties.name === props.name);
+				if (feature) this.activeFeature.set(feature);
+			}
+		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+	}
+
 	private addListeners(): void {
 		let use3DModeUnsubscriber = this.map.options.use3DMode.subscribe((b) => {
 			if (!this.source || !this.boundingSphere) return;
@@ -146,6 +194,8 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.availableProperties = [];
 		this.source.entities.removeAll();
 		this.outlines?.entities.removeAll();
+		this.clickHandler?.destroy();
+		this.clickHandler = undefined;
 		this.map.viewer.dataSources.remove(this.source, true);
 	}
 

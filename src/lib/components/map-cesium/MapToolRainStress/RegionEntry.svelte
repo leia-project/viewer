@@ -11,7 +11,7 @@
 		
 	export let showInfo: boolean = true;
 
-	const name = region.properties.name;
+	const name = region.properties.naam;
 
 	$: hoveredBoolean = $hovered === region;
 	$: activeBoolean = $active === region;

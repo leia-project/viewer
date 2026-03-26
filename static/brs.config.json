@@ -316,7 +316,8 @@
         },
         {
             "id": "rainStress",
-            "enabled": false
+            "enabled": true,
+            "settings": {}
         },
         {
             "id": "stories",
