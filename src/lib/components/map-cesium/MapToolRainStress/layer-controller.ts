@@ -25,6 +25,7 @@ export interface Region {
     properties: {
         fid: number;
         naam: string;
+        scenarios: Array<string>;
     };
 };
 
@@ -33,7 +34,6 @@ export class RainfallLayerController {
     private map: Map;
     public activeRegion: Writable<Region | undefined>;
     public selectedScenario: Writable<string | undefined> = writable(undefined);
-    public activeFeature: Writable<any | undefined> = writable(undefined);
     
     public time: Writable<number> = writable(0);
     public minTime: Writable<number> = writable(0);
@@ -65,9 +65,9 @@ export class RainfallLayerController {
 
         this.selectedScenario.subscribe((scenario) => {
             const region = get(this.activeRegion);
-            // if (region && scenario) {
-            //     this.rainfallLayer?.loadRainfallScenario(region, scenario);
-            // }
+            if (region && scenario) {
+                // this.loadNewScenario(region, scenario);
+            }
         });
         
         this.time.subscribe((time) => {
@@ -212,26 +212,5 @@ export class RainfallLayerController {
         layerConfig.added.set(true);
         const floodedRoadsLayer = get(this.map.layers).find((l) => l.id === layerConfig.id) as OgcFeaturesLayer;
         return floodedRoadsLayer;
-    }
-
-    set activeStore(value: Writable<any | undefined>) {
-        this.activeFeature = value;
-        this.activeFeature.subscribe((feature) => {
-            if (!feature) return;
-            const entity = this.source.entities.values.find(e => {
-                const props = e.properties?.getValue(this.map.viewer.clock.currentTime);
-                return props?.name === feature.properties.name;
-            });
-            if (entity) this.flyToFeature(entity);
-        });
-    }
-
-    public async loadFeatures(items: Array<any>): Promise<void> {
-        this.featureItems = items;
-        const fc = { type: "FeatureCollection", features: items };
-        this.loaded = this.source.load(fc, { markerSymbol: '', clampToGround: this.clampToGround });
-        await this.loaded;
-        this.setDefaultCameraPosition();
-        this.show();
     }
 }

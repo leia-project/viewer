@@ -661,7 +661,7 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 		this.error.set(false);
 		try {
 			this.clear();
-			const endpoint = `${region.properties.name}_${scenario}`;
+			const endpoint = `${region.properties.naam}_${scenario}`;
 			await this.source.load(endpoint);
 			if (this.source.contents) {
 				const { ne, sw } = this.source.contents;

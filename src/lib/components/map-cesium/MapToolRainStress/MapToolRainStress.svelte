@@ -16,21 +16,18 @@
   	export let scenario: string;
   	export let chosenRegion: string;
 	export let noRegionSelected: string;
-	export let otherBreaches: string;
-	export let searchBreach: string;
+	export let otherRegions: string;
+	export let searchRegion: string;
 	export let noResults: string;
 
 	$: label = $_('tools.rainStress.label');
   	$: scenario = $_('tools.rainStress.scenario');
-  	$: chosenRegion = $_('tools.rainStress.chosenRegion');
-	$: scenario = $_('tools.flooding.scenario');
   	$: chosenRegion = $_('tools.rainStress.chosenRegion');
 	$: noRegionSelected = $_('tools.rainStress.noRegionSelected');
 	$: otherRegions = $_('tools.rainStress.otherRegions');
 	$: searchRegion = $_('tools.rainStress.searchRegion');
 	$: noResults = $_('tools.rainStress.noResults');
  
-  
 	const id: string = "rainStress";
 	const icon: any = Rain;
 	const showOnBottom: boolean = false;
@@ -51,9 +48,7 @@
 		if (settings) {
 			rainfallLayerController = new RainfallLayerController(map, settings, activeRegion, selectedScenario);
 			const regionCollection = await fetch(`${base}/regions_wgs84.geojson`).then(res => res.json());
-			console.log("Loaded region collection:", regionCollection);
 			regions = regionCollection.features;
-			console.log("Loaded regions:", regions);
 			rainfallLayerController.addRegions(regions);
 			setSearchResults();
 		}
@@ -104,7 +99,7 @@
 							<div class="info-content">
 								<Dropdown
 									label={scenario}
-									items={$activeRegion.properties.scenario.map((sc) => ({ id: sc, text: "1:" + sc }))}
+									items={$activeRegion.properties.scenarios.map((sc) => ({ id: sc, text: "1:" + sc }))}
 									bind:selectedId={$selectedScenario}
 									titleText={scenario}
 								/>

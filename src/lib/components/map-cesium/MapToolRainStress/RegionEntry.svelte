@@ -23,14 +23,11 @@
 
 </script>
 
-
-
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
 <div class="container" class:active={activeBoolean} on:mouseenter={() => hovered.set(region)} on:mouseleave={() => hovered.set(undefined)}>
 	<div class="entry" on:click={entryClick} class:entry-hovered={hoveredBoolean}>
 		<div class="entry-prefix">
-			<span class="encircled-text">
-			</span>
+			<span></span>
 		</div>
 		<div class="entry-body">
 			<div>{name}</div>
@@ -75,17 +72,7 @@
 	.entry-prefix {
 		padding: 0 var(--cds-spacing-03);
 	}
-	.encircled-text {
-		display: inline-block;
-		width: 1.5rem;
-		height: 1.5rem;
-		border-radius: 50%;
-		background-color: var(--cds-ui-01);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
+	
 	.entry-body {
 		flex-grow: 1;
 		white-space: nowrap;

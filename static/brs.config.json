@@ -10,7 +10,7 @@
             "legendUrl": "",
             "isBackground": true,
             "defaultAddToManager": true,
-            "defaultOn": true,
+            "defaultOn": false,
             "attribution": "PDOK",
             "settings": {
                 "url": "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0?",

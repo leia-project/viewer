@@ -48,6 +48,7 @@
 			floodLayerController = new FloodLayerController(map, settings, activeBreach, selectedScenario);
 			const breachCollection = await fetch(settings.breachUrl).then((res) => res.json());
 			breaches = breachCollection.features;
+			console.log("Loaded breaches:", breaches);
 			floodLayerController.addBreaches(breaches);
 			setSearchResults();
 		}

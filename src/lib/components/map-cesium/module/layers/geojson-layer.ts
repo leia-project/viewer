@@ -3,7 +3,6 @@ import * as Cesium from "cesium";
 //import * as Shapefile from 'shapefile';
 import { CustomLayerControl } from "$lib/components/map-core/custom-layer-control";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
-
 import type { Map } from "../map";
 import { CesiumLayer } from "./cesium-layer";
 import LayerControlGeoJson from "../../LayerControlGeoJSON/LayerControlGeoJSON.svelte";
@@ -60,8 +59,9 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	private defaultColorLine: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.GREEN);
 	public defaultColorPolygon: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.ORANGE);
 	private colorUnselected: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.LIGHTGREY);
-	private defaultLineWidth: number = 3;
+	private defaultLineWidth: number = 1;
 	private alpha: number = 1.0;
+	private rainfallPolygonColor: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.LIGHTBLUE.withAlpha(0.5));
 
 	public colorGradientStart: Cesium.Color = Cesium.Color.BLUE;
 	public colorGradientEnd: Cesium.Color = Cesium.Color.RED;
@@ -87,13 +87,12 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public activeFeature: Writable<any | undefined> = writable(undefined);
 	private featureItems: Array<any> = [];
 
-	public activeFeature: Writable<any> = writable(undefined);
 	private _features: Array<any> = [];
 	private clickHandler: Cesium.ScreenSpaceEventHandler | undefined;
 
 	private outlines: Cesium.CustomDataSource | undefined;
 	private outlineColor: Cesium.Color = Cesium.Color.BLACK;
-	private outlineWidth: number = 5;
+	private outlineWidth: number = 1;
 
     constructor(map: Map, config: LayerConfig, data: object | undefined = undefined) {
         super(map, config);
@@ -135,11 +134,12 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		};
 
 		await this.source.load(featureCollection, {
-			fill: this.config.settings.style?.fill ? Cesium.Color.fromCssColorString(this.config.settings.style.fill) : undefined,
+			fill: this.rainfallPolygonColor.getValue().color,
 			markerSymbol: '',
 			clampToGround: this.clampToGround
 		});
 
+		this.addOutlines()
 		this.loaded = Promise.resolve();
 		if (!this.config.cameraPosition) this.setDefaultCameraPosition();
 		this.source.show = true;
@@ -589,30 +589,9 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	}
 
 	public flyToFeature(entity: Cesium.Entity): void {
-    this.map.viewer.flyTo(entity, {
-        duration: 1,
-        offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 0)
-    });
-}
-
-set activeStore(value: Writable<any | undefined>) {
-    this.activeFeature = value;
-    this.activeFeature.subscribe((feature) => {
-        if (!feature) return;
-        const entity = this.source.entities.values.find(e => {
-            const props = e.properties?.getValue(this.map.viewer.clock.currentTime);
-            return props?.name === feature.properties.name;
-        });
-        if (entity) this.flyToFeature(entity);
-    });
-}
-
-public async loadFeatures(items: Array<any>): Promise<void> {
-    this.featureItems = items;
-    const fc = { type: "FeatureCollection", features: items };
-    this.loaded = this.source.load(fc, { markerSymbol: '', clampToGround: this.clampToGround }).then(() => {});
-    await this.loaded;
-    this.setDefaultCameraPosition();
-    this.show();
-}
+    	this.map.viewer.flyTo(entity, {
+        	duration: 1,
+        	offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 0)
+    	});
+	}
 }
