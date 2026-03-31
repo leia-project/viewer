@@ -85,6 +85,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public tools: Array<string>;
 
 	public activeFeature: Writable<any | undefined> = writable(undefined);
+	private clickedEntity: Cesium.Entity | undefined;
 	private featureItems: Array<{ entity: Cesium.Entity; feature: any }> = [];
 
 	private _features: Array<any> = [];
@@ -160,22 +161,47 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	private buildFeatureItems(): void {
 		this.featureItems = [];
 		const entities = this.source.entities.values;
-		for (let i = 0; i < entities.length; i++) {
-			this.featureItems.push({
-				entity: entities[i],
-				feature: i < this._features.length ? this._features[i] : undefined
-			});
+		let entityIndex = 0;
+		for (const feature of this._features) {
+			const count = this.getEntityCountForFeature(feature);
+			for (let j = 0; j < count && entityIndex < entities.length; j++) {
+				this.featureItems.push({
+					entity: entities[entityIndex],
+					feature: feature
+				});
+				entityIndex++;
+			}
+		}
+	}
+
+	private getEntityCountForFeature(feature: any): number {
+		if (!feature.geometry) return 1;
+		switch (feature.geometry.type) {
+			case 'MultiPolygon':
+			case 'MultiLineString':
+			case 'MultiPoint':
+				return feature.geometry.coordinates.length;
+			case 'GeometryCollection':
+				return feature.geometry.geometries.length;
+			default:
+				return 1;
 		}
 	}
 
 	private getFeatureFromMouseLocation(m: any): any | undefined {
+		return this.getFeatureAndEntityFromMouseLocation(m)?.feature;
+	}
+
+	private getFeatureAndEntityFromMouseLocation(m: any): { feature: any; entity: Cesium.Entity } | undefined {
 		const location = getCartesian2(m);
 		if (!location) return undefined;
 		const picked = this.map.viewer.scene.pick(location);
 		if (!picked?.id) return undefined;
 		const entity = picked.id as Cesium.Entity;
 		if (!this.source.entities.contains(entity)) return undefined;
-		return this.featureItems.find(i => i.entity === entity)?.feature;
+		const item = this.featureItems.find(i => i.entity === entity);
+		if (!item) return undefined;
+		return { feature: item.feature, entity: entity };
 	}
 
 	private moveHandle = (m: any) => {
@@ -185,8 +211,11 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	}
 
 	private leftClickHandle = (m: any) => {
-		const feature = this.getFeatureFromMouseLocation(m);
-		if (feature !== undefined && feature !== get(this.activeFeature)) this.activeFeature.set(feature);
+		const result = this.getFeatureAndEntityFromMouseLocation(m);
+		if (result && result.feature !== get(this.activeFeature)) {
+			this.clickedEntity = result.entity;
+			this.activeFeature.set(result.feature);
+		}
 	}
 
 	private addMouseEvents(): void {
@@ -212,9 +241,15 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			this.activeFeature.subscribe((feature) => {
 				this.map.refresh();
 				if (feature) {
-					const item = this.featureItems.find(i => i.feature === feature);
-					if (item) this.flyToFeature(item.entity);
+					const entities = this.featureItems.filter(i => i.feature === feature).map(i => i.entity);
+					if (entities.length > 0) {
+						const target = this.clickedEntity && entities.includes(this.clickedEntity)
+							? this.clickedEntity
+							: undefined;
+						this.flyToFeature(target, entities);
+					}
 				}
+				this.clickedEntity = undefined;
 			}),
 			this.map.options.use3DMode.subscribe((b) => {
 				if (!this.source || !this.boundingSphere) return;
@@ -643,18 +678,29 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.map.refresh();
 	}
 
-	public flyToFeature(entity: Cesium.Entity): void {
-		let range = 0;
-		if (entity.polygon) {
-			const hierarchy = entity.polygon.hierarchy?.getValue(this.map.viewer.clock.currentTime);
-			if (hierarchy) {
-				const boundingSphere = Cesium.BoundingSphere.fromPoints(hierarchy.positions);
-				range = boundingSphere.radius * 2.5;
+	public flyToFeature(_clickedEntity: Cesium.Entity | undefined, allEntities: Cesium.Entity[]): void {
+		if (allEntities.length === 0) return;
+
+		// Always compute combined bounding sphere from all entities (entire MultiPolygon)
+		const allPositions: Cesium.Cartesian3[] = [];
+		for (const entity of allEntities) {
+			if (entity.polygon) {
+				const hierarchy = entity.polygon.hierarchy?.getValue(this.map.viewer.clock.currentTime);
+				if (hierarchy) allPositions.push(...hierarchy.positions);
 			}
 		}
-    	this.map.viewer.flyTo(entity, {
-        	duration: 1,
-        	offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), range)
-    	});
+		if (allPositions.length > 0) {
+			const boundingSphere = Cesium.BoundingSphere.fromPoints(allPositions);
+			const range = boundingSphere.radius * 2.5;
+			this.map.viewer.camera.flyToBoundingSphere(boundingSphere, {
+				duration: 1,
+				offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), range)
+			});
+		} else {
+			this.map.viewer.flyTo(allEntities[0], {
+				duration: 1,
+				offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 0)
+			});
+		}
 	}
 }
