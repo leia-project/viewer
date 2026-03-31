@@ -53,7 +53,7 @@ export class RainfallLayerController {
         this.activeRegion = activeRegion;
         this.selectedScenario = selectedScenario;
         this.map.layerLibrary.addLayerConfigGroup(this.layerConfigGroup);
-        this.geoJsonLayer = this.addGeoGeoJsonLayer();
+        this.geoJsonLayer = this.addGeoJsonLayer();
         // this.rainfallLayer = this.addFloodLayer(settings.scenariosBaseUrl);
         // this.floodedRoadsLayer = this.addFloodedRoadsLayer(settings.floodedRoadsUrl, settings.floodedRoadsStyle);
         
@@ -113,7 +113,7 @@ export class RainfallLayerController {
     //     this.floodedRoadsLayer?.source.switchUrl(endpoint, parameters);
     // }
 
-    private addGeoGeoJsonLayer(): GeoJsonLayer {
+    private addGeoJsonLayer(): GeoJsonLayer {
         const layerConfig = new LayerConfig({
             id: "rain_regions",
             title: "Rain Regions",

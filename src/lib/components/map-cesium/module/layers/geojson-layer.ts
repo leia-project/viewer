@@ -85,14 +85,18 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public tools: Array<string>;
 
 	public activeFeature: Writable<any | undefined> = writable(undefined);
-	private featureItems: Array<any> = [];
+	private featureItems: Array<{ entity: Cesium.Entity; feature: any }> = [];
 
 	private _features: Array<any> = [];
-	private clickHandler: Cesium.ScreenSpaceEventHandler | undefined;
 
 	private outlines: Cesium.CustomDataSource | undefined;
 	private outlineColor: Cesium.Color = Cesium.Color.BLACK;
 	private outlineWidth: number = 1;
+
+	private unsubscribers: Array<Unsubscriber> = new Array<Unsubscriber>();
+	public hoveredFeature: Writable<any> = writable(undefined);
+
+
 
     constructor(map: Map, config: LayerConfig, data: object | undefined = undefined) {
         super(map, config);
@@ -140,37 +144,83 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		});
 
 		this.addOutlines()
+		this.buildFeatureItems();
 		this.loaded = Promise.resolve();
 		if (!this.config.cameraPosition) this.setDefaultCameraPosition();
 		this.source.show = true;
 		get(this.visible) ? this.show() : this.hide();
 		this.map.refresh();
-		this.addFeatureClickHandler();
+		this.zoomToLayer();
+	}
+
+	public zoomToLayer(): void {
+		this.map.flyTo(this.config.cameraPosition);
 	}
 	
-	private addFeatureClickHandler(): void {
-		if (this.clickHandler) return;
-		this.clickHandler = new Cesium.ScreenSpaceEventHandler(this.map.viewer.scene.canvas);
-		this.clickHandler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
-			const location = getCartesian2(click);
-			if (!location) return;
-			const picked = this.map.viewer.scene.pick(location);
-			if (!picked?.id) return;
-			const entity = picked.id as Cesium.Entity;
-			if (!this.source.entities.contains(entity)) return;
-			const props = entity.properties?.getValue(this.map.viewer.clock.currentTime);
-			if (props) {
-				const feature = this._features.find(f => f.properties.name === props.name);
-				if (feature) this.activeFeature.set(feature);
-			}
-		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+	private buildFeatureItems(): void {
+		this.featureItems = [];
+		const entities = this.source.entities.values;
+		for (let i = 0; i < entities.length; i++) {
+			this.featureItems.push({
+				entity: entities[i],
+				feature: i < this._features.length ? this._features[i] : undefined
+			});
+		}
+	}
+
+	private getFeatureFromMouseLocation(m: any): any | undefined {
+		const location = getCartesian2(m);
+		if (!location) return undefined;
+		const picked = this.map.viewer.scene.pick(location);
+		if (!picked?.id) return undefined;
+		const entity = picked.id as Cesium.Entity;
+		if (!this.source.entities.contains(entity)) return undefined;
+		return this.featureItems.find(i => i.entity === entity)?.feature;
+	}
+
+	private moveHandle = (m: any) => {
+		const feature = this.getFeatureFromMouseLocation(m);
+		if (feature !== get(this.hoveredFeature)) this.hoveredFeature.set(feature);
+		this.map.container.style.cursor = feature ? "pointer" : "default";
+	}
+
+	private leftClickHandle = (m: any) => {
+		const feature = this.getFeatureFromMouseLocation(m);
+		if (feature !== undefined && feature !== get(this.activeFeature)) this.activeFeature.set(feature);
+	}
+
+	private addMouseEvents(): void {
+		this.map.on("mouseLeftClick", this.leftClickHandle);
+		this.map.on("mouseMove", this.moveHandle);
+	}
+
+	private removeMouseEvents(): void {
+		this.map.off("mouseLeftClick", this.leftClickHandle);
+		this.map.off("mouseMove", this.moveHandle);
 	}
 
 	private addListeners(): void {
-		let use3DModeUnsubscriber = this.map.options.use3DMode.subscribe((b) => {
-			if (!this.source || !this.boundingSphere) return;
-			this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, b);
-		});
+		this.unsubscribers.forEach((unsubscriber) => unsubscriber());
+		this.unsubscribers.push(
+			this.hoveredFeature.subscribe((feature) => {
+				for (const item of this.featureItems) {
+					const isHovered = feature !== undefined && item.feature === feature;
+					item.entity.show = isHovered || !feature;
+				}
+				this.map.refresh();
+			}),
+			this.activeFeature.subscribe((feature) => {
+				this.map.refresh();
+				if (feature) {
+					const item = this.featureItems.find(i => i.feature === feature);
+					if (item) this.flyToFeature(item.entity);
+				}
+			}),
+			this.map.options.use3DMode.subscribe((b) => {
+				if (!this.source || !this.boundingSphere) return;
+				this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, b);
+			})
+		);
 	}
 
 	public async addToMap(): Promise<void> {
@@ -178,6 +228,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		await this.loaded;
 		await this.map.viewer.dataSources.add(this.source);
 		this.addListeners();
+		this.addMouseEvents();
 		this.setAvailableProperties();
 		this.styleUnsubscriber = this.style.subscribe((property: string) => {
 			if (property && this.loaded) this.setStyle(property);
@@ -191,13 +242,14 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 
 	public removeFromMap(): void {
 		this.removeControl();
+		this.unsubscribers.forEach((u) => u());
+		this.removeMouseEvents();
 		this.styleUnsubscriber();
 		this.extrusionUnsubscriber?.();
 		this.availableProperties = [];
+		this.featureItems = [];
 		this.source.entities.removeAll();
 		this.outlines?.entities.removeAll();
-		this.clickHandler?.destroy();
-		this.clickHandler = undefined;
 		this.map.viewer.dataSources.remove(this.source, true);
 	}
 
@@ -236,6 +288,9 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			markerSymbol: '',
 			clampToGround: this.clampToGround
 		});
+
+		this._features = geojson.features ?? [];
+		this.buildFeatureItems();
 
 		if (!this.config.cameraPosition) this.setDefaultCameraPosition();
 
