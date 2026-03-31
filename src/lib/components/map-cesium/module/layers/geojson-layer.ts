@@ -644,9 +644,17 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	}
 
 	public flyToFeature(entity: Cesium.Entity): void {
+		let range = 0;
+		if (entity.polygon) {
+			const hierarchy = entity.polygon.hierarchy?.getValue(this.map.viewer.clock.currentTime);
+			if (hierarchy) {
+				const boundingSphere = Cesium.BoundingSphere.fromPoints(hierarchy.positions);
+				range = boundingSphere.radius * 2.5;
+			}
+		}
     	this.map.viewer.flyTo(entity, {
         	duration: 1,
-        	offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 0)
+        	offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), range)
     	});
 	}
 }
