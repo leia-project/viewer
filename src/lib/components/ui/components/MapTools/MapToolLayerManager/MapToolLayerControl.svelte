@@ -176,10 +176,7 @@
                 on:select={(e) => {
                     let WmsLayer = map.getLayerById(layer.config.id);
                     //@ts-ignore
-                    if (e.detail.selectedItem.legendURL !== "" || e.detail.selectedItem.legendURL !== undefined) {
-                        //@ts-ignore
-                        legendUrl = e.detail.selectedItem.legendURL;
-                    }
+                    legendUrl = e.detail.selectedItem.legendURL;
 
                     WmsLayer.switchLayer(e.detail.selectedItem.id);
                 }}
