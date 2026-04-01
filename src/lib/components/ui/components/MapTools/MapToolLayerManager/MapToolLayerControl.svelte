@@ -9,8 +9,6 @@
     import ErrorMessage from "$lib/components/ui/components/ErrorMessage/ErrorMessage.svelte"
 
     import type { Layer } from "$lib/components/map-core/layer";
-	import { CompositeEntityCollection } from "cesium";
-	import { config } from "dotenv";
 
     const { map } = getContext<any>("mapTools");
 
@@ -25,7 +23,8 @@
     let loading = true; 
     let items: { id: string; text: string }[] = [];
     
-    let legendUrl = layer.config.legendUrl;
+    let defaultLegendUrl = layer.config.legendUrl;
+    let legendUrl: string | undefined = undefined; // The actual URL used to render the legend image
     $: visible = layer.visible;
     $: opacity = layer.opacity;
     $: customControls = layer.customControls;
@@ -47,34 +46,43 @@
                 parseTagValue: true,
                 parseAttributeValue: true,
                 isArray: (tagName) => {
-                if (tagName === 'Style') return true;
-                return false;
+                    if (tagName === 'Style') return true;
+                    return false;
                 }
             });
 
             const parsedXml = parser.parse(xmlText);
 
-            let styleNames: { id: string; text: string, legendURL: string }[] = [];
+            let styleNames: { id: string; text: string, legendURL: string | undefined }[] = [];
             if (parsedXml) {
                 const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
                 const layers = Array.isArray(layerData) ? layerData : [layerData];
 
-                layers.forEach((layer: { Name: string; Style: { Title: any; Name: string; }[]; }) => {
-                    if (layer.Name === featureName) {
-                        layer.Style.forEach((style) => {
-                            // Also parse legend URL (TODO: OVERWRITES CONFIG LEGEND URL!)
-                            //@ts-ignore
-                            legendUrl = style.LegendURL?.OnlineResource?.["xlink:href"] ?? legendUrl;
+                const hasConfigLegendUrl = defaultLegendUrl !== undefined && defaultLegendUrl !== "";
 
+                layers.forEach((layer: { Name: string; Style: { Title: any; Name: string; LegendURL?: any }[] }) => {
+                    if (layer.Name === featureName) {
+                        layer.Style.forEach((style, index) => {
                             const styleName = style.Title;
                             const styleId = style.Name;
+                            
+                            // Use config legend URL if available, otherwise use style's legend URL
+                            const styleLegendUrl = hasConfigLegendUrl 
+                                ? defaultLegendUrl 
+                                : style.LegendURL?.OnlineResource?.["xlink:href"];
+                            
+                            // Set the first item's legend as the initial display
+                            if (index === 0) {
+                                legendUrl = styleLegendUrl;
+                            }
+                            
                             styleNames.push({
                                 id: styleId,
                                 text: styleName,
-                                legendURL: legendUrl
+                                legendURL: styleLegendUrl
                             });
                         });
-                    };
+                    }
                 });
             };
 
