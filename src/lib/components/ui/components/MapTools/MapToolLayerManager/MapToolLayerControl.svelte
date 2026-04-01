@@ -25,7 +25,7 @@
     let loading = true; 
     let items: { id: string; text: string }[] = [];
     
-    $: legendUrl = layer.config.legendUrl;
+    let legendUrl = layer.config.legendUrl;
     $: visible = layer.visible;
     $: opacity = layer.opacity;
     $: customControls = layer.customControls;
@@ -54,7 +54,7 @@
 
             const parsedXml = parser.parse(xmlText);
 
-            let styleNames: { id: string; text: string }[] = [];
+            let styleNames: { id: string; text: string, legendURL: string }[] = [];
             if (parsedXml) {
                 const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
                 const layers = Array.isArray(layerData) ? layerData : [layerData];
@@ -62,11 +62,16 @@
                 layers.forEach((layer: { Name: string; Style: { Title: any; Name: string; }[]; }) => {
                     if (layer.Name === featureName) {
                         layer.Style.forEach((style) => {
+                            // Also parse legend URL (TODO: OVERWRITES CONFIG LEGEND URL!)
+                            //@ts-ignore
+                            legendUrl = style.LegendURL?.OnlineResource?.["xlink:href"] ?? legendUrl;
+
                             const styleName = style.Title;
                             const styleId = style.Name;
                             styleNames.push({
                                 id: styleId,
-                                text: styleName
+                                text: styleName,
+                                legendURL: legendUrl
                             });
                         });
                     };
@@ -162,12 +167,17 @@
                 items={items}
                 on:select={(e) => {
                     let WmsLayer = map.getLayerById(layer.config.id);
-                    legendUrl = `${layer.config.settings?.url}/legend/${layer.config.settings?.featureName}/${e.detail.selectedItem.id}.png`;
+                    //@ts-ignore
+                    if (e.detail.selectedItem.legendURL !== "" || e.detail.selectedItem.legendURL !== undefined) {
+                        //@ts-ignore
+                        legendUrl = e.detail.selectedItem.legendURL;
+                    }
+
                     WmsLayer.switchLayer(e.detail.selectedItem.id);
                 }}
             />
         {/if}
-        {#if layer.config.legendSupported}
+        {#if layer.config.legendSupported || legendUrl}
             <div class="label-01 legend-header">
                 {$_("tools.layerManager.legend")}
             </div>
