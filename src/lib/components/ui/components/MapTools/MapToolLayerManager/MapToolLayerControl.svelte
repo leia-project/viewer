@@ -25,9 +25,9 @@
     const defaultLegendUrl = layer.config.legendUrl;
     let legendUrl: string | undefined = undefined; // The actual URL used to render the legend image
 
-    $: visible = layer.visible;
-    $: opacity = layer.opacity;
-    $: customControls = layer.customControls;
+    const visible = layer.visible;
+    const opacity = layer.opacity;
+    const customControls = layer.customControls;
     $: textOpacity = `${$_("tools.layerManager.opacity")} ` + $opacity + "%";
     
     async function getWMSStyleNames(getCapabilitiesUrl: string, featureName: string) {
