@@ -53,7 +53,7 @@
 
             const parsedXml = parser.parse(xmlText);
 
-            let styleNames: { id: string; text: string, legendURL: string | undefined }[] = [];
+            const styleNames: { id: string; text: string, legendURL: string | undefined }[] = [];
             if (parsedXml) {
                 const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
                 const layers = Array.isArray(layerData) ? layerData : [layerData];
