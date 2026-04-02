@@ -63,6 +63,7 @@
                 layers.forEach((layer: { Name: string; Style: { Title: any; Name: string; LegendURL?: any }[] }) => {
                     if (layer.Name === featureName) {
                         layer.Style.forEach((style, index) => {
+                            imageValid = true;
                             const styleName = style.Title;
                             const styleId = style.Name;
                             
@@ -196,7 +197,7 @@
                 {$_("tools.layerManager.legend")}
             </div>
             {#if imageValid}
-                <img class="legend" src={legendUrl} alt="legend" on:error="{()=>{imageValid = false}}" />
+                <img class="legend" src={legendUrl} alt="legend" on:error={()=>{imageValid = false}} />
             {/if}
             {#if !imageValid}
                 <ErrorMessage message="{$_("tools.layerManager.legendNotFoundText")}" />
