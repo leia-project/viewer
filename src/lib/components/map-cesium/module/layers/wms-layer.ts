@@ -15,7 +15,7 @@ export class WmsLayer extends CesiumImageryLayer {
 			layers: this.config.settings["featureName"],
 			parameters: {
 				transparent: true,
-				format: this.config.settings["contentType"] ? this.config.settings["contentType"] : "image/png",
+				format: this.config.settings["contentType"] ?? "image/png",
 				styles: dropDownStyleName || this.config.settings["styles"] || "",
 			},
 		});
