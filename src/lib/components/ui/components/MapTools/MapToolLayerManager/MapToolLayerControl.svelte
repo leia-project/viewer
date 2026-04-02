@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getContext } from "svelte";
+    import { getContext, onMount } from "svelte";
     import { _ } from "svelte-i18n";
 
     import { XMLParser } from 'fast-xml-parser';
@@ -102,18 +102,27 @@
         const pos = layer.getLayerPosition();
         map.flyTo(pos);
     }
-    
-    $: if (layer.config.type === "wms") {
-        let WMSurl = layer.config.settings?.url + "?service=WMS&request=GetCapabilities";
-        let featureName = layer.config.settings?.featureName;
-         (async () => {
-            try {
-            items = await getWMSStyleNames(WMSurl, featureName);
-            } catch(error) {
-            console.error("Failed to load styles:", error);
+
+    onMount(() => {
+        if (layer.config.type === "wms") {
+            if (layer.config.settings?.tools?.styleSwitcher?.enabled === false) {
+                // If style switcher is disabled, use the config legend URL
+                legendUrl = defaultLegendUrl;
             }
-        })();
-    }
+            else {
+                let WMSurl = layer.config.settings?.url + "?service=WMS&request=GetCapabilities";
+                let featureName = layer.config.settings?.featureName;
+                (async () => {
+                    try {
+                        items = await getWMSStyleNames(WMSurl, featureName);
+                    } catch(error) {
+                        console.error("Failed to load styles:", error);
+                    }
+                })();
+            }
+        }
+    });
+
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -167,7 +176,7 @@
         {#if layer.config.opacitySupported}
             <Slider hideTextInput labelText={textOpacity} min={0} max={100} bind:value={$opacity} />
         {/if}
-        {#if layer.config.type === "wms"}        
+        {#if layer.config.type === "wms" && layer.config.settings?.tools?.styleSwitcher?.enabled == true}        
             <Dropdown
                 titleText="WMS Styling options"
                 size="sm"
@@ -182,7 +191,7 @@
                 }}
             />
         {/if}
-        {#if layer.config.legendSupported || legendUrl}
+        {#if layer.config.legendSupported}
             <div class="label-01 legend-header">
                 {$_("tools.layerManager.legend")}
             </div>

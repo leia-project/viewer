@@ -10,6 +10,7 @@ export class LayerConfig {
     public description!: string;
     public groupId!: string;
     public imageUrl!: string;
+    public legendEnabled: boolean = false;
     public legendUrl!: string;
     public isBackground: boolean = false;
     public defaultAddToManager: boolean = false;
@@ -37,7 +38,7 @@ export class LayerConfig {
     }
 
     get legendSupported(): boolean {
-        return this.legendUrl ? true : false;
+        return this.legendEnabled ? true : false;
     }
 
     get descriptionSupported(): boolean {

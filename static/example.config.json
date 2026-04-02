@@ -124,6 +124,7 @@
             "type": "wms",
             "title": "PDOK Buurten",
             "groupId": "",
+            "legendEnabled": true,
             "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -133,7 +134,12 @@
             "settings": {
                 "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
                 "featureName": "buurten",
-                "contenttype": "image/jpeg"
+                "contenttype": "image/jpeg",
+                "tools": {
+                    "styleSwitcher": {
+                        "enabled": true
+                    }
+                }
             }
         },
         {
@@ -141,16 +147,22 @@
             "type": "wms",
             "title": "PDOK Wijken",
             "groupId": "",
+            "legendEnabled": true,
             "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": false,
-            "opacity": 0,
+            "opacity": 100,
             "settings": {
                 "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
                 "featureName": "wijken",
-                "contenttype": "image/png"
+                "contenttype": "image/png",
+                "tools": {
+                    "styleSwitcher": {
+                        "enabled": true
+                    }
+                }
             }
         },
         {
