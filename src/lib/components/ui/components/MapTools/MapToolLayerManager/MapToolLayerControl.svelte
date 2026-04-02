@@ -20,11 +20,11 @@
     let open: boolean;
     let imageValid: boolean = true;
     let descriptionValid: boolean = true;
-    let loading = true; 
     let items: { id: string; text: string }[] = [];
     
-    let defaultLegendUrl = layer.config.legendUrl;
+    const defaultLegendUrl = layer.config.legendUrl;
     let legendUrl: string | undefined = undefined; // The actual URL used to render the legend image
+
     $: visible = layer.visible;
     $: opacity = layer.opacity;
     $: customControls = layer.customControls;
@@ -113,10 +113,10 @@
             legendUrl = defaultLegendUrl;
         }
         else {
-            let WMSurl = layer.config.settings?.url + "?service=WMS&request=GetCapabilities";
-            let featureName = layer.config.settings?.featureName;
+            const WMSUrl = layer.config.settings?.url + "?service=WMS&request=GetCapabilities";
+            const featureName = layer.config.settings?.featureName;
             try {
-                items = await getWMSStyleNames(WMSurl, featureName);
+                items = await getWMSStyleNames(WMSUrl, featureName);
             } catch(error) {
                 console.error("Failed to load styles:", error);
             }
@@ -183,11 +183,11 @@
                 selectedId={layer.config.settings?.styles || items[0]?.id} 
                 items={items}
                 on:select={(e) => {
-                    let WmsLayer = map.getLayerById(layer.config.id);
+                    const WMSLayer = map.getLayerById(layer.config.id);
                     //@ts-ignore
                     legendUrl = e.detail.selectedItem.legendURL;
 
-                    WmsLayer.switchLayer(e.detail.selectedItem.id);
+                    WMSLayer.switchLayer(e.detail.selectedItem.id);
                 }}
             />
         {/if}
