@@ -38,7 +38,7 @@ export class LayerConfig {
     }
 
     get legendSupported(): boolean {
-        return this.legendEnabled ? true : false;
+        return this.legendEnabled;
     }
 
     get descriptionSupported(): boolean {
