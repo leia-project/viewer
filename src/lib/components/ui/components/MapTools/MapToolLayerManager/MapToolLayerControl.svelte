@@ -104,22 +104,21 @@
         map.flyTo(pos);
     }
 
-    onMount(() => {
-        if (layer.config.type === "wms") {
-            if (layer.config.settings?.tools?.styleSwitcher?.enabled === false) {
-                // If style switcher is disabled, use the config legend URL
-                legendUrl = defaultLegendUrl;
-            }
-            else {
-                let WMSurl = layer.config.settings?.url + "?service=WMS&request=GetCapabilities";
-                let featureName = layer.config.settings?.featureName;
-                (async () => {
-                    try {
-                        items = await getWMSStyleNames(WMSurl, featureName);
-                    } catch(error) {
-                        console.error("Failed to load styles:", error);
-                    }
-                })();
+    onMount(async() => {
+        if (layer.config.type !== "wms") {
+            return;
+        }
+        if (layer.config.settings?.tools?.styleSwitcher?.enabled === false) {
+            // If style switcher is disabled, use the config legend URL
+            legendUrl = defaultLegendUrl;
+        }
+        else {
+            let WMSurl = layer.config.settings?.url + "?service=WMS&request=GetCapabilities";
+            let featureName = layer.config.settings?.featureName;
+            try {
+                items = await getWMSStyleNames(WMSurl, featureName);
+            } catch(error) {
+                console.error("Failed to load styles:", error);
             }
         }
     });
