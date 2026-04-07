@@ -135,7 +135,6 @@ export class ClipSlider {
 				dimensions: new Cesium.Cartesian2(radius * 2, radius * 2),
 				material: new Cesium.GridMaterialProperty({color: Cesium.Color.fromCssColorString("#757575"), cellAlpha: 0.1, lineCount: new Cesium.Cartesian2(20, 20), lineThickness: new Cesium.Cartesian2(0.5, 0.5)}),
 				plane: new Cesium.CallbackProperty(() => {
-					          console.log("plane callback");
 					          this.map.viewer.scene.requestRender();
 					          return this.plane 
 					        }, false), // Smooth but requires a lot of computation

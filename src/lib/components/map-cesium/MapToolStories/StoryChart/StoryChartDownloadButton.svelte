@@ -198,7 +198,3 @@
         if (fileName) downloadData(fileName);
     }}
 />
-
-<style>
-
-</style>

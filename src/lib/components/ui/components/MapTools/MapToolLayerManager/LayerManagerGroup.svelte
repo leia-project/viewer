@@ -125,10 +125,6 @@
         background-color: var(--cds-ui-03);
     }
 
-    .group-content-wrapper {
-        position: relative;
-    }
-
     .group-menu {
         white-space: nowrap;
         height: 100%;
@@ -168,12 +164,4 @@
         margin-left: var(--cds-spacing-05);
     }
 
-    .folder-content-line {
-        position: absolute;
-        left: 0.7rem;
-        top: 0px;
-        width: 1px;
-        height: 100%;
-        background-color: var(--cds-ui-03);
-    }
 </style>

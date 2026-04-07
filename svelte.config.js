@@ -1,6 +1,6 @@
 import adapterNode from "@sveltejs/adapter-node";
 import adapterStatic from "@sveltejs/adapter-static";
-import preprocess from "svelte-preprocess";
+import { sveltePreprocess } from 'svelte-preprocess'
 import { optimizeImports } from "carbon-preprocess-svelte";
 import dotenv from "dotenv";
 dotenv.config();
@@ -11,7 +11,7 @@ const viewerPath = ((new URL(process.env.APP_URL)).pathname === '/') ? '' : new 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	preprocess: [
-		preprocess({}),
+		sveltePreprocess({}),
 		optimizeImports({})
 	],
 	kit: {
