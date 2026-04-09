@@ -123,6 +123,7 @@ export class RainfallLayerController {
             defaultOn: false,
             defaultAddToManager: true,
             settings: {},
+            disablePopup: true
         });
         this.map.layerLibrary.addLayerConfig(layerConfig);
         layerConfig.added.set(true);
@@ -206,7 +207,8 @@ export class RainfallLayerController {
             },
             isBackground: false,
             defaultOn: false,
-            defaultAddToManager: true
+            defaultAddToManager: true,
+            disablePopup: true
         });
         this.map.layerLibrary.addLayerConfig(layerConfig);
         layerConfig.added.set(true);

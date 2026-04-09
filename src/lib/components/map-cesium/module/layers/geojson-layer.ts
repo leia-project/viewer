@@ -62,6 +62,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	private defaultLineWidth: number = 1;
 	private alpha: number = 1.0;
 	private rainfallPolygonColor: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.LIGHTBLUE.withAlpha(0.5));
+	private hoveredPolygonColour: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.fromBytes(50, 120, 200, 180))
 
 	public colorGradientStart: Cesium.Color = Cesium.Color.BLUE;
 	public colorGradientEnd: Cesium.Color = Cesium.Color.RED;
@@ -233,8 +234,15 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.unsubscribers.push(
 			this.hoveredFeature.subscribe((feature) => {
 				for (const item of this.featureItems) {
+					if (!item.entity.polygon) 
+						continue;
 					const isHovered = feature !== undefined && item.feature === feature;
-					item.entity.show = isHovered || !feature;
+					if (isHovered) {
+						item.entity.polygon.material = this.hoveredPolygonColour;
+					} 
+					else {
+						item.entity.polygon.material = this.rainfallPolygonColor;
+					}
 				}
 				this.map.refresh();
 			}),
