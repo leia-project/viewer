@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { _ } from "svelte-i18n";
-	import { Button } from "carbon-components-svelte";
+    import { _ } from "svelte-i18n";
+    import { Button } from "carbon-components-svelte";
     import GeneratePdf from "carbon-icons-svelte/lib/GeneratePdf.svelte";
-	import type { StoryStep } from "../StoryStep";
-	import type { StoryChapter } from "../StoryChapter";
-	import type { Story } from "../Story";
+    import type { StoryStep } from "../StoryStep";
+    import type { StoryChapter } from "../StoryChapter";
+    import type { Story } from "../Story";
     import { jsPDF } from "jspdf";
     import { exportDataPages } from "./StoryChartExportDataPages";
-	import { get } from "svelte/store";
+    import { get } from "svelte/store";
     import type { LegendItem, LegendOptions } from "../LegendOptions";
-	import type { Map } from "../../module/map";
+    import type { Map } from "../../module/map";
 
     export let data: Array<{ group: string; value: number }[]>;
     export let story: Story;
@@ -18,183 +18,348 @@
 
     let doc: jsPDF;
 
-    // Flatten the steps across all chapters so we can access the correct step based on the index
-	let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
-	story.storyChapters.forEach((chapter) => {
-		chapter.steps.forEach((step) => {
-			flattenedSteps.push({ step, chapter });
-		});
-	});
+    let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
+    story.storyChapters.forEach((chapter) => {
+        chapter.steps.forEach((step) => {
+            flattenedSteps.push({ step, chapter });
+        });
+    });
     const storyLength = flattenedSteps.length;
 
     $: disableDownloadButton = $exportDataPages.pages.length < storyLength || $exportDataPages.pages.some(page => page.image === undefined);
 
+    const PAGE_WIDTH = 210;
+    const PAGE_HEIGHT = 297;
+    const MARGIN = 20;
+    const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
+    const HEADER_HEIGHT = 18; // space reserved for logos at top
+    const FOOTER_HEIGHT = 20;
+    const BOTTOM_LIMIT = PAGE_HEIGHT - FOOTER_HEIGHT - 10;
+    const CONTENT_TOP = MARGIN + HEADER_HEIGHT; // where content starts below logos
+    const CHART_SIZE = 55; // square so donut isn't squeezed
 
-    function formatContent(data: Array<{ group: string; value: number }[]>) {
+    // Preloaded logo elements
+    let zeelandLogo: HTMLImageElement | null = null;
+    let sogelinkLogo: HTMLImageElement | null = null;
+
+    function preloadImage(src: string): Promise<HTMLImageElement | null> {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null);
+            img.src = src;
+        });
+    }
+
+    function getLineHeight(): number {
+        return doc.getLineHeightFactor() * doc.getFontSize() / doc.internal.scaleFactor;
+    }
+
+    function getTextHeight(text: string, maxWidth: number): number {
+        const lines = doc.splitTextToSize(text, maxWidth);
+        return lines.length * getLineHeight();
+    }
+
+    /** Write text at y, returning the new y. Does NOT handle page breaks — use addTextSafe for long text. */
+    function addTextAtY(text: string, x: number, y: number, maxWidth: number): number {
+        const lines = doc.splitTextToSize(text, maxWidth);
+        doc.text(lines, x, y);
+        return y + lines.length * getLineHeight();
+    }
+
+    /** Write text that may span multiple pages. Splits line-by-line and breaks when needed. */
+    function addTextSafe(text: string, x: number, y: number, maxWidth: number): number {
+        const lines: string[] = doc.splitTextToSize(text, maxWidth);
+        const lh = getLineHeight();
+        for (const line of lines) {
+            if (y + lh > BOTTOM_LIMIT) {
+                doc.addPage();
+                addPageHeader();
+                y = CONTENT_TOP;
+            }
+            doc.text(line, x, y);
+            y += lh;
+        }
+        return y;
+    }
+
+    function ensureSpace(needed: number, y: number): number {
+        if (y + needed > BOTTOM_LIMIT) {
+            doc.addPage();
+            addPageHeader();
+            return CONTENT_TOP;
+        }
+        return y;
+    }
+
+    function addPageHeader() {
+        // Zeeland logo top-left
+        if (zeelandLogo) {
+            try { doc.addImage(zeelandLogo, 'PNG', MARGIN, MARGIN - 2, 30, 14); } catch {}
+        }
+        // Sogelink logo top-right
+        if (sogelinkLogo) {
+            try { doc.addImage(sogelinkLogo, 'PNG', PAGE_WIDTH - MARGIN - 18, MARGIN, 18, 13); } catch {}
+        }
+        // Thin line below header
+        doc.setDrawColor(200, 200, 200);
+        doc.line(MARGIN, MARGIN + 14, PAGE_WIDTH - MARGIN, MARGIN + 14);
+    }
+
+    function addAllPageFooters() {
+        const totalPages = doc.getNumberOfPages();
+        for (let i = 1; i <= totalPages; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(150, 150, 150);
+            doc.text('Provincie Zeeland — Signaalkaarten', MARGIN, PAGE_HEIGHT - 12);
+            doc.text(`Pagina ${i} / ${totalPages}`, PAGE_WIDTH - MARGIN - 25, PAGE_HEIGHT - 12);
+            doc.setDrawColor(200, 200, 200);
+            doc.line(MARGIN, PAGE_HEIGHT - 16, PAGE_WIDTH - MARGIN, PAGE_HEIGHT - 16);
+            doc.setTextColor(0, 0, 0);
+        }
+    }
+
+    function addSeparatorLine(y: number): number {
+        doc.setDrawColor(200, 200, 200);
+        doc.line(MARGIN, y, PAGE_WIDTH - MARGIN, y);
+        return y + 5;
+    }
+
+    async function formatContent(data: Array<{ group: string; value: number }[]>) {
         if (!data) return undefined;
 
-        // Add file header to first page
-        doc = new jsPDF();
+        // Preload logos
+        [zeelandLogo, sogelinkLogo] = await Promise.all([
+            preloadImage('/images/Zeeland_logo.png'),
+            preloadImage('/images/SOGELINK_Logo_Monogramme_Bleu.png')
+        ]);
 
-        setHeadingFont(doc);
-        let frontPageContent = `${story.name}\n${story.description}\n`;
-        const currentDate = new Date();
-        const dateHeader = `Downloaded on: ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}\n\n`;
-        frontPageContent += dateHeader;
-        addSplitText(doc, frontPageContent, 15, 15, 180);
+        doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-        const canvas = map.viewer.canvas;
-        const mapImage = canvas.toDataURL("image/jpeg", 1.0);
-        const aspectRatio = canvas.width / canvas.height;
-        const imageHeight = 120;
-        const imageWidth = imageHeight * aspectRatio;
-        doc.addImage(mapImage, 'JPEG', 15, 60, imageWidth, imageHeight);
+        // === FRONT PAGE ===
+        addPageHeader();
+        let y = CONTENT_TOP + 5;
 
-        // Loop through each step and add data to seperate pages
-        // Use seperate page for each step's text and image
-        flattenedSteps.forEach((flattenedStep, index) => {
-            const { step, chapter } = flattenedStep;
+        // Title
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        y = addTextAtY(story.name, MARGIN, y, CONTENT_WIDTH);
+        y += 2;
+
+        // Subtitle
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        y = addTextAtY(story.description, MARGIN, y, CONTENT_WIDTH);
+        doc.setTextColor(0, 0, 0);
+        y += 3;
+
+        // Date
+        doc.setFontSize(9);
+        doc.setTextColor(130, 130, 130);
+        const now = new Date();
+        y = addTextAtY(`gecreëerd op ${now.toLocaleDateString('nl-NL')} om ${now.toLocaleTimeString('nl-NL')}`, MARGIN, y, CONTENT_WIDTH);
+        doc.setTextColor(0, 0, 0);
+        y += 3;
+
+        y = addSeparatorLine(y);
+        y += 3;
+
+        // Map screenshot
+        try {
+            const canvas = map.viewer.canvas;
+            const mapImage = canvas.toDataURL('image/jpeg', 0.9);
+            const aspectRatio = canvas.width / canvas.height;
+            const imgWidth = CONTENT_WIDTH;
+            const imgHeight = Math.min(imgWidth / aspectRatio, 120);
+            doc.addImage(mapImage, 'JPEG', MARGIN, y, imgWidth, imgHeight);
+        } catch {}
+
+        // === STEP PAGES ===
+        for (let index = 0; index < flattenedSteps.length; index++) {
+            const { step, chapter } = flattenedSteps[index];
             doc.addPage();
+            addPageHeader();
+            y = CONTENT_TOP;
 
-            // Page header
-            setHeadingFont(doc);
-            let stepHeader = `${chapter.title} - ${step.title}\n`;
-            addSplitText(doc, stepHeader, 15, 20, 180);
+            // Step header with accent bar
+            doc.setFillColor(33, 65, 112);
+            doc.rect(MARGIN, y, 3, 12, 'F');
 
-            // Page content
-            setNormalFont(doc);
-            let content = '';
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            y = addTextAtY(chapter.title, MARGIN + 7, y + 4, CONTENT_WIDTH - 10);
 
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'normal');
+            y = addTextAtY(step.title, MARGIN + 7, y + 1, CONTENT_WIDTH - 10);
+            y += 5;
+
+            y = addSeparatorLine(y);
+            y += 2;
+
+            // Description
             const stepDescription = step.html || '';
             if (stepDescription) {
-                const cleanedDescription = stepDescription.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
-                content += `${cleanedDescription}\n\n`;
+                const cleaned = stepDescription.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                y = addTextSafe(cleaned, MARGIN, y, CONTENT_WIDTH);
+                y += 4;
             }
 
-            const generalLegendText = (layerLegends[index]?.generalLegendText || '').replace(/<[^>]*>/g, ''); // Strip HTML tags
-            if (generalLegendText) content += `${generalLegendText}\n\n`;
+            // General legend text
+            const generalLegendText = (layerLegends[index]?.generalLegendText || '').replace(/<[^>]*>/g, '');
+            if (generalLegendText) {
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'italic');
+                y = addTextSafe(generalLegendText, MARGIN, y, CONTENT_WIDTH);
+                y += 4;
+                doc.setFont('helvetica', 'normal');
+            }
 
-            const legendItems = layerLegends[index]?.legendOptions || undefined;
-            if (legendItems) {
-                content += `\nHandelingsperspectief\n\n`;
-                legendItems.forEach((item: LegendItem) => {
-                    const labels = item.labels || 'N/A';
-                    const labelWord = labels.length > 1 ? 'Labels' : 'Label';
-                    const formattedLabels = labels.length > 1 
-                        ? labels.split('').join(', ') 
-                        : labels;
-                    content += `* ${labelWord}: ${formattedLabels}\n`;
+            // Legend items + general legend text grouped under heading
+            const legendItems = layerLegends[index]?.legendOptions;
+            const generalLegendText2 = (layerLegends[index]?.generalLegendText || '').replace(/<[^>]*>/g, '');
 
-                    const text = item.text || 'N/A';
-                    content += `${text}\n\n`;
+            if (legendItems || generalLegendText2) {
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'bold');
+                y = ensureSpace(8, y);
+                y = addTextAtY('Handelingsperspectief', MARGIN, y, CONTENT_WIDTH);
+                y += 2;
 
-                    const subLabels = item.subLabels;
-                    if (subLabels && typeof subLabels === 'object') {
-                        Object.entries(subLabels).forEach(([key, value]) => {
-                            content += `\t- ${key}: ${value.text}\n\n`;
-                        });
-                    }
-                });
-            };
+                // General legend text directly under the heading
+                if (generalLegendText2) {
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'italic');
+                    y = addTextSafe(generalLegendText2, MARGIN, y, CONTENT_WIDTH);
+                    y += 4;
+                    doc.setFont('helvetica', 'normal');
+                }
 
-            // Add text to page
-            content = content.trim();
-            addSplitText(doc, content, 15, 30, 180); 
+                if (legendItems) {
+                    legendItems.forEach((item: LegendItem) => {
+                        doc.setFontSize(10);
+                        doc.setFont('helvetica', 'bold');
+                        const labels = item.labels || '';
+                        const formattedLabels = labels.length > 1 ? labels.split('').join(', ') : labels;
+                        y = ensureSpace(12, y);
+                        y = addTextSafe(`Label${labels.length > 1 ? 's' : ''}: ${formattedLabels}`, MARGIN + 3, y, CONTENT_WIDTH - 5);
 
-            // Add image to new page
-            const image = get(exportDataPages).pages.find(page => page.index === index)?.image;
-            if (image) {
-                doc.addPage(); 
-                setHeadingFont(doc);
-                addSplitText(doc, stepHeader, 15, 20, 180);
-                doc.addImage(image, 'PNG', 15, 30, 250, 100);
+                        doc.setFont('helvetica', 'normal');
+                        y = addTextSafe(item.text || '', MARGIN + 3, y, CONTENT_WIDTH - 5);
+                        y += 2;
 
-                // Add all groups and values for this data point as percentages
-                if (data[index]) {
-                    setSubheadingFont(doc);
-                    let legendText = `Percentage per klasse:\n`;
-                    const total = data[index].reduce((sum, item) => sum + item.value, 0);
-                    data[index].forEach(item => {
-                        const percentage = total > 0 ? ((item.value / total) * 100).toFixed(2) : '0.00';
-                        legendText += `${item.group}: ${percentage}%\n`;
+                        if (item.subLabels && typeof item.subLabels === 'object') {
+                            Object.entries(item.subLabels).forEach(([key, value]) => {
+                                y = ensureSpace(8, y);
+                                y = addTextSafe(`  ${key}: ${value.text}`, MARGIN + 8, y, CONTENT_WIDTH - 12);
+                                y += 1;
+                            });
+                        }
+                        y += 2;
                     });
-                    // Add legend text to page
-                    addSplitText(doc, legendText, 15, 150, 180); 
-                };
+                }
             }
-        });
 
-        const token = randomFilenameToken();
-        const fileName = story.name + '_data_' + token;
+            // === CHART + PERCENTAGES ===
+            const image = get(exportDataPages).pages.find(page => page.index === index)?.image;
 
-        return fileName;
-    };
+            if (image) {
+                const dims = await getImageDimensions(image);
+                const aspectRatio = dims.width / dims.height;
 
-    
-    function addSplitText(doc: jsPDF, text: string, x: number = 15, y: number = 15, maxWidth: number = 180) {
-        const splitText = doc.splitTextToSize(text, maxWidth);
-        doc.text(splitText, x, y);
-    };
+                const chartW = Math.min(CONTENT_WIDTH * 0.55, 90);
+                const chartH = chartW / aspectRatio;
 
+                y = ensureSpace(chartH + 10, y);
+                y += 3;
+                y = addSeparatorLine(y);
+                y += 2;
 
-    function setHeadingFont(doc: jsPDF) {
-        doc.setFontSize(18);
-        doc.setFont("helvetica", "bold");
-    };
+                doc.addImage(image, 'PNG', MARGIN, y, chartW, chartH);
 
+                // Percentages beside the chart
+                if (data[index]) {
+                    const percX = MARGIN + chartW + 10;
+                    const percMaxW = CONTENT_WIDTH - chartW - 15;
+                    let percY = y + 5;
+                    doc.setFontSize(11);
+                    doc.setFont('helvetica', 'bold');
+                    percY = addTextAtY('Verdeling per klasse:', percX, percY, percMaxW);
+                    percY += 2;
 
-    function setSubheadingFont(doc: jsPDF) {
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-    };
+                    const total = data[index].reduce((sum, item) => sum + item.value, 0);
+                    const colors: Record<string, [number, number, number]> = {
+                        A: [51, 153, 102], B: [153, 255, 204],
+                        C: [255, 255, 153], D: [255, 204, 102], E: [156, 65, 16]
+                    };
 
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    data[index].forEach(item => {
+                        if (item.value > 0) {
+                            const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0';
+                            const c = colors[item.group] ?? [128, 128, 128];
+                            doc.setFillColor(c[0], c[1], c[2]);
+                            doc.roundedRect(percX, percY - 3, 6, 3.5, 1, 1, 'F');
+                            percY = addTextAtY(`${item.group}: ${pct}%`, percX + 8, percY, percMaxW);
+                            percY += 1;
+                        }
+                    });
+                }
 
-    function setNormalFont(doc: jsPDF) {
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-    };
+                y += chartH + 5;
+            }
+        }
 
+        // Footer on all pages (last, so page count is correct)
+        addAllPageFooters();
+
+        return story.name + '_rapport_' + randomFilenameToken();
+    }
 
     function downloadData(fileName: string) {
         doc.save(fileName + '.pdf');
         cleanupMemory();
-    };
-
+    }
 
     function cleanupMemory() {
-        if (doc) {
-            doc = null as any;
-        }
-
-        // Clear all stored images from the exportDataPages store
+        if (doc) { doc = null as any; }
         exportDataPages.update(state => ({
             ...state,
-            pages: state.pages.map(page => ({
-                ...page,
-                image: undefined
-            }))
+            pages: state.pages.map(page => ({ ...page, image: undefined }))
         }));
-    };
+    }
 
-
-    // Random filename token string generator
     function randomFilenameToken(length: number = 8) {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         const bytes = new Uint8Array(length);
         crypto.getRandomValues(bytes);
         return Array.from(bytes, b => chars[b % chars.length]).join('');
-    };
+    }
 
+    function getImageDimensions(src: string): Promise<{ width: number; height: number }> {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+            img.onerror = () => resolve({ width: 160, height: 100 }); // safe fallback
+            img.src = src;
+        });
+    }
 </script>
 
 <Button
     kind={"tertiary"}
-    icon = {GeneratePdf}
+    icon={GeneratePdf}
     iconDescription={$_("tools.stories.downloadPDF")}
     tooltipPosition="top"
     disabled={disableDownloadButton}
-    on:click= {() => {
-        const fileName = formatContent(data);
+    on:click={async () => {
+        const fileName = await formatContent(data);
         if (fileName) downloadData(fileName);
     }}
 />
