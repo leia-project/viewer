@@ -12,7 +12,12 @@
 			"type": "Feature",
 			"properties": {
 				"fid": 8,
-				"naam": "Schouwen-Duiveland"
+				"naam": "Schouwen-Duiveland",
+				"scenarios": [
+					"3000",
+					"30000",
+					"300000"
+				]
 			},
 			"geometry": {
 				"type": "MultiPolygon",
@@ -15006,7 +15011,12 @@
 			"type": "Feature",
 			"properties": {
 				"fid": 11,
-				"naam": "Tholen"
+				"naam": "Tholen",
+				"scenarios": [
+					"3000",
+					"30000",
+					"300000"
+				]
 			},
 			"geometry": {
 				"type": "MultiPolygon",
@@ -27078,7 +27088,13 @@
 			"type": "Feature",
 			"properties": {
 				"fid": 15,
-				"naam": "Walcheren - Bevelanden"
+				"naam": "Walcheren - Bevelanden",
+				"scenarios": [
+					"3000",
+					"30000",
+					"300000"
+				]
+				
 			},
 			"geometry": {
 				"type": "MultiPolygon",
@@ -54690,7 +54706,12 @@
 			"type": "Feature",
 			"properties": {
 				"fid": 16,
-				"naam": "Zeeuws-Vlaanderen West"
+				"naam": "Zeeuws-Vlaanderen West",
+				"scenarios": [
+					"3000",
+					"30000",
+					"300000"
+				]
 			},
 			"geometry": {
 				"type": "MultiPolygon",
@@ -66034,7 +66055,12 @@
 			"type": "Feature",
 			"properties": {
 				"fid": 17,
-				"naam": "Zeeuws-Vlaanderen Oost"
+				"naam": "Zeeuws-Vlaanderen Oost",
+				"scenarios": [
+					"3000",
+					"30000",
+					"300000"
+				]
 			},
 			"geometry": {
 				"type": "MultiPolygon",
@@ -85396,7 +85422,12 @@
 			"type": "Feature",
 			"properties": {
 				"fid": 18,
-				"naam": "Reimerswaal"
+				"naam": "Reimerswaal",
+				"scenarios": [
+					"3000",
+					"30000",
+					"300000"
+				]
 			},
 			"geometry": {
 				"type": "MultiPolygon",
