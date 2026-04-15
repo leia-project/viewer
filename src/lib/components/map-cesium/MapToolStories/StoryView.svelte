@@ -35,8 +35,6 @@
 	export let story: Story;
 	export let savedStepNumber: number;
 	export let textBack: string;
-	export let textStepBack: string;
-	export let textStepForward: string;
 	export let layerLegends: Array<LegendOptions>; 
 	export let baseLayerId: string | undefined;
 
@@ -801,9 +799,6 @@ async function downloadPDF() {
 		flex-wrap: wrap;
 	}
 
-	.story-description {
-		text-align: center;
-	}
 
 	.nav div {
 		z-index: 20;

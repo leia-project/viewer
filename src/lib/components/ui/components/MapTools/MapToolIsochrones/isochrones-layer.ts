@@ -521,11 +521,9 @@ export class IsochronesLayer {
 
                     if (hole) {
                         hierarchy = new Cesium.PolygonHierarchy(coordinates, hole);
-                        console.log(`Creating isochrone ${isochroneNumber} with hole from previous isochrone`);
                     }
                     else {
                         hierarchy = new Cesium.PolygonHierarchy(coordinates);
-                        console.log(`Creating isochrone ${isochroneNumber} without hole`);
                     }
 
                     const unaccountedPopulation = population - accountedPopulation;

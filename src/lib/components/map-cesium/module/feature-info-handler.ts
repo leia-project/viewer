@@ -86,7 +86,7 @@ export class FeatureInfoHandler {
     }
 
     private pick3D(picked: any): FeatureInfo | undefined {
-        const id = Cesium.defaultValue(picked.id, picked.primitive.id);
+        const id = picked.id ?? picked.primitive.id;
         
         if (id instanceof Cesium.Entity) {
             const info = this.cesiumEntityGetFeatureInfo(id);

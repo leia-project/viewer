@@ -180,10 +180,8 @@
 			<StoryView
 				map={cesiumMap}
 				story={selectedStory}
-				{textBack}
-				{textStepBack}
-				{textStepForward}
 				savedStepNumber={stepNumber}
+				{textBack}
 				{layerLegends}
 				{baseLayerId}
 				on:closeStory={() => {
