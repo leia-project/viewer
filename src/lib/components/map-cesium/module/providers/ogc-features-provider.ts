@@ -221,7 +221,7 @@ export class OgcFeaturesProviderCesium {
 			this.setupPromise = (async () => {
 				await this.getMetadata();
 				this.dynamicLoading = await this.dynamicLoadingNeeded();
-				console.log('Dynamic loading needed:', this.dynamicLoading);
+				// console.log('Dynamic loading needed:', this.dynamicLoading);
 				this.OgcFeaturesLoaderCesium = this.dynamicLoading ? new OgcFeaturesLoaderCesiumDynamic(this) : new OgcFeaturesLoaderCesiumStatic(this);
 			})();
 		}

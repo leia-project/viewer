@@ -59,19 +59,6 @@
             }
         },
         {
-            "id": "11008",
-            "type": "arcgis",
-            "title": "Bebouwingscontouren",
-            "groupId": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "settings": {
-                "url": "https://geo.scheldestromen.nl/arcgis/rest/services/Extern/EXT_ALG_DSO_2025/MapServer",
-                "layers": "25"
-            }
-        },
-        {
             "id": "3",
             "type": "3dtiles",
             "title": "3D BAG",
@@ -91,23 +78,23 @@
                         "title": "Bouwjaar",
                         "conditions": [
                             [
-                                "${bouwjaar} < 1900",
+                                "${oorspronkelijkBouwjaar} < 1900",
                                 "color(\"#F62D2D\")"
                             ],
                             [
-                                "${bouwjaar} >= 1900 && ${bouwjaar} < 1950",
+                                "${oorspronkelijkBouwjaar} >= 1900 && ${oorspronkelijkBouwjaar} < 1950",
                                 "color(\"#D3212D\")"
                             ],
                             [
-                                "${bouwjaar} >= 1950 && ${bouwjaar} < 1970",
+                                "${oorspronkelijkBouwjaar} >= 1950 && ${oorspronkelijkBouwjaar} < 1970",
                                 "color(\"#722B6A\")"
                             ],
                             [
-                                "${bouwjaar} >= 1970 && ${bouwjaar} < 1990",
+                                "${oorspronkelijkBouwjaar} >= 1970 && ${oorspronkelijkBouwjaar} < 1990",
                                 "color(\"#412F88\")"
                             ],
                             [
-                                "${bouwjaar} >= 1990",
+                                "${oorspronkelijkBouwjaar} >= 1990",
                                 "color(\"#1034A6\")"
                             ],
                             [
@@ -375,9 +362,7 @@
                             ]
                         ],
                         "layers": [
-                            "DTB 3D",
-                            "3D BAG",
-                            "Bomen 3D"
+                            "3D BAG"
                         ],
                         "cameraPosition": {
                             "x": 4.94802,
@@ -397,7 +382,23 @@
             "settings": {
                 "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
                 "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson",
-                "floodedRoadsUrl": "http://localhost:5000"
+                "roadsUrl": "https://service.pdok.nl/rws/vervoersnetwerken/wegen/wms/v1_0",
+                "floodedRoadsUrl": "https://virtueel.zeeland.nl/pygeoapi",
+                "floodedRoadsStyle": [
+                    {
+                        "property": "flood_depth",
+                        "stops": [
+                            {
+                                "value": 0,
+                                "color": "#ffff00"
+                            },
+                            {
+                                "value": 3,
+                                "color": "#ff0000"
+                            }
+                        ]
+                    }
+                ]
             }
         },
         {
@@ -426,6 +427,17 @@
         {
             "id": "flyCamera",
             "enabled": false
+        },
+        {
+            "id": "language",
+            "enabled": true,
+            "settings": {
+                "startLanguage": "nl"
+            }
+        },
+        {
+            "id": "github",
+            "enabled": true
         }
     ]
 }

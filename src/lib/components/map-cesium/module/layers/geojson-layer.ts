@@ -49,7 +49,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	private url: string;
 	private fileType: string;
 	public data: object | undefined;
-	public loaded: boolean = false;
+	public loaded: Promise<void> | undefined = undefined;
 	private layerControl!: CustomLayerControl;
 	private availableProperties: Array<GeoJSONpropertySummary> = [];
 	private hatchConditions: {[key: string]: string|number|Array<string|number>};
@@ -77,7 +77,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public extrusionSliderStep: number;
 	public extrusionSliderHeight: Writable<number> = writable(0);
 	public extrusionSliderLabel: string;
-	private extrusionUnsubscriber!: Unsubscriber;
+	private extrusionUnsubscriber?: Unsubscriber;
 
 	public clampToGround: boolean;
 
@@ -124,7 +124,8 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	}
 
 	public async addToMap(): Promise<void> {
-		if (!this.loaded && (this.url || this.data)) await this.loadData();
+		if (!this.loaded && this.url) this.loaded = this.loadData();
+		await this.loaded;
 		await this.map.viewer.dataSources.add(this.source);
 		this.addListeners();
 		this.setAvailableProperties();
@@ -141,7 +142,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public removeFromMap(): void {
 		this.removeControl();
 		this.styleUnsubscriber();
-		this.extrusionUnsubscriber();
+		this.extrusionUnsubscriber?.();
 		this.availableProperties = [];
 		this.source.entities.removeAll();
 		this.outlines?.entities.removeAll();
@@ -164,8 +165,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 
 	private async loadData(): Promise<void> {
 		if (this.loaded) return;
-		this.loaded = true;
-		
+
 		let geojson: any;
 		if(this.url) {
 			if (this.fileType === "shapefile") {
