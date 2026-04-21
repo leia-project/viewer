@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { getContext } from "svelte";
+    import { getContext, onMount } from "svelte";
     import { _ } from "svelte-i18n";
 
-    import { Slider, Checkbox, Button, AccordionItem } from "carbon-components-svelte";
+    import { XMLParser } from 'fast-xml-parser';
+    import { Slider, Checkbox, Button, AccordionItem, Dropdown } from "carbon-components-svelte";
     import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import Search from "carbon-icons-svelte/lib/Search.svelte";
     import ErrorMessage from "$lib/components/ui/components/ErrorMessage/ErrorMessage.svelte"
@@ -19,11 +20,79 @@
     let open: boolean;
     let imageValid: boolean = true;
     let descriptionValid: boolean = true;
+    let items: { id: string; text: string }[] = [];
+    
+    const defaultLegendUrl = layer.config.legendUrl;
+    let hasConfigLegendUrl = defaultLegendUrl !== undefined && defaultLegendUrl !== "";
+    let legendUrl: string | undefined = undefined; // The actual URL used to render the legend image
 
-    $: visible = layer.visible;
-    $: opacity = layer.opacity;
-    $: customControls = layer.customControls;
+    const visible = layer.visible;
+    const opacity = layer.opacity;
+    const customControls = layer.customControls;
     $: textOpacity = `${$_("tools.layerManager.opacity")} ` + $opacity + "%";
+    
+    async function getWMSStyleNames(getCapabilitiesUrl: string, featureName: string) {
+        try {
+            const response = await fetch(getCapabilitiesUrl);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const xmlText = await response.text();
+            const parser = new XMLParser({
+                ignoreAttributes: false,
+                attributeNamePrefix: '',
+                textNodeName: '#text',
+                trimValues: true,
+                parseTagValue: true,
+                parseAttributeValue: true,
+                isArray: (tagName) => {
+                    if (tagName === 'Style') return true;
+                    return false;
+                }
+            });
+
+            const parsedXml = parser.parse(xmlText);
+
+            const styleNames: { id: string; text: string, legendURL: string | undefined }[] = [];
+            if (parsedXml) {
+                const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
+                const layers = Array.isArray(layerData) ? layerData : [layerData];
+
+                layers.forEach((layer: { Name: string; Style: { Title: any; Name: string; LegendURL?: any }[] }) => {
+                    if (layer.Name === featureName) {
+                        layer.Style.forEach((style, index) => {
+                            imageValid = true;
+                            const styleName = style.Title;
+                            const styleId = style.Name;
+                            
+                            // Use config legend URL if available, otherwise use style's legend URL
+                            const styleLegendUrl = hasConfigLegendUrl 
+                                ? defaultLegendUrl 
+                                : style.LegendURL?.OnlineResource?.["xlink:href"];
+                            
+                            // Set the first item's legend as the initial display
+                            if (index === 0) {
+                                legendUrl = styleLegendUrl;
+                            }
+                            
+                            styleNames.push({
+                                id: styleId,
+                                text: styleName,
+                                legendURL: styleLegendUrl
+                            });
+                        });
+                    }
+                });
+            };
+
+            return styleNames;
+
+        } catch (error) {
+            console.error("Error fetching WMS GetCapabilities:", error);
+            return [];
+        };
+    };
 
     function removeLayer() {
         layer.remove();
@@ -33,6 +102,26 @@
         const pos = layer.getLayerPosition();
         map.flyTo(pos);
     }
+
+    onMount(async() => {
+        if (layer.config.type !== "wms") {
+            return;
+        }
+        if (layer.config.settings?.tools?.styleSwitcher?.enabled === false) {
+            // If style switcher is disabled, use the config legend URL
+            legendUrl = defaultLegendUrl;
+        }
+        else {
+            const WMSUrl = layer.config.settings?.url + "?service=WMS&request=GetCapabilities";
+            const featureName = layer.config.settings?.featureName;
+            try {
+                items = await getWMSStyleNames(WMSUrl, featureName);
+            } catch(error) {
+                console.error("Failed to load styles:", error);
+            }
+        }
+    });
+
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -86,14 +175,28 @@
         {#if layer.config.opacitySupported}
             <Slider hideTextInput labelText={textOpacity} min={0} max={100} bind:value={$opacity} />
         {/if}
+        {#if layer.config.type === "wms" && layer.config.settings?.tools?.styleSwitcher?.enabled == true}        
+            <Dropdown
+                titleText="WMS Styling options"
+                size="sm"
+                selectedId={layer.config.settings?.styles || items[0]?.id} 
+                items={items}
+                on:select={(e) => {
+                    const WMSLayer = map.getLayerById(layer.config.id);
+                    //@ts-ignore
+                    legendUrl = e.detail.selectedItem.legendURL;
+
+                    WMSLayer.switchLayer(e.detail.selectedItem.id);
+                }}
+            />
+        {/if}
         {#if layer.config.legendSupported}
             <div class="label-01 legend-header">
                 {$_("tools.layerManager.legend")}
             </div>
-            {#if imageValid}
-                <img class="legend" src={layer.config.legendUrl} alt="legend" on:error="{()=>{imageValid = false}}" />
-            {/if}
-            {#if !imageValid}
+            {#if imageValid && legendUrl !== ""}
+                <img class="legend" src={legendUrl} alt="legend" on:error={()=>{imageValid = false}} />
+            {:else if !imageValid || legendUrl==""}
                 <ErrorMessage message="{$_("tools.layerManager.legendNotFoundText")}" />
             {/if}
         {/if}
@@ -124,8 +227,10 @@
 
 <style>
     .panel {
-        overflow: hidden;
+        overflow: visible;
         width: 100%;
+        min-height: auto; 
+        transition: height 0.3s ease-in-out;
     }
 
     .description {
@@ -137,7 +242,6 @@
     .description-header {
         margin-bottom: 5px;
     }
-
 
     .legend {
         margin-top: var(--cds-spacing-02);
@@ -177,6 +281,7 @@
 
     :global(.layer-control .bx--accordion__heading) {
         align-items: center;
+        padding: 0 var(--cds-spacing-02) 0 0;
     }
 
     :global(.layer-control .bx--accordion__title) {
@@ -189,6 +294,10 @@
 
     :global(.layer-control .bx--accordion__arrow) {
         margin: 0 var(--cds-spacing-02) 5px 0;
+    }
+
+    :global(.tool-content.s-XzGKRQKmR8Sm) {
+        overflow: visible;
     }
 
     .button-wrapper {
