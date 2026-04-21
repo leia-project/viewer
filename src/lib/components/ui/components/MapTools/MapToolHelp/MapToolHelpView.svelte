@@ -10,6 +10,7 @@
     import TabLibrary from './Tabs/TabLibrary.svelte';
     import TabFlooding from "./Tabs/TabFlooding.svelte";
     import TabStories from "./Tabs/TabStories.svelte";
+    import TabRainStress from "./Tabs/TabRainStress.svelte";
     import TabIsochrones from "./Tabs/TabIsochrones.svelte";
     
     // const { map } = getContext<any>("mapTools");
@@ -24,6 +25,7 @@
     let downloadButtonLabel: string |undefined = undefined;
 
     let floodingToolEnabled: boolean = false;
+    let rainStressToolEnabled: boolean = false;
     let storyToolEnabled: boolean = false;
     let isochronesToolEnabled: boolean = false;
 
@@ -59,6 +61,9 @@
                     let floodingTool = map.config.tools.find((t: any) => t.id === "flooding");
                     floodingToolEnabled = floodingTool ? floodingTool.enabled : false;
 
+                    let rainStressTool = map.config.tools.find((t: any) => t.id === "rainStress");
+                    rainStressToolEnabled = rainStressTool ? rainStressTool.enabled : false;
+
                     let storyTool = map.config.tools.find((t: any) => t.id === "stories");
                     storyToolEnabled = storyTool ? storyTool.enabled : false;
 
@@ -79,21 +84,17 @@
 
     interface ITabComponent {
         label: string;
-        component: typeof TabIntro | typeof TabMovement | typeof TabLibrary | typeof TabFlooding | typeof TabStories | typeof TabIsochrones;
+        component: typeof TabIntro | typeof TabMovement | typeof TabLibrary | typeof TabFlooding | typeof TabRainStress | typeof TabStories | typeof TabIsochrones;
         enabled: boolean;
         props?: any;
     }
       
     $: tabs = [
-        { 
-            label: $_("tools.help.tabs.intro"), 
-            component: TabIntro, 
-            enabled: true, 
-            props: { customIntroText, downloadButton } 
-        },
+        { label: $_("tools.help.tabs.intro"), component: TabIntro, enabled: true, props: { customIntroText, downloadButton }},
         { label: $_("tools.help.tabs.movement"), component: TabMovement, enabled: true, props: { _, base }},
         { label: $_("tools.help.tabs.library"), component: TabLibrary, enabled: true, props: { _, base }},
         { label: $_("tools.help.tabs.flood"), component: TabFlooding, enabled: floodingToolEnabled, props: { _, base }},
+        { label: $_("tools.help.tabs.rainStress"), component: TabRainStress, enabled: rainStressToolEnabled, props: { _, base }},
         { label: $_("tools.help.tabs.stories"), component: TabStories, enabled: storyToolEnabled, props: { _, base }},
         { label: $_("tools.help.tabs.isochrones"), component: TabIsochrones, enabled: isochronesToolEnabled, props: { _, base }},
     ] as ITabComponent[];

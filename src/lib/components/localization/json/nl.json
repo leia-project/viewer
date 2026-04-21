@@ -48,7 +48,8 @@
                 "search": "Zoeken",
                 "flood": "Overstroming",
                 "stories": "Verhalen",
-                "isochrones": "Isochronen"
+                "isochrones": "Isochronen",
+                "rainStress": "Extreme neerslag"
             },
             "intro": {
                 "introDescription": "Een digital twin is een digitale representatie van een beoogd of bestaand fysiek product, systeem of proces dat dient als een vrijwel identieke digitale tegenhanger voor praktische doeleinden, zoals simulatie, integratie, testen, monitoring en onderhoud. Voor meer informatie over het gebruik van de viewer, zie de verschillende onderwerpen."
@@ -86,6 +87,16 @@
                 "openFlood": "Om de overstromingstool te openen, klikt u op de knop 'overstroming' aan de linkerkant.",
                 "floodBreachDescription": "Selecteer eerst een breslocatie door op de kaart een bresicoon aan te klikken. Dit zal fungeren als het startpunt voor de overstromingssimulatie.",
                 "floodMenuDescription": "Gebruik vervolgens de verschillende opties in de overstromingstool om de simulatie aan te passen en uit te voeren. Kies eerst het gewenste scenario, bijvoorbeeld 1:3000 jaar. Vervolgens kun je de 'Tijd slider' gebruiken om het scenario af te spelen. Gebruik de 'Play' knop om automatisch het scenario zich te laten afspelen, of gebruik de pijltjes om per tijdstap de overstroming te bekijken.",
+                "headingMeasureDepth": "Diepte meten",
+                "measureDepthDescription": "Om de waterdiepte op een specifieke locatie te meten, zet de 'Diepte meten' knop aan en klik vervolgens op een overstroomd gebied op de gewenste locatie. De tool kan alleen gebruikt worden als je ingezoomd bent, omdat de terreinhoogte dan juist ingeladen wordt."
+            },
+            "rainStress":{
+                "headingFloodOpen": "Open de Bovenregionale Stresstest Extreme neerslag tool",
+                "headingUsingFlood": "Gebruik van de Extreme neerslag tool",
+                "description": "De Extreme neerslag tool stelt u in staat om overstromingen door extreme neerslag in het gebied te simuleren en te analyseren.",
+                "openFlood": "Om de Extreme neerslag tool te openen, klikt u op de knop 'overstroming' aan de linkerkant.",
+                "floodBreachDescription": "Selecteer eerst een regio door op de kaart een regio aan te klikken. Dit zal fungeren als het startpunt voor de overstromingssimulatie.",
+                "floodMenuDescription": "Gebruik vervolgens de verschillende opties in de Extreme neerslag tool om de simulatie aan te passen en uit te voeren. Kies eerst het gewenste scenario, bijvoorbeeld 1:3000 jaar. Vervolgens kun je de 'Tijd slider' gebruiken om het scenario af te spelen. Gebruik de 'Play' knop om automatisch het scenario zich te laten afspelen, of gebruik de pijltjes om per tijdstap de overstroming te bekijken.",
                 "headingMeasureDepth": "Diepte meten",
                 "measureDepthDescription": "Om de waterdiepte op een specifieke locatie te meten, zet de 'Diepte meten' knop aan en klik vervolgens op een overstroomd gebied op de gewenste locatie. De tool kan alleen gebruikt worden als je ingezoomd bent, omdat de terreinhoogte dan juist ingeladen wordt."
             },
