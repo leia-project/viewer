@@ -21,7 +21,7 @@
 				}
 			}
 		}
-		app.configSettings.set(new ConfigSettings(configUrl ?? (process.env.CONFIG_URL ? process.env.CONFIG_URL : "")));
+		app.configSettings.set(new ConfigSettings(configUrl ?? (process.env.CONFIG_URL ?? "")));
 	})
 	
 </script>

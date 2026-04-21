@@ -96,9 +96,13 @@
                 "headingStoryNavigation": "Navigeren",
                 "storyNavigation": "Gebruik de hoofdstuk- (bovenste rij) en paginaknoppen (onderste rij) om door het verhaal te navigeren, of scroll naar beneden in het menu om door te gaan naar de volgende pagina. U kunt op elk moment het verhaal sluiten door op de knop 'Terug naar overzicht' te klikken.",
                 "headingStoryDrawArea": "Een projectgebied tekenen",
-                "storyDrawArea": "Sommige verhalen vereisen dat u een projectgebied op de kaart tekent. Dit gebied wordt gebruikt om een verdeling van klassen binnen het getekende polygon te genereren. Om een projectgebied te tekenen, klikt u op de knop 'Teken projectgebied' en klikt u vervolgens op de kaart om punten neer te zetten en zo een polygon te creëren. Klik met de rechtermuisknop op de kaart of klik op 'Voltooi Projectgebied' om het tekenen te voltooien.",
+                "storyDrawArea": "Sommige verhalen vereisen dat u een projectgebied op de kaart tekent. Dit gebied wordt gebruikt om een verdeling van klassen binnen het getekende polygon te genereren. Om een projectgebied te tekenen, klikt u op de knop 'Projectgebied Tekenen' en klikt u vervolgens op de kaart om punten neer te zetten en zo een polygon te creëren. Klik met de rechtermuisknop op de kaart of klik op 'Voltooi Projectgebied' om het tekenen te voltooien.",
+                "headingStoryUploadArea": "Een projectgebied uploaden",
+                "storyUploadArea": "Alternatief kunt u een projectgebied uploaden als een GeoJSON (.geojson) of Geopackage (.gpkg) bestand. Om dit te doen, klikt u op de knop 'Upload Projectgebied' en selecteert u uw bestand. Het bestand moet een enkele (niet-multipart) polygon feature bevatten van het projectgebied.",
                 "headingStoryDataDonut": "Projectgebied Data Grafiek",
-                "storyDataDonut": "In verhalen die een projectgebied bevatten, wordt een donutgrafiek weergegeven om de verdeling van verschillende klassen binnen het getekende gebied te weergeven. Wanneer u met de muis over een segment beweegt, wordt het percentage weergegeven."
+                "storyDataDonut": "In verhalen die een projectgebied bevatten, wordt een donutgrafiek weergegeven om de verdeling van verschillende klassen binnen het getekende gebied te weergeven. Wanneer u met de muis over een segment beweegt, wordt het percentage weergegeven.",
+                "headingStoryExportPDF": "Een PDF van het verhaal genereren",
+                "storyExportPDF": "U kunt het verhaal exporteren als PDF door op de knop 'Genereer en download PDF' te klikken. De optie wordt beschikbaar zodra alle data is ingeladen. Er wordt een PDF gegenereerd die de inhoud van het verhaal bevat, inclusief de grafieken met gedetailleerde percentages. Hierdoor kunt u uw projectgebiedanalyse eenvoudig met anderen delen."
             },
             "isochrones": {
                 "description": "De vestigingsplanner stelt u in staat om de impact van een willekeurige ontwikkeling op het aantal nieuwe inwoners in het NSPD gebied te simuleren en te analyseren. Om de tool te gebruiken, klikt up op de knop 'Teken locatie ontwikkeling'. Hiermee kunt u de locatie van de ontwikkeling in het gebied selecteren. Vervolgens klikt u op de knop 'Bereken autoreistijdafstanden', hiermee worden reistijdafstanden met de auto berekend voor 20, 40 en 60 minuten vanaf de locatie. Deze worden weergegeven aan de hand van gekleurde gebieden rondom de locatie, waarbij de kleuren het aantal nieuwe inwoners dat zal vestigen in deze gebieden aanduidt. De standaardwaarde voor het aantal nieuwe inwoners is 10 000, deze kunt u met een schuifje handmatig aanpassen tussen de waardes van 0 en 20 000, om verschillende types ontwikkelingen te simuleren. De waardes voor de vestigingspercentages zijn aannames, deze zijn standaard ingesteld op 50% voor 20 minuten reistijd, 30% voor 40 minuten reistijd en 20% voor 60 minuten reistijd. U kunt met een schuifje de standaardwaarde van 50% voor 20 minuten reistijd aanpassen, om te analyseren wat de impact daarvan is op de verdeling van het aantal nieuwe inwoners."
@@ -285,7 +289,7 @@
             "uploadPolygon": "Projectgebied Uploaden",
             "drawPolygon": "Projectgebied Tekenen",
             "finishPolygon": "Voltooi Projectgebied",
-            "drawPolygonText": "Klik op de 'Teken projectgebied' knop om te beginnen met tekenen op de kaart. Klik om een vlak te creëren. Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.",
+            "drawPolygonText": "Klik op de 'Projectgebied Tekenen' knop om te beginnen met tekenen op de kaart. Klik om een vlak te creëren. Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.",
             "deletePolygon": "Verwijder Projectgebied",
             "projectAreaTool": "Projectgebied Tool",
             "downloadPDF": "Genereer en download PDF"
@@ -329,7 +333,7 @@
             "calculate": "Bereken autoreistijdafstanden",
             "calculating": "Berekenen...",
             "totalPopulation": "Aantal nieuwe inwoners",
-            "legendTitle": "Legenda",
+            "legendTitle": "Druk op de woningmarkt",
             "settlementPercentage": "Vestigingspercentage"
         }
     },

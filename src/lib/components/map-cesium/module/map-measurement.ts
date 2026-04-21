@@ -18,9 +18,11 @@ export class MapMeasurement {
     private helpLineEntities = new Array<Cesium.Entity>();
 
     public pointFill = Cesium.Color.RED;
+    public pointFillObscured = Cesium.Color.RED.withAlpha(0.5);
     public pointOutline = Cesium.Color.BLACK;
     public helpLineColor = Cesium.Color.YELLOW;
     public lineColor = Cesium.Color.RED;
+    private viewPointDetection: Cesium.Event.RemoveCallback | undefined;
 
     constructor(id: number, map: Map) {
         this.id = id;
@@ -33,6 +35,10 @@ export class MapMeasurement {
 
         this.visible.subscribe((v) => {
             this.setVisibility(v);
+        });
+
+        this.viewPointDetection = this.map.viewer.camera.moveEnd.addEventListener(() => {
+            this.updatePointColorObscured();
         });
     }
 
@@ -90,6 +96,7 @@ export class MapMeasurement {
         for(let i = 0; i < points.length; i++) {
             this.addEntityOnPointAdd(points[i], i);
         }
+        this.updatePointColorObscured();
     }
 
     private addEntityOnPointAdd(location: Cesium.Cartesian3, index: number): void {
@@ -122,6 +129,8 @@ export class MapMeasurement {
 
     public remove() {
         this.clearEntities();
+        this.viewPointDetection?.();
+        this.viewPointDetection = undefined;
     }
 
     public show() {
@@ -198,7 +207,10 @@ export class MapMeasurement {
 				color: this.pointFill,
 				pixelSize: 10,
 				outlineColor: this.pointOutline,
-				outlineWidth: 1
+				outlineWidth: 1,
+				disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+
 			},     
             label: {
                 text: `${index}`,
@@ -235,7 +247,8 @@ export class MapMeasurement {
                 showBackground: true,
                 horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                 eyeOffset: new Cesium.Cartesian3( 0, 0, -10),
-                show: true
+                show: true,
+                disableDepthTestDistance: Number.POSITIVE_INFINITY
             }
         });
 
@@ -271,5 +284,47 @@ export class MapMeasurement {
         var dz = from.z - to.z;
 
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    private isObscuredByTerrain(pointWC: Cesium.Cartesian3): boolean {
+        const scene = this.map.viewer.scene;
+        const cameraWC = scene.camera.positionWC;
+
+        const dir = Cesium.Cartesian3.normalize(
+            Cesium.Cartesian3.subtract(pointWC, cameraWC, new Cesium.Cartesian3()),
+            new Cesium.Cartesian3()
+        );
+
+        const ray = new Cesium.Ray(cameraWC, dir);
+        const hitWC = scene.globe.pick(ray, scene);
+
+        if (!hitWC) return false;
+
+        const hitDist = Cesium.Cartesian3.distance(cameraWC, hitWC);
+        const ptDist = Cesium.Cartesian3.distance(cameraWC, pointWC);
+
+        // Minimum 5 meter distance between terrain hit and point to be considered obscured
+        return hitDist + 5 < ptDist;
+    }
+
+    /**
+     * Updates the colors of point entities based on direct line of sight
+     */
+    public updatePointColorObscured(): void {
+        const time = this.map.viewer.clock.currentTime;
+
+        for (const entity of this.pointEntities) {
+            if (!entity.position) continue;
+            
+            const pointWC = entity.position.getValue(time);
+            if (!Cesium.defined(pointWC)) continue;
+
+            const obscured = this.isObscuredByTerrain(pointWC);
+            if (entity.point) {
+                entity.point.color = new Cesium.ConstantProperty(
+                    obscured ? this.pointFillObscured : this.pointFill
+                );
+            }
+        }
     }
 }
