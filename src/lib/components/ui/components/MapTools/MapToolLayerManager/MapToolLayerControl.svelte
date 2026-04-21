@@ -23,6 +23,7 @@
     let items: { id: string; text: string }[] = [];
     
     const defaultLegendUrl = layer.config.legendUrl;
+    let hasConfigLegendUrl = defaultLegendUrl !== undefined && defaultLegendUrl !== "";
     let legendUrl: string | undefined = undefined; // The actual URL used to render the legend image
 
     const visible = layer.visible;
@@ -57,8 +58,6 @@
             if (parsedXml) {
                 const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
                 const layers = Array.isArray(layerData) ? layerData : [layerData];
-
-                const hasConfigLegendUrl = defaultLegendUrl !== undefined && defaultLegendUrl !== "";
 
                 layers.forEach((layer: { Name: string; Style: { Title: any; Name: string; LegendURL?: any }[] }) => {
                     if (layer.Name === featureName) {
@@ -195,10 +194,9 @@
             <div class="label-01 legend-header">
                 {$_("tools.layerManager.legend")}
             </div>
-            {#if imageValid}
+            {#if imageValid && legendUrl !== ""}
                 <img class="legend" src={legendUrl} alt="legend" on:error={()=>{imageValid = false}} />
-            {/if}
-            {#if !imageValid}
+            {:else if !imageValid || legendUrl==""}
                 <ErrorMessage message="{$_("tools.layerManager.legendNotFoundText")}" />
             {/if}
         {/if}
