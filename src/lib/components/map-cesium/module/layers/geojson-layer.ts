@@ -63,6 +63,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	private alpha: number = 1.0;
 	private rainfallPolygonColor: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.LIGHTBLUE.withAlpha(0.5));
 	private hoveredPolygonColour: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.fromBytes(50, 120, 200, 180))
+	private polygonOutlineColor: Cesium.ConstantProperty = new Cesium.ConstantProperty(Cesium.Color.LIGHTBLUE.withAlpha(0.5));
 
 	public colorGradientStart: Cesium.Color = Cesium.Color.BLUE;
 	public colorGradientEnd: Cesium.Color = Cesium.Color.RED;
@@ -233,12 +234,14 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.unsubscribers.forEach((unsubscriber) => unsubscriber());
 		this.unsubscribers.push(
 			this.hoveredFeature.subscribe((feature) => {
+				const active = get(this.activeFeature);
 				for (const item of this.featureItems) {
 					if (!item.entity.polygon) 
 						continue;
-					const isHovered = feature !== undefined && item.feature === feature;
-					if (isHovered) {
-						item.entity.polygon.material = this.hoveredPolygonColour;
+					const isHoveredOrActive = (feature !== undefined && item.feature === feature) || (active !== undefined && item.feature === active);
+					if (isHoveredOrActive) {
+						item.entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
+						item.entity.polygon.outlineColor = this.polygonOutlineColor;
 					} 
 					else {
 						item.entity.polygon.material = this.rainfallPolygonColor;
