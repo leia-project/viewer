@@ -1,6 +1,8 @@
 <script lang="ts">
     export let _: any;
-    export let base: string; 
+    export let base: string;
+    export let storyToolRequestPolygonArea: boolean;
+
 </script>
 
 
@@ -25,45 +27,51 @@
     {$_("tools.help.stories.storyNavigation")}
 </div>
 
-<div class="img">
-    <img src="{base}/images/help_story_navigation.png" style="width:100%" alt="story navigation" />
-</div>
+{#if storyToolRequestPolygonArea}
+    <div class="img">
+        <img src="{base}/images/help_story_navigation.png" style="width:100%" alt="story navigation" />
+    </div>
 
-<div class="heading-02">{$_("tools.help.stories.headingStoryDrawArea")}</div>
-<div class="body-02">
-    {$_("tools.help.stories.storyDrawArea")}
-</div>
+    <div class="heading-02">{$_("tools.help.stories.headingStoryDrawArea")}</div>
+    <div class="body-02">
+        {$_("tools.help.stories.storyDrawArea")}
+    </div>
 
-<div class="img">
-    <img src="{base}/images/help_story_draw_area.png" style="width:100%" alt="story draw area" />
-</div>
+    <div class="img">
+        <img src="{base}/images/help_story_draw_area.png" style="width:100%" alt="story draw area" />
+    </div>
 
-<div class="heading-02">{$_("tools.help.stories.headingStoryUploadArea")}</div>
-<div class="body-02">
-    {$_("tools.help.stories.storyUploadArea")}
-</div>
+    <div class="heading-02">{$_("tools.help.stories.headingStoryUploadArea")}</div>
+    <div class="body-02">
+        {$_("tools.help.stories.storyUploadArea")}
+    </div>
 
-<div class="img">
-    <img src="{base}/images/help_story_upload_area.png" style="width:100%" alt="story upload area" />
-</div>
+    <div class="img">
+        <img src="{base}/images/help_story_upload_area.png" style="width:100%" alt="story upload area" />
+    </div>
 
-<div class="heading-02">{$_("tools.help.stories.headingStoryDataDonut")}</div>
-<div class="body-02">
-    {$_("tools.help.stories.storyDataDonut")}
-</div>
+    <div class="heading-02">{$_("tools.help.stories.headingStoryDataDonut")}</div>
+    <div class="body-02">
+        {$_("tools.help.stories.storyDataDonut")}
+    </div>
 
-<div class="img">
-    <img src="{base}/images/help_story_data_donut.png" style="width:100%" alt="story data donut" />
-</div>
+    <div class="img">
+        <img src="{base}/images/help_story_data_donut.png" style="width:100%" alt="story data donut" />
+    </div>
 
-<div class="heading-02">{$_("tools.help.stories.headingStoryExportPDF")}</div>
-<div class="body-02">
-    {$_("tools.help.stories.storyExportPDF")}
-</div>
+    <div class="heading-02">{$_("tools.help.stories.headingStoryExportPDF")}</div>
+    <div class="body-02">
+        {$_("tools.help.stories.storyExportPDF")}
+    </div>
 
-<div class="img-left">
-    <img src="{base}/images/help_story_export_pdf.png" alt="story PDF export" />
-</div>
+    <div class="img-left">
+        <img src="{base}/images/help_story_export_pdf.png" alt="story PDF export" />
+    </div>
+{:else}
+    <div class="img">
+        <img src="{base}/images/help_story_simple_navigation.png" style="width:100%" alt="simple story navigation" />
+    </div>
+{/if}
 
 <style>
     [class*="img"] {

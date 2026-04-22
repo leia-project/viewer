@@ -3,7 +3,6 @@
     import { Tabs, Tab } from "carbon-components-svelte";
     import { Modal } from "carbon-components-svelte";
     import { _ } from "svelte-i18n";
-    import { getContext } from "svelte";
     import { get } from "svelte/store";
     import TabIntro from './Tabs/TabIntro.svelte';
     import TabMovement from './Tabs/TabMovement.svelte';
@@ -12,11 +11,11 @@
     import TabStories from "./Tabs/TabStories.svelte";
     import TabIsochrones from "./Tabs/TabIsochrones.svelte";
     
-    // const { map } = getContext<any>("mapTools");
 	import { app } from '$lib/app/app';
 
 
 	$: map = get(app.map);
+    $: txtTitle = map?.config?.name ?? $_("tools.help.title");
 
     let customIntroText: string | undefined = undefined;
     let downloadButtonEnabled: boolean | undefined = undefined;
@@ -25,6 +24,7 @@
 
     let floodingToolEnabled: boolean = false;
     let storyToolEnabled: boolean = false;
+    let storyToolRequestPolygonArea: boolean = false;
     let isochronesToolEnabled: boolean = false;
 
     //TODO: Integrate this properly
@@ -61,6 +61,9 @@
 
                     let storyTool = map.config.tools.find((t: any) => t.id === "stories");
                     storyToolEnabled = storyTool ? storyTool.enabled : false;
+                    storyToolRequestPolygonArea = Array.isArray(storyTool?.settings?.stories)
+                        ? storyTool.settings.stories.some((story: any) => story?.requestPolygonArea?.enabled)
+                        : false;
 
                     let isochronesTool = map.config.tools.find((t: any) => t.id === "isochrones");
                     isochronesToolEnabled = isochronesTool ? isochronesTool.enabled : false;
@@ -72,8 +75,7 @@
     });
 
     const base = process.env.APP_URL;
-    export let txtTitle: string;
-    export let showOnStart: boolean;
+    export let showOnStart: boolean = false;
 
     let selectedTab = 0;
 
@@ -94,7 +96,12 @@
         { label: $_("tools.help.tabs.movement"), component: TabMovement, enabled: true, props: { _, base }},
         { label: $_("tools.help.tabs.library"), component: TabLibrary, enabled: true, props: { _, base }},
         { label: $_("tools.help.tabs.flood"), component: TabFlooding, enabled: floodingToolEnabled, props: { _, base }},
-        { label: $_("tools.help.tabs.stories"), component: TabStories, enabled: storyToolEnabled, props: { _, base }},
+        { 
+            label: $_("tools.help.tabs.stories"), 
+            component: TabStories, 
+            enabled: storyToolEnabled, 
+            props: { _, base, storyToolRequestPolygonArea }
+        },
         { label: $_("tools.help.tabs.isochrones"), component: TabIsochrones, enabled: isochronesToolEnabled, props: { _, base }},
     ] as ITabComponent[];
 
@@ -125,7 +132,7 @@
     <Modal
         open={true}
         modalHeading={txtTitle}
-        primaryButtonText="{$_("tools.help.close")}"
+        primaryButtonText={$_("tools.help.close")}
         secondaryButtonText={ showOnStart ? $_("tools.help.closeDontShowOnStart") : ""}
         size="lg"
         style="margin-bottom: 0;"
