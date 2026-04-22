@@ -9,18 +9,23 @@ export class WmsLayer extends CesiumImageryLayer {
 		super(map, config);
 	}
 
-	createLayer() {
+	createLayer(dropDownStyleName?: string): void {
 		const provider = new Cesium.WebMapServiceImageryProvider({
 			url: this.config.settings["url"],
 			layers: this.config.settings["featureName"],
 			parameters: {
 				transparent: true,
-				format: this.config.settings["contentType"] ? this.config.settings["contentType"] : "image/png",
+				format: this.config.settings["contentType"] ?? "image/png",
+				styles: dropDownStyleName || this.config.settings["styles"] || "",
 			},
-
 		});
 		this.source = new Cesium.ImageryLayer(provider, {
 			alpha: this.getOpacity(this.config.opacity)
 		});
+	}
+
+	switchLayer(dropDownStyleName?: string): void {
+		this.removeFromMap();
+		this.createLayer(dropDownStyleName);
 	}
 }

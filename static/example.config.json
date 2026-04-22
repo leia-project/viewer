@@ -105,6 +105,69 @@
                     }
                 ]
             }
+        },
+        {
+           "id": "4",
+            "type": "wms",
+            "title": "PDOK Buurten",
+            "groupId": "",
+            "legendEnabled": true,
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": true,
+            "transparent": false,
+            "opacity": 100,
+            "settings": {
+                "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
+                "featureName": "buurten",
+                "contenttype": "image/jpeg",
+                "tools": {
+                    "styleSwitcher": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+           "id": "5",
+            "type": "wms",
+            "title": "PDOK Wijken",
+            "groupId": "",
+            "legendEnabled": true,
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": false,
+            "opacity": 100,
+            "settings": {
+                "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
+                "featureName": "wijken",
+                "contenttype": "image/png",
+                "tools": {
+                    "styleSwitcher": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "id": "6",
+            "type": "wms",
+            "title": "PDOK Bevolkingskernen 2011",
+            "groupId": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": false,
+            "opacity": 0,
+            "settings": {
+                "url": "https://service.pdok.nl/cbs/bevolkingskernen-2011/wms/v1_0",
+                "featureName": "cbsbevolkingskernen2011",
+                "contenttype": "image/jpeg"
+            }
         }
     ],
     "viewer": {
@@ -319,7 +382,23 @@
             "settings": {
                 "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
                 "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson",
-                "floodedRoadsUrl": "http://localhost:5000"
+                "roadsUrl": "https://service.pdok.nl/rws/vervoersnetwerken/wegen/wms/v1_0",
+                "floodedRoadsUrl": "https://virtueel.zeeland.nl/pygeoapi",
+                "floodedRoadsStyle": [
+                    {
+                        "property": "flood_depth",
+                        "stops": [
+                            {
+                                "value": 0,
+                                "color": "#ffff00"
+                            },
+                            {
+                                "value": 3,
+                                "color": "#ff0000"
+                            }
+                        ]
+                    }
+                ]
             }
         },
         {
