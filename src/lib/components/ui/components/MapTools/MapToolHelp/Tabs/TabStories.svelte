@@ -27,11 +27,11 @@
     {$_("tools.help.stories.storyNavigation")}
 </div>
 
-<div class="img">
-    <img src="{base}/images/help_story_navigation.png" style="width:100%" alt="story navigation" />
-</div>
-
 {#if storyToolRequestPolygonArea}
+    <div class="img">
+        <img src="{base}/images/help_story_navigation.png" style="width:100%" alt="story navigation" />
+    </div>
+
     <div class="heading-02">{$_("tools.help.stories.headingStoryDrawArea")}</div>
     <div class="body-02">
         {$_("tools.help.stories.storyDrawArea")}
@@ -66,6 +66,10 @@
 
     <div class="img-left">
         <img src="{base}/images/help_story_export_pdf.png" alt="story PDF export" />
+    </div>
+{:else}
+    <div class="img">
+        <img src="{base}/images/help_story_simple_navigation.png" style="width:100%" alt="simple story navigation" />
     </div>
 {/if}
 
