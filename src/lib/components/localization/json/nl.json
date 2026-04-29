@@ -17,6 +17,11 @@
             "show": "Tonen",
             "hide": "Verbergen",
             "reset": "Resetten"
+        },
+        "notFound": {
+            "title": "Pagina niet gevonden",
+            "description":"Het ingevoerde adres komt niet overeen met een beschikbare viewer.",
+            "linktext": "Bekijk beschikbare viewers"
         }
     },
     "tools": {
