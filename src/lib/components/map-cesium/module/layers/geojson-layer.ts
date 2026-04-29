@@ -3,11 +3,11 @@ import * as Cesium from "cesium";
 //import * as Shapefile from 'shapefile';
 import { CustomLayerControl } from "$lib/components/map-core/custom-layer-control";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
-
 import type { Map } from "../map";
 import { CesiumLayer } from "./cesium-layer";
 import LayerControlGeoJson from "../../LayerControlGeoJSON/LayerControlGeoJSON.svelte";
 import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
+import { getCartesian2 } from "../utils/geo-utils";
 
 interface GeoJSON {
 	type: string;
@@ -59,8 +59,11 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	private defaultColorLine: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.GREEN);
 	public defaultColorPolygon: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.ORANGE);
 	private colorUnselected: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.LIGHTGREY);
-	private defaultLineWidth: number = 3;
+	private defaultLineWidth: number = 1;
 	private alpha: number = 1.0;
+	private rainfallPolygonColor: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.LIGHTBLUE.withAlpha(0.5));
+	private hoveredPolygonColour: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(Cesium.Color.fromBytes(50, 120, 200, 180))
+	private polygonOutlineColor: Cesium.ConstantProperty = new Cesium.ConstantProperty(Cesium.Color.LIGHTBLUE.withAlpha(0.5));
 
 	public colorGradientStart: Cesium.Color = Cesium.Color.BLUE;
 	public colorGradientEnd: Cesium.Color = Cesium.Color.RED;
@@ -83,10 +86,20 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 
 	public tools: Array<string>;
 
+	public activeFeature: Writable<any | undefined> = writable(undefined);
+	private clickedEntity: Cesium.Entity | undefined;
+	private featureItems: Array<{ entity: Cesium.Entity; feature: any }> = [];
+
+	private _features: Array<any> = [];
 
 	private outlines: Cesium.CustomDataSource | undefined;
 	private outlineColor: Cesium.Color = Cesium.Color.BLACK;
-	private outlineWidth: number = 5;
+	private outlineWidth: number = 1;
+
+	private unsubscribers: Array<Unsubscriber> = new Array<Unsubscriber>();
+	public hoveredFeature: Writable<any> = writable(undefined);
+
+
 
     constructor(map: Map, config: LayerConfig, data: object | undefined = undefined) {
         super(map, config);
@@ -116,11 +129,144 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.clampToGround = this.config.settings.clampToGround ?? true;
     }
 
-	private addListeners(): void {
-		let use3DModeUnsubscriber = this.map.options.use3DMode.subscribe((b) => {
-			if (!this.source || !this.boundingSphere) return;
-			this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, b);
+	set activeStore(value: Writable<any>) {
+		this.activeFeature = value;
+	}
+
+	public async loadFeatures(features: Array<any>): Promise<void> {
+		this._features = features;
+		const featureCollection = {
+			type: "FeatureCollection",
+			features: features
+		};
+
+		await this.source.load(featureCollection, {
+			fill: this.rainfallPolygonColor.getValue().color,
+			markerSymbol: '',
+			clampToGround: this.clampToGround
 		});
+
+		this.addOutlines()
+		this.buildFeatureItems();
+		this.loaded = Promise.resolve();
+		if (!this.config.cameraPosition) this.setDefaultCameraPosition();
+		this.source.show = true;
+		get(this.visible) ? this.show() : this.hide();
+		this.map.refresh();
+		this.zoomToLayer();
+	}
+
+	public zoomToLayer(): void {
+		this.map.flyTo(this.config.cameraPosition);
+	}
+	
+	private buildFeatureItems(): void {
+		this.featureItems = [];
+		const entities = this.source.entities.values;
+		let entityIndex = 0;
+		for (const feature of this._features) {
+			const count = this.getEntityCountForFeature(feature);
+			for (let j = 0; j < count && entityIndex < entities.length; j++) {
+				this.featureItems.push({
+					entity: entities[entityIndex],
+					feature: feature
+				});
+				entityIndex++;
+			}
+		}
+	}
+
+	private getEntityCountForFeature(feature: any): number {
+		if (!feature.geometry) return 1;
+		switch (feature.geometry.type) {
+			case 'MultiPolygon':
+			case 'MultiLineString':
+			case 'MultiPoint':
+				return feature.geometry.coordinates.length;
+			case 'GeometryCollection':
+				return feature.geometry.geometries.length;
+			default:
+				return 1;
+		}
+	}
+
+	private getFeatureFromMouseLocation(m: any): any | undefined {
+		return this.getFeatureAndEntityFromMouseLocation(m)?.feature;
+	}
+
+	private getFeatureAndEntityFromMouseLocation(m: any): { feature: any; entity: Cesium.Entity } | undefined {
+		const location = getCartesian2(m);
+		if (!location) return undefined;
+		const picked = this.map.viewer.scene.pick(location);
+		if (!picked?.id) return undefined;
+		const entity = picked.id as Cesium.Entity;
+		if (!this.source.entities.contains(entity)) return undefined;
+		const item = this.featureItems.find(i => i.entity === entity);
+		if (!item) return undefined;
+		return { feature: item.feature, entity: entity };
+	}
+
+	private moveHandle = (m: any) => {
+		const feature = this.getFeatureFromMouseLocation(m);
+		if (feature !== get(this.hoveredFeature)) this.hoveredFeature.set(feature);
+		this.map.container.style.cursor = feature ? "pointer" : "default";
+	}
+
+	private leftClickHandle = (m: any) => {
+		const result = this.getFeatureAndEntityFromMouseLocation(m);
+		if (result && result.feature !== get(this.activeFeature)) {
+			this.clickedEntity = result.entity;
+			this.activeFeature.set(result.feature);
+		}
+	}
+
+	private addMouseEvents(): void {
+		this.map.on("mouseLeftClick", this.leftClickHandle);
+		this.map.on("mouseMove", this.moveHandle);
+	}
+
+	private removeMouseEvents(): void {
+		this.map.off("mouseLeftClick", this.leftClickHandle);
+		this.map.off("mouseMove", this.moveHandle);
+	}
+
+	private addListeners(): void {
+		this.unsubscribers.forEach((unsubscriber) => unsubscriber());
+		this.unsubscribers.push(
+			this.hoveredFeature.subscribe((feature) => {
+				const active = get(this.activeFeature);
+				for (const item of this.featureItems) {
+					if (!item.entity.polygon) 
+						continue;
+					const isHoveredOrActive = (feature !== undefined && item.feature === feature) || (active !== undefined && item.feature === active);
+					if (isHoveredOrActive) {
+						item.entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
+						item.entity.polygon.outlineColor = this.polygonOutlineColor;
+					} 
+					else {
+						item.entity.polygon.material = this.rainfallPolygonColor;
+					}
+				}
+				this.map.refresh();
+			}),
+			this.activeFeature.subscribe((feature) => {
+				this.map.refresh();
+				if (feature) {
+					const entities = this.featureItems.filter(i => i.feature === feature).map(i => i.entity);
+					if (entities.length > 0) {
+						const target = this.clickedEntity && entities.includes(this.clickedEntity)
+							? this.clickedEntity
+							: undefined;
+						this.flyToFeature(target, entities);
+					}
+				}
+				this.clickedEntity = undefined;
+			}),
+			this.map.options.use3DMode.subscribe((b) => {
+				if (!this.source || !this.boundingSphere) return;
+				this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, b);
+			})
+		);
 	}
 
 	public async addToMap(): Promise<void> {
@@ -128,6 +274,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		await this.loaded;
 		await this.map.viewer.dataSources.add(this.source);
 		this.addListeners();
+		this.addMouseEvents();
 		this.setAvailableProperties();
 		this.styleUnsubscriber = this.style.subscribe((property: string) => {
 			if (property && this.loaded) this.setStyle(property);
@@ -141,9 +288,12 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 
 	public removeFromMap(): void {
 		this.removeControl();
+		this.unsubscribers.forEach((u) => u());
+		this.removeMouseEvents();
 		this.styleUnsubscriber();
 		this.extrusionUnsubscriber?.();
 		this.availableProperties = [];
+		this.featureItems = [];
 		this.source.entities.removeAll();
 		this.outlines?.entities.removeAll();
 		this.map.viewer.dataSources.remove(this.source, true);
@@ -184,6 +334,9 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			markerSymbol: '',
 			clampToGround: this.clampToGround
 		});
+
+		this._features = geojson.features ?? [];
+		this.buildFeatureItems();
 
 		if (!this.config.cameraPosition) this.setDefaultCameraPosition();
 
@@ -534,5 +687,31 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			}
         }
 		this.map.refresh();
+	}
+
+	public flyToFeature(_clickedEntity: Cesium.Entity | undefined, allEntities: Cesium.Entity[]): void {
+		if (allEntities.length === 0) return;
+
+		// Always compute combined bounding sphere from all entities (entire MultiPolygon)
+		const allPositions: Cesium.Cartesian3[] = [];
+		for (const entity of allEntities) {
+			if (entity.polygon) {
+				const hierarchy = entity.polygon.hierarchy?.getValue(this.map.viewer.clock.currentTime);
+				if (hierarchy) allPositions.push(...hierarchy.positions);
+			}
+		}
+		if (allPositions.length > 0) {
+			const boundingSphere = Cesium.BoundingSphere.fromPoints(allPositions);
+			const range = boundingSphere.radius * 2.5;
+			this.map.viewer.camera.flyToBoundingSphere(boundingSphere, {
+				duration: 1,
+				offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), range)
+			});
+		} else {
+			this.map.viewer.flyTo(allEntities[0], {
+				duration: 1,
+				offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 0)
+			});
+		}
 	}
 }

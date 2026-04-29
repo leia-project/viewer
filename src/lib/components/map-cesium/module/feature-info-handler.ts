@@ -89,6 +89,11 @@ export class FeatureInfoHandler {
         const id = Cesium.defaultValue(picked.id, picked.primitive.id);
         
         if (id instanceof Cesium.Entity) {
+            const layer = get(this.map.layers).find(l =>
+                (l as any).source instanceof Cesium.GeoJsonDataSource && l.source.entities.contains(id)
+            );
+            if (layer?.config.disablePopup) return undefined;
+
             const info = this.cesiumEntityGetFeatureInfo(id);
             if (info) {
                 this.highlightEntity(id);

@@ -9,6 +9,7 @@ import LayerControlFlood from "$lib/components/map-cesium/LayerControlFlood/Laye
 import { CesiumLayer } from "./cesium-layer";
 import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
 import type { Breach } from "../../MapToolFlooding/layer-controller";
+import type { Region } from "../../MapToolRainStress/layer-controller";
 
 
 interface FloodLayerContents {
@@ -640,6 +641,27 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 		try {
 			this.clear();
 			const endpoint = `${breach.properties.dijkring}_${breach.properties.name}_${scenario}`;
+			await this.source.load(endpoint);
+			if (this.source.contents) {
+				const { ne, sw } = this.source.contents;
+				const rectangle = Cesium.Rectangle.fromDegrees(sw[0], sw[1], ne[0], ne[1]);
+				this.boundingSphere = Cesium.BoundingSphere.fromRectangle3D(rectangle);
+				this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, get(this.map.options.use3DMode));
+			}
+			this.loaded.set(true);
+			this.addToMap();
+		} catch(e) {
+			this.error.set(true);
+		} 
+		this.map.refresh();
+	}
+
+	public async loadRainfallScenario(region: Region, scenario: string): Promise<void> {
+		this.loaded.set(false);
+		this.error.set(false);
+		try {
+			this.clear();
+			const endpoint = `${region.properties.naam}_${scenario}`;
 			await this.source.load(endpoint);
 			if (this.source.contents) {
 				const { ne, sw } = this.source.contents;
