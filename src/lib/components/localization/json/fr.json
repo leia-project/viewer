@@ -16,7 +16,13 @@
         "buttons": {
             "show": "Montrer",
             "hide": "Cacher"
-        }
+        },
+        "notFound": {
+            "title": "Page non trouvée",
+            "description":"L'adresse saisie ne correspond à aucune visionneuse disponible.",
+            "linktext": "Voir les visionneuses disponibles"
+        },
+        "dataportal": "portail de données"
     },
     "tools": {
         "menu": {
