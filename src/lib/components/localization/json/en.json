@@ -22,7 +22,8 @@
             "title": "Page not found",
             "description":" The adress entered does not match any of the available viewers",
             "linktext": "View available viewers"
-        }
+        },
+        "dataportal": "Dataportal"
     },
     "tools": {
         "menu": {
