@@ -109,29 +109,6 @@
         {
            "id": "4",
             "type": "wms",
-            "title": "PDOK Buurten",
-            "groupId": "",
-            "legendEnabled": true,
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": true,
-            "transparent": false,
-            "opacity": 100,
-            "settings": {
-                "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
-                "featureName": "buurten",
-                "contenttype": "image/jpeg",
-                "tools": {
-                    "styleSwitcher": {
-                        "enabled": true
-                    }
-                }
-            }
-        },
-        {
-           "id": "5",
-            "type": "wms",
             "title": "PDOK Wijken",
             "groupId": "",
             "legendEnabled": true,
@@ -140,7 +117,6 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": false,
-            "opacity": 100,
             "settings": {
                 "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
                 "featureName": "wijken",
@@ -150,23 +126,6 @@
                         "enabled": true
                     }
                 }
-            }
-        },
-        {
-            "id": "6",
-            "type": "wms",
-            "title": "PDOK Bevolkingskernen 2011",
-            "groupId": "",
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "transparent": false,
-            "opacity": 0,
-            "settings": {
-                "url": "https://service.pdok.nl/cbs/bevolkingskernen-2011/wms/v1_0",
-                "featureName": "cbsbevolkingskernen2011",
-                "contenttype": "image/jpeg"
             }
         }
     ],
@@ -312,13 +271,13 @@
                 "pointCloudAttenuationMaximum": 2,
                 "terrainProviders": [
                     {
-                        "title": "Zeeland 1m",
-                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
+                        "title": "PDOK Terrain",
+                        "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
                         "vertexNormals": true
                     },
                     {
-                        "title": "PDOK Terrain",
-                        "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
+                        "title": "Zeeland 1m",
+                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
                         "vertexNormals": true
                     },
                     {
@@ -378,7 +337,7 @@
         },
         {
             "id": "flooding",
-            "enabled": true,
+            "enabled": false,
             "settings": {
                 "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
                 "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson",
