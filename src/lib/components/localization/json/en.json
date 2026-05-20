@@ -17,13 +17,7 @@
             "show": "Show",
             "hide": "Hide",
             "reset": "Reset"
-        },
-        "notFound": {
-            "title": "Page not found",
-            "description":" The adress entered does not match any of the available viewers",
-            "linktext": "View available viewers"
-        },
-        "dataportal": "Dataportal"
+        }
     },
     "tools": {
         "menu": {
@@ -158,7 +152,8 @@
             "enableClipping": "Enable Clipping",
             "clampToTerrain": "Clamp to Terrain",
             "styling": "Styling",
-            "viewRecordOn": "View record on"
+            "viewRecordOn": "View record on",
+            "dataportal": "Dataportal"
         },
         "layerManager": {
             "label": "Layer Manager",
@@ -175,7 +170,8 @@
             "btnShowAll": "Show All",
             "btnHideAll": "Hide All",
             "filterPointCloudClasses": "Filter Point Cloud classes",
-            "heightControlLabel": "Tileset height offset (m)"
+            "heightControlLabel": "Tileset height offset (m)",
+            "dataportal": "Dataportal"
         },
         "layerTools": {
             "theme": {

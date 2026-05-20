@@ -17,13 +17,7 @@
             "show": "Tonen",
             "hide": "Verbergen",
             "reset": "Resetten"
-        },
-        "notFound": {
-            "title": "Pagina niet gevonden",
-            "description":"Het ingevoerde adres komt niet overeen met een beschikbare viewer.",
-            "linktext": "Bekijk beschikbare viewers"
-        },
-        "dataportal": "Dataportaal"
+        }
     },
     "tools": {
         "menu": {
@@ -165,7 +159,8 @@
             "enableClipping": "Clip-optie inschakelen",
             "clampToTerrain": "Vastzetten op terrein",
             "styling": "Stijl",
-            "viewRecordOn": "Bekijk record op"
+            "viewRecordOn": "Bekijk record op",
+            "dataportal": "Dataportaal"
         },
         "layerManager": {
             "label": "Lagenbeheer",
@@ -182,7 +177,8 @@
             "btnShowAll": "Alles tonen",
             "btnHideAll": "Alles verbergen",
             "filterPointCloudClasses": "Filter puntenwolk klasses",
-            "heightControlLabel": "Hoogtecorrectie Tileset (m)"
+            "heightControlLabel": "Hoogtecorrectie Tileset (m)",
+            "dataportal": "Dataportaal"
         },
         "layerTools": {
             "theme": {

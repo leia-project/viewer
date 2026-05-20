@@ -6,7 +6,6 @@
     import LibraryLayer from "./LibraryLayer.svelte";
     import type { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
     import type { LayerLibrary } from "$lib/components/map-core/layer-library";
-	import { dataTool } from "echarts";
 
     export let library: LayerLibrary;
     export let group: LayerConfigGroup;
@@ -48,7 +47,7 @@
                 {:else if group.id === "group_uncategorised"}
                     {textNoCategory}
                 {:else if group.id === "dataportal"}
-                    {$_('general.dataportal')}
+                    {$_('tools.layerLibrary.dataportal')}
                 {:else}
                     {group.title}
                 {/if}
