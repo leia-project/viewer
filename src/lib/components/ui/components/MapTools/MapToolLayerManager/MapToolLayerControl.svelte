@@ -202,10 +202,16 @@
                 </div>
             </div>
             {#if layer.config.type === "wms" && metadataUrl}
-                <a href={metadataUrl} target="_blank" rel="noopener noreferrer">
+                <a
+                    href={metadataUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="metadata-link"
+                    title={$_("tools.layerManager.openMetadata")}
+                    aria-label={$_("tools.layerManager.openMetadata")}
+                >
                     <Information
                         size={16}
-                        color="black"
                     />
                 </a>
             {/if}
@@ -364,5 +370,23 @@
         justify-content: right;
         margin-top: var(--cds-spacing-05);
         gap: var(--cds-spacing-02);
+    }
+
+    .metadata-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 2px;
+        color: var(--cds-icon-primary, #161616);
+        transition: color 0.15s ease, background-color 0.15s ease;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .metadata-link:hover,
+    .metadata-link:focus-visible {
+        color: var(--cds-link-primary, #0f62fe);
+        background-color: var(--cds-hover-ui, #e5e5e5);
     }
 </style>
