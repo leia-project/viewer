@@ -6,8 +6,8 @@ import type { OgcFeaturesLayer } from "../module/layers/ogc-features-layer";
 import { get, writable, type Writable } from "svelte/store";
 import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
 import type { OgcStyleCondition } from "../module/providers/ogc-features-provider";
-
-
+ 
+ 
 export interface RainfallToolSettings {
     scenariosBaseUrl: string;
     regionsUrl: string;
@@ -15,7 +15,7 @@ export interface RainfallToolSettings {
     floodedRoadsUrl: string;
     floodedRoadsStyle: Array<OgcStyleCondition>;
 };
-
+ 
 export interface Region {
     type: string;
     geometry: {
@@ -28,48 +28,48 @@ export interface Region {
         scenarios: Array<string>;
     };
 };
-
+ 
 export class RainfallLayerController {
-
+ 
     private map: Map;
     public activeRegion: Writable<Region | undefined>;
     public selectedScenario: Writable<string | undefined> = writable(undefined);
-    
+ 
     public time: Writable<number> = writable(0);
     public minTime: Writable<number> = writable(0);
     public maxTime: Writable<number> = writable(1);
     public stepInterval: Writable<number> = writable(0.05);
-
+ 
     public layerConfigGroup: LayerConfigGroup = new LayerConfigGroup("rainfall", "Rainfall");
     public geoJsonLayer: GeoJsonLayer;
-    // public rainfallLayer: FloodLayer;
+    public rainfallLayer: FloodLayer;
     //public roadsLayer?: OgcFeaturesLayer;
     // public floodedRoadsLayer: OgcFeaturesLayer;
-
-
-
+ 
+ 
+ 
     constructor(map: Map, settings: RainfallToolSettings, activeRegion: Writable<Region | undefined>, selectedScenario: Writable<string | undefined>) {
         this.map = map;
         this.activeRegion = activeRegion;
         this.selectedScenario = selectedScenario;
         this.map.layerLibrary.addLayerConfigGroup(this.layerConfigGroup);
         this.geoJsonLayer = this.addGeoJsonLayer();
-        // this.rainfallLayer = this.addFloodLayer(settings.scenariosBaseUrl);
+        this.rainfallLayer = this.addFloodLayer(settings.scenariosBaseUrl);
         // this.floodedRoadsLayer = this.addFloodedRoadsLayer(settings.floodedRoadsUrl, settings.floodedRoadsStyle);
-        
+ 
         this.activeRegion.subscribe(() => {
             this.selectedScenario.set(undefined);
-            // this.rainfallLayer?.clear();
+            this.rainfallLayer?.clear();
             this.time.set(0);
         });
-
+ 
         this.selectedScenario.subscribe((scenario) => {
             const region = get(this.activeRegion);
             if (region && scenario) {
-                // this.loadNewScenario(region, scenario);
+                this.loadNewScenario(region, scenario);
             }
         });
-        
+ 
         this.time.subscribe((time) => {
             const region = get(this.activeRegion);
             const scenario = get(this.selectedScenario) || 'geen_scenario';
@@ -77,42 +77,42 @@ export class RainfallLayerController {
                 const scenarioId = `${region?.properties.naam}_${region?.properties.fid}}`;
                 const timestring = (Math.round(time) * 6).toString().padStart(5, "0")
                 const parameters = {
-                    scenario: scenarioId, 
-                    timestep: timestring, 
+                    scenario: scenarioId,
+                    timestep: timestring,
                     limit: "666"
                 }
                 // this.floodedRoadsLayer?.source.switchUrl(settings.floodedRoadsUrl, parameters);
             };
         });
     }
-
+ 
     public showAll(): void {
         this.geoJsonLayer?.visible.set(true);
-        // this.rainfallLayer?.visible.set(true);
+        this.rainfallLayer?.visible.set(true);
         // this.floodedRoadsLayer?.visible.set(true);
     }
-    
+ 
     public addRegions(regions: Array<Region>): void {
         this.geoJsonLayer?.loadFeatures(regions);
     }
-
-    // public async loadNewScenario(region: Region, scenario: string): Promise<void> {
-    //     if (this.rainfallLayer) {
-    //         this.rainfallLayer.loadRainfallScenario(region, scenario).then(() => {
-    //             const numberOfSteps = this.rainfallLayer.source?.waterLevels.length;
-    //             this.maxTime.set(numberOfSteps);
-    //         });
-    //     }
-    //     const scenarioId = `${region.properties.name}_${scenario}`;
-    //     const endpoint = this.floodedRoadsLayer.config.settings.url;
-    //     const parameters = {
-    //         scenario: scenarioId, //region.properties.scenarios[0],
-    //         timestep: (Math.round(get(this.time)) * 6).toString().padStart(5, "0"),
-    //         limit: "500"
-    //     }
-    //     this.floodedRoadsLayer?.source.switchUrl(endpoint, parameters);
-    // }
-
+ 
+    public async loadNewScenario(region: Region, scenario: string): Promise<void> {
+        if (this.rainfallLayer) {
+            this.rainfallLayer.loadRainfallScenario(region, scenario).then(() => {
+                const numberOfSteps = this.rainfallLayer.source?.waterLevels.length;
+                this.maxTime.set(numberOfSteps);
+            });
+        }
+        //     const scenarioId = `${region.properties.name}_${scenario}`;
+        //     const endpoint = this.floodedRoadsLayer.config.settings.url;
+        //     const parameters = {
+        //         scenario: scenarioId, //region.properties.scenarios[0],
+        //         timestep: (Math.round(get(this.time)) * 6).toString().padStart(5, "0"),
+        //         limit: "500"
+        //     }
+        //     this.floodedRoadsLayer?.source.switchUrl(endpoint, parameters);
+    }
+ 
     private addGeoJsonLayer(): GeoJsonLayer {
         const layerConfig = new LayerConfig({
             id: "rain_regions",
@@ -133,7 +133,7 @@ export class RainfallLayerController {
         }
         return layer;
     }
-
+ 
     private addFloodLayer(baseUrl: string): FloodLayer {
         const layerConfig = new LayerConfig({
             id: "flood_layer_rainfall",
@@ -157,7 +157,7 @@ export class RainfallLayerController {
         floodLayer.time = this.time;
         return floodLayer;
     }
-
+ 
     /*
     public addRoadsLayer(): void {
         const layerConfig = new LayerConfig({
@@ -180,7 +180,7 @@ export class RainfallLayerController {
         this.roadsLayer = this.map.addLayer(layerConfig) as OgcFeaturesLayer;
     }
     */
-
+ 
     private addFloodedRoadsLayer(baseUrl: string, style: Array<OgcStyleCondition>): OgcFeaturesLayer {
         const layerConfig = new LayerConfig({
             id: "flooded_roads",
@@ -196,7 +196,7 @@ export class RainfallLayerController {
                     tileWidth: 40640,
                     style: style
                 },
-                parameters: { 
+                parameters: {
                     scenario: get(this.selectedScenario)?.toString(), //"26_NzSch-dp_160_300",
                     // "scenario": layerId, // scenario not yet formatted correctly in data
                     timestep: (Math.round(get(this.time)) * 6).toString().padStart(5, "0"),
@@ -216,3 +216,4 @@ export class RainfallLayerController {
         return floodedRoadsLayer;
     }
 }
+ 

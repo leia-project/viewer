@@ -317,7 +317,9 @@
         {
             "id": "rainStress",
             "enabled": true,
-            "settings": {}
+            "settings": {
+                "scenariosBaseUrl": "http://127.0.0.1:3000"
+            }
         },
         {
             "id": "stories",

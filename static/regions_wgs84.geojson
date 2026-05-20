@@ -14,9 +14,9 @@
 				"fid": 8,
 				"naam": "Schouwen-Duiveland",
 				"scenarios": [
-					"3000",
-					"30000",
-					"300000"
+					3000,
+					30000,
+					300000
 				]
 			},
 			"geometry": {
@@ -15013,9 +15013,9 @@
 				"fid": 11,
 				"naam": "Tholen",
 				"scenarios": [
-					"3000",
-					"30000",
-					"300000"
+					3000,
+					30000,
+					300000
 				]
 			},
 			"geometry": {
@@ -27088,11 +27088,11 @@
 			"type": "Feature",
 			"properties": {
 				"fid": 15,
-				"naam": "Walcheren - Bevelanden",
+				"naam": "Walcheren-Bevelanden",
 				"scenarios": [
-					"3000",
-					"30000",
-					"300000"
+					3000,
+					30000,
+					300000
 				]
 				
 			},
@@ -54708,9 +54708,9 @@
 				"fid": 16,
 				"naam": "Zeeuws-Vlaanderen West",
 				"scenarios": [
-					"3000",
-					"30000",
-					"300000"
+					3000,
+					30000,
+					300000
 				]
 			},
 			"geometry": {
@@ -66057,9 +66057,9 @@
 				"fid": 17,
 				"naam": "Zeeuws-Vlaanderen Oost",
 				"scenarios": [
-					"3000",
-					"30000",
-					"300000"
+					3000,
+					30000,
+					300000
 				]
 			},
 			"geometry": {
@@ -85424,9 +85424,9 @@
 				"fid": 18,
 				"naam": "Reimerswaal",
 				"scenarios": [
-					"3000",
-					"30000",
-					"300000"
+					3000,
+					30000,
+					300000
 				]
 			},
 			"geometry": {
