@@ -26,9 +26,10 @@ export class GeoNetworkConnector implements LibraryConnector {
                 const layerConfigs = new Array<LayerConfig>();
 
                 for (let i = 0; i < groups.length; i++) {
+                    if (groups[i].id === "dataportal") continue;  // skip fake parent
                     const configs = await this.getLayerConfigs(groups[i]);
                     layerConfigs.push(...configs);
-                }
+                    }
 
                 this.data = new LibraryConnectorData(groups, layerConfigs);
                 console.log(this.data);
@@ -71,7 +72,7 @@ export class GeoNetworkConnector implements LibraryConnector {
             const result = await this.get(request);
 
             if (result) {
-                return this.geoNetworkLayersToLayerConfigs(result);
+                return this.geoNetworkLayersToLayerConfigs(result, group.id);
             } else {
                 console.log("GeoNetwork Connector: Get packages request unsuccessful");
                 setTimeout(() => this.getLayerConfigs(group), 2000); // Re-try after 2 seconds
@@ -119,7 +120,7 @@ export class GeoNetworkConnector implements LibraryConnector {
         return groups;
     }
 
-    private geoNetworkLayersToLayerConfigs(result: any): Array<LayerConfig> {
+    private geoNetworkLayersToLayerConfigs(result: any, groupId: string): Array<LayerConfig> {
         const configs = new Array<LayerConfig>();
 
         if(!result?.metadata) {
@@ -130,12 +131,14 @@ export class GeoNetworkConnector implements LibraryConnector {
 
         for(let i = 0; i < layers.length; i++) {
             const l = layers[i];
-            let groupId = l.topicCat || 'dataportal'; // Default to dataportal if no group is found
+
+            // let groupId = l.topicCat || 'dataportal'; // Default to dataportal if no group is found
 
             // If groupId is an array, use the first element
-            if (Array.isArray(groupId)) {
-                groupId = groupId[0];
-            }
+            // If only the first element is used the dataportal appears incomplete therefore the layers will be added in every categorie they belong
+            // if (Array.isArray(groupId)) {
+                //groupId = groupId[0];
+            //}
             
             const layerSettings = this.getSettings(l.link);
             if (Object.keys(layerSettings).length === 0) {
