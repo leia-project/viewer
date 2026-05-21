@@ -66,9 +66,6 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public colorGradientEnd: Cesium.Color = Cesium.Color.RED;
 	public style: Writable<string> = writable("default");
 	public styleType: Writable<string> = writable();
-	private styleUnsubscriber: Unsubscriber = this.style.subscribe((property: string) => {
-		if (property && this.loaded) this.setStyle(property);
-	});
 	public legend: Writable<GeoJSONlegend> = writable();
 	public maxLengthLegend: number = 50;
 	
@@ -77,7 +74,8 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public extrusionSliderStep: number;
 	public extrusionSliderHeight: Writable<number> = writable(0);
 	public extrusionSliderLabel: string;
-	private extrusionUnsubscriber?: Unsubscriber;
+
+	private unsubscribers: Array<Unsubscriber> = [];
 
 	public clampToGround: boolean;
 
@@ -117,10 +115,18 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
     }
 
 	private addListeners(): void {
-		let use3DModeUnsubscriber = this.map.options.use3DMode.subscribe((b) => {
-			if (!this.source || !this.boundingSphere) return;
-			this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, b);
-		});
+		this.unsubscribers.push(
+			this.style.subscribe((property: string) => {
+				if (property && this.loaded) this.setStyle(property);
+			}),
+			this.extrusionSliderHeight.subscribe((value: number) => {
+				if (this.loaded && this.config.settings.tools?.extrude) this.setExtrusion(value);
+			}),
+			this.map.options.use3DMode.subscribe((b) => {
+				if (!this.source || !this.boundingSphere) return;
+				this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, b);
+			})
+		);
 	}
 
 	public async addToMap(): Promise<void> {
@@ -129,20 +135,13 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		await this.map.viewer.dataSources.add(this.source);
 		this.addListeners();
 		this.setAvailableProperties();
-		this.styleUnsubscriber = this.style.subscribe((property: string) => {
-			if (property && this.loaded) this.setStyle(property);
-		});
-		this.extrusionUnsubscriber = this.extrusionSliderHeight.subscribe((value: number) => {
-			if (this.loaded && this.config.settings.tools?.extrude) this.setExtrusion(value);
-		});
 		get(this.visible) ? this.show() : this.hide();
 		if (this.config.settings["dragDropped"]) this.zoomTo();
 	}
 
 	public removeFromMap(): void {
 		this.removeControl();
-		this.styleUnsubscriber();
-		this.extrusionUnsubscriber?.();
+		this.unsubscribers.forEach(unsub => unsub());
 		this.availableProperties = [];
 		this.source.entities.removeAll();
 		this.outlines?.entities.removeAll();

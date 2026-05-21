@@ -1,4 +1,4 @@
-import { type Writable, writable, get } from "svelte/store";
+import { type Writable, writable, get, type Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
 import { Cesium3DTileset, ShadowMode } from "cesium";
 import { CustomLayerControl } from "$lib/components/map-core/custom-layer-control";
@@ -24,6 +24,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	public clipControl: CustomLayerControl | undefined;
 	public pointCloudFilterControl: CustomLayerControl | undefined;
 	private alpha: number;
+	private unsubscribers: Array<Unsubscriber> = [];
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
@@ -31,7 +32,6 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		this.alpha = this.getOpacity(this.config.opacity);
 
 		this.createLayer();
-		this.addListeners();
 	}
 
 	// Called from opacity subscriber in layer.ts
@@ -49,16 +49,26 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	}
 
 	private addListeners(): void {
-		this.tilesetHeight.subscribe(h => {
-			this.setHeight(h);
-		});
-
-		let use3DModeUnsubscribe = this.map.options.use3DMode.subscribe((b) => {
-			if (!this.source) return;
-			this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.source.boundingSphere, b);
-		});
+		this.unsubscribers.push(
+			this.tilesetHeight.subscribe(h => {
+				this.setHeight(h);
+			}),
+			this.map.options.use3DMode.subscribe((b) => {
+				if (!this.source) return;
+				this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.source.boundingSphere, b);
+			})
+		);
 	}
 
+	public addToMap(): void {
+		super.addToMap();
+		this.addListeners();
+	}
+	public removeFromMap(): void {
+		this.unsubscribers.forEach(unsub => unsub());
+		super.removeFromMap();
+	}
+	
 	private async createLayer(): Promise<void> {
 
 		const tileset = await Cesium3DTileset.fromUrl(this.config.settings["url"], {
