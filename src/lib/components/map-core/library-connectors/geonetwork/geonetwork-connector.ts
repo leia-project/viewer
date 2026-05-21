@@ -31,7 +31,6 @@ export class GeoNetworkConnector implements LibraryConnector {
                 }
 
                 this.data = new LibraryConnectorData(groups, layerConfigs);
-                console.log(this.data);
             } catch (error) {
                 throw error;
             }
@@ -177,17 +176,16 @@ export class GeoNetworkConnector implements LibraryConnector {
         return result ? result.value : undefined;
     }
 
-    private getImageUrl(image: any): string {
-        // get imageUrl
-        let imageUrl;
-        if(image instanceof Array) {
+    private getImageUrl(image: any): string | undefined {
+        let imageUrl: string | undefined = undefined;
+        if (image instanceof Array) {
             for (let i = 0; i < image.length; i++) {
                 imageUrl = image[i].startsWith('thumbnail') ? image[i] : undefined
             }
         } else {
             imageUrl = image
         }
-        return imageUrl ? imageUrl.split('|')[1] : undefined
+        return imageUrl?.split('|')[1];
     }
 
     private getSettings(link: Array<string>): Object {

@@ -1,10 +1,9 @@
-import { writable } from "svelte/store";
-import type { Writable } from "svelte/store";
-import type { CarbonIcon } from "carbon-icons-svelte";
+import type { SvelteComponent } from "svelte";
+import { writable, type Writable } from "svelte/store";
 
 export class MapToolMenuOption {
 	public id: string;
-	public icon: CarbonIcon;
+	public icon: SvelteComponent;
 	public label: Writable<string>;
 	public settings: Writable<any>;
 	public bottom: boolean;
@@ -15,10 +14,10 @@ export class MapToolMenuOption {
 	public openMenuOnClick: boolean;
 	public onToolButtonClick!: (e: CustomEvent<any>) => void;
 
-	constructor(id: string, icon: CarbonIcon, label: string, bottom: boolean = false, width: string | undefined = undefined, showInToolbar: boolean = true, openMenuOnClick: boolean = true) {
+	constructor(id: string, icon: SvelteComponent, label: string | undefined = undefined, bottom: boolean = false, width: string | undefined = undefined, showInToolbar: boolean = true, openMenuOnClick: boolean = true) {
 		this.id = id;
 		this.icon = icon;
-		this.label = writable<string>(label);
+		this.label = writable<string>(label ?? "");
 		this.settings = writable<any>(undefined);
 		this.bottom = bottom;	
 		this.width = writable<string>(width);

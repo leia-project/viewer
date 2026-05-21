@@ -1,21 +1,17 @@
 <script lang="ts">
     import { getContext, onMount } from "svelte";
     import { _ } from "svelte-i18n";
-
     import { XMLParser } from 'fast-xml-parser';
     import { Slider, Checkbox, Button, AccordionItem, Dropdown } from "carbon-components-svelte";
-    import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
-    import Search from "carbon-icons-svelte/lib/Search.svelte";
-    import ErrorMessage from "$lib/components/ui/components/ErrorMessage/ErrorMessage.svelte"
+	import { Search, TrashCan } from "carbon-icons-svelte";
 
     import type { Layer } from "$lib/components/map-core/layer";
+    import ErrorMessage from "$lib/components/ui/components/ErrorMessage/ErrorMessage.svelte"
 
     const { map } = getContext<any>("mapTools");
 
     export let layer: Layer;
     export let active: boolean = false;
-    export let textOpacity: string;
-    //export let textInfo: string = "Info";
 
     let open: boolean;
     let imageValid: boolean = true;
@@ -23,13 +19,12 @@
     let items: { id: string; text: string }[] = [];
     
     const defaultLegendUrl = layer.config.legendUrl;
-    let hasConfigLegendUrl = defaultLegendUrl !== undefined && defaultLegendUrl !== "";
+    const hasConfigLegendUrl = defaultLegendUrl !== undefined && defaultLegendUrl !== "";
     let legendUrl: string | undefined = undefined; // The actual URL used to render the legend image
 
     const visible = layer.visible;
     const opacity = layer.opacity;
     const customControls = layer.customControls;
-    $: textOpacity = `${$_("tools.layerManager.opacity")} ` + $opacity + "%";
     
     async function getWMSStyleNames(getCapabilitiesUrl: string, featureName: string) {
         try {
@@ -168,12 +163,18 @@
             {#if descriptionValid && layer.config.description}
                 <p class="description">{layer.config.description}</p>
             <!-- {#if !descriptionValid}
-                <ErrorMessage message="{$_("tools.layerManager.legendNotFoundText")}" />
+                <ErrorMessage message={$_("tools.layerManager.legendNotFoundText")} />
             {/if} -->
             {/if}
         {/if}
         {#if layer.config.opacitySupported}
-            <Slider hideTextInput labelText={textOpacity} min={0} max={100} bind:value={$opacity} />
+            <Slider
+                hideTextInput
+                labelText={`${$_("tools.layerManager.opacity")} ` + $opacity + "%"}
+                min={0}
+                max={100}
+                bind:value={$opacity}
+            />
         {/if}
         {#if layer.config.type === "wms" && layer.config.settings?.tools?.styleSwitcher?.enabled == true}        
             <Dropdown
@@ -197,7 +198,7 @@
             {#if imageValid && legendUrl !== ""}
                 <img class="legend" src={legendUrl} alt="legend" on:error={()=>{imageValid = false}} />
             {:else if !imageValid || legendUrl==""}
-                <ErrorMessage message="{$_("tools.layerManager.legendNotFoundText")}" />
+                <ErrorMessage message={$_("tools.layerManager.legendNotFoundText")} />
             {/if}
         {/if}
         <div class="button-wrapper">

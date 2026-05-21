@@ -1,17 +1,15 @@
 import { Map } from "$lib/components/map-cesium/module/map";
-import { writable } from 'svelte/store';
-
-import type { Writable } from "svelte/store";
+import { writable, type Writable } from 'svelte/store';
 import type { ConfigSettings } from './config-settings';
-import { get } from "svelte/store";
+
 
 class App {
-    public map!: Writable<Map | undefined>;
-	public configSettings!: Writable<ConfigSettings>;
+    public map: Writable<Map | undefined>;
+	public configSettings: Writable<ConfigSettings | undefined>;
 
 	constructor() {
-		this.map = writable<Map | undefined>(undefined);
-		this.configSettings = writable<ConfigSettings>(undefined);
+		this.map = writable(undefined);
+		this.configSettings = writable(undefined);
 	}
 
 	public init() {

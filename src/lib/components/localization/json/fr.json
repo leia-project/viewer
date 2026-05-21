@@ -154,7 +154,9 @@
         "layerManager": {
             "label": "Gestionnaire de Calques",
             "baseLayers": "Calques d'arrière-plan",
-            "thematicLayer": "Calques thématiques",
+            "thematicLayers": "Calques thématiques",
+            "myLayers": "Mes calques",
+            "dragDroppedLayers": "Calques glissés-déposés",
             "opacity": "Opacité",
             "legend": "Légende",
             "legendNotFoundText": "Légende non trouvée",

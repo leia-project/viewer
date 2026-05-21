@@ -1,33 +1,30 @@
 <script lang="ts">
 	// @ts-ignore
 	import { Wkt } from "wicket";
+	import { onDestroy } from "svelte";
+	import { writable } from "svelte/store";
 	import { _ } from "svelte-i18n";
 	import * as Cesium from "cesium";
-	import { getContext, onDestroy } from "svelte";
-	import { get, writable } from "svelte/store";
 	import { HeaderSearch } from "carbon-components-svelte";
 	import { getFeatureBounds } from "$lib/components/map-cesium/module/utils/map-utils";
-	import { Number_0 } from "carbon-icons-svelte";
-
-	export let txtPlaceholder = get(_)("tools.geocoder.search");
-
-	const { app } = getContext<any>("page");
+	import { app } from "$lib/app/app";
 
 	let geocoderName: string;
 	let geocoderUrl: string;
-	let value = writable<string>();
+	const value = writable<string>();
 	let selectedResultIndex = 0;
 	let events: any[] = [];
 	let results = new Array<any>();
 	let debounceTimer: ReturnType<typeof setTimeout>;
 
-	$: map = get(app.map);
 
 	onDestroy(() => {
 		clearTimeout(debounceTimer);
 	});
 
-	app.map.subscribe((map) => {
+	const map = app.map;
+
+	map.subscribe((map) => {
 		if (map) {
 			map.configLoaded.subscribe((loaded: boolean) => {
 				if (loaded) {
@@ -207,7 +204,7 @@
 			increaseBoundSize(box, 0.001 - maxDiff);
 		}
 
-		map.camera.setView({
+		$map?.camera.setView({
 			destination: Cesium.Rectangle.fromDegrees(box[0], box[1], box[2], box[3])
 		});
 	}
@@ -223,7 +220,7 @@
 <HeaderSearch
 	bind:value={$value}
 	bind:selectedResultIndex
-	placeholder={txtPlaceholder}
+	placeholder={$_("tools.geocoder.search")}
 	width={"600px"}
 	{results}
 	on:active={() => {

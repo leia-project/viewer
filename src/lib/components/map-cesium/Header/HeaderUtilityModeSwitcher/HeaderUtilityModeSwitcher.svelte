@@ -1,15 +1,13 @@
 <script lang="ts">
+	import { onMount } from "svelte";
+	import { get } from "svelte/store";
 	import { _ } from "svelte-i18n";
 	import * as Cesium from "cesium";
-	import { getContext, onMount } from "svelte";
-	import { get, writable, type Writable } from "svelte/store";
 	import { Toggle } from "carbon-components-svelte";
 	import type { Map } from "../../module/map";
 
+	export let map: Map;
 
-	const { app } = getContext<any>("page");
-
-	$: map = get(app.map) as Map;
 	$: use3Dmode = map.options.use3DMode;
 	$: disableModeSwitcher = map.options.disableModeSwitcher;
 	let ready = false;
@@ -30,7 +28,7 @@
 		};
 	});
 	
-	function initializeIn2D() {
+	function initializeIn2D(): void {
 		if (map) {
 			// Disable tilt controls
 			map.viewer.scene.screenSpaceCameraController.enableTilt = false;
@@ -45,7 +43,7 @@
 
 
 	// Note: we dont use the built-in scene switcher because it sucks
-	function to2D() {
+	function to2D(): void {
 		if (map) {
 			// Get the center of the screen
 			var screenPosition = new Cesium.Cartesian2(
@@ -100,7 +98,7 @@
 		}
 	}
 
-	function to3D() {
+	function to3D(): void {
 		if (map) {
 			map.viewer.camera.flyTo({
 				destination: map.viewer.camera.position,

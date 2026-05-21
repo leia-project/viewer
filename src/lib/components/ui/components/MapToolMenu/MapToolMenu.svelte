@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { onDestroy, setContext, getContext } from "svelte";
-    import { writable, readable, type Unsubscriber, get } from "svelte/store";
+    import { setContext } from "svelte";
+    import { writable, type Unsubscriber } from "svelte/store";
     import ChevronLeft from "carbon-icons-svelte/lib/ChevronLeft.svelte";
     import ChevronRight from "carbon-icons-svelte/lib/ChevronRight.svelte";
 

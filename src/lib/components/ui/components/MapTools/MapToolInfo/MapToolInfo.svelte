@@ -1,35 +1,20 @@
 <script lang="ts">
-    import { getContext } from "svelte";
+    import { getContext, SvelteComponent } from "svelte";
     import { _ } from "svelte-i18n";
-    import { get } from "svelte/store";
+	import { Information } from "carbon-icons-svelte";
     import { MapToolMenuOption } from "../../MapToolMenu/MapToolMenuOption";
-    import Information from "carbon-icons-svelte/lib/Information.svelte";
     import MapToolInfoView from "./MapToolInfoView.svelte";
     import type { Attribution } from "$lib/components/ui/models/Attribution";
     
     const { registerTool, getMapContainer } = getContext<any>("mapTools");
 
-    let id: string = "info";
-    export let icon: any = Information;
+    export let icon: SvelteComponent = Information;
     export let txtViewerTitle: string | undefined = undefined;
     export let txtViewerDescription: string | undefined = undefined;
     export let attribution: Array<Attribution> = new Array<Attribution>();
-
-    export let label: string;
-    export let txtTitle: string;
-    export let txtClose: string;
-    export let txtGeneral: string;
-    export let txtAttribution: string;
-
-    $: label = $_("tools.info.label");
-    $: txtTitle = $_("tools.info.label");
-    $: txtClose = $_("tools.info.close");
-    $: txtGeneral = $_("tools.info.general");
-    $: txtAttribution = $_("tools.info.attribution");
     
-    let infoView: MapToolInfoView | undefined = undefined;
-    let tool = new MapToolMenuOption(id, icon, label, true, undefined, true, false);
-    $: { tool.label.set(label); }
+    const tool = new MapToolMenuOption("info", icon, "", true, undefined, true, false);
+    $: tool.label.set($_("tools.info.label"));
 
     tool.onToolButtonClick = (e: CustomEvent<any>) => {
         showInfo();
@@ -43,11 +28,13 @@
                 txtViewerTitle = settings.title;
             }
 
-            if(settings.description) {
+            if (settings.description) {
                 txtViewerDescription = settings.description;
             }            
         }
     });
+
+    let infoView: MapToolInfoView | undefined = undefined;
 
     function showInfo(): void {
         const container = getMapContainer();
@@ -59,10 +46,6 @@
         infoView = new MapToolInfoView({
             target: container,
             props: {
-               txtTitle: txtTitle,
-               txtClose: txtClose,
-               txtGeneral: txtGeneral,
-               txtAttribution: txtAttribution,
                txtViewerTitle: txtViewerTitle,
                txtViewerDescription: txtViewerDescription,
                attribution: attribution

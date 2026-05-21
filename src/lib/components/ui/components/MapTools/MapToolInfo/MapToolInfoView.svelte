@@ -1,14 +1,9 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import { Modal } from "carbon-components-svelte";
     import { _ } from "svelte-i18n";
-    import { get } from "svelte/store";
+    import { Modal } from "carbon-components-svelte";
     import { Attribution } from "$lib/components/ui/models/Attribution";
 
-    export let txtTitle = get(_)("tools.info.label");
-    export let txtClose = get(_)("tools.info.close");
-    export let txtGeneral = get(_)("tools.info.general");
-    export let txtAttribution = get(_)("tools.info.attribution");
     export let txtViewerTitle: string | undefined;
     export let txtViewerDescription: string | undefined;
     export let attribution: Array<Attribution> = new Array<Attribution>();
@@ -86,8 +81,8 @@
 
 <Modal
     open={true}
-    modalHeading={txtTitle}
-    primaryButtonText={txtClose}
+    modalHeading={$_("tools.info.label")}
+    primaryButtonText={$_("tools.info.close")}
     on:click:button--secondary={(e) => {
         removeFromView(e);
     }}
@@ -100,7 +95,7 @@
     }}
 >
     <p>
-        {txtGeneral}
+        {$_("tools.info.general")}
     </p>
 
     {#if txtViewerTitle}
@@ -111,7 +106,7 @@
     {/if}
 
     <div class="attribution-wrapper">
-        <h4>{txtAttribution}</h4>
+        <h4>{$_("tools.info.attribution")}</h4>
         {#each att as a}
             <div class="attribution">
                 <!-- svelte-ignore security-anchor-rel-noreferrer -->

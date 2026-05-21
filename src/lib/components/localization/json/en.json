@@ -157,7 +157,9 @@
         "layerManager": {
             "label": "Layer Manager",
             "baseLayers": "Background layers",
-            "thematicLayer": "Thematic layers",
+            "thematicLayers": "Thematic layers",
+            "myLayers": "My layers",
+            "dragDroppedLayers": "Drag and dropped layers",
             "opacity": "Opacity",
             "legend": "Legend",
             "legendNotFoundText": "Legend not found",

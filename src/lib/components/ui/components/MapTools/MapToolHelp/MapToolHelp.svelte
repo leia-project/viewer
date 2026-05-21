@@ -2,27 +2,17 @@
     import { getContext } from "svelte";
     import { _ } from "svelte-i18n";
     import { get, writable } from "svelte/store";
+	import { Help } from "carbon-icons-svelte";
     import { MapToolMenuOption } from "../../MapToolMenu/MapToolMenuOption";
-    import Help from "carbon-icons-svelte/lib/Help.svelte";
-    import MapToolHelpView from "./MapToolHelpView.svelte";
     import { appStorage } from "$lib/components/localization/app-storage";
+    import MapToolHelpView from "./MapToolHelpView.svelte";
 
     const { registerTool, getMapContainer } = getContext<any>("mapTools");
 
-    let id: string = "help";
-    export let icon: any = Help;
-
-    export let label: string;
-
-    $: label = $_("tools.help.label");
-
-    let helpView: MapToolHelpView | undefined = undefined;
-    let tool = new MapToolMenuOption(id, icon, label, true, undefined, true, false);
     const showOnStart = writable<boolean>(false);
 
-    $: {
-        tool.label.set(label);
-    }
+    const tool = new MapToolMenuOption("help", Help, "", true, undefined, true, false);
+    $: tool.label.set($_("tools.help.label"));
 
     tool.onToolButtonClick = (e: CustomEvent<any>) => {
         showHelp();
@@ -42,6 +32,8 @@
             }
         }
     });
+
+    let helpView: MapToolHelpView | undefined = undefined;
 
     function showHelp(): void {
         const container = getMapContainer();

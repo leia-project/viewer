@@ -13,9 +13,10 @@
     
 	import { app } from '$lib/app/app';
 
+    export let showOnStart: boolean = false;
 
-	$: map = get(app.map);
-    $: txtTitle = map?.config?.name ?? $_("tools.help.title");
+	const map = app.map;
+    $: txtTitle = $map?.config?.name ?? $_("tools.help.title");
 
     let customIntroText: string | undefined = undefined;
     let downloadButtonEnabled: boolean | undefined = undefined;
@@ -37,45 +38,38 @@
     let downloadButton: IDownloadButton | undefined = undefined;
 
     onMount(() => {
-        try {
-            if (map) {
-                if (map.config && map.config.tools) {
-                    // Prepare intro tab data
-                    let helpTool = map.config.tools.find((t: any) => t.id === "help");
+        if ($map?.config && $map.config.tools) {
+            // Prepare intro tab data
+            const helpTool = $map.config.tools.find((t: any) => t.id === "help");
 
-                    customIntroText = helpTool.settings.introSettings?.customDescription ?? undefined;
-                    downloadButtonEnabled = helpTool.settings.introSettings?.downloadButton?.enabled ?? false;
-                    downloadButtonUrl = helpTool.settings.introSettings?.downloadButton?.url ?? undefined;
-                    downloadButtonLabel = helpTool.settings.introSettings?.downloadButton?.label ?? undefined;
-                    if (downloadButtonEnabled && downloadButtonUrl && downloadButtonLabel) {
-                        downloadButton = {
-                            enabled: downloadButtonEnabled,
-                            url: downloadButtonUrl,
-                            label: downloadButtonLabel
-                        };
-                    }
-                    
-                    // Prepare data for optional tabs
-                    let floodingTool = map.config.tools.find((t: any) => t.id === "flooding");
-                    floodingToolEnabled = floodingTool ? floodingTool.enabled : false;
-
-                    let storyTool = map.config.tools.find((t: any) => t.id === "stories");
-                    storyToolEnabled = storyTool ? storyTool.enabled : false;
-                    storyToolRequestPolygonArea = Array.isArray(storyTool?.settings?.stories)
-                        ? storyTool.settings.stories.some((story: any) => story?.requestPolygonArea?.enabled)
-                        : false;
-
-                    let isochronesTool = map.config.tools.find((t: any) => t.id === "isochrones");
-                    isochronesToolEnabled = isochronesTool ? isochronesTool.enabled : false;
-                }
+            customIntroText = helpTool.settings.introSettings?.customDescription ?? undefined;
+            downloadButtonEnabled = helpTool.settings.introSettings?.downloadButton?.enabled ?? false;
+            downloadButtonUrl = helpTool.settings.introSettings?.downloadButton?.url ?? undefined;
+            downloadButtonLabel = helpTool.settings.introSettings?.downloadButton?.label ?? undefined;
+            if (downloadButtonEnabled && downloadButtonUrl && downloadButtonLabel) {
+                downloadButton = {
+                    enabled: downloadButtonEnabled,
+                    url: downloadButtonUrl,
+                    label: downloadButtonLabel
+                };
             }
-        } catch (error) {
-            console.error("Error accessing map context:", error);
+            
+            // Prepare data for optional tabs
+            const floodingTool = $map.config.tools.find((t: any) => t.id === "flooding");
+            floodingToolEnabled = floodingTool ? floodingTool.enabled : false;
+
+            const storyTool = $map.config.tools.find((t: any) => t.id === "stories");
+            storyToolEnabled = storyTool ? storyTool.enabled : false;
+            storyToolRequestPolygonArea = Array.isArray(storyTool?.settings?.stories)
+                ? storyTool.settings.stories.some((story: any) => story?.requestPolygonArea?.enabled)
+                : false;
+
+            const isochronesTool = $map.config.tools.find((t: any) => t.id === "isochrones");
+            isochronesToolEnabled = isochronesTool ? isochronesTool.enabled : false;
         }
     });
 
     const base = process.env.APP_URL;
-    export let showOnStart: boolean = false;
 
     let selectedTab = 0;
 
@@ -133,7 +127,7 @@
         open={true}
         modalHeading={txtTitle}
         primaryButtonText={$_("tools.help.close")}
-        secondaryButtonText={ showOnStart ? $_("tools.help.closeDontShowOnStart") : ""}
+        secondaryButtonText={showOnStart ? $_("tools.help.closeDontShowOnStart") : ""}
         size="lg"
         style="margin-bottom: 0;"
         on:click:button--secondary={(e) => {

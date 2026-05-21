@@ -164,7 +164,9 @@
         "layerManager": {
             "label": "Lagenbeheer",
             "baseLayers": "Achtergrondlagen",
-            "thematicLayer": "Thematische lagen",
+            "thematicLayers": "Thematische lagen",
+            "myLayers": "Mijn lagen",
+            "dragDroppedLayers": "Drag and dropped lagen",
             "opacity": "Transparantie",
             "legend": "Legenda",
             "legendNotFoundText": "Geen legenda gevonden",
