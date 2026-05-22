@@ -9,24 +9,23 @@
 	import { Config } from "$lib/map-core/config/config";
     import { ConfigSettings } from '$lib/app/config-settings';
 
+	export let id: string;
+	export let label: string;
+	export let icon: any = Switcher;
+
     const { registerTool, getMapContainer } = getContext<any>("mapTools");
 
-    export let txtTitle = get(_)("tools.config_switcher.title");
-    export let txtIntro = get(_)("tools.config_switcher.intro");
-
-    let configSwitcherView: MapToolConfigSwitcherView | undefined = undefined;
-
-    let configs = new Array<Config>();
-
-    const tool = new MapToolMenuOption("config_switcher", Switcher, "", true, undefined, true, false);
-    $: tool.label.set($_("tools.config_switcher.label"));
-
+    const tool = new MapToolMenuOption(id, icon, label, true, undefined, true, false);
+    registerTool(tool);
 
     tool.onToolButtonClick = (e: CustomEvent<any>) => {
         showConfigSwitcher();
     };
 
-    registerTool(tool);
+    let configSwitcherView: MapToolConfigSwitcherView | undefined = undefined;
+    let configs = new Array<Config>();
+    let txtTitle = get(_)("tools.config_switcher.title");
+    let txtIntro = get(_)("tools.config_switcher.intro");
 
     tool.settings.subscribe(async (settings) => {
         if (settings) {

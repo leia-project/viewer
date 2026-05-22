@@ -4,7 +4,7 @@ import { writable, type Writable } from "svelte/store";
 export class MapToolMenuOption {
 	public id: string;
 	public icon: SvelteComponent;
-	public label: Writable<string>;
+	public label: string;
 	public settings: Writable<any>;
 	public bottom: boolean;
 	public width: Writable<string>;
@@ -14,10 +14,10 @@ export class MapToolMenuOption {
 	public openMenuOnClick: boolean;
 	public onToolButtonClick!: (e: CustomEvent<any>) => void;
 
-	constructor(id: string, icon: SvelteComponent, label: string | undefined = undefined, bottom: boolean = false, width: string | undefined = undefined, showInToolbar: boolean = true, openMenuOnClick: boolean = true) {
+	constructor(id: string, icon: SvelteComponent, label: string, bottom: boolean = false, width: string | undefined = undefined, showInToolbar: boolean = true, openMenuOnClick: boolean = true) {
 		this.id = id;
 		this.icon = icon;
-		this.label = writable<string>(label ?? "");
+		this.label = label;
 		this.settings = writable<any>(undefined);
 		this.bottom = bottom;	
 		this.width = writable<string>(width);

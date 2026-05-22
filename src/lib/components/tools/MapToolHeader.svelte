@@ -1,12 +1,11 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
+    import { _ } from "svelte-i18n";
     import { Close } from "carbon-icons-svelte";
     import Button from "$lib/components/theme/Button/Button.svelte";
     import type { MapToolMenuOption } from "./MapToolMenuOption";
 
     export let tool: MapToolMenuOption;
-
-    $: label = tool.label;
 
     const dispatch = createEventDispatcher();
 
@@ -17,9 +16,8 @@
 
 <div class="tool-header">
     <div class="heading-03">
-        {$label}
+        {$_(tool.label)}
     </div>
-
     <div class="close">
         <Button
             kind="ghost"

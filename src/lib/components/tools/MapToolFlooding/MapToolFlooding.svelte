@@ -9,30 +9,13 @@
 	import LayerControlFlood from "$lib/components/layer-controls/LayerControlFlood/LayerControlFlood.svelte";
 	import BreachEntry from "./BreachEntry.svelte";
 
+	export let id: string;
+	export let label: string;
+	export let icon: any = WaveHeight;
+
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-	export let label: string | undefined;
-  	export let scenario: string;
-  	export let chosenBreach: string;
-	export let noBreachSelected: string;
-	export let otherBreaches: string;
-	export let searchBreach: string;
-	export let noResults: string;
-
-  	$: label = label ?? $_('tools.flooding.label');
-  	$: scenario = $_('tools.flooding.scenario');
-  	$: chosenBreach = $_('tools.flooding.chosenBreach');
-	$: noBreachSelected = $_('tools.flooding.noBreachSelected');
-	$: otherBreaches = $_('tools.flooding.otherBreaches');
-	$: searchBreach = $_('tools.flooding.searchBreach');
-	$: noResults = $_('tools.flooding.noResults');
-
-	const id: string = "flooding";
-	const icon: any = WaveHeight;
-	const showOnBottom: boolean = false;
-
-	const tool = new MapToolMenuOption(id, icon, label, showOnBottom);
-	$: { tool.label.set(label); }
+	const tool = new MapToolMenuOption(id, icon, label, false);
 	registerTool(tool);
 
 	const selectedScenario: Writable<string | undefined> = writable(undefined);
@@ -87,7 +70,7 @@
 {#if $selectedTool === tool && floodLayerController}
 	<div class="wrapper">
 		<div class="selected-content">
-			<div class="bx--label">{chosenBreach}</div>
+			<div class="bx--label">{$_('tools.flooding.chosenBreach')}</div>
 			{#if $activeBreach}
 				{#key $activeBreach}
 					<BreachEntry
@@ -98,10 +81,10 @@
 						<svelte:fragment slot="info"> 
 							<div class="info-content">
 								<Dropdown
-									label={scenario}
+									label={$_('tools.flooding.scenario')}
 									items={$activeBreach.properties.scenarios.map((sc) => ({ id: sc, text: "1:" + sc }))}
 									bind:selectedId={$selectedScenario}
-									titleText={scenario}
+									titleText={$_('tools.flooding.scenario')}
 								/>
 								{#if $selectedScenario}
 									<LayerControlFlood
@@ -116,19 +99,19 @@
 				{/key}
 			{:else}
 				<div>
-					{noBreachSelected}
+					{$_('tools.flooding.noBreachSelected')}
 				</div>
 			{/if}
 		</div>
 
 		<div class="list-content">
-			<div class="bx--label">{otherBreaches}</div>
+			<div class="bx--label">{$_('tools.flooding.otherBreaches')}</div>
 			<div class="search">
-				<Search size="sm" light placeholder={searchBreach} bind:value={$searchString} />
+				<Search size="sm" light placeholder={$_('tools.flooding.searchBreach')} bind:value={$searchString} />
 			</div>
 			<div class="search-results">
 				{#if searchResults.length === 0}
-					<div>{noResults}</div>
+					<div>{$_('tools.flooding.noResults')}</div>
 				{/if}
 				{#each searchResults as breach (breach.properties.name)}
 					{#if breach && (!$activeBreach || breach !== $activeBreach)}

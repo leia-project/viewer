@@ -18,7 +18,6 @@
 	
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-	export let icon: any = Book;
 	export let label: string | undefined;
 	export let textBack: string;
 	export let textStepBack: string;
@@ -29,17 +28,16 @@
 	$: textStepBack = $_("tools.stories.stepBack");
 	$: textStepForward = $_("tools.stories.stepForward");
 
-	let id: string = "stories";
 	let cesiumMap = map as Map;
 	let stories = new Array<Story>();
 	let selectedStory: Story | undefined;
 	let stepNumber: number;
 	let baseLayerId: string | undefined;
-	let tool = new MapToolMenuOption(id, icon, label);
 	const layerLegends: Array<LegendOptions> = [];
 	const layers = cesiumMap.layers;
 
-	$: { tool.label.set(label); }
+	const tool = new MapToolMenuOption("stories", Book, "tools.stories.label");
+
 	registerTool(tool);
 
 	$: {

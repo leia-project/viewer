@@ -8,16 +8,19 @@
     import { MapToolMenuOption } from "../MapToolMenuOption";
     import FeatureInfoView from "./FeatureInfoView.svelte";
 
+	export let id: string;
+	export let label: string;
+	export let icon: any = Information;
+
     const { registerTool, map, getMapContainer } = getContext<any>("mapTools");
 
-    const tool = new MapToolMenuOption("featureinfo", Information, "", false, undefined, false);
-    $: tool.label.set($_("tools.featureInfo.label"));
+    const tool = new MapToolMenuOption(id, icon, label, false, undefined, false);
+    registerTool(tool);
 
     const interactionsBlocked = tool.interactionsBlocked;
     let config: Array<{field: string, handler: string}> | undefined;
     let featureInfoView: FeatureInfoView | undefined = undefined;
 
-    registerTool(tool);
 
     tool.settings.subscribe((settings) => {
         if (settings && settings.fields) {

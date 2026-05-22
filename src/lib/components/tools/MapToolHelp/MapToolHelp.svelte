@@ -9,16 +9,18 @@
 
     const { registerTool, getMapContainer } = getContext<any>("mapTools");
 
+    export let id: string;
+    export let label: string;
+    export let icon: any = Help;
+
     const showOnStart = writable<boolean>(false);
 
-    const tool = new MapToolMenuOption("help", Help, "", true, undefined, true, false);
-    $: tool.label.set($_("tools.help.label"));
+    const tool = new MapToolMenuOption(id, icon, label, true, undefined, true, false);
+    registerTool(tool);
 
     tool.onToolButtonClick = (e: CustomEvent<any>) => {
         showHelp();
     };
-
-    registerTool(tool);
 
     tool.settings.subscribe((settings) => {
         if (settings) {

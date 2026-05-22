@@ -17,28 +17,22 @@
 
     const { registerTool, getMapContainer, map } = getContext<any>("mapTools");
     const localStorageLocation = "library.customLayers";
-    
-    export let label: string | undefined; 
-    export let txtTitle: string;
-    export let txtClose: string;
-    
-    $: label = label ?? get(_)("tools.layerLibrary.label"); 
-    $: txtTitle  = get(_)("tools.layerLibrary.label");
-    $: txtClose = get(_)("tools.layerLibrary.close");
+
+    export let id: string;
+    export let label: string; 
+    export let icon: any = Folder;
 
     let view: MapToolLibraryView | undefined = undefined;
-    let tool = new MapToolMenuOption("layerLibrary", Folder, label, false, undefined, true, false);
-    let useTags: Boolean;
-    let library: LayerLibrary = map ? map.layerLibrary : undefined;
-    $: {
-        tool.label.set(label);
-    }
+
+    const tool = new MapToolMenuOption(id, icon, label, false, undefined, true, false);
+    registerTool(tool);
 
     tool.onToolButtonClick = (e: CustomEvent<any>) => {
         showInfo();
     };
 
-    registerTool(tool);
+    const library: LayerLibrary = map ? map.layerLibrary : undefined;
+    let useTags: Boolean;
 
     tool.settings.subscribe((settings) => {
         if (settings) {
@@ -133,8 +127,8 @@
         view = new MapToolLibraryView({
             target: container,
             props: {
-                txtTitle: txtTitle,
-                txtClose: txtClose,
+                txtTitle: $_(label),
+                txtClose: $_("tools.layerLibrary.close"),
                 library: library,
                 useTags: useTags
             }

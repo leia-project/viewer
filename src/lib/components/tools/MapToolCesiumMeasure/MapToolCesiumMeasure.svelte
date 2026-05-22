@@ -13,13 +13,14 @@
 	import Divider from "$lib/components/theme/Divider/Divider.svelte";
 
 	const { registerTool, selectedTool, map, disableInteractionFromOtherTools, enableInteractionsFromOtherTools } = getContext<any>("mapTools");
-	const id: string = "cesiummeasure";
-	const icon: any = Ruler;
 	const cesiumMap: Map = map;
 	let loaded: boolean = false;
-	export let showOnBottom: boolean = false;
 	
-	export let label: string | undefined;
+	export let id: string;
+	export let label: string;
+	export let icon: any = Ruler;
+	export let showOnBottom: boolean = false;
+
 	export let textNoMeasurements: string;
 	export let textNoMeasurementsSubtitle: string;
 	export let textAdd: string;
@@ -47,8 +48,7 @@
 	$: textTotalLength = $_("tools.measure.totalLength");
 	$: textMeasurementPoints = $_("tools.measure.points");
 
-	let tool = new MapToolMenuOption(id, icon, label, showOnBottom);
-	$: { tool.label.set(label); }
+	const tool = new MapToolMenuOption(id, icon, label, showOnBottom);
 	
 	let measurementId: number = 0;
 	let edittingId = writable<number | undefined>(undefined);

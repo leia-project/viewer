@@ -1,9 +1,9 @@
-import { FeatureInfo } from "./FeatureInfo/feature-info";
+import { type Writable, writable, get } from "svelte/store";
+import { FeatureInfo } from "./feature-info/feature-info";
 import { Layer } from "./layer";
-import { writable, get } from "svelte/store";
 import { CameraLocation } from "./camera-location";
-import { FeatureInfoResults } from "./FeatureInfo/feature-info-results";
-import { FeatureInfoRequestOptions } from "./FeatureInfo/feature-info-request-options";
+import { FeatureInfoResults } from "./feature-info/feature-info-results";
+import { FeatureInfoRequestOptions } from "./feature-info/feature-info-request-options";
 import { Dispatcher } from "./event/dispatcher";
 import { MouseLocation } from "./mouse-location";
 import { Location } from "./location";
@@ -13,7 +13,6 @@ import { notifications } from "./notifications/notifications";
 
 import type { LayerConfig } from "./layer-config";
 import type { LayerConfigGroup } from "./layer-config-group";
-import type { Writable } from "svelte/store";
 import { Notification } from "./notifications/notification";
 import { NotificationType } from "./notifications/notification-type";
 
@@ -24,11 +23,11 @@ export abstract class MapCore extends Dispatcher {
 	public readonly configLoaded: Writable<boolean>;
 	public readonly ready: Writable<boolean>;
 
-	public startPosition: CameraLocation;
+	public startPosition?: CameraLocation;
 	public toolSettings: any;
 	public viewerSettings: any;
 	public autoCheckBackground: boolean = true;
-	public container: HTMLElement;
+	public container!: HTMLElement;
 
 	public config: Config;
 	public configured: boolean | undefined = undefined;
@@ -118,7 +117,9 @@ export abstract class MapCore extends Dispatcher {
 		}
 
 		const layer = this.getLayerById(layerConfig.id);
-		this.removeLayer(layer);
+		if (layer) {
+			this.removeLayer(layer);
+		}
 
 		get(this.layers).splice(index, 1);
 		this.layers.set([...get(this.layers)]);
@@ -156,7 +157,7 @@ export abstract class MapCore extends Dispatcher {
 	 * Get current active background layer
 	 * @returns Active background layer if found, undefined if not found
 	 */
-	public getActiveBackground(): Layer {
+	public getActiveBackground(): Layer | undefined {
 		const layers = get(this.layers);
 
 		for (let i = 0; i < layers.length; i++) {
@@ -174,7 +175,7 @@ export abstract class MapCore extends Dispatcher {
 	 * @param id id of the layer
 	 * @returns Layer for given id if found
 	 */
-	public getLayerById(id: string): Layer {
+	public getLayerById(id: string): Layer | undefined {
 		const layers = get(this.layers);
 		return layers.find((l) => l.config.id === id);
 	}
@@ -184,7 +185,7 @@ export abstract class MapCore extends Dispatcher {
 	 * @param title title of the layer
 	 * @returns Layer for given title if found
 	 */
-	public getLayerByTitle(title: string): Layer {
+	public getLayerByTitle(title: string): Layer | undefined {
 		const layers = get(this.layers);
 		return layers.find((l) => l.config.title === title);
 	}

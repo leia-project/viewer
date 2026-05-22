@@ -17,17 +17,16 @@
 	import type { Map } from "$lib/map-cesium/map";
 	import { MapToolMenuOption } from "../MapToolMenuOption";
 
+
+	export let map: Map;
+	export let id: string;
+	export let label: string;
+	export let icon: any = Settings;
+
+
 	const { registerTool, selectedTool } = getContext<any>("mapTools");
 
-	export let id: string = "cesiumcontrols";
-	export let icon: any = Settings;
-	export let showOnBottom: boolean = true;
-	export let map: Map;
-
-	let tool = new MapToolMenuOption(id, icon, "", showOnBottom);
-	$: {
-		tool.label.set($_("tools.cesium.label"));
-	}
+	const tool = new MapToolMenuOption(id, icon, label, true);
 	registerTool(tool);
 
 

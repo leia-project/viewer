@@ -8,19 +8,20 @@
     
     const { registerTool, getMapContainer } = getContext<any>("mapTools");
 
+    export let id: string;
+    export let label: string;
     export let icon: SvelteComponent = Information;
+
     export let txtViewerTitle: string | undefined = undefined;
     export let txtViewerDescription: string | undefined = undefined;
     export let attribution: Array<Attribution> = new Array<Attribution>();
     
-    const tool = new MapToolMenuOption("info", icon, "", true, undefined, true, false);
-    $: tool.label.set($_("tools.info.label"));
+    const tool = new MapToolMenuOption(id, icon, label, true, undefined, true, false);
+    registerTool(tool);
 
     tool.onToolButtonClick = (e: CustomEvent<any>) => {
         showInfo();
     };
-
-    registerTool(tool);
 
     tool.settings.subscribe((settings) => {
         if (settings) {

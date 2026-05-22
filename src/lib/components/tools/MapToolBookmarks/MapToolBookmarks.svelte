@@ -7,39 +7,15 @@
     import { MapToolMenuOption } from "../MapToolMenuOption";
     import { CameraLocation } from "$lib/map-core/camera-location";
 
-    const { registerTool, selectedTool, map } = getContext<any>("mapTools");
-
-    let id: string = "bookmarks";
+    export let id: string;
+    export let label: string;
     export let icon: any = Bookmark;
     export let bookmarks: Array<CameraLocation> = new Array<CameraLocation>();
 
-    export let label: string | undefined;
-    export let textTitle: string;
-    export let textDescription: string;
-    export let textSave: string;
-    export let textCancel: string;
-    export let textDelete: string;
-    export let textAdd: string;
-    export let textNoBookmarks: string;
-    export let textNoBookmarksSubtitle: string;
-    export let textInfoCameraPosition: string;
-    export let textInfoCameraPositionSubtitle: string;
+    const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-    $: label = label ?? $_("tools.bookmarks.label");
-    $: textTitle = $_("tools.bookmarks.title");
-    $: textDescription = $_("tools.bookmarks.description");
-    $: textSave = $_("tools.bookmarks.save");
-    $: textCancel = $_("tools.bookmarks.cancel");
-    $: textDelete = $_("tools.bookmarks.delete");
-    $: textAdd = $_("tools.bookmarks.add");
-    $: textNoBookmarks = $_("tools.bookmarks.noBookmarks");
-    $: textNoBookmarksSubtitle = $_("tools.bookmarks.noBookmarksSubtitle");
-    $: textInfoCameraPosition = $_("tools.bookmarks.cameraPosition");
-    $: textInfoCameraPositionSubtitle = $_("tools.bookmarks.cameraPositionSubtitle");
-
-
-    let tool = new MapToolMenuOption(id, icon, label);
-    $: { tool.label.set(label); }
+    const tool = new MapToolMenuOption(id, icon, label);
+    registerTool(tool);
 
     let editting: number = -1;
     let edittingTitle: string;
@@ -58,7 +34,6 @@
         }
     });
 
-    registerTool(tool);
 
     function loadBookmarksFromSettings(settings: any) {
         const configBookmarks = settings.bookmarks;
@@ -162,7 +137,7 @@
                     bm["description"],
                     true
                 );
-                newBookmarks.push(bm);
+                newBookmarks.push(newBookmark);
             }
 
             bookmarks.push(...newBookmarks);
@@ -175,21 +150,21 @@
     <div class="wrapper">
         {#if bookmarks.length == 0}
         <div class="notification">
-            <InlineNotification lowContrast hideCloseButton kind="info" title={textNoBookmarks} subtitle={textNoBookmarksSubtitle} />
+            <InlineNotification lowContrast hideCloseButton kind="info" title={$_('tools.bookmarks.noBookmarks')} subtitle={$_('tools.bookmarks.noBookmarksSubtitle')} />
         </div>
         {:else}
             {#each bookmarks as bookmark, i}
                 <div class="bookmark">
                     {#if i === editting}
                         <div class="bookmark-content">
-                            <TextInput labelText={textTitle} placeholder={textTitle} bind:value={edittingTitle} />
-                            <TextArea labelText={textDescription} bind:value={edittingDescription} />
+                            <TextInput labelText={$_('tools.bookmarks.title')} placeholder={$_('tools.bookmarks.title')} bind:value={edittingTitle} />
+                            <TextArea labelText={$_('tools.bookmarks.description')} placeholder={$_('tools.bookmarks.description')} bind:value={edittingDescription} />
                             <InlineNotification
                                 lowContrast
                                 hideCloseButton
                                 kind="info"
-                                title={textInfoCameraPosition}
-                                subtitle={textInfoCameraPositionSubtitle}
+                                title={$_('tools.bookmarks.infoCameraPosition')}
+                                subtitle={$_('tools.bookmarks.infoCameraPositionSubtitle')}
                             />
                             <div class="bookmark-content-buttons">
                                 <div class="left">
@@ -199,7 +174,7 @@
                                         on:click={() => {
                                             deleteBookmark();
                                         }}
-                                        iconDescription={textDelete}
+                                        iconDescription={$_('tools.bookmarks.delete')}
                                         icon={TrashCan}
                                     />
                                 </div>
@@ -209,7 +184,7 @@
                                         on:click={() => {
                                             cancelEdit();
                                         }}
-                                        iconDescription={textCancel}
+                                        iconDescription={$_('tools.bookmarks.cancel')}
                                         icon={Close}
                                     />
                                     <Button
@@ -217,7 +192,7 @@
                                         on:click={() => {
                                             saveBookmark();
                                         }}
-                                        iconDescription={textSave}
+                                        iconDescription={$_('tools.bookmarks.save')}
                                         icon={Save}
                                     />
                                 </div>
@@ -247,7 +222,7 @@
 
                             <div class="bookmark-edit">
                                 <Button
-                                    iconDescription="Edit"
+                                    iconDescription={$_('tools.bookmarks.edit')}
                                     icon={Edit}
                                     kind="ghost"
                                     on:click={() => {
@@ -266,7 +241,7 @@
                 on:click={() => {
                     addBookmark();
                 }}
-                iconDescription={textAdd}
+                iconDescription={$_('tools.bookmarks.add')}
                 icon={Add}
                 tooltipPosition="left"
                 tooltipAlignment="end"

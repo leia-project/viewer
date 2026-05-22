@@ -1,13 +1,13 @@
 <script lang="ts">
     import { getContext, createEventDispatcher } from "svelte";
-    import type { Writable } from "svelte/store";
+    import { _ } from "svelte-i18n";
     import { Tooltip } from "carbon-components-svelte";            
     import type { MapToolMenuOption } from "./MapToolMenuOption";
 
-    export let tool: MapToolMenuOption | undefined = undefined;
+    export let tool: MapToolMenuOption | undefined;
     export let showLabel: boolean = true;
     export let overrideIcon: any = undefined;
-    export let overrideLabel: Writable<string> | undefined  = undefined;
+    export let overrideLabel: string | undefined  = undefined;
     export let overrideActive: boolean | undefined = undefined;
 
     const { selectedTool } = getContext<any>("mapTools");
@@ -49,20 +49,22 @@
         />
     </div>
 
-    {#if !showLabel && !active}
-        <Tooltip open={hover} align="end" direction="right" hideIcon class="tooltip">
-            {$label}
-        </Tooltip>
-    {/if}
+    {#if label}
+        {#if !showLabel && !active}
+            <Tooltip open={hover} align="end" direction="right" hideIcon class="tooltip">
+                {$_(label)}
+            </Tooltip>
+        {/if}
 
-    {#if showLabel && !active}
-        <div
-            class="tool-label"
-            class:tool-label--active={active}
-            class:tool-label--hover={hover && !active}
-        >
-            {$label}
-        </div>
+        {#if showLabel && !active}
+            <div
+                class="tool-label"
+                class:tool-label--active={active}
+                class:tool-label--hover={hover && !active}
+            >
+                {$_(label)}
+            </div>
+        {/if}
     {/if}
     <div class="active-border" class:active-border--active={active} />
 </div>

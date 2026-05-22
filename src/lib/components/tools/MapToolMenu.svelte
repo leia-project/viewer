@@ -20,11 +20,7 @@
     let toolContainer: HTMLElement;
     let toolContentContainer: HTMLElement;
     let widthUnsubscribe: Unsubscriber | undefined;
-    let expandCollapseText = writable<string>(expandText);
-
-    $: {
-        expandCollapseText.set(expanded ? collapseText : expandText);
-    }
+    $: expandCollapseText = expanded ? collapseText : expandText;
 
     // If the map is set, pass settings to tool if present
     map.configLoaded.subscribe((loaded) => {

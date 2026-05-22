@@ -86,7 +86,7 @@ export class CesiumProject {
 	
 		for (let i=0; i<this.layerNames.length; i++) {
 			const layer = this.map.getLayerByTitle(this.layerNames[i]);
-			if (layer) layer.visible.set(true);
+			layer?.visible.set(true);
 		}
 
 
@@ -97,7 +97,7 @@ export class CesiumProject {
 				layerConfig.added.set(true);
 				setTimeout(() => {
 					const layer = this.map.getLayerByTitle(this.layerNames[i]);
-					layer.visible.set(true)
+					layer?.visible.set(true)
 				}, 0);
 			};
 		}
@@ -108,13 +108,13 @@ export class CesiumProject {
 		// Hide project layers
 		for (let i=0; i<this.layerNames.length; i++) {
 			const layer = this.map.getLayerByTitle(this.layerNames[i]);
-			if (layer) layer.visible.set(false);
+			layer?.visible.set(false);
 		}
 
 		// Restore layers
 		this.savedLayers.forEach((layerId: string) => {
 			const layer = this.map.getLayerById(layerId);
-			layer.visible.set(true);
+			layer?.visible.set(true);
 		});
 		this.savedLayers = [];
 	}

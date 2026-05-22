@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import { writable, get, type Writable } from 'svelte/store';
+	import { _ } from 'svelte-i18n';
 	import { RadioButtonGroup, RadioButton } from "carbon-components-svelte";
 	import { Legend } from 'carbon-icons-svelte';
 	import * as Cesium from 'cesium';
@@ -8,13 +9,15 @@
 	import type { CameraLocation } from "$lib/map-core/camera-location";
 	import { MapToolMenuOption } from '$lib/components/tools/MapToolMenuOption';
 
+
+	export let id: string;
+	export let label: string;
+	export let icon: any = Legend;
+	
 	const { registerTool, selectedTool, map } = getContext<any>('mapTools');
 
-	let id: string = 'theme';
-	let label: Writable<string> = writable('Thema');
-	
-	const tool = new MapToolMenuOption(id, Legend, 'Thema');
-	$: { tool.label.set($label); }
+	const tool = new MapToolMenuOption(id, icon, label);
+	registerTool(tool);
 
 	let selected: Writable<string> = writable('');
 	let legend: Array<{[k: string]: any}>;
@@ -31,7 +34,7 @@
 			return;
 		}
 
-		label.set(s.title);
+		//label.set(s.title);
 		themes = s.themes;
 		layerConfig = s.layer;
 		location = s.location ? s.location : undefined;
@@ -59,9 +62,7 @@
 		}
 	});
 
-	registerTool(tool);
-
-	function addLayer() {
+	function addLayer(): void {
 		map.addLayerInternal(layerConfig);
 		const l = map.getLayerById(layerConfig.id);
 		tileset = l.source;
@@ -69,13 +70,13 @@
 		showLayer();
 	}
 
-	function flyTo() {
+	function flyTo(): void {
 		if (location) {
 			map.flyTo(location);
 		}
 	}
 
-	function showLayer() {
+	function showLayer(): void {
 		if (!layerConfig) {
 			return;
 		}
@@ -152,11 +153,11 @@
 
 	{#if $selectedTool === tool}
 		<div class="wrapper">			
-			<div class="heading-01">{$label}</div>
+			<div class="heading-01">{$_(label)}</div>
 			{#if themes}
 			<RadioButtonGroup orientation="vertical" bind:selected={$selected}>
 				{#each themes as theme}
-					<RadioButton labelText={theme.title}  value={theme.title} />
+					<RadioButton labelText={theme.title} value={theme.title} />
 				{/each}
 			</RadioButtonGroup>
 			{/if}

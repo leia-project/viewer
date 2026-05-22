@@ -24,19 +24,19 @@
 	import NotificationView from "$lib/components/notifications/NotificationView.svelte";
 
 	import MapToolMenu from "./tools/MapToolMenu.svelte";
-	import MapToolCesiumMeasure from "./tools/MapToolCesiumMeasure/MapToolCesiumMeasure.svelte";
-	import MapToolCesiumControls from "./tools/MapToolCesiumControls/MapToolCesiumControls.svelte";
-	import MapToolStories from "./tools/MapToolStories/MapToolStories.svelte";
-	import MapToolProjects from "./tools/MapToolProjects/MapToolProjects.svelte";
+	import MapToolFeatureInfo from "./tools/MapToolFeatureInfo/MapToolFeatureInfo.svelte";
 	import MapToolLayerLibrary from "./tools/MapToolLayerLibrary/MapToolLayerLibrary.svelte";
 	import MapToolLayerManager from "./tools/MapToolLayerManager/MapToolLayerManager.svelte";
-	import MapToolFeatureInfo from "./tools/MapToolFeatureInfo/MapToolFeatureInfo.svelte";
 	import MapToolBookmark from "./tools/MapToolBookmarks/MapToolBookmarks.svelte";
-	import MapToolFlooding from "./tools/MapToolFlooding/MapToolFlooding.svelte";
+	import MapToolCesiumMeasure from "./tools/MapToolCesiumMeasure/MapToolCesiumMeasure.svelte";
+	import MapToolStories from "./tools/MapToolStories/MapToolStories.svelte";
+	import MapToolCesiumControls from "./tools/MapToolCesiumControls/MapToolCesiumControls.svelte";
+	import MapToolInfo from "./tools/MapToolInfo/MapToolInfo.svelte";
 	import MapToolHelp from "./tools/MapToolHelp/MapToolHelp.svelte";
+	import MapToolProjects from "./tools/MapToolProjects/MapToolProjects.svelte";
 	import MapToolIsochrones from "./tools/MapToolIsochrones/MapToolIsochrones.svelte";
 	import MapToolConfigSwitcher from "./tools/MapToolConfigSwitcher/MapToolConfigSwitcher.svelte";
-	import MapToolInfo from "./tools/MapToolInfo/MapToolInfo.svelte";
+	import MapToolFlooding from "./tools/MapToolFlooding/MapToolFlooding.svelte";
 
 
 
@@ -228,34 +228,55 @@
 					{#if $enabledTools.includes(toolKey)}
 						<svelte:component
 							this={tool}
-							label={aliasDict[toolKey] ?? $_(`tools.${toolKey}.label`)}
+							id={toolKey}
+							label={aliasDict[toolKey] ?? `tools.${toolKey}.label`}
 							{...toolProps(toolKey)}
 						/>
 					{/if}
 				{/each}
 
 				{#if $enabledTools.includes("theme")}
-					<MapToolTheme />
+					<MapToolTheme id="theme"
+						label={`tools.theme.label`}
+					/>
 				{/if}
 
 				{#if $enabledTools.includes("featureInfo")}
-					<MapToolFeatureInfo	/>
+					<MapToolFeatureInfo
+						id="featureInfo"
+						label={`tools.featureInfo.label`}
+					/>
 				{/if}
 
 				{#if $enabledTools.includes("info")}
-					<MapToolInfo />
+					<MapToolInfo
+						id="info"
+						label={`tools.info.label`}
+						txtViewerTitle={`tools.info.defaultTitle`}
+						txtViewerDescription={`tools.info.defaultDescription`}
+					/>
 				{/if}
 
 				{#if $enabledTools.includes("help")}
-					<MapToolHelp />
+					<MapToolHelp
+						id="help"
+						label={`tools.help.label`}
+					/>
 				{/if}
 
 				{#if $enabledTools.includes("cesium")}
-					<MapToolCesiumControls map={$map} />
+					<MapToolCesiumControls
+						id="cesium"
+						label={`tools.cesium.label`}
+						map={$map}
+					/>
 				{/if}
 
 				{#if $enabledTools.includes("config_switcher")}
-					<MapToolConfigSwitcher />
+					<MapToolConfigSwitcher
+						id="config_switcher"
+						label={`tools.config_switcher.label`}
+					/>
 				{/if}
 			</MapToolMenu>
 		{/if}

@@ -5,12 +5,12 @@ import { FeatureInfoHandler } from "./feature-info-handler";
 import { get } from "svelte/store";
 import { MapCore } from "$lib/map-core/map-core";
 import { LayerConfig } from "$lib/map-core/layer-config";
-import { FeatureInfoRequestOptions } from "$lib/map-core/FeatureInfo/feature-info-request-options";
+import { FeatureInfoRequestOptions } from "$lib/map-core/feature-info/feature-info-request-options";
 import { Location } from "$lib/map-core/location";
 import { MouseLocation } from "$lib/map-core/mouse-location";
 import { CameraLocation } from "$lib/map-core/camera-location";
 import { Layer } from "$lib/map-core/layer";
-import { FeatureInfo } from "$lib/map-core/FeatureInfo/feature-info";
+import { FeatureInfo } from "$lib/map-core/feature-info/feature-info";
 
 import { CesiumLayerFactory } from "./cesium-layer-factory";
 import { MapOptions } from "./map-options";

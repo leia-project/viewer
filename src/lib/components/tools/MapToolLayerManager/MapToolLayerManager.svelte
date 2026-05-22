@@ -17,15 +17,15 @@
 
     const { registerTool, selectedTool } = getContext<any>("mapTools");
 
-    export let map: Map;
+    export let id: string;
     export let label: string;
+    export let icon: any = Layers;
+    export let map: Map;
 
     const library  = map.layerLibrary;
 	const layers = map.layers;
 
-    const tool = new MapToolMenuOption("layerManager", Layers, "");
-    $: tool.label.set($_(label));
-
+    const tool = new MapToolMenuOption(id, icon, label, false);
     registerTool(tool);
 
     // initialize background switching

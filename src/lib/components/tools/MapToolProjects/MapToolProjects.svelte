@@ -10,24 +10,21 @@
 	import { ProjectLabels } from "./project-labels";
 	import ProjectEntry from "./ProjectEntry.svelte";
 
+	export let id: string;
+	export let label: string;
+	export let icon: any = MapIcon;
+
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-	let id: string = "projects";
-	export let icon: any = MapIcon;
-	export let showOnBottom: boolean = false;
+	const projects: Writable<Array<CesiumProject>> = writable(new Array());
+	const selectedProject: Writable<CesiumProject | undefined> = writable(undefined);
+	const animationTime: number = 1500;
 
-	export let label: string | undefined;
-	$: label = label ?? $_("tools.projects.label");
-
-	let projects: Writable<Array<CesiumProject>> = writable(new Array());
-	let selectedProject: Writable<CesiumProject | undefined> = writable(undefined);
-	let animationTime: number = 1500;
-
-	let projectLabels: ProjectLabels = new ProjectLabels(projects, selectedProject, animationTime);
+	const projectLabels: ProjectLabels = new ProjectLabels(projects, selectedProject, animationTime);
 	$: showLabels = projectLabels.show;
 
-	let tool = new MapToolMenuOption(id, icon, label, showOnBottom);
-	$: { tool.label.set(label); }
+	const tool = new MapToolMenuOption(id, icon, label, false);
+	registerTool(tool);
 
 	tool.settings.subscribe((settings) => {
         if (settings) {
@@ -35,7 +32,6 @@
         }
     });
 	
-	registerTool(tool);
 
 	map.configLoaded.subscribe((loaded: boolean) => {
 		if (loaded) {

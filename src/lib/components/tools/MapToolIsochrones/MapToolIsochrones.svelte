@@ -14,17 +14,11 @@
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
-	export let label: string | undefined;
+	export let id: string;
+	export let label: string;
+	export let icon: any = Home;
 
-	$: label = label ?? $_('tools.isochrones.label');
-
-
-	const id: string = "isochrones";
-	const icon: any = Home;
-	const showOnBottom: boolean = false;
-
-	const tool = new MapToolMenuOption(id, icon, label, showOnBottom);
-	$: { tool.label.set(label); }
+	const tool = new MapToolMenuOption(id, icon, label, false);
 	registerTool(tool);
 
 	let isochronesLayer: IsochronesLayer;
