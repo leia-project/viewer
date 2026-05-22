@@ -1,8 +1,8 @@
 import type { Map } from "./map";
 import * as Cesium from "cesium";
-import { FeatureInfo } from "$lib/map-core/FeatureInfo/feature-info";
-import { FeatureInfoRequestOptions } from "$lib/map-core/FeatureInfo/feature-info-request-options";
-import { FeatureInfoRecord } from "$lib/map-core/FeatureInfo/feature-info-record";
+import { FeatureInfo } from "$lib/map-core/feature-info/feature-info";
+import { FeatureInfoRequestOptions } from "$lib/map-core/feature-info/feature-info-request-options";
+import { FeatureInfoRecord } from "$lib/map-core/feature-info/feature-info-record";
 import { get } from "svelte/store";
 
 

@@ -203,7 +203,9 @@
         },
         "featureInfo": {
             "label": "Informations sur les Objets",
-            "noData": "Pas de données, appuyez sur un objet pour plus d'informations"
+            "noData": "Pas de données, appuyez sur un objet pour plus d'informations",
+            "attribute": "Attribut",
+            "value": "Valeur"
         },
         "measure": {
             "label": "Mesurer",

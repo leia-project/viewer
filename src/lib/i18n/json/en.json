@@ -212,7 +212,9 @@
         },
         "featureInfo": {
             "label": "Object Information",
-            "noData": "No data, press an object for more information"
+            "noData": "No data, press an object for more information",
+            "attribute": "Attribute",
+            "value": "Value"
         },
         "measure": {
             "label": "Measure",

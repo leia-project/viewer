@@ -219,7 +219,9 @@
         },
         "featureInfo": {
             "label": "Object Informatie",
-            "noData": "Geen data, Klik op een object voor meer informatie"
+            "noData": "Geen data, Klik op een object voor meer informatie",
+            "attribute": "Attribuut",
+            "value": "Waarde"
         },
         "measure": {
             "label": "Meten",

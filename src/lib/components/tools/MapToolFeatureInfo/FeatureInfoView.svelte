@@ -1,12 +1,13 @@
 <script lang="ts">
     import { createEventDispatcher, onDestroy, onMount } from "svelte";
     import { fade } from "svelte/transition";
+    import { _ } from "svelte-i18n";
     import { DataTable, DataTableSkeleton, Modal, Toolbar, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
     import { Close, Popup } from "carbon-icons-svelte";
     import { plot, line } from "@observablehq/plot";
 
     import type { MapCore } from "$lib/map-core/map-core";
-    import type { FeatureInfoResults } from "$lib/map-core/FeatureInfo/feature-info-results";
+    import type { FeatureInfoResults } from "$lib/map-core/feature-info/feature-info-results";
     import { ComposedRow } from "./composed-row";
     import { ComposedFeatureInfoResult } from "./composed-feature-info-result";
     import Button from "$lib/components/theme/Button/Button.svelte";
@@ -20,9 +21,8 @@
     const dispatch = createEventDispatcher();
 
     let handlerOpen = false;
-    let handler: any | undefined;
+    let handler: string | undefined;
     let handlerData: any | undefined;
-    let handlerModal: any;
     let handlerModalTitle: string;
 
     let modalOpen = false;
@@ -30,13 +30,13 @@
     let modalTitle = "";
     let show = false;
 
-    let headers = [
-        { key: "attribute", value: "Attribute", width: "120px"},
-        { key: "value", value: "Value" }
+    const headers = [
+        { key: "attribute", value: $_("tools.featureInfo.attribute"), width: "120px", empty: false },
+        { key: "value", value: $_("tools.featureInfo.value"), empty: false }
     ];
-    let headersModal = [
-        { key: "attribute", value: "Attribute", width: "180px" },
-        { key: "value", value: "Value" }
+    const headersModal = [
+        { key: "attribute", value: $_("tools.featureInfo.attribute"), width: "180px", empty: false },
+        { key: "value", value: $_("tools.featureInfo.value"), empty: false }
     ];
     let loading = featureInfoResults.loading;
     let results = new Array<ComposedFeatureInfoResult>();
@@ -119,7 +119,6 @@
                 grid: true,
                 labelOffset: 40
             },
-            line: true,
             insetTop: 15,
             insetBottom: 30,
             style: {
@@ -169,8 +168,10 @@
                         showHeader={false}
                         showToolbar={false}
                         size="short"
-                        headers={[{ value: "Attribute" }, { value: "Value" }]}
+                        {headers}
                         rows={4}
+                        key="loading-skeleton"
+                        empty={false}
                     />
                 </div>
             <!--{:else if !results || results.length === 0}
@@ -237,7 +238,6 @@
 
         <Modal
             size="lg"
-            bind:this={handlerModal}
             hasScrollingContent
             preventCloseOnClickOutside
             passiveModal

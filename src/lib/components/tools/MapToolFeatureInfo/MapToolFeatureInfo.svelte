@@ -4,7 +4,7 @@
 	import { Information } from "carbon-icons-svelte";
 
     import type { MouseLocation } from "$lib/map-core/mouse-location";
-    import { FeatureInfoRequestOptions } from "$lib/map-core/FeatureInfo/feature-info-request-options";
+    import { FeatureInfoRequestOptions } from "$lib/map-core/feature-info/feature-info-request-options";
     import { MapToolMenuOption } from "../MapToolMenuOption";
     import FeatureInfoView from "./FeatureInfoView.svelte";
 
