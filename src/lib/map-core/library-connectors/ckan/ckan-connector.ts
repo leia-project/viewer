@@ -7,7 +7,7 @@ import type { CkanConnectorSettings } from "./ckan-connector-settings";
 
 
 export class CkanConnector implements LibraryConnector {
-    private data: LibraryConnectorData;
+    private data?: LibraryConnectorData;
     private readonly debug = false;
     private readonly settings: CkanConnectorSettings;
 
@@ -106,7 +106,8 @@ export class CkanConnector implements LibraryConnector {
                 return this.ckanPackagesToLayerConfigs(result);
             } else {
                 console.log("CKAN Connector: Get packages request unsuccessful");
-                setTimeout(() => this.getLayerConfigs(name, type), 2000); // Re-try after 2 seconds
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                return this.getLayerConfigs(name, type); // Re-try after 2 seconds
             }
         } catch (error) {
             throw error;
@@ -296,7 +297,7 @@ export class CkanConnector implements LibraryConnector {
      * Get a group from the list of groups obtained with .getAllGroups() 
      * @returns LayerConfigGroup with all child groups available
      */
-    private getGroup(group: string, groups: Array<LayerConfigGroup>): LayerConfigGroup {
+    private getGroup(group: string, groups: Array<LayerConfigGroup>): LayerConfigGroup | undefined {
         for (let i = 0; i < groups.length; i++) {
             if (group === groups[i].id) return groups[i];
             let childGroups = get(groups[i].childGroups);

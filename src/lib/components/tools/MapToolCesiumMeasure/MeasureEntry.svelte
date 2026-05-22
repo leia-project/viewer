@@ -27,9 +27,9 @@
 	const cesiumMap: Map = map;
 
 	const dtHeadersPoints = [
-		{ key: "id", value: "Id" },
-		{ key: "interval", value: "Distance" },
-		{ key: "remove", value: "" }
+		{ key: "id", value: "Id", empty: false },
+		{ key: "interval", value: "Distance", empty: false },
+		{ key: "remove", value: "", empty: false }
 	];
 
 	const dtHeadersCamera = [
@@ -159,7 +159,7 @@
 			{#if dtRowsPoints.length > 0}
 				<div class="heading label-01">{textMeasurementPoints}</div>
 
-				<DataTable size="compact" headers={dtHeadersPoints} rows={dtRowsPoints} on:click:row={(evt) => {lookAt(evt.detail.id)}}>
+				<DataTable size="compact" headers={dtHeadersPoints} rows={dtRowsPoints} on:click:row={(evt) => lookAt(evt.detail.id)}>
 					<svelte:fragment slot="cell" let:row let:cell>
 						{#if cell.key === "remove"}
 							<Button size="small" kind="ghost" iconDescription="Remove" icon={TrashCan} on:click={()=> {measurement.removePoint(cell.value)}} />

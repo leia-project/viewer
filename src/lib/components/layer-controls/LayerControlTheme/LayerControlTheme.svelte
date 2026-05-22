@@ -1,14 +1,11 @@
 <script lang="ts">
-	import * as Cesium from "cesium";
-	import { _ } from "svelte-i18n";
-	import { writable } from "svelte/store";
 	import { getContext } from "svelte";
-	import { RadioButtonGroup, RadioButton } from "carbon-components-svelte";
-	import Reset from "carbon-icons-svelte/lib/Reset.svelte";
-	import { Button } from "carbon-components-svelte";
-
-	import type { Writable } from "svelte/store";
-	import type { ThreedeeLayer } from "../module/layers/threedee-layer";
+	import { _ } from "svelte-i18n";
+	import { type Writable, writable } from "svelte/store";
+	import { Button, RadioButtonGroup, RadioButton } from "carbon-components-svelte";
+	import { Reset } from "carbon-icons-svelte";
+	import * as Cesium from "cesium";
+	import type { ThreedeeLayer } from "$lib/map-cesium/layers/threedee-layer";
 
 	export let layer: ThreedeeLayer;
 	export let themes: any;

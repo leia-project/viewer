@@ -44,58 +44,55 @@
 
 	// Note: we dont use the built-in scene switcher because it sucks
 	function to2D(): void {
-		if (map) {
-			// Get the center of the screen
-			var screenPosition = new Cesium.Cartesian2(
-				map.viewer.canvas.clientWidth / 2,
-				map.viewer.canvas.clientHeight / 2
+		// Get the center of the screen
+		const screenPosition = new Cesium.Cartesian2(
+			map.viewer.canvas.clientWidth / 2,
+			map.viewer.canvas.clientHeight / 2
+		);
+
+		// Get the point that we want to fly to
+		const pickedPosition = map.viewer.camera.pickEllipsoid(screenPosition);
+
+		// DEBUG: Show picked position
+		// var point = map.viewer.entities.add({ position: pickedPosition, point: { pixelSize: 10, color: Cesium.Color.GREEN } });
+
+		if (pickedPosition) {
+			// Set the height to the start position height
+			const cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
+			cartographic.height = map.viewer.camera.positionCartographic.height;
+			const destination = Cesium.Cartographic.toCartesian(cartographic);
+
+			map.viewer.camera.flyTo({
+				destination: destination,
+				orientation: {
+					pitch: Cesium.Math.toRadians(-89.9)
+				},
+				duration: 1
+			});
+			// Disable tilt controls
+			map.viewer.scene.screenSpaceCameraController.enableTilt = false;
+		} else if  (map.startPosition) {
+			console.warn("No position on globe found. Flying to home position instead.");
+			const home = Cesium.Cartesian3.fromDegrees(
+				map.startPosition.x, 
+				map.startPosition.y, 
+				map.startPosition.z
 			);
 
-			// Get the point that we want to fly to
-			let pickedPosition = map.viewer.camera.pickEllipsoid(screenPosition);
-
-			// DEBUG: Show picked position
-			// var point = map.viewer.entities.add({ position: pickedPosition, point: { pixelSize: 10, color: Cesium.Color.GREEN } });
-
-			if (!pickedPosition) {
-				console.warn("No position on globe found. Flying to home position instead.");
-				const home = Cesium.Cartesian3.fromDegrees(
-										map.startPosition.x, 
-										map.startPosition.y, 
-										map.startPosition.z
-									);
-
-				map.viewer.camera.flyTo({
-					destination: home, //todo: calculate better position with viewrectangle
-					orientation: {
-						heading: map.startPosition.heading,
-						pitch: Cesium.Math.toRadians(-89.9)
-					},
-					duration: map.startPosition.duration
-				});
-			}
-			else {
-				// Set the height to the start position height
-				let cartographic = Cesium.Cartographic.fromCartesian(pickedPosition);
-				cartographic.height = map.startPosition.z;
-				let destination = Cesium.Cartographic.toCartesian(cartographic);
-
-				map.viewer.camera.flyTo({
-					destination: destination,
-					orientation: {
-						pitch: Cesium.Math.toRadians(-89.9)
-					},
-					duration: 1
-				});
-				// Disable tilt controls
-				map.viewer.scene.screenSpaceCameraController.enableTilt = false;
-			}
+			map.viewer.camera.flyTo({
+				destination: home, //todo: calculate better position with viewrectangle
+				orientation: {
+					heading: map.startPosition.heading,
+					pitch: Cesium.Math.toRadians(-89.9)
+				},
+				duration: map.startPosition.duration
+			});
 		}
-		// Turn off terrain
-		const terrainProviderOff = get(map.options.terrainProviders).find(provider => provider.title === 'Uit');
-		if (terrainProviderOff && get(map.options.selectedTerrainProvider) !== terrainProviderOff) {
-			map.options.selectedTerrainProvider.set(terrainProviderOff);
-		}
+	}
+	// Turn off terrain
+	const terrainProviderOff = get(map.options.terrainProviders).find(provider => provider.title === 'Uit');
+	if (terrainProviderOff && get(map.options.selectedTerrainProvider) !== terrainProviderOff) {
+		map.options.selectedTerrainProvider.set(terrainProviderOff);
 	}
 
 	function to3D(): void {
@@ -113,7 +110,6 @@
 </script>
 
 
-
 <div class="mode-switcher">
 	<Toggle
 		id="toggle-3d-mode"
@@ -125,6 +121,7 @@
 		<span slot="labelB" style="color: green">3D</span>
 	</Toggle>
 </div>
+
 
 <style>
 	.mode-switcher {
