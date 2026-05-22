@@ -55,6 +55,10 @@ export class CesiumProject {
 		this.processing = true;
 		this.projectCamera.bound();
 		setTimeout(() => {
+			if (get(this.selectedProject) !== this) {
+				this.processing = false;
+				return;
+			}
 			this.showProjectLayers();
 			this.projectClippingPlanes.apply(this.layerNames);
 			this.selected.set(true);

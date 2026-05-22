@@ -6,6 +6,9 @@
     import { Theme } from "carbon-components-svelte";
     import { light } from "$lib/styles/themes";
 
+
+        let mounted = false;
+
     onMount(() => {
         if (!mounted) {
             mounted = true;
@@ -33,7 +36,6 @@
 
     export let style = light;
 
-    $: mounted = false;
 </script>
 
 {#if mounted}

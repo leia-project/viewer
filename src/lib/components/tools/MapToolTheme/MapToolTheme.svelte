@@ -16,7 +16,7 @@
 	
 	const { registerTool, selectedTool, map } = getContext<any>('mapTools');
 
-	const tool = new MapToolMenuOption(id, icon, label);
+	const tool = new MapToolMenuOption(id, icon, label, true);
 	registerTool(tool);
 
 	let selected: Writable<string> = writable('');
@@ -34,7 +34,7 @@
 			return;
 		}
 
-		//label.set(s.title);
+		tool.label = s.title ?? tool.label;
 		themes = s.themes;
 		layerConfig = s.layer;
 		location = s.location ? s.location : undefined;
@@ -151,40 +151,42 @@
 	}
 </script>
 
-	{#if $selectedTool === tool}
-		<div class="wrapper">			
-			<div class="heading-01">{$_(label)}</div>
-			{#if themes}
-			<RadioButtonGroup orientation="vertical" bind:selected={$selected}>
-				{#each themes as theme}
-					<RadioButton labelText={theme.title} value={theme.title} />
-				{/each}
-			</RadioButtonGroup>
-			{/if}
 
-			<div class="legend">
-				<div class="heading-01">{"Legenda"}</div>
-				{#if legend}
-					{#each legend as entry, i}
-						<div
-							class="legend-entry"
-							class:legend-active={i == hoverLegendIndex}
-							on:mouseleave={() => {
-								resetHighlight();
-							}}
-							on:mouseenter={() => {
-								highlight(entry["color"], i);
-							}}
-							role="listitem"
-						>
-							<div class="legend-rect" style="background-color:{entry.color};" />
-							<div class="legend-label">{entry.label}</div>
-						</div>
-					{/each}
-				{/if}
-			</div>
+{#if $selectedTool === tool}
+	<div class="wrapper">			
+		<div class="heading-01">{$_(label)}</div>
+		{#if themes}
+		<RadioButtonGroup orientation="vertical" bind:selected={$selected}>
+			{#each themes as theme}
+				<RadioButton labelText={theme.title} value={theme.title} />
+			{/each}
+		</RadioButtonGroup>
+		{/if}
+
+		<div class="legend">
+			<div class="heading-01">{"Legenda"}</div>
+			{#if legend}
+				{#each legend as entry, i}
+					<div
+						class="legend-entry"
+						class:legend-active={i == hoverLegendIndex}
+						on:mouseleave={() => {
+							resetHighlight();
+						}}
+						on:mouseenter={() => {
+							highlight(entry["color"], i);
+						}}
+						role="listitem"
+					>
+						<div class="legend-rect" style="background-color:{entry.color};" />
+						<div class="legend-label">{entry.label}</div>
+					</div>
+				{/each}
+			{/if}
 		</div>
-	{/if}
+	</div>
+{/if}
+
 
 <style>
 	.wrapper {

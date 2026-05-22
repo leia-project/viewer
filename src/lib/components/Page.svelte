@@ -17,11 +17,8 @@
 
 	import MapControls from "./controls/MapControls.svelte";
 	import POVMapControls from "./controls/POVMapControls.svelte";
-
-	import MapToolTheme from "./theme/Theme.svelte";
-	import TostiStyle from "./theme/TostiStyle/TostiStyle.svelte";
-
-	import NotificationView from "$lib/components/notifications/NotificationView.svelte";
+	import NotificationView from "./notifications/NotificationView.svelte";
+	import CarbonTheme from "./theme/CarbonTheme.svelte";
 
 	import MapToolMenu from "./tools/MapToolMenu.svelte";
 	import MapToolFeatureInfo from "./tools/MapToolFeatureInfo/MapToolFeatureInfo.svelte";
@@ -33,6 +30,7 @@
 	import MapToolCesiumControls from "./tools/MapToolCesiumControls/MapToolCesiumControls.svelte";
 	import MapToolInfo from "./tools/MapToolInfo/MapToolInfo.svelte";
 	import MapToolHelp from "./tools/MapToolHelp/MapToolHelp.svelte";
+	import MapToolTheme from "./tools/MapToolTheme/MapToolTheme.svelte";
 	import MapToolProjects from "./tools/MapToolProjects/MapToolProjects.svelte";
 	import MapToolIsochrones from "./tools/MapToolIsochrones/MapToolIsochrones.svelte";
 	import MapToolConfigSwitcher from "./tools/MapToolConfigSwitcher/MapToolConfigSwitcher.svelte";
@@ -195,7 +193,8 @@
 	<base href="{base}"> <!-- This is the base path for the app -->
 </svelte:head>
 
-<TostiStyle style={light} />
+<CarbonTheme style={light} />
+
 <div class="main">
 	<Header logo={$settings.logo} logoMarginLeft={$settings.logoMarginLeft} logoMarginRight={$settings.logoMarginRight} company={$settings.title} platformName={$settings.subTitle}>
 		<div slot="headerUtilities">
@@ -236,7 +235,7 @@
 
 				{#if $enabledTools.includes("theme")}
 					<MapToolTheme id="theme"
-						label={`tools.theme.label`}
+						label={`tools.layerTools.theme.label`}
 					/>
 				{/if}
 
