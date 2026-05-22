@@ -521,7 +521,7 @@ class DynamicWaterLevel {
 			}
 		`;
 
-		this.material = new Cesium.Material({
+		this.material = this.material ?? new Cesium.Material({
 			fabric: {
 				type : 'CustomDynamicPlaneMaterial',
 				uniforms: {

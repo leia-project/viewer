@@ -15,18 +15,11 @@
 
 	import StoryView from "./StoryView.svelte";
 
+	export let id: string;
+	export let label: string;
+	export let icon: any = Book;
 	
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
-
-	export let label: string | undefined;
-	export let textBack: string;
-	export let textStepBack: string;
-	export let textStepForward: string;
-
-	$: label = label ?? $_("tools.stories.label");
-	$: textBack = $_("tools.stories.back");
-	$: textStepBack = $_("tools.stories.stepBack");
-	$: textStepForward = $_("tools.stories.stepForward");
 
 	let cesiumMap = map as Map;
 	let stories = new Array<Story>();
@@ -36,8 +29,7 @@
 	const layerLegends: Array<LegendOptions> = [];
 	const layers = cesiumMap.layers;
 
-	const tool = new MapToolMenuOption("stories", Book, "tools.stories.label");
-
+	const tool = new MapToolMenuOption(id, icon, label);
 	registerTool(tool);
 
 	$: {
@@ -177,7 +169,7 @@
 				map={cesiumMap}
 				story={selectedStory}
 				savedStepNumber={stepNumber}
-				{textBack}
+				textBack={$_("tools.stories.back")}
 				{layerLegends}
 				{baseLayerId}
 				on:closeStory={() => {

@@ -39,7 +39,6 @@
 	import MapToolFlooding from "./tools/MapToolFlooding/MapToolFlooding.svelte";
 
 
-
 	const settings = writable<any>({});
 	const enabledTools = writable<Array<string>>(new Array<string>());
 	const base = process.env.APP_URL;

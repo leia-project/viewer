@@ -74,7 +74,7 @@
 			}
 		})
 
-		selectedTool.subscribe((tool) => {
+		selectedTool.subscribe((tool: MapToolMenuOption) => {
 			if (tool) {
 				projectLabels.show.set(tool.id === id);
 			}

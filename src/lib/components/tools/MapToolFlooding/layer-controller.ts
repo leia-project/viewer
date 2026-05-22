@@ -1,12 +1,11 @@
+import { get, writable, type Writable } from "svelte/store";
 import type { Map } from "../../../map-cesium/map";
 import { LayerConfig } from "$lib/map-core/layer-config";
 import type { IconLayer } from "../../../map-cesium/layers/icon-layer";
 import type { FloodLayer } from "../../../map-cesium/layers/flood-layer";
 import type { OgcFeaturesLayer } from "../../../map-cesium/layers/ogc-features-layer";
-import { get, writable, type Writable } from "svelte/store";
 import { LayerConfigGroup } from "$lib/map-core/layer-config-group";
 import type { OgcStyleCondition } from "../../../map-cesium/providers/ogc-features-provider";
-
 
 
 
