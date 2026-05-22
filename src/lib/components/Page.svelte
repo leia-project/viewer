@@ -6,32 +6,39 @@
 	import { HeaderActionLink } from "carbon-components-svelte";
 
 	import { app } from "$lib/app/app";
-	import { light } from "$lib/components/ui/style/themes";
+	import { light } from "$lib/styles/themes";
 
-	import Map from "$lib/components/Map.svelte";
-	import HeaderUtilityGeocoder from "$lib/components/map-cesium/Header/HeaderUtilityGeocoder/HeaderUtilityGeocoder.svelte";
-	import MapToolCesiumMeasure from "$lib/components/map-cesium/MapToolCesiumMeasure/MapToolCesiumMeasure.svelte";
-	import MapToolCesiumControls from "$lib/components/map-cesium/MapToolCesiumControls/MapToolCesiumControls.svelte";
-	import MapToolStories from "$lib/components/map-cesium/MapToolStories/MapToolStories.svelte";
-	import MapToolProjects from "./map-cesium/MapToolProjects/MapToolProjects.svelte";
-	import TostiStyle from "$lib/components/ui/components/TostiStyle/TostiStyle.svelte";
-	import Header from "$lib/components/ui/components/Header/Header.svelte";
-	import MapToolMenu from "$lib/components/ui/components/MapToolMenu/MapToolMenu.svelte";
-	import MapToolLayerLibrary from "$lib/components/ui/components/MapTools/MapToolLayerLibrary/MapToolLayerLibrary.svelte";
-	import MapToolLayerManager from "$lib/components/ui/components/MapTools/MapToolLayerManager/MapToolLayerManager.svelte";
-	import MapToolFeatureInfo from "$lib/components/ui/components/MapTools/MapToolFeatureInfo/MapToolFeatureInfo.svelte";
-	import MapToolBookmark from "$lib/components/ui/components/MapTools/MapToolBookmarks/MapToolBookmarks.svelte";
-	import MapControls from "$lib/components/ui/components/MapControls/MapControls.svelte";
-	import MapToolFlooding from "./map-cesium/MapToolFlooding/MapToolFlooding.svelte";
-	import MapToolInfo from "$lib/components/ui/components/MapTools/MapToolInfo/MapToolInfo.svelte";
-	import NotificationView from "$lib/components/ui/components/Notifications/NotificationView.svelte";
-	import MapToolHelp from "$lib/components/ui/components/MapTools/MapToolHelp/MapToolHelp.svelte";
-	import MapToolTheme from "$lib/components/Tools/Theme.svelte";
-	import Language from "$lib/components/Tools/Language.svelte";
-	import MapToolConfigSwitcher from "./ui/components/MapTools/MapToolConfigSwitcher/MapToolConfigSwitcher.svelte";
-	import POVMapControls from "./ui/components/MapControls/POVMapControls.svelte";
-	import HeaderUtilityModeSwitcher from "./map-cesium/Header/HeaderUtilityModeSwitcher/HeaderUtilityModeSwitcher.svelte";
-	import MapToolIsochrones from "$lib/components/ui/components/MapTools/MapToolIsochrones/MapToolIsochrones.svelte";
+	import Map from "./Map.svelte";
+	
+	import Header from "./header/Header.svelte";
+	import HeaderUtilityGeocoder from "./header/HeaderUtilityGeocoder/HeaderUtilityGeocoder.svelte";
+	import HeaderUtilityModeSwitcher from "./header/HeaderUtilityModeSwitcher/HeaderUtilityModeSwitcher.svelte";
+	import Language from "./header/Language.svelte";
+
+	import MapControls from "./controls/MapControls.svelte";
+	import POVMapControls from "./controls/POVMapControls.svelte";
+
+	import MapToolTheme from "./theme/Theme.svelte";
+	import TostiStyle from "./theme/TostiStyle/TostiStyle.svelte";
+
+	import NotificationView from "$lib/components/notifications/NotificationView.svelte";
+
+	import MapToolMenu from "./tools/MapToolMenu.svelte";
+	import MapToolCesiumMeasure from "./tools/MapToolCesiumMeasure/MapToolCesiumMeasure.svelte";
+	import MapToolCesiumControls from "./tools/MapToolCesiumControls/MapToolCesiumControls.svelte";
+	import MapToolStories from "./tools/MapToolStories/MapToolStories.svelte";
+	import MapToolProjects from "./tools/MapToolProjects/MapToolProjects.svelte";
+	import MapToolLayerLibrary from "./tools/MapToolLayerLibrary/MapToolLayerLibrary.svelte";
+	import MapToolLayerManager from "./tools/MapToolLayerManager/MapToolLayerManager.svelte";
+	import MapToolFeatureInfo from "./tools/MapToolFeatureInfo/MapToolFeatureInfo.svelte";
+	import MapToolBookmark from "./tools/MapToolBookmarks/MapToolBookmarks.svelte";
+	import MapToolFlooding from "./tools/MapToolFlooding/MapToolFlooding.svelte";
+	import MapToolHelp from "./tools/MapToolHelp/MapToolHelp.svelte";
+	import MapToolIsochrones from "./tools/MapToolIsochrones/MapToolIsochrones.svelte";
+	import MapToolConfigSwitcher from "./tools/MapToolConfigSwitcher/MapToolConfigSwitcher.svelte";
+	import MapToolInfo from "./tools/MapToolInfo/MapToolInfo.svelte";
+
+
 
 	const settings = writable<any>({});
 	const enabledTools = writable<Array<string>>(new Array<string>());

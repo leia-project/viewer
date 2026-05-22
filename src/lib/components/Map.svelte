@@ -3,18 +3,18 @@
 	import { get } from 'svelte/store';
 	import { _ } from 'svelte-i18n';
 	import { app } from '$lib/app/app';
-	import { notifications } from "$lib/components/map-core/notifications/notifications.js";
-	import { Notification } from "$lib/components/map-core/notifications/notification.js";
-	import { NotificationType } from "$lib/components/map-core/notifications/notification-type.js";
-	import type { Map } from './map-cesium/module/map';
+	import { notifications } from "$lib/map-core/notifications/notifications";
+	import { Notification } from "$lib/map-core/notifications/notification";
+	import { NotificationType } from "$lib/map-core/notifications/notification-type";
+	import type { Map } from "$lib/map-cesium/map";
 	import "@cesium/widgets/Source/widgets.css";
 
-	import MapWidgetMouseCoordinates from "$lib/components/map-cesium/MapWidgetMouseCoordinates/MapWidgetMouseCoordinates.svelte";
-	import MapWidgetLoading from "$lib/components/map-cesium/MapWidgetLoading/MapWidgetLoading.svelte";
-	import MapWidgetCameraPosition from "$lib/components/map-cesium/MapWidgetCameraPosition/MapWidgetCameraPosition.svelte";
-	import MapWidgetAnimation from "$lib/components/map-cesium/MapWidgetAnimation/MapWidgetAnimation.svelte";
-	import MapWidgetProject from "$lib/components/map-cesium/MapToolProjects/MapWidgetProject.svelte";
-	import { dragDropEvents } from "$lib/components/map-cesium/module/drag-n-drop";
+	import MapWidgetMouseCoordinates from "./widgets/MapWidgetMouseCoordinates/MapWidgetMouseCoordinates.svelte";
+	import MapWidgetLoading from "./widgets/MapWidgetLoading/MapWidgetLoading.svelte";
+	import MapWidgetCameraPosition from "./widgets/MapWidgetCameraPosition/MapWidgetCameraPosition.svelte";
+	import MapWidgetAnimation from "./widgets/MapWidgetAnimation/MapWidgetAnimation.svelte";
+	import MapWidgetProject from "./tools/MapToolProjects/MapWidgetProject.svelte";
+	import { dragDropEvents } from "$lib/map-cesium/drag-n-drop";
 
 	export let map: Map;
 

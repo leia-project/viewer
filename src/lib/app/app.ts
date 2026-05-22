@@ -1,4 +1,4 @@
-import { Map } from "$lib/components/map-cesium/module/map";
+import { Map } from "$lib/map-cesium/map";
 import { writable, type Writable } from 'svelte/store';
 import type { ConfigSettings } from './config-settings';
 
