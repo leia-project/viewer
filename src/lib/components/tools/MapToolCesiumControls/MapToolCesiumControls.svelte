@@ -258,13 +258,13 @@
 			<Checkbox labelText={$_("tools.cesium.groundAtmosphere")} bind:checked={$groundAtmosphere} />
 			<Checkbox labelText={$_("tools.cesium.skyAtmosphere")} bind:checked={$skyAtmosphere} />
 			<Checkbox labelText={$_("tools.cesium.fog")} bind:checked={$fog} />
-			<Checkbox labelText={$_("tools.cesium.highDynamicRange")} bind:checked={$highDynamicRange} />
+			<Checkbox labelText={$_("tools.cesium.dynamicRange")} bind:checked={$highDynamicRange} />
 		</AccordionItem>
 
 		<AccordionItem title={$_("tools.cesium.debug")}>
-			<Checkbox labelText={$_("tools.cesium.fpsCounter")} bind:checked={$fpsCounter} />
+			<Checkbox labelText={$_("tools.cesium.FPSCounter")} bind:checked={$fpsCounter} />
 			<Checkbox labelText={$_("tools.cesium.inspector")} bind:checked={$inspector} />
-			<Checkbox labelText={$_("tools.cesium.mouseCoordinates")} bind:checked={$showMouseCoordinates} />
+			<Checkbox labelText={$_("tools.cesium.coordinates")} bind:checked={$showMouseCoordinates} />
 			<Checkbox labelText={$_("tools.cesium.cameraPosition")} bind:checked={$showCameraPosition} />
 			<Checkbox labelText={$_("tools.cesium.dragAndDropFiles")} bind:checked={$enableDragDropFiles} />
 		</AccordionItem>

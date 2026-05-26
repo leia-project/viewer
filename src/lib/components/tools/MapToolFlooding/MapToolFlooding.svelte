@@ -8,6 +8,7 @@
 	import { FloodLayerController, type Breach, type FloodToolSettings } from "./layer-controller";
 	import LayerControlFlood from "$lib/components/layer-controls/LayerControlFlood/LayerControlFlood.svelte";
 	import BreachEntry from "./BreachEntry.svelte";
+	import Divider from "$lib/components/theme/Divider/Divider.svelte";
 
 	export let id: string;
 	export let label: string;
@@ -123,6 +124,7 @@
 					{/if}
 				{/each}
 			</div>
+			<Divider />
 		</div>
 	</div>
 {/if}
@@ -151,6 +153,10 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
+		max-height: max(50vh, 200px);
+		overflow-y: auto;
+		-webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 5%, #000 95%, transparent 100%);
+		mask-image: linear-gradient(to bottom, transparent 0%, #000 5%, #000 95%, transparent 100%);
 	}
 
 </style>
