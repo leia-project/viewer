@@ -4,7 +4,7 @@ export class FeatureInfoRequestOptions {
     public layerIds?: Array<string>;
 
     /** location to query */
-    public location: number[] = undefined
+    public location: Array<number>;
 
     /**
      * Construct FeatureInfoRequestOptions
@@ -12,7 +12,7 @@ export class FeatureInfoRequestOptions {
      * @param y Y coordinate
      * @param layerIds Layers to request, leave emptry for all
      */
-    constructor(x: number, y: number, layerIds: Array<string> = undefined) {
+    constructor(x: number, y: number, layerIds?: Array<string>) {
         this.location = [x, y];
         this.layerIds = layerIds;
     }

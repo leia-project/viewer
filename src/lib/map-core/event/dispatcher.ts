@@ -1,7 +1,8 @@
 import { DispatcherEvent } from "./dispatcher-event";
 
 export class Dispatcher {
-    private events: unknown;
+
+    private events: { [key: string]: DispatcherEvent };
 
     constructor() {
         this.events = {};

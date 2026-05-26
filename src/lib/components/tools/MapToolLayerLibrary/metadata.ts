@@ -57,11 +57,11 @@ export class Metadata {
 	private parseNode(doc: Document, tag: string): string | undefined {
 		const element = doc.getElementsByTagName(tag)[0];
 		const selectedNodes = Array.from(element.children);
-		const listItem: Array<{label:string, content:string}> = [];
+		const listItem: Array<{ label: string, content: string }> = [];
 
 		selectedNodes.forEach(node => {
 			const label = this.getLabel(node);
-			const content = node.innerText?.trim();
+			const content = node.textContent?.trim();
 			if (content) {
 				listItem.push({ label: label, content: content });
 			}
