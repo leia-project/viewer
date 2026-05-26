@@ -125,9 +125,7 @@
             {/each}
         </RadioButtonGroup>
 
-        <CesiumBackgroundControls
-			textOpacity={$_("tools.backgroundControls.opacity")}
-		/>
+        <CesiumBackgroundControls />
 
 		<div class="bx--label thematic-label">
 			{$_("tools.layerManager.thematicLayers")}

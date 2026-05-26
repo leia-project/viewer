@@ -1,11 +1,7 @@
 <script lang="ts">
-	import { get } from "svelte/store";
 	import { _ } from "svelte-i18n";
 	import { Slider, RadioButtonGroup, RadioButton } from "carbon-components-svelte";
 	import { app } from "$lib/app/app";
-
-	export let textOpacity = get(_)("tools.backgroundControls.opacity");
-	export let textTerrain = get(_)("tools.backgroundControls.terrain");
 
 	const map = app.map;
 
@@ -22,16 +18,13 @@
 
 <div class="custom">
 	{#if $terrainProviders && $terrainProviders.length > 1}
-		<RadioButtonGroup legendText={textTerrain} selected="standard" orientation="vertical">
+		<RadioButtonGroup legendText={$_("tools.backgroundControls.terrain")} selected="standard" orientation="vertical">
 			{#each $terrainProviders as tp}
 				<RadioButton
 					labelText={tp.title}
-					value={tp}
+					value={tp.title}
 					checked={selected === tp.title}
-					on:change={() => {
-						changeTerrainProvider(tp);
-						//FINN TODO: terrain provider visuals dont update even though the provider is changed
-					}}
+					on:change={() => changeTerrainProvider(tp)}
 				/>
 			{/each}
 		</RadioButtonGroup>
@@ -41,7 +34,7 @@
 
 	<Slider
 		hideTextInput
-		labelText={textOpacity + " " + $globeOpacity + "%"}
+		labelText={$_("tools.backgroundControls.opacity") + " " + $globeOpacity + "%"}
 		min={0}
 		max={100}
 		bind:value={$globeOpacity}

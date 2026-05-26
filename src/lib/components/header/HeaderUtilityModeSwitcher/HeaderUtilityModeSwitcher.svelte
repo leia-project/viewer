@@ -88,11 +88,11 @@
 				duration: map.startPosition.duration
 			});
 		}
-	}
-	// Turn off terrain
-	const terrainProviderOff = get(map.options.terrainProviders).find(provider => provider.title === 'Uit');
-	if (terrainProviderOff && get(map.options.selectedTerrainProvider) !== terrainProviderOff) {
-		map.options.selectedTerrainProvider.set(terrainProviderOff);
+		// Turn off terrain
+		const terrainProviderOff = get(map.options.terrainProviders).find(provider => provider.title === 'Uit');
+		if (terrainProviderOff && get(map.options.selectedTerrainProvider) !== terrainProviderOff) {
+			map.options.selectedTerrainProvider.set(terrainProviderOff);
+		}
 	}
 
 	function to3D(): void {
