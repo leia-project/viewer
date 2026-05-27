@@ -341,7 +341,8 @@
             "otherRegions": "Overige regio's",
             "searchRegion": "Zoek regio",
             "noResults": "Geen resultaten",
-            "scenario": "Scenario"
+            "scenario": "Scenario", 
+            "hourSinceRainfall": "uur na stortbui"
         },
         "isochrones": {
             "label": "Isochronen",

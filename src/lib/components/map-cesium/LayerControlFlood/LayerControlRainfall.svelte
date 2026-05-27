@@ -100,9 +100,10 @@
 		</div>
 		<div class="label-01">{$_('tools.flooding.timeSlider')}</div>
 		<div class="wrapper">
+		<!-- Er is tijdelijk hier een * 12 toegevoegd omdat de huidige data in stappen van 12 uur weergegeven wordt-->
 			<Slider 
 				bind:value={$time}
-				labelText={`${Math.round($time)}` + ' ' + $_('tools.flooding.hourSinceBreach')}
+				labelText={`${Math.round($time * 12)}` + ' ' + $_('tools.rainStress.hourSinceRainfall')}
 				fullWidth={true}
 				hideTextInput={true}
 				min={$minTime}
