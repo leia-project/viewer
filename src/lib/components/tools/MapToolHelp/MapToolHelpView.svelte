@@ -17,6 +17,7 @@
     export let showOnStart: boolean = false;
 
 	const map = app.map;
+
     $: txtTitle = $map?.config?.name ?? $_("tools.help.title");
 
     let customIntroText: string | undefined = undefined;

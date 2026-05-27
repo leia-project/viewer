@@ -7,7 +7,7 @@
 	import type { Map } from "$lib/map-cesium/map";
 	import type { MapMeasurement } from "$lib/map-cesium/map-measurement";
 
-	export let editting: boolean = false;
+	export let editing: boolean = false;
 	export let textEditMeasurement: string = "Edit Measurement";
 	export let textTitle: string = "Title";
 	export let textDefaultTitle: string = "Measurement";
@@ -89,7 +89,7 @@
 		dtRowsCamera = dtEntries;
 	});
 
-	$: if (editting) {
+	$: if (editing) {
 		startEdit();
 	} else {
 		cancelEdit();
@@ -139,7 +139,7 @@
 </script>
 
 <div class="measurement">
-	{#if editting}
+	{#if editing}
 		<div class="measurement-content">
 			<div class="heading-01">
 				{textEditMeasurement}

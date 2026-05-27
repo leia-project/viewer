@@ -9,9 +9,11 @@
 	import { app } from "$lib/app/app";
 	import { getFeatureBounds } from "$lib/map-cesium/utils/map-utils";
 
+
+	const map = app.map;
+	const value = writable<string>();
 	let geocoderName: string;
 	let geocoderUrl: string;
-	const value = writable<string>();
 	let selectedResultIndex = 0;
 	let events: any[] = [];
 	let results = new Array<any>();
@@ -22,7 +24,6 @@
 		clearTimeout(debounceTimer);
 	});
 
-	const map = app.map;
 
 	map.subscribe((map) => {
 		if (map) {

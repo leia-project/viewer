@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { app } from "$lib/app/app";
 	import { _ } from "svelte-i18n";
 	import { Slider, RadioButtonGroup, RadioButton } from "carbon-components-svelte";
-	import { app } from "$lib/app/app";
 
 	const map = app.map;
 
