@@ -22,6 +22,8 @@
         showHelp();
     };
 
+    let helpView: MapToolHelpView | undefined = undefined;
+
     tool.settings.subscribe((settings) => {
         if (settings) {
             if (settings.showOnStart !== undefined) {
@@ -34,8 +36,6 @@
             }
         }
     });
-
-    let helpView: MapToolHelpView | undefined = undefined;
 
     function showHelp(): void {
         const container = getMapContainer();
