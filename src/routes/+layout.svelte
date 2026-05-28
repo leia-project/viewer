@@ -6,7 +6,7 @@
 	import { setupLocalization } from '$lib/components/localization/localization';
 	import { ConfigSettings } from '$lib/app/config-settings';
 	import { selectedLanguage } from '$lib/components/localization/localization';
-
+	import PageNotFound from './error/pageNotFound.svelte';
 	import './app.css';	
 
 	app.init();
@@ -21,7 +21,7 @@
 	setupLocalization("nl");
 
 	$: map = get(app.map);
-	
+	let pageNotFound = false
 	$: {
 		if (map) {
 			map.configLoaded.subscribe((loaded) => {
@@ -43,10 +43,18 @@
 		// Look for name in URL that corresponds to a config name
 		if (!configUrl) {
 			if ($page.params.config) {
-				const response = await fetch(process.env.CONFIG_SERVER_URL + `/overview?mode=dt&q=${$page.params.config}`);
-				if (response.ok) {
-					const responseJson = await response.json();
-					configUrl = responseJson[0].url;
+				try {
+					const response = await fetch(process.env.CONFIG_SERVER_URL + `/overview?mode=dt&q=${$page.params.config}`);
+					if (response.ok) {
+						const responseJson = await response.json();
+						configUrl = responseJson[0].url;
+					} else {
+						pageNotFound = true;
+						return;
+					}
+				} catch {
+					pageNotFound = true;
+					return;
 				}
 			}
 		}
@@ -55,7 +63,11 @@
 </script>
 
 <main>
-	<slot />
+    {#if pageNotFound}
+        <PageNotFound />
+    {:else}
+        <slot />
+    {/if}
 </main>
 
 <style>
