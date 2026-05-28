@@ -57,23 +57,23 @@
                         "title": "Bouwjaar",
                         "conditions": [
                             [
-                                "${bouwjaar} < 1900",
+                                "${oorspronkelijkBouwjaar} < 1900",
                                 "color(\"#F62D2D\")"
                             ],
                             [
-                                "${bouwjaar} >= 1900 && ${bouwjaar} < 1950",
+                                "${oorspronkelijkBouwjaar} >= 1900 && ${oorspronkelijkBouwjaar} < 1950",
                                 "color(\"#D3212D\")"
                             ],
                             [
-                                "${bouwjaar} >= 1950 && ${bouwjaar} < 1970",
+                                "${oorspronkelijkBouwjaar} >= 1950 && ${oorspronkelijkBouwjaar} < 1970",
                                 "color(\"#722B6A\")"
                             ],
                             [
-                                "${bouwjaar} >= 1970 && ${bouwjaar} < 1990",
+                                "${oorspronkelijkBouwjaar} >= 1970 && ${oorspronkelijkBouwjaar} < 1990",
                                 "color(\"#412F88\")"
                             ],
                             [
-                                "${bouwjaar} >= 1990",
+                                "${oorspronkelijkBouwjaar} >= 1990",
                                 "color(\"#1034A6\")"
                             ],
                             [
@@ -85,7 +85,6 @@
                 ]
             }
         }
-
     ],
     "viewer": {
         "title": "Bovenregionale stresstest",
