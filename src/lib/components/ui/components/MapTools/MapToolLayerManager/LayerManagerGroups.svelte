@@ -17,7 +17,7 @@
 <div class="group-wrapper">
     {#each groups as group}
         {#if group.id !== "myData"}
-            <LayerManagerGroupView {library} {group} {textBaselayers} {textNoCategory} ></LayerManagerGroupView>
+            <LayerManagerGroupView {library} {group} {textBaselayers} {textNoCategory} />
         {/if}
     {/each}
 </div>

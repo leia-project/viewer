@@ -40,6 +40,7 @@ export class Config extends Dispatcher {
                 description: c.description,
                 groupId: c.groupId,
                 imageUrl: c.imageUrl,
+                legendEnabled: c.legendEnabled,
                 legendUrl: c.legendUrl,
                 isBackground: c.isBackground,
                 defaultAddToManager: c.defaultAddToManager,

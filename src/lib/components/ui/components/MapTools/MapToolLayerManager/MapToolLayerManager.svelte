@@ -190,8 +190,8 @@
 
 <style>
     .wrapper {
-        margin-top: var(--cds-spacing-05);
-		margin-left: var(--cds-spacing-05);
+        margin: var(--cds-spacing-05);
+        margin-bottom: 0;
 		box-sizing: border-box;
     }
 

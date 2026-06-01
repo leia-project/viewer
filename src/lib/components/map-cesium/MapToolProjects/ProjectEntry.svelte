@@ -58,7 +58,7 @@
 				on:click={() => dispatch("activate")}
 			>
 				{$_('tools.projects.activateProject')}
-				<Exit slot="icon" size="{20}" class="bx--btn__icon flipped"/>
+				<Exit slot="icon" size={20} class="bx--btn__icon"/>
 			</Button>
 		{/if}
 	</div>
@@ -108,10 +108,6 @@
 
 	.project-description {
 		margin: 15px 0 15px;
-	}
-
-	.flipped {
-		transform: rotate(-180deg)
 	}
 
 </style>

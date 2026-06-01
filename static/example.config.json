@@ -105,6 +105,28 @@
                     }
                 ]
             }
+        },
+        {
+           "id": "4",
+            "type": "wms",
+            "title": "PDOK Wijken",
+            "groupId": "",
+            "legendEnabled": true,
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": false,
+            "settings": {
+                "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
+                "featureName": "wijken",
+                "contenttype": "image/png",
+                "tools": {
+                    "styleSwitcher": {
+                        "enabled": true
+                    }
+                }
+            }
         }
     ],
     "viewer": {
@@ -249,13 +271,13 @@
                 "pointCloudAttenuationMaximum": 2,
                 "terrainProviders": [
                     {
-                        "title": "Zeeland 1m",
-                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
+                        "title": "PDOK Terrain",
+                        "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
                         "vertexNormals": true
                     },
                     {
-                        "title": "PDOK Terrain",
-                        "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
+                        "title": "Zeeland 1m",
+                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
                         "vertexNormals": true
                     },
                     {
@@ -315,11 +337,27 @@
         },
         {
             "id": "flooding",
-            "enabled": true,
+            "enabled": false,
             "settings": {
                 "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
                 "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson",
-                "floodedRoadsUrl": "http://localhost:5000"
+                "roadsUrl": "https://service.pdok.nl/rws/vervoersnetwerken/wegen/wms/v1_0",
+                "floodedRoadsUrl": "https://virtueel.zeeland.nl/pygeoapi",
+                "floodedRoadsStyle": [
+                    {
+                        "property": "flood_depth",
+                        "stops": [
+                            {
+                                "value": 0,
+                                "color": "#ffff00"
+                            },
+                            {
+                                "value": 3,
+                                "color": "#ff0000"
+                            }
+                        ]
+                    }
+                ]
             }
         },
         {

@@ -1,6 +1,5 @@
 
 import { env } from '$env/dynamic/private';
-import { decode } from 'jsonwebtoken';
 
 import type { Handle } from '@sveltejs/kit';
 

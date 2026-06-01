@@ -34,7 +34,6 @@
 		if (map) {
 			map.configLoaded.subscribe((loaded: boolean) => {
 				if (loaded && map.ready) {
-					console.log("Map is ready and config is loaded, initializing isochrones layer");
 					const isochronesTool = map.config.tools.find((t: any) => t.id === "isochrones");
 					const apiUrl = isochronesTool.settings.apiUrl;
 					const accountedPopulationGrowthLayerId: string = isochronesTool.settings.accountedPopulationGrowthLayerId;

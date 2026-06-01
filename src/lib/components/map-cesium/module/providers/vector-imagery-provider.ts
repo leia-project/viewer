@@ -1,6 +1,5 @@
 import {
 	Color,
-	defaultValue,
 	defined,
 	Event,
 	Ellipsoid,
@@ -33,15 +32,15 @@ import * as tilekiln from "tile-kiln";
  * @param {VectorImageryProvider.ConstructorOptions} [options] Object describing initialization options
  */
 function VectorImageryProvider(this: any, url: string, options: any) {
-	options = defaultValue(options, {});
+	options = options ?? {};
 	this.url = url;
 	this._tilingScheme = defined(options.tilingScheme)
 		? options.tilingScheme
 		: new WebMercatorTilingScheme({ ellipsoid: Ellipsoid.WGS84 });
-	this._color = defaultValue(options.color, Color.YELLOW);
+	this._color = options.color ?? Color.YELLOW;
 	this._errorEvent = new Event();
-	this._tileWidth = defaultValue(options.tileWidth, 512);
-	this._tileHeight = defaultValue(options.tileHeight, 512);
+	this._tileWidth = options.tileWidth ?? 512;
+	this._tileHeight = options.tileHeight ?? 512;
 	this._readyPromise = this.setupTileMaker(url);
 	this._ready = false;
 
