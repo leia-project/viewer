@@ -15,7 +15,8 @@
         },
         "buttons": {
             "show": "Montrer",
-            "hide": "Cacher"
+            "hide": "Cacher",
+            "reset": "Réinitialiser"
         }
     },
     "tools": {
@@ -149,7 +150,8 @@
             "enableClipping": "Activer le Découpage",
             "clampToTerrain": "Fixation au Terrain",
             "styling": "Style",
-            "viewRecordOn": "Voir l'enregistrement sur"
+            "viewRecordOn": "Voir l'enregistrement sur",
+            "dataportal": "Portail de données"
         },
         "layerManager": {
             "label": "Gestionnaire de Calques",
@@ -168,7 +170,8 @@
             "btnShowAll": "Tout Afficher",
             "btnHideAll": "Masquer tout",
             "filterPointCloudClasses": "Filtrer les classes de Point Cloud",
-            "heightControlLabel": "Décalage de la hauteur du jeu de tuiles (m)"
+            "heightControlLabel": "Décalage de la hauteur du jeu de tuiles (m)",
+            "dataportal": "Portail de données"
         },
         "layerTools": {
             "theme": {

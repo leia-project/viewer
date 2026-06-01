@@ -159,7 +159,8 @@
             "enableClipping": "Clip-optie inschakelen",
             "clampToTerrain": "Vastzetten op terrein",
             "styling": "Stijl",
-            "viewRecordOn": "Bekijk record op"
+            "viewRecordOn": "Bekijk record op",
+            "dataportal": "Dataportaal"
         },
         "layerManager": {
             "label": "Lagenbeheer",
@@ -178,7 +179,8 @@
             "btnShowAll": "Alles tonen",
             "btnHideAll": "Alles verbergen",
             "filterPointCloudClasses": "Filter puntenwolk klasses",
-            "heightControlLabel": "Hoogtecorrectie Tileset (m)"
+            "heightControlLabel": "Hoogtecorrectie Tileset (m)",
+            "dataportal": "Dataportaal"
         },
         "layerTools": {
             "theme": {

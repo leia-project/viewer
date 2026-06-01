@@ -44,6 +44,8 @@
                     {$_("tools.layerLibrary.baseLayers")}
                 {:else if group.id === "group_uncategorised"}
                     {$_("tools.layerLibrary.noCategory")}
+                {:else if group.id === "dataportal"}
+                    {$_('tools.layerManager.dataportal')}
                 {:else}
                     {group.title}
                 {/if}
