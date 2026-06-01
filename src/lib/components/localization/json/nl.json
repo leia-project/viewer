@@ -169,6 +169,7 @@
             "opacity": "Transparantie",
             "legend": "Legenda",
             "legendNotFoundText": "Geen legenda gevonden",
+            "openMetadata": "Open metadata",
             "styling": "Stijl",
             "extrusion": "Extrusie",
             "metersNAP": " meter (NAP)",

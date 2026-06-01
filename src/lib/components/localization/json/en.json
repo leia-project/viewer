@@ -162,6 +162,7 @@
             "opacity": "Opacity",
             "legend": "Legend",
             "legendNotFoundText": "Legend not found",
+            "openMetadata": "Open metadata",
             "styling": "Styling",
             "extrusion": "Extrusion",
             "metersNAP": " Meter(s) (NAP)",

@@ -160,6 +160,7 @@
             "opacity": "Opacité",
             "legend": "Légende",
             "legendNotFoundText": "Légende non trouvée",
+            "openMetadata": "Ouvrir les métadonnées",
             "styling": "Style",
             "extrusion": "Extrusion",
             "metersNAP": " Mètre(s) (NAP)",

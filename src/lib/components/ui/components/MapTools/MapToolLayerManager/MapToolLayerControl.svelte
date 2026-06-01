@@ -1,13 +1,12 @@
 <script lang="ts">
     import { getContext, onMount } from "svelte";
     import { _ } from "svelte-i18n";
-
     import { XMLParser } from 'fast-xml-parser';
     import { Slider, Checkbox, Button, AccordionItem, Dropdown } from "carbon-components-svelte";
+    import { Information } from "carbon-icons-svelte";
     import TrashCan from "carbon-icons-svelte/lib/TrashCan.svelte";
     import Search from "carbon-icons-svelte/lib/Search.svelte";
     import ErrorMessage from "$lib/components/ui/components/ErrorMessage/ErrorMessage.svelte"
-
     import type { Layer } from "$lib/components/map-core/layer";
 
     const { map } = getContext<any>("mapTools");
@@ -21,19 +20,21 @@
     let imageValid: boolean = true;
     let descriptionValid: boolean = true;
     let items: { id: string; text: string }[] = [];
-    
+    let metadataUrl: string | undefined = undefined;
+
     const defaultLegendUrl = layer.config.legendUrl;
     let hasConfigLegendUrl = defaultLegendUrl !== undefined && defaultLegendUrl !== "";
-    let legendUrl: string | undefined = undefined; // The actual URL used to render the legend image
+    let legendUrl: string | undefined = undefined;
 
     const visible = layer.visible;
     const opacity = layer.opacity;
     const customControls = layer.customControls;
     $: textOpacity = `${$_("tools.layerManager.opacity")} ` + $opacity + "%";
-    
-    async function getWMSStyleNames(getCapabilitiesUrl: string, featureName: string) {
+
+    async function getMetadataURL(getCapabilitiesUrl: string, featureName: string) {
         try {
             const response = await fetch(getCapabilitiesUrl);
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -53,8 +54,53 @@
             });
 
             const parsedXml = parser.parse(xmlText);
+            let metadataUrl: string | undefined = undefined;
 
+            if (parsedXml) {
+                const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
+                const layers = Array.isArray(layerData) ? layerData : [layerData];
+
+                layers.forEach((layer: { Name: string; DataURL: any; MetadataURL: any }) => {
+                    if (layer.Name === featureName) {
+                        metadataUrl = layer.DataURL?.OnlineResource?.['xlink:href'] || 
+                            layer.MetadataURL?.OnlineResource?.['xlink:href'];   
+                    }
+                });
+            };
+
+            return metadataUrl;
+
+        } catch (error) {
+            console.error("Error fetching WMS GetCapabilities:", error);
+            return metadataUrl = undefined;
+        };
+    };
+
+    async function getWMSStyleNames(getCapabilitiesUrl: string, featureName: string) {
+        try {
+            const response = await fetch(getCapabilitiesUrl);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const xmlText = await response.text();
+            const parser = new XMLParser({
+                ignoreAttributes: false,
+                attributeNamePrefix: '',
+                textNodeName: '#text',
+                trimValues: true,
+                parseTagValue: true,
+                parseAttributeValue: true,
+                isArray: (tagName) => {
+                    if (tagName === 'Style') return true;
+                    return false;
+                }
+            });
+
+            const parsedXml = parser.parse(xmlText);
             const styleNames: { id: string; text: string, legendURL: string | undefined }[] = [];
+
             if (parsedXml) {
                 const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
                 const layers = Array.isArray(layerData) ? layerData : [layerData];
@@ -104,6 +150,11 @@
     }
 
     onMount(async() => {
+        if (layer.config.type === "wms") {
+            const WMSUrl = layer.config.settings?.url + "?service=WMS&request=GetCapabilities";
+            const featureName = layer.config.settings?.featureName;
+            metadataUrl = await getMetadataURL(WMSUrl, featureName);
+        }
         if (layer.config.type !== "wms" || !layer.config.legendSupported) {
             return;
         }
@@ -121,7 +172,6 @@
             }
         }
     });
-
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -129,29 +179,42 @@
 <AccordionItem class="layer-control" bind:open>
     <svelte:fragment slot="title">
         <div class="item-header">
-            <div class="layer-cb">
-                <Checkbox
-                    bind:checked={$visible}
+            <div class="header-left-content">
+                <div class="layer-cb">
+                    <Checkbox
+                        bind:checked={$visible}
+                        on:click={(e) => {
+                            e.stopPropagation();
+                            return false;
+                        }}
+                    />
+                    <div class="label-01" class:layer-title-condensed={open === false} title={layer.title}>
+                        {layer.title}
+                    </div>
+                </div>
+                <div class="layer-title-wrap" role="button" tabindex="0"
                     on:click={(e) => {
+                        $visible = !$visible;
                         e.stopPropagation();
                         return false;
-                    }}
-                />
-            </div>
-            <div
-                class="layer-title-wrap"
-                on:click={(e) => {
-                    $visible = !$visible;
-                    e.stopPropagation();
-                    return false;
-                }}
-                role="button"
-                tabindex="0"
-            >
-                <div class="label-01" class:layer-title-condensed={open === false} title={layer.title}>
-                    {layer.title}
+                    }}>
+                    
                 </div>
             </div>
+            {#if layer.config.type === "wms" && metadataUrl}
+                <a
+                    href={metadataUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="metadata-link"
+                    title={$_("tools.layerManager.openMetadata")}
+                    aria-label={$_("tools.layerManager.openMetadata")}
+                >
+                    <Information
+                        size={16}
+                    />
+                </a>
+            {/if}
         </div>
     </svelte:fragment>
 
@@ -257,12 +320,14 @@
         display: flex;
         min-width: 95%;
         max-width: 95%;
-        justify-content: left;
+        justify-content: space-between;
         align-items: center;
         overflow: hidden;
     }
 
     .layer-cb {
+        display: flex;        
+        align-items: center;
         flex-shrink: 1;
     }
 
@@ -305,5 +370,23 @@
         justify-content: right;
         margin-top: var(--cds-spacing-05);
         gap: var(--cds-spacing-02);
+    }
+
+    .metadata-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 2px;
+        color: var(--cds-icon-primary, #161616);
+        transition: color 0.15s ease, background-color 0.15s ease;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .metadata-link:hover,
+    .metadata-link:focus-visible {
+        color: var(--cds-link-primary, #0f62fe);
+        background-color: var(--cds-hover-ui, #e5e5e5);
     }
 </style>
