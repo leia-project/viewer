@@ -1,0 +1,345 @@
+{
+    "general": {
+        "goTo": "Go to",
+        "loading": "Loading...",
+        "on": "On",
+        "off": "Off",
+        "open": "Open",
+        "close": "Close",
+        "notifications": {
+            "error": "Error",
+            "warning": "Warning",
+            "info": "Information",
+            "success": "Success",
+            "noConfigText": "No configuration found"
+        },
+        "buttons": {
+            "show": "Show",
+            "hide": "Hide",
+            "reset": "Reset"
+        }
+    },
+    "tools": {
+        "menu": {
+            "expand": "Expand",
+            "collapse": "Collapse"
+        },
+        "language": {
+            "setLanguage": "Set language"
+        },
+        "geocoder": {
+            "search": "Search Location"
+        },
+        "info": {
+            "label": "Information",
+            "close": "Close",
+            "general": "Open 3D viewer, product by Sogelink (formerly Geodan) and Provincie Zeeland.",
+            "attribution": "Attribution"
+        },
+        "help": {
+            "label": "Help",
+            "title": "Digital-Twin Viewer",
+            "close": "Close",
+            "closeDontShowOnStart": "Close and don't show on startup",
+            "tabs": {
+                "intro": "Introduction",
+                "movement": "Movement",
+                "library": "Library",
+                "search": "Search",
+                "flood": "Flooding",
+                "stories": "Stories",
+                "isochrones": "Isochrones"
+            },
+            "intro": {
+                "introDescription": "A digital twin is a digital representation of a intended or existing physical product, system, or process that serves as a virtually identical digital counterpart for practical purposes, such as simulation, integration, testing, monitoring, and maintenance. For more information on using the viewer, see the various topics."
+            },
+            "movement": {
+                "headingZoom": "Zooming in/out",
+                "zoomDescription": "Zooming in and out can be done in 3 different ways:",
+                "zoomOption1": "1) Scroll up or down to zoom in or out.",
+                "zoomOption2": "2) Hold your right mouse button and move the mouse up or down for seamless zooming.",
+                "zoomOption3": "3) Use the zoom in and out buttons in the bottom right.",
+                "headingRotatePitch": "Rotate & Pitch",
+                "rotatePitchDescription": "You can rotate and pitch the camera, it is also possible to pitch the camera below the surface. This can be done in 2 different ways.",
+                "rotatePitchOption1": "1) Press down your mouse scroll wheel and move the mouse around.",
+                "rotatePitchOption2": "2) Hold down the <help-key>ctrl</help-key> key on your keyboard and your left mouse button and move the mouse around.",
+                "headingButtons": "Map Buttons",
+                "buttonsDescription": "On the bottom right some map buttons can be found.",
+                "buttonsFlyMode": "Activate FlyMode",
+                "buttonsWalkMode": "Activate WalkMode",
+                "buttonsHome": "Reset the view to the start position",
+                "buttonsCompass": "Reset the heading to North",
+                "buttonsZoomIn": "Zoom in",
+                "buttonsZoomOut": "Zoom out"
+            },
+            "library": {
+                "headingLibraryOpen": "Open Layer Library",
+                "headingUsingLibrary": "Using the Layer Library",
+                "description": "If you want to add more layers on top of the configured layers in the viewer you can do so using the layer library",
+                "openLibrary": "To open the layer library click the 'folder' button on the left side",
+                "libraryDescription": "Use the search bar on the bottom to search for desired layers or click trough the shown groups. To show more information about the layer click the layer, to add the layer to the map, enable the checkbox or press the 'Add to map' button in the layer description view"
+            },
+            "flood": {
+                "headingFloodOpen": "Open the flooding tool",
+                "headingUsingFlood": "Using the flooding tool",
+                "description": "The flooding tool enables you to simulate and analyze floods in the area.",
+                "openFlood": "To open the flooding tool, click the 'flooding' button on the left side.",
+                "floodBreachDescription": "First select a breach location by clicking on a breach icon on the map. This will act as the starting point for the flood simulation.",
+                "floodMenuDescription": "After that, use the different options in the flooding tool to customize and run the simulation. First choose the desired scenario, for example 1:3000 years. Then you can use the 'Time slider' to play the scenario. Use the 'Play' button to automatically play the scenario, or use the arrows to view the flood step by step.",
+                "headingMeasureDepth": "Measure depth",
+                "measureDepthDescription": "To measure the water depth at a specific location, turn on the 'Measure depth' button and then click on a flooded area at the desired location. The tool can only be used when zoomed in, as the terrain height is then loaded correctly."
+            },
+            "stories": {
+                "description": "This module allows you to view pre-made tours that tell a story.",
+                "headingOpenStories": "Opening Stories",
+                "openStories": "Open the story tool by clicking the 'Stories' button on the left side. Select a story from the list to start the tour.",
+                "headingStoryNavigation": "Navigation",
+                "storyNavigation": "Use the chapter (top row) and page buttons (bottom row) to move through the story, or simply scroll down in the menu. You can go back to the overview at any time by clicking the 'Back to overview' button.",
+                "headingStoryDrawArea": "Drawing a Project Area",
+                "storyDrawArea": "Some stories require you to draw a project area on the map. This area will be used to generate a a distribution of classes within the drawn polygon. To draw a project area, click the 'Draw Project Area' button and then click on the map to create a polygon. Right-click on the map or click 'Finish Drawing' to finish drawing.",
+                "headingStoryUploadArea": "Uploading a Project Area",
+                "storyUploadArea": "Alternatively, you can upload a project area as a GeoJSON (.geojson) or Geopackage (.gpkg) file. To do this, click the 'Upload Project Area' button and select your file. The file should contain a single (non-multipart) polygon feature that represents the project area.",
+                "headingStoryDataDonut": "Project Area Data Chart",
+                "storyDataDonut": "In stories that contain a project area, a donut chart is shown to represent the distribution of different classes within the drawn area. Hovering over a segment will show the percentage it represents.",
+                "headingStoryExportPDF": "Exporting the Story as a PDF",
+                "storyExportPDF": "You can export the story as a PDF by clicking the 'Generate and download PDF' button. The option will become available once all data is loaded in. It will generate a PDF that contains the content of the story, including the charts with detailed percentages. This allows you to easily share your project area analysis with others."
+            },
+            "isochrones": {
+                "description": "The location planner allows you to simulate and analyze the impact of any development on the number of new residents in the NSPD area. To use the tool, click the 'Draw development location' button. This allows you to select the location of the development in the area. Then click the 'Calculate car travel time distances' button, which calculates travel time distances by car for 20, 40 and 60 minutes from the location. These are displayed using colored areas around the location, where the colors indicate the number of new residents that will settle in these areas. The default value for the number of new residents is 10,000, you can manually adjust this with a slider between the values of 0 and 20,000, to simulate different types of developments. The values for the settlement percentages are assumptions, these are set by default to 50% for 20 minutes travel time, 30% for 40 minutes travel time and 20% for 60 minutes travel time. You can use a slider to adjust the default value of 50% for 20 minutes travel time, to analyze the impact on the distribution of the number of new residents."
+            }
+        },
+        "layerLibrary": {
+            "label": "Library",
+            "baseLayers": "Background Layers",
+            "noCategory": "No Category",
+            "close": "Close",
+            "notImplemented": "Not implemented yet",
+            "catalogue": "Catalogue",
+            "myData": "My Data",
+            "myDataTitle": "My Data Layer Configuration",
+            "btnAddToMap": "Add To Map",
+            "btnRemoveFromMap": "Remove From Map",
+            "btnAddAllToMap": "Add All",
+            "btnRemoveAllFromMap": "Remove All",
+            "btnCopyToClipboard": "Copy to clipboard",
+            "description": "Description",
+            "noDescription": "No description found",
+            "attribution": "Attribution",
+            "noAttribution": "No attribution found",
+            "layerName": "Layer name",
+            "layerType": "Layer type",
+            "metadata": "Metadata",
+            "noMetadata": "No metadata found",
+            "info": "Info",
+            "infoLibrary": "Add data to the map from the left side by opening a group/subgroup and enabling the checkbox, to see more information about the data click the title to open a detailed view if available.",
+            "infoMyDataLibrary": "Create a custom data layer by clicking the Add button. After filling out the details, the custom layer can be added to the map.",
+            "searchPlaceholder": "Zoek Data",
+            "searchResults": "Search results",
+            "for": "for",
+            "searchNoResults": "No Results found for",
+            "layerNamePlaceholder": "Name of the layer...",
+            "contentTypePlaceholder": "e.g. image/png or image/jpeg",
+            "geojsonStylePlaceholder": "Parameter used for default styling",
+            "timeKeyPlaceholder": "Time parameter in the GeoJSON properties",
+            "orientationKeyPlaceholder": "Optional: Orientation parameter in the GeoJSON properties",
+            "invalidTypeText": "Select a supported data type from the list",
+            "invalidUrlText": "Enter a valid URL",
+            "urlNotFoundText": "URL was not found",
+            "addCustomLayer": "Add Custom Layer",
+            "deleteLayer": "Delete Layer",
+            "selectedThemes": "Selected Themes",
+            "filterByTheme": "Filter by Theme",
+            "enableClipping": "Enable Clipping",
+            "clampToTerrain": "Clamp to Terrain",
+            "styling": "Styling",
+            "viewRecordOn": "View record on",
+            "dataportal": "Dataportal"
+        },
+        "layerManager": {
+            "label": "Layer Manager",
+            "baseLayers": "Background layers",
+            "thematicLayers": "Thematic layers",
+            "myLayers": "My layers",
+            "dragDroppedLayers": "Drag and dropped layers",
+            "opacity": "Opacity",
+            "legend": "Legend",
+            "legendNotFoundText": "Legend not found",
+            "styling": "Styling",
+            "extrusion": "Extrusion",
+            "metersNAP": " Meter(s) (NAP)",
+            "gradient": "Gradient",
+            "applyGradient": "Apply gradient",
+            "btnShowAll": "Show All",
+            "btnHideAll": "Hide All",
+            "filterPointCloudClasses": "Filter Point Cloud classes",
+            "heightControlLabel": "Tileset height offset (m)",
+            "dataportal": "Dataportal"
+        },
+        "layerTools": {
+            "theme": {
+                "label": "Themes",
+                "default": "None",
+                "legend": "Legend",
+                "reset": "Reset Legend"
+            },
+            "clipper": {
+                "label": "Slice layer",
+                "rotationVerticalAxis": "Vertical axis rotation",
+                "rotationHorizontalAxis": "Horizontal axis rotation",
+                "sliceModeLabel": "Create cross section"
+            }
+        },
+        "backgroundControls": {
+            "opacity": "Globe Opacity",
+            "terrain": "Terrain"
+        },
+        "bookmarks": {
+            "label": "Bookmarks",
+            "title": "Title",
+            "save": "Save",
+            "cancel": "Cancel",
+            "delete": "Delete",
+            "add": "Add New Bookmark",
+            "description": "Description",
+            "cameraPosition": "Camera",
+            "cameraPositionSubtitle": "The current camera position will be saved with this bookmark",
+            "noBookmarks": "No bookmarks",
+            "noBookmarksSubtitle": "Press add to create a new bookmark"
+        },
+        "projects": {
+            "label": "Projects",
+            "activateProject": "Activate project",
+            "leaveProjectView": "Leave project",
+            "showOnMap": "Show projects on map"
+        },
+        "featureInfo": {
+            "label": "Object Information",
+            "noData": "No data, press an object for more information",
+            "attribute": "Attribute",
+            "value": "Value"
+        },
+        "measure": {
+            "label": "Measure",
+            "noMeasurement": "No measurements",
+            "noMeasurementSubtitle": "Press add to start a new measurement",
+            "add": "Add new measurement",
+            "edit": "Edit measurement",
+            "title": "Title",
+            "defaultTitle": "Measurement",
+            "save": "Save",
+            "record": "Save camera position",
+            "delete": "Delete",
+            "cameraPosition": "Camera position",
+            "totalLength": "Total length",
+            "points": "Points"
+        },
+        "cesium": {
+            "label": "Map Settings",
+            "sunPosition": "Sun Position",
+            "sunPositionDate": "Date",
+            "sunPositionHour": "Hour UTC",
+            "quality": "Quality",
+            "rendering": "Rendering",
+            "environment": "Environment",
+            "debug": "Debug",
+            "low": "Low",
+            "medium": "Medium",
+            "high": "High",
+            "custom": "Custom",
+            "animate": "Animate",
+            "fxaa": "FXAA",
+            "fog": "Fog",
+            "groundAtmosphere": "Ground Atmosphere",
+            "dynamicRange": "HDR",
+            "lighting": "Lighting",
+            "msaa": "MSAA",
+            "maximumScreenspaceError": "Level of Detail",
+            "resolutionScale": "Resolution Scale",
+            "shadows": "Shadows",
+            "skyAtmosphere": "Sky Atmosphere",
+            "FPSCounter": "FPS Counter",
+            "inspector": "Tile Inspector",
+            "coordinates": "Coordinates",
+            "cameraPosition": "Camera Position",
+            "dragAndDropFiles": "Drag and Drop Files",
+            "pointCloud": "Point Clouds",
+            "pointCloudAttenuation": "Attenuation",
+            "pointCloudAttenuationBaseResolution": "Attenuation Base Resolution",
+            "pointCloudAttenuationErrorScale": "Attenuation Geometric Error Scale",
+            "pointCloudAttenuationMaximum": "Attenuation Maximum",
+            "pointCloudEDL": "Eye Dome Lighting",
+            "pointCloudEDLRadius": "Eye Dome Lighting Radius",
+            "pointCloudEDLStrength": "Eye Dome Lighting Strength",
+            "logo": "Logos"
+        },
+        "stories": {
+            "label": "Stories",
+            "back": "Back to overview",
+            "stepBack": "Step back",
+            "stepForward": "Step forward",
+            "description": "Description",
+            "statistics": "Statistics",
+            "storyChartTitle": "Class distribution",
+            "storyChartNoData": "No Data",
+            "storyChartNoDataInPolygon": "No data in the drawn project area",
+            "basemap": "Basemap",
+            "polygonTitle": "Project Area",
+            "requestDrawPolygon": "Draw a Project Area",
+            "drawPolygon": "Draw Area",
+            "uploadPolygon": "Upload a Project Area",
+            "finishPolygon": "Finish Area",
+            "drawPolygonText": "Click on the 'Draw Project Area' button to start drawing on the map. Click to create a polygon. Right-click on the map to finish drawing.",
+            "deletePolygon": "Delete Area",
+            "projectAreaTool": "Project Area Tool",
+            "downloadPDF": "Generate and download PDF"
+        },
+        "animation": {
+            "speed": "Speed",
+            "play": "Play",
+            "pause": "Pause",
+            "previous": "Previous",
+            "next": "Next",
+            "currentTime": "Current time",
+            "animationControls": "Animation controls",
+            "showWayPoints": "Show waypoints",
+            "hideWayPoints": "Hide waypoints",
+            "trackModel": "Track model",
+            "stopTracking": "Stop tracking",
+            "zoomToModel": "Zoom to model"
+        },
+        "flooding": {
+            "label": "Flooding",
+            "measureDepth": "Measure depth",
+            "measureDepthError": "Zoom in to measure the water depth",
+            "waterTransparency": "Water Opacity",
+            "scenario": "Scenario",
+            "errorCouldNotLoad": "Could not load flooding data",
+            "hourSinceBreach": "hours since breach",
+            "chosenBreach": "Chosen breach",
+            "otherBreaches": "Other breaches",
+            "noResults": "No results",
+            "noBreachSelected": "No breach selected",
+            "searchBreach": "Search breach",
+            "timeSlider": "Time slider"
+        },
+        "isochrones": {
+            "label": "Isochrones",
+            "reset": "Reset",
+            "drawIsochroneCenter": "Draw development location",
+            "drawingIsochroneCenter": "Drawing",
+            "apiKey": "API Key",
+            "enterApiKey": "Enter GeodanMaps API key here...",
+            "calculate": "Calculate isochrones",
+            "calculating": "Calculating...",
+            "totalPopulation": "Total new residents",
+            "legendTitle": "Legend",
+            "settlementPercentage": "Settlement Percentage"
+        }
+    },
+    "errors": {
+        "Drawing": {
+            "invalidPolygon": "Invalid polygon: The polygon cannot intersect itself."
+        }
+    }
+
+}

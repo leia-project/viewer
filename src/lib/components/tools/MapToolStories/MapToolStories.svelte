@@ -1,0 +1,230 @@
+<script lang="ts">
+	import { getContext } from "svelte";
+	import { _ } from "svelte-i18n";
+	import { Book } from "carbon-icons-svelte";
+	import { page } from "$app/stores";
+
+	import { CameraLocation } from "$lib/map-core/camera-location";
+	import type { Map } from "$lib/map-cesium/map";
+	import { MapToolMenuOption } from "../MapToolMenuOption";
+	import { Story } from "./Story";
+	import { StoryStep } from "./StoryStep";
+	import { StoryLayer } from "./StoryLayer";
+	import { StoryChapter } from "./StoryChapter";
+	import type { LegendOptions } from "./LegendOptions";
+
+	import StoryView from "./StoryView.svelte";
+
+	export let id: string;
+	export let label: string;
+	export let icon: any = Book;
+	
+	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
+
+	let cesiumMap = map as Map;
+	let stories = new Array<Story>();
+	let selectedStory: Story | undefined;
+	let stepNumber: number;
+	let baseLayerId: string | undefined;
+	const layerLegends: Array<LegendOptions> = [];
+	const layers = cesiumMap.layers;
+
+	const tool = new MapToolMenuOption(id, icon, label);
+	registerTool(tool);
+
+	$: {
+		tool.width.set(selectedStory?.width ?? "");
+	}
+
+	selectedTool.subscribe((selected: MapToolMenuOption) => {
+		if (tool === selected && selectedStory) {
+			tool.width.set(selectedStory.width ?? "");
+		}
+	});
+
+	tool.settings.subscribe((settings) => {
+		if (settings) {
+			cesiumMap.ready.subscribe((ready)=> {
+				if(ready) {
+					loadStoriesFromSettings(settings);
+				}
+			})
+
+			// Directly activate story from searchParams
+			const queriedStory = $page.data.story;
+			if(!queriedStory) return;
+			for (let i = 0; i < stories.length; i++) {
+				if (stories[i].name.toLowerCase() === queriedStory.toLowerCase()) {
+					$selectedTool = tool;
+					activateStory(stories[i]);
+					return;
+				}
+			}
+		}
+	});
+
+	function getUrlAndFeatureNameForLayer(id: string): { url: string | undefined; featureName: string | undefined } {
+		for (let i = 0; i < $layers.length; i++) {
+			if ($layers[i].config.id === id) {
+				let originalUrl = $layers[i].config.settings.url;
+				let updatedUrl = originalUrl?.replace(/wms/i, 'wcs');
+				return { 
+					url: updatedUrl,
+					featureName: $layers[i].config.settings.featureName
+				};
+			}
+		}
+		return {
+			url: undefined,
+			featureName: undefined
+		}
+	}
+
+	function loadStoriesFromSettings(settings: any) {
+		const configStories = settings.stories;
+		const loadedStories = new Array<Story>();
+
+		if (configStories) {
+			// Load all stories
+			for (let i = 0; i < configStories.length; i++) {
+				const story = configStories[i];
+				const storyName: string = story.name;
+				const storyDescription: string = story.description;
+				const storyWidth: string = story.width;
+				const storyForce2DMode: boolean = story.force2DMode ?? false;
+				const storyStaticCamera: boolean = story.staticCamera ?? false;
+				const storyRequestPolygonArea:boolean = story.requestPolygonArea.enabled ?? false;
+				const storyStatisticsApi: string | undefined = story.requestPolygonArea.statisticsApi ?? undefined;
+				const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
+				baseLayerId = story.baseLayerId ?? undefined;
+
+				// Load all chapter groups
+				const chapterGroups = story.chapterGroups;
+
+				// Load all chapters
+				for (let j = 0; j < story.chapters.length; j++) {
+					const chapter = story.chapters[j];
+					const chapterGroup = chapterGroups.find((chapterGroup: any) => chapter.id === chapterGroup.id);
+					const chapterTitle: string = chapterGroup.title;
+					const chapterButtonText: string = chapterGroup.buttonText;
+					const storySteps = new Array<StoryStep>();
+					
+					// Load all chapter steps
+					for (let k = 0; k < chapter.steps.length; k++) {
+						const step = chapter.steps[k];
+						const cl = new CameraLocation(
+							step.camera["x"],
+							step.camera["y"],
+							step.camera["z"],
+							step.camera["heading"],
+							step.camera["pitch"],
+							step.camera["duration"]
+						);
+
+						// Load all story layers
+						const storyLayers = new Array<StoryLayer>();
+						for (let l = 0; l < step.layers.length; l++) {
+							const opacity = step.layers[l].opacity ?? 100;
+							const {url, featureName} = getUrlAndFeatureNameForLayer(step.layers[l].id);
+							storyLayers.push(
+								new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName)
+							);
+							const layerLegendInfo = {
+								generalLegendText: step.layers[l].generalLegendText,
+								legendOptions: step.layers[l].legendOptions
+							}
+							layerLegends.push(layerLegendInfo);
+						}
+						const globeOpacity = step.globeOpacity ?? 100;
+						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent));
+					}
+					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
+				}
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForce2DMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi));
+			}
+		}
+		stories = loadedStories;
+	}
+
+	function activateStory(story: Story) {
+		stepNumber = 1;
+		selectedStory = story;
+	}
+
+	function closeStory() {
+		selectedStory = undefined;
+		tool.width.set("");
+	}
+
+	function closeModule(e: any) {
+		stepNumber = e.detail.n;
+	}
+
+</script>
+
+{#if $selectedTool === tool}
+	<div class="wrapper">
+		{#if selectedStory}
+			<StoryView
+				map={cesiumMap}
+				story={selectedStory}
+				savedStepNumber={stepNumber}
+				textBack={$_("tools.stories.back")}
+				{layerLegends}
+				{baseLayerId}
+				on:closeStory={() => {
+					closeStory();
+				}}
+				on:closeModule={(e) => {
+					closeModule(e);
+				}}
+			/>
+		{:else}
+			{#each stories as story}
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
+				<div
+					class="story"
+					on:click={() => {
+						activateStory(story);
+					}}
+					role="button"
+					tabindex="0"
+				>
+					<div class="heading-02">
+						{story.name}
+					</div>
+					{#if story.description}
+						<div class="label-01">
+							{story.description}
+						</div>
+					{/if}
+				</div>
+				<div class="divider"> </div>
+			{/each}
+		{/if}
+	</div>
+{/if}
+
+<style>
+	.wrapper {
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.story {
+		padding: var(--cds-spacing-05);
+	}
+
+	.story:hover {
+		background-color: var(--cds-ui-01);
+		color: var(--tosti-color-text-secondary);
+		transition: 0.2s;
+		cursor: pointer;
+	}
+
+	.divider {
+        background-color: var(--cds-ui-03);
+        width: 100%;
+        height: 1px;
+    }
+</style>

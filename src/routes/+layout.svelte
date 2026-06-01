@@ -2,10 +2,8 @@
 	import { app } from '$lib/app/app';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
-	import { setupLocalization } from '$lib/components/localization/localization';
+	import { setupLocalization, selectedLanguage } from '$lib/i18n/localization';
 	import { ConfigSettings } from '$lib/app/config-settings';
-	import { selectedLanguage } from '$lib/components/localization/localization';
 
 	import './app.css';	
 
@@ -20,22 +18,20 @@
 	// with the language from the config at first. Therefore we set it to a default
 	setupLocalization("nl");
 
-	$: map = get(app.map);
+	const map = app.map;
 	
 	$: {
-		if (map) {
-			map.configLoaded.subscribe((loaded) => {
-				if (loaded) {
-					let languageTool = map.config.tools.find((t: any) => t.id === "language");
-					let languageSettings = languageTool?.settings;
-					if (languageTool && languageTool.enabled) {
-						if (languageSettings && languageSettings.startLanguage) {
-							selectedLanguage.set(languageSettings.startLanguage);
-						}
+		$map?.configLoaded.subscribe((loaded) => {
+			if (loaded) {
+				let languageTool = $map.config.tools.find((t: any) => t.id === "language");
+				let languageSettings = languageTool?.settings;
+				if (languageTool && languageTool.enabled) {
+					if (languageSettings && languageSettings.startLanguage) {
+						selectedLanguage.set(languageSettings.startLanguage);
 					}
 				}
-			});
-		}
+			}
+		});
 	};
 
 	onMount(async () => {
@@ -51,7 +47,8 @@
 			}
 		}
 		app.configSettings.set(new ConfigSettings(configUrl ?? (process.env.CONFIG_URL ?? "")));
-	})
+	});
+
 </script>
 
 <main>

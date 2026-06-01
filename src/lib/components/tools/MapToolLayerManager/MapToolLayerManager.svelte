@@ -1,0 +1,187 @@
+<script lang="ts">
+    import { getContext } from "svelte";
+    import { writable, get } from "svelte/store";
+    import { _ } from "svelte-i18n";
+    import { RadioButtonGroup, RadioButton, Accordion } from "carbon-components-svelte";  
+
+    import { LayerManagerGroup } from "$lib/map-core/layer-manager-group"
+    import { LayerConfigGroup } from "$lib/map-core/layer-config-group";
+    import type { Layer } from "$lib/map-core/layer";
+    import type { Map } from "$lib/map-cesium/map";
+    import { MapToolMenuOption } from "../MapToolMenuOption";
+
+    import LayerManagerGroups from "./LayerManagerGroups.svelte";
+    import Layers from "carbon-icons-svelte/lib/Layers.svelte";
+    import LayerControl from "./MapToolLayerControl.svelte";
+    import CesiumBackgroundControls from "./CesiumBackgroundControls.svelte";
+
+    const { registerTool, selectedTool } = getContext<any>("mapTools");
+
+    export let id: string;
+    export let label: string;
+    export let icon: any = Layers;
+    export let map: Map;
+
+    const library  = map.layerLibrary;
+	const layers = map.layers;
+
+    const tool = new MapToolMenuOption(id, icon, label, false);
+    registerTool(tool);
+
+    // initialize background switching
+    let selectedBackgroundLayer = writable<string>();
+    selectedBackgroundLayer.subscribe((id) => {
+        if (id) {
+            switchBackground(id);
+        }
+    });
+
+    $: libraryGroups = library.groups;
+    $: groupsWithLayers = getGroupsWithLayers($layers);
+
+    // set the groups array, derived from the layers present in the layer manager
+    let groups = Array<LayerManagerGroup>();
+    $: {
+        groups = []
+        if ($layers.length > 0) {
+            groups = buildGroupsRecursive($libraryGroups);
+        }
+    }
+
+    $: for (let i = 0; i < $layers.length; i++) {
+        const layer = $layers[i];
+        if (
+            layer.config.isBackground === true &&
+            layer.config.defaultOn === true &&
+            get(layer.visible) === true
+        ) {
+            selectedBackgroundLayer.set(layer.id);
+        }
+    } 
+
+    function getGroupsWithLayers(layers: Array<Layer>) {
+        let groupIds: Array<number|string> = [];
+        // get group ids from present layers
+        for (let i = 0; i < layers.length; i++) {
+            if (!groupIds.includes(layers[i].config.groupId)) {
+                groupIds.push(layers[i].config.groupId);
+            }
+        }
+        return groupIds
+    }
+
+    function buildGroupsRecursive(layerConfigGroups: Array<LayerConfigGroup>) {
+        let groups = Array<LayerManagerGroup>();
+        // copy library groups to layer groups
+        for (let i = 0; i < layerConfigGroups.length; i++) {
+            const group = layerConfigGroups[i];
+            const layerManagerGroup = new LayerManagerGroup(group.id, group.title);
+            // add layers belonging to this group to the layer manager group
+            const layersFiltered = $layers.filter(l => l.parentGroup == group.id)
+            for (let i = 0; i < layersFiltered.length; i++) {
+                const layer = layersFiltered[i];
+                layerManagerGroup.addLayer(layer)
+            }
+            // add childgroups
+            const childConfigGroups = get(group.childGroups).filter(g => groupsWithLayers.includes(g.id))
+            const childLayerGroups = buildGroupsRecursive(childConfigGroups)
+            for (let i = 0; i < childLayerGroups.length; i++) {
+                const childLayerGroup = childLayerGroups[i];
+                layerManagerGroup.addGroup(childLayerGroup)
+            }
+            groups.push(layerManagerGroup);
+        }
+        return groups
+    }
+
+    function switchBackground(id: string) {
+        for (let i = 0; i < $layers.length; i++) {
+            const layer = $layers[i];
+            if (layer.config.isBackground === true) {
+                layer.visible.set(layer.id === id);
+            }
+        }
+    }
+
+    $: customLayersAdded = $layers.map((layer) => layer.config.groupId).includes("myData");
+    $: layersWithoutGroup = $layers.filter((layer) => layer.config.groupId === undefined || layer.config.groupId === "");
+    $: dragDroppedFiles = $layers.filter((layer) => layer.config.settings?.dragDropped ?? false);
+
+</script>
+
+{#if $selectedTool === tool}
+    <div class="wrapper">
+
+        <RadioButtonGroup legendText={$_("tools.layerManager.baseLayers")} selected="standard" orientation="vertical">
+            {#each $layers as layer (layer.id)}
+                {#if layer.config.isBackground}
+                    <RadioButton
+                        labelText={layer.title}
+                        value={layer.id}
+                        checked={$selectedBackgroundLayer === layer.id}                      
+                        on:change={() => { selectedBackgroundLayer.set(layer.id)}}
+                    />
+                {/if}
+            {/each}
+        </RadioButtonGroup>
+
+        <CesiumBackgroundControls />
+
+		<div class="bx--label thematic-label">
+			{$_("tools.layerManager.thematicLayers")}
+		</div>
+        <LayerManagerGroups {library} {groups} />
+
+        {#if layersWithoutGroup.length}
+            <Accordion class="layer-group-accordion" >
+                {#each layersWithoutGroup as layer (layer.id)}
+                    {#if !layer.config.isBackground && (layer.config.groupId === undefined || layer.config.groupId === "")}
+                        <LayerControl {layer} />
+                    {/if}
+                {/each}
+            </Accordion>
+        {/if}
+
+        {#if customLayersAdded}
+            <div class="bx--label thematic-label">
+                {$_("tools.layerManager.myLayers")}
+            </div>
+            <Accordion class="layer-group-accordion" >
+                {#each $layers as layer (layer.id)}
+                    {#if !layer.config.isBackground && layer.config.groupId === "myData"}
+                        <LayerControl {layer} />
+                    {/if}
+                {/each}
+            </Accordion>
+        {/if}
+
+        {#if dragDroppedFiles.length }
+            <div class="bx--label thematic-label">
+                {$_("tools.layerManager.dragDroppedLayers")}
+            </div>
+            <Accordion class="layer-group-accordion" >
+                {#each $layers as layer (layer.id)}
+                    {#if layer.config.settings?.dragDropped}
+                        <LayerControl {layer} />
+                    {/if}
+                {/each}
+            </Accordion>
+        {/if}
+    </div>
+{/if}
+
+<style>
+    .wrapper {
+        margin: var(--cds-spacing-05);
+        margin-bottom: 0;
+		box-sizing: border-box;
+    }
+
+	.thematic-label {
+		margin-top: var(--cds-spacing-05);
+	}
+
+    :global(.layer-group-accordion) {
+        width: 100%;
+    }
+</style>
