@@ -2,10 +2,12 @@
 	import { app } from '$lib/app/app';
 	import { page } from '$app/stores';
 	import { ConfigSettings } from '$lib/app/config-settings';
-	import { setupLocalization } from '$lib/components/localization/localization';
+	import { setupLocalization, addTranslation } from '$lib/components/localization/localization';
 	import { onMount } from 'svelte';
 	import '../routes/app.css';	
 	import PageNotFound from './error/pageNotFound.svelte';
+	import { t } from 'svelte-i18n';
+	import { error } from '@sveltejs/kit';
 
 	app.init();
 	setupLocalization("nl");
@@ -13,6 +15,24 @@
 	let pageNotFound = false
 
 	onMount(async () => {
+		let generalConfig: any = null;
+		try{
+			const generalConfigUrl= process.env.GENERAL_CONFIG_URL;
+			if ( generalConfigUrl ) {
+
+			const generalRes = await fetch(generalConfigUrl);
+			generalConfig = await generalRes.json();
+			}
+		}
+		catch (e) {
+			console.warn("failed to load general config")
+		}
+
+		if (generalConfig?.translations){
+			for (const t of generalConfig.translations){
+				addTranslation(t.locale, t.translations)
+			}
+		}
 		let configUrl = new URLSearchParams(window.location.search).get("config");
 		// Look for name in URL that corresponds to a config name
 		if (!configUrl) {

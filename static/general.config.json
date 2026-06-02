@@ -1,0 +1,36 @@
+{
+    "name": "general",
+    "translations":[
+        {
+            "land": "nl",
+            "translations": {
+                "notFound": {
+                    "title": "Pagina niet gevonden",
+                    "description":"Het ingevoerde adres komt niet overeen met een beschikbare viewer.",
+                    "linktext": "Bekijk beschikbare viewers"
+                }
+            }
+        },
+        {
+        "land": "en",
+        "translations": {
+            "notFound": {
+                "title": "Page not found",
+                "description":" The adress entered does not match any of the available viewers",
+                "linktext": "View available viewers"
+                }
+            }
+        },
+        {
+            "land":"fr",
+            "translations":{
+                "notFound": {
+                    "title": "Page non trouvée",
+                    "description":"L'adresse saisie ne correspond à aucune visionneuse disponible.",
+                    "linktext": "Voir les visionneuses disponibles"
+                }
+            }
+        }
+    ]
+}
+    
