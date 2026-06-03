@@ -1,0 +1,352 @@
+{
+    "general": {
+        "goTo": "Ga naar",
+        "loading": "Laden...",
+        "on": "Aan",
+        "off": "Uit",
+        "open": "Open",
+        "close": "Sluit",
+        "notifications": {
+            "error": "Error",
+            "warning": "Waarschuwing",
+            "info": "Informatie",
+            "success": "Gelukt",
+            "noConfigText": "Geen configuratie gevonden"
+        },
+        "buttons": {
+            "show": "Tonen",
+            "hide": "Verbergen",
+            "reset": "Resetten"
+        }
+    },
+    "tools": {
+        "menu": {
+            "expand": "Uitklappen",
+            "collapse": "Inklappen"
+        },
+        "language": {
+            "setLanguage": "Taal instellen"
+        },
+        "geocoder": {
+            "search": "Zoek Locatie"
+        },
+        "info": {
+            "label": "Informatie",
+            "close": "Sluiten",
+            "general": "Open 3D viewer, een product door Sogelink (voorheen Geodan) en Provincie Zeeland.",
+            "attribution": "Naamsvermelding"
+        },
+        "help": {
+            "label": "Help",
+            "title": "Digital-Twin Viewer",
+            "close": "Sluiten",
+            "closeDontShowOnStart": "Sluit en geef niet meer weer bij opstarten",
+            "tabs": {
+                "intro": "Introductie",
+                "movement": "Beweging",
+                "library": "Bibliotheek",
+                "search": "Zoeken",
+                "flood": "Overstroming",
+                "stories": "Verhalen",
+                "isochrones": "Isochronen"
+            },
+            "intro": {
+                "introDescription": "Een digital twin is een digitale representatie van een beoogd of bestaand fysiek product, systeem of proces dat dient als een vrijwel identieke digitale tegenhanger voor praktische doeleinden, zoals simulatie, integratie, testen, monitoring en onderhoud. Voor meer informatie over het gebruik van de viewer, zie de verschillende onderwerpen."
+            },
+            "movement": {
+                "headingZoom": "Zoom in/uit",
+                "zoomDescription": "In en uit zoomen kan op 3 verschillende manieren gedaan worden:",
+                "zoomOption1": "1) Scroll omhoog of omlaag met je muis scroll wheel om in of uit te zoomen.",
+                "zoomOption2": "2) Houd uw rechtermuisknop ingedrukt en beweeg de muis omhoog of omlaag om naadloos te zoomen.",
+                "zoomOption3": "3) Gebruik de in- en uitzoomknoppen rechtsonder.",
+                "headingRotatePitch": "Roteren & Pitchen",
+                "rotatePitchDescription": "U kunt de camera roteren en pitchen, het is ook mogelijk om de camera onder de oppervlakte te richten om zo in de bodem te kijken. Dit kan op 2 verschillende manieren.",
+                "rotatePitchOption1": "1) Druk het scrollwieltje van je muis in en beweeg de muis rond.",
+                "rotatePitchOption2": "2) Houd de <help-key>ctrl</help-key> toets op uw toetsenbord en uw linkermuisknop en beweeg de muis rond.",
+                "headingButtons": "Kaart Knoppen",
+                "buttonsDescription": "Rechtsonder zijn enkele knoppen te vinden.",
+                "buttonsFlyMode": "Activeer FlyMode",
+                "buttonsWalkMode": "Activeer WalkMode",
+                "buttonsHome": "Reset het aanzicht naar de startpositie",
+                "buttonsCompass": "Reset de camera naar het noorden",
+                "buttonsZoomIn": "Zoom in",
+                "buttonsZoomOut": "Zoom out"
+            },
+            "library": {
+                "headingLibraryOpen": "Open de bibliotheek",
+                "headingUsingLibrary": "Gebruik van de bibliotheek",
+                "description": "Als u meer lagen wilt toevoegen bovenop de geconfigureerde lagen in de viewer, kunt u dit doen met behulp van de bibliotheek",
+                "openLibrary": "Om de lagenbibliotheek te openen, klikt u op de knop 'map' aan de linkerkant",
+                "libraryDescription": "Gebruik de zoekbalk onderaan om de gewenste lagen te zoeken of klik door de getoonde groepen. Klik op de laag om meer informatie over de laag weer te geven, schakel het selectievakje in om de laag aan de kaart toe te voegen of druk op de knop 'Toevoegen aan kaart' in de laagbeschrijvingsweergave"
+            },
+            "flood": {
+                "headingFloodOpen": "Open de overstromingstool",
+                "headingUsingFlood": "Gebruik van de overstromingstool",
+                "description": "De overstromingstool stelt u in staat om overstromingen in het gebied te simuleren en te analyseren.",
+                "openFlood": "Om de overstromingstool te openen, klikt u op de knop 'overstroming' aan de linkerkant.",
+                "floodBreachDescription": "Selecteer eerst een breslocatie door op de kaart een bresicoon aan te klikken. Dit zal fungeren als het startpunt voor de overstromingssimulatie.",
+                "floodMenuDescription": "Gebruik vervolgens de verschillende opties in de overstromingstool om de simulatie aan te passen en uit te voeren. Kies eerst het gewenste scenario, bijvoorbeeld 1:3000 jaar. Vervolgens kun je de 'Tijd slider' gebruiken om het scenario af te spelen. Gebruik de 'Play' knop om automatisch het scenario zich te laten afspelen, of gebruik de pijltjes om per tijdstap de overstroming te bekijken.",
+                "headingMeasureDepth": "Diepte meten",
+                "measureDepthDescription": "Om de waterdiepte op een specifieke locatie te meten, zet de 'Diepte meten' knop aan en klik vervolgens op een overstroomd gebied op de gewenste locatie. De tool kan alleen gebruikt worden als je ingezoomd bent, omdat de terreinhoogte dan juist ingeladen wordt."
+            },
+            "stories": {
+                "description": "Bekijk met de verhalenmodule voorgemaakte rondleidingen die een verhaal vertellen.",
+                "headingOpenStories": "Verhalen openen",
+                "openStories": "Open de verhalenmodule door op de 'Verhalen' knop aan de linkerkant te klikken. Selecteer een verhaal uit de lijst om de rondleiding te starten.",
+                "headingStoryNavigation": "Navigeren",
+                "storyNavigation": "Gebruik de hoofdstuk- (bovenste rij) en paginaknoppen (onderste rij) om door het verhaal te navigeren, of scroll naar beneden in het menu om door te gaan naar de volgende pagina. U kunt op elk moment het verhaal sluiten door op de knop 'Terug naar overzicht' te klikken.",
+                "headingStoryDrawArea": "Een projectgebied tekenen",
+                "storyDrawArea": "Sommige verhalen vereisen dat u een projectgebied op de kaart tekent. Dit gebied wordt gebruikt om een verdeling van klassen binnen het getekende polygon te genereren. Om een projectgebied te tekenen, klikt u op de knop 'Projectgebied Tekenen' en klikt u vervolgens op de kaart om punten neer te zetten en zo een polygon te creëren. Klik met de rechtermuisknop op de kaart of klik op 'Voltooi Projectgebied' om het tekenen te voltooien.",
+                "headingStoryUploadArea": "Een projectgebied uploaden",
+                "storyUploadArea": "Alternatief kunt u een projectgebied uploaden als een GeoJSON (.geojson) of Geopackage (.gpkg) bestand. Om dit te doen, klikt u op de knop 'Upload Projectgebied' en selecteert u uw bestand. Het bestand moet een enkele (niet-multipart) polygon feature bevatten van het projectgebied.",
+                "headingStoryDataDonut": "Projectgebied Data Grafiek",
+                "storyDataDonut": "In verhalen die een projectgebied bevatten, wordt een donutgrafiek weergegeven om de verdeling van verschillende klassen binnen het getekende gebied te weergeven. Wanneer u met de muis over een segment beweegt, wordt het percentage weergegeven.",
+                "headingStoryExportPDF": "Een PDF van het verhaal genereren",
+                "storyExportPDF": "U kunt het verhaal exporteren als PDF door op de knop 'Genereer en download PDF' te klikken. De optie wordt beschikbaar zodra alle data is ingeladen. Er wordt een PDF gegenereerd die de inhoud van het verhaal bevat, inclusief de grafieken met gedetailleerde percentages. Hierdoor kunt u uw projectgebiedanalyse eenvoudig met anderen delen."
+            },
+            "isochrones": {
+                "description": "De vestigingsplanner stelt u in staat om de impact van een willekeurige ontwikkeling op het aantal nieuwe inwoners in het NSPD gebied te simuleren en te analyseren. Om de tool te gebruiken, klikt up op de knop 'Teken locatie ontwikkeling'. Hiermee kunt u de locatie van de ontwikkeling in het gebied selecteren. Vervolgens klikt u op de knop 'Bereken autoreistijdafstanden', hiermee worden reistijdafstanden met de auto berekend voor 20, 40 en 60 minuten vanaf de locatie. Deze worden weergegeven aan de hand van gekleurde gebieden rondom de locatie, waarbij de kleuren het aantal nieuwe inwoners dat zal vestigen in deze gebieden aanduidt. De standaardwaarde voor het aantal nieuwe inwoners is 10 000, deze kunt u met een schuifje handmatig aanpassen tussen de waardes van 0 en 20 000, om verschillende types ontwikkelingen te simuleren. De waardes voor de vestigingspercentages zijn aannames, deze zijn standaard ingesteld op 50% voor 20 minuten reistijd, 30% voor 40 minuten reistijd en 20% voor 60 minuten reistijd. U kunt met een schuifje de standaardwaarde van 50% voor 20 minuten reistijd aanpassen, om te analyseren wat de impact daarvan is op de verdeling van het aantal nieuwe inwoners."
+            }
+        },
+        "config_switcher": {
+            "label": "Kies Viewerconfiguratie",
+            "title": "Kies een viewerconfiguratie",
+            "intro": "Kies een viewerconfiguratie uit de lijst om de viewer te starten met de geselecteerde configuratie.",
+            "close": "Sluiten",
+            "no_configs": "Kan geen configuratie vinden."
+        },
+        "layerLibrary": {
+            "label": "Bibliotheek",
+            "baseLayers": "Achtergrondlagen",
+            "noCategory": "Geen categorie",
+            "close": "Sluiten",
+            "notImplemented": "Nog niet geïmplementeerd",
+            "catalogue": "Catalogus",
+            "myData": "Mijn Data",
+            "myDataTitle": "Mijn Data Laag Configuratie",
+            "btnAddToMap": "Voeg toe aan kaart",
+            "btnRemoveFromMap": "Verwijder van kaart",
+            "btnAddAllToMap": "Alle lagen toevoegen",
+            "btnRemoveAllFromMap": "Alle lagen verwijderen",
+            "btnCopyToClipboard": "Kopieer naar klembord",
+            "description": "Beschrijving",
+            "noDescription": "Geen beschrijving gevonden",
+            "attribution": "Naamsvermelding",
+            "noAttribution": "Geen naamsvermelding gevonden",
+            "layerType": "Type laag",
+            "layerName": "Naam",
+            "metadata": "Metadata",
+            "noMetadata": "Geen metadata gevonden",
+            "info": "Informatie",
+            "infoLibrary": "Voeg data aan de kaart toe door aan de linkerkant een groep te openen en de checkbox voor de data aan te vinken, om meer informatie over de data te zien klik de titel aan om gedetailleerde informatie aan de rechterkant te tonen wanneer beschikbaar.",
+            "infoMyDataLibrary": "Maak een eigen datalaag aan door op de knop Toevoegen te klikken. Na het invullen van de gegevens kan de datalaag aan de kaart worden toegevoegd.",
+            "searchPlaceholder": "Zoek Data",
+            "searchResults": "Zoekresultaten",
+            "for": "voor",
+            "searchNoResults": "Geen resultaten voor",
+            "layerNamePlaceholder": "Naam van de laag...",
+            "contentTypePlaceholder": "bijv. image/png of image/jpeg",
+            "geojsonStylePlaceholder": "Parameter voor standaardstijl",
+            "timeKeyPlaceholder": "Tijdparameter in de GeoJSON-properties",
+            "orientationKeyPlaceholder": "Optioneel: Orientatieparameter in de GeoJSON-properties",
+            "invalidTypeText": "Selecteer een ondersteund datatype uit de lijst",
+            "invalidUrlText": "Voer een geldige URL in",
+            "urlNotFoundText": "Opgegeven URL niet gevonden",
+            "addCustomLayer": "Voeg eigen laag toe",
+            "deleteLayer": "Laag verwijderen",
+            "selectedThemes": "Geselecteerde thema's",
+            "filterByTheme": "Filter op thema",
+            "enableClipping": "Clip-optie inschakelen",
+            "clampToTerrain": "Vastzetten op terrein",
+            "styling": "Stijl",
+            "viewRecordOn": "Bekijk record op",
+            "dataportal": "Dataportaal"
+        },
+        "layerManager": {
+            "label": "Lagenbeheer",
+            "baseLayers": "Achtergrondlagen",
+            "thematicLayers": "Thematische lagen",
+            "myLayers": "Mijn lagen",
+            "dragDroppedLayers": "Drag and dropped lagen",
+            "opacity": "Transparantie",
+            "legend": "Legenda",
+            "legendNotFoundText": "Geen legenda gevonden",
+            "styling": "Stijl",
+            "extrusion": "Extrusie",
+            "metersNAP": " meter (NAP)",
+            "gradient": "Kleurverloop",
+            "applyGradient": "Kleurverloop instellen",
+            "btnShowAll": "Alles tonen",
+            "btnHideAll": "Alles verbergen",
+            "filterPointCloudClasses": "Filter puntenwolk klasses",
+            "heightControlLabel": "Hoogtecorrectie Tileset (m)",
+            "dataportal": "Dataportaal"
+        },
+        "layerTools": {
+            "theme": {
+                "label": "Themas",
+                "default": "Geen",
+                "legend": "Legenda",
+                "reset": "Reset legenda"
+            },
+            "clipper": {
+                "label": "Laag knippen",
+                "rotationVerticalAxis": "Rotatie verticale as",
+                "rotationHorizontalAxis": "Rotatie horizontale as",
+                "sliceModeLabel": "Doorsnede maken"
+            }
+        },
+        "backgroundControls": {
+            "opacity": "Wereld Transparantie",
+            "terrain": "Terrein"
+        },
+        "bookmarks": {
+            "label": "Bladwijzers",
+            "title": "Titel",
+            "save": "Opslaan",
+            "cancel": "Annuleren",
+            "delete": "Verwijderen",
+            "add": "Nieuwe Bladwijzer Toevoegen",
+            "description": "Beschrijving",
+            "cameraPosition": "Camera",
+            "cameraPositionSubtitle": "De huidige camera positie zal opgeslagen worden bij deze bladwijzer",
+            "noBookmarks": "Geen bladwijzers",
+            "noBookmarksSubtitle": "Druk op toevoegen om een nieuwe bladwijzer aan te maken"
+        },
+        "projects": {
+            "label": "Projecten",
+            "activateProject": "Project activeren",
+            "leaveProjectView": "Project verlaten",
+            "showOnMap": "Projecten tonen op kaart"
+        },
+        "featureInfo": {
+            "label": "Object Informatie",
+            "noData": "Geen data, Klik op een object voor meer informatie",
+            "attribute": "Attribuut",
+            "value": "Waarde"
+        },
+        "measure": {
+            "label": "Meten",
+            "noMeasurement": "Geen metingen",
+            "noMeasurementSubtitle": "Druk op toevoegen om een nieuwe meting aan te maken",
+            "add": "Voeg nieuwe meting toe",
+            "edit": "Meting aanpassen",
+            "title": "Titel",
+            "defaultTitle": "Meting",
+            "save": "Opslaan",
+            "record": "Sla camera positie op",
+            "delete": "Verwijderen",
+            "cameraPosition": "Camera positie",
+            "totalLength": "Totale lengte",
+            "points": "Punten"
+        },
+        "cesium": {
+            "label": "Kaart Instellingen",
+            "sunPosition": "Zon Positie",
+            "sunPositionDate": "Datum",
+            "sunPositionHour": "Uur UTC",
+            "quality": "Kwaliteit",
+            "rendering": "Rendering",
+            "environment": "Omgeving",
+            "debug": "Debug",
+            "low": "Laag",
+            "medium": "Middel",
+            "high": "Hoog",
+            "custom": "Aangepast",
+            "animate": "Animeer",
+            "fxaa": "FXAA",
+            "fog": "Mist",
+            "groundAtmosphere": "Grond Atmosfeer",
+            "dynamicRange": "HDR",
+            "lighting": "Belichting",
+            "msaa": "MSAA",
+            "maximumScreenspaceError": "Level of Detail",
+            "resolutionScale": "Resolutie Schaal",
+            "shadows": "Schaduwen",
+            "skyAtmosphere": "Lucht Atmosfeer",
+            "FPSCounter": "FPS Teller",
+            "inspector": "Tegel Inspecteur",
+            "coordinates": "Coördinaten",
+            "cameraPosition": "Camera Positie",
+            "dragAndDropFiles": "Bestanden Inslepen",
+            "pointCloud": "Puntenwolken",
+            "pointCloudAttenuation": "Attenuation",
+            "pointCloudAttenuationBaseResolution": "Attenuation Basis Resolutie",
+            "pointCloudAttenuationErrorScale": "Attenuation Geometric Error Schaal",
+            "pointCloudAttenuationMaximum": "Attenuation Maximum",
+            "pointCloudEDL": "Eye Dome Lighting",
+            "pointCloudEDLRadius": "Eye Dome Lighting Radius",
+            "pointCloudEDLStrength": "Eye Dome Lighting Sterkte",
+            "logo": "Logo's"
+        },
+        "stories": {
+            "label": "Verhalen",
+            "back": "Terug naar overzicht",
+            "stepBack": "Stap terug",
+            "stepForward": "Stap vooruit",
+            "description": "Beschrijving",
+            "statistics": "Statistieken",
+            "storyChartTitle": "Verdeling per klasse",
+            "storyChartNoData": "Geen Data",
+            "storyChartNoDataInPolygon": "Geen data in het getekende projectgebied",
+            "basemap": "Achtergrondkaart",
+            "polygonTitle": "Projectgebied", 
+            "requestDrawPolygon": "Teken een projectgebied in",
+            "uploadPolygon": "Projectgebied Uploaden",
+            "drawPolygon": "Projectgebied Tekenen",
+            "finishPolygon": "Voltooi Projectgebied",
+            "drawPolygonText": "Klik op de 'Projectgebied Tekenen' knop om te beginnen met tekenen op de kaart. Klik om een vlak te creëren. Klik met de rechtermuisknop op de kaart om het tekenen te beëindigen.",
+            "deletePolygon": "Verwijder Projectgebied",
+            "projectAreaTool": "Projectgebied Tool",
+            "downloadPDF": "Genereer en download PDF"
+        },
+        "animation": {
+            "speed": "Snelheid",
+            "play": "Play",
+            "pause": "Pauze",
+            "previous": "Vorige",
+            "next": "Volgende",
+            "currentTime": "Huidige tijd",
+            "animationControls": "Animatie-widget",
+            "showWayPoints": "Toon waypoints",
+            "hideWayPoints": "Verberg waypoints",
+            "trackModel": "Model volgen",
+            "stopTracking": "Stop met volgen",
+            "zoomToModel": "Zoom naar model"
+        },
+        "flooding": {
+            "label": "Overstromingen",
+            "measureDepth": "Diepte meten",
+            "waterTransparency": "Water Transparantie",
+            "measureDepthError": "Zoom in om de waterdiepte te meten",
+            "scenario": "Scenario",
+            "errorCouldNotLoad": "Kan overstromingsdata niet laden",
+            "hourSinceBreach": "uur na bres",
+            "chosenBreach": "Gekozen bres",
+            "otherBreaches": "Overige bressen",
+            "noResults": "Geen resultaten",
+            "noBreachSelected": "Geen bres geselecteerd",
+            "searchBreach": "Zoek bres",
+            "timeSlider": "Tijd slider"
+        },
+        "isochrones": {
+            "label": "Isochronen",
+            "reset": "Resetten",
+            "drawIsochroneCenter": "Teken Locatie Ontwikkeling",
+            "drawingIsochroneCenter": "Aan het tekenen",
+            "apiKey": "API-sleutel",
+            "enterApiKey": "Voer GeodanMaps API-sleutel in...",
+            "calculate": "Bereken autoreistijdafstanden",
+            "calculating": "Berekenen...",
+            "totalPopulation": "Aantal nieuwe inwoners",
+            "legendTitle": "Druk op de woningmarkt",
+            "settlementPercentage": "Vestigingspercentage"
+        }
+    },
+    "errors": {
+        "Drawing": {
+            "invalidPolygon": "Ongeldig polygoon: Zorg ervoor dat het polygoon zichzelf niet snijdt."
+        }
+    }
+
+}
