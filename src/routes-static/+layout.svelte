@@ -30,7 +30,7 @@
 
 		if (generalConfig?.translations){
 			for (const t of generalConfig.translations){
-				addTranslation(t.locale, t.translations)
+				addTranslation(t.land, t.translations)
 			}
 		}
 		let configUrl = new URLSearchParams(window.location.search).get("config");
@@ -58,7 +58,7 @@
 
 <main>
     {#if pageNotFound}
-        <PageNotFound />
+        <PageNotFound redirectUrl={generalConfig?.redirect}/>
     {:else}
         <slot />
     {/if}

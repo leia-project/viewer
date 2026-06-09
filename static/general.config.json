@@ -1,5 +1,7 @@
 {
     "name": "general",
+    "image": "static/images/404_Pagenotfound.png",
+    "redirect": "https://virtueel.zeeland.nl/",
     "translations":[
         {
             "land": "nl",

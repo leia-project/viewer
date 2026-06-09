@@ -4,7 +4,7 @@
 </script>
 
 <div class="not-found">
-  <img src="/images/404_Pagenotfound.png" alt="404 - Page Not Found" class="error-image" />
+  <img src={$_('general.image')} alt="404 - Page Not Found" class="error-image" />
 
   <p class="description">{$_('general.notFound.description')}</p>
 

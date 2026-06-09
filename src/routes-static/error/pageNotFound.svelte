@@ -4,17 +4,21 @@
   import { createEventDispatcher } from 'svelte';
 
   const dispatch = createEventDispatcher();
+
+  export let redirectUrl = "https://virtueel.zeeland.nl/";
+  export let image = "images/404_Pagenotfound.png";
 </script>
 
 <div class="overlay" role="presentation">
   <div class="modal">
-    <img src="images/404_Pagenotfound.png" alt="404 - Page Not Found" class="error-image" />
+    <img src={image} alt="404 - Page Not Found" class="error-image" />
     <p>{$_('general.notFound.description')}</p>
-    <a href="https://virtueel.zeeland.nl/">
+    <a href={redirectUrl}>
       {$_('general.notFound.linktext')}
     </a>
   </div>
 </div>
+
 
 <style>
   .overlay {
