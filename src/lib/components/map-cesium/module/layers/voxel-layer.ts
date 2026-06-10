@@ -11,6 +11,7 @@ import {
 	type ResolvedVoxelProperty,
 	type VoxelPropertyConfig
 } from "./voxel-legend";
+import { VoxelDepthScale } from "../voxel-depth-scale";
 
 import LayerControlVoxel from "../../LayerControlVoxel/LayerControlVoxel.svelte";
 
@@ -25,6 +26,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	public selectedProperty: Writable<string>;
 	public resolvedProperties: Writable<Array<ResolvedVoxelProperty>>;
 	public alpha: Writable<number>;
+	private depthScale: VoxelDepthScale | null = null;
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
@@ -67,6 +69,9 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			this.map.viewer.scene.primitives.remove(this.source);
 		}
 
+		this.depthScale?.removeFromScene();
+		this.depthScale = null;
+
 		this.source?.destroy();
 	}
 
@@ -83,6 +88,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			return;
 		}
 		this.source.show = value;
+		this.depthScale?.setVisible(value);
 		this.map.refresh();
 	}
 
@@ -121,6 +127,17 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				this.config.cameraPosition = getCameraPositionFromBoundingSphere(primitive.boundingSphere);
 			}
 
+			const { minBounds, maxBounds } = provider;
+
+			if (minBounds && maxBounds) {
+				const east = maxBounds.x; // lon
+				const nsMiddle = (minBounds.y + maxBounds.y) / 2; // lat
+
+				this.depthScale = new VoxelDepthScale(this.map, east, nsMiddle, maxBounds.z, minBounds.z);
+				this.depthScale.addToScene();
+				this.depthScale.setVisible(get(this.visible));
+			}
+
 			this.map.refresh();
 		} catch (error) {
 			console.error(`VoxelLayer "${this.config.title}" failed to load:`, error);
@@ -133,22 +150,22 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		}
 
 		const propName = get(this.selectedProperty);
-		const prop = get(this.resolvedProperties).find((p) => p.name === propName);
+		const property = get(this.resolvedProperties).find((property) => property.name === propName);
 
-		if (!prop) {
+		if (!property) {
 			return;
 		}
 
-		this.source.customShader = this.buildCategoricalShader(prop); // only categorical shaders are supported for now
+		this.source.customShader = this.buildCategoricalShader(property); // only categorical shaders are supported for now
 		this.map.refresh();
 	}
 
-	private buildCategoricalShader(prop: ResolvedVoxelProperty): Cesium.CustomShader {
-		const noData = prop.noData;
+	private buildCategoricalShader(property: ResolvedVoxelProperty): Cesium.CustomShader {
+		const noData = property.noData;
 		const noDataGuard =
 			noData !== undefined ? `if (v == ${noData}) { material.alpha = 0.0; return; }` : "";
 
-		const branches = prop.categories
+		const branches = property.categories
 			.map((category) => {
 				const [r, g, b] = category.color;
 
@@ -166,7 +183,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			},
 			fragmentShaderText: `
 				void fragmentMain(FragmentInput fsInput, inout czm_modelMaterial material) {
-					int v = int(float(fsInput.metadata.${prop.name}) * 255.0 + 0.5);
+					int v = int(float(fsInput.metadata.${property.name}) * 255.0 + 0.5);
 					material.alpha = u_alpha;
 					${noDataGuard}
 					${branches}
