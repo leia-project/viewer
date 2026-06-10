@@ -129,17 +129,15 @@ export class LayerLibrary extends Dispatcher {
     }
 
     public addLayerConfig(config: LayerConfig): void {
-        let group = this.findGroup(config.groupId);
-
-        if(!group && config.isBackground) {
-            group = this.groupBackgroundLayers;
+        const groupIds = config.groupIds ?? [config.groupId];
+        
+        for (const gid of groupIds) {
+            let group = this.findGroup(gid);
+            if (!group && config.isBackground) group = this.groupBackgroundLayers;
+            if (!group) group = this.groupNoCategory;
+            group.addLayerConfig(config);
         }
         
-        if(!group) {
-            group = this.groupNoCategory;
-        }
-
-        group.addLayerConfig(config);
         this.subscribeLayerConfig(config);
 
         

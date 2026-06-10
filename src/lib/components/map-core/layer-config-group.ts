@@ -13,7 +13,7 @@ export class LayerConfigGroup {
     public totalLayerCount: Writable<number>;
     public enabledLayerCount: Writable<number>;
     public connector: Record<string, string>;
-
+ 
     private groupTotalLayerCountUnsubscribers: Record<string, Unsubscriber>;
     private groupEnabledLayerCountUnsubscribers: Record<string, Unsubscriber>;
     private layerUnsubscribers: Record<string, Unsubscriber>;    

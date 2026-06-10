@@ -66,21 +66,32 @@ export class GeoNetworkConnector implements LibraryConnector {
      * @returns List of LayerConfigs parsed from CKAN packages
      */
     private async getLayerConfigs(group: LayerConfigGroup): Promise<Array<LayerConfig>> {
-        try {
-            const suffix = `&topicCat=${group.id}&resultType=details&buildSummary=false&fast=index`;
-            const request = `${this.settings.url}/${this.endpointSearch}?_content_type=json&${suffix}&from=1&to=1000`;
-            const result = await this.get(request);
+        const allConfigs = new Array<LayerConfig>();
+        let from = 1;
+        const pageSize = 100;
 
-            if (result) {
-                return this.geoNetworkLayersToLayerConfigs(result, group.id);
-            } else {
-                console.log("GeoNetwork Connector: Get packages request unsuccessful");
-                setTimeout(() => this.getLayerConfigs(group), 2000); // Re-try after 2 seconds
+        try {
+            while (true) {
+                const to = from + pageSize - 1;
+                const suffix = `&topicCat=${group.id}&resultType=details&buildSummary=false&fast=index`;
+                const request = `${this.settings.url}/${this.endpointSearch}?_content_type=json&${suffix}&from=${from}&to=${to}`;
+                const result = await this.get(request);
+
+                if (!result?.metadata) break;
+
+                const configs = this.geoNetworkLayersToLayerConfigs(result, group.id);
+                allConfigs.push(...configs);
+
+                const returned = Array.isArray(result.metadata) ? result.metadata.length : 1;
+                if (returned < pageSize) break;
+
+                from += pageSize;
             }
         } catch (error) {
             throw error;
         }
-        return [];
+
+        return allConfigs;
     }
 
 

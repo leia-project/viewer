@@ -8,7 +8,8 @@ export class LayerConfig {
     public type!: string;
     public title!: string;
     public description!: string;
-    public groupId!: string;
+    public groupId!: string;       
+    public groupIds?: string[];   
     public imageUrl!: string;
     public legendEnabled: boolean = false;
     public legendUrl!: string;
