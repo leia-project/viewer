@@ -3,7 +3,13 @@
   import {_} from 'svelte-i18n';
 </script>
 
-<div class="not-found">
+<img src="images/404_Pagenotfound.png" alt="404 - Page Not Found" class="error-image" />
+<p class="description">{$_('general.notFound.description')}</p>
+<a href="https://virtueel.zeeland.nl/" class="cta-button">
+    {$_('general.notFound.linktext')}
+</a>
+
+<!--><div class="not-found">
   <img src={$_('general.image')} alt="404 - Page Not Found" class="error-image" />
 
   <p class="description">{$_('general.notFound.description')}</p>
@@ -15,7 +21,7 @@
       <path d="m12 5 7 7-7 7"/>
     </svg>
   </a>
-</div>
+</div>>-->
 
 <style>
   .not-found {

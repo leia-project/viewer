@@ -5,7 +5,7 @@
 	import { setupLocalization, selectedLanguage } from '$lib/i18n/localization';
 	import { ConfigSettings } from '$lib/app/config-settings';
 	import './app.css';	
-
+	import PageNotFound from './error/pageNotFound.svelte';
 	app.init();
 
 	/* const translations = new Array<{ locale: string, translations: {} }>();
@@ -16,7 +16,7 @@
 	// Because of how the viewer is set up, we cannot initialize the localization
 	// with the language from the config at first. Therefore we set it to a default
 	setupLocalization("nl");
-
+	let pageNotFound = false;
 	const map = app.map;
 	
 	$: {
