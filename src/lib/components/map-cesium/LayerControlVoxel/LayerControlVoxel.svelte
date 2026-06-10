@@ -6,7 +6,9 @@
 
 	$: selected = layer.selectedProperty;
 	$: properties = layer.resolvedProperties;
+	$: hiddenValues = layer.hiddenValues;
 	$: activeProp = $properties.find((p) => p.name === $selected);
+	$: hiddenForProp = $hiddenValues.get($selected) ?? new Set();
 </script>
 
 {#if layer && $properties.length}
@@ -22,11 +24,18 @@
 		{#if activeProp}
 			<div class="legend">
 				<div class="label-01 label">Legend</div>
-				
+
 				{#each activeProp.categories as cat}
-					<div class="legend-entry">
-						<div class="legend-rect" style="background-color: rgb({cat.color[0]}, {cat.color[1]}, {cat.color[2]});" />
-						
+					{@const hidden = hiddenForProp.has(cat.value)}
+					<div class="legend-entry" data-hidden={hidden}>
+						<button
+							type="button"
+							class="legend-rect"
+							style="background-color: rgb({cat.color[0]}, {cat.color[1]}, {cat.color[2]});"
+							aria-pressed={hidden}
+							on:click={() => layer.toggleHidden($selected, cat.value)}
+						/>
+
 						<div class="legend-label">{cat.label}</div>
 					</div>
 				{/each}
@@ -64,6 +73,17 @@
 		border: 1px solid black;
 		margin-right: 0.5rem;
 		flex-shrink: 0;
+		padding: 0;
+		cursor: pointer;
+	}
+
+	.legend-entry[data-hidden="true"] .legend-rect {
+		opacity: 0.25;
+	}
+
+	.legend-entry[data-hidden="true"] .legend-label {
+		opacity: 0.5;
+		text-decoration: line-through;
 	}
 
 	.legend-label {

@@ -3,7 +3,7 @@ import * as Cesium from "cesium";
 import { CesiumLayer } from "./cesium-layer";
 import { CustomLayerControl } from "$lib/components/map-core/custom-layer-control";
 import type { LayerConfig } from "$lib/components/map-core/layer-config";
-import type { Map } from "../map";
+import type { Map as CesiumMap } from "../map";
 import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
 import {
 	fetchLegend,
@@ -26,9 +26,10 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	public selectedProperty: Writable<string>;
 	public resolvedProperties: Writable<Array<ResolvedVoxelProperty>>;
 	public alpha: Writable<number>;
+	public hiddenValues: Writable<Map<string, Set<number>>>;
 	private depthScale: VoxelDepthScale | null = null;
 
-	constructor(map: Map, config: LayerConfig) {
+	constructor(map: CesiumMap, config: LayerConfig) {
 		super(map, config);
 
 		const settings = this.settings;
@@ -41,8 +42,32 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		this.selectedProperty = writable(initial);
 		this.alpha = writable(opacityToAlpha(get(this.opacity)));
 		this.resolvedProperties = writable<Array<ResolvedVoxelProperty>>([]);
+		this.hiddenValues = writable(new Map());
 		this.createLayer();
 		this.selectedProperty.subscribe(() => this.applyShader());
+	}
+
+	public toggleHidden(propName: string, value: number): void {
+		this.hiddenValues.update((m) => {
+			const next = new Map(m);
+			const updated = new Set(next.get(propName) ?? []);
+
+			if (updated.has(value)) {
+				updated.delete(value);
+			} else {
+				updated.add(value);
+			}
+
+			next.set(propName, updated);
+			return next;
+		});
+
+		// Only the visible property's mask needs updating
+		if (propName === get(this.selectedProperty)) {
+			const mask = hiddenMask(get(this.hiddenValues).get(propName));
+			this.source?.customShader?.setUniform("u_hiddenMask", mask);
+			this.map.refresh();
+		}
 	}
 
 	private get settings(): VoxelLayerSettings {
@@ -174,11 +199,17 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			.join("\n\t\t\t\t\t");
 
 		// Cesium normalises UINT8 metadata to [0,1] in the shader; multiply back to recover the integer.
+		// u_hiddenMask is a bitmask: bit N set => category value N is hidden. Toggling a
+		// legend entry just flips a bit and calls setUniform — no GLSL recompile.
 		return new Cesium.CustomShader({
 			uniforms: {
 				u_alpha: {
 					type: Cesium.UniformType.FLOAT,
 					value: get(this.alpha)
+				},
+				u_hiddenMask: {
+					type: Cesium.UniformType.INT,
+					value: hiddenMask(get(this.hiddenValues).get(property.name))
 				}
 			},
 			fragmentShaderText: `
@@ -186,12 +217,56 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 					int v = int(float(fsInput.metadata.${property.name}) * 255.0 + 0.5);
 					material.alpha = u_alpha;
 					${noDataGuard}
+					// (1 << v) is the mask with only bit v on;
+					// & tests whether that bit is set ie category v is hidden.
+					if ((u_hiddenMask & (1 << v)) != 0) { material.alpha = 0.0; return; }
 					${branches}
 					material.diffuse = vec3(0.5, 0.5, 0.5);
 				}
 			`
 		});
 	}
+}
+
+/** Packs a set of hidden category values into a 32-bit bitmask for the shader.
+Each category value owns one bit; bit N set => category N is hidden.
+
+hide categories {2, 5}:
+
+```
+  bit:  31 ...  5  4  3  2  1  0
+      +----+   +--+--+--+--+--+--+
+mask  |  0 |...| 1| 0| 0| 1| 0| 0|   = 36
+      +----+   +--+--+--+--+--+--+
+                 ↑        ↑
+              hidden    hidden
+```
+
+set a bit (JS):    mask |= 1 << value
+test a bit (GLSL): (u_hiddenMask & (1 << v)) != 0
+
+We use a shader uniform instead of recompiling the shader string for perf reasons.
+Baking hidden values into the shader source would force a full recompile on every click, which lags.
+The bitpacked mask is one INT the GPU reads every frame, so a legend toggle is just a setUniform() call.
+
+toggle -> flip bit in Set -> hiddenMask() -> setUniform("u_hiddenMask")
+
+Values >= 31 can't be represented, fine for our GeoTOP Zeeland dataset
+*/
+function hiddenMask(values: Set<number> | undefined): number {
+	let mask = 0;
+
+	if (values) {
+		for (const value of values) {
+			if (value >= 0 && value < 31) {
+				// (1 << value) is the mask with only bit `value` on;
+				// |= turns that bit on in mask.
+				mask |= 1 << value;
+			}
+		}
+	}
+
+	return mask;
 }
 
 function opacityToAlpha(opacity: number): number {
