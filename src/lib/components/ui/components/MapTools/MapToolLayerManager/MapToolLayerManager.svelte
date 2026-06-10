@@ -143,6 +143,7 @@
 
         <CesiumBackgroundControls
 			textOpacity={$_("tools.backgroundControls.opacity")}
+			textVerticalExaggeration={$_("tools.backgroundControls.verticalExaggeration")}
 		/>
 
 		<div class="bx--label thematic-label">

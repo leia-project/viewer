@@ -194,7 +194,8 @@
         },
         "backgroundControls": {
             "opacity": "Wereld Transparantie",
-            "terrain": "Terrein"
+            "terrain": "Terrein",
+            "verticalExaggeration": "Verticale overdrijving"
         },
         "bookmarks": {
             "label": "Bladwijzers",
