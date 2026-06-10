@@ -105,6 +105,28 @@
                     }
                 ]
             }
+        },
+        {
+            "id": "geotop-voxel",
+            "type": "3dtiles-voxel",
+            "title": "GeoTOP Zeeland (voxels)",
+            "defaultAddToManager": true,
+            "transparent": true,
+            "settings": {
+                "url": "/geotop_zeeland_ellipsoid/tileset.json",
+                "legendDataUrl": "/geotop_zeeland_ellipsoid/legend.json",
+                "defaultProperty": "lithology",
+                "properties": [
+                    {
+                        "name": "lithology",
+                        "label": "Lithoklasse"
+                    },
+                    {
+                        "name": "stratigraphy",
+                        "label": "Stratigrafie"
+                    }
+                ]
+            }
         }
     ],
     "viewer": {
