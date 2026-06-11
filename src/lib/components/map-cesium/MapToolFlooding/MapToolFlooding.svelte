@@ -100,7 +100,7 @@
 							<div class="info-content">
 								<Dropdown
 									label={scenario}
-									items={$activeBreach.properties.scenarios.map((sc) => ({ id: sc, text: "1:" + sc }))}
+									items={$activeBreach.properties.scenarios.map((sc) => ({ id: sc, text: sc + "mm in 48 uur"}))}
 									bind:selectedId={$selectedScenario}
 									titleText={scenario}
 								/>

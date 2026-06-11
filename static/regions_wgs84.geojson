@@ -14,9 +14,8 @@
 				"fid": 8,
 				"naam": "Schouwen-Duiveland",
 				"scenarios": [
-					3000,
-					30000,
-					300000
+					200,
+					300
 				]
 			},
 			"geometry": {
