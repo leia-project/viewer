@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { RadioButtonGroup, RadioButton } from "carbon-components-svelte";
+	import { RadioButtonGroup, RadioButton, Button } from "carbon-components-svelte";
+	import RangeSlider from "$lib/components/ui/components/RangeSlider/RangeSlider.svelte";
 	import type { VoxelLayer } from "../module/layers/voxel-layer";
 
 	export let layer: VoxelLayer;
@@ -7,8 +8,18 @@
 	$: selected = layer.selectedProperty;
 	$: properties = layer.resolvedProperties;
 	$: hiddenValues = layer.hiddenValues;
+	$: clipping = layer.clipping;
 	$: activeProp = $properties.find((p) => p.name === $selected);
 	$: hiddenForProp = $hiddenValues.get($selected) ?? new Set();
+	$: isClipped =
+		$clipping.x[0] > 0 ||
+		$clipping.x[1] < 1 ||
+		$clipping.y[0] > 0 ||
+		$clipping.y[1] < 1 ||
+		$clipping.z[0] > 0 ||
+		$clipping.z[1] < 1;
+
+	const asPercent = (v: number) => `${Math.round(v * 100)}%`;
 </script>
 
 {#if layer && $properties.length}
@@ -41,6 +52,35 @@
 				{/each}
 			</div>
 		{/if}
+
+		<div class="slicing">
+			<div class="label-01 label">Slicing</div>
+
+			<RangeSlider
+				label="West–East"
+				value={$clipping.x}
+				format={asPercent}
+				on:change={(e) => layer.setClip("x", e.detail)}
+			/>
+			
+			<RangeSlider
+				label="South–North"
+				value={$clipping.y}
+				format={asPercent}
+				on:change={(e) => layer.setClip("y", e.detail)}
+			/>
+
+			<RangeSlider
+				label="Vertical"
+				value={$clipping.z}
+				format={asPercent}
+				on:change={(e) => layer.setClip("z", e.detail)}
+			/>
+
+			<Button kind="ghost" size="small" disabled={!isClipped} on:click={() => layer.resetClip()}>
+				Reset slicing
+			</Button>
+		</div>
 	</div>
 {/if}
 
@@ -56,6 +96,13 @@
 	.legend {
 		position: relative;
 		padding-top: var(--cds-spacing-05);
+	}
+
+	.slicing {
+		padding-top: var(--cds-spacing-05);
+		display: flex;
+		flex-direction: column;
+		row-gap: var(--cds-spacing-05);
 	}
 
 	.legend-entry {

@@ -22,11 +22,17 @@ export type VoxelLayerSettings = {
 	properties: Array<VoxelPropertyConfig>;
 };
 
+export type ClipRange = { x: [number, number]; y: [number, number]; z: [number, number] };
+
+const DEFAULT_CLIP_RANGE: ClipRange = { x: [0, 1], y: [0, 1], z: [0, 1] };
+
 export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	public selectedProperty: Writable<string>;
 	public resolvedProperties: Writable<Array<ResolvedVoxelProperty>>;
 	public alpha: Writable<number>;
 	public hiddenValues: Writable<Map<string, Set<number>>>;
+	public clipping: Writable<ClipRange>;
+	private bounds: { min: Cesium.Cartesian3; max: Cesium.Cartesian3 } | null = null;
 	private depthScale: VoxelDepthScale | null = null;
 
 	constructor(map: CesiumMap, config: LayerConfig) {
@@ -43,6 +49,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		this.alpha = writable(opacityToAlpha(get(this.opacity)));
 		this.resolvedProperties = writable<Array<ResolvedVoxelProperty>>([]);
 		this.hiddenValues = writable(new Map());
+		this.clipping = writable({ ...DEFAULT_CLIP_RANGE });
 		this.createLayer();
 		this.selectedProperty.subscribe(() => this.applyShader());
 	}
@@ -68,6 +75,50 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			this.source?.customShader?.setUniform("u_hiddenMask", mask);
 			this.map.refresh();
 		}
+	}
+
+	/** Set the normalised [0,1] clip window for one axis and slice the voxels. */
+	public setClip(axis: keyof ClipRange, range: [number, number]): void {
+		this.clipping.update((c) => ({ ...c, [axis]: range }));
+		this.applyClipping();
+	}
+
+	public resetClip(): void {
+		this.clipping.set({ ...DEFAULT_CLIP_RANGE });
+		this.applyClipping();
+	}
+
+	/**
+	 * Maps the normalised clip window onto the primitive's clipping bounds.
+	 * Bounds are in provider space (x = lon, y = lat, z = height), so x/y slice
+	 * horizontally and z slices vertically. At an axis extreme we hand Cesium
+	 * ±Infinity so that side stays fully open rather than clamping to the bound.
+	 */
+	private applyClipping(): void {
+		if (!this.source || !this.bounds) {
+			return;
+		}
+
+		const { min, max } = this.bounds;
+		const c = get(this.clipping);
+
+		const toMin = (t: number, lo: number, hi: number) =>
+			t <= 0.001 ? -Infinity : lo + t * (hi - lo);
+		const toMax = (t: number, lo: number, hi: number) =>
+			t >= 0.999 ? Infinity : lo + t * (hi - lo);
+
+		this.source.minClippingBounds = new Cesium.Cartesian3(
+			toMin(c.x[0], min.x, max.x),
+			toMin(c.y[0], min.y, max.y),
+			toMin(c.z[0], min.z, max.z)
+		);
+		this.source.maxClippingBounds = new Cesium.Cartesian3(
+			toMax(c.x[1], min.x, max.x),
+			toMax(c.y[1], min.y, max.y),
+			toMax(c.z[1], min.z, max.z)
+		);
+
+		this.map.refresh();
 	}
 
 	private get settings(): VoxelLayerSettings {
@@ -155,6 +206,8 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			const { minBounds, maxBounds } = provider;
 
 			if (minBounds && maxBounds) {
+				this.bounds = { min: minBounds, max: maxBounds };
+
 				const east = maxBounds.x; // lon
 				const nsMiddle = (minBounds.y + maxBounds.y) / 2; // lat
 
