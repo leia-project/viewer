@@ -182,7 +182,9 @@
             "filterPointCloudClasses": "Filter Point Cloud classes",
             "heightControlLabel": "Tileset height offset (m)",
             "dataportal": "Dataportal",
-            "toolGroupTooltip": "Managed by the {tool} tool"
+            "toolGroupTooltip": "Managed by the {tool} tool",
+            "showMore": "Show more",
+            "showLess": "Show less"
         },
         "layerTools": {
             "theme": {

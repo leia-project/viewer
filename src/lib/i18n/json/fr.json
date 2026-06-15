@@ -180,7 +180,9 @@
             "filterPointCloudClasses": "Filtrer les classes de Point Cloud",
             "heightControlLabel": "Décalage de la hauteur du jeu de tuiles (m)",
             "dataportal": "Portail de données",
-            "toolGroupTooltip": "Géré par l'outil {tool}"
+            "toolGroupTooltip": "Géré par l'outil {tool}",
+            "showMore": "Afficher plus",
+            "showLess": "Afficher moins"
         },
         "layerTools": {
             "theme": {

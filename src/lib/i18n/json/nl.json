@@ -189,7 +189,9 @@
             "filterPointCloudClasses": "Filter puntenwolk klasses",
             "heightControlLabel": "Hoogtecorrectie Tileset (m)",
             "dataportal": "Dataportaal",
-            "toolGroupTooltip": "Beheerd door de tool {tool}"
+            "toolGroupTooltip": "Beheerd door de tool {tool}",
+            "showMore": "Toon meer",
+            "showLess": "Toon minder"
         },
         "layerTools": {
             "theme": {

@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { getContext, onMount } from "svelte";
+    import { getContext, onMount, afterUpdate } from "svelte";
     import { _ } from "svelte-i18n";
     import { Slider, Checkbox, Button, AccordionItem, Dropdown } from "carbon-components-svelte";
-	import { Search, TrashCan } from "carbon-icons-svelte";
+	import { Search, TrashCan, ChevronDown, ChevronUp } from "carbon-icons-svelte";
     import { XMLParser } from 'fast-xml-parser';
 
     import type { Layer } from "$lib/map-core/layer";
@@ -16,6 +16,9 @@
     let open: boolean;
     let imageValid: boolean = true;
     let descriptionValid: boolean = true;
+    let descriptionExpanded: boolean = false;
+    let descriptionOverflows: boolean = false;
+    let descriptionEl: HTMLParagraphElement | undefined;
     let items: { id: string; text: string }[] = [];
     
     const defaultLegendUrl = layer.config.legendUrl;
@@ -98,6 +101,17 @@
         map.flyTo(pos);
     }
 
+    function checkDescriptionOverflow() {
+        if (!descriptionEl) return;
+        descriptionOverflows = descriptionEl.scrollHeight > descriptionEl.clientHeight + 1;
+    }
+
+    afterUpdate(() => {
+        if (!descriptionExpanded) {
+            checkDescriptionOverflow();
+        }
+    });
+
     onMount(async() => {
         if (layer.config.type !== "wms" || !layer.config.legendSupported) {
             return;
@@ -144,7 +158,7 @@
                 role="button"
                 tabindex="0"
             >
-                <div class="label-01" class:layer-title-condensed={open === false} title={layer.title}>
+                <div class="label-01 layer-title" class:layer-title-open={open} title={layer.title}>
                     {layer.title}
                 </div>
             </div>
@@ -159,13 +173,24 @@
         {/if}
         {#if layer.config.descriptionSupported}
             <div class="label-01 description-header">
-                {$_("description")}
+                {$_("tools.layerLibrary.description")}
             </div>
             {#if descriptionValid && layer.config.description}
-                <p class="description">{layer.config.description}</p>
-            <!-- {#if !descriptionValid}
-                <ErrorMessage message={$_("tools.layerManager.legendNotFoundText")} />
-            {/if} -->
+                <p
+                    class="description label-01"
+                    class:description-clamped={!descriptionExpanded}
+                    bind:this={descriptionEl}
+                >{layer.config.description}</p>
+                {#if descriptionOverflows || descriptionExpanded}
+                    <button
+                        type="button"
+                        class="description-toggle label-01"
+                        on:click|stopPropagation={() => (descriptionExpanded = !descriptionExpanded)}
+                    >
+                        <span>{descriptionExpanded ? $_("tools.layerManager.showLess") : $_("tools.layerManager.showMore")}</span>
+                        <svelte:component this={descriptionExpanded ? ChevronUp : ChevronDown} size={16} />
+                    </button>
+                {/if}
             {/if}
         {/if}
         {#if layer.config.opacitySupported}
@@ -239,6 +264,39 @@
         margin-top: var(--cds-spacing-01);
         max-width: 100%;
         margin-bottom: var(--cds-spacing-02);
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: pre-line;
+    }
+
+    .description-clamped {
+        display: -webkit-box;
+        -webkit-line-clamp: 5;
+        line-clamp: 5;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .description-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--cds-spacing-01);
+        margin-bottom: var(--cds-spacing-03);
+        padding: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: var(--cds-link-01);
+    }
+
+    .description-toggle:hover {
+        color: var(--cds-link-primary-hover, var(--cds-hover-primary-text));
+        text-decoration: underline;
+    }
+
+    .description-toggle:focus-visible {
+        outline: 2px solid var(--cds-focus);
+        outline-offset: 2px;
     }
 
     .description-header {
@@ -271,14 +329,26 @@
     .layer-title-wrap {        
         display: flex;
         align-items: center;
+        flex: 1;
+        min-width: 0;
     }
 
-    .layer-title-condensed {
-        max-width: 15rem;
-        white-space: nowrap;
-        display: inline-block;
-        overflow: hidden !important;
+    .layer-title {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        overflow: hidden;
         text-overflow: ellipsis;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .layer-title-open {
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
     }
 
     :global(.layer-control .bx--accordion__heading) {
