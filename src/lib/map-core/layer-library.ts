@@ -14,6 +14,7 @@ export class LayerLibrary extends Dispatcher {
     public groups: Writable<Array<LayerConfigGroup>>;
     public selectedLayerConfig: Writable<LayerConfig>;
     public tags: Writable<Array<string>>;
+    public loadingConnectors: Writable<Array<{ label: string; url: string }>>;
 
     constructor() {
         super();
@@ -24,9 +25,18 @@ export class LayerLibrary extends Dispatcher {
         this.groupBackgroundLayers = new LayerConfigGroup("group_background", "Background");
         this.groups = writable<Array<LayerConfigGroup>>(new Array<LayerConfigGroup>());
         this.tags = writable<Array<string>>([]);
+        this.loadingConnectors = writable<Array<{ label: string; url: string }>>([]);
 
         this.addLayerConfigGroup(this.groupBackgroundLayers);
         this.addLayerConfigGroup(this.groupNoCategory);
+    }
+
+    public addLoadingConnector(connector: { label: string; url: string }): void {
+        this.loadingConnectors.set([...get(this.loadingConnectors), connector]);
+    }
+
+    public removeLoadingConnector(connector: { label: string; url: string }): void {
+        this.loadingConnectors.set(get(this.loadingConnectors).filter((c) => c.url !== connector.url));
     }
 
     public findLayer(layerId: string): LayerConfig | undefined {

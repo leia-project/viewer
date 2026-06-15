@@ -7,6 +7,7 @@ import type { CkanConnectorSettings } from "./ckan-connector-settings";
 
 
 export class CkanConnector implements LibraryConnector {
+    public readonly label = "CKAN";
     private data?: LibraryConnectorData;
     private readonly debug = false;
     private readonly settings: CkanConnectorSettings;
@@ -131,7 +132,7 @@ export class CkanConnector implements LibraryConnector {
             if (ckanGroup.groups && ckanGroup.groups.length === 0) {
                 const lg = new LayerConfigGroup(ckanGroup.name, ckanGroup.title);
                 lg.connector = {
-                    type: "CKAN",
+                    type: this.label,
                     url: this.settings.url
                 };
 

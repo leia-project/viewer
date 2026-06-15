@@ -12,6 +12,7 @@
 
     import { CustomLayerConfigTracker } from "./CustomLayers/custom-layer-config";
     import LayerConfigGroups from "./LayerConfigGroups.svelte";
+    import LayerConfigGroupSkeleton from "./LayerConfigGroupSkeleton.svelte";
     import LibraryLayer from "./LibraryLayer.svelte";
     import LibraryLayerInfo from "./LibraryLayerInfo.svelte";
     import CustomLibraryLayer from "./CustomLayers/CustomLibraryLayer.svelte";
@@ -24,6 +25,7 @@
     export let useTags: Boolean;
 
     const groups = library.groups;
+    const loadingConnectors = library.loadingConnectors;
     const selectedLayerConfig = library.selectedLayerConfig;
     $: path = $selectedLayerConfig ? findPath($selectedLayerConfig.groupId, "") : "";
 
@@ -280,6 +282,9 @@
                             {/if}
                         {:else}
                             <LayerConfigGroups {library} />
+                            {#each $loadingConnectors as connector (connector.url)}
+                                <LayerConfigGroupSkeleton {connector} />
+                            {/each}
                         {/if}
                     </div>             
                            

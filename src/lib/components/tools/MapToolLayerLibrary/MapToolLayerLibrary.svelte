@@ -97,23 +97,30 @@
             return;
         }
 
-        for(let i = 0; i < connectors.length; i++) {
-            const settings = connectors[i];
-            let connector: LibraryConnector | undefined = undefined;
+        await Promise.all(connectors.map((settings) => loadConnector(settings)));
+    }
 
-            if(settings.type && settings.type === "ckan") {
-                connector = new CkanConnector(settings);
-            } else if (settings.type && settings.type === "geonetwork"){
-                connector = new GeoNetworkConnector(settings);
-            }
+    async function loadConnector(settings: any): Promise<void> {
+        let connector: LibraryConnector | undefined = undefined;
 
-            if(!connector) continue;
+        if(settings.type && settings.type === "ckan") {
+            connector = new CkanConnector(settings);
+        } else if (settings.type && settings.type === "geonetwork"){
+            connector = new GeoNetworkConnector(settings);
+        }
 
+        if(!connector) return;
+
+        const loadingConnector = { label: connector.label, url: settings.url };
+        const mapCore = map as MapCore;
+        mapCore.layerLibrary.addLoadingConnector(loadingConnector);
+        try {
             const data = await connector.getData();
-            const mapCore = map as MapCore;
             mapCore.layerLibrary.addLayerConfigGroups(data.groups);
             mapCore.layerLibrary.addLayerConfigs(data.layerConfigs);
             mapCore.dispatch("Connector fetched", {connector});
+        } finally {
+            mapCore.layerLibrary.removeLoadingConnector(loadingConnector);
         }
     }
 

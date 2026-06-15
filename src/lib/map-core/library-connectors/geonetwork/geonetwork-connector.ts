@@ -7,6 +7,7 @@ import type { GeoNetworkConnectorSettings } from "./geonetwork-connector-setting
 
 
 export class GeoNetworkConnector implements LibraryConnector {
+    public readonly label = "GeoNetwork";
     private data: LibraryConnectorData = new LibraryConnectorData();
     private readonly debug = false;
     private readonly settings: GeoNetworkConnectorSettings;
@@ -94,7 +95,7 @@ export class GeoNetworkConnector implements LibraryConnector {
 
         const dataportalGroup = new LayerConfigGroup("dataportal", "Dataportal", undefined);
         dataportalGroup.connector = {
-            type: "GeoNetwork",
+            type: this.label,
             url: this.settings.url 
         }
         groups.push(dataportalGroup);
