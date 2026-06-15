@@ -382,12 +382,14 @@
         height: 100%;
         display: flex;
         justify-content: stretch;
+        min-height: 0;
     }
 
     .menu {
-        min-width: 27rem;
-        max-width: 27rem;
+        flex: 0 1 27rem;
+        min-width: 22rem;
         height: 100%;
+        min-height: 0;
         background-color: var(--cds-ui-0);
         padding: var(--cds-spacing-05) var(--cds-spacing-05) 0 var(--cds-spacing-05);
         display: flex;
@@ -432,6 +434,43 @@
         max-height: 85%;
         min-width: 75%;
         max-width: 75%;
+    }
+
+    /* On medium viewports give the modal more room so the two panes stay usable */
+    @media (max-width: 1200px) {
+        :global(.library .bx--modal-container--lg) {
+            min-width: 90%;
+            max-width: 90%;
+        }
+    }
+
+    /* On narrow viewports use the full screen and stack the menu above the content */
+    @media (max-width: 42rem) {
+        :global(.library .bx--modal-container--lg) {
+            min-width: 100%;
+            max-width: 100%;
+            min-height: 100%;
+            max-height: 100%;
+        }
+
+        .wrapper {
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .menu {
+            flex: none;
+            width: 100%;
+            min-width: 0;
+            height: auto;
+            min-height: 45%;
+            padding-bottom: var(--cds-spacing-05);
+        }
+
+        .content {
+            height: auto;
+            min-height: 45%;
+        }
     }
 
     :global(.library .bx--modal-content) {

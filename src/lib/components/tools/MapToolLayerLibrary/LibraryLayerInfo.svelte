@@ -355,7 +355,6 @@
         white-space: pre;
         overflow-x: auto;
         max-width: 100%;
-        width: 100%;
         box-sizing: border-box;
         user-select: text;
         padding: 5px;
