@@ -15012,9 +15012,8 @@
 				"fid": 11,
 				"naam": "Tholen",
 				"scenarios": [
-					3000,
-					30000,
-					300000
+					200,
+					300
 				]
 			},
 			"geometry": {
@@ -27089,9 +27088,8 @@
 				"fid": 15,
 				"naam": "Walcheren-Bevelanden",
 				"scenarios": [
-					3000,
-					30000,
-					300000
+					200,
+					300
 				]
 				
 			},
@@ -54707,9 +54705,8 @@
 				"fid": 16,
 				"naam": "Zeeuws-Vlaanderen West",
 				"scenarios": [
-					3000,
-					30000,
-					300000
+					200,
+					300
 				]
 			},
 			"geometry": {
@@ -66056,9 +66053,8 @@
 				"fid": 17,
 				"naam": "Zeeuws-Vlaanderen Oost",
 				"scenarios": [
-					3000,
-					30000,
-					300000
+					200,
+					300
 				]
 			},
 			"geometry": {
