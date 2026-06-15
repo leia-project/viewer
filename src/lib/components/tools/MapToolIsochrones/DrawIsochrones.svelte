@@ -47,11 +47,9 @@
             disabled={!$coordinates || $dataLoading}
             on:click={async () => {
                 await isochronesLayer.entityToIsochrones();
-
                 // Wait for polygon entities array to be populated
-                isochronesLayer.dataLayer.loaded?.then(async () => {
-                    isochronesLayer.addDataValuesToIsochrones();
-                });
+                await isochronesLayer.dataLayer.ensureLoaded();
+                isochronesLayer.addDataValuesToIsochrones();
             }}
         >
             {#if $dataLoading}

@@ -7,18 +7,21 @@ import { WFSProviderCesium } from "../providers/wfs-provider";
 
 
 export class WfsLayer extends CesiumLayer<WFSProviderCesium> {
-
-	constructor(map: Map, config: LayerConfig) {
+    constructor(map: Map, config: LayerConfig) {
         super(map, config);
+    }
+
+    // Lazy loading: the source is created the first time the layer is activated
+    protected startLoading(): void {
         this.source = new WFSProviderCesium(this.config.settings.url, this.config.settings.options);
     }
 
-    public async addToMap(): Promise<void> {
+    public addToMap(): void {
         this.source.addToMap(this.map, get(this.visible));
     }
 
     public removeFromMap(): void {
-        this.source.hide();
+        this.source?.hide();
     }
 
     public show(): void {

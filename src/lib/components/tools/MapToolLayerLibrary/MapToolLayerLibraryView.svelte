@@ -408,6 +408,7 @@
         flex-grow: 1;
         height: 100%;
         width: 100%;
+        min-width: 0;
         background-color: var(--cds-ui-02);
         padding: var(--cds-spacing-05);
         display: flex;

@@ -20,6 +20,8 @@ export class LayerConfig {
     public metadata!: Array<{ key: string, value: string }>;
     public metadataUrl!: string;
     public metadataLink: string;
+    public dateCreated!: string;
+    public dateRevision!: string;
     public transparent: boolean = false;
     public disablePopup: boolean = false;
     public opacity!: number;

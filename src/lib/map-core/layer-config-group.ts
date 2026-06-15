@@ -13,6 +13,7 @@ export class LayerConfigGroup {
     public totalLayerCount: Writable<number>;
     public enabledLayerCount: Writable<number>;
     public connector: Record<string, string>;
+    public toolGroup: { label: string } | undefined;
 
     private groupTotalLayerCountUnsubscribers: Record<string, Unsubscriber>;
     private groupEnabledLayerCountUnsubscribers: Record<string, Unsubscriber>;
@@ -26,6 +27,7 @@ export class LayerConfigGroup {
         this.groupEnabledLayerCountUnsubscribers = {};
         this.layerUnsubscribers = {};
         this.connector = {};
+        this.toolGroup = undefined;
         this.childGroups = writable<Array<LayerConfigGroup>>(new Array<LayerConfigGroup>());
         this.layerConfigs = writable<Array<LayerConfig>>(new Array<LayerConfig>());
         this.open = writable<boolean>(false);

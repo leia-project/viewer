@@ -1,14 +1,21 @@
 <script lang="ts">
+    import { onDestroy } from "svelte";
     import type { Writable } from "svelte/store";
-    import { _ } from "svelte-i18n";
+    import { _, locale } from "svelte-i18n";
     import { Button, Tag, ContentSwitcher, Switch } from "carbon-components-svelte";
+    import { Copy, Checkmark } from "carbon-icons-svelte";
     import type { LayerConfig } from "$lib/map-core/layer-config";
+    import { Notification } from "$lib/map-core/notifications/notification";
+    import { NotificationType } from "$lib/map-core/notifications/notification-type";
+    import { notifications } from "$lib/map-core/notifications/notifications";
     import { Metadata } from "./metadata";
 
     export let layerConfig: Writable<LayerConfig>;
     export let path: string = "";
 
     let contentIndex = 0;
+    let copied = false;
+    let copyResetTimeout: ReturnType<typeof setTimeout>;
     $: config = $layerConfig;
     $: metadata = config.metadata;
     $: metadataUrl = config.metadataUrl;  //"https://nationaalgeoregister.nl/geonetwork/srv/api/records/1ad6e0e0-8684-4a63-afe0-df1089072653/formatters/xml?approved=true";
@@ -18,6 +25,8 @@
     $: addedToLayerManager = config.added;
     $: imageUrl = config.imageUrl;
     $: type = config.type;
+    $: dateCreatedFormatted = formatDate(config.dateCreated, $locale);
+    $: dateRevisionFormatted = formatDate(config.dateRevision, $locale);
     $: settings = syntaxHighlight("\n" + getJsonLayerConfig(config));
 
     layerConfig.subscribe(() => {
@@ -42,6 +51,13 @@
         }
     }
 
+    function formatDate(value: string | undefined, currentLocale: string | null | undefined): string {
+        if (!value) return "";
+        const date = new Date(value);
+        if (isNaN(date.getTime())) return value;
+        return date.toLocaleDateString(currentLocale ?? undefined);
+    }
+
     function addToManager(): void {
         config.add();
     }
@@ -50,9 +66,40 @@
         config.remove();
     }
 
-    function copyToClipboard(): void {
-        navigator.clipboard.writeText(getJsonLayerConfig(config));
+    async function copyToClipboard(): Promise<void> {
+        try {
+            await navigator.clipboard.writeText(getJsonLayerConfig(config));
+            copied = true;
+            clearTimeout(copyResetTimeout);
+            copyResetTimeout = setTimeout(() => {
+                copied = false;
+            }, 2000);
+            notifications.send(
+                new Notification(
+                    NotificationType.SUCCESS,
+                    $_("tools.layerLibrary.copySuccessTitle"),
+                    $_("tools.layerLibrary.copySuccessMessage"),
+                    3000,
+                    false
+                )
+            );
+        } catch (error) {
+            const notification = new Notification(
+                NotificationType.ERROR,
+                $_("tools.layerLibrary.copyErrorTitle"),
+                $_("tools.layerLibrary.copyErrorMessage"),
+                5000,
+                true,
+                false
+            );
+            notification.error = error instanceof Error ? error : new Error(String(error));
+            notifications.send(notification);
+        }
     }
+
+    onDestroy(() => {
+        clearTimeout(copyResetTimeout);
+    });
 
     function getJsonLayerConfig(config: LayerConfig): string {
         const str = JSON.stringify(config);
@@ -147,6 +194,20 @@
                 </div>
             </div>
 
+            {#if dateCreatedFormatted}
+                <div class="block">
+                    <div class="label">{$_("tools.layerLibrary.dateCreated")}</div>
+                    <p class="body-01">{dateCreatedFormatted}</p>
+                </div>
+            {/if}
+
+            {#if dateRevisionFormatted}
+                <div class="block">
+                    <div class="label">{$_("tools.layerLibrary.dateRevision")}</div>
+                    <p class="body-01">{dateRevisionFormatted}</p>
+                </div>
+            {/if}
+
             <div class="block ">
                 {#if metadata}
                     {#each metadata as entry}
@@ -198,10 +259,13 @@
         {#if contentIndex === 1}
             <div class="btn-float">
                 <Button
-                    on:click={() => {
-                        copyToClipboard();
-                    }}>{$_("tools.layerLibrary.btnCopyToClipboard")}</Button
+                    icon={copied ? Checkmark : Copy}
+                    on:click={copyToClipboard}
                 >
+                    {copied
+                        ? $_("tools.layerLibrary.copied")
+                        : $_("tools.layerLibrary.btnCopyToClipboard")}
+                </Button>
             </div>
             <pre>
 			<code>
@@ -224,6 +288,7 @@
         flex-direction: column;
         user-select: text;
         max-width: 65rem;
+        min-width: 0;
     }
 
     .header {
@@ -287,10 +352,32 @@
     }
 
     pre {
-        white-space: pre-wrap;
+        white-space: pre;
+        overflow-x: auto;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
         user-select: text;
         padding: 5px;
         margin: 5px;
+        margin-bottom: 3.5rem;
+        scrollbar-width: auto;
+        scrollbar-color: var(--cds-text-secondary) transparent;
+    }
+
+    pre::-webkit-scrollbar {
+        height: 12px;
+    }
+
+    pre::-webkit-scrollbar-thumb {
+        border: 2px solid rgba(0, 0, 0, 0);
+        background-clip: padding-box;
+        border-radius: 7px;
+        background-color: var(--cds-text-secondary);
+    }
+
+    pre::-webkit-scrollbar-thumb:hover {
+        background-color: var(--cds-text-primary);
     }
 
     json {

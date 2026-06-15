@@ -64,6 +64,7 @@ export class IsochronesLayer {
 
         this.dataSource = new Cesium.CustomDataSource();
         this.map.viewer.dataSources.add(this.dataSource);
+        this.dataLayer?.ensureLoaded();
 
         this.isochrones.subscribe(isos => {
             this.redistributeWeights(isos);

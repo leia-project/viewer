@@ -1,5 +1,6 @@
 <script lang="ts">
     import ChevronRight from "carbon-icons-svelte/lib/ChevronRight.svelte";
+    import Tools from "carbon-icons-svelte/lib/Tools.svelte";
     import { Tag, OverflowMenu, OverflowMenuItem, Accordion } from "carbon-components-svelte";
     import { get } from "svelte/store";
     import { _ } from "svelte-i18n";
@@ -50,6 +51,16 @@
                     {group.title}
                 {/if}
             </div>
+            {#if group.toolGroup}
+                <span class="tool-group-icon" title={$_('tools.layerManager.toolGroupTooltip', { values: { tool: $_(group.toolGroup.label) } })}>
+                    <Tools size={16} />
+                </span>
+            {/if}
+            {#if group.connector.type && group.connector.url}
+                <a href="{group.connector.url}" title="{$_('general.goTo') + ' ' + group.connector.type}" target="_blank" style="cursor: pointer">
+                    <Tag type="green" size="sm" interactive="{true}">{group.connector.type}</Tag>
+                </a>
+            {/if}
 
             <div class="group-menu">
                 <OverflowMenu
@@ -162,6 +173,14 @@
 
     .children {
         margin-left: var(--cds-spacing-05);
+    }
+
+    .tool-group-icon {
+        display: flex;
+        align-items: center;
+        margin-right: var(--cds-spacing-02);
+        color: var(--cds-icon-02, var(--cds-text-02));
+        cursor: help;
     }
 
 </style>

@@ -13,16 +13,20 @@ export class OgcFeaturesLayer extends CesiumLayer<OgcFeaturesProviderCesium> {
 
 	constructor(map: Map, config: LayerConfig) {
         super(map, config);
-        this.source = new OgcFeaturesProviderCesium(map, this.config.settings.url, this.config.settings.options, this.config.settings.parameters);
         this.addControl();
     }
 
-    public async addToMap(): Promise<void> {
+    // Lazy loading: the source is created the first time the layer is activated
+    protected startLoading(): void {
+        this.source = new OgcFeaturesProviderCesium(this.map, this.config.settings.url, this.config.settings.options, this.config.settings.parameters);
+    }
+
+    public addToMap(): void {
         this.source.init(get(this.visible));
     }
 
     public removeFromMap(): void {
-        this.source.hide();
+        this.source?.hide();
     }   
 
     public show(): void {

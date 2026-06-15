@@ -29,7 +29,9 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		super(map, config);
 		this.tilesetHeight = writable<number>(0);
 		this.alpha = this.getOpacity(this.config.opacity);
+	}
 
+	protected startLoading(): void {
 		this.createLayer();
 	}
 

@@ -114,8 +114,9 @@ export class CustomLayerConfigTracker extends Dispatcher {
 	public async checkIfUrlExists(): Promise<boolean> {
 		let url = this.layerConfig.settings.url;
 		if (!url || !get(this.validUrl)) return false;
-		if (this.layerConfig.type === "wms") url += "?service=wms&request=getcapabilities";
-		if (this.layerConfig.type === "wmts") url += "?service=wmts&request=getcapabilities";
+		const separator = url.endsWith("?") ? "" : "?";
+		if (this.layerConfig.type === "wms") url += `${separator}service=wms&request=getcapabilities`;
+		if (this.layerConfig.type === "wmts") url += `${separator}service=wmts&request=getcapabilities`;
 
 		const controller = new AbortController();
 		const timeout = setTimeout(() => controller.abort(), 1000); // if no response after 1000ms, then consider the request as failed

@@ -71,4 +71,8 @@
     .notification {
         text-align: left;
     }
+
+    .notification :global(.bx--toast-notification__caption:empty) {
+        display: none;
+    }
 </style>

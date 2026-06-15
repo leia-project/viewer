@@ -120,12 +120,19 @@
             "btnAddAllToMap": "Ajouter Tout",
             "btnRemoveAllFromMap": "Supprimer Tout",
             "btnCopyToClipboard": "Copier dans le Presse-Papiers",
+            "copied": "Copié!",
+            "copySuccessTitle": "Copié",
+            "copySuccessMessage": "La configuration de la couche a été copiée dans le presse-papiers.",
+            "copyErrorTitle": "Échec de la copie",
+            "copyErrorMessage": "La configuration de la couche n'a pas pu être copiée dans le presse-papiers.",
             "description": "Description",
             "noDescription": "Aucune description trouvée",
             "attribution": "Attribution",
             "noAttribution": "Aucune attribution trouvée",
             "layerName": "Nom du calque",
             "layerType": "Type de calque",
+            "dateCreated": "Date de création",
+            "dateRevision": "Dernière révision",
             "metadata": "Métadonnées",
             "noMetadata": "Aucune métadonnée trouvée",
             "info": "Informations",
@@ -151,7 +158,8 @@
             "clampToTerrain": "Fixation au Terrain",
             "styling": "Style",
             "viewRecordOn": "Voir l'enregistrement sur",
-            "dataportal": "Portail de données"
+            "dataportal": "Portail de données",
+            "toolGroupTooltip": "Géré par l'outil {tool}"
         },
         "layerManager": {
             "label": "Gestionnaire de Calques",
@@ -171,7 +179,8 @@
             "btnHideAll": "Masquer tout",
             "filterPointCloudClasses": "Filtrer les classes de Point Cloud",
             "heightControlLabel": "Décalage de la hauteur du jeu de tuiles (m)",
-            "dataportal": "Portail de données"
+            "dataportal": "Portail de données",
+            "toolGroupTooltip": "Géré par l'outil {tool}"
         },
         "layerTools": {
             "theme": {

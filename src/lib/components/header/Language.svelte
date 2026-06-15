@@ -12,7 +12,7 @@
 			<div class="heading-03" title="{$_('tools.language.setLanguage')}">{$_('tools.language.setLanguage')}</div>
 			<RadioButtonGroup orientation="vertical" bind:selected={$selectedLanguage} >
 				{#each languages as language}
-					<RadioButton labelText={language.title} value={language.shortName} class="test" />
+					<RadioButton labelText={language.title} value={language.shortName} class="language" />
 				{/each}
 			</RadioButtonGroup>
 		</div>

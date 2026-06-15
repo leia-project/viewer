@@ -140,6 +140,7 @@ export class GeoNetworkConnector implements LibraryConnector {
             if (Object.keys(layerSettings).length === 0) {
                 continue;
             }
+            console.log(l['geonet:info'], "layerinfo");
             const lc = new LayerConfig({
                 id: l.identifier,
                 type: "wms",
@@ -155,6 +156,8 @@ export class GeoNetworkConnector implements LibraryConnector {
                 metadata: undefined,
                 metadataUrl: '',
                 metadataLink: this.settings.url + this.linkFormat.replace('{uuid}', l['geonet:info'].uuid),
+                dateCreated: l['geonet:info']?.createDate,
+                dateRevision: l['geonet:info']?.changeDate,
                 settings: layerSettings,
                 cameraPosition: undefined,
                 tags: undefined

@@ -122,12 +122,19 @@
             "btnAddAllToMap": "Add All",
             "btnRemoveAllFromMap": "Remove All",
             "btnCopyToClipboard": "Copy to clipboard",
+            "copied": "Copied!",
+            "copySuccessTitle": "Copied",
+            "copySuccessMessage": "The layer configuration was copied to the clipboard.",
+            "copyErrorTitle": "Copy failed",
+            "copyErrorMessage": "The layer configuration could not be copied to the clipboard.",
             "description": "Description",
             "noDescription": "No description found",
             "attribution": "Attribution",
             "noAttribution": "No attribution found",
             "layerName": "Layer name",
             "layerType": "Layer type",
+            "dateCreated": "Date created",
+            "dateRevision": "Last revised",
             "metadata": "Metadata",
             "noMetadata": "No metadata found",
             "info": "Info",
@@ -153,7 +160,8 @@
             "clampToTerrain": "Clamp to Terrain",
             "styling": "Styling",
             "viewRecordOn": "View record on",
-            "dataportal": "Dataportal"
+            "dataportal": "Dataportal",
+            "toolGroupTooltip": "Managed by the {tool} tool"
         },
         "layerManager": {
             "label": "Layer Manager",
@@ -173,7 +181,8 @@
             "btnHideAll": "Hide All",
             "filterPointCloudClasses": "Filter Point Cloud classes",
             "heightControlLabel": "Tileset height offset (m)",
-            "dataportal": "Dataportal"
+            "dataportal": "Dataportal",
+            "toolGroupTooltip": "Managed by the {tool} tool"
         },
         "layerTools": {
             "theme": {

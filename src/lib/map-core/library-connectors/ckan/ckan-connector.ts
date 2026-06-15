@@ -130,6 +130,10 @@ export class CkanConnector implements LibraryConnector {
             // handle parent groups
             if (ckanGroup.groups && ckanGroup.groups.length === 0) {
                 const lg = new LayerConfigGroup(ckanGroup.name, ckanGroup.title);
+                lg.connector = {
+                    type: "CKAN",
+                    url: this.settings.url
+                };
 
                 this.recursiveMergeChilds(lg, ckanGroup.name, result);
                 groups.push(lg);
@@ -186,9 +190,10 @@ export class CkanConnector implements LibraryConnector {
             const description = pack.notes;
             const resources = pack.resources;
             const tags = pack.tags;
+            const dateCreated = pack.metadata_created;
 
             if(resources) {
-                const converted = this.ckanResourcesToLayerConfigs(resources, groupID, attribution, description, metadata, tags);                
+                const converted = this.ckanResourcesToLayerConfigs(resources, groupID, attribution, description, metadata, tags, dateCreated);                
                 configs.push(...converted);
             }
         }
@@ -202,7 +207,7 @@ export class CkanConnector implements LibraryConnector {
         return configs;
     }
 
-    private ckanResourcesToLayerConfigs(resources: Array<CKANresource>, groupID: string, attribution: string, description: string, metadata: Array<{ key: string, value: any}>, tags: Array<{display_name: string, id: string, name: string, state: string, vocabulary_id: string}>): Array<LayerConfig> {
+    private ckanResourcesToLayerConfigs(resources: Array<CKANresource>, groupID: string, attribution: string, description: string, metadata: Array<{ key: string, value: any}>, tags: Array<{display_name: string, id: string, name: string, state: string, vocabulary_id: string}>, dateCreated?: string): Array<LayerConfig> {
         const configs = new Array<LayerConfig>();
 
         for(let i = 0; i < resources.length; i++) {
@@ -255,6 +260,7 @@ export class CkanConnector implements LibraryConnector {
                 defaultOn: isAddedOn,
                 metadata: metadata,
                 metadataUrl: resource.metadataUrl,
+                dateCreated: dateCreated,
                 settings: settings,
                 cameraPosition: cameraPosition,
                 tags: tags ? tags.map((t) => t.name) : undefined

@@ -76,6 +76,8 @@
         for (let i = 0; i < layerConfigGroups.length; i++) {
             const group = layerConfigGroups[i];
             const layerManagerGroup = new LayerManagerGroup(group.id, group.title);
+            layerManagerGroup.connector = group.connector;
+            layerManagerGroup.toolGroup = group.toolGroup;
             // add layers belonging to this group to the layer manager group
             const layersFiltered = $layers.filter(l => l.parentGroup == group.id)
             for (let i = 0; i < layersFiltered.length; i++) {

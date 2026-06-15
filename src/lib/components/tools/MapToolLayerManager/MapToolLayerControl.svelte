@@ -126,6 +126,7 @@
         <div class="item-header">
             <div class="layer-cb">
                 <Checkbox
+                    title={$visible ? $_("general.off") : $_("general.on")}
                     bind:checked={$visible}
                     on:click={(e) => {
                         e.stopPropagation();

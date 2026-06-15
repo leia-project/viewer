@@ -129,12 +129,19 @@
             "btnAddAllToMap": "Alle lagen toevoegen",
             "btnRemoveAllFromMap": "Alle lagen verwijderen",
             "btnCopyToClipboard": "Kopieer naar klembord",
+            "copied": "Gekopieerd!",
+            "copySuccessTitle": "Gekopieerd",
+            "copySuccessMessage": "De laagconfiguratie is naar het klembord gekopieerd.",
+            "copyErrorTitle": "Kopiëren mislukt",
+            "copyErrorMessage": "De laagconfiguratie kon niet naar het klembord worden gekopieerd.",
             "description": "Beschrijving",
             "noDescription": "Geen beschrijving gevonden",
             "attribution": "Naamsvermelding",
             "noAttribution": "Geen naamsvermelding gevonden",
             "layerType": "Type laag",
             "layerName": "Naam",
+            "dateCreated": "Aanmaakdatum",
+            "dateRevision": "Laatst gewijzigd",
             "metadata": "Metadata",
             "noMetadata": "Geen metadata gevonden",
             "info": "Informatie",
@@ -160,7 +167,8 @@
             "clampToTerrain": "Vastzetten op terrein",
             "styling": "Stijl",
             "viewRecordOn": "Bekijk record op",
-            "dataportal": "Dataportaal"
+            "dataportal": "Dataportaal",
+            "toolGroupTooltip": "Beheerd door de tool {tool}"
         },
         "layerManager": {
             "label": "Lagenbeheer",
@@ -180,7 +188,8 @@
             "btnHideAll": "Alles verbergen",
             "filterPointCloudClasses": "Filter puntenwolk klasses",
             "heightControlLabel": "Hoogtecorrectie Tileset (m)",
-            "dataportal": "Dataportaal"
+            "dataportal": "Dataportaal",
+            "toolGroupTooltip": "Beheerd door de tool {tool}"
         },
         "layerTools": {
             "theme": {
