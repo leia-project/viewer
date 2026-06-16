@@ -2,7 +2,7 @@
     import { onDestroy } from "svelte";
     import type { Writable } from "svelte/store";
     import { _, locale } from "svelte-i18n";
-    import { Button, Tag, ContentSwitcher, Switch } from "carbon-components-svelte";
+    import { Button, Tag, ContentSwitcher, Switch, Loading } from "carbon-components-svelte";
     import { Copy, Checkmark } from "carbon-icons-svelte";
     import type { LayerConfig } from "$lib/map-core/layer-config";
     import { Notification } from "$lib/map-core/notifications/notification";
@@ -24,6 +24,10 @@
     $: attribution = config.attribution;
     $: addedToLayerManager = config.added;
     $: imageUrl = config.imageUrl;
+    let imageLoading = false;
+    $: if (imageUrl) {
+        imageLoading = true;
+    }
     $: type = config.type;
     $: dateCreatedFormatted = formatDate(config.dateCreated, $locale);
     $: dateRevisionFormatted = formatDate(config.dateRevision, $locale);
@@ -161,9 +165,22 @@
     <div class="content" class:content--raw={contentIndex === 1}>
         {#if contentIndex === 0}
             {#if imageUrl}
-                <div>
-                    <!-- svelte-ignore a11y-missing-attribute -->
-                    <img class="layer-image" src={imageUrl} />
+                <div class="layer-image-container">
+                    {#if imageLoading}
+                        <div class="layer-image-loading">
+                            <Loading small withOverlay={false} />
+                        </div>
+                    {/if}
+                    {#key imageUrl}
+                        <!-- svelte-ignore a11y-missing-attribute -->
+                        <img
+                            class="layer-image"
+                            class:layer-image--loading={imageLoading}
+                            src={imageUrl}
+                            on:load={() => (imageLoading = false)}
+                            on:error={() => (imageLoading = false)}
+                        />
+                    {/key}
                 </div>
             {/if}
 
@@ -332,10 +349,31 @@
         margin-bottom: var(--cds-spacing-01);
     }
 
-    .layer-image {
-        max-width: 11rem;
+    .layer-image-container {
+        position: relative;
         float: right;
         margin: var(--cds-spacing-05);
+        width: 18rem;
+        height: 13rem;
+    }
+
+    .layer-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .layer-image--loading {
+        visibility: hidden;
+    }
+
+    .layer-image-loading {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .layer-type {
