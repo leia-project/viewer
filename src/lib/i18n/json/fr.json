@@ -119,6 +119,8 @@
             "myDataTitle": "Ma Configuration de Couche de Données",
             "btnAddToMap": "Ajouter à la Carte",
             "btnRemoveFromMap": "Supprimer de la Carte",
+            "addLayerTooltip": "Ajouter la couche",
+            "removeLayerTooltip": "Supprimer la couche",
             "btnAddAllToMap": "Ajouter Tout",
             "btnRemoveAllFromMap": "Supprimer Tout",
             "btnCopyToClipboard": "Copier dans le Presse-Papiers",

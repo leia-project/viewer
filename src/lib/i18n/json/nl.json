@@ -128,6 +128,8 @@
             "myDataTitle": "Mijn Data Laag Configuratie",
             "btnAddToMap": "Voeg toe aan kaart",
             "btnRemoveFromMap": "Verwijder van kaart",
+            "addLayerTooltip": "Laag toevoegen",
+            "removeLayerTooltip": "Laag verwijderen",
             "btnAddAllToMap": "Alle lagen toevoegen",
             "btnRemoveAllFromMap": "Alle lagen verwijderen",
             "btnCopyToClipboard": "Kopieer naar klembord",

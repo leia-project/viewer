@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { _ } from "svelte-i18n";
 	import { Checkbox } from "carbon-components-svelte";
 	import type { LayerConfig} from "$lib/map-core/layer-config";
 	import type { LayerLibrary } from "$lib/map-core/layer-library";
@@ -25,12 +26,23 @@
 </script>
 
 <div class="layer" class:layer--selected={$selectedLayerConfig === config}>
-	<div class="layer-cb">
+	<div
+		class="layer-cb"
+		title={$addToManager
+			? $_("tools.layerLibrary.removeLayerTooltip")
+			: $_("tools.layerLibrary.addLayerTooltip")}
+	>
 		<Checkbox hideLabel checked={$addToManager} on:check={(e) => toggleLayer(e.detail)} />
 	</div>
 
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<div class="layer-title" on:click={selectLayerConfig} role="button" tabindex="0">
+	<div
+		class="layer-title"
+		on:click={selectLayerConfig}
+		role="button"
+		tabindex="0"
+		title={config.title}
+	>
 		{config.title}
 	</div>
 </div>
@@ -60,7 +72,8 @@
 		flex-grow: 1;
 		padding-top: 2px;
 		cursor: pointer;
-		display: flex;
-		align-items: center;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 </style>

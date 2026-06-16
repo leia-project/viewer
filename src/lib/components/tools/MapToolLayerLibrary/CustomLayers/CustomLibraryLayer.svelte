@@ -65,7 +65,12 @@
 
 
 <div class="layer" class:layer--selected={$selectedCustomLayer === customConfig} >
-	<div class="layer-cb">
+	<div
+		class="layer-cb"
+		title={$added
+			? $_("tools.layerLibrary.removeLayerTooltip")
+			: $_("tools.layerLibrary.addLayerTooltip")}
+	>
 		<Checkbox 
 			hideLabel 
 			bind:checked={$added} 
@@ -74,7 +79,7 @@
 	</div>
 
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<div class="layer-title" on:click={selectLayerConfig} role="button" tabindex="0">
+	<div class="layer-title" on:click={selectLayerConfig} role="button" tabindex="0" title={$title}>
 		{$title}
 	</div>
 
@@ -118,8 +123,9 @@
 		flex-grow: 1;
 		padding-top: 2px;
 		cursor: pointer;
-		display: flex;
-		align-items: center;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 

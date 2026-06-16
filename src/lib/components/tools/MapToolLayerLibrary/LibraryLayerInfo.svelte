@@ -156,7 +156,7 @@
         <div class="content-switcher">
             <ContentSwitcher size="sm" bind:selectedIndex={contentIndex}>
                 <Switch text="Info" />
-                <Switch text="Raw" />
+                <Switch text="JSON" />
             </ContentSwitcher>
         </div>
     </div>
@@ -276,7 +276,9 @@
         {#if contentIndex === 1}
             <div class="btn-float">
                 <Button
+                    kind="secondary"
                     icon={copied ? Checkmark : Copy}
+                    size="small"
                     on:click={copyToClipboard}
                 >
                     {copied

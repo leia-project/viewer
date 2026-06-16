@@ -121,6 +121,8 @@
             "myDataTitle": "My Data Layer Configuration",
             "btnAddToMap": "Add To Map",
             "btnRemoveFromMap": "Remove From Map",
+            "addLayerTooltip": "Add layer",
+            "removeLayerTooltip": "Remove layer",
             "btnAddAllToMap": "Add All",
             "btnRemoveAllFromMap": "Remove All",
             "btnCopyToClipboard": "Copy to clipboard",
