@@ -101,7 +101,7 @@
 	.layer {
 		display: flex;
 		justify-content: left;
-		align-items: stretch;
+		align-items: center;
 		position: relative;
 	}
 
@@ -121,7 +121,6 @@
 	.layer-title {
 		margin-left: var(--cds-spacing-03);
 		flex-grow: 1;
-		padding-top: 2px;
 		cursor: pointer;
 		white-space: nowrap;
 		overflow: hidden;
