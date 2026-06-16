@@ -102,7 +102,7 @@
                     <div class="group-content">
                         <div class="children">
                             {#each $childGroups as child}
-                                <svelte:self group={child} {library} />
+                                <svelte:self group={child} {library} {textBaselayers} {textNoCategory} />
                             {/each}
                         </div>
                     </div>

@@ -44,6 +44,7 @@
 					/>
 					{/if}
 				<Button
+					kind="ghost"
 					iconDescription={$showSlider ? $_("general.buttons.hide") :  $_("general.buttons.show")}
 					icon={$showSlider ? ViewOffFilled : ViewFilled}
 					tooltipPosition="bottom"
@@ -75,7 +76,8 @@
 					hideTextInput={true}
 				/>
 				<!-- TODO: Implement sliceMode functionality -->
-				<div class="slice-mode-label">{$_("tools.layerTools.clipper.sliceModeLabel")}</div>
+
+				<!-- <div class="slice-mode-label">{$_("tools.layerTools.clipper.sliceModeLabel")}</div>
 				<Toggle
 				toggled={$sliceMode}
 				disabled={true}
@@ -85,7 +87,7 @@
 				}}
 				labelA={$_("general.off")}
 				labelB={$_("general.on")}
-				/>
+				/> -->
 			</div>
 		{/if}
 	</div>
