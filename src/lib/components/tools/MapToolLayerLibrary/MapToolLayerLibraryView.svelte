@@ -408,6 +408,12 @@
         margin-bottom: var(--cds-spacing-05);
     }
 
+    @supports selector(::-webkit-scrollbar) {
+        .groups {
+            scrollbar-gutter: stable;
+        }
+    }
+
     .my-data-add-button {
         margin-top: 30px;
     }
