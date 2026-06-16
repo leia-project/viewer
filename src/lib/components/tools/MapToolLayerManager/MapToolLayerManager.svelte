@@ -108,24 +108,27 @@
     $: customLayersAdded = $layers.map((layer) => layer.config.groupId).includes("myData");
     $: layersWithoutGroup = $layers.filter((layer) => layer.config.groupId === undefined || layer.config.groupId === "");
     $: dragDroppedFiles = $layers.filter((layer) => layer.config.settings?.dragDropped ?? false);
+    $: backgroundLayers = $layers.filter((layer) => layer.config.isBackground);
 
 </script>
 
 {#if $selectedTool === tool}
     <div class="wrapper">
 
-        <RadioButtonGroup legendText={$_("tools.layerManager.baseLayers")} selected="standard" orientation="vertical">
-            {#each $layers as layer (layer.id)}
-                {#if layer.config.isBackground}
-                    <RadioButton
-                        labelText={layer.title}
-                        value={layer.id}
-                        checked={$selectedBackgroundLayer === layer.id}                      
-                        on:change={() => { selectedBackgroundLayer.set(layer.id)}}
-                    />
-                {/if}
-            {/each}
-        </RadioButtonGroup>
+        {#if backgroundLayers.length > 1}
+            <RadioButtonGroup legendText={$_("tools.layerManager.baseLayers")} selected="standard" orientation="vertical">
+                {#each $layers as layer (layer.id)}
+                    {#if layer.config.isBackground}
+                        <RadioButton
+                            labelText={layer.title}
+                            value={layer.id}
+                            checked={$selectedBackgroundLayer === layer.id}                      
+                            on:change={() => { selectedBackgroundLayer.set(layer.id)}}
+                        />
+                    {/if}
+                {/each}
+            </RadioButtonGroup>
+        {/if}
 
         <CesiumBackgroundControls />
 

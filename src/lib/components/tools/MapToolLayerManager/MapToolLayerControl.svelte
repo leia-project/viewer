@@ -172,9 +172,6 @@
             {/each}
         {/if}
         {#if layer.config.descriptionSupported}
-            <div class="label-01 description-header">
-                {$_("tools.layerLibrary.description")}
-            </div>
             {#if descriptionValid && layer.config.description}
                 <p
                     class="description label-01"
@@ -297,10 +294,6 @@
     .description-toggle:focus-visible {
         outline: 2px solid var(--cds-focus);
         outline-offset: 2px;
-    }
-
-    .description-header {
-        margin-bottom: 5px;
     }
 
     .legend {
