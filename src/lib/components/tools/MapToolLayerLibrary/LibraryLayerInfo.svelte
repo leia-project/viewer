@@ -158,7 +158,7 @@
     </div>
     <div class="divider" />
 
-    <div class="content">
+    <div class="content" class:content--raw={contentIndex === 1}>
         {#if contentIndex === 0}
             {#if imageUrl}
                 <div>
@@ -317,6 +317,12 @@
         overflow-y: auto;
     }
 
+    .content--raw {
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
     .btn-float {
         position: absolute;
         bottom: 0;
@@ -353,30 +359,15 @@
 
     pre {
         white-space: pre;
-        overflow-x: auto;
+        overflow: auto;
         max-width: 100%;
         box-sizing: border-box;
         user-select: text;
         padding: 5px;
         margin: 5px;
         margin-bottom: 3.5rem;
-        scrollbar-width: auto;
-        scrollbar-color: var(--cds-text-secondary) transparent;
-    }
-
-    pre::-webkit-scrollbar {
-        height: 12px;
-    }
-
-    pre::-webkit-scrollbar-thumb {
-        border: 2px solid rgba(0, 0, 0, 0);
-        background-clip: padding-box;
-        border-radius: 7px;
-        background-color: var(--cds-text-secondary);
-    }
-
-    pre::-webkit-scrollbar-thumb:hover {
-        background-color: var(--cds-text-primary);
+        flex: 1 1 auto;
+        min-height: 0;
     }
 
     json {

@@ -261,7 +261,6 @@
         flex-grow: 1;
         overflow-y: auto;
         overflow-x: hidden;
-        scrollbar-gutter: stable;
     }
 
     .overflow-gradient {

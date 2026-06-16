@@ -404,6 +404,7 @@
         height: 100%;
         overflow-y: auto;
         overflow-x: hidden;
+        padding-right: var(--cds-spacing-03);
         margin-bottom: var(--cds-spacing-05);
     }
 

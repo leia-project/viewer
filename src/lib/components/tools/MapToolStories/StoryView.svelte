@@ -48,8 +48,11 @@
 	let width: number;
 	let height: number;
 	let navHeight: number;
+	let viewportHeight: number = 0;
 	let container: HTMLElement;
 	let content: HTMLElement;
+	let scrollContainer: HTMLElement;
+	let resizeObserver: ResizeObserver | undefined;
 	let lastInputType: string;
 
 	let storyLayers = new Array<Layer>();
@@ -142,7 +145,11 @@
 		let toolContainer = getToolContainer();
 		height = toolContainer.clientHeight;
 
-		container = getToolContentContainer();
+		const contentContainer = getToolContentContainer();
+		viewportHeight = contentContainer.clientHeight;
+		resizeObserver = new ResizeObserver(() => { viewportHeight = contentContainer.clientHeight; });
+		resizeObserver.observe(contentContainer);
+		container = scrollContainer;
 		container.addEventListener("scroll", onScroll);
 		container.addEventListener("wheel", onWheel);
 		startAutocheckBackground = map.autoCheckBackground;
@@ -167,6 +174,7 @@
 		if (story.force2DMode) map.options.disableModeSwitcher.set(false);
 
 		map.autoCheckBackground = startAutocheckBackground;
+		resizeObserver?.disconnect();
 		container.removeEventListener("scroll", onScroll);
 		container.removeEventListener("wheel", onWheel);
 		resetToStart();
@@ -305,8 +313,7 @@
 			container.scrollTo({
 				top:
 					stepElement.getBoundingClientRect().top -
-					content.getBoundingClientRect().top -
-					navHeight
+					content.getBoundingClientRect().top
 			});
 		}
 	}
@@ -418,7 +425,7 @@
 
 	function checkStep() {
 		const steps = content.getElementsByClassName("step");
-		const intersectLine = navHeight + 200; //TODO: make this dynamic
+		const intersectLine = container.getBoundingClientRect().top + 200;
 
 		for (let i = 0; i < steps.length; i++) {
 			const rect = steps[i].getBoundingClientRect();
@@ -546,10 +553,9 @@ async function downloadPDF() {
 
 </script>
 
-<div class="story" bind:clientWidth={width}>
+<div class="story" bind:clientWidth={width} style={viewportHeight ? `height:${viewportHeight}px` : undefined}>
 	<div
 		class="nav"
-		style="width:{width}px"
 		bind:clientHeight={navHeight}
 		on:scroll={(e) => {
 			e.preventDefault();
@@ -632,8 +638,8 @@ async function downloadPDF() {
 		</div>
 	</div>
 
+	<div class="scroll" bind:this={scrollContainer}>
 	<div class="content" bind:this={content}>
-		<div style="height:{navHeight}px" />
 		{#each flattenedSteps as { step, chapter }, index}
 			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
 				<div class="step-heading heading-01">
@@ -743,6 +749,7 @@ async function downloadPDF() {
 		{/each}
 		<!-- <div style="height:{height}px" /> -->
 	</div>
+	</div>
 </div>
 
 <style>
@@ -751,11 +758,22 @@ async function downloadPDF() {
 		max-height: 100%;
 		width: inherit;
 		position: relative;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		margin-bottom: calc(-1 * var(--cds-spacing-07));
+	}
+
+	.scroll {
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow-y: auto;
+		overflow-x: hidden;
 		scroll-behavior: smooth;
 	}
 
 	.nav {
-		position: fixed;
+		position: relative;
 		display: flex;
 		justify-content: center;
 		flex-direction: column;
@@ -765,7 +783,7 @@ async function downloadPDF() {
 		border-top: 1px solid var(--cds-ui-03);
 		border-bottom: 1px solid var(--cds-ui-03);
 		padding: var(--cds-spacing-05);
-		margin-top: -1px;
+		flex: 0 0 auto;
 	}
 
 	.nav .close {
