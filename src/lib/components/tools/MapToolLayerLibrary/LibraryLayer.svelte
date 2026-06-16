@@ -9,6 +9,15 @@
 	$: addToManager = config.added;
     $: selectedLayerConfig = library.selectedLayerConfig;
 
+	function toggleLayer(checked: boolean): void {
+		if (checked) {
+			config.defaultOn = true;
+			config.add();
+		} else {
+			config.remove();
+		}
+	}
+
 	function selectLayerConfig(): void {
 		selectedLayerConfig.set(config);
 	}
@@ -17,7 +26,7 @@
 
 <div class="layer" class:layer--selected={$selectedLayerConfig === config}>
 	<div class="layer-cb">
-		<Checkbox hideLabel bind:checked={$addToManager} />
+		<Checkbox hideLabel checked={$addToManager} on:check={(e) => toggleLayer(e.detail)} />
 	</div>
 
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
