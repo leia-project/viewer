@@ -106,7 +106,7 @@ export class CkanConnector implements LibraryConnector {
             if (result.success) {
                 return this.ckanPackagesToLayerConfigs(result);
             } else {
-                console.log("CKAN Connector: Get packages request unsuccessful");
+                console.error("CKAN Connector: Get packages request unsuccessful");
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 return this.getLayerConfigs(name, type); // Re-try after 2 seconds
             }
@@ -143,7 +143,7 @@ export class CkanConnector implements LibraryConnector {
 
         if (this.debug) {
             for (let i = 0; i < groups.length; i++) {
-                console.log(this.debugGroups(groups[i]));
+                console.warn(this.debugGroups(groups[i]));
             }
         }
 
@@ -226,7 +226,7 @@ export class CkanConnector implements LibraryConnector {
                 try {
                     settings = JSON.parse(resource.settings);   
                 }
-                catch(Error){}
+                catch(error){}
             }
 
             if(resource.cameraPosition) {

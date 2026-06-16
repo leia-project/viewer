@@ -162,7 +162,6 @@ VectorImageryProvider.prototype.getTileCredits = function (x: number, y: number,
 };
 
 VectorImageryProvider.prototype.requestImage = async function (x: number, y: number, level: number, request: unknown) {
-	//console.log(request);
 	let vectorTile: any;
 
 	const getImage = (x: number, y: number, level: number) => {

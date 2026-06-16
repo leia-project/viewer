@@ -61,7 +61,6 @@ export class LayerManagerGroup {
     
         // layer already added to group
         if(filtered && filtered.length > 0) {
-            // console.info("layer already added to group");
             return;
         }
 

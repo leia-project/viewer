@@ -70,7 +70,7 @@
                 }
             } 
         } catch(e) {
-            console.log(e);
+            console.error(e);
             localStorage.removeItem(localStorageLocation);  // Reset if error occurs
         }
     }

@@ -63,7 +63,7 @@ function onFileDropped(e: DragEvent, map: Map): void {
 		try {
 			parseDroppedGeoJSON(file, map);
 		} catch (e) {
-			console.log(e);
+			console.error(e);
 		}
 	}
 	else if (fileName.endsWith(".glb")) {
