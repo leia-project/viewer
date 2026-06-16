@@ -567,7 +567,7 @@
         <InlineNotification
             lowContrast
             timeout={5000}
-            title="Error"
+            title={$_("general.notifications.error")}
             subtitle={errorMessage}
             on:close={() => { errorMessage = ""; }}
         />

@@ -17,7 +17,9 @@
             "show": "Montrer",
             "hide": "Cacher",
             "reset": "Réinitialiser"
-        }
+        },
+        "logoAlt": "Logo",
+        "visitGithub": "Visiter GitHub"
     },
     "tools": {
         "menu": {
@@ -159,7 +161,16 @@
             "styling": "Style",
             "viewRecordOn": "Voir l'enregistrement sur",
             "dataportal": "Portail de données",
-            "toolGroupTooltip": "Géré par l'outil {tool}"
+            "toolGroupTooltip": "Géré par l'outil {tool}",
+            "resetFilter": "Réinitialiser le filtre",
+            "url": "URL",
+            "featureName": "Nom de l'objet",
+            "contentType": "Type de contenu",
+            "layers": "Couches",
+            "arcgisLayersPlaceholder": "Liste de couches de carte ArcGIS séparées par des virgules",
+            "modelUrl": "URL du modèle",
+            "timeKey": "Clé de temps",
+            "orientationKey": "Clé d'orientation"
         },
         "layerManager": {
             "label": "Gestionnaire de Calques",
@@ -182,7 +193,12 @@
             "dataportal": "Portail de données",
             "toolGroupTooltip": "Géré par l'outil {tool}",
             "showMore": "Afficher plus",
-            "showLess": "Afficher moins"
+            "showLess": "Afficher moins",
+            "wmsStyling": "Options de style WMS",
+            "zoomToLayer": "Zoomer sur la couche",
+            "delete": "Supprimer",
+            "colorRandomizer": "Couleur aléatoire",
+            "allOther": "Tous les autres"
         },
         "layerTools": {
             "theme": {
@@ -219,7 +235,10 @@
             "label": "Informations sur les Objets",
             "noData": "Pas de données, appuyez sur un objet pour plus d'informations",
             "attribute": "Attribut",
-            "value": "Valeur"
+            "value": "Valeur",
+            "link": "Lien",
+            "open": "Ouvrir",
+            "noPdfViewer": "Aucune visionneuse PDF en ligne installée"
         },
         "measure": {
             "label": "Mesurer",
@@ -234,7 +253,9 @@
             "delete": "Supprimer",
             "cameraPosition": "Position de la caméra",
             "totalLength": "Longueur totale",
-            "points": "Points"
+            "points": "Points",
+            "titlePlaceholder": "Saisir un titre",
+            "removePoint": "Supprimer le point"
         },
         "cesium": {
             "label": "Paramètres de la Carte",

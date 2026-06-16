@@ -204,7 +204,7 @@
         {/if}
         {#if layer.config.type === "wms" && layer.config.settings?.tools?.styleSwitcher?.enabled == true}        
             <Dropdown
-                titleText="WMS Styling options"
+                titleText={$_("tools.layerManager.wmsStyling")}
                 size="sm"
                 selectedId={layer.config.settings?.styles || items[0]?.id} 
                 items={items}
@@ -222,7 +222,7 @@
                 {$_("tools.layerManager.legend")}
             </div>
             {#if imageValid && legendUrl !== ""}
-                <img class="legend" src={legendUrl} alt="legend" on:error={()=>{imageValid = false}} />
+                <img class="legend" src={legendUrl} alt={$_("tools.layerManager.legend")} on:error={()=>{imageValid = false}} />
             {:else if !imageValid || legendUrl==""}
                 <ErrorMessage message={$_("tools.layerManager.legendNotFoundText")} />
             {/if}
@@ -232,7 +232,7 @@
                 <Button
                     kind="primary"
                     size="small"
-                    iconDescription="Zoom to layer"
+                    iconDescription={$_("tools.layerManager.zoomToLayer")}
                     icon={Search}
                     on:click={() => {
                         zoomToLayer();
@@ -242,7 +242,7 @@
             <Button
                 kind="danger-tertiary"
                 size="small"
-                iconDescription="Delete"
+                iconDescription={$_("tools.layerManager.delete")}
                 icon={TrashCan}
                 on:click={() => {
                     removeLayer();

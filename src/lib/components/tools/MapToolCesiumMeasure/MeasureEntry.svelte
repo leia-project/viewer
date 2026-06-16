@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getContext, createEventDispatcher } from "svelte";
 	import { get } from "svelte/store";
+	import { _ } from "svelte-i18n";
 	import { TextInput, Button, DataTable } from "carbon-components-svelte";
 	import { Edit, Save, TrashCan, View, ViewOff, Camera } from "carbon-icons-svelte";
 
@@ -148,7 +149,7 @@
 				size="sm"
 				labelText={textTitle}
 				bind:value={measurement.title}
-				placeholder="Enter title"
+				placeholder={$_("tools.measure.titlePlaceholder")}
 			/>
 			<div class="heading label-01">{textTotalLength}</div>
 
@@ -162,7 +163,7 @@
 				<DataTable size="compact" headers={dtHeadersPoints} rows={dtRowsPoints} on:click:row={(evt) => lookAt(evt.detail.row.id)}>
 					<svelte:fragment slot="cell" let:row let:cell>
 						{#if cell.key === "remove"}
-							<Button size="small" kind="ghost" iconDescription="Remove" icon={TrashCan} on:click={()=> {measurement.removePoint(cell.value)}} />
+							<Button size="small" kind="ghost" iconDescription={$_("tools.measure.removePoint")} icon={TrashCan} on:click={()=> {measurement.removePoint(cell.value)}} />
 						{:else}
 							{cell.value}
 						{/if}
@@ -210,7 +211,7 @@
 			<div class="visibility">
 				<Button
 					kind="ghost"
-					iconDescription="Show"
+					iconDescription={$_("general.buttons.show")}
 					icon={$visible ? View : ViewOff}
 					on:click={(e) => {
 						e.preventDefault();
@@ -239,7 +240,7 @@
 				</div>
 			</div>
 			<Button
-				iconDescription="Edit"
+				iconDescription={$_("tools.measure.edit")}
 				icon={Edit}
 				on:click={() => {
 					editDispatch("requestEdit", measurement.id);

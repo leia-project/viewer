@@ -69,7 +69,7 @@
             </div>
             {#if $type}
                 <div class="input-field">
-                    <div class="input-field-label">URL</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.url")}</div>
                     <TextInput
                         placeholder={$_("https://")}
                         bind:value={$settings.url}
@@ -82,14 +82,14 @@
 
             {#if $type === "wms" || $type === "wmts"}
                 <div class="input-field">
-                    <div class="input-field-label">Feature name</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.featureName")}</div>
                     <TextInput
                         bind:value={$settings.featureName}
                         invalid={!$settings.featureName}
                     />
                 </div>
                 <div class="input-field">
-                    <div class="input-field-label">Content type</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.contentType")}</div>
                     <TextInput
                         placeholder={$_("tools.layerLibrary.contentTypePlaceholder")}
                         bind:value={$settings.contenttype}
@@ -116,9 +116,9 @@
 
             {#if $type === "arcgis"}
                 <div class="input-field">
-                    <div class="input-field-label">Layers</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.layers")}</div>
                     <TextInput
-                        placeholder="Comma-separated list of ArcGIS map layers"
+                        placeholder={$_("tools.layerLibrary.arcgisLayersPlaceholder")}
                         bind:value={$settings.layers}
                     />
                 </div>
@@ -126,21 +126,21 @@
 
             {#if $type === "modelanimation"}
                 <div class="input-field">
-                    <div class="input-field-label">Model URL</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.modelUrl")}</div>
                     <TextInput
                         placeholder={$_("https://")}
                         bind:value={$settings.modelUrl}
                     />
                 </div>
                 <div class="input-field">
-                    <div class="input-field-label">Time key</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.timeKey")}</div>
                     <TextInput
                         placeholder={$_("tools.layerLibrary.timeKeyPlaceholder")}
                         bind:value={$settings.timeKey}
                     />
                 </div>
                 <div class="input-field">
-                    <div class="input-field-label">Orientation key</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.orientationKey")}</div>
                     <TextInput
                         placeholder={$_("tools.layerLibrary.orientationKeyPlaceholder")}
                         bind:value={$settings.orientationKey}

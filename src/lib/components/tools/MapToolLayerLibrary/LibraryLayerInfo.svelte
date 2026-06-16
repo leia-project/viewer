@@ -27,7 +27,7 @@
     $: type = config.type;
     $: dateCreatedFormatted = formatDate(config.dateCreated, $locale);
     $: dateRevisionFormatted = formatDate(config.dateRevision, $locale);
-    $: settings = syntaxHighlight("\n" + getJsonLayerConfig(config));
+    $: settings = syntaxHighlight(getJsonLayerConfig(config));
 
     layerConfig.subscribe(() => {
         contentIndex = 0;
@@ -267,13 +267,7 @@
                         : $_("tools.layerLibrary.btnCopyToClipboard")}
                 </Button>
             </div>
-            <pre>
-			<code>
-				<json>				
-					{@html settings}
-				</json>
-			</code>
-		</pre>
+            <pre><code><json>{@html settings}</json></code></pre>
         {/if}
     </div>
 </div>

@@ -17,7 +17,9 @@
             "show": "Show",
             "hide": "Hide",
             "reset": "Reset"
-        }
+        },
+        "logoAlt": "Logo",
+        "visitGithub": "Visit GitHub"
     },
     "tools": {
         "menu": {
@@ -161,7 +163,16 @@
             "styling": "Styling",
             "viewRecordOn": "View record on",
             "dataportal": "Dataportal",
-            "toolGroupTooltip": "Managed by the {tool} tool"
+            "toolGroupTooltip": "Managed by the {tool} tool",
+            "resetFilter": "Reset filter",
+            "url": "URL",
+            "featureName": "Feature name",
+            "contentType": "Content type",
+            "layers": "Layers",
+            "arcgisLayersPlaceholder": "Comma-separated list of ArcGIS map layers",
+            "modelUrl": "Model URL",
+            "timeKey": "Time key",
+            "orientationKey": "Orientation key"
         },
         "layerManager": {
             "label": "Layer Manager",
@@ -184,7 +195,12 @@
             "dataportal": "Dataportal",
             "toolGroupTooltip": "Managed by the {tool} tool",
             "showMore": "Show more",
-            "showLess": "Show less"
+            "showLess": "Show less",
+            "wmsStyling": "WMS Styling options",
+            "zoomToLayer": "Zoom to layer",
+            "delete": "Delete",
+            "colorRandomizer": "Color randomizer",
+            "allOther": "All other"
         },
         "layerTools": {
             "theme": {
@@ -227,7 +243,10 @@
             "label": "Object Information",
             "noData": "No data, press an object for more information",
             "attribute": "Attribute",
-            "value": "Value"
+            "value": "Value",
+            "link": "Link",
+            "open": "Open",
+            "noPdfViewer": "No online PDF viewer installed"
         },
         "measure": {
             "label": "Measure",
@@ -242,7 +261,9 @@
             "delete": "Delete",
             "cameraPosition": "Camera position",
             "totalLength": "Total length",
-            "points": "Points"
+            "points": "Points",
+            "titlePlaceholder": "Enter title",
+            "removePoint": "Remove point"
         },
         "cesium": {
             "label": "Map Settings",

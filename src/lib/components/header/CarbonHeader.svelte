@@ -68,6 +68,7 @@
   import Close from "carbon-components-svelte/src/icons/Close.svelte";
   import HamburgerMenu from "carbon-components-svelte/src/UIShell/HamburgerMenu.svelte";
   import { shouldRenderHamburgerMenu } from "carbon-components-svelte/src/UIShell/navStore.js";
+  import { _ } from "svelte-i18n";
 
   
   //import Close from "../icons/Close.svelte";
@@ -91,7 +92,7 @@
 <header aria-label="{ariaLabel}" class:bx--header="{true}">
   <slot name="skip-to-content" />
   {#if logo !== undefined}
-    <img class="logo" src={logo} alt="logo" style="margin-left:{logoMarginLeft};margin-right:{logoMarginRight}" />
+    <img class="logo" src={logo} alt={$_("general.logoAlt")} style="margin-left:{logoMarginLeft};margin-right:{logoMarginRight}" />
   {/if}
   {#if ($shouldRenderHamburgerMenu && winWidth < expansionBreakpoint) || persistentHamburgerMenu}
     <HamburgerMenu

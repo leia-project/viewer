@@ -264,7 +264,7 @@
                                     icon={TrashCan} 
                                     size="small"
                                     on:click={resetFilter}
-                                >Reset filter</Button>
+                                >{$_("tools.layerLibrary.resetFilter")}</Button>
                             </div>
                         {/if}
                         {#if $searchString }
@@ -294,7 +294,7 @@
                             direction="top"
                             spellcheck="false"
                             filterable
-                            titleText=""
+                            titleText={$_("tools.layerLibrary.filterByTheme")}
                             placeholder={`${$_("tools.layerLibrary.filterByTheme")}...`}
                             items={libTags}
                             bind:selectedIds={$selectedTagIDs}

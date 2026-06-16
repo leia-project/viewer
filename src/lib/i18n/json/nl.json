@@ -17,7 +17,9 @@
             "show": "Tonen",
             "hide": "Verbergen",
             "reset": "Resetten"
-        }
+        },
+        "logoAlt": "Logo",
+        "visitGithub": "Bezoek GitHub"
     },
     "tools": {
         "menu": {
@@ -168,7 +170,16 @@
             "styling": "Stijl",
             "viewRecordOn": "Bekijk record op",
             "dataportal": "Dataportaal",
-            "toolGroupTooltip": "Beheerd door de tool {tool}"
+            "toolGroupTooltip": "Beheerd door de tool {tool}",
+            "resetFilter": "Filter wissen",
+            "url": "URL",
+            "featureName": "Feature-naam",
+            "contentType": "Content-type",
+            "layers": "Lagen",
+            "arcgisLayersPlaceholder": "Komma-gescheiden lijst van ArcGIS-kaartlagen",
+            "modelUrl": "Model-URL",
+            "timeKey": "Tijdsleutel",
+            "orientationKey": "Oriëntatiesleutel"
         },
         "layerManager": {
             "label": "Lagenbeheer",
@@ -191,7 +202,12 @@
             "dataportal": "Dataportaal",
             "toolGroupTooltip": "Beheerd door de tool {tool}",
             "showMore": "Toon meer",
-            "showLess": "Toon minder"
+            "showLess": "Toon minder",
+            "wmsStyling": "WMS-stijlopties",
+            "zoomToLayer": "Zoom naar laag",
+            "delete": "Verwijderen",
+            "colorRandomizer": "Kleur randomiseren",
+            "allOther": "Alle overige"
         },
         "layerTools": {
             "theme": {
@@ -234,7 +250,10 @@
             "label": "Object Informatie",
             "noData": "Geen data, Klik op een object voor meer informatie",
             "attribute": "Attribuut",
-            "value": "Waarde"
+            "value": "Waarde",
+            "link": "Link",
+            "open": "Openen",
+            "noPdfViewer": "Geen online PDF-viewer geïnstalleerd"
         },
         "measure": {
             "label": "Meten",
@@ -249,7 +268,9 @@
             "delete": "Verwijderen",
             "cameraPosition": "Camera positie",
             "totalLength": "Totale lengte",
-            "points": "Punten"
+            "points": "Punten",
+            "titlePlaceholder": "Voer titel in",
+            "removePoint": "Punt verwijderen"
         },
         "cesium": {
             "label": "Kaart Instellingen",

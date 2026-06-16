@@ -209,7 +209,7 @@
 					<Language />
 				{/if}
 				{#if $enabledTools.includes("github")}
-					<HeaderActionLink title="Visit GitHub" icon={LogoGithub} href="https://github.com/leia-project" target="_blank"/>
+					<HeaderActionLink title={$_("general.visitGithub")} icon={LogoGithub} href="https://github.com/leia-project" target="_blank"/>
 				{/if}
 			</div>
 		</div>
