@@ -166,7 +166,7 @@
         if (groupId) {
             const g = library.findGroup(groupId);
             if (g) {
-                path = `${g.title}/${path}`;
+                path = `${getGroupTitle(g)}/${path}`;
                 if (g.parentId) {
                     path = findPath(g.parentId, path);
                 }
@@ -174,6 +174,19 @@
         }
 
         return path;
+    }
+
+    function getGroupTitle(g: LayerConfigGroup): string {
+        switch (g.id) {
+            case "group_background":
+                return $_("tools.layerLibrary.baseLayers");
+            case "group_uncategorised":
+                return $_("tools.layerLibrary.noCategory");
+            case "dataportal":
+                return $_("tools.layerLibrary.dataportal");
+            default:
+                return g.title;
+        }
     }
 
     document.addEventListener("focus", (e) => {

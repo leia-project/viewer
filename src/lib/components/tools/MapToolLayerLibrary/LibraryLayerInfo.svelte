@@ -162,8 +162,9 @@
     </div>
     <div class="divider" />
 
-    <div class="content" class:content--raw={contentIndex === 1}>
+    <div class="content" class:content--raw={contentIndex === 1} class:content--info={contentIndex === 0}>
         {#if contentIndex === 0}
+            <div class="info-scroll">
             {#if imageUrl}
                 <div class="layer-image-container">
                     {#if imageLoading}
@@ -254,8 +255,9 @@
                     </div>
                 {/each}
             {/if}
+            </div>
 
-            <div class="btn-float">
+            <div class="info-footer">
                 {#if !$addedToLayerManager}
                     <Button
                         on:click={() => {
@@ -334,6 +336,26 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
+    }
+
+    .content--info {
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-scroll {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .info-footer {
+        flex-shrink: 0;
+        display: flex;
+        justify-content: flex-end;
+        padding-top: var(--cds-spacing-05);
     }
 
     .btn-float {
