@@ -553,7 +553,7 @@ async function downloadPDF() {
 
 </script>
 
-<div class="story" bind:clientWidth={width} style={viewportHeight ? `height:${viewportHeight}px` : undefined}>
+<div class="story story-viewer" bind:clientWidth={width} style={viewportHeight ? `height:${viewportHeight}px` : undefined}>
 	<div
 		class="nav"
 		bind:clientHeight={navHeight}
@@ -753,6 +753,10 @@ async function downloadPDF() {
 </div>
 
 <style>
+	:global(.content-wrapper:has(.story-viewer)) {
+		scrollbar-gutter: auto;
+	}
+
 	.story {
 		height: 100%;
 		max-height: 100%;

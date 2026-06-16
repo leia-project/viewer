@@ -263,6 +263,12 @@
         overflow-x: hidden;
     }
 
+    @supports selector(::-webkit-scrollbar) {
+        .content-wrapper {
+            scrollbar-gutter: stable;
+        }
+    }
+
     .overflow-gradient {
         position: absolute;
         bottom: 0;
