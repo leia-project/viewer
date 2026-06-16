@@ -128,6 +128,7 @@
                     {/if}
                 {/each}
             </RadioButtonGroup>
+            <div class="spacer" />
         {/if}
 
         <CesiumBackgroundControls />
@@ -178,8 +179,11 @@
 <style>
     .wrapper {
         margin: var(--cds-spacing-05);
-        margin-bottom: 0;
 		box-sizing: border-box;
+    }
+
+    .spacer {
+        padding-top: var(--cds-spacing-05);
     }
 
 	.thematic-label {
