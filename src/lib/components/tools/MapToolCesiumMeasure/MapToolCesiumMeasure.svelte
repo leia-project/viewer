@@ -248,7 +248,7 @@
 							on:requestDelete={(e) => {
 								deleteMeasurement(e.detail);
 							}}
-							editting={$edittingId === measurement.id ? true : false}
+							editing={$edittingId === measurement.id ? true : false}
 							{textEditMeasurement}
 							{textTitle}
 							{textDefaultTitle}
