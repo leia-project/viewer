@@ -12,7 +12,7 @@
 	const sliderXY = clipSlider.angleXY;
 	const sliderZ = clipSlider.angleZ;
 
-	const sliceMode = clipSlider.sliceMode;
+	// const sliceMode = clipSlider.sliceMode;
 
 </script>
 
@@ -75,8 +75,6 @@
 					step={1}
 					hideTextInput={true}
 				/>
-				<!-- TODO: Implement sliceMode functionality -->
-
 				<!-- <div class="slice-mode-label">{$_("tools.layerTools.clipper.sliceModeLabel")}</div>
 				<Toggle
 				toggled={$sliceMode}
@@ -132,13 +130,4 @@
 		min-width: 100px !important;
 	}
 
-	.slice-mode-label {
-		width: 100%;
-		text-align: left;
-		display: block;
-		color: #565656;
-		font-size: 14px;
-		margin-top: 10px;
-		margin-bottom: 10px;
-	}
 </style>
