@@ -157,8 +157,8 @@ export class GeoNetworkConnector implements LibraryConnector {
                 metadata: undefined,
                 metadataUrl: '',
                 metadataLink: this.settings.url + this.linkFormat.replace('{uuid}', l['geonet:info'].uuid),
-                dateCreated: l['geonet:info']?.createDate,
-                dateRevision: l['geonet:info']?.changeDate,
+                dateCreated: l.publicationDate ?? l.creationDate ?? "",
+                dateRevision: l.revisionDate ?? "",
                 settings: layerSettings,
                 cameraPosition: undefined,
                 tags: undefined

@@ -212,17 +212,25 @@
                 </div>
             </div>
 
-            {#if dateCreatedFormatted}
+            {#if config.dateCreated !== undefined}
                 <div class="block">
                     <div class="label">{$_("tools.layerLibrary.dateCreated")}</div>
-                    <p class="body-01">{dateCreatedFormatted}</p>
+                    {#if dateCreatedFormatted}
+                        <p class="body-01">{dateCreatedFormatted}</p>
+                    {:else}
+                        <p class="body-01">{$_("tools.layerLibrary.noDate")}</p>
+                    {/if}
                 </div>
             {/if}
 
-            {#if dateRevisionFormatted}
+            {#if config.dateRevision !== undefined}
                 <div class="block">
                     <div class="label">{$_("tools.layerLibrary.dateRevision")}</div>
-                    <p class="body-01">{dateRevisionFormatted}</p>
+                    {#if dateRevisionFormatted}
+                        <p class="body-01">{dateRevisionFormatted}</p>
+                    {:else}
+                        <p class="body-01">{$_("tools.layerLibrary.noDate")}</p>
+                    {/if}
                 </div>
             {/if}
 

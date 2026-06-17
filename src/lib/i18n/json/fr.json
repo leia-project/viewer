@@ -137,6 +137,7 @@
             "layerType": "Type de calque",
             "dateCreated": "Date de création",
             "dateRevision": "Dernière révision",
+            "noDate": "Aucune date disponible",
             "metadata": "Métadonnées",
             "noMetadata": "Aucune métadonnée trouvée",
             "info": "Informations",

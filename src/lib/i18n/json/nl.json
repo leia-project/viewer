@@ -146,6 +146,7 @@
             "layerName": "Naam",
             "dateCreated": "Aanmaakdatum",
             "dateRevision": "Laatst gewijzigd",
+            "noDate": "Geen datum beschikbaar",
             "metadata": "Metadata",
             "noMetadata": "Geen metadata gevonden",
             "info": "Informatie",

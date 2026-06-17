@@ -139,6 +139,7 @@
             "layerType": "Layer type",
             "dateCreated": "Date created",
             "dateRevision": "Last revised",
+            "noDate": "No date available",
             "metadata": "Metadata",
             "noMetadata": "No metadata found",
             "info": "Info",
