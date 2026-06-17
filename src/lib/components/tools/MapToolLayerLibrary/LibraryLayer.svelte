@@ -70,6 +70,7 @@
 	.layer-title {
 		margin-left: var(--cds-spacing-03);
 		flex-grow: 1;
+		min-width: 0;
 		cursor: pointer;
 		white-space: nowrap;
 		overflow: hidden;

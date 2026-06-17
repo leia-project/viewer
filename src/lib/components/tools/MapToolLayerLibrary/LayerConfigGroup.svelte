@@ -58,8 +58,10 @@
                 </span>
             {/if}
             {#if group.connector.type && group.connector.url}
-                <a href="{group.connector.url}" title="{$_('general.goTo') + ' ' + group.connector.type}" target="_blank" style="cursor: pointer">
-                    <Tag type="green" size="sm" interactive="{true}">{group.connector.type}</Tag>
+                <a class="connector-tag" href="{group.connector.url}" title="{$_('general.goTo') + ' ' + group.connector.type}" target="_blank">
+                    <Tag type="green" size="sm" interactive="{true}">
+                        {group.connector.type}
+                    </Tag>
                 </a>
             {/if}
             <div class="group-menu">
@@ -194,5 +196,14 @@
         margin-right: var(--cds-spacing-02);
         color: var(--cds-icon-02, var(--cds-text-02));
         cursor: help;
+    }
+
+    .connector-tag {
+        flex-shrink: 0;
+    }
+
+    .connector-tag :global(.bx--tag__label) {
+        cursor: pointer;
+        word-break: normal;
     }
 </style>
