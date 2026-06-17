@@ -28,6 +28,7 @@
     const visible = layer.visible;
     const opacity = layer.opacity;
     const customControls = layer.customControls;
+    const cameraPosition = layer.config.cameraPositionStore;
     
     async function getWMSStyleNames(getCapabilitiesUrl: string, featureName: string) {
         try {
@@ -98,7 +99,7 @@
 
     function zoomToLayer() {
         const pos = layer.getLayerPosition();
-        map.flyTo(pos);
+        if (pos) map.flyTo(pos);
     }
 
     function checkDescriptionOverflow() {
@@ -225,7 +226,7 @@
             {/if}
         {/if}
         <div class="button-wrapper">
-            {#if layer.getLayerPosition()}
+            {#if $cameraPosition}
                 <Button
                     kind="primary"
                     size="small"

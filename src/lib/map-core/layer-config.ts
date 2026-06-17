@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 
 import type { Writable } from "svelte/store";
 import { CameraLocation } from "./camera-location";
@@ -26,7 +26,7 @@ export class LayerConfig {
     public disablePopup: boolean = false;
     public opacity!: number;
     public settings!: any;
-    public cameraPosition: CameraLocation;
+    public cameraPositionStore: Writable<CameraLocation | undefined> = writable<CameraLocation | undefined>(undefined);
     public tags: Array<string>
 
     public added: Writable<boolean>;
@@ -37,6 +37,14 @@ export class LayerConfig {
     constructor(init?: Partial<LayerConfig>) {
         Object.assign(this, init);
         this.added = writable<boolean>(false);
+    }
+
+    get cameraPosition(): CameraLocation | undefined {
+        return get(this.cameraPositionStore);
+    }
+
+    set cameraPosition(value: CameraLocation | undefined) {
+        this.cameraPositionStore.set(value);
     }
 
     get legendSupported(): boolean {
