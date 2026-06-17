@@ -188,7 +188,7 @@
             <div class="block">
                 <div class="label">{$_("tools.layerLibrary.description")}</div>
                 {#if config.description}
-                    <p class="body-01">{config.description}</p>
+                    <p class="body-01 description">{config.description}</p>
                 {:else}
                     <p class="body-01">{$_("tools.layerLibrary.noDescription")}</p>
                 {/if}
@@ -312,6 +312,10 @@
         user-select: text;
         max-width: 65rem;
         min-width: 0;
+    }
+
+    .description {
+        white-space: pre-line;
     }
 
     .header {
