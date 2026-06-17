@@ -103,6 +103,9 @@
 		justify-content: left;
 		align-items: center;
 		position: relative;
+		min-width: 0;
+		max-width: 100%;
+		overflow: hidden;
 	}
 
 	.layer:hover {
@@ -120,7 +123,9 @@
 
 	.layer-title {
 		margin-left: var(--cds-spacing-03);
-		flex-grow: 1;
+		flex: 1 1 0;
+		min-width: 0;
+		max-width: 100%;
 		cursor: pointer;
 		white-space: nowrap;
 		overflow: hidden;
@@ -129,10 +134,9 @@
 
 
     .layer-validator {
-        position: absolute;
-        top: 50%;
-        right: 15px;
-        transform: translateY(-50%);
+        flex-shrink: 0;
+        margin-left: var(--cds-spacing-03);
+        margin-right: 15px;
         border-radius: 10px;
         overflow: hidden;
         min-width: 30px;

@@ -52,6 +52,9 @@
 		display: flex;
 		justify-content: left;
 		align-items: center;
+		min-width: 0;
+		max-width: 100%;
+		overflow: hidden;
 	}
 
 	.layer:hover {
@@ -69,8 +72,9 @@
 
 	.layer-title {
 		margin-left: var(--cds-spacing-03);
-		flex-grow: 1;
+		flex: 1 1 0;
 		min-width: 0;
+		max-width: 100%;
 		cursor: pointer;
 		white-space: nowrap;
 		overflow: hidden;
