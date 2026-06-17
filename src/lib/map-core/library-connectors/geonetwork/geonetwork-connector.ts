@@ -149,7 +149,7 @@ export class GeoNetworkConnector implements LibraryConnector {
                 description: l.abstract,
                 groupId: groupId,
                 imageUrl: this.getImageUrl(l.image),
-                attribution: undefined,
+                attribution: l.lineage,
                 isBackground: false,
                 legendUrl: undefined,
                 defaultAddToManager: false,
