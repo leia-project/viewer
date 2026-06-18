@@ -237,13 +237,15 @@
             <div class="block ">
                 {#if metadata}
                     {#each metadata as entry}
-                        {#if entry.key.toLowerCase() === "herkomst" && isImage(entry.value)}
-                            <div class="label">{entry.key}</div>
-                            <img class="body-01 img-metadata" src={entry.value} alt={entry.key}/>
-                        {:else}
-                            <div class="label">{entry.key}</div>
-                            <p class="body-01">{@html urlify(entry.value)}</p>
-                        {/if}                    
+                        <div class="metadata-entry">
+                            {#if entry.key.toLowerCase() === "herkomst" && isImage(entry.value)}
+                                <div class="label">{entry.key}</div>
+                                <img class="body-01 img-metadata" src={entry.value} alt={entry.key}/>
+                            {:else}
+                                <div class="label">{entry.key}</div>
+                                <p class="body-01">{@html urlify(entry.value)}</p>
+                            {/if}
+                        </div>
                     {/each}
                 {:else if metadataLink}
                     <div class="label">{$_("tools.layerLibrary.metadata")}</div>
@@ -423,6 +425,14 @@
 
     .img-metadata {
         max-width: 100%;
+    }
+
+    .metadata-entry {
+        margin-bottom: var(--cds-spacing-05);
+    }
+
+    .metadata-entry:last-child {
+        margin-bottom: 0;
     }
 
     pre {

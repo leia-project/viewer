@@ -187,7 +187,7 @@ export class CkanConnector implements LibraryConnector {
 
             const groupID = pack.groups && pack.groups.length > 0 ? pack.groups[0].name : undefined;            
             const metadata = pack.extras;
-            const attribution = pack.license;
+            const attribution = this.resolveAttribution(pack);
             const description = pack.notes;
             const resources = pack.resources;
             const tags = pack.tags;
@@ -206,6 +206,29 @@ export class CkanConnector implements LibraryConnector {
         }
 
         return configs;
+    }
+
+    /**
+     * Resolve attribution using only organization-based fallbacks.
+     */
+    private resolveAttribution(pack: any): string {
+        const candidates = [
+            pack?.organization?.title,
+            pack?.organization?.name
+        ];
+
+        for (const value of candidates) {
+            const normalized = this.normalizeAttributionValue(value);
+            if (normalized) return normalized;
+        }
+
+        return "";
+    }
+
+    private normalizeAttributionValue(value: any): string | undefined {
+        if (typeof value !== "string") return undefined;
+        const normalized = value.trim();
+        return normalized.length > 0 ? normalized : undefined;
     }
 
     private ckanResourcesToLayerConfigs(resources: Array<CKANresource>, groupID: string, attribution: string, description: string, metadata: Array<{ key: string, value: any}>, tags: Array<{display_name: string, id: string, name: string, state: string, vocabulary_id: string}>, dateCreated?: string): Array<LayerConfig> {
