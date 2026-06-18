@@ -1,3 +1,4 @@
+<!-- Adapted from https://observablehq.com/@mootari/range-slider to svelte and to match Carbon's slider style -->
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
 
@@ -17,10 +18,12 @@
 	let startX = 0;
 	let startValue: [number, number] = value;
 
+	let trackRect: DOMRect;
+
 	$: [lo, hi] = value;
 	$: span = max - min || 1;
-	$: minPct = ((lo - min) / span) * 100;
-	$: maxPct = ((hi - min) / span) * 100;
+	$: minPercent = ((lo - min) / span) * 100;
+	$: maxPercent = ((hi - min) / span) * 100;
 
 	const clamp = (v: number, a: number, b: number) => Math.min(Math.max(v, a), b);
 
@@ -30,9 +33,10 @@
 
 	// Controlled component: never mutate `value`, just announce the next interval.
 	function commit(a: number, b: number): void {
-		const next: [number, number] = [Math.min(a, b), Math.max(a, b)];
-		if (next[0] !== lo || next[1] !== hi) {
-			dispatch("change", next);
+		const [nextLo, nextHi] = [Math.min(a, b), Math.max(a, b)] as const;
+
+		if (nextLo !== lo || nextHi !== hi) {
+			dispatch("change", [nextLo, nextHi]);
 		}
 	}
 
@@ -40,14 +44,14 @@
 		dragging = handle;
 		startX = event.clientX;
 		startValue = [lo, hi];
+		trackRect = track.getBoundingClientRect();
 		event.preventDefault();
 	}
 
 	function onPointerMove(event: PointerEvent): void {
 		if (!dragging) return;
 
-		const rect = track.getBoundingClientRect();
-		const delta = ((event.clientX - startX) / rect.width) * span;
+		const delta = ((event.clientX - startX) / trackRect.width) * span;
 		const [a, b] = startValue;
 
 		if (dragging === "min") {
@@ -67,10 +71,11 @@
 	}
 
 	function onKey(event: KeyboardEvent, handle: "min" | "max"): void {
+		const { key } = event;
 		const dir =
-			event.key === "ArrowRight" || event.key === "ArrowUp"
+			key === "ArrowRight" || key === "ArrowUp"
 				? 1
-				: event.key === "ArrowLeft" || event.key === "ArrowDown"
+				: key === "ArrowLeft" || key === "ArrowDown"
 					? -1
 					: 0;
 
@@ -114,34 +119,34 @@
 		<div class="track" bind:this={track} on:pointerdown={onTrackDown}>
 			<div class="rail" />
 
-		<div
-			class="thumb"
-			role="slider"
-			tabindex="0"
-			aria-label="{label} minimum"
-			aria-valuemin={min}
-			aria-valuemax={max}
-			aria-valuenow={lo}
-			style="left: {minPct}%;"
-			on:pointerdown|stopPropagation={(event) => startDrag(event, "min")}
-			on:keydown={(event) => onKey(event, "min")}
-		/>
+			<div
+				class="thumb"
+				role="slider"
+				tabindex="0"
+				aria-label="{label} minimum"
+				aria-valuemin={min}
+				aria-valuemax={max}
+				aria-valuenow={lo}
+				style="left: {minPercent}%;"
+				on:pointerdown|stopPropagation={(event) => startDrag(event, "min")}
+				on:keydown={(event) => onKey(event, "min")}
+			/>
 
-		<div
-			class="thumb"
-			role="slider"
-			tabindex="0"
-			aria-label="{label} maximum"
-			aria-valuemin={min}
-			aria-valuemax={max}
-			aria-valuenow={hi}
-			style="left: {maxPct}%;"
-			on:pointerdown|stopPropagation={(event) => startDrag(event, "max")}
-			on:keydown={(event) => onKey(event, "max")}
-		/>
+			<div
+				class="thumb"
+				role="slider"
+				tabindex="0"
+				aria-label="{label} maximum"
+				aria-valuemin={min}
+				aria-valuemax={max}
+				aria-valuenow={hi}
+				style="left: {maxPercent}%;"
+				on:pointerdown|stopPropagation={(event) => startDrag(event, "max")}
+				on:keydown={(event) => onKey(event, "max")}
+			/>
 
 			<!-- after the thumbs so `.thumb:focus ~ .band` can highlight it -->
-			<div class="band" style="left: {minPct}%; width: {maxPct - minPct}%;" />
+			<div class="band" style="left: {minPercent}%; width: {maxPercent - minPercent}%;" />
 		</div>
 
 		<span class="end-label">100</span>
@@ -151,6 +156,8 @@
 <style>
 	.range {
 		user-select: none;
+		--thumb-size: 14px;
+		--thumb-scale: calc(20 / 14);
 	}
 
 	.range-header {
@@ -161,16 +168,16 @@
 	}
 
 	.range-label {
-		font-size: var(--cds-label-01-font-size, 0.75rem);
-		letter-spacing: var(--cds-label-01-letter-spacing, 0.32px);
-		color: var(--cds-text-02, #525252);
+		font-size: var(--cds-label-01-font-size);
+		letter-spacing: var(--cds-label-01-letter-spacing);
+		color: var(--cds-text-02);
 	}
 
 	.range-value {
-		font-family: var(--cds-code-02-font-family, "IBM Plex Mono", monospace);
-		font-size: var(--cds-code-02-font-size, 0.875rem);
-		letter-spacing: var(--cds-code-02-letter-spacing, 0.32px);
-		color: var(--cds-text-01, #161616);
+		font-family: var(--cds-code-02-font-family);
+		font-size: var(--cds-code-02-font-size);
+		letter-spacing: var(--cds-code-02-letter-spacing);
+		color: var(--cds-text-01);
 		white-space: nowrap;
 		font-variant-numeric: tabular-nums;
 	}
@@ -183,17 +190,17 @@
 
 	.end-label {
 		flex-shrink: 0;
-		font-family: var(--cds-code-02-font-family, "IBM Plex Mono", monospace);
-		font-size: var(--cds-code-02-font-size, 0.875rem);
-		letter-spacing: var(--cds-code-02-letter-spacing, 0.32px);
-		color: var(--cds-text-01, #161616);
+		font-family: var(--cds-code-02-font-family);
+		font-size: var(--cds-code-02-font-size);
+		letter-spacing: var(--cds-code-02-letter-spacing);
+		color: var(--cds-text-01);
 		white-space: nowrap;
 	}
 
 	.track {
 		position: relative;
 		flex: 1;
-		height: 1.5rem;
+		height: var(--cds-spacing-06);
 		cursor: pointer;
 		touch-action: none;
 	}
@@ -203,8 +210,8 @@
 		top: 50%;
 		left: 0;
 		width: 100%;
-		height: 0.125rem;
-		background: var(--cds-ui-03, #e0e0e0);
+		height: var(--cds-spacing-01);
+		background: var(--cds-ui-03);
 		transform: translate(0, -50%);
 	}
 
@@ -214,17 +221,17 @@
 		position: absolute;
 		top: -0.3125rem;
 		left: 50%;
-		width: 0.125rem;
-		height: 0.25rem;
-		background: var(--cds-ui-03, #e0e0e0);
+		width: var(--cds-spacing-01);
+		height: var(--cds-spacing-02);
+		background: var(--cds-ui-03);
 		transform: translate(-50%, 0);
 	}
 
 	.band {
 		position: absolute;
 		top: 50%;
-		height: 0.125rem;
-		background: var(--cds-ui-05, #161616);
+		height: var(--cds-spacing-01);
+		background: var(--cds-ui-05);
 		pointer-events: none;
 		transform: translate(0, -50%);
 		transition: background 110ms cubic-bezier(0.2, 0, 0.38, 0.9);
@@ -234,37 +241,36 @@
 		position: absolute;
 		top: 50%;
 		z-index: 3;
-		width: 0.875rem;
-		height: 0.875rem;
-		background: var(--cds-ui-05, #161616);
+		width: var(--thumb-size);
+		height: var(--thumb-size);
+		background: var(--cds-ui-05);
 		border-radius: 50%;
 		outline: none;
 		transform: translate(-50%, -50%);
-		transition:
-			transform 110ms cubic-bezier(0.2, 0, 0.38, 0.9),
-			background 110ms cubic-bezier(0.2, 0, 0.38, 0.9),
-			box-shadow 110ms cubic-bezier(0.2, 0, 0.38, 0.9);
+		transition-property: transform, background, box-shadow;
+		transition-duration: 110ms;
+		transition-timing-function: cubic-bezier(0.2, 0, 0.38, 0.9);
 	}
 
 	.thumb:hover {
-		transform: translate(-50%, -50%) scale(1.4286);
+		transform: translate(-50%, -50%) scale(var(--thumb-scale));
 	}
 
 	.thumb:focus {
-		background-color: var(--cds-interactive-04, #0f62fe);
+		background-color: var(--cds-interactive-04);
 		box-shadow:
-			inset 0 0 0 2px var(--cds-interactive-04, #0f62fe),
-			inset 0 0 0 3px var(--cds-ui-01, #f4f4f4);
-		transform: translate(-50%, -50%) scale(1.4286);
+			inset 0 0 0 2px var(--cds-interactive-04),
+			inset 0 0 0 3px var(--cds-ui-01);
+		transform: translate(-50%, -50%) scale(var(--thumb-scale));
 	}
 
 	.thumb:active {
-		box-shadow: inset 0 0 0 2px var(--cds-interactive-04, #0f62fe);
-		transform: translate(-50%, -50%) scale(1.4286);
+		box-shadow: inset 0 0 0 2px var(--cds-interactive-04);
+		transform: translate(-50%, -50%) scale(var(--thumb-scale));
 	}
 
 	/* focusing a thumb tints the selected band, like Carbon's filled track */
 	.thumb:focus ~ .band {
-		background-color: var(--cds-interactive-04, #0f62fe);
+		background-color: var(--cds-interactive-04);
 	}
 </style>
