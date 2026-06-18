@@ -209,7 +209,7 @@ export class CkanConnector implements LibraryConnector {
     }
 
     /**
-     * Resolve attribution using only organization-based fallbacks.
+     * Resolve attribution using fallbacks.
      */
     private resolveAttribution(pack: any): string {
         const candidates = [
