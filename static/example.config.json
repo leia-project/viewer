@@ -113,8 +113,8 @@
             "defaultAddToManager": true,
             "transparent": true,
             "settings": {
-                "url": "/geotop_zeeland_ellipsoid/tileset.json",
-                "legendDataUrl": "/geotop_zeeland_ellipsoid/legend.json",
+                "url": "https://virtueel.zeeland.nl/tiles_other/bro_geotop/geotop_zeeland_ellipsoid/tileset.json",
+                "legendDataUrl": "https://virtueel.zeeland.nl/tiles_other/bro_geotop/geotop_zeeland_ellipsoid/legend.json",
                 "defaultProperty": "lithology",
                 "properties": [
                     {
