@@ -221,14 +221,16 @@
                             </div>
 
                             <div class="bookmark-edit">
-                                <Button
-                                    iconDescription={$_('tools.bookmarks.edit')}
-                                    icon={Edit}
-                                    kind="ghost"
-                                    on:click={() => {
-                                        startEdit(i);
-                                    }}
-                                />
+                                {#if bookmark.editable !== false}
+                                    <Button
+                                        iconDescription={$_('tools.bookmarks.edit')}
+                                        icon={Edit}
+                                        kind="ghost"
+                                        on:click={() => {
+                                            startEdit(i);
+                                        }}
+                                    />
+                                {/if}
                             </div>
                         </div>
                     {/if}
