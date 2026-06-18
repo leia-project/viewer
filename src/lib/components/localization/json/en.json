@@ -190,6 +190,15 @@
             "terrain": "Terrain",
             "verticalExaggeration": "Vertical exaggeration"
         },
+        "voxel": {
+            "property": "Property",
+            "legend": "Legend",
+            "slicing": "Slicing",
+            "westEast": "West–East",
+            "southNorth": "South–North",
+            "vertical": "Vertical",
+            "resetSlicing": "Reset slicing"
+        },
         "bookmarks": {
             "label": "Bookmarks",
             "title": "Title",

@@ -197,6 +197,15 @@
             "terrain": "Terrein",
             "verticalExaggeration": "Verticale overdrijving"
         },
+        "voxel": {
+            "property": "Eigenschap",
+            "legend": "Legenda",
+            "slicing": "Doorsneden",
+            "westEast": "West–Oost",
+            "southNorth": "Zuid–Noord",
+            "vertical": "Verticaal",
+            "resetSlicing": "Doorsneden resetten"
+        },
         "bookmarks": {
             "label": "Bladwijzers",
             "title": "Titel",

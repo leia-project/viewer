@@ -180,6 +180,15 @@
             "opacity": "Opacité du Globe",
             "terrain": "Terrain"
         },
+        "voxel": {
+            "property": "Propriété",
+            "legend": "Légende",
+            "slicing": "Découpage",
+            "westEast": "Ouest–Est",
+            "southNorth": "Sud–Nord",
+            "vertical": "Vertical",
+            "resetSlicing": "Réinitialiser le découpage"
+        },
         "bookmarks": {
             "label": "Signets",
             "title": "Titre",

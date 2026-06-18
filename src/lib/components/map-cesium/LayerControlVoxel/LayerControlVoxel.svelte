@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { RadioButtonGroup, RadioButton, Button } from "carbon-components-svelte";
+	import { _ } from "svelte-i18n";
 	import RangeSlider from "$lib/components/ui/components/RangeSlider/RangeSlider.svelte";
 	import type { VoxelLayer } from "../module/layers/voxel-layer";
 
@@ -24,7 +25,7 @@
 
 {#if layer && $properties.length}
 	<div class="wrapper">
-		<div class="label-01 label">Property</div>
+		<div class="label-01 label">{$_("tools.voxel.property")}</div>
 
 		<RadioButtonGroup orientation="vertical" bind:selected={$selected}>
 			{#each $properties as prop}
@@ -34,7 +35,7 @@
 
 		{#if activeProp}
 			<div class="legend">
-				<div class="label-01 label">Legend</div>
+				<div class="label-01 label">{$_("tools.voxel.legend")}</div>
 
 				{#each activeProp.categories as cat}
 					{@const hidden = hiddenForProp.has(cat.value)}
@@ -54,31 +55,31 @@
 		{/if}
 
 		<div class="slicing">
-			<div class="label-01 label">Slicing</div>
+			<div class="label-01 label">{$_("tools.voxel.slicing")}</div>
 
 			<RangeSlider
-				label="West–East"
+				label={$_("tools.voxel.westEast")}
 				value={$clipping.x}
 				format={asPercent}
 				on:change={(e) => layer.setClip("x", e.detail)}
 			/>
-			
+
 			<RangeSlider
-				label="South–North"
+				label={$_("tools.voxel.southNorth")}
 				value={$clipping.y}
 				format={asPercent}
 				on:change={(e) => layer.setClip("y", e.detail)}
 			/>
 
 			<RangeSlider
-				label="Vertical"
+				label={$_("tools.voxel.vertical")}
 				value={$clipping.z}
 				format={asPercent}
 				on:change={(e) => layer.setClip("z", e.detail)}
 			/>
 
 			<Button kind="ghost" size="small" disabled={!isClipped} on:click={() => layer.resetClip()}>
-				Reset slicing
+				{$_("tools.voxel.resetSlicing")}
 			</Button>
 		</div>
 	</div>
