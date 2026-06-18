@@ -15,7 +15,3 @@
 </script>
 
 <Slider hideTextInput {labelText} min={0} max={100} bind:value={$opacity} />
-
-<style>
-
-</style>

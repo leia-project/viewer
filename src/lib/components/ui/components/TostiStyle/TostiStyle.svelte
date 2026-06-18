@@ -1,5 +1,6 @@
 <script lang="ts">
     import "carbon-components-svelte/css/all.css";
+    import "../../style/tosti.scss";
     //import "carbon-components-svelte/css/white.css";
     import { Theme } from "carbon-components-svelte";
     import { light } from "../../style/themes";
@@ -41,11 +42,7 @@
     </div>
 {/if}
 
-<style lang="scss">
-    :global {
-        @import "../../style/tosti.scss";
-    }
-
+<style>
     .theme {
         display: none;
     }

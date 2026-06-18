@@ -139,7 +139,6 @@
 									if (invalidStartColor || invalidEndColor) return;
 									layer.colorGradientStart = Cesium.Color.fromCssColorString(colorGradientStart);
 									layer.colorGradientEnd = Cesium.Color.fromCssColorString(colorGradientEnd);
-									console.log(layer);
 									layer.setStyle(dropdownItems[activeStyle].text)
 								}}
 							/>

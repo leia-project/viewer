@@ -316,8 +316,4 @@
 		width: 100%;
 	}
 
-	.logo_github {
-		color: white;
-	}
-
 </style>

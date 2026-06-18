@@ -3,10 +3,12 @@
 </script>
 
 <div class="legend-container">
-	{#each legendUrls.srcStrings as srcString, id}
-		<img id="myImage" src={legendUrls.srcStrings[id]} alt="Base64 Image" />
-		<span>{legendUrls.legendNames[id]}</span>
-	{/each}
+	{#if legendUrls}
+		{#each legendUrls.srcStrings as srcString, id}
+			<img id="myImage" src={legendUrls.srcStrings[id]} alt={legendUrls.legendNames[id]} />
+			<span>{legendUrls.legendNames[id]}</span>
+		{/each}
+	{/if}
 </div>
 
 <style>

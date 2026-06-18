@@ -276,7 +276,8 @@ Layer definition
 |groupId|Id of the group where this layer belongs to or empty string, will be placed under uncategorized in library|string|
 |description|Simple text field in which a layer description can be provided|string|
 |imageUrl|URL of an example image of layer, will be shown in layer library|string|
-|legendUrl|URL of legend image or empty string|string|
+|legendEnabled|Choose whether legend image is shown or not (default false)|boolean|
+|legendUrl|URL of legend image or empty string. Use an empty string if you intend to get dynamic legends for ```wms``` layers using the style switcher tool|string|
 |isBackground|Set to true to use this as a background layer, background layers are separated from the thematic layers in the layer manager and only 1 background layer can be active at a time|boolean|
 |defaultAddToManager|True if layer should be inmediately available in the layer manager tool on startup|boolean|
 |defaultOn|True if this layer should be visible at start up, use this together with defaultAddToManager|boolean|
@@ -320,10 +321,23 @@ Layer definition
 	"settings": {
 		"url": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/beheerkaart_nat/ows?service=WMS&&version=1.3.0",
 		"featureName": "beheer_vlakken",
-		"contenttype": "image/png"
+		"contenttype": "image/png",
+		"tools": {
+			"styleSwitcher": {
+				"enabled": true
+			}
+		}
 	}
 }
 ```
+
+##### WMS tools
+- <b>styleSwitcher:</b> Automatically retrieve a list of available styles from the GetCapabilities that you can switch between. Also dynamically updates the legend
+
+|value|description|default|type|
+|-|-|-|-|
+|enabled|Enable the tool|false|boolean|
+
 
 #### LayerSettings for type wmts
 LayerSettings
