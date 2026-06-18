@@ -192,13 +192,15 @@
             {/if}
         {/if}
         {#if layer.config.opacitySupported}
-            <Slider
-                hideTextInput
-                labelText={`${$_("tools.layerManager.opacity")} ` + $opacity + "%"}
-                min={0}
-                max={100}
-                bind:value={$opacity}
-            />
+            <div class="slider-wrapper">
+                <Slider
+                    hideTextInput
+                    labelText={`${$_("tools.layerManager.opacity")} ` + $opacity + "%"}
+                    min={0}
+                    max={100}
+                    bind:value={$opacity}
+                />
+            </div>
         {/if}
         {#if layer.config.type === "wms" && layer.config.settings?.tools?.styleSwitcher?.enabled == true}        
             <Dropdown
@@ -256,6 +258,19 @@
         width: 100%;
         min-height: auto; 
         transition: height 0.3s ease-in-out;
+    }
+
+    .slider-wrapper {
+        width: calc(100% - var(--cds-spacing-05));
+    }
+
+    .slider-wrapper :global(.bx--slider-container) {
+        width: 100%;
+    }
+
+    .slider-wrapper :global(.bx--slider) {
+        min-width: 0;
+        flex: 1 1 auto;
     }
 
     .description {
