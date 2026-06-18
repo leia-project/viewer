@@ -261,7 +261,7 @@
     }
 
     .slider-wrapper {
-        width: calc(100% - var(--cds-spacing-05));
+        width: calc(100% - var(--cds-spacing-01));
     }
 
     .slider-wrapper :global(.bx--slider-container) {
