@@ -29,7 +29,6 @@ const DEFAULT_CLIP_RANGE: ClipRange = { x: [0, 1], y: [0, 1], z: [0, 1] };
 export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	public selectedProperty: Writable<string>;
 	public resolvedProperties: Writable<Array<ResolvedVoxelProperty>>;
-	public alpha: Writable<number>;
 	public hiddenValues: Writable<Map<string, Set<number>>>;
 	public clipping: Writable<ClipRange>;
 	private bounds: { min: Cesium.Cartesian3; max: Cesium.Cartesian3 } | null = null;
@@ -46,12 +45,11 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		}
 
 		this.selectedProperty = writable(initial);
-		this.alpha = writable(opacityToAlpha(get(this.opacity)));
 		this.resolvedProperties = writable<Array<ResolvedVoxelProperty>>([]);
 		this.hiddenValues = writable(new Map());
 		this.clipping = writable({ ...DEFAULT_CLIP_RANGE });
 		this.createLayer();
-		this.selectedProperty.subscribe(() => this.applyShader());
+		this.selectedProperty.subscribe(() => this.rebuildShader());
 	}
 
 	public toggleHidden(propName: string, value: number): void {
@@ -71,7 +69,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 
 		// Only the visible property's mask needs updating
 		if (propName === get(this.selectedProperty)) {
-			const mask = hiddenMask(get(this.hiddenValues).get(propName));
+			const mask = packHiddenMask(get(this.hiddenValues).get(propName));
 			this.source?.customShader?.setUniform("u_hiddenMask", mask);
 			this.map.refresh();
 		}
@@ -102,20 +100,22 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		const { min, max } = this.bounds;
 		const c = get(this.clipping);
 
-		const toMin = (t: number, lo: number, hi: number) =>
+		const clipLo = (t: number, lo: number, hi: number) =>
 			t <= 0.001 ? -Infinity : lo + t * (hi - lo);
-		const toMax = (t: number, lo: number, hi: number) =>
+
+		const clipHi = (t: number, lo: number, hi: number) =>
 			t >= 0.999 ? Infinity : lo + t * (hi - lo);
 
 		this.source.minClippingBounds = new Cesium.Cartesian3(
-			toMin(c.x[0], min.x, max.x),
-			toMin(c.y[0], min.y, max.y),
-			toMin(c.z[0], min.z, max.z)
+			clipLo(c.x[0], min.x, max.x),
+			clipLo(c.y[0], min.y, max.y),
+			clipLo(c.z[0], min.z, max.z)
 		);
+
 		this.source.maxClippingBounds = new Cesium.Cartesian3(
-			toMax(c.x[1], min.x, max.x),
-			toMax(c.y[1], min.y, max.y),
-			toMax(c.z[1], min.z, max.z)
+			clipHi(c.x[1], min.x, max.x),
+			clipHi(c.y[1], min.y, max.y),
+			clipHi(c.z[1], min.z, max.z)
 		);
 
 		this.map.refresh();
@@ -136,10 +136,10 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	}
 
 	public removeFromMap(): void {
-		const idx = this.getPrimitiveIndex();
+		const index = this.getPrimitiveIndex();
 
-		if (idx !== -1) {
-			const p = this.map.viewer.scene.primitives.get(idx);
+		if (index !== -1) {
+			const p = this.map.viewer.scene.primitives.get(index);
 			this.map.viewer.scene.primitives.remove(p);
 		} else {
 			this.map.viewer.scene.primitives.remove(this.source);
@@ -163,6 +163,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		if (!this.source) {
 			return;
 		}
+		
 		this.source.show = value;
 		this.depthScale?.setVisible(value);
 		this.map.refresh();
@@ -174,7 +175,6 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		}
 
 		const alpha = opacityToAlpha(opacity);
-		this.alpha.set(alpha);
 		this.source.customShader?.setUniform("u_alpha", alpha);
 		this.map.refresh();
 	}
@@ -197,7 +197,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			control.props = { layer: this };
 			this.addCustomControl(control);
 
-			this.applyShader();
+			this.rebuildShader();
 
 			if (!this.config.cameraPosition && primitive.boundingSphere) {
 				this.config.cameraPosition = getCameraPositionFromBoundingSphere(primitive.boundingSphere);
@@ -222,13 +222,13 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		}
 	}
 
-	public applyShader(): void {
+	public rebuildShader(): void {
 		if (!this.source) {
 			return;
 		}
 
 		const propName = get(this.selectedProperty);
-		const property = get(this.resolvedProperties).find((property) => property.name === propName);
+		const property = get(this.resolvedProperties).find((prop) => prop.name === propName);
 
 		if (!property) {
 			return;
@@ -252,19 +252,20 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			.join("\n\t\t\t\t\t");
 
 		// Cesium normalises UINT8 metadata to [0,1] in the shader; multiply back to recover the integer.
-		// u_hiddenMask is a bitmask: bit N set => category value N is hidden. Toggling a
-		// legend entry just flips a bit and calls setUniform — no GLSL recompile.
 		return new Cesium.CustomShader({
 			uniforms: {
 				u_alpha: {
 					type: Cesium.UniformType.FLOAT,
-					value: get(this.alpha)
+					value: opacityToAlpha(get(this.opacity))
 				},
+				// u_hiddenMask is a bitmask: bit N set => category value N is hidden. Toggling a
+				// legend entry just flips a bit and calls setUniform, avoids GLSL recompile which is much expensive.
 				u_hiddenMask: {
 					type: Cesium.UniformType.INT,
-					value: hiddenMask(get(this.hiddenValues).get(property.name))
+					value: packHiddenMask(get(this.hiddenValues).get(property.name))
 				}
 			},
+			// 255.0 is the max UINT8 value, +0.5 for rounding to nearest int when flooring in GLSL
 			fragmentShaderText: `
 				void fragmentMain(FragmentInput fsInput, inout czm_modelMaterial material) {
 					int v = int(float(fsInput.metadata.${property.name}) * 255.0 + 0.5);
@@ -272,9 +273,11 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 					${noDataGuard}
 					// (1 << v) is the mask with only bit v on;
 					// & tests whether that bit is set ie category v is hidden.
-					if ((u_hiddenMask & (1 << v)) != 0) { material.alpha = 0.0; return; }
+					if ((u_hiddenMask & (1 << v)) != 0) {
+						material.alpha = 0.0; return;
+					}
 					${branches}
-					material.diffuse = vec3(0.5, 0.5, 0.5);
+					material.diffuse = vec3(0.5, 0.5, 0.5); // grey default for unknown values, could be made configurable
 				}
 			`
 		});
@@ -306,7 +309,7 @@ toggle -> flip bit in Set -> hiddenMask() -> setUniform("u_hiddenMask")
 
 Values >= 31 can't be represented, fine for our GeoTOP Zeeland dataset
 */
-function hiddenMask(values: Set<number> | undefined): number {
+function packHiddenMask(values: Set<number> | undefined): number {
 	let mask = 0;
 
 	if (values) {
