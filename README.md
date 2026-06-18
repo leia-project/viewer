@@ -1080,6 +1080,31 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 }
 ```
 
+
+#### isochrones
+
+Tool to calculate and visualize car isochrones (travel-time areas) around an economic development location and use accounted population growth data to calculate the net migration surplus in the affected area.
+
+|value|description|type|
+|-|-|-|
+|apiUrl|OpenRouteService isochrones endpoint URL|string|
+|accountedPopulationGrowthLayerId|Layer id used to retrieve accounted population growth data|string|
+|accountedPopulationGrowthAttribute|Attribute name in the configured layer that contains the accounted population growth value|string|
+
+```json
+{
+	"id": "isochrones",
+	"enabled": true,
+	"settings": {
+		"apiUrl": "https://virtueel.zeeland.nl/ors/v2/isochrones/driving-car",
+		"accountedPopulationGrowthLayerId": "053",
+		"accountedPopulationGrowthAttribute": "at_woonplekken"
+	}
+}
+```
+
+
+
 #### language
 
 Header tool to enable switching between different languages. If this tool is not included or disabled, Dutch is used.
