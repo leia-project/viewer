@@ -208,6 +208,13 @@
                     {
                         "type": "geonetwork",
                         "url": "https://dataportaal.zeeland.nl/dataportaal"
+                    },
+                    {
+                        "type": "ckan",
+                        "url": "https://data.beta.geodan.nl",
+                        "organizations": [
+                            "pdok"
+                        ]
                     }
                 ]
             }

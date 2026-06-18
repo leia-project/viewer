@@ -191,17 +191,6 @@
                 {/if}
             {/if}
         {/if}
-        {#if layer.config.opacitySupported}
-            <div class="slider-wrapper">
-                <Slider
-                    hideTextInput
-                    labelText={`${$_("tools.layerManager.opacity")} ` + $opacity + "%"}
-                    min={0}
-                    max={100}
-                    bind:value={$opacity}
-                />
-            </div>
-        {/if}
         {#if layer.config.type === "wms" && layer.config.settings?.tools?.styleSwitcher?.enabled == true}        
             <Dropdown
                 titleText={$_("tools.layerManager.wmsStyling")}
@@ -226,6 +215,17 @@
             {:else if !imageValid || legendUrl==""}
                 <ErrorMessage message={$_("tools.layerManager.legendNotFoundText")} />
             {/if}
+        {/if}
+        {#if layer.config.opacitySupported}
+            <div class="slider-wrapper">
+                <Slider
+                    hideTextInput
+                    labelText={`${$_("tools.layerManager.opacity")} ` + $opacity + "%"}
+                    min={0}
+                    max={100}
+                    bind:value={$opacity}
+                />
+            </div>
         {/if}
         <div class="button-wrapper">
             {#if $cameraPosition}
