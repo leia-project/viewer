@@ -226,6 +226,7 @@
                                         iconDescription={$_('tools.bookmarks.edit')}
                                         icon={Edit}
                                         kind="ghost"
+                                        tooltipPosition="left"
                                         on:click={() => {
                                             startEdit(i);
                                         }}

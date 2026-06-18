@@ -234,6 +234,7 @@
                     size="small"
                     iconDescription={$_("tools.layerManager.zoomToLayer")}
                     icon={Search}
+                    tooltipPosition="left"
                     on:click={() => {
                         zoomToLayer();
                     }}
@@ -244,6 +245,7 @@
                 size="small"
                 iconDescription={$_("tools.layerManager.delete")}
                 icon={TrashCan}
+                tooltipPosition="left"
                 on:click={() => {
                     removeLayer();
                 }}
