@@ -213,7 +213,9 @@ export class CkanConnector implements LibraryConnector {
      */
     private resolveAttribution(pack: any): string {
         const candidates = [
+            pack?.license_title,
             pack?.organization?.title,
+            pack?.license_id,
             pack?.organization?.name
         ];
 
