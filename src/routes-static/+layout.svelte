@@ -13,9 +13,9 @@
 	setupLocalization("nl");
 
 	let pageNotFound = false
+	let generalConfig: any = null;
 
 	onMount(async () => {
-		let generalConfig: any = null;
 		try{
 			const generalConfigUrl= process.env.GENERAL_CONFIG_URL;
 			if ( generalConfigUrl ) {
@@ -58,7 +58,7 @@
 
 <main>
     {#if pageNotFound}
-        <PageNotFound redirectUrl={generalConfig?.redirect}/>
+        <PageNotFound redirectUrl={generalConfig?.redirect} image={generalConfig?.image}/>
     {:else}
         <slot />
     {/if}
