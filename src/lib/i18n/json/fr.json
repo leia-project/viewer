@@ -17,6 +17,11 @@
             "show": "Montrer",
             "hide": "Cacher",
             "reset": "Réinitialiser"
+        },
+        "notFound": {
+            "title": "Page non trouvée",
+            "description":"L'adresse saisie ne correspond à aucune visionneuse disponible.",
+            "linktext": "Voir les visionneuses disponibles"
         }
     },
     "tools": {

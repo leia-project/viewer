@@ -158,7 +158,7 @@
     "groups": [],
     "tools": [
         {
-            "id": "layerlibrary",
+            "id": "layerLibrary",
             "enabled": true,
             "settings": {
                 "connectors": [
@@ -170,12 +170,12 @@
             }
         },
         {
-            "id": "layermanager",
+            "id": "layerManager",
             "enabled": true,
             "settings": {}
         },
         {
-            "id": "featureinfo",
+            "id": "featureInfo",
             "enabled": true
         },  
         {
@@ -316,7 +316,7 @@
         },
         {
             "id": "stories",
-            "enabled": true,
+            "enabled": false,
             "settings": {
                 "stories": [
                     {

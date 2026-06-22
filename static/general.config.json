@@ -1,0 +1,44 @@
+{
+    "name": "general",
+    "image": "static/images/404_Pagenotfound.png",
+    "redirect": "https://virtueel.zeeland.nl/",
+    "translations":[
+        {
+            "land": "nl",
+            "translations": {
+                "general": {
+                    "notFound": {
+                        "title": "Pagina niet gevonden",
+                        "description":"Het ingevoerde adres komt niet overeen met een beschikbare viewer.",
+                        "linktext": "Bekijk beschikbare viewers"
+                    }
+                }
+            }
+        },
+        {
+        "land": "en",
+        "translations": {
+            "general": {
+                "notFound": {
+                    "title": "Page not found",
+                    "description":" The adress entered does not match any of the available viewers",
+                    "linktext": "View available viewers"
+                }
+            }
+        }
+        },
+        {
+            "land":"fr",
+            "translations":{
+                "general":{
+                    "notFound": {
+                        "title": "Page non trouvée",
+                        "description":"L'adresse saisie ne correspond à aucune visionneuse disponible.",
+                        "linktext": "Voir les visionneuses disponibles"
+                    }
+                }
+            }
+        }
+    ]
+}
+    

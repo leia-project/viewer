@@ -4,9 +4,8 @@
 	import { onMount } from 'svelte';
 	import { setupLocalization, selectedLanguage } from '$lib/i18n/localization';
 	import { ConfigSettings } from '$lib/app/config-settings';
-
 	import './app.css';	
-
+	import PageNotFound from './error/pageNotFound.svelte';
 	app.init();
 
 	/* const translations = new Array<{ locale: string, translations: {} }>();
@@ -17,7 +16,7 @@
 	// Because of how the viewer is set up, we cannot initialize the localization
 	// with the language from the config at first. Therefore we set it to a default
 	setupLocalization("nl");
-
+	let pageNotFound = false;
 	const map = app.map;
 	
 	$: {
@@ -39,10 +38,18 @@
 		// Look for name in URL that corresponds to a config name
 		if (!configUrl) {
 			if ($page.params.config) {
-				const response = await fetch(process.env.CONFIG_SERVER_URL + `/overview?mode=dt&q=${$page.params.config}`);
-				if (response.ok) {
-					const responseJson = await response.json();
-					configUrl = responseJson[0].url;
+				try {
+					const response = await fetch(process.env.CONFIG_SERVER_URL + `/overview?mode=dt&q=${$page.params.config}`);
+					if (response.ok) {
+						const responseJson = await response.json();
+						configUrl = responseJson[0].url;
+					} else {
+						pageNotFound = true;
+						return;
+					}
+				} catch {
+					pageNotFound = true;
+					return;
 				}
 			}
 		}
@@ -52,7 +59,11 @@
 </script>
 
 <main>
-	<slot />
+    {#if pageNotFound}
+        <PageNotFound />
+    {:else}
+        <slot />
+    {/if}
 </main>
 
 <style>

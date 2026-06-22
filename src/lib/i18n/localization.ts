@@ -44,4 +44,4 @@ function addTranslation(languageShortName: string, translations: {}): void {
     lang?.addTranslation(translations);
 }
 
-export { setupLocalization, selectedLanguage, languages };
+export { setupLocalization, selectedLanguage, languages, addTranslation};
