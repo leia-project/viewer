@@ -45,6 +45,10 @@
     let deleteButtonEnabled: boolean = false;
     let completeButtonEnabled: boolean = false;
 
+    // Lets us cancel the analysis/PDF-data generation that runs after a polygon is
+    // finished, so the user can delete the polygon while it is still loading.
+    let analysisAbortController: AbortController | null = null;
+
     const paths = {wasm: wasmUrl, data: dataUrl, js: workerUrl};
 
 
@@ -209,13 +213,16 @@
         hasUploadedPolygon = false;
         isDrawing = false;
 
-        setButtonStates(false, false, false, false);
+        setButtonStates(false, false, true, false); // delete available while the analysis/PDF data loads
         
         // sendAPIUpResponse();
+        analysisAbortController?.abort();
+        const controller = new AbortController();
+        analysisAbortController = controller;
         let storyLayers: Array<StoryLayer> = story.getStoryLayers();
         let promises = [];
         for (let i = 0; i < storyLayers.length; i++) {
-            const p = sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi)
+            const p = sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi, controller.signal)
                 .then(apiResponse => {
                     const transformed = transformDistribution(apiResponse.distribution);
                     distributions[i] = transformed;
@@ -226,6 +233,8 @@
             promises.push(p);
         }
         Promise.all(promises).then(() => {
+            if (controller.signal.aborted) return;
+            analysisAbortController = null;
             setButtonStates(false, false, true, false);
         });
         selectedAction = undefined;
@@ -241,11 +250,14 @@
 
     function handleFinishUpload() {
         let storyLayers: Array<StoryLayer> = story.getStoryLayers();
-        setButtonStates(false, false, false, false);
+        setButtonStates(false, false, true, false); // delete available while the analysis/PDF data loads
 
+        analysisAbortController?.abort();
+        const controller = new AbortController();
+        analysisAbortController = controller;
         let promises = [];
         for (let i = 0; i < storyLayers.length; i++) {
-            const p = sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi)
+            const p = sendAnalysisRequest(storyLayers[i].url, storyLayers[i].featureName, geojson, story.statisticsApi, controller.signal)
                 .then(apiResponse => {
                     const transformed = transformDistribution(apiResponse.distribution);
                     distributions[i] = transformed;
@@ -256,6 +268,8 @@
             promises.push(p);
         }
         Promise.all(promises).then(() => {
+            if (controller.signal.aborted) return;
+            analysisAbortController = null;
             setButtonStates(false, false, true, false);
         });
 
@@ -275,6 +289,10 @@
     }
     
     function deletePolygon() {
+        // Cancel any in-flight analysis/PDF-data generation for the polygon being removed.
+        analysisAbortController?.abort();
+        analysisAbortController = null;
+
         if (handler && !handler.isDestroyed()) {
             handler.destroy(); 
         }
@@ -296,7 +314,7 @@
         map.viewer.scene.requestRender();
     }
 
-    async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any, statisticsApi: string): Promise<any> {
+    async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any, statisticsApi: string | undefined, signal?: AbortSignal): Promise<any> {
         if (!url || !featureName) {
             console.warn("URL or featureName undefined, not able to get the analysis request");
             return;
@@ -317,6 +335,7 @@
                     featureName: featureName,
                     geom: geom,  
                 }),
+                signal,
             });
 
             if (!response.ok) {
