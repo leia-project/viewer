@@ -192,10 +192,14 @@ export class GeoNetworkConnector implements LibraryConnector {
         return imageUrl?.split('|')[1];
     }
 
-    private getSettings(link: Array<string>): Object {
+    private getSettings(link: Array<string> | undefined): Object {
         try {
-            for (let i = 0; i < link.length; i++) {
-                let l = link[i];
+            if (!link) {
+                return {};
+            }
+            const links = Array.isArray(link) ? link : [link];
+            for (let i = 0; i < links.length; i++) {
+                let l = links[i];
                 if (l.includes('OGC:WMS')) {
                     let l_split = l.split('|');
                     return {

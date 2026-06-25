@@ -483,13 +483,13 @@
             width: 100%;
             min-width: 0;
             height: auto;
-            min-height: 45%;
+            min-height: 35%;
             padding-bottom: var(--cds-spacing-05);
         }
 
         .content {
             height: auto;
-            min-height: 45%;
+            min-height: 90%;
         }
     }
 

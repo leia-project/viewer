@@ -330,6 +330,8 @@
 		display: flex;
 		justify-content: right;
 		width: 100%;
+		min-width: 0;
+		gap: 0.25rem;
 	}
 
 </style>
