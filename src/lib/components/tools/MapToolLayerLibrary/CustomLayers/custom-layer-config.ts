@@ -2,7 +2,7 @@ import { get, writable, type Unsubscriber, type Writable } from "svelte/store";
 import { LayerConfig } from "$lib/map-core/layer-config";
 import { Dispatcher } from "$lib/map-core/event/dispatcher";
 import { buildGetCapabilitiesUrl } from "./capabilities";
-
+import { v4 as uuid } from '@lukeed/uuid';
 
 
 export class CustomLayerConfigTracker extends Dispatcher {
@@ -22,7 +22,7 @@ export class CustomLayerConfigTracker extends Dispatcher {
 
 	constructor(layerConfig?: LayerConfig) {
 		super();
-		this.layerConfig = layerConfig ?? new LayerConfig({id: String(Math.floor(Math.random() * 1000)), groupId: "myData", title: "New layer", settings: {}});
+		this.layerConfig = layerConfig ?? new LayerConfig({id: uuid(), groupId: "myData", title: "New layer", settings: {}, defaultOn: true});
 		this.titleInput = writable(this.layerConfig.title);
 		this.layerTypeInput = writable(this.layerConfig.type);
 		this.settingsInput = writable(this.layerConfig.settings);
