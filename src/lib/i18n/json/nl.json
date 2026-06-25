@@ -216,7 +216,10 @@
             "zoomToLayer": "Zoom naar laag",
             "delete": "Verwijderen",
             "colorRandomizer": "Kleur randomiseren",
-            "allOther": "Alle overige"
+            "allOther": "Alle overige",
+            "legendProperties": {
+                "flood_depth": "Waterdiepte"
+            }
         },
         "layerTools": {
             "theme": {

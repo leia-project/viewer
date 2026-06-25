@@ -207,7 +207,10 @@
             "zoomToLayer": "Zoomer sur la couche",
             "delete": "Supprimer",
             "colorRandomizer": "Couleur aléatoire",
-            "allOther": "Tous les autres"
+            "allOther": "Tous les autres",
+            "legendProperties": {
+                "flood_depth": "Profondeur d'inondation"
+            }
         },
         "layerTools": {
             "theme": {
