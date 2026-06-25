@@ -70,9 +70,13 @@
 	};
 
 	selectedTool.subscribe((selected: MapToolMenuOption) => {
-		if (selected !== tool && get(activeMeasurement)) {
+		if (selected === tool) return;
+
+		if (get(activeMeasurement)) {
 			get(activeMeasurement)?.hideEdit();
 			activeMeasurement.set(undefined);
+		} else {
+			deactivate();
 		}
 	});
 
@@ -133,7 +137,9 @@
 		cesiumMap.off("mouseMove", moveHandle);
 
 		removeMovingPoint();
-		cesiumMap.options.animate.set(previouseAnimateState);
+		if (previouseAnimateState !== undefined) {
+			cesiumMap.options.animate.set(previouseAnimateState);
+		}
 		edittingId.set(undefined);
 
 		cesiumMap.refresh();
