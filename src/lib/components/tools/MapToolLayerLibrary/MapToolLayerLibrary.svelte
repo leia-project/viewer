@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { getContext } from "svelte";
+    import { getContext, onDestroy } from "svelte";
     import { get } from "svelte/store";
+    import type { Unsubscriber } from "svelte/store";
     import { _ } from "svelte-i18n";
 	import { Folder } from "carbon-icons-svelte";
 
@@ -46,10 +47,45 @@
     });
 
     //Add myData group to library
+    // Persist the on/off state of My Data layers so it is restored on reload.
+    const visibilityUnsubscribers = new Map<string, Unsubscriber>();
+    let layersUnsubscriber: Unsubscriber | undefined;
+
     if (map) {
         library.addLayerConfigGroup(new LayerConfigGroup("myData", "My data"));
         getLayersFromLocalStorage();
+        watchMyDataVisibility();
     }
+
+    function watchMyDataVisibility(): void {
+        layersUnsubscriber = map.layers.subscribe((layers: Array<any>) => {
+            const currentIds = new Set<string>();
+            for (const layer of layers) {
+                if (layer.config.groupId !== "myData") continue;
+                currentIds.add(layer.id);
+                if (!visibilityUnsubscribers.has(layer.id)) {
+                    let initial = true;
+                    const unsubscribe = layer.visible.subscribe(() => {
+                        if (initial) { initial = false; return; }
+                        updateLocalStorage();
+                    });
+                    visibilityUnsubscribers.set(layer.id, unsubscribe);
+                }
+            }
+            for (const [id, unsubscribe] of visibilityUnsubscribers) {
+                if (!currentIds.has(id)) {
+                    unsubscribe();
+                    visibilityUnsubscribers.delete(id);
+                }
+            }
+        });
+    }
+
+    onDestroy(() => {
+        layersUnsubscriber?.();
+        for (const unsubscribe of visibilityUnsubscribers.values()) unsubscribe();
+        visibilityUnsubscribers.clear();
+    });
 
     function getLayersFromLocalStorage(): void {
         try {
@@ -63,7 +99,7 @@
                         type: layers[i].type,
                         settings: layers[i].settings,
                         groupId: "myData",
-                        defaultOn: false
+                        defaultOn: layers[i].visible ?? false
                     });
                     library.addLayerConfig(config);
                     config.added.set(layers[i].layerAdded)
@@ -80,11 +116,13 @@
         if (!allCustomLayers) return;
         const store = new Array();
         for (const layer of get(allCustomLayers)) {
+            const mapLayer = map?.getLayerById(layer.id);
             const obj = {
                 title: layer.title,
                 type: layer.type,
                 settings: layer.settings,
-                layerAdded: get(layer.added)
+                layerAdded: get(layer.added),
+                visible: mapLayer ? get(mapLayer.visible) : false
             }
             store.push(obj);
         }

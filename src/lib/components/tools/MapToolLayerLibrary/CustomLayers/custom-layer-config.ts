@@ -55,6 +55,8 @@ export class CustomLayerConfigTracker extends Dispatcher {
 					this.dispatch("urlError", {});
 					this.added.set(false);
 				} else {
+					// Adding a My Data layer (new or restored) turns it on immediately.
+					this.layerConfig.defaultOn = true;
 					this.layerConfig.added.set(true);
 				}
 				this.dispatch("updated", {});
