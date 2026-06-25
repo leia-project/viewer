@@ -241,6 +241,7 @@
 			</div>
 			<Button
 				iconDescription={$_("tools.measure.edit")}
+				tooltipPosition="left"
 				icon={Edit}
 				on:click={() => {
 					editDispatch("requestEdit", measurement.id);

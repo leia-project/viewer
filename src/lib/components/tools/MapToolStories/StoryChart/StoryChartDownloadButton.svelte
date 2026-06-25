@@ -357,7 +357,7 @@
     kind={"tertiary"}
     icon={GeneratePdf}
     iconDescription={$_("tools.stories.downloadPDF")}
-    tooltipPosition="top"
+    tooltipPosition="bottom"
     disabled={disableDownloadButton}
     on:click={async () => {
         const fileName = await formatContent(data);

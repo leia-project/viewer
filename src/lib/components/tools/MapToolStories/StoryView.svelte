@@ -576,7 +576,7 @@ async function downloadPDF() {
 					<Button
 						kind="tertiary"
 						iconDescription={$baseMapVisible ? `${$_("general.close")} ${$_("tools.stories.basemap")}` : `${$_("general.open")} ${$_("tools.stories.basemap")}`}
-						tooltipPosition="top"
+						tooltipPosition="bottom"
 						icon={ChoroplethMap}
 						on:click={() => $baseMapVisible = !$baseMapVisible}
 					/>
@@ -587,7 +587,7 @@ async function downloadPDF() {
 					<Button
 						kind={"primary"}
 						iconDescription={showPolygonMenu ? `${$_("general.open")} ${$_("tools.stories.projectAreaTool")}` : `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
-						tooltipPosition="top"
+						tooltipPosition="bottom"
 						icon={$showPolygonMenu ? ChevronUp : ChevronDown}
 						on:click={() => $showPolygonMenu = !$showPolygonMenu} 
 					/>
@@ -597,7 +597,7 @@ async function downloadPDF() {
 				<Button
 					kind="tertiary"
 					iconDescription={textBack}
-					tooltipPosition="top"
+					tooltipPosition="left"
 					icon={Exit}
 					on:click={backToOverview} 
 				/>
