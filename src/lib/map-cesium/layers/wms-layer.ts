@@ -11,7 +11,7 @@ export class WmsLayer extends CesiumImageryLayer {
 
 	createLayer(dropDownStyleName?: string): void {
 		const provider = new Cesium.WebMapServiceImageryProvider({
-			url: this.config.settings["url"],
+			url: this.config.settings["url"].split("?")[0],
 			layers: this.config.settings["featureName"],
 			parameters: {
 				transparent: true,

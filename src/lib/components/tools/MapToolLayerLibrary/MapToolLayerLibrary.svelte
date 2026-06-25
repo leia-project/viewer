@@ -63,7 +63,7 @@
                         type: layers[i].type,
                         settings: layers[i].settings,
                         groupId: "myData",
-                        defaultOn: true
+                        defaultOn: false
                     });
                     library.addLayerConfig(config);
                     config.added.set(layers[i].layerAdded)
