@@ -134,7 +134,7 @@
 	@media (max-width: 42rem) {
 		.mode-switcher {
 			margin-left: 4px;
-			margin-right: 12px;
+			margin-right: 30px;
 		}
 
 		.mode-switcher.search-active {
