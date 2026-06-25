@@ -59,6 +59,9 @@
     .notification-wrapper {
         z-index: 9999;
         width: 450px;
+        max-width: calc(100vw - 2 * var(--cds-spacing-05));
+        max-height: calc(50vh - 2 * var(--cds-spacing-05));
+        overflow-y: auto;
         position: absolute;
         bottom: var(--cds-spacing-05);
         margin-left: auto;

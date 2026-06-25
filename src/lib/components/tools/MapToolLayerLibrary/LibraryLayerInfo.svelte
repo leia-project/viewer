@@ -337,6 +337,7 @@
     .content-switcher {
         width: 10rem;
         flex-shrink: 1;
+        margin-left: var(--cds-spacing-01);
     }
 
     .content {
