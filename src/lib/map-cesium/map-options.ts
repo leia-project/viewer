@@ -140,7 +140,7 @@ export class MapOptions {
 		this.trySet(this.pointCloudAttenuation, config.pointCloudAttenuation);
 		this.trySet(this.pointCloudAttenuationMaximum, config.pointCloudAttenuationMaximum);
 		this.trySet(this.pointCloudAttenuationErrorScale, config.pointCloudAttenuationErrorScale);
-		this.trySet(this.pointCloudAttenuationBaseResolution, config.pointCloudBaseResolution);
+		this.trySet(this.pointCloudAttenuationBaseResolution, config.pointCloudAttenuationBaseResolution);
 		this.trySet(this.pointCloudEDL, config.pointCloudEDL);
 		this.trySet(this.pointCloudEDLStrength, config.pointCloudEDLStrength);
 		this.trySet(this.pointCloudEDLRadius, config.pointCloudEDLRadius);

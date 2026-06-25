@@ -122,16 +122,16 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		//@ts-ignore
 		this.isPointCloud = tileset.root?._header?.content?.uri?.includes(".pnts");
 
+		this.setPointCloudAttenuation(get(this.map.options.pointCloudAttenuation));
+		this.setPointCloudAttenuationMaximum(get(this.map.options.pointCloudAttenuationMaximum));
+		this.setPointCloudAttenuationGeometricErrorScale(get(this.map.options.pointCloudAttenuationErrorScale));
+		this.setPointCloudAttenuationBaseResolution(get(this.map.options.pointCloudAttenuationBaseResolution));
+
+		// this.setPointCloudEdl(get(this.map.options.pointCloudEDL));
+		// this.setPointCloudEdlStrength(get(this.map.options.pointCloudEDLStrength));
+		// this.setPointCloudEdlRadius(get(this.map.options.pointCloudEDLRadius));
+
 		if (this.isPointCloud) {
-			this.setPointCloudAttenuation(get(this.map.options.pointCloudAttenuation));
-			this.setPointCloudAttenuationMaximum(get(this.map.options.pointCloudAttenuationMaximum));
-			this.setPointCloudAttenuationGeometricErrorScale(get(this.map.options.pointCloudAttenuationErrorScale));
-			this.setPointCloudAttenuationBaseResolution(get(this.map.options.pointCloudAttenuationBaseResolution));
-
-			// this.setPointCloudEdl(get(this.map.options.pointCloudEDL));
-			// this.setPointCloudEdlStrength(get(this.map.options.pointCloudEDLStrength));
-			// this.setPointCloudEdlRadius(get(this.map.options.pointCloudEDLRadius));
-
 			if (this.config.settings["filter"]) {
 				this.pointCloudFilterControl = new CustomLayerControl();
 				this.pointCloudFilterControl.component = LayerControlPointCloudFilter;
