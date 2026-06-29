@@ -15,13 +15,13 @@
 
 	onMount(() => {
 		project.map.viewer.clock.onTick.addEventListener(updatePosition);
-		if (project.marker.billboard) project.marker.billboard.color = new Cesium.ConstantProperty(Cesium.Color.fromCssColorString("#68b6f7"));
+		if (project.marker?.billboard) project.marker.billboard.color = new Cesium.ConstantProperty(Cesium.Color.fromCssColorString("#68b6f7"));
 		collection.map.refresh();
 	});
 	onDestroy(() => {
 		project.map.viewer.clock.onTick.removeEventListener(updatePosition);
 		if (hoveredMapItemUnsubscriber) hoveredMapItemUnsubscriber();
-		if (project.marker.billboard) project.marker.billboard.color = new Cesium.ConstantProperty(Cesium.Color.WHITE);
+		if (project.marker?.billboard) project.marker.billboard.color = new Cesium.ConstantProperty(Cesium.Color.WHITE);
 		collection.map.refresh();
 	});
 

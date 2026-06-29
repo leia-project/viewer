@@ -315,7 +315,7 @@
     }
 
     async function sendAnalysisRequest(url: string | undefined, featureName: string | undefined, geojson: any, statisticsApi: string | undefined, signal?: AbortSignal): Promise<any> {
-        if (!url || !featureName) {
+        if (!url || !featureName || !statisticsApi) {
             console.warn("URL or featureName undefined, not able to get the analysis request");
             return;
         }
