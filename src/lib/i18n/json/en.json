@@ -248,11 +248,21 @@
         },
         "projects": {
             "label": "Projects",
-            "activateProject": "Activate project",
-            "leaveProjectView": "Leave project",
+            "projects": "Projects",
+            "environment": "Environment",
             "showOnMap": "Show projects on map",
-            "active": "Active",
-            "zoomToProject": "Zoom to project"
+            "leaveProject": "Leave Project View",
+            "show": "Show",
+            "hide": "Hide",
+            "selectProject": "Select project",
+            "validValueRequired": "A valid value is required",
+            "activateProject": "Activate project",
+            "zoomToStartView": "Zoom to start view",
+            "zoomToLayer": "Zoom to layer",
+            "opacity": "Opacity",
+            "legend": "Legend",
+            "open": "Open",
+            "viewDetails": "View object details"
         },
         "featureInfo": {
             "label": "Object Information",

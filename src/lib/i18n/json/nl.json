@@ -255,11 +255,21 @@
         },
         "projects": {
             "label": "Projecten",
-            "activateProject": "Project activeren",
-            "leaveProjectView": "Project verlaten",
-            "showOnMap": "Projecten tonen op kaart",
-            "active": "Actief",
-            "zoomToProject": "Zoom naar project"
+            "projects": "Projecten",
+            "environment": "Omgeving",
+            "showOnMap": "Toon projecten op kaart",
+            "leaveProject": "Verlaat Projectweergave",
+            "show": "Toon",
+            "hide": "Verberg",
+            "selectProject": "Selecteer project",
+            "validValueRequired": "Een geldige waarde is vereist",
+            "activateProject": "Activeer project",
+            "zoomToStartView": "Zoom naar startweergave",
+            "zoomToLayer": "Zoom naar laag",
+            "opacity": "Transparantie",
+            "legend": "Legenda",
+            "open": "Openen",
+            "viewDetails": "Bekijk objectdetails"
         },
         "featureInfo": {
             "label": "Object Informatie",

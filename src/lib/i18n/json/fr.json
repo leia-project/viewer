@@ -246,11 +246,21 @@
         },
         "projects": {
             "label": "Projets",
-            "activateProject": "Activer le projet",
-            "leaveProjectView": "Quitter le projet",
+            "projects": "Projets",
+            "environment": "Environnement",
             "showOnMap": "Afficher les projets sur la carte",
-            "active": "Actif",
-            "zoomToProject": "Zoom sur le projet"
+            "leaveProject": "Quitter la vue du projet",
+            "show": "Afficher",
+            "hide": "Masquer",
+            "selectProject": "Sélectionner un projet",
+            "validValueRequired": "Une valeur valide est requise",
+            "activateProject": "Activer le projet",
+            "zoomToStartView": "Zoomer sur la vue initiale",
+            "zoomToLayer": "Zoomer sur la couche",
+            "opacity": "Opacité",
+            "legend": "Légende",
+            "open": "Ouvrir",
+            "viewDetails": "Voir les détails de l'objet"
         },
         "featureInfo": {
             "label": "Informations sur les Objets",

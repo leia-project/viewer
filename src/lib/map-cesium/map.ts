@@ -16,12 +16,14 @@ import { CesiumLayerFactory } from "./cesium-layer-factory";
 import { MapOptions } from "./map-options";
 
 import type { CesiumLayer } from "./layers/cesium-layer";
+import { ClipHandler } from "./clip";
 
 
 export class Map extends MapCore {
 	public viewer!: Cesium.Viewer;
 	public camera!: Cesium.Camera;
 	public options: MapOptions;
+	public clipHandler: ClipHandler;
 	public featureInfoHandler!: FeatureInfoHandler;
 
 	public flyCamera: FlyCamera | undefined; // Do not remove
@@ -32,6 +34,7 @@ export class Map extends MapCore {
 
 		this.options = new MapOptions(this);
 		this.layerFactory = new CesiumLayerFactory();
+		this.clipHandler = new ClipHandler(this);
 		this.configLoaded.subscribe((loaded) => {
 			this.handleConfig(loaded);
 		});
