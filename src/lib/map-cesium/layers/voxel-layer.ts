@@ -12,8 +12,10 @@ import {
 	type VoxelPropertyConfig
 } from "./voxel-legend";
 import { VoxelDepthScale } from "../voxel-depth-scale";
+import { VoxelClipSlider } from "./voxel-clip-slider";
 
 import LayerControlVoxel from "$lib/components/layer-controls/LayerControlVoxel/LayerControlVoxel.svelte";
+import LayerControlVoxelClip from "$lib/components/layer-controls/LayerControlVoxelClip/LayerControlVoxelClip.svelte";
 
 export type VoxelLayerSettings = {
 	url: string;
@@ -31,6 +33,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	public resolvedProperties: Writable<Array<ResolvedVoxelProperty>>;
 	public hiddenValues: Writable<Map<string, Set<number>>>;
 	public clipping: Writable<ClipRange>;
+	public clipSlider: VoxelClipSlider | null = null;
 	private bounds: { min: Cesium.Cartesian3; max: Cesium.Cartesian3 } | null = null;
 	private depthScale: VoxelDepthScale | null = null;
 
@@ -148,6 +151,9 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		this.depthScale?.removeFromScene();
 		this.depthScale = null;
 
+		// Drop FXAA suppression so removing this layer restores user setting.
+		this.map.options.setFxaaSuppressed(this.config.id.toString(), false);
+
 		this.source?.destroy();
 	}
 
@@ -166,6 +172,8 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		
 		this.source.show = value;
 		this.depthScale?.setVisible(value);
+		// FXAA tanks performance with voxel layers so disable it while any voxel layer is visible
+		this.map.options.setFxaaSuppressed(this.config.id.toString(), value);
 		this.map.refresh();
 	}
 
@@ -214,6 +222,12 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				this.depthScale = new VoxelDepthScale(this.map, east, nsMiddle, maxBounds.z, minBounds.z);
 				this.depthScale.addToScene();
 				this.depthScale.setVisible(get(this.visible));
+
+				this.clipSlider = new VoxelClipSlider(this, this.map, this.bounds);
+				const clipControl = new CustomLayerControl();
+				clipControl.component = LayerControlVoxelClip;
+				clipControl.props = { clipSlider: this.clipSlider };
+				this.addCustomControl(clipControl);
 			}
 
 			this.map.refresh();

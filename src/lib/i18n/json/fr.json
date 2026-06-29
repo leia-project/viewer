@@ -249,6 +249,7 @@
             "custom": "Personnalisée",
             "animate": "Animer",
             "fxaa": "FXAA",
+            "fxaaDisabledByVoxel": "Désactivé tant qu'une couche de voxels est affichée",
             "fog": "Brouillard",
             "groundAtmosphere": "Atmosphère Terrestre",
             "dynamicRange": "HDR",

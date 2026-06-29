@@ -37,6 +37,7 @@
 
 	$: dateTime = map.options.dateTime;
 	$: fxaa = map.options.fxaa;
+	$: fxaaSuppressed = map.options.fxaaSuppressed;
 	$: msaa = map.options.msaa;
 	$: shadows = map.options.shadows;
 	$: animate = map.options.animate;
@@ -220,7 +221,15 @@
 	
 	<Accordion>
 		<AccordionItem title={$_("tools.cesium.rendering")}>
-		<Checkbox labelText={$_("tools.cesium.fxaa")} bind:checked={$fxaa} />
+		<Checkbox
+			labelText={$_("tools.cesium.fxaa")}
+			checked={$fxaaSuppressed ? false : $fxaa}
+			disabled={$fxaaSuppressed}
+			on:check={(e) => map.options.fxaa.set(e.detail)}
+		/>
+		{#if $fxaaSuppressed}
+			<div class="hint helper-text-01">{$_("tools.cesium.fxaaDisabledByVoxel")}</div>
+		{/if}
 
 			<Slider
 				hideTextInput
@@ -344,5 +353,11 @@
 	.heading-01:not(:first-child) {
 		margin-top: var(--cds-spacing-04);
 		margin-bottom: var(--cds-spacing-04);
+	}
+
+	.hint {
+		margin-top: calc(-1 * var(--cds-spacing-03));
+		margin-bottom: var(--cds-spacing-03);
+		color: var(--cds-text-helper, #6f6f6f);
 	}
 </style>

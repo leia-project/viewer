@@ -208,7 +208,8 @@
             "westEast": "West–Oost",
             "southNorth": "Zuid–Noord",
             "vertical": "Verticaal",
-            "resetSlicing": "Doorsneden resetten"
+            "resetSlicing": "Doorsneden resetten",
+            "slicePlane": "Sleep snijvlak"
         },
         "bookmarks": {
             "label": "Bladwijzers",
@@ -265,6 +266,7 @@
             "custom": "Aangepast",
             "animate": "Animeer",
             "fxaa": "FXAA",
+            "fxaaDisabledByVoxel": "Uitgeschakeld zolang een voxellaag wordt getoond",
             "fog": "Mist",
             "groundAtmosphere": "Grond Atmosfeer",
             "dynamicRange": "HDR",

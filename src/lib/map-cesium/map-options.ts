@@ -5,10 +5,14 @@ import type { Map } from "./map";
 
 export class MapOptions {
 	private map: Map;
-
+	
 	public dateTime: Writable<number> = writable<number>(1720602000 * 1000); // 10-07-2024 11:00:00
 	public shadows: Writable<boolean> = writable<boolean>(false);
 	public fxaa: Writable<boolean> = writable<boolean>(false);
+	// Layers (voxels) that render poorly with FXAA register here to force it
+	// off while they're shown.
+	private fxaaSuppressors = new Set<string>();
+	public fxaaSuppressed: Writable<boolean> = writable<boolean>(false);
 	public animate: Writable<boolean> = writable<boolean>(false);
 	public resolutionScale: Writable<number> = writable<number>(1);
 	public maximumScreenSpaceError: Writable<number> = writable<number>(1.2);
@@ -17,6 +21,7 @@ export class MapOptions {
 	public msaa: Writable<number> = writable<number>(4);
 	public skyAtmosphere: Writable<boolean> = writable<boolean>(true);
 	public fog: Writable<boolean> = writable<boolean>(true);
+
 	public highDynamicRange: Writable<boolean> = writable<boolean>(false);
 	public fpsCounter: Writable<boolean> = writable<boolean>(false);
 	public showMouseCoordinates: Writable<boolean> = writable<boolean>(false);
@@ -53,8 +58,8 @@ export class MapOptions {
 		this.subscribe<boolean>(this.shadows, (v) => {
 			this.map.viewer.shadows = v;
 		});
-		this.subscribe<boolean>(this.fxaa, (v) => {
-			this.map.viewer.scene.postProcessStages.fxaa.enabled = v;
+		this.subscribe<boolean>(this.fxaa, () => {
+			this.applyFxaa();
 		});
 		this.subscribe<boolean>(this.animate, (v) => {
 			this.map.viewer.clock.shouldAnimate = v;
@@ -279,6 +284,23 @@ export class MapOptions {
 			}
 
 		}
+	}
+
+	public setFxaaSuppressed(layerId: string, suppressed: boolean): void {
+		if (suppressed) {
+			this.fxaaSuppressors.add(layerId);
+		} else {
+			this.fxaaSuppressors.delete(layerId);
+		}
+
+		this.fxaaSuppressed.set(this.fxaaSuppressors.size > 0);
+		this.applyFxaa();
+		this.map.refresh();
+	}
+
+	private applyFxaa(): void {
+		this.map.viewer.scene.postProcessStages.fxaa.enabled =
+			get(this.fxaa) && this.fxaaSuppressors.size === 0;
 	}
 
 	public setGlobeOpacity(value: number): void {

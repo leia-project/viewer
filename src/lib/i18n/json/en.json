@@ -201,7 +201,8 @@
             "westEast": "West–East",
             "southNorth": "South–North",
             "vertical": "Vertical",
-            "resetSlicing": "Reset slicing"
+            "resetSlicing": "Reset slicing",
+            "slicePlane": "Drag slice plane"
         },
         "bookmarks": {
             "label": "Bookmarks",
@@ -258,6 +259,7 @@
             "custom": "Custom",
             "animate": "Animate",
             "fxaa": "FXAA",
+            "fxaaDisabledByVoxel": "Disabled while a voxel layer is shown",
             "fog": "Fog",
             "groundAtmosphere": "Ground Atmosphere",
             "dynamicRange": "HDR",
