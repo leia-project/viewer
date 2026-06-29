@@ -35,6 +35,7 @@ export class ProjectCamera {
 	private cameraStartPosition: CameraLocation | undefined;
 
 	private cameraListener: () => void;
+	private boundTimeouts: Array<ReturnType<typeof setTimeout>> = [];
 
 	constructor(map: Map, coordinates: Array<[lon: number, lat: number]>, animationTime: number, cameraPosition: CameraLocation | undefined) {
 		this.map = map;
@@ -49,13 +50,15 @@ export class ProjectCamera {
 	public bound(): void {
 		this.zoomToProject();
 		this.setCameraLimits();
-		setTimeout(() => this.addBoundingDome(), this.animationTime - 100);
-		setTimeout(() => {
+		this.boundTimeouts.push(setTimeout(() => this.addBoundingDome(), this.animationTime - 100));
+		this.boundTimeouts.push(setTimeout(() => {
 			this.map.viewer.scene.postRender.addEventListener(this.cameraListener);
-		}, this.animationTime);
+		}, this.animationTime));
 	}
 
 	public unbound(): void {
+		this.boundTimeouts.forEach((t) => clearTimeout(t));
+		this.boundTimeouts = [];
 		if (this.boundingDome) this.map.viewer.entities.remove(this.boundingDome);
 		this.map.viewer.scene.postRender.removeEventListener(this.cameraListener);
 	}

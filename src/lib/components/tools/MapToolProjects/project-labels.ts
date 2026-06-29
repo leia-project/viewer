@@ -109,20 +109,39 @@ export class ProjectLabels {
 		return undefined;
     }
 
-	private leftClickHandle = (m: any) => {
-        const project = this.pickProjectFromMouseLocation(m);
-        if (project !== get(this.selectedProject) && project !== undefined) {
+	private leftDownProject: CesiumProject | undefined;
+	private leftDownPosition: { x: number; y: number } | undefined;
+
+	private leftDownHandle = (m: any) => {
+		this.leftDownProject = this.pickProjectFromMouseLocation(m);
+		this.leftDownPosition = m.position ? { x: m.position.x, y: m.position.y } : undefined;
+	}
+
+	private leftUpHandle = (m: any) => {
+		const downProject = this.leftDownProject;
+		const downPosition = this.leftDownPosition;
+		this.leftDownProject = undefined;
+		this.leftDownPosition = undefined;
+		// Only activate if the press started and ended on the same project without dragging
+		if (!downProject || !downPosition || !m.position) return;
+		const dx = m.position.x - downPosition.x;
+		const dy = m.position.y - downPosition.y;
+		if (Math.sqrt(dx * dx + dy * dy) > 5) return;
+		const project = this.pickProjectFromMouseLocation(m);
+		if (project === downProject && project !== get(this.selectedProject) && project !== undefined) {
 			this.selectedProject.set(project);
 			this.flashPolygons();
 		}
     }
 
     private addMouseEvents(): void {
-        this.inputHandler.setInputAction((m: any) => this.leftClickHandle(m), Cesium.ScreenSpaceEventType.LEFT_DOWN);
+        this.inputHandler.setInputAction((m: any) => this.leftDownHandle(m), Cesium.ScreenSpaceEventType.LEFT_DOWN);
+        this.inputHandler.setInputAction((m: any) => this.leftUpHandle(m), Cesium.ScreenSpaceEventType.LEFT_UP);
     }
 
 	private removeMouseEvents(): void {
         this.inputHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOWN);
+        this.inputHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_UP);
     }
 
 }

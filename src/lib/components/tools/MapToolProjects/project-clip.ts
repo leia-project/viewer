@@ -149,7 +149,7 @@ export class ProjectClippingPlanes {
 		// Resetting any other clipping planes (e.g. ClipSlider object) that may be active on a clipped 3D Tileset:
 		/*
 		for (const layer of get(this.map.layers)) {
-			if (layerNames.includes(layer.config.title) && layer instanceof ThreedeeLayer) {
+			if (layerNames.includes(layer.config.id) && layer instanceof ThreedeeLayer) {
 				//if (layer.clipControl) layer.clipControl.props.clipSlider?.active.set(false);
 				//if (layer.clipControl?.props.clipSlider) layer.clipActive.set(false);
 			}

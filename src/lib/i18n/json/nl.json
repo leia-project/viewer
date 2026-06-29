@@ -257,7 +257,9 @@
             "label": "Projecten",
             "activateProject": "Project activeren",
             "leaveProjectView": "Project verlaten",
-            "showOnMap": "Projecten tonen op kaart"
+            "showOnMap": "Projecten tonen op kaart",
+            "active": "Actief",
+            "zoomToProject": "Zoom naar project"
         },
         "featureInfo": {
             "label": "Object Informatie",

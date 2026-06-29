@@ -47,7 +47,7 @@ export class CesiumProject {
 		this.projectClippingPlanes = new ProjectClippingPlanes(map, this.coordinates);
 		this.selectedListener = this.selectedProject.subscribe((project: CesiumProject | undefined) => {
 			if (project === this && !get(this.selected)) this.activate();
-			if (!project && get(this.selected)) this.deactivate();
+			if (!project && (get(this.selected) || this.processing)) this.deactivate();
 		});
 	}
 
@@ -67,6 +67,7 @@ export class CesiumProject {
 	}
 
 	public deactivate(): void {
+		this.processing = false;
 		this.resetLayers();
 		this.projectClippingPlanes.remove();
 		this.projectCamera.unbound();
@@ -89,7 +90,7 @@ export class CesiumProject {
 
 	
 		for (let i=0; i<this.layerNames.length; i++) {
-			const layer = this.map.getLayerByTitle(this.layerNames[i]);
+			const layer = this.map.getLayerById(this.layerNames[i]);
 			layer?.visible.set(true);
 		}
 
@@ -100,7 +101,7 @@ export class CesiumProject {
 			if (layerConfig) {
 				layerConfig.added.set(true);
 				setTimeout(() => {
-					const layer = this.map.getLayerByTitle(this.layerNames[i]);
+					const layer = this.map.getLayerById(this.layerNames[i]);
 					layer?.visible.set(true)
 				}, 0);
 			};
@@ -111,7 +112,7 @@ export class CesiumProject {
 	private resetLayers(): void {
 		// Hide project layers
 		for (let i=0; i<this.layerNames.length; i++) {
-			const layer = this.map.getLayerByTitle(this.layerNames[i]);
+			const layer = this.map.getLayerById(this.layerNames[i]);
 			layer?.visible.set(false);
 		}
 
@@ -132,16 +133,16 @@ export class CesiumProject {
 
 
 
-	public findLayer(layerTitle: string): LayerConfig | undefined {
-        return this.findLayerRecursive(layerTitle, get(this.map.layerLibrary.groups));
+	public findLayer(layerId: string): LayerConfig | undefined {
+        return this.findLayerRecursive(layerId, get(this.map.layerLibrary.groups));
     }
 
-    private findLayerRecursive(layerTitle: string, groups: Array<LayerConfigGroup>): LayerConfig | undefined {
+    private findLayerRecursive(layerId: string, groups: Array<LayerConfigGroup>): LayerConfig | undefined {
         for(let i = 0; i < groups.length; i++) {
             const layerConfigs = get(groups[i].layerConfigs);
             if(layerConfigs.length > 0) {
                 for(let j = 0; j < layerConfigs.length; j++) {
-                    if(layerConfigs[j].title === layerTitle) {
+                    if(layerConfigs[j].id === layerId) {
                         return layerConfigs[j];
                     }
                 }
@@ -149,7 +150,7 @@ export class CesiumProject {
 
             const childGroups = get(groups[i].childGroups);
             if(childGroups.length > 0) {
-                const rec = this.findLayerRecursive(layerTitle, get(groups[i].childGroups));
+                const rec = this.findLayerRecursive(layerId, get(groups[i].childGroups));
                 if(rec) {
                     return rec;
                 }

@@ -1,12 +1,13 @@
 <script lang="ts">
-    import { getContext, onMount, afterUpdate } from "svelte";
+    import { getContext, onMount } from "svelte";
     import { _ } from "svelte-i18n";
     import { Slider, Checkbox, Button, AccordionItem, Dropdown } from "carbon-components-svelte";
-	import { Search, TrashCan, ChevronDown, ChevronUp } from "carbon-icons-svelte";
+	import { Search, TrashCan } from "carbon-icons-svelte";
     import { XMLParser } from 'fast-xml-parser';
 
     import type { Layer } from "$lib/map-core/layer";
     import ErrorMessage from "$lib/components/theme/ErrorMessage/ErrorMessage.svelte"
+    import ExpandableDescription from "$lib/components/theme/ExpandableDescription/ExpandableDescription.svelte"
 
     const { map } = getContext<any>("mapTools");
 
@@ -16,9 +17,6 @@
     let open: boolean;
     let imageValid: boolean = true;
     let descriptionValid: boolean = true;
-    let descriptionExpanded: boolean = false;
-    let descriptionOverflows: boolean = false;
-    let descriptionEl: HTMLParagraphElement | undefined;
     let items: { id: string; text: string }[] = [];
     
     const defaultLegendUrl = layer.config.legendUrl;
@@ -102,17 +100,6 @@
         if (pos) map.flyTo(pos);
     }
 
-    function checkDescriptionOverflow() {
-        if (!descriptionEl) return;
-        descriptionOverflows = descriptionEl.scrollHeight > descriptionEl.clientHeight + 1;
-    }
-
-    afterUpdate(() => {
-        if (!descriptionExpanded) {
-            checkDescriptionOverflow();
-        }
-    });
-
     onMount(async() => {
         if (!layer.config.legendSupported) {
             return;
@@ -174,21 +161,7 @@
         {/if}
         {#if layer.config.descriptionSupported}
             {#if descriptionValid && layer.config.description}
-                <p
-                    class="description label-01"
-                    class:description-clamped={!descriptionExpanded}
-                    bind:this={descriptionEl}
-                >{layer.config.description}</p>
-                {#if descriptionOverflows || descriptionExpanded}
-                    <button
-                        type="button"
-                        class="description-toggle label-01"
-                        on:click|stopPropagation={() => (descriptionExpanded = !descriptionExpanded)}
-                    >
-                        <span>{descriptionExpanded ? $_("tools.layerManager.showLess") : $_("tools.layerManager.showMore")}</span>
-                        <svelte:component this={descriptionExpanded ? ChevronUp : ChevronDown} size={16} />
-                    </button>
-                {/if}
+                <ExpandableDescription text={layer.config.description} />
             {/if}
         {/if}
         {#if layer.config.type === "wms" && layer.config.settings?.tools?.styleSwitcher?.enabled == true}        
@@ -273,45 +246,6 @@
     .slider-wrapper :global(.bx--slider) {
         min-width: 0;
         flex: 1 1 auto;
-    }
-
-    .description {
-        margin-top: var(--cds-spacing-01);
-        max-width: 100%;
-        margin-bottom: var(--cds-spacing-02);
-        overflow-wrap: anywhere;
-        word-break: break-word;
-        white-space: pre-line;
-    }
-
-    .description-clamped {
-        display: -webkit-box;
-        -webkit-line-clamp: 5;
-        line-clamp: 5;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .description-toggle {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--cds-spacing-01);
-        margin-bottom: var(--cds-spacing-03);
-        padding: 0;
-        border: none;
-        background: none;
-        cursor: pointer;
-        color: var(--cds-link-01);
-    }
-
-    .description-toggle:hover {
-        color: var(--cds-link-primary-hover, var(--cds-hover-primary-text));
-        text-decoration: underline;
-    }
-
-    .description-toggle:focus-visible {
-        outline: 2px solid var(--cds-focus);
-        outline-offset: 2px;
     }
 
     .legend {

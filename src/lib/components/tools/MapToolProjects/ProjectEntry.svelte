@@ -2,11 +2,12 @@
 	import { createEventDispatcher } from "svelte";
 	import { _ } from "svelte-i18n";
 	import { AccordionItem, Button, Tag } from "carbon-components-svelte";
-	import { Exit, ZoomIn } from "carbon-icons-svelte";
+	import { Exit } from "carbon-icons-svelte";
 
 	import type { Map } from "$lib/map-cesium/map";
 	import type { CesiumProject } from "./project";
 	import LayerEntry from "./LayerEntry.svelte";
+	import ExpandableDescription from "$lib/components/theme/ExpandableDescription/ExpandableDescription.svelte";
 
 	export let map: Map;
 	export let project: CesiumProject;
@@ -20,10 +21,9 @@
 
 	const projectLayers = project.projectSettings.layers;
 	$: mapLayers = map.layers;
-	$: projectMapLayers = $mapLayers.filter((l) => projectLayers.includes(l.title));
+	$: projectMapLayers = $mapLayers.filter((l) => projectLayers.includes(l.config.id));
 	
 	const dispatch = createEventDispatcher();
-
 </script>
 
 
@@ -39,19 +39,28 @@
                 </div>
             </div>
 			{#if $selected}
-				<Tag size="sm">Active</Tag>
+				<Tag type="green" size="sm">{$_('tools.projects.active')}</Tag>
 			{/if}
         </div>
     </svelte:fragment>
+	<div class="project-content">
+		<ExpandableDescription text={project.projectSettings.description} />
+		{#if project.projectSettings.layers}
+			<ul class="layer-list">
+				{#each projectMapLayers as layer}
+					<LayerEntry {layer} />
+				{/each}
+			</ul>
+		{/if}
+	</div>
 	<div class="project-header">
 		{#if $selected}
 			<Button
-				icon={ZoomIn}
-				size="field"
-				iconDescription={"Zoom to start view"}
-				tooltipPosition="left"
-				on:click={() => dispatch("activate")}
-			/>
+				kind="primary"
+				size="default"
+				icon={Exit}
+				on:click={() => map.options.selectedProject.set(undefined)}
+			>{$_('tools.projects.leaveProjectView')}</Button>
 		{:else}
 			<Button
 				kind="primary"
@@ -61,16 +70,6 @@
 				{$_('tools.projects.activateProject')}
 				<Exit slot="icon" size={20} class="bx--btn__icon"/>
 			</Button>
-		{/if}
-	</div>
-	<div class="project-content">
-		<div class="project-description">{project.projectSettings.description}</div>
-		{#if project.projectSettings.layers}
-			<ul class="layer-list">
-				{#each projectMapLayers as layer}
-					<LayerEntry {layer} />
-				{/each}
-			</ul>
 		{/if}
 	</div>
 </AccordionItem>
@@ -105,10 +104,6 @@
         justify-content: end;
         align-items: center;
         align-content: center;
-	}
-
-	.project-description {
-		margin: 15px 0 15px;
 	}
 
 </style>
