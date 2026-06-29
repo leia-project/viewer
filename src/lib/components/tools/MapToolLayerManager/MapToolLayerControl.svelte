@@ -114,10 +114,10 @@
     });
 
     onMount(async() => {
-        if (layer.config.type !== "wms" || !layer.config.legendSupported) {
+        if (!layer.config.legendSupported) {
             return;
         }
-        if (!layer.config.settings?.tools?.styleSwitcher?.enabled) {
+        if (layer.config.type !== "wms" || !layer.config.settings?.tools?.styleSwitcher?.enabled) {
             // If style switcher is disabled, use the config legend URL
             legendUrl = defaultLegendUrl;
         }

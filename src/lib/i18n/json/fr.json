@@ -218,6 +218,12 @@
                 "default": "Aucun",
                 "legend": "Légende",
                 "reset": "Réinitialiser la légende"
+            },
+            "clipper": {
+                "label": "Découper la couche",
+                "rotationVerticalAxis": "Rotation de l'axe vertical",
+                "rotationHorizontalAxis": "Rotation de l'axe horizontal",
+                "sliceModeLabel": "Créer une coupe"
             }
         },
         "backgroundControls": {

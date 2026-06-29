@@ -27,22 +27,22 @@
 				on:toggle={() => {
 					if ($layerVisible) clipActive.set(!$clipActive)
 				}}
-				labelA={$_("general.off")}
-				labelB={$_("general.on")}
+				labelA=""
+				labelB=""
 			/>
 			
 			<div class="top-buttons">
 				{#if $clipActive}
-					{#if ($sliderXY !== 180 || $sliderZ !== 0)}
-					<Button
-						iconDescription={$_("general.buttons.reset")}
-						icon={Reset}
-						tooltipPosition="bottom"
-						tooltipAlignment="center"
-						size="field"
-						on:click={() => clipSlider.reset()}
-					/>
-					{/if}
+					<span class="reset-button" class:hidden={$sliderXY === 180 && $sliderZ === 0}>
+						<Button
+							iconDescription={$_("general.buttons.reset")}
+							icon={Reset}
+							tooltipPosition="bottom"
+							tooltipAlignment="center"
+							size="field"
+							on:click={() => clipSlider.reset()}
+						/>
+					</span>
 				<Button
 					kind="ghost"
 					iconDescription={$showSlider ? $_("general.buttons.hide") :  $_("general.buttons.show")}
@@ -105,6 +105,14 @@
 		column-gap: 20px;
 		margin-bottom: 10px;
 		padding-left: 10px;
+	}
+	.top-buttons {
+		display: flex;
+		align-items: center;
+		column-gap: 5px;
+	}
+	.reset-button.hidden {
+		visibility: hidden;
 	}
 	.label-02 {
 		padding: 15px 0;
