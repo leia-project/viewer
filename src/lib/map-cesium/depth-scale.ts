@@ -4,24 +4,7 @@ import type { Map } from "./map";
 
 const NAP_OFFSET_M = 44;
 
-/** Returns the tick interval in meters for a given vertical exaggeration
- * to prevent squishing the labels at low level of vertical exaggeration and to prevent too sparse labels at high vertical exaggeration.
- */
-function tickIntervalForVe(vertExag: number): number {
-	if (vertExag >= 80) {
-		return 5;
-	}
-	if (vertExag >= 40) {
-		return 10;
-	}
-	if (vertExag >= 15) {
-		return 20;
-	}
-
-	return 40;
-}
-
-export class VoxelDepthScale {
+export class DepthScale {
 	private polylines: Cesium.PolylineCollection;
 	private labels: Cesium.LabelCollection;
 	private veUnsubscribe: Unsubscriber;
@@ -105,4 +88,22 @@ function formatNap(z: number) {
 	const sign = z > 0 ? "+" : "";
 
 	return `${sign}${z}m NAP`;
+}
+
+/** Returns the tick interval in meters for a given vertical exaggeration
+ * to prevent squishing the labels at low level of vertical exaggeration
+ * and to prevent too sparse labels at high vertical exaggeration.
+ */
+function tickIntervalForVe(vertExag: number): number {
+	if (vertExag >= 80) {
+		return 5;
+	}
+	if (vertExag >= 40) {
+		return 10;
+	}
+	if (vertExag >= 15) {
+		return 20;
+	}
+
+	return 40;
 }

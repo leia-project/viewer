@@ -11,7 +11,7 @@ import {
 	type ResolvedVoxelProperty,
 	type VoxelPropertyConfig
 } from "./voxel-legend";
-import { VoxelDepthScale } from "../voxel-depth-scale";
+import { DepthScale } from "../depth-scale";
 import { VoxelClipSlider } from "./voxel-clip-slider";
 
 import LayerControlVoxel from "$lib/components/layer-controls/LayerControlVoxel/LayerControlVoxel.svelte";
@@ -35,7 +35,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	public clipping: Writable<ClipRange>;
 	public clipSlider: VoxelClipSlider | null = null;
 	private bounds: { min: Cesium.Cartesian3; max: Cesium.Cartesian3 } | null = null;
-	private depthScale: VoxelDepthScale | null = null;
+	private depthScale: DepthScale | null = null;
 
 	constructor(map: CesiumMap, config: LayerConfig) {
 		super(map, config);
@@ -219,7 +219,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				const east = maxBounds.x; // lon
 				const nsMiddle = (minBounds.y + maxBounds.y) / 2; // lat
 
-				this.depthScale = new VoxelDepthScale(this.map, east, nsMiddle, maxBounds.z, minBounds.z);
+				this.depthScale = new DepthScale(this.map, east, nsMiddle, maxBounds.z, minBounds.z);
 				this.depthScale.addToScene();
 				this.depthScale.setVisible(get(this.visible));
 
