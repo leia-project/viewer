@@ -198,7 +198,8 @@
         },
         "backgroundControls": {
             "opacity": "Wereld Transparantie",
-            "terrain": "Terrein"
+            "terrain": "Terrein",
+            "verticalExaggeration": "Verticale overdrijving"
         },
         "bookmarks": {
             "label": "Bladwijzers",
@@ -290,7 +291,7 @@
             "storyChartNoData": "Geen Data",
             "storyChartNoDataInPolygon": "Geen data in het getekende projectgebied",
             "basemap": "Achtergrondkaart",
-            "polygonTitle": "Projectgebied", 
+            "polygonTitle": "Projectgebied",
             "requestDrawPolygon": "Teken een projectgebied in",
             "uploadPolygon": "Projectgebied Uploaden",
             "drawPolygon": "Projectgebied Tekenen",
@@ -348,5 +349,4 @@
             "invalidPolygon": "Ongeldig polygoon: Zorg ervoor dat het polygoon zichzelf niet snijdt."
         }
     }
-
 }
