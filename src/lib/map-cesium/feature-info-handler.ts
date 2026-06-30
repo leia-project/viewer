@@ -9,6 +9,8 @@ import { get } from "svelte/store";
 export class FeatureInfoHandler {
     public readonly selectedProperty: string = "cesium_selected";
     public selected3DTileFeature : Cesium.Cesium3DTileFeature | undefined;
+    /** World position of the last 3D Tiles pick, for tools that anchor to it (e.g. borehole depth scale). */
+    public selectedFeaturePosition : Cesium.Cartesian3 | undefined;
 
     private selected: Cesium.Entity | undefined;
     private scratchColor!: Cesium.MaterialProperty;
@@ -39,6 +41,13 @@ export class FeatureInfoHandler {
             info = this.pick3D(picked);
         }
 
+        if (this.selected3DTileFeature) {
+            const scene = this.map.viewer.scene;
+            this.selectedFeaturePosition = scene.pickPositionSupported
+                ? scene.pickPosition(location)
+                : undefined;
+        }
+
         // Nothing found, request imagery layers
         if (info === undefined && Cesium.defined(this.map.viewer.scene.globe)) {
             info = await this.pickImageryLayers(location);
@@ -61,7 +70,8 @@ export class FeatureInfoHandler {
     private resetSelected3DTileFeature(): void {
         if(this.selected3DTileFeature) {
             this.selected3DTileFeature.setProperty(this.selectedProperty, "false");
-            this.selected3DTileFeature = undefined;            
+            this.selected3DTileFeature = undefined;
+            this.selectedFeaturePosition = undefined;
             this.map.refresh();
         }
     }

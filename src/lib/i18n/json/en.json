@@ -191,7 +191,8 @@
         },
         "backgroundControls": {
             "opacity": "Globe Opacity",
-            "terrain": "Terrain"
+            "terrain": "Terrain",
+            "verticalExaggeration": "Vertical exaggeration"
         },
         "bookmarks": {
             "label": "Bookmarks",
@@ -341,5 +342,4 @@
             "invalidPolygon": "Invalid polygon: The polygon cannot intersect itself."
         }
     }
-
 }
