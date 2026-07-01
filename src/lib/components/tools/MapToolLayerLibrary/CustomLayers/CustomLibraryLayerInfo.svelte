@@ -89,15 +89,26 @@
 
 <div class="wrapper">
     <div class="header">
-        <div class="heading-03">
+        <div class="heading-03 title">
             {$_("tools.layerLibrary.myDataTitle")}: {$title}
         </div>
         <div class="delete-btn">
-            <Button 
-                kind="danger"
-                icon={TrashCan}
-                on:click={() => dispatch("deleteLayer", custom)}
-            >{$_("tools.layerLibrary.deleteLayer")}</Button>
+            <div class="delete-full">
+                <Button 
+                    kind="danger"
+                    icon={TrashCan}
+                    on:click={() => dispatch("deleteLayer", custom)}
+                >{$_("tools.layerLibrary.deleteLayer")}</Button>
+            </div>
+            <div class="delete-icon">
+                <Button 
+                    kind="danger"
+                    icon={TrashCan}
+                    iconDescription={$_("tools.layerLibrary.deleteLayer")}
+                    tooltipPosition="left"
+                    on:click={() => dispatch("deleteLayer", custom)}
+                />
+            </div>
         </div>
     </div>
     <Divider />
@@ -289,7 +300,33 @@
         width: 100%;
         padding: var(--cds-spacing-03) 0rem var(--cds-spacing-03) 0px;
         display: flex;
+        align-items: center;
         justify-content: space-between;
+        gap: var(--cds-spacing-03);
+        container-type: inline-size;
+    }
+
+    .header .title {
+        flex: 1 1 50%;
+        min-width: 50%;
+        overflow-wrap: break-word;
+    }
+
+    .delete-btn {
+        flex: 0 0 auto;
+    }
+
+    .delete-icon {
+        display: none;
+    }
+
+    @container (max-width: 400px) {
+        .delete-full {
+            display: none;
+        }
+        .delete-icon {
+            display: block;
+        }
     }
 
     .input-fields {

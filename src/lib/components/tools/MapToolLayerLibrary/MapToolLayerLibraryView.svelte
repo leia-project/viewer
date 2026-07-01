@@ -441,6 +441,19 @@
         display: flex;
         justify-content: center;
     }
+
+    .content :global(.bx--inline-notification) {
+        min-width: 0;
+        max-width: 100%;
+        width: 100%;
+    }
+    .content :global(.bx--inline-notification__text-wrapper) {
+        flex-wrap: wrap;
+    }
+    .content :global(.bx--inline-notification__subtitle) {
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
     #tag-filter, #reset-filter-button {
         margin-bottom: 10px;
     }
