@@ -562,7 +562,8 @@ async function downloadPDF() {
 			e.stopPropagation();
 		}}
 	>	
-		<div class="heading-03" style="font-weight: bold; text-align: left; width: 100%;">
+		<div class="nav-header">
+		<div class="heading-03 nav-title" title={story.name} style="font-weight: bold; text-align: left;">
 			{story.name}
 		</div>
 		<div class="nav-controls">
@@ -593,15 +594,17 @@ async function downloadPDF() {
 					/>
 				</div>
 			{/if}
-			<div class="close">
-				<Button
-					kind="tertiary"
-					iconDescription={textBack}
-					tooltipPosition="left"
-					icon={Exit}
-					on:click={backToOverview} 
-				/>
-			</div>
+		</div>
+		<div class="nav-close">
+			<Button
+				kind="tertiary"
+				iconDescription={textBack}
+				tooltipPosition="bottom"
+				tooltipAlignment="end"
+				icon={Exit}
+				on:click={backToOverview} 
+			/>
+		</div>
 		</div>
 		
 		<!-- <div class="story-description body-compact-01">
@@ -629,7 +632,7 @@ async function downloadPDF() {
 			{/each}
 		</div>
 		<hr style="width: 100%;"/>
-		<div>
+		<div style="width: 100%;">
 			<CustomPaginationNav
 				bind:page={$currentPage}
 				bind:lastInputType ={lastInputType}
@@ -790,36 +793,41 @@ async function downloadPDF() {
 		flex: 0 0 auto;
 	}
 
-	.nav .close {
-		position: absolute;
-		top: 0;
-		right: 0;
-		margin-left: 1rem;
+	.nav-header {
+		display: flex;
+		flex-wrap: nowrap;
+		align-items: center;
+		gap: 0.5rem;
+		width: 100%;
 	}
 
-	.nav .draw-polygon {
-		position: absolute;
-		top: 0;
-		right:5
+	.nav-title {
+		flex: 1 1 auto;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.nav-controls {
-		position: absolute;
-		top: 0;
-		right: 0;
+		flex: 0 0 auto;
 		display: flex;
+		flex-wrap: nowrap;
 		gap: 0.25rem; /* spacing between the buttons */
-		padding: 0.5rem;
 	}
-	
-	.nav-controls .draw-polygon,
-	.nav-controls .close {
-		position: static; /* Override absolute positioning from before */
+
+	.nav-close {
+		flex: 0 0 auto;
 	}
 
 	.chapter-buttons {
 		justify-content: center;
 		flex-wrap: wrap;
+	}
+
+	.nav .chapter-buttons {
+		position: relative;
+		z-index: 10;
 	}
 
 

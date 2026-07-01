@@ -474,16 +474,49 @@
         if (completeButton !== undefined) completeButtonEnabled = completeButton;
     };
 
+    // Width of the polygon menu (equals the story panel width)
+    let menuWidth: number = 0;
+    $: iconOnly = menuWidth > 0 && menuWidth < 440;
+
+    function handleComplete() {
+        isDrawing ? handleFinishDrawing() : handleFinishUpload();
+    }
+
+    function handleDelete() {
+        setButtonStates(true, true, false, false);
+
+        // Reset polygon data
+        deletePolygon();
+        polygonStore.set({
+            polygonEntity: null,
+            redPoints: [],
+            distributions: []
+        });
+        uploadedFile = [];
+        distributions = [];
+        hasDrawnPolygon = false;
+        hasUploadedPolygon = false;
+        // Clear all stored images from the exportDataPages store
+        exportDataPages.update(state => ({
+            ...state,
+            pages: state.pages.map(page => ({
+                ...page,
+                image: undefined
+            }))
+        }));
+    }
+
 </script>
 
 {#if $showPolygonMenu}
+    <div class="polygon-menu" bind:clientWidth={menuWidth}>
     {#if !hasDrawnPolygon}
         <div>
             <div class="title-with-tooltip">
                 <h4>{$_("tools.stories.polygonTitle")}</h4>
                 <TooltipIcon  
-                    align="start"
-                    direction="right"
+                    align="center"
+                    direction="bottom"
                     tooltipText={$_("tools.stories.drawPolygonText")}
                     icon={Information}
                 />
@@ -491,95 +524,105 @@
         </div>
     {/if}
 
-    <div class="buttons">
+    <div class="buttons" class:icon-only={iconOnly}>
         <div class="left-column">
-            <Button 
-                icon={AreaCustom}
-                kind={isDrawing ? "primary" : "tertiary"}
-                disabled={!drawButtonEnabled} 
-                on:click={() => {
-                    draw();
-                }}
-            >
-                {$_("tools.stories.drawPolygon")}
-            </Button>
+            {#if iconOnly}
+                <Button 
+                    icon={AreaCustom}
+                    iconDescription={$_("tools.stories.drawPolygon")}
+                    tooltipPosition="bottom"
+                    kind={isDrawing ? "primary" : "tertiary"}
+                    disabled={!drawButtonEnabled} 
+                    on:click={() => draw()}
+                />
+            {:else}
+                <Button 
+                    icon={AreaCustom}
+                    kind={isDrawing ? "primary" : "tertiary"}
+                    disabled={!drawButtonEnabled} 
+                    on:click={() => draw()}
+                >
+                    {$_("tools.stories.drawPolygon")}
+                </Button>
+            {/if}
 
             <CustomFileUploader
                 kind = "tertiary"
                 multiple = {false} 
                 disabled={!uploadButtonEnabled}
                 accept={[".geojson", ".gpkg"]}
+                iconOnly={iconOnly}
+                iconDescription={$_("tools.stories.uploadPolygon")}
+                tooltipPosition="bottom"
                 labelText={validationErrors ? $_("tools.stories.uploadPolygon") : (fileUploaded ? $_("tools.stories.uploadPolygon") : $_("tools.stories.uploadPolygon"))}
                 on:change={handleFiles}
             />
-
-            {#each uploadedFile as file}
-                {#if validationErrors[file.name]}
-                    <FileUploaderItem
-                        id={file.name}
-                        name={file.name}
-                        invalid
-                        errorSubject={validationErrors[file.name]}
-                        status="edit"
-                        on:delete={(e) => {
-                            uploadedFile = [];
-                        }}
-                    />
-                {:else}
-                    <FileUploaderItem
-                        id={file.name}
-                        name={file.name}
-                        status= "complete"
-                    />
-                {/if}
-            {/each}
        
         </div>
 
         <div class="right-column">
-            <Button 
-                class="delete-polygon-button"
-                kind="danger"
-                tooltipPosition="bottom"
-                icon={TrashCan}
-                disabled={!deleteButtonEnabled}
-                on:click={() => {
-                    setButtonStates(true, true, false, false);
+            {#if iconOnly}
+                <Button 
+                    class="delete-polygon-button"
+                    kind="danger"
+                    icon={TrashCan}
+                    iconDescription={$_("tools.stories.deletePolygon")}
+                    tooltipPosition="bottom"
+                    disabled={!deleteButtonEnabled}
+                    on:click={handleDelete}
+                />
 
-                    // Reset polygon data
-                    deletePolygon();
-                    polygonStore.set({
-                        polygonEntity: null,
-                        redPoints: [],
-                        distributions: []
-                    });
-                    uploadedFile = [];
-                    distributions = [];
-                    hasDrawnPolygon = false;
-                    hasUploadedPolygon = false;
-                    // Clear all stored images from the exportDataPages store
-                    exportDataPages.update(state => ({
-                        ...state,
-                        pages: state.pages.map(page => ({
-                            ...page,
-                            image: undefined
-                        }))
-                    }));
-                }}
-            >
-                {$_("tools.stories.deletePolygon")}
-            </Button>
+                <Button
+                    icon={Checkmark}
+                    iconDescription={$_("tools.stories.finishPolygon")}
+                    tooltipPosition="bottom"
+                    disabled={!completeButtonEnabled}
+                    on:click={handleComplete}
+                />
+            {:else}
+                <Button 
+                    class="delete-polygon-button"
+                    kind="danger"
+                    tooltipPosition="bottom"
+                    icon={TrashCan}
+                    disabled={!deleteButtonEnabled}
+                    on:click={handleDelete}
+                >
+                    {$_("tools.stories.deletePolygon")}
+                </Button>
 
-            <Button
-                on:click={() => {
-                    isDrawing ? handleFinishDrawing() : handleFinishUpload();
-                }}
-                icon={ Checkmark }
-                disabled={!completeButtonEnabled}
-            >
-                {$_("tools.stories.finishPolygon")}
-            </Button>
+                <Button
+                    icon={Checkmark}
+                    disabled={!completeButtonEnabled}
+                    on:click={handleComplete}
+                >
+                    {$_("tools.stories.finishPolygon")}
+                </Button>
+            {/if}
         </div>
+    </div>
+
+    <div class="uploaded-files" class:icon-only={iconOnly}>
+    {#each uploadedFile as file}
+        {#if validationErrors[file.name]}
+            <FileUploaderItem
+                id={file.name}
+                name={file.name}
+                invalid
+                errorSubject={validationErrors[file.name]}
+                status="edit"
+                on:delete={(e) => {
+                    uploadedFile = [];
+                }}
+            />
+        {:else}
+            <FileUploaderItem
+                id={file.name}
+                name={file.name}
+                status="complete"
+            />
+        {/if}
+    {/each}
     </div>
 
     {#if errorMessage}
@@ -593,9 +636,14 @@
     {/if}
 
     <br><hr><br>
+    </div>
 {/if}
 
 <style> 
+
+    .polygon-menu {
+        width: 100%;
+    }
 
     .buttons {
         display: flex;
@@ -606,18 +654,30 @@
         gap: 1rem;
     }
 
-    .left-column {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        width: 100%;
+    .buttons:not(.icon-only) :global(.bx--btn) {
+        white-space: nowrap;
+        padding-right: 2.25rem;
     }
 
+    .left-column,
     .right-column {
         display: flex;
         flex-direction: column;
         gap: 1rem;
         width: 100%;
+        min-width: 0;
+    }
+
+    .buttons.icon-only {
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .buttons.icon-only .left-column,
+    .buttons.icon-only .right-column {
+        display: contents;
     }
 
     .title-with-tooltip {
@@ -627,6 +687,19 @@
         position: relative;
         z-index: 99;
         margin-top: 0.5rem;
+        gap: 0.25rem;
+    }
+
+    .uploaded-files.icon-only {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .uploaded-files.icon-only :global(.bx--file__selected-file) {
+        width: -webkit-max-content;
+        width: max-content;
+        max-width: 100%;
     }
 
 </style>
