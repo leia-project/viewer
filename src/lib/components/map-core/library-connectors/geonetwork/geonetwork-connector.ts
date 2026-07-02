@@ -4,6 +4,7 @@ import type { LibraryConnector } from "../library-connector";
 import { LibraryConnectorData } from "../library-connector-data";
 import { get } from "svelte/store";
 import type { GeoNetworkConnectorSettings } from "./geonetwork-connector-settings";
+import { WmsLayer } from "$lib/components/map-cesium/module/layers/wms-layer";
 
 
 export class GeoNetworkConnector implements LibraryConnector {
@@ -143,38 +144,35 @@ export class GeoNetworkConnector implements LibraryConnector {
         for(let i = 0; i < layers.length; i++) {
             const l = layers[i];
 
-            // let groupId = l.topicCat || 'dataportal'; // Default to dataportal if no group is found
-
-            // If groupId is an array, use the first element
-            // If only the first element is used the dataportal appears incomplete therefore the layers will be added in every categorie they belong
-            // if (Array.isArray(groupId)) {
-                //groupId = groupId[0];
-            //}
-            
-            const layerSettings = this.getSettings(l.link);
-            if (Object.keys(layerSettings).length === 0) {
+            const layerSettingsList = this.getSettings(l.link);
+            if (layerSettingsList.length === 0) {
                 continue;
             }
-            const lc = new LayerConfig({
-                id: l.identifier,
-                type: "wms",
-                title: l.title,
-                description: l.abstract,
-                groupId: groupId,
-                imageUrl: this.getImageUrl(l.image),
-                attribution: undefined,
-                isBackground: false,
-                legendUrl: undefined,
-                defaultAddToManager: false,
-                defaultOn: false,
-                metadata: undefined,
-                metadataUrl: '',
-                metadataLink: this.settings.url + this.linkFormat.replace('{uuid}', l['geonet:info'].uuid),
-                settings: layerSettings,
-                cameraPosition: undefined,
-                tags: undefined
-            });                
-            configs.push(lc);
+
+            for (let j = 0; j < layerSettingsList.length; j++) {
+                const layerSettings = layerSettingsList[j];
+                const multipleLayers = layerSettingsList.length > 1;
+                const lc = new LayerConfig({
+                    id: multipleLayers ? `${l.identifier}__${layerSettings.featureName}` : l.identifier,
+                    type: "wms",
+                    title: multipleLayers ? `${l.title} - ${layerSettings.featureName}` : l.title,
+                    description: l.abstract,
+                    groupId: groupId,
+                    imageUrl: this.getImageUrl(l.image),
+                    attribution: undefined,
+                    isBackground: false,
+                    legendUrl: undefined,
+                    defaultAddToManager: false,
+                    defaultOn: false,
+                    metadata: undefined,
+                    metadataUrl: '',
+                    metadataLink: this.settings.url + this.linkFormat.replace('{uuid}', l['geonet:info'].uuid),
+                    settings: layerSettings,
+                    cameraPosition: undefined,
+                    tags: undefined
+                });
+                configs.push(lc);
+            }
         }
 
         if(this.debug) {
@@ -204,24 +202,25 @@ export class GeoNetworkConnector implements LibraryConnector {
         return imageUrl ? imageUrl.split('|')[1] : undefined
     }
 
-    private getSettings(link: Array<string>): Object {
+    private getSettings(link: Array<string>): Array<any> {
+        const wmslinks: Array<any> = [];
         try {
             for (let i = 0; i < link.length; i++) {
                 let l = link[i];
                 if (l.includes('OGC:WMS')) {
                     let l_split = l.split('|');
-                    return {
+                    wmslinks.push({
                         url: l_split[2].split('?')[0],
                         type: 'wms',
                         featureName: l_split[0],
                         contenttype: 'image/png'
-                    }
+                    })
                 }
             }
         } catch (error) {
             console.error(error);
         }
-        return {}
+        return wmslinks;
     }
 
     /**
