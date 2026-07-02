@@ -2,7 +2,7 @@ import * as Cesium from "cesium";
 import type { LayerConfig } from "$lib/map-core/layer-config";
 import type { Map } from "../map";
 import { CesiumImageryLayer } from "./imagery-layer";
-import { get } from "svelte"
+
 export class WmsLayer extends CesiumImageryLayer {
 
 	constructor(map: Map, config: LayerConfig) {
