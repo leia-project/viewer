@@ -651,9 +651,6 @@ async function downloadPDF() {
 				<div class="step-heading heading-04">
 					{step.title}
 				</div>
-				<div class="step-heading-sub heading-03">
-					{$_("tools.stories.description")}
-				</div>
 				<div>
 					{@html step.html}
 				</div>
