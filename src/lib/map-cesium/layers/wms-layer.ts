@@ -2,8 +2,7 @@ import * as Cesium from "cesium";
 import type { LayerConfig } from "$lib/map-core/layer-config";
 import type { Map } from "../map";
 import { CesiumImageryLayer } from "./imagery-layer";
-import { get } from "svelte/store"
-
+import { get } from "svelte"
 export class WmsLayer extends CesiumImageryLayer {
 
 	constructor(map: Map, config: LayerConfig) {
@@ -21,7 +20,7 @@ export class WmsLayer extends CesiumImageryLayer {
 			},
 		});
 		this.source = new Cesium.ImageryLayer(provider, {
-			alpha: this.getOpacity(get(this.opacity))
+			alpha: this.getOpacity(this.config.opacity)
 		});
 	}
 
