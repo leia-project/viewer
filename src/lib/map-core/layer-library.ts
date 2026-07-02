@@ -32,11 +32,13 @@ export class LayerLibrary extends Dispatcher {
     }
 
     public addLoadingConnector(connector: { label: string; url: string }): void {
-        this.loadingConnectors.set([...get(this.loadingConnectors), connector]);
+        this.loadingConnectors.update((current) =>
+            current.some((c) => c.url === connector.url) ? current : [...current, connector]
+        );
     }
 
     public removeLoadingConnector(connector: { label: string; url: string }): void {
-        this.loadingConnectors.set(get(this.loadingConnectors).filter((c) => c.url !== connector.url));
+        this.loadingConnectors.update((current) => current.filter((c) => c.url !== connector.url));
     }
 
     public findLayer(layerId: string): LayerConfig | undefined {
