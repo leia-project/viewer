@@ -62,7 +62,7 @@ Top-level config shape:
 | `startPosition` | Start camera position (below) | object |
 | `startCameraMode3D` | Start in 3D (true) or 2D (false; pitch forced to -90) | boolean |
 | `startToolOpen` | Tool id to open on start (e.g. `layermanager`, `stories`) | string |
-| `colors` | Carbon Design color tokens (see `static/example.config.json` for the full set) | object |
+| `colors` | Carbon Design color tokens plus header colors `header-color` (bar background), `title-color` / `sub-title-color` (any CSS color); see `static/example.config.json` | object |
 | `title` / `subTitle` | Header title / subtitle | string |
 | `logo` | Header logo image URL | string |
 | `logoMarginLeft` / `logoMarginRight` | Header logo margins | string |

@@ -196,7 +196,7 @@
 <CarbonTheme style={light} />
 
 <div class="main">
-	<Header logo={$settings.logo} logoMarginLeft={$settings.logoMarginLeft} logoMarginRight={$settings.logoMarginRight} company={$settings.title} platformName={$settings.subTitle}>
+	<Header logo={$settings.logo} logoMarginLeft={$settings.logoMarginLeft} logoMarginRight={$settings.logoMarginRight} company={$settings.title} platformName={$settings.subTitle} headerColor={$settings.colors?.["header-color"]} titleColor={$settings.colors?.["title-color"]} subTitleColor={$settings.colors?.["sub-title-color"]}>
 		<div slot="headerUtilities">
 			<div class="header-utilities">
 				{#if $enabledTools.includes("geocoder")}

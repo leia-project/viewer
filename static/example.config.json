@@ -143,6 +143,9 @@
             "duration": 1.50
         },
         "colors": {
+            "header-color": "#161616",
+            "title-color": "#ffffff",
+            "sub-title-color": "#ffffff",
             "ui-background": "#ffffff",
             "interactive-01": "#214170",
             "interactive-02": "#171717",

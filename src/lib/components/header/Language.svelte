@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { _ } from 'svelte-i18n';
-	import { HeaderAction, HeaderPanelDivider, RadioButtonGroup, RadioButton } from 'carbon-components-svelte';
+	import { HeaderAction, RadioButtonGroup, RadioButton } from 'carbon-components-svelte';
 	import { Translate } from 'carbon-icons-svelte';
 	import { selectedLanguage, languages } from '$lib/i18n/localization';
 
@@ -16,18 +16,18 @@
 				{/each}
 			</RadioButtonGroup>
 		</div>
-
-		<HeaderPanelDivider />
-
-		<div class="wrapper" />
 	</div>
 </HeaderAction>
 
 <style>
+	:global(.bx--header-panel--expanded) {
+		height: auto !important;
+		bottom: auto !important;
+	}
+
 	.wrapper {
 		width: 100%;
 		padding: var(--cds-spacing-05);
-		height: 100%;
 		box-sizing: border-box;
 	}
 

@@ -117,10 +117,13 @@ The start position of the camera. Since we are using a 3D viewer we need more th
 ```
 
 #### Colors
-Colors for the GUI. The black header cannot be changed currently, this is an open issue for the Carbon Design svelte components devs.
+Colors for the GUI.
 
 |value|description|type|
 |-|-|-|
+|header-color|Background color of the header bar|string|
+|title-color|Color of the title text in the header|string|
+|sub-title-color|Color of the subtitle text in the header|string|
 |ui-background|Default page background|string|
 |interactive-01|Primary interactive color. Primary buttons|string|
 |interactive-02|Secondary interactive color. Secondary button|string|
