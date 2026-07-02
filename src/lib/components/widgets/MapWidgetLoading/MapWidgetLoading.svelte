@@ -41,7 +41,7 @@
 			try {
 				progress.set(isNaN(perc) ? 1 : perc <= 0 ? 0 : perc >= 1 ? 1 : perc);	
 			} catch (error) {
-				console.log("Error setting progress bar");
+				console.error("Error setting progress bar");
 			}
 			
 			loadingTilesTotal = tempLoadingTilesTotal;

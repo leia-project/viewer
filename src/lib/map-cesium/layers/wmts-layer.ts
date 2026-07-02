@@ -34,7 +34,7 @@ export class WmtsLayer extends CesiumImageryLayer {
 		]
 
 		const provider = new Cesium.WebMapTileServiceImageryProvider({
-			url: this.config.settings.url,
+			url: this.config.settings.url.split("?")[0],
 			layer: this.config.settings["featureName"],
 			style: this.config.settings["style"] ?? "default",
 			format: this.config.settings["contentType"] ? this.config.settings["contentType"] : "image/png",

@@ -7,6 +7,7 @@ import type { CkanConnectorSettings } from "./ckan-connector-settings";
 
 
 export class CkanConnector implements LibraryConnector {
+    public readonly label = "CKAN";
     private data?: LibraryConnectorData;
     private readonly debug = false;
     private readonly settings: CkanConnectorSettings;
@@ -105,7 +106,7 @@ export class CkanConnector implements LibraryConnector {
             if (result.success) {
                 return this.ckanPackagesToLayerConfigs(result);
             } else {
-                console.log("CKAN Connector: Get packages request unsuccessful");
+                console.error("CKAN Connector: Get packages request unsuccessful");
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 return this.getLayerConfigs(name, type); // Re-try after 2 seconds
             }
@@ -130,6 +131,10 @@ export class CkanConnector implements LibraryConnector {
             // handle parent groups
             if (ckanGroup.groups && ckanGroup.groups.length === 0) {
                 const lg = new LayerConfigGroup(ckanGroup.name, ckanGroup.title);
+                lg.connector = {
+                    type: this.label,
+                    url: this.settings.url
+                };
 
                 this.recursiveMergeChilds(lg, ckanGroup.name, result);
                 groups.push(lg);
@@ -138,7 +143,7 @@ export class CkanConnector implements LibraryConnector {
 
         if (this.debug) {
             for (let i = 0; i < groups.length; i++) {
-                console.log(this.debugGroups(groups[i]));
+                console.warn(this.debugGroups(groups[i]));
             }
         }
 
@@ -182,13 +187,14 @@ export class CkanConnector implements LibraryConnector {
 
             const groupID = pack.groups && pack.groups.length > 0 ? pack.groups[0].name : undefined;            
             const metadata = pack.extras;
-            const attribution = pack.license;
+            const attribution = this.resolveAttribution(pack);
             const description = pack.notes;
             const resources = pack.resources;
             const tags = pack.tags;
+            const dateCreated = pack.metadata_created;
 
             if(resources) {
-                const converted = this.ckanResourcesToLayerConfigs(resources, groupID, attribution, description, metadata, tags);                
+                const converted = this.ckanResourcesToLayerConfigs(resources, groupID, attribution, description, metadata, tags, dateCreated);                
                 configs.push(...converted);
             }
         }
@@ -202,7 +208,32 @@ export class CkanConnector implements LibraryConnector {
         return configs;
     }
 
-    private ckanResourcesToLayerConfigs(resources: Array<CKANresource>, groupID: string, attribution: string, description: string, metadata: Array<{ key: string, value: any}>, tags: Array<{display_name: string, id: string, name: string, state: string, vocabulary_id: string}>): Array<LayerConfig> {
+    /**
+     * Resolve attribution using fallbacks.
+     */
+    private resolveAttribution(pack: any): string {
+        const candidates = [
+            pack?.license_title,
+            pack?.organization?.title,
+            pack?.license_id,
+            pack?.organization?.name
+        ];
+
+        for (const value of candidates) {
+            const normalized = this.normalizeAttributionValue(value);
+            if (normalized) return normalized;
+        }
+
+        return "";
+    }
+
+    private normalizeAttributionValue(value: any): string | undefined {
+        if (typeof value !== "string") return undefined;
+        const normalized = value.trim();
+        return normalized.length > 0 ? normalized : undefined;
+    }
+
+    private ckanResourcesToLayerConfigs(resources: Array<CKANresource>, groupID: string, attribution: string, description: string, metadata: Array<{ key: string, value: any}>, tags: Array<{display_name: string, id: string, name: string, state: string, vocabulary_id: string}>, dateCreated?: string): Array<LayerConfig> {
         const configs = new Array<LayerConfig>();
 
         for(let i = 0; i < resources.length; i++) {
@@ -220,7 +251,7 @@ export class CkanConnector implements LibraryConnector {
                 try {
                     settings = JSON.parse(resource.settings);   
                 }
-                catch(Error){}
+                catch(error){}
             }
 
             if(resource.cameraPosition) {
@@ -255,6 +286,7 @@ export class CkanConnector implements LibraryConnector {
                 defaultOn: isAddedOn,
                 metadata: metadata,
                 metadataUrl: resource.metadataUrl,
+                dateCreated: dateCreated,
                 settings: settings,
                 cameraPosition: cameraPosition,
                 tags: tags ? tags.map((t) => t.name) : undefined

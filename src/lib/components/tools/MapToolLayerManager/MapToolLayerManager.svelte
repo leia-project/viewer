@@ -76,6 +76,8 @@
         for (let i = 0; i < layerConfigGroups.length; i++) {
             const group = layerConfigGroups[i];
             const layerManagerGroup = new LayerManagerGroup(group.id, group.title);
+            layerManagerGroup.connector = group.connector;
+            layerManagerGroup.toolGroup = group.toolGroup;
             // add layers belonging to this group to the layer manager group
             const layersFiltered = $layers.filter(l => l.parentGroup == group.id)
             for (let i = 0; i < layersFiltered.length; i++) {
@@ -106,24 +108,28 @@
     $: customLayersAdded = $layers.map((layer) => layer.config.groupId).includes("myData");
     $: layersWithoutGroup = $layers.filter((layer) => layer.config.groupId === undefined || layer.config.groupId === "");
     $: dragDroppedFiles = $layers.filter((layer) => layer.config.settings?.dragDropped ?? false);
+    $: backgroundLayers = $layers.filter((layer) => layer.config.isBackground);
 
 </script>
 
 {#if $selectedTool === tool}
     <div class="wrapper">
 
-        <RadioButtonGroup legendText={$_("tools.layerManager.baseLayers")} selected="standard" orientation="vertical">
-            {#each $layers as layer (layer.id)}
-                {#if layer.config.isBackground}
-                    <RadioButton
-                        labelText={layer.title}
-                        value={layer.id}
-                        checked={$selectedBackgroundLayer === layer.id}                      
-                        on:change={() => { selectedBackgroundLayer.set(layer.id)}}
-                    />
-                {/if}
-            {/each}
-        </RadioButtonGroup>
+        {#if backgroundLayers.length > 1}
+            <RadioButtonGroup legendText={$_("tools.layerManager.baseLayers")} selected="standard" orientation="vertical">
+                {#each $layers as layer (layer.id)}
+                    {#if layer.config.isBackground}
+                        <RadioButton
+                            labelText={layer.title}
+                            value={layer.id}
+                            checked={$selectedBackgroundLayer === layer.id}                      
+                            on:change={() => { selectedBackgroundLayer.set(layer.id)}}
+                        />
+                    {/if}
+                {/each}
+            </RadioButtonGroup>
+            <div class="spacer" />
+        {/if}
 
         <CesiumBackgroundControls />
 
@@ -173,8 +179,11 @@
 <style>
     .wrapper {
         margin: var(--cds-spacing-05);
-        margin-bottom: 0;
 		box-sizing: border-box;
+    }
+
+    .spacer {
+        padding-top: var(--cds-spacing-05);
     }
 
 	.thematic-label {

@@ -210,14 +210,17 @@
         position: relative;
         height: 100%;
         width: fit-content;
+        max-width: 100vw;
         display: flex;
         box-sizing: border-box;
         background-color: var(--cds-ui-02);
+        z-index: 10;
     }
 
     .options-bar {
         height: 100%;
         width: fit-content;
+        flex-shrink: 0;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -237,6 +240,9 @@
         display: flex;
         flex-direction: column;
         width: 21rem;
+        /* Allow the panel to shrink below its set width so it never
+           extends past the viewport on small/mobile screens */
+        min-width: 0;
     }
 
     .tool-inactive {
@@ -261,7 +267,12 @@
         flex-grow: 1;
         overflow-y: auto;
         overflow-x: hidden;
-        scrollbar-gutter: stable;
+    }
+
+    @supports selector(::-webkit-scrollbar) {
+        .content-wrapper {
+            scrollbar-gutter: stable;
+        }
     }
 
     .overflow-gradient {

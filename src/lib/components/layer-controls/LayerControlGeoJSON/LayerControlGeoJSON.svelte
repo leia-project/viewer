@@ -94,14 +94,14 @@
 					{#if $legend.length >= layer.maxLengthLegend}
 						<div class="legend-item">
 							<div class="legend-color" style="background-color: #c6c6c6"></div>
-							<div class="legend-text">All other</div>
+							<div class="legend-text">{ $_('tools.layerManager.allOther') }</div>
 						</div>
 					{/if}
 				</div>
 				{#if $styleType === "string"}
 					<div class="color-randomizer">
 						<Button
-							iconDescription="Color randomizer"
+							iconDescription={ $_('tools.layerManager.colorRandomizer') }
 							icon={ColorPalette}
 							tooltipPosition="left"
 							size="small"

@@ -7,6 +7,7 @@
 
     import type { Layer } from "$lib/map-core/layer";
     import ErrorMessage from "$lib/components/theme/ErrorMessage/ErrorMessage.svelte"
+    import ExpandableDescription from "$lib/components/theme/ExpandableDescription/ExpandableDescription.svelte"
 
     const { map } = getContext<any>("mapTools");
 
@@ -25,6 +26,7 @@
     const visible = layer.visible;
     const opacity = layer.opacity;
     const customControls = layer.customControls;
+    const cameraPosition = layer.config.cameraPositionStore;
     
     async function getWMSStyleNames(getCapabilitiesUrl: string, featureName: string) {
         try {
@@ -95,14 +97,14 @@
 
     function zoomToLayer() {
         const pos = layer.getLayerPosition();
-        map.flyTo(pos);
+        if (pos) map.flyTo(pos);
     }
 
     onMount(async() => {
-        if (layer.config.type !== "wms" || !layer.config.legendSupported) {
+        if (!layer.config.legendSupported) {
             return;
         }
-        if (!layer.config.settings?.tools?.styleSwitcher?.enabled) {
+        if (layer.config.type !== "wms" || !layer.config.settings?.tools?.styleSwitcher?.enabled) {
             // If style switcher is disabled, use the config legend URL
             legendUrl = defaultLegendUrl;
         }
@@ -126,6 +128,7 @@
         <div class="item-header">
             <div class="layer-cb">
                 <Checkbox
+                    title={$visible ? $_("general.off") : $_("general.on")}
                     bind:checked={$visible}
                     on:click={(e) => {
                         e.stopPropagation();
@@ -143,7 +146,7 @@
                 role="button"
                 tabindex="0"
             >
-                <div class="label-01" class:layer-title-condensed={open === false} title={layer.title}>
+                <div class="label-01 layer-title" class:layer-title-open={open} title={layer.title}>
                     {layer.title}
                 </div>
             </div>
@@ -157,28 +160,13 @@
             {/each}
         {/if}
         {#if layer.config.descriptionSupported}
-            <div class="label-01 description-header">
-                {$_("description")}
-            </div>
             {#if descriptionValid && layer.config.description}
-                <p class="description">{layer.config.description}</p>
-            <!-- {#if !descriptionValid}
-                <ErrorMessage message={$_("tools.layerManager.legendNotFoundText")} />
-            {/if} -->
+                <ExpandableDescription text={layer.config.description} />
             {/if}
-        {/if}
-        {#if layer.config.opacitySupported}
-            <Slider
-                hideTextInput
-                labelText={`${$_("tools.layerManager.opacity")} ` + $opacity + "%"}
-                min={0}
-                max={100}
-                bind:value={$opacity}
-            />
         {/if}
         {#if layer.config.type === "wms" && layer.config.settings?.tools?.styleSwitcher?.enabled == true}        
             <Dropdown
-                titleText="WMS Styling options"
+                titleText={$_("tools.layerManager.wmsStyling")}
                 size="sm"
                 selectedId={layer.config.settings?.styles || items[0]?.id} 
                 items={items}
@@ -196,18 +184,30 @@
                 {$_("tools.layerManager.legend")}
             </div>
             {#if imageValid && legendUrl !== ""}
-                <img class="legend" src={legendUrl} alt="legend" on:error={()=>{imageValid = false}} />
+                <img class="legend" src={legendUrl} alt={$_("tools.layerManager.legend")} on:error={()=>{imageValid = false}} />
             {:else if !imageValid || legendUrl==""}
                 <ErrorMessage message={$_("tools.layerManager.legendNotFoundText")} />
             {/if}
         {/if}
+        {#if layer.config.opacitySupported}
+            <div class="slider-wrapper">
+                <Slider
+                    hideTextInput
+                    labelText={`${$_("tools.layerManager.opacity")} ` + $opacity + "%"}
+                    min={0}
+                    max={100}
+                    bind:value={$opacity}
+                />
+            </div>
+        {/if}
         <div class="button-wrapper">
-            {#if layer.getLayerPosition()}
+            {#if $cameraPosition}
                 <Button
                     kind="primary"
                     size="small"
-                    iconDescription="Zoom to layer"
+                    iconDescription={$_("tools.layerManager.zoomToLayer")}
                     icon={Search}
+                    tooltipPosition="left"
                     on:click={() => {
                         zoomToLayer();
                     }}
@@ -216,8 +216,9 @@
             <Button
                 kind="danger-tertiary"
                 size="small"
-                iconDescription="Delete"
+                iconDescription={$_("tools.layerManager.delete")}
                 icon={TrashCan}
+                tooltipPosition="left"
                 on:click={() => {
                     removeLayer();
                 }}
@@ -234,14 +235,17 @@
         transition: height 0.3s ease-in-out;
     }
 
-    .description {
-        margin-top: var(--cds-spacing-01);
-        max-width: 100%;
-        margin-bottom: var(--cds-spacing-02);
+    .slider-wrapper {
+        width: calc(100% - var(--cds-spacing-01));
     }
 
-    .description-header {
-        margin-bottom: 5px;
+    .slider-wrapper :global(.bx--slider-container) {
+        width: 100%;
+    }
+
+    .slider-wrapper :global(.bx--slider) {
+        min-width: 0;
+        flex: 1 1 auto;
     }
 
     .legend {
@@ -270,14 +274,26 @@
     .layer-title-wrap {        
         display: flex;
         align-items: center;
+        flex: 1;
+        min-width: 0;
     }
 
-    .layer-title-condensed {
-        max-width: 15rem;
-        white-space: nowrap;
-        display: inline-block;
-        overflow: hidden !important;
+    .layer-title {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        overflow: hidden;
         text-overflow: ellipsis;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .layer-title-open {
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
     }
 
     :global(.layer-control .bx--accordion__heading) {

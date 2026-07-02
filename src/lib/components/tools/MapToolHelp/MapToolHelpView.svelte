@@ -184,7 +184,7 @@
         padding: var(--cds-spacing-05);
         flex-grow: 1;
         overflow-x: hidden;
-        overflow-y: scroll;
+        overflow-y: auto;
     }
 
     :global(help-key) {

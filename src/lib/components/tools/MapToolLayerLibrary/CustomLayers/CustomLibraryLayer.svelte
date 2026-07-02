@@ -65,7 +65,12 @@
 
 
 <div class="layer" class:layer--selected={$selectedCustomLayer === customConfig} >
-	<div class="layer-cb">
+	<div
+		class="layer-cb"
+		title={$added
+			? $_("tools.layerLibrary.removeLayerTooltip")
+			: $_("tools.layerLibrary.addLayerTooltip")}
+	>
 		<Checkbox 
 			hideLabel 
 			bind:checked={$added} 
@@ -74,7 +79,7 @@
 	</div>
 
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<div class="layer-title" on:click={selectLayerConfig} role="button" tabindex="0">
+	<div class="layer-title" on:click={selectLayerConfig} role="button" tabindex="0" title={$title}>
 		{$title}
 	</div>
 
@@ -96,8 +101,11 @@
 	.layer {
 		display: flex;
 		justify-content: left;
-		align-items: stretch;
+		align-items: center;
 		position: relative;
+		min-width: 0;
+		max-width: 100%;
+		overflow: hidden;
 	}
 
 	.layer:hover {
@@ -115,19 +123,20 @@
 
 	.layer-title {
 		margin-left: var(--cds-spacing-03);
-		flex-grow: 1;
-		padding-top: 2px;
+		flex: 1 1 0;
+		min-width: 0;
+		max-width: 100%;
 		cursor: pointer;
-		display: flex;
-		align-items: center;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 
     .layer-validator {
-        position: absolute;
-        top: 50%;
-        right: 15px;
-        transform: translateY(-50%);
+        flex-shrink: 0;
+        margin-left: var(--cds-spacing-03);
+        margin-right: 15px;
         border-radius: 10px;
         overflow: hidden;
         min-width: 30px;

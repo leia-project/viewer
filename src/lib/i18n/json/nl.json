@@ -17,7 +17,9 @@
             "show": "Tonen",
             "hide": "Verbergen",
             "reset": "Resetten"
-        }
+        },
+        "logoAlt": "Logo",
+        "visitGithub": "Bezoek GitHub"
     },
     "tools": {
         "menu": {
@@ -126,15 +128,25 @@
             "myDataTitle": "Mijn Data Laag Configuratie",
             "btnAddToMap": "Voeg toe aan kaart",
             "btnRemoveFromMap": "Verwijder van kaart",
+            "addLayerTooltip": "Laag toevoegen",
+            "removeLayerTooltip": "Laag verwijderen",
             "btnAddAllToMap": "Alle lagen toevoegen",
             "btnRemoveAllFromMap": "Alle lagen verwijderen",
             "btnCopyToClipboard": "Kopieer naar klembord",
+            "copied": "Gekopieerd!",
+            "copySuccessTitle": "Gekopieerd",
+            "copySuccessMessage": "De laagconfiguratie is naar het klembord gekopieerd.",
+            "copyErrorTitle": "Kopiëren mislukt",
+            "copyErrorMessage": "De laagconfiguratie kon niet naar het klembord worden gekopieerd.",
             "description": "Beschrijving",
             "noDescription": "Geen beschrijving gevonden",
             "attribution": "Naamsvermelding",
             "noAttribution": "Geen naamsvermelding gevonden",
             "layerType": "Type laag",
             "layerName": "Naam",
+            "dateCreated": "Aanmaakdatum",
+            "dateRevision": "Laatst gewijzigd",
+            "noDate": "Geen datum beschikbaar",
             "metadata": "Metadata",
             "noMetadata": "Geen metadata gevonden",
             "info": "Informatie",
@@ -160,7 +172,23 @@
             "clampToTerrain": "Vastzetten op terrein",
             "styling": "Stijl",
             "viewRecordOn": "Bekijk record op",
-            "dataportal": "Dataportaal"
+            "dataportal": "Dataportaal",
+            "toolGroupTooltip": "Beheerd door de tool {tool}",
+            "resetFilter": "Filter wissen",
+            "url": "URL",
+            "featureName": "Feature-naam",
+            "contentType": "Content-type",
+            "featureNameRequired": "Selecteer of voer een laagnaam in",
+            "selectLayerPlaceholder": "Selecteer een laag...",
+            "loadingLayers": "Beschikbare lagen laden...",
+            "enterManually": "Laagnaam handmatig invoeren",
+            "selectFromList": "Laag uit lijst selecteren",
+            "capabilitiesError": "Kon geen lagen ophalen van deze service. Voer de laagnaam handmatig in.",
+            "layers": "Lagen",
+            "arcgisLayersPlaceholder": "Komma-gescheiden lijst van ArcGIS-kaartlagen",
+            "modelUrl": "Model-URL",
+            "timeKey": "Tijdsleutel",
+            "orientationKey": "Oriëntatiesleutel"
         },
         "layerManager": {
             "label": "Lagenbeheer",
@@ -180,7 +208,18 @@
             "btnHideAll": "Alles verbergen",
             "filterPointCloudClasses": "Filter puntenwolk klasses",
             "heightControlLabel": "Hoogtecorrectie Tileset (m)",
-            "dataportal": "Dataportaal"
+            "dataportal": "Dataportaal",
+            "toolGroupTooltip": "Beheerd door de tool {tool}",
+            "showMore": "Toon meer",
+            "showLess": "Toon minder",
+            "wmsStyling": "WMS-stijlopties",
+            "zoomToLayer": "Zoom naar laag",
+            "delete": "Verwijderen",
+            "colorRandomizer": "Kleur randomiseren",
+            "allOther": "Alle overige",
+            "legendProperties": {
+                "flood_depth": "Waterdiepte"
+            }
         },
         "layerTools": {
             "theme": {
@@ -205,6 +244,7 @@
             "title": "Titel",
             "save": "Opslaan",
             "cancel": "Annuleren",
+            "edit": "Bewerken",
             "delete": "Verwijderen",
             "add": "Nieuwe Bladwijzer Toevoegen",
             "description": "Beschrijving",
@@ -215,15 +255,30 @@
         },
         "projects": {
             "label": "Projecten",
-            "activateProject": "Project activeren",
-            "leaveProjectView": "Project verlaten",
-            "showOnMap": "Projecten tonen op kaart"
+            "projects": "Projecten",
+            "environment": "Omgeving",
+            "showOnMap": "Toon projecten op kaart",
+            "leaveProject": "Verlaat Projectweergave",
+            "show": "Toon",
+            "hide": "Verberg",
+            "selectProject": "Selecteer project",
+            "validValueRequired": "Een geldige waarde is vereist",
+            "activateProject": "Activeer project",
+            "zoomToStartView": "Zoom naar startweergave",
+            "zoomToLayer": "Zoom naar laag",
+            "opacity": "Transparantie",
+            "legend": "Legenda",
+            "open": "Openen",
+            "viewDetails": "Bekijk objectdetails"
         },
         "featureInfo": {
             "label": "Object Informatie",
             "noData": "Geen data, Klik op een object voor meer informatie",
             "attribute": "Attribuut",
-            "value": "Waarde"
+            "value": "Waarde",
+            "link": "Link",
+            "open": "Openen",
+            "noPdfViewer": "Geen online PDF-viewer geïnstalleerd"
         },
         "measure": {
             "label": "Meten",
@@ -238,7 +293,9 @@
             "delete": "Verwijderen",
             "cameraPosition": "Camera positie",
             "totalLength": "Totale lengte",
-            "points": "Punten"
+            "points": "Punten",
+            "titlePlaceholder": "Voer titel in",
+            "removePoint": "Punt verwijderen"
         },
         "cesium": {
             "label": "Kaart Instellingen",

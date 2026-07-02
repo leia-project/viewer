@@ -17,7 +17,9 @@
             "show": "Montrer",
             "hide": "Cacher",
             "reset": "Réinitialiser"
-        }
+        },
+        "logoAlt": "Logo",
+        "visitGithub": "Visiter GitHub"
     },
     "tools": {
         "menu": {
@@ -117,15 +119,25 @@
             "myDataTitle": "Ma Configuration de Couche de Données",
             "btnAddToMap": "Ajouter à la Carte",
             "btnRemoveFromMap": "Supprimer de la Carte",
+            "addLayerTooltip": "Ajouter la couche",
+            "removeLayerTooltip": "Supprimer la couche",
             "btnAddAllToMap": "Ajouter Tout",
             "btnRemoveAllFromMap": "Supprimer Tout",
             "btnCopyToClipboard": "Copier dans le Presse-Papiers",
+            "copied": "Copié!",
+            "copySuccessTitle": "Copié",
+            "copySuccessMessage": "La configuration de la couche a été copiée dans le presse-papiers.",
+            "copyErrorTitle": "Échec de la copie",
+            "copyErrorMessage": "La configuration de la couche n'a pas pu être copiée dans le presse-papiers.",
             "description": "Description",
             "noDescription": "Aucune description trouvée",
             "attribution": "Attribution",
             "noAttribution": "Aucune attribution trouvée",
             "layerName": "Nom du calque",
             "layerType": "Type de calque",
+            "dateCreated": "Date de création",
+            "dateRevision": "Dernière révision",
+            "noDate": "Aucune date disponible",
             "metadata": "Métadonnées",
             "noMetadata": "Aucune métadonnée trouvée",
             "info": "Informations",
@@ -151,7 +163,23 @@
             "clampToTerrain": "Fixation au Terrain",
             "styling": "Style",
             "viewRecordOn": "Voir l'enregistrement sur",
-            "dataportal": "Portail de données"
+            "dataportal": "Portail de données",
+            "toolGroupTooltip": "Géré par l'outil {tool}",
+            "resetFilter": "Réinitialiser le filtre",
+            "url": "URL",
+            "featureName": "Nom de l'objet",
+            "contentType": "Type de contenu",
+            "featureNameRequired": "Sélectionnez ou saisissez un nom de couche",
+            "selectLayerPlaceholder": "Sélectionnez une couche...",
+            "loadingLayers": "Chargement des couches disponibles...",
+            "enterManually": "Saisir le nom de la couche manuellement",
+            "selectFromList": "Sélectionner une couche dans la liste",
+            "capabilitiesError": "Impossible de récupérer les couches de ce service. Saisissez le nom de la couche manuellement.",
+            "layers": "Couches",
+            "arcgisLayersPlaceholder": "Liste de couches de carte ArcGIS séparées par des virgules",
+            "modelUrl": "URL du modèle",
+            "timeKey": "Clé de temps",
+            "orientationKey": "Clé d'orientation"
         },
         "layerManager": {
             "label": "Gestionnaire de Calques",
@@ -171,7 +199,18 @@
             "btnHideAll": "Masquer tout",
             "filterPointCloudClasses": "Filtrer les classes de Point Cloud",
             "heightControlLabel": "Décalage de la hauteur du jeu de tuiles (m)",
-            "dataportal": "Portail de données"
+            "dataportal": "Portail de données",
+            "toolGroupTooltip": "Géré par l'outil {tool}",
+            "showMore": "Afficher plus",
+            "showLess": "Afficher moins",
+            "wmsStyling": "Options de style WMS",
+            "zoomToLayer": "Zoomer sur la couche",
+            "delete": "Supprimer",
+            "colorRandomizer": "Couleur aléatoire",
+            "allOther": "Tous les autres",
+            "legendProperties": {
+                "flood_depth": "Profondeur d'inondation"
+            }
         },
         "layerTools": {
             "theme": {
@@ -179,6 +218,12 @@
                 "default": "Aucun",
                 "legend": "Légende",
                 "reset": "Réinitialiser la légende"
+            },
+            "clipper": {
+                "label": "Découper la couche",
+                "rotationVerticalAxis": "Rotation de l'axe vertical",
+                "rotationHorizontalAxis": "Rotation de l'axe horizontal",
+                "sliceModeLabel": "Créer une coupe"
             }
         },
         "backgroundControls": {
@@ -190,6 +235,7 @@
             "title": "Titre",
             "save": "Sauvegarder",
             "cancel": "Annuler",
+            "edit": "Modifier",
             "delete": "Supprimer",
             "add": "Ajouter un Nouveau Signet",
             "description": "Description",
@@ -200,15 +246,30 @@
         },
         "projects": {
             "label": "Projets",
+            "projects": "Projets",
+            "environment": "Environnement",
+            "showOnMap": "Afficher les projets sur la carte",
+            "leaveProject": "Quitter la vue du projet",
+            "show": "Afficher",
+            "hide": "Masquer",
+            "selectProject": "Sélectionner un projet",
+            "validValueRequired": "Une valeur valide est requise",
             "activateProject": "Activer le projet",
-            "leaveProjectView": "Quitter le projet",
-            "showOnMap": "Afficher les projets sur la carte"
+            "zoomToStartView": "Zoomer sur la vue initiale",
+            "zoomToLayer": "Zoomer sur la couche",
+            "opacity": "Opacité",
+            "legend": "Légende",
+            "open": "Ouvrir",
+            "viewDetails": "Voir les détails de l'objet"
         },
         "featureInfo": {
             "label": "Informations sur les Objets",
             "noData": "Pas de données, appuyez sur un objet pour plus d'informations",
             "attribute": "Attribut",
-            "value": "Valeur"
+            "value": "Valeur",
+            "link": "Lien",
+            "open": "Ouvrir",
+            "noPdfViewer": "Aucune visionneuse PDF en ligne installée"
         },
         "measure": {
             "label": "Mesurer",
@@ -223,7 +284,9 @@
             "delete": "Supprimer",
             "cameraPosition": "Position de la caméra",
             "totalLength": "Longueur totale",
-            "points": "Points"
+            "points": "Points",
+            "titlePlaceholder": "Saisir un titre",
+            "removePoint": "Supprimer le point"
         },
         "cesium": {
             "label": "Paramètres de la Carte",

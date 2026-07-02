@@ -29,7 +29,9 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		super(map, config);
 		this.tilesetHeight = writable<number>(0);
 		this.alpha = this.getOpacity(this.config.opacity);
+	}
 
+	protected startLoading(): void {
 		this.createLayer();
 	}
 
@@ -120,16 +122,16 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		//@ts-ignore
 		this.isPointCloud = tileset.root?._header?.content?.uri?.includes(".pnts");
 
+		this.setPointCloudAttenuation(get(this.map.options.pointCloudAttenuation));
+		this.setPointCloudAttenuationMaximum(get(this.map.options.pointCloudAttenuationMaximum));
+		this.setPointCloudAttenuationGeometricErrorScale(get(this.map.options.pointCloudAttenuationErrorScale));
+		this.setPointCloudAttenuationBaseResolution(get(this.map.options.pointCloudAttenuationBaseResolution));
+
+		// this.setPointCloudEdl(get(this.map.options.pointCloudEDL));
+		// this.setPointCloudEdlStrength(get(this.map.options.pointCloudEDLStrength));
+		// this.setPointCloudEdlRadius(get(this.map.options.pointCloudEDLRadius));
+
 		if (this.isPointCloud) {
-			this.setPointCloudAttenuation(get(this.map.options.pointCloudAttenuation));
-			this.setPointCloudAttenuationMaximum(get(this.map.options.pointCloudAttenuationMaximum));
-			this.setPointCloudAttenuationGeometricErrorScale(get(this.map.options.pointCloudAttenuationErrorScale));
-			this.setPointCloudAttenuationBaseResolution(get(this.map.options.pointCloudAttenuationBaseResolution));
-
-			// this.setPointCloudEdl(get(this.map.options.pointCloudEDL));
-			// this.setPointCloudEdlStrength(get(this.map.options.pointCloudEDLStrength));
-			// this.setPointCloudEdlRadius(get(this.map.options.pointCloudEDLRadius));
-
 			if (this.config.settings["filter"]) {
 				this.pointCloudFilterControl = new CustomLayerControl();
 				this.pointCloudFilterControl.component = LayerControlPointCloudFilter;
@@ -280,14 +282,12 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		if(!this.source) return;
 
 		var showConditions = ids.map(id => {return `\${feature['${this.config.settings.filter.filterAttribute}']} === ` + id})
-		if (ids.length > 0) {
-			let style = {
-				show: showConditions.join(' || '),
-				pointSize: this.config.settings.style?.pointSize ?? this.POINT_SIZE,
-				color: "${COLOR} * rgba(255, 255, 255, " + this.alpha + ")"
-			}
-			this.source.style =  new Cesium.Cesium3DTileStyle(style);
+		let style = {
+			show: ids.length > 0 ? showConditions.join(' || ') : 'false',
+			pointSize: this.config.settings.style?.pointSize ?? this.POINT_SIZE,
+			color: "${COLOR} * rgba(255, 255, 255, " + this.alpha + ")"
 		}
+		this.source.style = new Cesium.Cesium3DTileStyle(style);
 	}
 
 	public setPointCloudAttenuation(value: boolean): void {

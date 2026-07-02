@@ -921,7 +921,7 @@ This tool can be used to add projects with project-specific layers. The project 
 |projects|name|The name of the project|string|
 ||description|A description for the project|string|
 ||polygon|An array of coordinates describing the project delimitation|array of [lon: number, lat: number]|
-||layers|An array of layer id's to be shown for the project|array|
+||layers|An array of layer objects to be shown for the project|array of { id: string, on: boolean, tileset?: string }|
 ||cameraPosition|The default camera position|cameraLocation|
 
 ```json
@@ -955,9 +955,19 @@ This tool can be used to add projects with project-specific layers. The project 
 					]
 				],
 				"layers": [
-					"DTB 3D",
-					"3D BAG",
-					"Bomen 3D"
+					{
+						"id": "DTB 3D",
+						"on": true
+					},
+					{
+						"id": "3D BAG",
+						"on": false
+					},
+					{
+						"id": "GeoTOP",
+						"on": false,
+						"tileset": "https://virtueel.zeeland.nl/tiles_other/geotop_middelburg/3dtiles/tileset.json"
+					}
 				],
 				"cameraPosition": {
 					"x": 4.94802,

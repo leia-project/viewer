@@ -7,6 +7,7 @@ import type { GeoNetworkConnectorSettings } from "./geonetwork-connector-setting
 
 
 export class GeoNetworkConnector implements LibraryConnector {
+    public readonly label = "GeoNetwork";
     private data: LibraryConnectorData = new LibraryConnectorData();
     private readonly debug = false;
     private readonly settings: GeoNetworkConnectorSettings;
@@ -94,7 +95,7 @@ export class GeoNetworkConnector implements LibraryConnector {
 
         const dataportalGroup = new LayerConfigGroup("dataportal", "Dataportal", undefined);
         dataportalGroup.connector = {
-            type: "GeoNetwork",
+            type: this.label,
             url: this.settings.url 
         }
         groups.push(dataportalGroup);
@@ -140,6 +141,7 @@ export class GeoNetworkConnector implements LibraryConnector {
             if (Object.keys(layerSettings).length === 0) {
                 continue;
             }
+
             const lc = new LayerConfig({
                 id: l.identifier,
                 type: "wms",
@@ -147,7 +149,7 @@ export class GeoNetworkConnector implements LibraryConnector {
                 description: l.abstract,
                 groupId: groupId,
                 imageUrl: this.getImageUrl(l.image),
-                attribution: undefined,
+                attribution: l.lineage,
                 isBackground: false,
                 legendUrl: undefined,
                 defaultAddToManager: false,
@@ -155,6 +157,8 @@ export class GeoNetworkConnector implements LibraryConnector {
                 metadata: undefined,
                 metadataUrl: '',
                 metadataLink: this.settings.url + this.linkFormat.replace('{uuid}', l['geonet:info'].uuid),
+                dateCreated: l.publicationDate ?? l.creationDate ?? "",
+                dateRevision: l.revisionDate ?? "",
                 settings: layerSettings,
                 cameraPosition: undefined,
                 tags: undefined
@@ -188,10 +192,14 @@ export class GeoNetworkConnector implements LibraryConnector {
         return imageUrl?.split('|')[1];
     }
 
-    private getSettings(link: Array<string>): Object {
+    private getSettings(link: Array<string> | undefined): Object {
         try {
-            for (let i = 0; i < link.length; i++) {
-                let l = link[i];
+            if (!link) {
+                return {};
+            }
+            const links = Array.isArray(link) ? link : [link];
+            for (let i = 0; i < links.length; i++) {
+                let l = links[i];
                 if (l.includes('OGC:WMS')) {
                     let l_split = l.split('|');
                     return {

@@ -8,10 +8,13 @@ export abstract class CesiumImageryLayer extends CesiumLayer<ImageryLayer> {
 	constructor(map: Map, config: LayerConfig) {
 		config.transparent = true;
 		super(map, config);
-		this.createLayer();
 	}
 
 	public abstract createLayer(): void;
+
+	protected startLoading(): void {
+		this.createLayer();
+	}
 
 	public addToMap(): void {
 		if (this.config.isBackground) {

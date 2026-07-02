@@ -12,6 +12,7 @@
 
     import { CustomLayerConfigTracker } from "./CustomLayers/custom-layer-config";
     import LayerConfigGroups from "./LayerConfigGroups.svelte";
+    import LayerConfigGroupSkeleton from "./LayerConfigGroupSkeleton.svelte";
     import LibraryLayer from "./LibraryLayer.svelte";
     import LibraryLayerInfo from "./LibraryLayerInfo.svelte";
     import CustomLibraryLayer from "./CustomLayers/CustomLibraryLayer.svelte";
@@ -24,6 +25,7 @@
     export let useTags: Boolean;
 
     const groups = library.groups;
+    const loadingConnectors = library.loadingConnectors;
     const selectedLayerConfig = library.selectedLayerConfig;
     $: path = $selectedLayerConfig ? findPath($selectedLayerConfig.groupId, "") : "";
 
@@ -164,7 +166,7 @@
         if (groupId) {
             const g = library.findGroup(groupId);
             if (g) {
-                path = `${g.title}/${path}`;
+                path = `${getGroupTitle(g)}/${path}`;
                 if (g.parentId) {
                     path = findPath(g.parentId, path);
                 }
@@ -172,6 +174,19 @@
         }
 
         return path;
+    }
+
+    function getGroupTitle(g: LayerConfigGroup): string {
+        switch (g.id) {
+            case "group_background":
+                return $_("tools.layerLibrary.baseLayers");
+            case "group_uncategorised":
+                return $_("tools.layerLibrary.noCategory");
+            case "dataportal":
+                return $_("tools.layerLibrary.dataportal");
+            default:
+                return g.title;
+        }
     }
 
     document.addEventListener("focus", (e) => {
@@ -262,7 +277,7 @@
                                     icon={TrashCan} 
                                     size="small"
                                     on:click={resetFilter}
-                                >Reset filter</Button>
+                                >{$_("tools.layerLibrary.resetFilter")}</Button>
                             </div>
                         {/if}
                         {#if $searchString }
@@ -280,6 +295,9 @@
                             {/if}
                         {:else}
                             <LayerConfigGroups {library} />
+                            {#each $loadingConnectors as connector (connector.url)}
+                                <LayerConfigGroupSkeleton {connector} />
+                            {/each}
                         {/if}
                     </div>             
                            
@@ -289,7 +307,7 @@
                             direction="top"
                             spellcheck="false"
                             filterable
-                            titleText=""
+                            titleText={$_("tools.layerLibrary.filterByTheme")}
                             placeholder={`${$_("tools.layerLibrary.filterByTheme")}...`}
                             items={libTags}
                             bind:selectedIds={$selectedTagIDs}
@@ -377,12 +395,14 @@
         height: 100%;
         display: flex;
         justify-content: stretch;
+        min-height: 0;
     }
 
     .menu {
-        min-width: 27rem;
-        max-width: 27rem;
+        flex: 0 1 27rem;
+        min-width: 22rem;
         height: 100%;
+        min-height: 0;
         background-color: var(--cds-ui-0);
         padding: var(--cds-spacing-05) var(--cds-spacing-05) 0 var(--cds-spacing-05);
         display: flex;
@@ -397,7 +417,14 @@
         height: 100%;
         overflow-y: auto;
         overflow-x: hidden;
+        padding-right: var(--cds-spacing-03);
         margin-bottom: var(--cds-spacing-05);
+    }
+
+    @supports selector(::-webkit-scrollbar) {
+        .groups {
+            scrollbar-gutter: stable;
+        }
     }
 
     .my-data-add-button {
@@ -408,10 +435,24 @@
         flex-grow: 1;
         height: 100%;
         width: 100%;
+        min-width: 0;
         background-color: var(--cds-ui-02);
         padding: var(--cds-spacing-05);
         display: flex;
         justify-content: center;
+    }
+
+    .content :global(.bx--inline-notification) {
+        min-width: 0;
+        max-width: 100%;
+        width: 100%;
+    }
+    .content :global(.bx--inline-notification__text-wrapper) {
+        flex-wrap: wrap;
+    }
+    .content :global(.bx--inline-notification__subtitle) {
+        overflow-wrap: break-word;
+        word-break: break-word;
     }
     #tag-filter, #reset-filter-button {
         margin-bottom: 10px;
@@ -426,6 +467,43 @@
         max-height: 85%;
         min-width: 75%;
         max-width: 75%;
+    }
+
+    /* On medium viewports give the modal more room so the two panes stay usable */
+    @media (max-width: 1200px) {
+        :global(.library .bx--modal-container--lg) {
+            min-width: 90%;
+            max-width: 90%;
+        }
+    }
+
+    /* On narrow viewports use the full screen and stack the menu above the content */
+    @media (max-width: 42rem) {
+        :global(.library .bx--modal-container--lg) {
+            min-width: 100%;
+            max-width: 100%;
+            min-height: 100%;
+            max-height: 100%;
+        }
+
+        .wrapper {
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .menu {
+            flex: none;
+            width: 100%;
+            min-width: 0;
+            height: auto;
+            min-height: 35%;
+            padding-bottom: var(--cds-spacing-05);
+        }
+
+        .content {
+            height: auto;
+            min-height: 90%;
+        }
     }
 
     :global(.library .bx--modal-content) {

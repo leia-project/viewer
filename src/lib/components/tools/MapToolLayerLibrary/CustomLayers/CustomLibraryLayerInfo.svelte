@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onDestroy } from "svelte";
     import { _ } from "svelte-i18n";
-    import { Checkbox, Dropdown, TextInput, Button } from "carbon-components-svelte";
+    import { Checkbox, Dropdown, TextInput, Button, ComboBox } from "carbon-components-svelte";
     import { Add, Subtract, TrashCan } from "carbon-icons-svelte";
+    import { fetchCapabilitiesLayers, pickPreferredFormat, type CapabilitiesLayer } from "./capabilities";
 
 	import Divider from "$lib/components/theme/Divider/Divider.svelte";
     import type { CustomLayerConfigTracker } from "./custom-layer-config";
@@ -23,24 +24,95 @@
 
     const dispatch = createEventDispatcher();
 
+    // GetCapabilities-driven layer selection for WMS / WMTS
+    let availableLayers: Array<CapabilitiesLayer> = [];
+    let layersLoading = false;
+    let capabilitiesError = false;
+    let manualEntry = false;
+    let lastFetchKey = "";
+    let autoFilledTitle: string | undefined;
+    let fetchTimer: ReturnType<typeof setTimeout> | undefined;
+
+
+    function scheduleLayerFetch(layerType: string, url: string | undefined, urlValid: boolean): void {
+        if ((layerType !== "wms" && layerType !== "wmts") || !url || !urlValid) {
+            lastFetchKey = "";
+            availableLayers = [];
+            capabilitiesError = false;
+            layersLoading = false;
+            return;
+        }
+        const key = `${layerType}|${url}`;
+        if (key === lastFetchKey) return;
+        lastFetchKey = key;
+        manualEntry = false;
+        if (fetchTimer) clearTimeout(fetchTimer);
+        fetchTimer = setTimeout(() => loadLayers(layerType as "wms" | "wmts", url), 500);
+    }
+
+
+    async function loadLayers(layerType: "wms" | "wmts", url: string): Promise<void> {
+        layersLoading = true;
+        capabilitiesError = false;
+        const layers = await fetchCapabilitiesLayers(url, layerType);
+        if (lastFetchKey !== `${layerType}|${url}`) return; // ignore stale responses
+        availableLayers = layers;
+        capabilitiesError = layers.length === 0;
+        layersLoading = false;
+    }
+
+
+    function onLayerSelect(detail: { selectedId?: string }): void {
+        const layer = availableLayers.find((l) => l.id === detail?.selectedId);
+        if (!layer) return;
+        $settings.featureName = layer.id;
+        const currentTitle = $title?.trim();
+        if (!currentTitle || currentTitle === "New layer" || currentTitle === autoFilledTitle) {
+            title.set(layer.text);
+            autoFilledTitle = layer.text;
+        }
+        const format = pickPreferredFormat(layer.formats);
+        if (format && !$settings.contenttype) {
+            $settings.contenttype = format;
+        }
+        settings.set($settings);
+    }
+
+    $: scheduleLayerFetch($type, $settings?.url, $urlValidation);
+
+    onDestroy(() => {
+        if (fetchTimer) clearTimeout(fetchTimer);
+    });
+
 
 </script>
 
 <div class="wrapper">
-	<div class="overview">
-        <div class="header">
-		    <div class="heading-03">
-                {$_("tools.layerLibrary.myDataTitle")}: {$title}
-            </div>
-            <div class="delete-btn">
+    <div class="header">
+        <div class="heading-03 title">
+            {$_("tools.layerLibrary.myDataTitle")}: {$title}
+        </div>
+        <div class="delete-btn">
+            <div class="delete-full">
                 <Button 
                     kind="danger"
                     icon={TrashCan}
                     on:click={() => dispatch("deleteLayer", custom)}
                 >{$_("tools.layerLibrary.deleteLayer")}</Button>
             </div>
+            <div class="delete-icon">
+                <Button 
+                    kind="danger"
+                    icon={TrashCan}
+                    iconDescription={$_("tools.layerLibrary.deleteLayer")}
+                    tooltipPosition="left"
+                    on:click={() => dispatch("deleteLayer", custom)}
+                />
+            </div>
         </div>
-        <Divider />
+    </div>
+    <Divider />
+	<div class="overview">
         <div class="input-fields">
             <div class="input-field">
                 <div class="input-field-label">{$_("tools.layerLibrary.layerName")}</div>
@@ -69,7 +141,7 @@
             </div>
             {#if $type}
                 <div class="input-field">
-                    <div class="input-field-label">URL</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.url")}</div>
                     <TextInput
                         placeholder={$_("https://")}
                         bind:value={$settings.url}
@@ -82,17 +154,52 @@
 
             {#if $type === "wms" || $type === "wmts"}
                 <div class="input-field">
-                    <div class="input-field-label">Feature name</div>
-                    <TextInput
-                        bind:value={$settings.featureName}
-                        invalid={!$settings.featureName}
-                    />
+                    <div class="input-field-label">{$_("tools.layerLibrary.featureName")}</div>
+                    {#if layersLoading}
+                        <ComboBox
+                            disabled
+                            items={[]}
+                            placeholder={$_("tools.layerLibrary.loadingLayers")}
+                        />
+                    {:else if availableLayers.length > 0 && !manualEntry}
+                        <ComboBox
+                            items={availableLayers}
+                            selectedId={$settings.featureName}
+                            placeholder={$_("tools.layerLibrary.selectLayerPlaceholder")}
+                            shouldFilterItem={(item, value) =>
+                                !value ||
+                                item.text.toLowerCase().includes(value.toLowerCase()) ||
+                                item.id.toLowerCase().includes(value.toLowerCase())}
+                            on:select={(e) => onLayerSelect(e.detail)}
+                            invalid={!$settings.featureName}
+                            invalidText={$_("tools.layerLibrary.featureNameRequired")}
+                        />
+                        <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+                        <span class="link-btn" on:click={() => (manualEntry = true)}>
+                            {$_("tools.layerLibrary.enterManually")}
+                        </span>
+                    {:else}
+                        <TextInput
+                            bind:value={$settings.featureName}
+                            invalid={!$settings.featureName}
+                        />
+                        {#if capabilitiesError}
+                            <div class="hint">{$_("tools.layerLibrary.capabilitiesError")}</div>
+                        {/if}
+                        {#if availableLayers.length > 0 && manualEntry}
+                            <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+                            <span class="link-btn" on:click={() => (manualEntry = false)}>
+                                {$_("tools.layerLibrary.selectFromList")}
+                            </span>
+                        {/if}
+                    {/if}
                 </div>
                 <div class="input-field">
-                    <div class="input-field-label">Content type</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.contentType")}</div>
                     <TextInput
                         placeholder={$_("tools.layerLibrary.contentTypePlaceholder")}
                         bind:value={$settings.contenttype}
+                        invalid={!String($settings.contenttype ?? "").trim()}
                     />
                 </div>
             {/if}
@@ -116,9 +223,9 @@
 
             {#if $type === "arcgis"}
                 <div class="input-field">
-                    <div class="input-field-label">Layers</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.layers")}</div>
                     <TextInput
-                        placeholder="Comma-separated list of ArcGIS map layers"
+                        placeholder={$_("tools.layerLibrary.arcgisLayersPlaceholder")}
                         bind:value={$settings.layers}
                     />
                 </div>
@@ -126,21 +233,21 @@
 
             {#if $type === "modelanimation"}
                 <div class="input-field">
-                    <div class="input-field-label">Model URL</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.modelUrl")}</div>
                     <TextInput
                         placeholder={$_("https://")}
                         bind:value={$settings.modelUrl}
                     />
                 </div>
                 <div class="input-field">
-                    <div class="input-field-label">Time key</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.timeKey")}</div>
                     <TextInput
                         placeholder={$_("tools.layerLibrary.timeKeyPlaceholder")}
                         bind:value={$settings.timeKey}
                     />
                 </div>
                 <div class="input-field">
-                    <div class="input-field-label">Orientation key</div>
+                    <div class="input-field-label">{$_("tools.layerLibrary.orientationKey")}</div>
                     <TextInput
                         placeholder={$_("tools.layerLibrary.orientationKeyPlaceholder")}
                         bind:value={$settings.orientationKey}
@@ -155,7 +262,7 @@
             {/if}
         </div>
     </div>
-    <div class="btn-float">
+    <div class="info-footer">
         {#if !$added}
             <Button 
                 on:click={() => custom.added.set(true)}
@@ -181,28 +288,76 @@
 		flex-direction: column;
         max-width: 65rem;
 	}
+
     .overview {
-        height: 100%;
+        flex: 1 1 auto;
+        min-height: 0;
 		overflow-y: auto;
 	}
+
     .header {
+        flex-shrink: 0;
         width: 100%;
         padding: var(--cds-spacing-03) 0rem var(--cds-spacing-03) 0px;
         display: flex;
+        align-items: center;
         justify-content: space-between;
+        gap: var(--cds-spacing-03);
+        container-type: inline-size;
     }
+
+    .header .title {
+        flex: 1 1 50%;
+        min-width: 50%;
+        overflow-wrap: break-word;
+    }
+
+    .delete-btn {
+        flex: 0 0 auto;
+    }
+
+    .delete-icon {
+        display: none;
+    }
+
+    @container (max-width: 400px) {
+        .delete-full {
+            display: none;
+        }
+        .delete-icon {
+            display: block;
+        }
+    }
+
     .input-fields {
         padding: 30px 20px 0;
         max-width: 40rem;
     }
+
     .input-field {
         margin-bottom: 20px;
     }
 
-    .btn-float {
-        position: absolute;
-        bottom: 0;
-        right: 0;
+    .link-btn {
+        display: inline-block;
+        margin-top: var(--cds-spacing-02);
+        color: var(--cds-link-01, #0f62fe);
+        font-size: var(--cds-label-01-font-size, 0.75rem);
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    .hint {
+        margin-top: var(--cds-spacing-02);
+        color: var(--cds-text-error, #da1e28);
+        font-size: var(--cds-label-01-font-size, 0.75rem);
+    }
+
+    .info-footer {
+        flex-shrink: 0;
+        display: flex;
+        justify-content: flex-end;
+        padding-top: var(--cds-spacing-05);
     }
 	
 </style>

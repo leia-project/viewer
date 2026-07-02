@@ -17,7 +17,9 @@
             "show": "Show",
             "hide": "Hide",
             "reset": "Reset"
-        }
+        },
+        "logoAlt": "Logo",
+        "visitGithub": "Visit GitHub"
     },
     "tools": {
         "menu": {
@@ -119,15 +121,25 @@
             "myDataTitle": "My Data Layer Configuration",
             "btnAddToMap": "Add To Map",
             "btnRemoveFromMap": "Remove From Map",
+            "addLayerTooltip": "Add layer",
+            "removeLayerTooltip": "Remove layer",
             "btnAddAllToMap": "Add All",
             "btnRemoveAllFromMap": "Remove All",
             "btnCopyToClipboard": "Copy to clipboard",
+            "copied": "Copied!",
+            "copySuccessTitle": "Copied",
+            "copySuccessMessage": "The layer configuration was copied to the clipboard.",
+            "copyErrorTitle": "Copy failed",
+            "copyErrorMessage": "The layer configuration could not be copied to the clipboard.",
             "description": "Description",
             "noDescription": "No description found",
             "attribution": "Attribution",
             "noAttribution": "No attribution found",
             "layerName": "Layer name",
             "layerType": "Layer type",
+            "dateCreated": "Date created",
+            "dateRevision": "Last revised",
+            "noDate": "No date available",
             "metadata": "Metadata",
             "noMetadata": "No metadata found",
             "info": "Info",
@@ -153,7 +165,23 @@
             "clampToTerrain": "Clamp to Terrain",
             "styling": "Styling",
             "viewRecordOn": "View record on",
-            "dataportal": "Dataportal"
+            "dataportal": "Dataportal",
+            "toolGroupTooltip": "Managed by the {tool} tool",
+            "resetFilter": "Reset filter",
+            "url": "URL",
+            "featureName": "Feature name",
+            "contentType": "Content type",
+            "featureNameRequired": "Select or enter a layer name",
+            "selectLayerPlaceholder": "Select a layer...",
+            "loadingLayers": "Loading available layers...",
+            "enterManually": "Enter layer name manually",
+            "selectFromList": "Select layer from list",
+            "capabilitiesError": "Could not retrieve layers from this service. Enter the layer name manually.",
+            "layers": "Layers",
+            "arcgisLayersPlaceholder": "Comma-separated list of ArcGIS map layers",
+            "modelUrl": "Model URL",
+            "timeKey": "Time key",
+            "orientationKey": "Orientation key"
         },
         "layerManager": {
             "label": "Layer Manager",
@@ -173,7 +201,18 @@
             "btnHideAll": "Hide All",
             "filterPointCloudClasses": "Filter Point Cloud classes",
             "heightControlLabel": "Tileset height offset (m)",
-            "dataportal": "Dataportal"
+            "dataportal": "Dataportal",
+            "toolGroupTooltip": "Managed by the {tool} tool",
+            "showMore": "Show more",
+            "showLess": "Show less",
+            "wmsStyling": "WMS Styling options",
+            "zoomToLayer": "Zoom to layer",
+            "delete": "Delete",
+            "colorRandomizer": "Color randomizer",
+            "allOther": "All other",
+            "legendProperties": {
+                "flood_depth": "Flood Depth"
+            }
         },
         "layerTools": {
             "theme": {
@@ -198,6 +237,7 @@
             "title": "Title",
             "save": "Save",
             "cancel": "Cancel",
+            "edit": "Edit",
             "delete": "Delete",
             "add": "Add New Bookmark",
             "description": "Description",
@@ -208,15 +248,30 @@
         },
         "projects": {
             "label": "Projects",
+            "projects": "Projects",
+            "environment": "Environment",
+            "showOnMap": "Show projects on map",
+            "leaveProject": "Leave Project View",
+            "show": "Show",
+            "hide": "Hide",
+            "selectProject": "Select project",
+            "validValueRequired": "A valid value is required",
             "activateProject": "Activate project",
-            "leaveProjectView": "Leave project",
-            "showOnMap": "Show projects on map"
+            "zoomToStartView": "Zoom to start view",
+            "zoomToLayer": "Zoom to layer",
+            "opacity": "Opacity",
+            "legend": "Legend",
+            "open": "Open",
+            "viewDetails": "View object details"
         },
         "featureInfo": {
             "label": "Object Information",
             "noData": "No data, press an object for more information",
             "attribute": "Attribute",
-            "value": "Value"
+            "value": "Value",
+            "link": "Link",
+            "open": "Open",
+            "noPdfViewer": "No online PDF viewer installed"
         },
         "measure": {
             "label": "Measure",
@@ -231,7 +286,9 @@
             "delete": "Delete",
             "cameraPosition": "Camera position",
             "totalLength": "Total length",
-            "points": "Points"
+            "points": "Points",
+            "titlePlaceholder": "Enter title",
+            "removePoint": "Remove point"
         },
         "cesium": {
             "label": "Map Settings",

@@ -68,6 +68,8 @@
   import Close from "carbon-components-svelte/src/icons/Close.svelte";
   import HamburgerMenu from "carbon-components-svelte/src/UIShell/HamburgerMenu.svelte";
   import { shouldRenderHamburgerMenu } from "carbon-components-svelte/src/UIShell/navStore.js";
+  import { _ } from "svelte-i18n";
+  import { searchActive } from "./search-active";
 
   
   //import Close from "../icons/Close.svelte";
@@ -91,7 +93,7 @@
 <header aria-label="{ariaLabel}" class:bx--header="{true}">
   <slot name="skip-to-content" />
   {#if logo !== undefined}
-    <img class="logo" src={logo} alt="logo" style="margin-left:{logoMarginLeft};margin-right:{logoMarginRight}" />
+    <img class="logo" src={logo} alt={$_("general.logoAlt")} style="margin-left:{logoMarginLeft};margin-right:{logoMarginRight}" />
   {/if}
   {#if ($shouldRenderHamburgerMenu && winWidth < expansionBreakpoint) || persistentHamburgerMenu}
     <HamburgerMenu
@@ -103,6 +105,7 @@
   <a
     href="{href}"
     class:bx--header__name="{true}"
+    class:search-active="{$searchActive}"
     bind:this="{ref}"
     {...$$restProps}
     on:click
@@ -110,7 +113,9 @@
     {#if company}
       <span class:bx--header__name--prefix="{true}">{company}&nbsp;</span>
     {/if}
-    <slot name="platform">{platformName}</slot>
+    <span class="header-subtitle">
+      <slot name="platform">{platformName}</slot>
+    </span>
   </a>
   <slot />
 </header>
@@ -119,5 +124,27 @@
     .logo {
         max-height: 2.5rem;
         margin: 0.5rem;
+    }
+
+    :global(.bx--header__name) {
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .header-subtitle {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    @media (max-width: 42rem) {
+        .header-subtitle {
+            display: none;
+        }
+
+        :global(.bx--header__name.search-active) {
+            display: none;
+        }
     }
 </style>
