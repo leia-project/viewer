@@ -138,7 +138,7 @@ function getLayers(document: any): Array<any> {
             attribution: layer.options.attribution,
             metadata: layer.options.metadata,
             transparent: layer.options.transparent,
-            opacity: layer.options.transparency,
+            opacity: layer.options.transparency !== undefined ? 100 - layer.options.transparency : undefined,
             cameraPosition: layer.source.layerPosition,
             settings: filterSource(layer.source)
         };
