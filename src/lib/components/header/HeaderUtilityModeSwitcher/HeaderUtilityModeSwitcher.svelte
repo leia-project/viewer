@@ -119,7 +119,7 @@
 		disabled={$disableModeSwitcher}
 	>
 		<span slot="labelA" style="color: white">2D</span>
-		<span slot="labelB" style="color: green">3D</span>
+		<span slot="labelB" style="color: white">3D</span>
 	</Toggle>
 </div>
 
