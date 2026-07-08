@@ -90,6 +90,7 @@
         "title": "Bovenregionale stresstest",
         "subTitle": "3D Leia Viewer",
         "logo": "images/leia_logo.png",
+        "isPrivate" : true,
         "startPosition": {
             "x": 3.96280,
             "y": 51.49285,
@@ -299,7 +300,7 @@
             "id": "rainStress",
             "enabled": true,
             "settings": {
-                "scenariosBaseUrl": "http://127.0.0.1:3000"
+                "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/bovenregionale_stresstest/"
             }
         },
         {

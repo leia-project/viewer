@@ -47,7 +47,7 @@
 	tool.settings.subscribe(async(settings?: RainfallToolSettings) => {
 		if (settings) {
 			rainfallLayerController = new RainfallLayerController(map, settings, activeRegion, selectedScenario);
-			const regionCollection = await fetch(`${base}/regions_wgs84.geojson`).then(res => res.json());
+			const regionCollection = await fetch('https://virtueel.zeeland.nl/tiles_other/brs/regions_wgs84.geojson').then(res => res.json());
 			regions = regionCollection.features;
 			rainfallLayerController.addRegions(regions);
 			setSearchResults();

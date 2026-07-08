@@ -85419,9 +85419,8 @@
 				"fid": 18,
 				"naam": "Reimerswaal",
 				"scenarios": [
-					3000,
-					30000,
-					300000
+					200,
+					300
 				]
 			},
 			"geometry": {
