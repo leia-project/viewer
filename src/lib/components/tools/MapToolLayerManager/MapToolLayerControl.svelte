@@ -1,9 +1,41 @@
+<script context="module" lang="ts">
+    import { XMLParser } from 'fast-xml-parser';
+
+    const capabilitiesParser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: '',
+        textNodeName: '#text',
+        trimValues: true,
+        parseTagValue: true,
+        parseAttributeValue: true,
+        isArray: (tagName) => tagName === 'Style'
+    });
+
+    // Cache parsed GetCapabilities documents so each endpoint is fetched and parsed only once
+    const capabilitiesCache = new Map<string, Promise<any>>();
+
+    function getCapabilities(getCapabilitiesUrl: string): Promise<any> {
+        let cached = capabilitiesCache.get(getCapabilitiesUrl);
+        if (!cached) {
+            cached = (async () => {
+                const response = await fetch(getCapabilitiesUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const xmlText = await response.text();
+                return capabilitiesParser.parse(xmlText);
+            })();
+            capabilitiesCache.set(getCapabilitiesUrl, cached);
+        }
+        return cached;
+    }
+</script>
+
 <script lang="ts">
     import { getContext, onMount } from "svelte";
     import { _ } from "svelte-i18n";
     import { Slider, Checkbox, Button, AccordionItem, Dropdown } from "carbon-components-svelte";
-	import { Search, TrashCan } from "carbon-icons-svelte";
-    import { XMLParser } from 'fast-xml-parser';
+	import { Search, TrashCan, Information } from "carbon-icons-svelte";
 
     import type { Layer } from "$lib/map-core/layer";
     import ErrorMessage from "$lib/components/theme/ErrorMessage/ErrorMessage.svelte"
@@ -18,6 +50,7 @@
     let imageValid: boolean = true;
     let descriptionValid: boolean = true;
     let items: { id: string; text: string }[] = [];
+    let metadataUrl: string | undefined = undefined;
     
     const defaultLegendUrl = layer.config.legendUrl;
     const hasConfigLegendUrl = defaultLegendUrl !== undefined && defaultLegendUrl !== "";
@@ -27,29 +60,54 @@
     const opacity = layer.opacity;
     const customControls = layer.customControls;
     const cameraPosition = layer.config.cameraPositionStore;
-    
+
+    function buildGetCapabilitiesUrl(baseUrl: string, featureName?: string): string {
+        // Restrict global capabilities to the layer's workspace if possible
+        const namespace = featureName && featureName.includes(":") ? featureName.split(":")[0] : undefined;
+        try {
+            const url = new URL(baseUrl);
+            url.searchParams.set("service", "WMS");
+            url.searchParams.set("request", "GetCapabilities");
+            if (namespace) url.searchParams.set("namespace", namespace);
+            return url.toString();
+        } catch {
+            // Fallback for relative/invalid URLs: append params with the correct separator
+            const trimmed = baseUrl.replace(/\?$/, "");
+            const separator = trimmed.includes("?") ? "&" : "?";
+            let result = `${trimmed}${separator}service=WMS&request=GetCapabilities`;
+            if (namespace) result += `&namespace=${namespace}`;
+            return result;
+        }
+    }
+
+    async function getMetadataURL(getCapabilitiesUrl: string, featureName: string) {
+        try {
+            const parsedXml = await getCapabilities(getCapabilitiesUrl);
+            let foundMetadataUrl: string | undefined = undefined;
+
+            if (parsedXml) {
+                const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
+                const layers = Array.isArray(layerData) ? layerData : [layerData];
+
+                layers.forEach((layer: { Name: string; DataURL: any; MetadataURL: any }) => {
+                    if (layer.Name === featureName) {
+                        foundMetadataUrl = layer.DataURL?.OnlineResource?.['xlink:href'] ||
+                            layer.MetadataURL?.OnlineResource?.['xlink:href'];
+                    }
+                });
+            };
+
+            return foundMetadataUrl;
+
+        } catch (error) {
+            console.error("Error fetching WMS GetCapabilities:", error);
+            return undefined;
+        };
+    };
+
     async function getWMSStyleNames(getCapabilitiesUrl: string, featureName: string) {
         try {
-            const response = await fetch(getCapabilitiesUrl);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const xmlText = await response.text();
-            const parser = new XMLParser({
-                ignoreAttributes: false,
-                attributeNamePrefix: '',
-                textNodeName: '#text',
-                trimValues: true,
-                parseTagValue: true,
-                parseAttributeValue: true,
-                isArray: (tagName) => {
-                    if (tagName === 'Style') return true;
-                    return false;
-                }
-            });
-
-            const parsedXml = parser.parse(xmlText);
+            const parsedXml = await getCapabilities(getCapabilitiesUrl);
 
             const styleNames: { id: string; text: string, legendURL: string | undefined }[] = [];
             if (parsedXml) {
@@ -101,6 +159,14 @@
     }
 
     onMount(async() => {
+        if (layer.config.metadataLink || layer.config.metadataUrl) {
+            // Layers added from the layer library already carry a metadata page link
+            metadataUrl = layer.config.metadataLink || layer.config.metadataUrl;
+        } else if (layer.config.type === "wms") {
+            const featureName = layer.config.settings?.featureName;
+            const WMSUrl = buildGetCapabilitiesUrl(layer.config.settings?.url, featureName);
+            metadataUrl = await getMetadataURL(WMSUrl, featureName);
+        }
         if (!layer.config.legendSupported) {
             return;
         }
@@ -109,8 +175,8 @@
             legendUrl = defaultLegendUrl;
         }
         else {
-            const WMSUrl = layer.config.settings?.url + "?service=WMS&request=GetCapabilities";
             const featureName = layer.config.settings?.featureName;
+            const WMSUrl = buildGetCapabilitiesUrl(layer.config.settings?.url, featureName);
             try {
                 items = await getWMSStyleNames(WMSUrl, featureName);
             } catch(error) {
@@ -150,6 +216,18 @@
                     {layer.title}
                 </div>
             </div>
+            {#if metadataUrl}
+                <a
+                    href={metadataUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="metadata-link"
+                    title={$_("tools.layerManager.openMetadata")}
+                    aria-label={$_("tools.layerManager.openMetadata")}
+                >
+                    <Information size={16} />
+                </a>
+            {/if}
         </div>
     </svelte:fragment>
 
@@ -165,19 +243,21 @@
             {/if}
         {/if}
         {#if layer.config.type === "wms" && layer.config.settings?.tools?.styleSwitcher?.enabled == true}        
-            <Dropdown
-                titleText={$_("tools.layerManager.wmsStyling")}
-                size="sm"
-                selectedId={layer.config.settings?.styles || items[0]?.id} 
-                items={items}
-                on:select={(e) => {
-                    const WMSLayer = map.getLayerById(layer.config.id);
-                    //@ts-ignore
-                    legendUrl = e.detail.selectedItem.legendURL;
+            <div class="style-switcher">
+                <Dropdown
+                    titleText={$_("tools.layerManager.styling")}
+                    size="sm"
+                    selectedId={layer.config.settings?.styles || items[0]?.id} 
+                    items={items}
+                    on:select={(e) => {
+                        const WMSLayer = map.getLayerById(layer.config.id);
+                        //@ts-ignore
+                        legendUrl = e.detail.selectedItem.legendURL;
 
-                    WMSLayer.switchLayer(e.detail.selectedItem.id);
-                }}
-            />
+                        WMSLayer.switchLayer(e.detail.selectedItem.id);
+                    }}
+                />
+            </div>
         {/if}
         {#if layer.config.legendSupported}
             <div class="label-01 legend-header">
@@ -207,7 +287,7 @@
                     size="small"
                     iconDescription={$_("tools.layerManager.zoomToLayer")}
                     icon={Search}
-                    tooltipPosition="left"
+                    tooltipPosition="bottom"
                     on:click={() => {
                         zoomToLayer();
                     }}
@@ -218,7 +298,8 @@
                 size="small"
                 iconDescription={$_("tools.layerManager.delete")}
                 icon={TrashCan}
-                tooltipPosition="left"
+                tooltipPosition="bottom"
+                tooltipAlignment="end"
                 on:click={() => {
                     removeLayer();
                 }}
@@ -237,6 +318,7 @@
 
     .slider-wrapper {
         width: calc(100% - var(--cds-spacing-01));
+        margin-top: var(--cds-spacing-05);
     }
 
     .slider-wrapper :global(.bx--slider-container) {
@@ -256,6 +338,10 @@
 
     .legend-header {
         margin-bottom: 5px;
+    }
+
+    .style-switcher {
+        margin-bottom: var(--cds-spacing-05);
     }
 
     .item-header {
@@ -322,5 +408,24 @@
         justify-content: right;
         margin-top: var(--cds-spacing-05);
         gap: var(--cds-spacing-02);
+    }
+
+    .metadata-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 999px;
+        padding: 2px;
+        color: var(--cds-icon-primary, #161616);
+        transition: color 0.15s ease, background-color 0.15s ease;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .metadata-link:hover,
+    .metadata-link:focus-visible {
+        color: var(--cds-link-primary, #0f62fe);
+        background-color: var(--cds-hover-ui, #e5e5e5);
     }
 </style>
