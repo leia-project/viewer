@@ -50,8 +50,8 @@
 {#if dropdownItems}
 	<div class="geojson-styling-options">
 		<div class="control-section">
-			<div class="control-header">{ $_('tools.layerManager.styling') }</div>
 			<Dropdown
+				titleText={ $_('tools.layerManager.styling') }
 				bind:selectedId={activeStyle}
 				items={dropdownItems}
 				size="sm"
