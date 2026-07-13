@@ -51,7 +51,7 @@
 			})
 
 			// Directly activate story from searchParams
-			const queriedStory = $page.data.story;
+			const queriedStory = $page.data.story ?? $page.url.searchParams.get("story");
 			if(!queriedStory) return;
 			for (let i = 0; i < stories.length; i++) {
 				if (stories[i].name.toLowerCase() === queriedStory.toLowerCase()) {
