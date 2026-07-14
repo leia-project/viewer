@@ -7,6 +7,7 @@ export class WmtsLayer extends CesiumImageryLayer {
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
+		this.setBoundingBoxCameraPosition("wmts");
 	}
 
 	createLayer() {
