@@ -1,5 +1,6 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
+	import { get } from "svelte/store";
 	import { Home, Add, Subtract, Compass } from "carbon-icons-svelte";
 	import type { Map } from "$lib/map-cesium/map"
     import Button from "$lib/components/theme/Button/Button.svelte";
@@ -17,7 +18,10 @@
     }
 
     function mapCenter() {
-        map.options.use3DMode.set(map.config.viewer.startCameraMode3D);
+        // Don't change the camera mode when mode switching is disabled
+        if (!get(map.options.disableModeSwitcher)) {
+            map.options.use3DMode.set(map.config.viewer.startCameraMode3D);
+        }
         map.home();
     }
 
