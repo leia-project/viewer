@@ -1,36 +1,3 @@
-<script context="module" lang="ts">
-    import { XMLParser } from 'fast-xml-parser';
-
-    const capabilitiesParser = new XMLParser({
-        ignoreAttributes: false,
-        attributeNamePrefix: '',
-        textNodeName: '#text',
-        trimValues: true,
-        parseTagValue: true,
-        parseAttributeValue: true,
-        isArray: (tagName) => tagName === 'Style'
-    });
-
-    // Cache parsed GetCapabilities documents so each endpoint is fetched and parsed only once
-    const capabilitiesCache = new Map<string, Promise<any>>();
-
-    function getCapabilities(getCapabilitiesUrl: string): Promise<any> {
-        let cached = capabilitiesCache.get(getCapabilitiesUrl);
-        if (!cached) {
-            cached = (async () => {
-                const response = await fetch(getCapabilitiesUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const xmlText = await response.text();
-                return capabilitiesParser.parse(xmlText);
-            })();
-            capabilitiesCache.set(getCapabilitiesUrl, cached);
-        }
-        return cached;
-    }
-</script>
-
 <script lang="ts">
     import { getContext, onMount } from "svelte";
     import { _ } from "svelte-i18n";
@@ -38,6 +5,7 @@
 	import { Search, TrashCan, Information } from "carbon-icons-svelte";
 
     import type { Layer } from "$lib/map-core/layer";
+    import { buildGetCapabilitiesUrl, fetchCapabilitiesDocument } from "$lib/components/tools/MapToolLayerLibrary/CustomLayers/capabilities";
     import ErrorMessage from "$lib/components/theme/ErrorMessage/ErrorMessage.svelte"
     import ExpandableDescription from "$lib/components/theme/ExpandableDescription/ExpandableDescription.svelte"
 
@@ -61,38 +29,25 @@
     const customControls = layer.customControls;
     const cameraPosition = layer.config.cameraPositionStore;
 
-    function buildGetCapabilitiesUrl(baseUrl: string, featureName?: string): string {
-        // Restrict global capabilities to the layer's workspace if possible
-        const namespace = featureName && featureName.includes(":") ? featureName.split(":")[0] : undefined;
-        try {
-            const url = new URL(baseUrl);
-            url.searchParams.set("service", "WMS");
-            url.searchParams.set("request", "GetCapabilities");
-            if (namespace) url.searchParams.set("namespace", namespace);
-            return url.toString();
-        } catch {
-            // Fallback for relative/invalid URLs: append params with the correct separator
-            const trimmed = baseUrl.replace(/\?$/, "");
-            const separator = trimmed.includes("?") ? "&" : "?";
-            let result = `${trimmed}${separator}service=WMS&request=GetCapabilities`;
-            if (namespace) result += `&namespace=${namespace}`;
-            return result;
-        }
+    // Restrict global capabilities to the layer's workspace if possible
+    function getNamespace(featureName?: string): string | undefined {
+        return featureName && featureName.includes(":") ? featureName.split(":")[0] : undefined;
     }
 
     async function getMetadataURL(getCapabilitiesUrl: string, featureName: string) {
         try {
-            const parsedXml = await getCapabilities(getCapabilitiesUrl);
+            const parsedXml = await fetchCapabilitiesDocument(getCapabilitiesUrl);
             let foundMetadataUrl: string | undefined = undefined;
 
             if (parsedXml) {
-                const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
+                const capabilities = parsedXml.WMS_Capabilities ?? parsedXml.WMT_MS_Capabilities;
+                const layerData = capabilities?.Capability?.Layer?.Layer;
                 const layers = Array.isArray(layerData) ? layerData : [layerData];
 
                 layers.forEach((layer: { Name: string; DataURL: any; MetadataURL: any }) => {
-                    if (layer.Name === featureName) {
-                        foundMetadataUrl = layer.DataURL?.OnlineResource?.['xlink:href'] ||
-                            layer.MetadataURL?.OnlineResource?.['xlink:href'];
+                    if (layer?.Name === featureName) {
+                        foundMetadataUrl = layer.DataURL?.OnlineResource?.href ||
+                            layer.MetadataURL?.OnlineResource?.href;
                     }
                 });
             };
@@ -107,16 +62,18 @@
 
     async function getWMSStyleNames(getCapabilitiesUrl: string, featureName: string) {
         try {
-            const parsedXml = await getCapabilities(getCapabilitiesUrl);
+            const parsedXml = await fetchCapabilitiesDocument(getCapabilitiesUrl);
 
             const styleNames: { id: string; text: string, legendURL: string | undefined }[] = [];
             if (parsedXml) {
-                const layerData = parsedXml.WMS_Capabilities.Capability.Layer.Layer;
+                const capabilities = parsedXml.WMS_Capabilities ?? parsedXml.WMT_MS_Capabilities;
+                const layerData = capabilities?.Capability?.Layer?.Layer;
                 const layers = Array.isArray(layerData) ? layerData : [layerData];
 
                 layers.forEach((layer: { Name: string; Style: { Title: any; Name: string; LegendURL?: any }[] }) => {
-                    if (layer.Name === featureName) {
-                        layer.Style.forEach((style, index) => {
+                    if (layer?.Name === featureName) {
+                        const styles = Array.isArray(layer.Style) ? layer.Style : (layer.Style ? [layer.Style] : []);
+                        styles.forEach((style, index) => {
                             imageValid = true;
                             const styleName = style.Title;
                             const styleId = style.Name;
@@ -124,7 +81,7 @@
                             // Use config legend URL if available, otherwise use style's legend URL
                             const styleLegendUrl = hasConfigLegendUrl 
                                 ? defaultLegendUrl 
-                                : style.LegendURL?.OnlineResource?.["xlink:href"];
+                                : style.LegendURL?.OnlineResource?.href;
                             
                             // Set the first item's legend as the initial display
                             if (index === 0) {
@@ -164,7 +121,7 @@
             metadataUrl = layer.config.metadataLink || layer.config.metadataUrl;
         } else if (layer.config.type === "wms") {
             const featureName = layer.config.settings?.featureName;
-            const WMSUrl = buildGetCapabilitiesUrl(layer.config.settings?.url, featureName);
+            const WMSUrl = buildGetCapabilitiesUrl(layer.config.settings?.url, "wms", getNamespace(featureName));
             metadataUrl = await getMetadataURL(WMSUrl, featureName);
         }
         if (!layer.config.legendSupported) {
@@ -176,7 +133,7 @@
         }
         else {
             const featureName = layer.config.settings?.featureName;
-            const WMSUrl = buildGetCapabilitiesUrl(layer.config.settings?.url, featureName);
+            const WMSUrl = buildGetCapabilitiesUrl(layer.config.settings?.url, "wms", getNamespace(featureName));
             try {
                 items = await getWMSStyleNames(WMSUrl, featureName);
             } catch(error) {

@@ -123,11 +123,13 @@ export class Map extends MapCore {
 	}
 
 	public flyTo(position: CameraLocation): void {
+		// In 2D mode the camera must stay top-down, so ignore any tilt from the target position
+		const pitch = get(this.options.use3DMode) ? position.pitch : -89.9;
 		this.camera?.flyTo({
 			destination: Cesium.Cartesian3.fromDegrees(position.x, position.y, position.z),
 			orientation: {
 				heading: Cesium.Math.toRadians(position.heading),
-				pitch: Cesium.Math.toRadians(position.pitch),
+				pitch: Cesium.Math.toRadians(pitch),
 				roll: 0.0
 			},
 			duration: position.duration

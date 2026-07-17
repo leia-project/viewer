@@ -1,13 +1,22 @@
 import { XMLParser } from "fast-xml-parser";
 
+export interface GeographicBoundingBox {
+	west: number;
+	south: number;
+	east: number;
+	north: number;
+}
+
 export interface CapabilitiesLayer {
 	id: string;
 	text: string;
 	formats: Array<string>;
+	boundingBox?: GeographicBoundingBox;
 }
 
 const capabilitiesCache = new Map<string, Array<CapabilitiesLayer>>();
 const inFlightCapabilitiesRequests = new Map<string, Promise<Array<CapabilitiesLayer>>>();
+const documentCache = new Map<string, Promise<any>>();
 
 
 function getCacheKey(baseUrl: string, type: "wms" | "wmts"): string {
@@ -18,24 +27,96 @@ function getCacheKey(baseUrl: string, type: "wms" | "wmts"): string {
 function cloneLayers(layers: Array<CapabilitiesLayer>): Array<CapabilitiesLayer> {
 	return layers.map((layer) => ({
 		...layer,
-		formats: [...layer.formats]
+		formats: [...layer.formats],
+		boundingBox: layer.boundingBox ? { ...layer.boundingBox } : undefined
 	}));
 }
 
 
 /**
- * Builds a GetCapabilities request URL for a WMS or WMTS service, taking into
- * account that the provided base URL may already contain query parameters.
+ * Builds a GetCapabilities URL for a WMS/WMTS service. Strips any query params
+ * from the base URL that would conflict (e.g. a leftover `service=WMS` that
+ * strict servers like GeoServer reject as a duplicate). Optional `namespace`
+ * restricts the response to one workspace on servers that support it.
  */
-export function buildGetCapabilitiesUrl(baseUrl: string, type: "wms" | "wmts"): string {
-	const separator = baseUrl.includes("?") ? (baseUrl.endsWith("?") ? "" : "&") : "?";
-	return `${baseUrl}${separator}service=${type}&request=GetCapabilities`;
+export function buildGetCapabilitiesUrl(
+	baseUrl: string,
+	type: "wms" | "wmts",
+	namespace?: string
+): string {
+	const [path, query = ""] = baseUrl.split("?");
+	const params = new URLSearchParams(query);
+	// Remove request-defining and GetMap/GetTile-specific params (case-insensitive).
+	const dropKeys = new Set([
+		"service", "request", "version", "format", "styles", "style", "transparent",
+		"layers", "layer", "bbox", "width", "height", "srs", "crs", "tilematrix",
+		"tilematrixset", "tilerow", "tilecol", "namespace"
+	]);
+	for (const key of [...params.keys()]) {
+		if (dropKeys.has(key.toLowerCase())) params.delete(key);
+	}
+	params.set("service", type);
+	params.set("request", "GetCapabilities");
+	if (namespace) params.set("namespace", namespace);
+	return `${path}?${params.toString()}`;
 }
 
 
 function toArray<T>(value: T | Array<T> | undefined): Array<T> {
 	if (value === undefined || value === null) return [];
 	return Array.isArray(value) ? value : [value];
+}
+
+
+function toNumber(value: unknown): number | undefined {
+	const num = typeof value === "number" ? value : Number(value);
+	return Number.isFinite(num) ? num : undefined;
+}
+
+
+/** Reads a lon/lat bbox from a WMS layer node: EX_GeographicBoundingBox (1.3.0), else LatLonBoundingBox (1.1.1). */
+function boundingBoxFromLayerNode(layer: any): GeographicBoundingBox | undefined {
+	const ex = layer.EX_GeographicBoundingBox;
+	if (ex) {
+		const west = toNumber(ex.westBoundLongitude);
+		const east = toNumber(ex.eastBoundLongitude);
+		const south = toNumber(ex.southBoundLatitude);
+		const north = toNumber(ex.northBoundLatitude);
+		if (west !== undefined && east !== undefined && south !== undefined && north !== undefined) {
+			return { west, south, east, north };
+		}
+	}
+
+	const latLon = toArray(layer.LatLonBoundingBox)[0] as any;
+	if (latLon) {
+		const west = toNumber(latLon.minx);
+		const east = toNumber(latLon.maxx);
+		const south = toNumber(latLon.miny);
+		const north = toNumber(latLon.maxy);
+		if (west !== undefined && east !== undefined && south !== undefined && north !== undefined) {
+			return { west, south, east, north };
+		}
+	}
+
+	return undefined;
+}
+
+
+/** Reads a lon/lat bbox from a WMTS/OWS layer node's WGS84BoundingBox (LowerCorner/UpperCorner, "lon lat"). */
+function boundingBoxFromWgs84BoundingBox(layer: any): GeographicBoundingBox | undefined {
+	const wgs84 = toArray(layer.WGS84BoundingBox)[0] as any;
+	if (!wgs84) return undefined;
+	const lower = String(wgs84.LowerCorner ?? "").trim().split(/\s+/);
+	const upper = String(wgs84.UpperCorner ?? "").trim().split(/\s+/);
+	if (lower.length !== 2 || upper.length !== 2) return undefined;
+	const west = toNumber(lower[0]);
+	const south = toNumber(lower[1]);
+	const east = toNumber(upper[0]);
+	const north = toNumber(upper[1]);
+	if (west !== undefined && east !== undefined && south !== undefined && north !== undefined) {
+		return { west, south, east, north };
+	}
+	return undefined;
 }
 
 
@@ -53,11 +134,34 @@ function createParser(): XMLParser {
 
 
 /**
- * Fetches and parses the GetCapabilities document for a WMS or WMTS service and
- * returns the list of selectable layers, including their available output formats.
- *
- * Returns an empty array if the request fails or no layers are found, so callers
- * can fall back to manual entry.
+ * Fetches and parses a GetCapabilities document to raw XML, cached per URL and
+ * de-duplicated in flight so all consumers share one request. Failed fetches
+ * are evicted so they can be retried.
+ */
+export function fetchCapabilitiesDocument(url: string): Promise<any> {
+	let cached = documentCache.get(url);
+	if (!cached) {
+		cached = (async () => {
+			const response = await fetch(url);
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			const xmlText = await response.text();
+			return createParser().parse(xmlText);
+		})().catch((error) => {
+			documentCache.delete(url);
+			throw error;
+		});
+		documentCache.set(url, cached);
+	}
+	return cached;
+}
+
+
+/**
+ * Returns the selectable layers (id, title, formats, bbox) from a WMS/WMTS
+ * service's GetCapabilities. Empty array on failure so callers can fall back to
+ * manual entry.
  */
 export async function fetchCapabilitiesLayers(
 	baseUrl: string,
@@ -75,14 +179,8 @@ export async function fetchCapabilitiesLayers(
 	}
 
 	const request = (async () => {
-		const url = buildGetCapabilitiesUrl(baseUrl, type);
 		try {
-			const response = await fetch(url);
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-			const xmlText = await response.text();
-			const parsedXml = createParser().parse(xmlText);
+			const parsedXml = await fetchCapabilitiesDocument(buildGetCapabilitiesUrl(baseUrl, type));
 			if (!parsedXml) return [];
 			const layers = type === "wms" ? parseWmsLayers(parsedXml) : parseWmtsLayers(parsedXml);
 			capabilitiesCache.set(cacheKey, cloneLayers(layers));
@@ -108,19 +206,23 @@ function parseWmsLayers(parsedXml: any): Array<CapabilitiesLayer> {
 	const formats = toArray<string>(capabilities.Capability.Request?.GetMap?.Format);
 
 	const layers: Array<CapabilitiesLayer> = [];
-	const walk = (layer: any) => {
+	const walk = (layer: any, inheritedBoundingBox?: GeographicBoundingBox) => {
 		if (!layer) return;
+		// WMS layers inherit their ancestors' geographic bounding box, so a named
+		// layer without its own box falls back to the nearest ancestor's box.
+		const boundingBox = boundingBoxFromLayerNode(layer) ?? inheritedBoundingBox;
 		// Only layers with a Name are requestable; group layers without a Name are skipped
 		if (layer.Name) {
 			layers.push({
 				id: String(layer.Name),
 				text: layer.Title ? String(layer.Title) : String(layer.Name),
-				formats
+				formats,
+				boundingBox
 			});
 		}
-		toArray(layer.Layer).forEach(walk);
+		toArray(layer.Layer).forEach((child) => walk(child, boundingBox));
 	};
-	toArray(capabilities.Capability.Layer).forEach(walk);
+	toArray(capabilities.Capability.Layer).forEach((layer) => walk(layer));
 	return disambiguateLayers(layers);
 }
 
@@ -134,17 +236,14 @@ function parseWmtsLayers(parsedXml: any): Array<CapabilitiesLayer> {
 		.map((layer) => ({
 			id: String(layer.Identifier),
 			text: layer.Title ? String(layer.Title) : String(layer.Identifier),
-			formats: toArray<string>(layer.Format)
+			formats: toArray<string>(layer.Format),
+			boundingBox: boundingBoxFromWgs84BoundingBox(layer)
 		}));
 	return disambiguateLayers(layers);
 }
 
 
-/**
- * Layers can share the same Title while having different (unique) Names. To keep
- * the dropdown distinguishable, the unique Name is appended in parentheses to any
- * layer whose Title is not unique. Layers with a unique Title keep their clean label.
- */
+/** Appends the unique Name in parentheses to any layer whose Title is shared by another, for a distinguishable dropdown. */
 function disambiguateLayers(layers: Array<CapabilitiesLayer>): Array<CapabilitiesLayer> {
 	const titleCounts = new Map<string, number>();
 	for (const layer of layers) {
@@ -158,10 +257,7 @@ function disambiguateLayers(layers: Array<CapabilitiesLayer>): Array<Capabilitie
 }
 
 
-/**
- * Picks the most suitable output format from a list returned by GetCapabilities,
- * preferring PNG, then JPEG, then the first available image format.
- */
+/** Picks the best output format from a GetCapabilities list, preferring PNG, then JPEG, then any image type. */
 export function pickPreferredFormat(formats: Array<string>): string | undefined {
 	if (formats.length === 0) return undefined;
 	const normalized = formats.map((format) => ({
@@ -175,4 +271,25 @@ export function pickPreferredFormat(formats: Array<string>): string | undefined 
 		normalized.find((f) => f.lower.startsWith("image/"))?.raw ??
 		undefined
 	);
+}
+
+
+/**
+ * Returns a WMS/WMTS layer's bbox (by featureName/identifier) from GetCapabilities,
+ * or undefined. Reuses the cached fetchCapabilitiesLayers. featureName may be a
+ * comma-separated list; the first part with a bbox wins.
+ */
+export async function fetchLayerBoundingBox(
+	baseUrl: string,
+	featureName: string,
+	type: "wms" | "wmts"
+): Promise<GeographicBoundingBox | undefined> {
+	if (!baseUrl || !featureName) return undefined;
+	const layers = await fetchCapabilitiesLayers(baseUrl, type);
+	if (layers.length === 0) return undefined;
+	for (const part of featureName.split(",").map((name) => name.trim())) {
+		const match = layers.find((layer) => layer.id === part);
+		if (match?.boundingBox) return match.boundingBox;
+	}
+	return undefined;
 }

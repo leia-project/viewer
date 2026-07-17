@@ -290,6 +290,12 @@
 		padding: var(--cds-spacing-05);
 	}
 
+	.measurements :global(.bx--inline-notification) {
+		min-width: 10rem;
+		max-width: 100%;
+		width: 100%;
+	}
+
 	.add {
 		padding-top: var(--cds-spacing-05);
 		width: 100%;

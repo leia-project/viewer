@@ -7,6 +7,7 @@ export class WmsLayer extends CesiumImageryLayer {
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
+		this.setBoundingBoxCameraPosition("wms");
 	}
 
 	createLayer(dropDownStyleName?: string): void {
