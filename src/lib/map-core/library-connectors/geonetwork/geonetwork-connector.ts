@@ -4,6 +4,7 @@ import type { LibraryConnector } from "../library-connector";
 import { LibraryConnectorData } from "../library-connector-data";
 import { get } from "svelte/store";
 import type { GeoNetworkConnectorSettings } from "./geonetwork-connector-settings";
+import { fetchCapabilitiesLayers } from "$lib/components/tools/MapToolLayerLibrary/CustomLayers/capabilities";
 
 
 export class GeoNetworkConnector implements LibraryConnector {
@@ -25,13 +26,16 @@ export class GeoNetworkConnector implements LibraryConnector {
             try {  
                 const groups = await this.getAllGroups();
                 const layerConfigs = new Array<LayerConfig>();
+                const recordGroups = new Array<LayerConfigGroup>();
 
                 for (let i = 0; i < groups.length; i++) {
-                    const configs = await this.getLayerConfigs(groups[i]);
+                    if (groups[i].id === "dataportal") continue;  // skip fake parent
+                    const { configs, subgroups } = await this.getLayerConfigs(groups[i]);
                     layerConfigs.push(...configs);
+                    recordGroups.push(...subgroups);
                 }
 
-                this.data = new LibraryConnectorData(groups, layerConfigs);
+                this.data = new LibraryConnectorData([...groups, ...recordGroups], layerConfigs);
             } catch (error) {
                 throw error;
             }
@@ -62,24 +66,38 @@ export class GeoNetworkConnector implements LibraryConnector {
     /**
      * Request all packages and resources from CKAN
      * @param type Either 'organization', 'group' or 'dataset'
-     * @returns List of LayerConfigs parsed from CKAN packages
+     * @returns The parsed LayerConfigs and any per-record subgroups
      */
-    private async getLayerConfigs(group: LayerConfigGroup): Promise<Array<LayerConfig>> {
-        try {
-            const suffix = `&topicCat=${group.id}&resultType=details&buildSummary=false&fast=index`;
-            const request = `${this.settings.url}/${this.endpointSearch}?_content_type=json&${suffix}&from=1&to=1000`;
-            const result = await this.get(request);
+    private async getLayerConfigs(group: LayerConfigGroup): Promise<{ configs: Array<LayerConfig>, subgroups: Array<LayerConfigGroup> }> {
+        const allConfigs = new Array<LayerConfig>();
+        const allSubgroups = new Array<LayerConfigGroup>();
+        const pageSize = 100;
+        const maxPages = 1000; // safety guard against an API that ignores paging
+        let from = 1;
 
-            if (result) {
-                return this.geoNetworkLayersToLayerConfigs(result);
-            } else {
-                console.log("GeoNetwork Connector: Get packages request unsuccessful");
-                setTimeout(() => this.getLayerConfigs(group), 2000); // Re-try after 2 seconds
+        try {
+            for (let page = 0; page < maxPages; page++) {
+                const to = from + pageSize - 1;
+                const suffix = `&topicCat=${group.id}&resultType=details&buildSummary=false&fast=index`;
+                const request = `${this.settings.url}/${this.endpointSearch}?_content_type=json&${suffix}&from=${from}&to=${to}`;
+                const result = await this.get(request);
+
+                if (!result?.metadata) break;
+
+                const { configs, subgroups } = await this.geoNetworkLayersToLayerConfigs(result, group.id);
+                allConfigs.push(...configs);
+                allSubgroups.push(...subgroups);
+
+                const returned = Array.isArray(result.metadata) ? result.metadata.length : 1;
+                if (returned < pageSize) break;
+
+                from += pageSize;
             }
         } catch (error) {
             throw error;
         }
-        return [];
+
+        return { configs: allConfigs, subgroups: allSubgroups };
     }
 
 
@@ -119,51 +137,64 @@ export class GeoNetworkConnector implements LibraryConnector {
         return groups;
     }
 
-    private geoNetworkLayersToLayerConfigs(result: any): Array<LayerConfig> {
+    private async geoNetworkLayersToLayerConfigs(result: any, groupId: string): Promise<{ configs: Array<LayerConfig>, subgroups: Array<LayerConfigGroup> }> {
         const configs = new Array<LayerConfig>();
+        const subgroups = new Array<LayerConfigGroup>();
 
         if(!result?.metadata) {
-            return configs;
+            return { configs, subgroups };
         }
 
-        const layers = result.metadata;
+        const layers = Array.isArray(result.metadata) ? result.metadata : [result.metadata];
 
-        for(let i = 0; i < layers.length; i++) {
-            const l = layers[i];
-            let groupId = l.topicCat || 'dataportal'; // Default to dataportal if no group is found
+        // Resolve settings per record first, so WMS capabilities can be fetched
+        // once per unique endpoint (cached) instead of once per layer.
+        const parsed: Array<{ l: any; settingsList: Array<any> }> = layers
+            .map((l: any) => ({ l, settingsList: this.getSettings(l.link) }))
+            .filter((entry: { l: any; settingsList: Array<any> }) => entry.settingsList.length > 0);
 
-            // If groupId is an array, use the first element
-            if (Array.isArray(groupId)) {
-                groupId = groupId[0];
+        const urls: Array<string> = [];
+        for (const entry of parsed) {
+            for (const s of entry.settingsList) urls.push(s.url);
+        }
+        const titleMap = await this.getWmsTitleMap(urls);
+
+        for (const { l, settingsList } of parsed) {
+            const multipleLayers = settingsList.length > 1;
+
+            // Records exposing multiple WMS layers are nested under a subgroup named
+            // after the record, so the near-identical child layers are easier to tell apart.
+            const childGroupId = multipleLayers ? l.identifier : groupId;
+            if (multipleLayers) {
+                subgroups.push(new LayerConfigGroup(l.identifier, l.title, groupId));
             }
-            
-            const layerSettings = this.getSettings(l.link);
-            if (Object.keys(layerSettings).length === 0) {
-                continue;
-            }
 
-            const lc = new LayerConfig({
-                id: l.identifier,
-                type: "wms",
-                title: l.title,
-                description: l.abstract,
-                groupId: groupId,
-                imageUrl: this.getImageUrl(l.image),
-                attribution: l.lineage,
-                isBackground: false,
-                legendUrl: undefined,
-                defaultAddToManager: false,
-                defaultOn: false,
-                metadata: undefined,
-                metadataUrl: '',
-                metadataLink: this.settings.url + this.linkFormat.replace('{uuid}', l['geonet:info'].uuid),
-                dateCreated: l.publicationDate ?? l.creationDate ?? "",
-                dateRevision: l.revisionDate ?? "",
-                settings: layerSettings,
-                cameraPosition: undefined,
-                tags: undefined
-            });                
-            configs.push(lc);
+            for (let j = 0; j < settingsList.length; j++) {
+                const layerSettings = settingsList[j];
+                const wmsTitle = titleMap.get(`${layerSettings.url}::${layerSettings.featureName}`) ?? layerSettings.featureName;
+                const lc = new LayerConfig({
+                    id: multipleLayers ? `${l.identifier}__${layerSettings.featureName}` : l.identifier,
+                    type: "wms",
+                    title: multipleLayers ? wmsTitle : l.title,
+                    description: l.abstract,
+                    groupId: childGroupId,
+                    imageUrl: this.getImageUrl(l.image),
+                    attribution: l.lineage,
+                    isBackground: false,
+                    legendUrl: undefined,
+                    defaultAddToManager: false,
+                    defaultOn: false,
+                    metadata: undefined,
+                    metadataUrl: '',
+                    metadataLink: this.settings.url + this.linkFormat.replace('{uuid}', l['geonet:info'].uuid),
+                    dateCreated: l.publicationDate ?? l.creationDate ?? "",
+                    dateRevision: l.revisionDate ?? "",
+                    settings: layerSettings,
+                    cameraPosition: undefined,
+                    tags: undefined
+                });
+                configs.push(lc);
+            }
         }
 
         if(this.debug) {
@@ -172,7 +203,28 @@ export class GeoNetworkConnector implements LibraryConnector {
             }
         }
 
-        return configs;
+        return { configs, subgroups };
+    }
+
+    /**
+     * Fetches WMS GetCapabilities once per unique endpoint (deduplicated and cached by
+     * the capabilities helper) and builds a lookup of `${url}::${featureName}` to the
+     * human-readable layer title. Endpoints are fetched in parallel.
+     */
+    private async getWmsTitleMap(urls: Array<string>): Promise<Map<string, string>> {
+        const titleMap = new Map<string, string>();
+        const uniqueUrls = Array.from(new Set(urls));
+        await Promise.all(uniqueUrls.map(async (url) => {
+            try {
+                const capabilitiesLayers = await fetchCapabilitiesLayers(url, "wms");
+                for (const layer of capabilitiesLayers) {
+                    titleMap.set(`${url}::${layer.id}`, layer.text);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }));
+        return titleMap;
     }
 
     private getValueFromMetadata(key: string, metadata: Array<{ key: string, value: any}>) : string | undefined {
@@ -192,28 +244,29 @@ export class GeoNetworkConnector implements LibraryConnector {
         return imageUrl?.split('|')[1];
     }
 
-    private getSettings(link: Array<string> | undefined): Object {
+    private getSettings(link: Array<string> | undefined): Array<any> {
+        const wmslinks: Array<any> = [];
         try {
             if (!link) {
-                return {};
+                return wmslinks;
             }
             const links = Array.isArray(link) ? link : [link];
             for (let i = 0; i < links.length; i++) {
                 let l = links[i];
                 if (l.includes('OGC:WMS')) {
                     let l_split = l.split('|');
-                    return {
+                    wmslinks.push({
                         url: l_split[2].split('?')[0],
                         type: 'wms',
                         featureName: l_split[0],
                         contenttype: 'image/png'
-                    }
+                    });
                 }
             }
         } catch (error) {
             console.error(error);
         }
-        return {}
+        return wmslinks;
     }
 
     /**

@@ -70,6 +70,13 @@
         return groupIds
     }
 
+    // A group is relevant when it (or any descendant group) contains a present layer,
+    // so intermediate groups on the path to a nested layer are not pruned.
+    function groupSubtreeHasLayers(group: LayerConfigGroup): boolean {
+        if (groupsWithLayers.includes(group.id)) return true;
+        return get(group.childGroups).some(groupSubtreeHasLayers);
+    }
+
     function buildGroupsRecursive(layerConfigGroups: Array<LayerConfigGroup>) {
         let groups = Array<LayerManagerGroup>();
         // copy library groups to layer groups
@@ -85,7 +92,7 @@
                 layerManagerGroup.addLayer(layer)
             }
             // add childgroups
-            const childConfigGroups = get(group.childGroups).filter(g => groupsWithLayers.includes(g.id))
+            const childConfigGroups = get(group.childGroups).filter(groupSubtreeHasLayers)
             const childLayerGroups = buildGroupsRecursive(childConfigGroups)
             for (let i = 0; i < childLayerGroups.length; i++) {
                 const childLayerGroup = childLayerGroups[i];

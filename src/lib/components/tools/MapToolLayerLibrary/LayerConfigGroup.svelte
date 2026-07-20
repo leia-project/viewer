@@ -18,6 +18,15 @@
     $: totalLayercount = group.totalLayerCount;
     $: enabledLayercount = group.enabledLayerCount;
 
+    $: displayTitle =
+        group.id === "group_background"
+            ? textBaselayers
+            : group.id === "group_uncategorised"
+              ? textNoCategory
+              : group.id === "dataportal"
+                ? $_("tools.layerLibrary.dataportal")
+                : group.title;
+
     function addAllLayers(): void {
         group.addAllLayers();
     }
@@ -41,16 +50,8 @@
             <div class="chevron" class:chevron-rotated={$open}>
                 <ChevronRight />
             </div>
-            <div class="group-title">
-                {#if group.id === "group_background"}
-                    {textBaselayers}
-                {:else if group.id === "group_uncategorised"}
-                    {textNoCategory}
-                {:else if group.id === "dataportal"}
-                    {$_('tools.layerLibrary.dataportal')}
-                {:else}
-                    {group.title}
-                {/if}
+            <div class="group-title" title={displayTitle}>
+                {displayTitle}
             </div>
             {#if group.toolGroup}
                 <span class="tool-group-icon" title={$_('tools.layerLibrary.toolGroupTooltip', { values: { tool: $_(group.toolGroup.label) } })}>
@@ -132,6 +133,7 @@
         cursor: pointer;
         align-items: center;
         align-content: center;
+        min-width: 0;
     }
 
     .group:hover {
@@ -167,10 +169,12 @@
 
     .group-title {
         margin-left: var(--cds-spacing-02);
-        display: flex;
-        align-items: center;
         padding-top: 2px;
         flex-grow: 1;
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     .group-content {
