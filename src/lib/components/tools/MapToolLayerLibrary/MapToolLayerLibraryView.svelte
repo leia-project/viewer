@@ -28,6 +28,7 @@
     const loadingConnectors = library.loadingConnectors;
     const selectedLayerConfig = library.selectedLayerConfig;
     $: path = $selectedLayerConfig ? findPath($selectedLayerConfig.groupId, "") : "";
+    $: connector = $selectedLayerConfig ? findConnector($selectedLayerConfig.groupId) : undefined;
 
     const selectedCustomLayer = writable<CustomLayerConfigTracker | undefined>(undefined);
     const mylayers = $groups.find((g) => { if(g.id === "myData") return g })?.layerConfigs;
@@ -74,9 +75,7 @@
             return;
         }
 
-        if (searchableList.length === 0) {
-            searchableList = getFlatList();
-        }
+        searchableList = getFlatList();
 
         let results = new Array<LayerConfig>();
         const fuzzy = fuzzysort.go(searchStr, searchableList, { key: "key" });
@@ -133,6 +132,9 @@
     selectedTagIDs.subscribe(() => {
         searchAndFilter();
     });
+    loadingConnectors.subscribe(() => {
+        searchAndFilter();
+    });
 
     function resetFilter(): void {
         selectedTagIDs.set([]);
@@ -174,6 +176,17 @@
         }
 
         return path;
+    }
+
+    function findConnector(groupId: string): Record<string, string> | undefined {
+        let g = library.findGroup(groupId);
+        while (g) {
+            if (g.connector && g.connector.type && g.connector.url) {
+                return g.connector;
+            }
+            g = g.parentId ? library.findGroup(g.parentId) : undefined;
+        }
+        return undefined;
     }
 
     function getGroupTitle(g: LayerConfigGroup): string {
@@ -344,7 +357,7 @@
             <div class="content">
                 {#if contentIndex === 0}
                     {#if $selectedLayerConfig}
-                        <LibraryLayerInfo layerConfig={selectedLayerConfig} {path} />
+                        <LibraryLayerInfo layerConfig={selectedLayerConfig} {path} {connector} />
                     {:else}
                         <div>
                             <InlineNotification
@@ -407,6 +420,13 @@
         padding: var(--cds-spacing-05) var(--cds-spacing-05) 0 var(--cds-spacing-05);
         display: flex;
         flex-direction: column;
+    }
+
+    @media (min-width: 1920px) {
+        .menu {
+            flex-basis: 40%;
+            max-width: 45%;
+        }
     }
 
     .switcher {

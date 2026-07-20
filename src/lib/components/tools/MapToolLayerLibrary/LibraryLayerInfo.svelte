@@ -12,6 +12,7 @@
 
     export let layerConfig: Writable<LayerConfig>;
     export let path: string = "";
+    export let connector: Record<string, string> | undefined = undefined;
 
     let contentIndex = 0;
     let copied = false;
@@ -32,10 +33,6 @@
     $: dateCreatedFormatted = formatDate(config.dateCreated, $locale);
     $: dateRevisionFormatted = formatDate(config.dateRevision, $locale);
     $: settings = syntaxHighlight(getJsonLayerConfig(config));
-
-    layerConfig.subscribe(() => {
-        contentIndex = 0;
-    });
 
     const standardMetadata = new Metadata();
     $: { standardMetadata.parseMetadataUrl(metadataUrl) }
@@ -149,7 +146,21 @@
 </script>
 
 <div class="wrapper">
-    <div class="label-01">{path}</div>
+    <div class="breadcrumbs">
+        {#if connector && connector.type && connector.url}
+            <a
+                class="connector-tag"
+                href={connector.url}
+                title={$_("general.goTo") + " " + connector.type}
+                target="_blank"
+            >
+                <Tag type="green" size="sm" interactive={true}>
+                    {connector.type}
+                </Tag>
+            </a>
+        {/if}
+        <div class="label-01" title={path}>{path}</div>
+    </div>
     <div class="header">
         
         <div class="heading-03">{config.title}</div>
@@ -320,6 +331,19 @@
         white-space: pre-line;
     }
 
+    .breadcrumbs {
+        display: flex;
+        align-items: center;
+        gap: var(--cds-spacing-01);
+    }
+
+    .breadcrumbs .label-01 {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     .header {
         width: 100%;
         padding: var(--cds-spacing-03) 0rem var(--cds-spacing-03) 0px;
@@ -417,6 +441,26 @@
 
     .layer-type {
         margin-left: -4px;
+    }
+
+    .connector-tag {
+        display: inline-block;
+        text-decoration: none;
+        flex-shrink: 0;
+    }
+
+    .connector-tag :global(.bx--tag) {
+        max-width: none;
+        margin-left: 0;
+    }
+
+    .connector-tag :global(.bx--tag__label) {
+        cursor: pointer;
+        word-break: normal;
+        white-space: nowrap;
+        max-width: none;
+        overflow: visible;
+        text-overflow: clip;
     }
 
     :global(.block p a) {
