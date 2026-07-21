@@ -398,6 +398,17 @@
             "totalPopulation": "Aantal nieuwe inwoners",
             "legendTitle": "Druk op de woningmarkt",
             "settlementPercentage": "Vestigingspercentage"
+        },
+        "zonalStatistics": {
+            "label": "Zonal Statistics",
+            "legend": "Legenda",
+            "opacity": "Transparantie",
+            "targetLabel": "Streeflabel",
+            "currentLabel": "Label",
+            "clearSelection": "Selectie wissen",
+            "close": "Sluiten",
+            "noSelection": "Selecteer één of meerdere gebieden op de kaart om hun labels te bekijken.",
+            "metadata": "Metadata"
         }
     },
     "errors": {

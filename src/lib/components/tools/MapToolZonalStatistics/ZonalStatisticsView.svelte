@@ -1,0 +1,227 @@
+<script lang="ts">
+	import { createEventDispatcher, onDestroy } from "svelte";
+	import { fade } from "svelte/transition";
+	import { _ } from "svelte-i18n";
+	import { Close, TrashCan } from "carbon-icons-svelte";
+
+	import Button from "$lib/components/theme/Button/Button.svelte";
+	import type { ZonalStatisticsController, Passport } from "./zonal-statistics-controller";
+
+	export let controller: ZonalStatisticsController;
+
+	const dispatch = createEventDispatcher();
+
+	let passport: Passport = { zones: [], rows: [] };
+	let activeCode: string | undefined;
+	let show = true;
+
+	const unsubscribe = controller.selectedZones.subscribe(() => {
+		passport = controller.buildPassport();
+		// Drop the active zone if it is no longer selected.
+		if (activeCode && !passport.zones.includes(activeCode)) {
+			activeCode = undefined;
+		}
+	});
+
+	$: controller.setActiveZone(activeCode);
+
+	function toggleActive(code: string) {
+		activeCode = activeCode === code ? undefined : code;
+	}
+
+	function clear() {
+		controller.clearSelection();
+	}
+
+	function removeFromView() {
+		show = false;
+		setTimeout(() => dispatch("remove"), 200);
+	}
+
+	onDestroy(() => {
+		unsubscribe();
+	});
+</script>
+
+{#if show}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<div
+		class="passport"
+		in:fade={{ delay: 0, duration: 150 }}
+		out:fade={{ delay: 0, duration: 150 }}
+		on:click={(e) => {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+		}}
+		role="presentation"
+	>
+		<div class="header">
+			<div class="heading-01">{$_("tools.zonalStatistics.label")}</div>
+			<div class="actions">
+				{#if passport.zones.length > 0}
+					<Button
+						kind="ghost"
+						icon={TrashCan}
+						size="small"
+						iconDescription={$_("tools.zonalStatistics.clearSelection")}
+						tooltipPosition="left"
+						on:click={clear}
+					/>
+				{/if}
+				<Button
+					kind="ghost"
+					icon={Close}
+					size="small"
+					iconDescription={$_("tools.zonalStatistics.close")}
+					tooltipPosition="left"
+					on:click={removeFromView}
+				/>
+			</div>
+		</div>
+
+		<div class="content">
+			{#if passport.zones.length === 0}
+				<div class="no-selection body-compact-01">
+					{$_("tools.zonalStatistics.noSelection")}
+				</div>
+			{:else}
+				<table class="passport-table">
+					<thead>
+						<tr>
+							<th class="row-head" rowspan="2" />
+							{#each passport.zones as code (code)}
+								<th
+									class="zone-head"
+									class:active={code === activeCode}
+									colspan="2"
+									title={code}
+									role="button"
+									tabindex="0"
+									on:click={() => toggleActive(code)}
+									on:keydown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											toggleActive(code);
+										}
+									}}
+								>
+									{code}
+								</th>
+							{/each}
+						</tr>
+						<tr>
+							{#each passport.zones as code (code)}
+								<th class="sub-head" class:active={code === activeCode}>
+									{$_("tools.zonalStatistics.currentLabel")}
+								</th>
+								<th class="sub-head target" class:active={code === activeCode}>
+									{$_("tools.zonalStatistics.targetLabel")}
+								</th>
+							{/each}
+						</tr>
+					</thead>
+					<tbody>
+						{#each passport.rows as row (row.layerId)}
+							<tr>
+								<th class="row-head" scope="row">{row.title}</th>
+								{#each passport.zones as code (code)}
+									<td class="value" class:active={code === activeCode}>
+										{row.values[code] ?? "–"}
+									</td>
+									<td class="value target" class:active={code === activeCode}>
+										{row.targets[code] ?? "–"}
+									</td>
+								{/each}
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			{/if}
+		</div>
+	</div>
+{/if}
+
+<style>
+	.passport {
+		position: absolute;
+		top: var(--cds-spacing-05);
+		right: var(--cds-spacing-05);
+		max-width: 60%;
+		max-height: 60%;
+		display: flex;
+		flex-direction: column;
+		background-color: var(--cds-ui-02);
+		border: 1px solid var(--cds-ui-03);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+		z-index: 5;
+	}
+
+	.header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--cds-spacing-03);
+		padding: var(--cds-spacing-03) var(--cds-spacing-05);
+		border-bottom: 1px solid var(--cds-ui-03);
+	}
+
+	.actions {
+		display: flex;
+	}
+
+	.content {
+		overflow: auto;
+	}
+
+	.no-selection {
+		color: var(--cds-text-secondary);
+		padding: var(--cds-spacing-05);
+	}
+
+	.passport-table {
+		border-collapse: collapse;
+		width: 100%;
+		font-size: 0.875rem;
+	}
+
+	.passport-table th,
+	.passport-table td {
+		padding: var(--cds-spacing-03) var(--cds-spacing-05);
+		border-bottom: 1px solid var(--cds-ui-03);
+		text-align: center;
+		white-space: nowrap;
+	}
+
+	.passport-table .row-head {
+		text-align: left;
+		font-weight: 600;
+		position: sticky;
+		left: 0;
+		background-color: var(--cds-ui-02);
+		z-index: 1;
+	}
+
+	.zone-head {
+		font-weight: 600;
+		cursor: pointer;
+		border-left: 2px solid var(--cds-ui-03);
+	}
+
+	.sub-head {
+		font-weight: 400;
+		color: var(--cds-text-secondary);
+	}
+
+	.sub-head.target,
+	.value.target {
+		border-right: 1px solid var(--cds-ui-03);
+	}
+
+	.zone-head.active,
+	.sub-head.active,
+	.value.active {
+		background-color: var(--cds-highlight, #d0e2ff);
+	}
+</style>
+
+

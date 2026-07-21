@@ -128,6 +128,51 @@
                     }
                 }
             }
+        },
+        {
+            "id": "999a",
+            "type": "geojson",
+            "title": "Test 1: labelkaart_1",
+            "groupId": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 100,
+            "settings": {
+                "url": "http://localhost:8000/labelkaart_impact_overstromingsscenario.geojson",
+                "theme": ""
+            }
+        },
+        {
+            "id": "999b",
+            "type": "geojson",
+            "title": "Test 2: labelkaart_2",
+            "groupId": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 100,
+            "settings": {
+                "url": "http://localhost:8000/labelkaart_impact_overstromingsscenario.geojson",
+                "theme": ""
+            }
+        },
+        {
+            "id": "999c",
+            "type": "geojson",
+            "title": "Test 3: labelkaart_3",
+            "groupId": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 100,
+            "settings": {
+                "url": "http://localhost:8000/labelkaart_impact_overstromingsscenario.geojson",
+                "theme": ""
+            }
         }
     ],
     "viewer": {
@@ -230,6 +275,30 @@
         {
             "id": "featureInfo",
             "enabled": true
+        },
+        {
+            "id": "zonalStatistics",
+            "enabled": true,
+            "settings": {
+                "alias": "Labelpaspoort",
+                "zoneLayerId": "999a",
+                "zoneCodeAttribute": "Pc6",
+                "targetLabelAttribute": "ambitie_label",
+                "layers": [
+                    {
+                        "id": "999a",
+                        "attribute": "label"
+                    },
+                    {
+                        "id": "999b",
+                        "attribute": "label"
+                    },
+                    {
+                        "id": "999c",
+                        "attribute": "label"
+                    }
+                ]
+            }
         },
         {
             "id": "info",

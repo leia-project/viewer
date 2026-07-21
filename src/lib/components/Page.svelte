@@ -35,6 +35,7 @@
 	import MapToolIsochrones from "./tools/MapToolIsochrones/MapToolIsochrones.svelte";
 	import MapToolConfigSwitcher from "./tools/MapToolConfigSwitcher/MapToolConfigSwitcher.svelte";
 	import MapToolFlooding from "./tools/MapToolFlooding/MapToolFlooding.svelte";
+	import MapToolZonalStatistics from "./tools/MapToolZonalStatistics/MapToolZonalStatistics.svelte";
 
 
 	const settings = writable<any>({});
@@ -57,6 +58,7 @@
         'bookmarks',
         'measure',
 		'isochrones',
+		'zonalStatistics',
     ]; // Standard order of top left tools in toolmenu
 
 	let toolOrder: Record<string, typeof SvelteComponent<any>> = {
@@ -68,6 +70,7 @@
 		bookmarks: MapToolBookmark,
         measure: MapToolCesiumMeasure,
 		isochrones: MapToolIsochrones,
+		zonalStatistics: MapToolZonalStatistics,
     };
 
 	function toolProps(toolKey: string) {
@@ -86,6 +89,8 @@
 		} else if (toolKey === 'measure') {
 			return { };
 		} else if (toolKey === 'isochrones') {
+			return { };
+		} else if (toolKey === 'zonalStatistics') {
 			return { };
 		}
 		return {};
