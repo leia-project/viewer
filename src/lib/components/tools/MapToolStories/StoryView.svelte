@@ -137,6 +137,10 @@
 		});
 	});
 
+	// Whether any step in this story actually adds/changes layers. If not, there is no need to
+	// hide/restore the existing layers on open/close, which avoids an unnecessary map reload.
+	const hasStoryLayers = flattenedSteps.some(({ step }) => step.layers && step.layers.length > 0);
+
 
 	onMount(() => {
 		if (story.forceCameraMode) {
@@ -163,7 +167,7 @@
 		startTerrain = get(map.options.selectedTerrainProvider);
 
 		setStartVisibleLayers();
-		hideAllLayers();
+		if (hasStoryLayers) hideAllLayers();
 
 		// Return to step where user left
 		currentPage.set(savedStepNumber);
@@ -377,8 +381,10 @@
 	}
 
 	function resetToStart(): void {
-		removeAllLayers();
-		restoreStartLayerState();
+		if (hasStoryLayers) {
+			removeAllLayers();
+			restoreStartLayerState();
+		}
 		map.options.globeOpacity.set(startGlobeOpacity);
 		map.options.selectedTerrainProvider.set(startTerrain);
 		//map.zoomTo(startCameraLocation);
