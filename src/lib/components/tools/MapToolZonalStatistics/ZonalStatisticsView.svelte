@@ -25,6 +25,25 @@
 
 	$: controller.setActiveZone(activeCode);
 
+	function labelClassFor(value: string | undefined): string {
+		if (!value) return "";
+		const normalized = String(value).trim().toUpperCase();
+		switch (normalized) {
+			case "A":
+				return "label-a";
+			case "B":
+				return "label-b";
+			case "C":
+				return "label-c";
+			case "D":
+				return "label-d";
+			case "E":
+				return "label-e";
+			default:
+				return "";
+		}
+	}
+
 	function toggleActive(code: string) {
 		activeCode = activeCode === code ? undefined : code;
 	}
@@ -125,10 +144,16 @@
 							<tr>
 								<th class="row-head" scope="row">{row.title}</th>
 								{#each passport.zones as code (code)}
-									<td class="value" class:active={code === activeCode}>
+									<td
+										class={`value ${labelClassFor(row.values[code])}`}
+										class:active={code === activeCode}
+									>
 										{row.values[code] ?? "–"}
 									</td>
-									<td class="value target" class:active={code === activeCode}>
+									<td
+										class={`value target ${labelClassFor(row.targets[code])}`}
+										class:active={code === activeCode}
+									>
 										{row.targets[code] ?? "–"}
 									</td>
 								{/each}
@@ -222,6 +247,35 @@
 	.value.active {
 		background-color: var(--cds-highlight, #d0e2ff);
 	}
+
+	.value.label-a {
+		background-color: #44ce1b;
+		color: #ffffff;
+	}
+
+	.value.label-b {
+		background-color: #bbdb44;
+		color: #161616;
+	}
+
+	.value.label-c {
+		background-color: #f7e379;
+		color: #161616;
+	}
+
+	.value.label-d {
+		background-color: #f2a134;
+		color: #161616;
+	}
+
+	.value.label-e {
+		background-color: #e51f1f;
+		color: #ffffff;
+	}
+
+	.value.active {
+		outline: 2px solid var(--cds-focus, #0f62fe);
+		outline-offset: -2px;
+		font-weight: 600;
+	}
 </style>
-
-
