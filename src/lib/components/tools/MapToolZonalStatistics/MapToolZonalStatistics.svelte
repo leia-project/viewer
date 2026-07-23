@@ -12,7 +12,14 @@
 	export let label: string;
 	export let icon: any = TableAlias;
 
-	const { registerTool, selectedTool, map, getMapContainer } = getContext<any>("mapTools");
+	const {
+		registerTool,
+		selectedTool,
+		map,
+		getMapContainer,
+		disableInteractionFromOtherTools,
+		enableInteractionsFromOtherTools
+	} = getContext<any>("mapTools");
 
 	const tool = new MapToolMenuOption(id, icon, label, false);
 	registerTool(tool);
@@ -42,10 +49,33 @@
 		if (!controller) return;
 		controller.active.set(active);
 		if (active) {
+			disableInteractionFromOtherTools(id);
+			setWorldTransparency();
+			enableConfiguredLayers();
 			showView();
 		} else {
+			enableInteractionsFromOtherTools();
 			destroyView();
 			controller.clearSelection();
+		}
+	}
+
+	function setWorldTransparency(): void {
+		if (!controller) return;
+		map.options.globeOpacity.set(controller.settings.globeOpacity);
+	}
+
+	function enableConfiguredLayers(): void {
+		if (!controller) return;
+
+		for (const cfg of controller.settings.layers) {
+			const layer = map.getLayerById(cfg.id);
+			if (!layer) {
+				console.warn(`zonalStatistics: configured layer '${cfg.id}' not found while activating`);
+				continue;
+			}
+
+			layer.visible.set(true);
 		}
 	}
 
@@ -58,6 +88,7 @@
 		view.$on("remove", () => {
 			destroyView();
 			controller?.clearSelection();
+			selectedTool.set(undefined);
 		});
 	}
 

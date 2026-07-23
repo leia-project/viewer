@@ -58,9 +58,9 @@ export class ZonalStatisticsController {
 
 	private zoneLayer: GeoJsonLayer | undefined;
 	/** Resolved data layers per config id, in config order. */
-	private dataLayers: Array<ResolvedDataLayer> = [];
+	private readonly dataLayers: Array<ResolvedDataLayer> = [];
 	/** Per data-layer index: zone code -> feature properties. */
-	private valueIndex: Map<string, Map<string, Record<string, any>>> = new Map();
+	private readonly valueIndex: Map<string, Map<string, Record<string, any>>> = new Map();
 
 	/** Dedicated data source that draws outlines around selected zones. */
 	private highlightSource: Cesium.CustomDataSource | undefined;
