@@ -2,6 +2,7 @@
 	import { createEventDispatcher, onDestroy } from "svelte";
 	import { fade } from "svelte/transition";
 	import { _ } from "svelte-i18n";
+	import { TooltipDefinition } from "carbon-components-svelte";
 	import { Close, TrashCan } from "carbon-icons-svelte";
 
 	import Button from "$lib/components/theme/Button/Button.svelte";
@@ -113,7 +114,6 @@
 									class="zone-head"
 									class:active={code === activeCode}
 									colspan="2"
-									title={code}
 									role="button"
 									tabindex="0"
 									on:click={() => toggleActive(code)}
@@ -148,13 +148,34 @@
 										class={`value ${labelClassFor(row.values[code])}`}
 										class:active={code === activeCode}
 									>
-										{row.values[code] ?? "–"}
+										{#if row.valueTooltips[code]}
+											<TooltipDefinition
+												class="cell-tooltip"
+												direction="top"
+												tooltipText={row.valueTooltips[code]}
+											>
+												{row.values[code] ?? "–"}
+											</TooltipDefinition>
+										{:else}
+											{row.values[code] ?? "–"}
+										{/if}
 									</td>
 									<td
 										class={`value target ${labelClassFor(row.targets[code])}`}
 										class:active={code === activeCode}
 									>
-										{row.targets[code] ?? "–"}
+										{#if row.targetTooltips[code]}
+											<TooltipDefinition
+												class="cell-tooltip"
+												align="end"
+												direction="top"
+												tooltipText={row.targetTooltips[code]}
+											>
+												{row.targets[code] ?? "–"}
+											</TooltipDefinition>
+										{:else}
+											{row.targets[code] ?? "–"}
+										{/if}
 									</td>
 								{/each}
 							</tr>
@@ -230,6 +251,34 @@
 		font-weight: 600;
 		cursor: pointer;
 		border-left: 2px solid var(--cds-ui-03);
+	}
+
+	.zone-tooltip :global(.bx--tooltip__trigger) {
+		background: none;
+		border: 0;
+		color: inherit;
+		cursor: help;
+		display: inline-flex;
+		font: inherit;
+		padding: 0;
+	}
+
+	.zone-tooltip :global(.bx--tooltip__trigger--definition) {
+		white-space: nowrap;
+	}
+
+	.cell-tooltip :global(.bx--tooltip__trigger) {
+		background: none;
+		border: 0;
+		color: inherit;
+		cursor: help;
+		display: inline-flex;
+		font: inherit;
+		padding: 0;
+	}
+
+	.cell-tooltip :global(.bx--tooltip__trigger--definition) {
+		white-space: nowrap;
 	}
 
 	.sub-head {

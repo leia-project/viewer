@@ -22,8 +22,12 @@ export interface PassportRow {
 	title: string;
 	/** Current label per selected zone code. */
 	values: Record<string, string | undefined>;
+	/** Tooltip text for current label cells per selected zone code. */
+	valueTooltips: Record<string, string | undefined>;
 	/** Target ("streef") label per selected zone code. */
 	targets: Record<string, string | undefined>;
+	/** Tooltip text for target label cells per selected zone code. */
+	targetTooltips: Record<string, string | undefined>;
 }
 
 /** The full passport table model consumed by the view. */
@@ -34,7 +38,7 @@ export interface Passport {
 	rows: Array<PassportRow>;
 }
 
-interface ResolvedDataLayer {
+export interface ResolvedDataLayer {
 	layerId: string;
 	title: string;
 	attribute: string;
@@ -59,6 +63,8 @@ export class ZonalStatisticsController {
 	private zoneLayer: GeoJsonLayer | undefined;
 	/** Resolved data layers per config id, in config order. */
 	private readonly dataLayers: Array<ResolvedDataLayer> = [];
+	/** Resolved data layers exposed to the zonal panel UI. */
+	public readonly resolvedDataLayers: Writable<Array<ResolvedDataLayer>> = writable([]);
 	/** Per data-layer index: zone code -> feature properties. */
 	private readonly valueIndex: Map<string, Map<string, Record<string, any>>> = new Map();
 
@@ -104,6 +110,7 @@ export class ZonalStatisticsController {
 			});
 			this.indexLayer(cfg.id, layer);
 		}
+		this.resolvedDataLayers.set([...this.dataLayers]);
 
 		this.highlightSource = new Cesium.CustomDataSource(
 			`${this.settings.zoneLayerId}_zonal_highlight`
@@ -220,33 +227,72 @@ export class ZonalStatisticsController {
 		return get(this.selectedZones).some((z) => z.code === code);
 	}
 
+	/** Convert a property value into an optional string for table display. */
+	private toOptionalString(value: any): string | undefined {
+		return value !== undefined && value !== null ? String(value) : undefined;
+	}
+
+	/** Read an optional attribute from a props object as a string value. */
+	private readOptionalAttribute(
+		props: Record<string, any> | undefined,
+		attribute: string | undefined
+	): string | undefined {
+		if (!attribute) return undefined;
+		return this.toOptionalString(props?.[attribute]);
+	}
+
+	/** Build one passport row for a resolved data layer across selected zones. */
+	private buildPassportRow(
+		dl: ResolvedDataLayer,
+		zones: Array<string>,
+		valueTooltipAttr: string | undefined,
+		targetAttr: string | undefined,
+		targetTooltipAttr: string | undefined
+	): PassportRow {
+		const index = this.valueIndex.get(dl.layerId);
+		const values: Record<string, string | undefined> = {};
+		const valueTooltips: Record<string, string | undefined> = {};
+		const targets: Record<string, string | undefined> = {};
+		const targetTooltips: Record<string, string | undefined> = {};
+
+		for (const code of zones) {
+			const props = index?.get(code);
+			values[code] = this.toOptionalString(props?.[dl.attribute]);
+			valueTooltips[code] = this.readOptionalAttribute(props, valueTooltipAttr);
+			targets[code] = this.readOptionalAttribute(props, targetAttr);
+			targetTooltips[code] = this.readOptionalAttribute(props, targetTooltipAttr);
+		}
+
+		return {
+			layerId: dl.layerId,
+			title: dl.title,
+			values,
+			valueTooltips,
+			targets,
+			targetTooltips
+		};
+	}
+
 	/**
 	 * Build the passport table for the current selection: one row per configured
 	 * data layer, one column per selected zone, plus a target label per row.
 	 */
 	public buildPassport(): Passport {
 		const zones = get(this.selectedZones).map((z) => z.code);
+		const valueTooltipAttr = this.settings.labelTooltipAttribute;
 		const targetAttr = this.settings.targetLabelAttribute;
+		const targetTooltipAttr = this.settings.targetLabelTooltipAttribute;
 
-		const rows: Array<PassportRow> = this.dataLayers.map((dl) => {
-			const index = this.valueIndex.get(dl.layerId);
-			const values: Record<string, string | undefined> = {};
-			const targets: Record<string, string | undefined> = {};
-			for (const code of zones) {
-				const props = index?.get(code);
-				const value = props?.[dl.attribute];
-				values[code] = value !== undefined && value !== null ? String(value) : undefined;
-
-				if (targetAttr) {
-					const t = props?.[targetAttr];
-					targets[code] = t !== undefined && t !== null ? String(t) : undefined;
-				}
-			}
-
-			return { layerId: dl.layerId, title: dl.title, values, targets };
-		});
+		const rows: Array<PassportRow> = this.dataLayers.map((dl) =>
+			this.buildPassportRow(dl, zones, valueTooltipAttr, targetAttr, targetTooltipAttr)
+		);
 
 		return { zones, rows };
+	}
+
+	/** Resolved data layers used by the zonal statistics left panel. */
+	public getResolvedDataLayers(): Array<ResolvedDataLayer> {
+		return get(this.resolvedDataLayers);
 	}
 
 	/** Detach listeners and remove highlight graphics. */

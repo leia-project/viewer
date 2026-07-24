@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { getContext, onMount } from "svelte";
 	import { TableAlias } from "carbon-icons-svelte";
-	import { _ } from "svelte-i18n";
 
 	import { MapToolMenuOption } from "../MapToolMenuOption";
 	import { parseZonalStatisticsSettings } from "./zonal-config";
 	import { ZonalStatisticsController } from "./zonal-statistics-controller";
+	import ZonalStatisticsPanel from "./ZonalStatisticsPanel.svelte";
 	import ZonalStatisticsView from "./ZonalStatisticsView.svelte";
 
 	export let id: string;
@@ -101,15 +101,5 @@
 </script>
 
 {#if $selectedTool === tool && controller}
-	<div class="container">
-		<p class="body-compact-01">{$_("tools.zonalStatistics.noSelection")}</p>
-	</div>
+	<ZonalStatisticsPanel {controller} />
 {/if}
-
-<style>
-	.container {
-		display: flex;
-		flex-direction: column;
-		gap: var(--cds-spacing-05);
-	}
-</style>
