@@ -394,14 +394,12 @@
         },
         "zonalStatistics": {
             "label": "Zonal Statistics",
-            "legend": "Legend",
-            "opacity": "Transparency",
             "targetLabel": "Target label",
             "currentLabel": "Label",
             "clearSelection": "Clear selection",
             "close": "Close",
             "noSelection": "Select one or more areas on the map to view their labels.",
-            "metadata": "Metadata"
+            "noDataLayers": "No data layers configured"
         }
     },
     "errors": {

@@ -30,7 +30,7 @@
 	</div>
 
 	{#if $resolvedDataLayers.length === 0}
-		<div class="empty body-compact-01">No data layers configured</div>
+		<div class="empty body-compact-01">{$_("tools.zonalStatistics.noDataLayers")}</div>
 	{:else}
 		<Accordion class="layer-group-accordion">
 			{#each $resolvedDataLayers as resolved (resolved.layerId)}

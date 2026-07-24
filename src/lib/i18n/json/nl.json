@@ -401,14 +401,12 @@
         },
         "zonalStatistics": {
             "label": "Zonal Statistics",
-            "legend": "Legenda",
-            "opacity": "Transparantie",
             "targetLabel": "Streeflabel",
             "currentLabel": "Label",
             "clearSelection": "Selectie wissen",
             "close": "Sluiten",
             "noSelection": "Selecteer één of meerdere gebieden op de kaart om hun labels te bekijken.",
-            "metadata": "Metadata"
+            "noDataLayers": "Geen datalagen geconfigureerd"
         }
     },
     "errors": {

@@ -391,14 +391,12 @@
         },
         "zonalStatistics": {
             "label": "Zonal Statistics",
-            "legend": "Légende",
-            "opacity": "Transparence",
             "targetLabel": "Étiquette cible",
             "currentLabel": "Étiquette",
             "clearSelection": "Effacer la sélection",
             "close": "Fermer",
             "noSelection": "Sélectionnez une ou plusieurs zones sur la carte pour afficher leurs étiquettes.",
-            "metadata": "Métadonnées"
+            "noDataLayers": "Aucune couche de données configurée"
         }
     },
     "errors": {
