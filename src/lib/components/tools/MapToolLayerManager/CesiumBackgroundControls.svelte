@@ -6,6 +6,7 @@
 	const map = app.map;
 
 	$: globeOpacity = $map?.options.globeOpacity;
+	$: verticalExaggeration = $map?.options.verticalExaggeration;
 	$: terrainProviders = $map?.options.terrainProviders;
 	$: selectedTerrainProvider = $map?.options.selectedTerrainProvider;
 	$: selected = $selectedTerrainProvider ? $selectedTerrainProvider.title : "";
@@ -38,6 +39,15 @@
 		min={0}
 		max={100}
 		bind:value={$globeOpacity}
+		step={1}
+	/>
+
+	<Slider
+		hideTextInput
+		labelText={$_("tools.backgroundControls.verticalExaggeration") + " " + $verticalExaggeration + "×"}
+		min={1}
+		max={100}
+		bind:value={$verticalExaggeration}
 		step={1}
 	/>
 </div>

@@ -230,7 +230,18 @@
         },
         "backgroundControls": {
             "opacity": "Globe Opacity",
-            "terrain": "Terrain"
+            "terrain": "Terrain",
+            "verticalExaggeration": "Vertical exaggeration"
+        },
+        "voxel": {
+            "property": "Property",
+            "legend": "Legend",
+            "slicing": "Slicing",
+            "westEast": "West–East",
+            "southNorth": "South–North",
+            "vertical": "Vertical",
+            "resetSlicing": "Reset slicing",
+            "slicePlane": "Drag slice plane"
         },
         "bookmarks": {
             "label": "Bookmarks",
@@ -305,6 +316,7 @@
             "custom": "Custom",
             "animate": "Animate",
             "fxaa": "FXAA",
+            "fxaaDisabledByVoxel": "Disabled while a voxel layer is shown",
             "fog": "Fog",
             "groundAtmosphere": "Ground Atmosphere",
             "dynamicRange": "HDR",
