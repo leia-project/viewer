@@ -496,6 +496,7 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 |url|URL to the GeoJSON file||string|
 |clampToGround|Choose to clamp the layer to the terrain|true|boolean|
 |style|If it is a string, it points to the property of the GeoJSON to base the styling on. If it is an object, it can contain a `stroke` (HEX-string), `strokeWidth` (number) and `fill` (HEX-string).||string or object|
+| classMappings | Optional value-to-color map for class-based styling of the `style` attribute. Keys are attribute values, values are HEX colors.  
 |tools|Selection of GeoJSON tools available in the layer manager||tool|
 
 ##### GeoJSON tools
@@ -527,6 +528,33 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 			"stroke": "#0000ff",
 			"strokeWidth": 10,
 			"fill": "#ff0000"
+		},
+		"clampToGround": true,
+		"tools": {
+			"extrude": {
+				"slider_min": 0,
+				"slider_max": 10,
+				"slider_step": 1
+			}
+		}
+	}
+},{
+	"id": "2",
+	"type": "geojson",
+	"title": "GeoJSON layer 2",
+	"groupId": "1",
+	"isBackground": false,
+	"defaultAddToManager": true,
+	"defaultOn": true,
+	"settings": {
+		"url": "https://some-site.nl/file.geojson",
+		"style": "label",
+		"classMappings": {
+			"A": "#44ce1b",
+			"B": "#bbdb44",
+			"C": "#f7e379",
+			"D": "#f2a134",
+			"E": "#e51f1f"
 		},
 		"clampToGround": true,
 		"tools": {

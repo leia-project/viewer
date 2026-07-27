@@ -69,7 +69,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 
 	public colorGradientStart: Cesium.Color = Cesium.Color.BLUE;
 	public colorGradientEnd: Cesium.Color = Cesium.Color.RED;
-	private readonly categoryColors: Record<string, Cesium.Color> | undefined;
+	private readonly classMappings: Record<string, Cesium.Color> | undefined;
 	public style: Writable<string> = writable("default");
 	public styleType: Writable<string> = writable();
 	public legend: Writable<GeoJSONlegend> = writable();
@@ -97,7 +97,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.url = this.config.settings.url ?? undefined;
 		this.fileType = this.config.type ?? "geojson";
 		this.source = new Cesium.GeoJsonDataSource(this.config.id);
-		this.categoryColors = this.buildCategoryColors(this.config.settings.categoryColors);
+		this.classMappings = this.buildClassMappings(this.config.settings.classMappings);
 		if (this.config.settings["style"] && typeof this.config.settings["style"] === "string") {
 			this.style.set(this.config.settings["style"]);
 		} else if (typeof this.config.settings["style"] === "object") {
@@ -282,14 +282,6 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				.getValue(this.map.viewer.clock.currentTime)
 				.color.withAlpha(this.alpha)
 		);
-		const configuredStyle = this.config.settings.style;
-		const configuredStyleProperty = this.config.settings.styleProperty;
-		const stylePropertyName =
-			typeof configuredStyleProperty === "string" ? configuredStyleProperty : undefined;
-		const effectiveProperty =
-			typeof configuredStyle === "string" && property === configuredStyle && stylePropertyName
-				? stylePropertyName
-				: property;
 		if (property === "default") {
 			this.setDefaultStyle();
 			this.legend.set([]);
@@ -300,7 +292,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			this.legend.set([]);
 			return;
 		}
-		const prop = this.availableProperties.find((p) => p.propertyName === effectiveProperty);
+		const prop = this.availableProperties.find((p) => p.propertyName === property);
 		if (!prop) return;
 		if (prop.propertyType === "number") {
 			const min = prop.range?.min;
@@ -470,16 +462,15 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 
 	private getStringStyleColor(propertyName: string, value: string): Cesium.Color {
 		const configuredStyle = this.config.settings.style;
-		const configuredStyleProperty = this.config.settings.styleProperty;
-		const stylePropertyName =
-			typeof configuredStyleProperty === "string" ? configuredStyleProperty : undefined;
-		const shouldUseCategoryColors =
+		const hasClassMappings = !!this.classMappings;
+		const shouldUseClassMappings =
+			hasClassMappings &&
 			typeof configuredStyle === "string" &&
 			configuredStyle === get(this.style) &&
-			stylePropertyName === propertyName;
-		const categoryColor = shouldUseCategoryColors ? this.categoryColors?.[value] : undefined;
-		if (categoryColor) {
-			return categoryColor;
+			configuredStyle === propertyName;
+		const classMappedColor = shouldUseClassMappings ? this.classMappings?.[value] : undefined;
+		if (classMappedColor) {
+			return classMappedColor;
 		}
 
 		const color = Cesium.Color.fromRandom({ alpha: 1.0 });
@@ -493,17 +484,17 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		return color;
 	}
 
-	private buildCategoryColors(raw: unknown): Record<string, Cesium.Color> | undefined {
+	private buildClassMappings(raw: unknown): Record<string, Cesium.Color> | undefined {
 		if (!raw || typeof raw !== "object") return undefined;
-		const categoryColors: Record<string, Cesium.Color> = {};
+		const classMappings: Record<string, Cesium.Color> = {};
 
 		for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
 			if (typeof value !== "string") continue;
 			const parsedColor = Cesium.Color.fromCssColorString(value);
-			if (parsedColor) categoryColors[key] = parsedColor;
+			if (parsedColor) classMappings[key] = parsedColor;
 		}
 
-		return Object.keys(categoryColors).length > 0 ? categoryColors : undefined;
+		return Object.keys(classMappings).length > 0 ? classMappings : undefined;
 	}
 
 	private addOutlines(): void {
