@@ -3,10 +3,24 @@
 	import { fade } from "svelte/transition";
 	import { _ } from "svelte-i18n";
 	import { TooltipDefinition } from "carbon-components-svelte";
-	import { Close, TrashCan } from "carbon-icons-svelte";
+	import { Close, GeneratePdf, TrashCan } from "carbon-icons-svelte";
+	import { jsPDF } from "jspdf";
+	import {
+		A4_PORTRAIT_LAYOUT,
+		DEFAULT_PDF_BRANDING,
+		addPdfPageWithHeader,
+		drawPdfFooters,
+		drawPdfPageHeader,
+		getPdfLayoutMetrics,
+		loadPdfBrandingAssets
+	} from "$lib/components/tools/pdf/pdf-layout";
 
-	import Button from "$lib/components/theme/Button/Button.svelte";
-	import type { ZonalStatisticsController, Passport } from "./zonal-statistics-controller";
+	import { Button } from "carbon-components-svelte";
+	import type {
+		Passport,
+		ZonalStatisticsController,
+		ZonalStatisticsExportRow
+	} from "./zonal-statistics-controller";
 
 	export let controller: ZonalStatisticsController;
 
@@ -53,6 +67,157 @@
 		controller.clearSelection();
 	}
 
+	function formatTimestamp(date: Date): string {
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, "0");
+		const day = String(date.getDate()).padStart(2, "0");
+		const hour = String(date.getHours()).padStart(2, "0");
+		const minute = String(date.getMinutes()).padStart(2, "0");
+		return `${year}${month}${day}-${hour}${minute}`;
+	}
+
+	const layout = A4_PORTRAIT_LAYOUT;
+	const metrics = getPdfLayoutMetrics(layout);
+	const branding = {
+		...DEFAULT_PDF_BRANDING,
+		footerText: "Provincie Zeeland - Klimaatlabels"
+	};
+
+	function addPdfHeaderBlock(doc: jsPDF, startY: number): number {
+		doc.setFont("helvetica", "bold");
+		doc.setFontSize(14);
+		doc.text($_("tools.zonalStatistics.exportPdfTitle"), layout.margin, startY);
+
+		doc.setFont("helvetica", "normal");
+		doc.setFontSize(9);
+		doc.text(
+			`${$_("tools.zonalStatistics.exportCreatedAt")} ${new Date().toLocaleDateString("nl-NL")} om ${new Date().toLocaleTimeString("nl-NL")}`,
+			layout.margin,
+			startY + 6
+		);
+		return startY + 12;
+	}
+
+	function drawPdfTableHeader(doc: jsPDF, x: number, y: number, widths: Array<number>): number {
+		const headers = [
+			$_("tools.zonalStatistics.exportPostcode"),
+			$_("tools.zonalStatistics.exportLayer"),
+			$_("tools.zonalStatistics.exportCurrentLabel"),
+			$_("tools.zonalStatistics.exportCurrentCategory"),
+			$_("tools.zonalStatistics.exportTargetLabel"),
+			$_("tools.zonalStatistics.exportTargetCategory")
+		];
+
+		doc.setFont("helvetica", "bold");
+		doc.setFontSize(9);
+
+		let cursorX = x;
+		for (let i = 0; i < headers.length; i++) {
+			doc.rect(cursorX, y, widths[i], 8);
+			doc.text(headers[i], cursorX + 1.5, y + 5.5, { maxWidth: widths[i] - 3 });
+			cursorX += widths[i];
+		}
+
+		doc.setFont("helvetica", "normal");
+		return y + 8;
+	}
+
+	function drawPdfRow(
+		doc: jsPDF,
+		row: ZonalStatisticsExportRow,
+		x: number,
+		y: number,
+		widths: Array<number>,
+		lineHeight: number
+	): number {
+		const values = [
+			row.postcode,
+			row.layerTitle,
+			row.currentLabel,
+			row.currentCategoryDescription,
+			row.targetLabel,
+			row.targetCategoryDescription
+		];
+
+		const wrapped = values.map((value, index) =>
+			doc.splitTextToSize(value || "", Math.max(1, widths[index] - 3))
+		);
+		const rowHeight =
+			Math.max(...wrapped.map((lines) => Math.max(1, lines.length))) * lineHeight + 2;
+
+		let cursorX = x;
+		for (let i = 0; i < values.length; i++) {
+			doc.rect(cursorX, y, widths[i], rowHeight);
+			doc.text(wrapped[i], cursorX + 1.5, y + 4);
+			cursorX += widths[i];
+		}
+
+		return y + rowHeight;
+	}
+
+	function groupRowsByPostcode(rows: Array<ZonalStatisticsExportRow>) {
+		const groups: Array<{ postcode: string; rows: Array<ZonalStatisticsExportRow> }> = [];
+		for (const row of rows) {
+			const postcode = row.postcode || "";
+			const existingGroup = groups[groups.length - 1];
+			if (!existingGroup || existingGroup.postcode !== postcode) {
+				groups.push({ postcode, rows: [row] });
+			} else {
+				existingGroup.rows.push(row);
+			}
+		}
+		return groups;
+	}
+
+	async function exportPdf() {
+		const rows = controller.buildExportRows();
+		if (rows.length === 0) return;
+		const brandingAssets = await loadPdfBrandingAssets(branding);
+
+		const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+		const lineHeight = 4;
+		const widths = [20, 32, 13, 45, 13, 45];
+
+		drawPdfPageHeader(doc, layout, brandingAssets);
+		let y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
+		y = drawPdfTableHeader(doc, layout.margin, y, widths);
+
+		const postcodeGroups = groupRowsByPostcode(rows);
+		for (let groupIndex = 0; groupIndex < postcodeGroups.length; groupIndex++) {
+			if (groupIndex > 0) {
+				addPdfPageWithHeader(doc, layout, brandingAssets);
+				y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
+				y = drawPdfTableHeader(doc, layout.margin, y, widths);
+			}
+
+			for (const row of postcodeGroups[groupIndex].rows) {
+				const sampleLines = [
+					doc.splitTextToSize(row.postcode || "", widths[0] - 3),
+					doc.splitTextToSize(row.layerTitle || "", widths[1] - 3),
+					doc.splitTextToSize(row.currentLabel || "", widths[2] - 3),
+					doc.splitTextToSize(row.currentCategoryDescription || "", widths[3] - 3),
+					doc.splitTextToSize(row.targetLabel || "", widths[4] - 3),
+					doc.splitTextToSize(row.targetCategoryDescription || "", widths[5] - 3)
+				];
+				const nextRowHeight =
+					Math.max(...sampleLines.map((lines) => Math.max(1, lines.length))) * lineHeight + 2;
+
+				if (y + nextRowHeight > metrics.bottomLimit) {
+					addPdfPageWithHeader(doc, layout, brandingAssets);
+					y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
+					y = drawPdfTableHeader(doc, layout.margin, y, widths);
+				}
+
+				y = drawPdfRow(doc, row, layout.margin, y, widths, lineHeight);
+			}
+		}
+
+		drawPdfFooters(doc, layout, brandingAssets, "Pagina");
+
+		const filename = `Klimaatlabels_${formatTimestamp(new Date())}.pdf`;
+		doc.save(filename);
+	}
+
 	function removeFromView() {
 		show = false;
 		setTimeout(() => dispatch("remove"), 200);
@@ -79,6 +244,14 @@
 			<div class="heading-01">{$_("tools.zonalStatistics.label")}</div>
 			<div class="actions">
 				{#if passport.zones.length > 0}
+					<Button
+						kind="ghost"
+						icon={GeneratePdf}
+						size="small"
+						iconDescription={$_("tools.zonalStatistics.exportPdf")}
+						tooltipPosition="left"
+						on:click={exportPdf}
+					/>
 					<Button
 						kind="ghost"
 						icon={TrashCan}

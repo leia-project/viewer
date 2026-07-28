@@ -38,6 +38,19 @@ export interface Passport {
 	rows: Array<PassportRow>;
 }
 
+/**
+ * One flattened export row for the zonal passport.
+ * Each selected zone and data-layer row combination becomes one export row.
+ */
+export interface ZonalStatisticsExportRow {
+	postcode: string;
+	layerTitle: string;
+	currentLabel: string;
+	currentCategoryDescription: string;
+	targetLabel: string;
+	targetCategoryDescription: string;
+}
+
 export interface ResolvedDataLayer {
 	layerId: string;
 	title: string;
@@ -288,6 +301,31 @@ export class ZonalStatisticsController {
 		);
 
 		return { zones, rows };
+	}
+
+	/**
+	 * Flatten the current passport table to export rows.
+	 * Export always reflects the currently visible passport state.
+	 * Row order is postcode-first so all entries for the same postcode stay grouped.
+	 */
+	public buildExportRows(): Array<ZonalStatisticsExportRow> {
+		const passport = this.buildPassport();
+		const exportRows: Array<ZonalStatisticsExportRow> = [];
+
+		for (const zone of passport.zones) {
+			for (const row of passport.rows) {
+				exportRows.push({
+					postcode: zone,
+					layerTitle: row.title,
+					currentLabel: row.values[zone] ?? "",
+					currentCategoryDescription: row.valueTooltips[zone] ?? "",
+					targetLabel: row.targets[zone] ?? "",
+					targetCategoryDescription: row.targetTooltips[zone] ?? ""
+				});
+			}
+		}
+
+		return exportRows;
 	}
 
 	/** Resolved data layers used by the zonal statistics left panel. */
