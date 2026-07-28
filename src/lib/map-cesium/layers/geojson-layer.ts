@@ -69,7 +69,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 
 	public colorGradientStart: Cesium.Color = Cesium.Color.BLUE;
 	public colorGradientEnd: Cesium.Color = Cesium.Color.RED;
-	private readonly classMappings: Record<string, Cesium.Color> | undefined;
+	private readonly classMapping: Record<string, Cesium.Color> | undefined;
 	public style: Writable<string> = writable("default");
 	public styleType: Writable<string> = writable();
 	public legend: Writable<GeoJSONlegend> = writable();
@@ -97,7 +97,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.url = this.config.settings.url ?? undefined;
 		this.fileType = this.config.type ?? "geojson";
 		this.source = new Cesium.GeoJsonDataSource(this.config.id);
-		this.classMappings = this.buildClassMappings(this.config.settings.classMappings);
+		this.classMapping = this.buildClassMapping(this.config.settings.classMapping);
 		if (this.config.settings["style"] && typeof this.config.settings["style"] === "string") {
 			this.style.set(this.config.settings["style"]);
 		} else if (typeof this.config.settings["style"] === "object") {
@@ -462,13 +462,13 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 
 	private getStringStyleColor(propertyName: string, value: string): Cesium.Color {
 		const configuredStyle = this.config.settings.style;
-		const hasClassMappings = !!this.classMappings;
-		const shouldUseClassMappings =
-			hasClassMappings &&
+		const hasClassMapping = !!this.classMapping;
+		const shouldUseClassMapping =
+			hasClassMapping &&
 			typeof configuredStyle === "string" &&
 			configuredStyle === get(this.style) &&
 			configuredStyle === propertyName;
-		const classMappedColor = shouldUseClassMappings ? this.classMappings?.[value] : undefined;
+		const classMappedColor = shouldUseClassMapping ? this.classMapping?.[value] : undefined;
 		if (classMappedColor) {
 			return classMappedColor;
 		}
@@ -484,17 +484,17 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		return color;
 	}
 
-	private buildClassMappings(raw: unknown): Record<string, Cesium.Color> | undefined {
+	private buildClassMapping(raw: unknown): Record<string, Cesium.Color> | undefined {
 		if (!raw || typeof raw !== "object") return undefined;
-		const classMappings: Record<string, Cesium.Color> = {};
+		const classMapping: Record<string, Cesium.Color> = {};
 
 		for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
 			if (typeof value !== "string") continue;
 			const parsedColor = Cesium.Color.fromCssColorString(value);
-			if (parsedColor) classMappings[key] = parsedColor;
+			if (parsedColor) classMapping[key] = parsedColor;
 		}
 
-		return Object.keys(classMappings).length > 0 ? classMappings : undefined;
+		return Object.keys(classMapping).length > 0 ? classMapping : undefined;
 	}
 
 	private addOutlines(): void {

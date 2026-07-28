@@ -496,7 +496,7 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 |url|URL to the GeoJSON file||string|
 |clampToGround|Choose to clamp the layer to the terrain|true|boolean|
 |style|If it is a string, it points to the property of the GeoJSON to base the styling on. If it is an object, it can contain a `stroke` (HEX-string), `strokeWidth` (number) and `fill` (HEX-string).||string or object|
-| classMappings | Optional value-to-color map for class-based styling of the `style` attribute. Keys are attribute values, values are HEX colors.  
+|classMapping|Optional value-to-color map for class-based styling of the `style` attribute. Keys are attribute values, values are HEX colors.||object|
 |tools|Selection of GeoJSON tools available in the layer manager||tool|
 
 ##### GeoJSON tools
@@ -549,7 +549,7 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 	"settings": {
 		"url": "https://some-site.nl/file.geojson",
 		"style": "label",
-		"classMappings": {
+		"classMapping": {
 			"A": "#44ce1b",
 			"B": "#bbdb44",
 			"C": "#f7e379",
