@@ -9,7 +9,6 @@
  *   "settings": {
  *     "zoneLayerId": "pc6-zones",
  *     "zoneCodeAttribute": "postcode",
- *     "globeOpacity": 50,
  *     "targetLabelAttribute": "streeflabel",
  *     "layers": [
  *       { "id": "heat", "attribute": "label_hitte" }
@@ -36,8 +35,6 @@ export interface ZonalStatisticsSettings {
 	targetLabelAttribute?: string;
 	/** Optional attribute for tooltip text on the target label cells. */
 	targetLabelTooltipAttribute?: string;
-	/** Globe opacity (0..100) applied while the tool is active. */
-	globeOpacity: number;
 	/** The data layers (climate labels) shown in the passport table. */
 	layers: Array<ZonalLayer>;
 }
@@ -73,10 +70,6 @@ export function parseZonalStatisticsSettings(raw: any): ZonalStatisticsSettings 
 			typeof raw.zoneCodeAttribute === "string" ? raw.zoneCodeAttribute : "postcode",
 		labelTooltipAttribute:
 			typeof raw.labelTooltipAttribute === "string" ? raw.labelTooltipAttribute : undefined,
-		globeOpacity:
-			typeof raw.globeOpacity === "number" && Number.isFinite(raw.globeOpacity)
-				? Math.min(100, Math.max(0, raw.globeOpacity))
-				: 50,
 		targetLabelAttribute:
 			typeof raw.targetLabelAttribute === "string" ? raw.targetLabelAttribute : undefined,
 		targetLabelTooltipAttribute:

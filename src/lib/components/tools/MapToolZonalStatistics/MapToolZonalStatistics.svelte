@@ -50,7 +50,6 @@
 		controller.active.set(active);
 		if (active) {
 			disableInteractionFromOtherTools(id);
-			setWorldTransparency();
 			enableConfiguredLayers();
 			showView();
 		} else {
@@ -58,11 +57,6 @@
 			destroyView();
 			controller.clearSelection();
 		}
-	}
-
-	function setWorldTransparency(): void {
-		if (!controller) return;
-		map.options.globeOpacity.set(controller.settings.globeOpacity);
 	}
 
 	function enableConfiguredLayers(): void {

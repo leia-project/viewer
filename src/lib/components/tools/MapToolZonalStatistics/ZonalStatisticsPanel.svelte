@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { getContext } from "svelte";
 	import { Accordion } from "carbon-components-svelte";
-	import { Slider } from "carbon-components-svelte";
 	import { _ } from "svelte-i18n";
 
 	import type { ZonalStatisticsController } from "./zonal-statistics-controller";
@@ -9,25 +7,11 @@
 
 	export let controller: ZonalStatisticsController;
 
-	const { map } = getContext<any>("mapTools");
-	const globeOpacity = map.options.globeOpacity;
 	const resolvedDataLayers = controller.resolvedDataLayers;
 </script>
 
 <div class="panel">
 	<div class="panel-header heading-01">{$_("tools.zonalStatistics.label")}</div>
-
-	<div class="slider-wrapper">
-		<Slider
-			fullWidth
-			hideTextInput
-			labelText={$_("tools.backgroundControls.opacity") + " " + $globeOpacity + "%"}
-			min={0}
-			max={100}
-			step={1}
-			bind:value={$globeOpacity}
-		/>
-	</div>
 
 	{#if $resolvedDataLayers.length === 0}
 		<div class="empty body-compact-01">{$_("tools.zonalStatistics.noDataLayers")}</div>
@@ -51,19 +35,6 @@
 
 	.panel-header {
 		margin-bottom: var(--cds-spacing-02);
-	}
-
-	.slider-wrapper {
-		width: 100%;
-	}
-
-	.slider-wrapper :global(.bx--slider) {
-		min-width: 0;
-		flex: 1 1 auto;
-	}
-
-	.slider-wrapper :global(.bx--slider-container) {
-		width: 100%;
 	}
 
 	:global(.layer-group-accordion) {

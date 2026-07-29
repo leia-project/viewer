@@ -376,7 +376,10 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			});
 		}
 		polygonEntity.polygon.material = material;
-		polygonEntity.polygon.perPositionHeight = new Cesium.ConstantProperty(true);
+		polygonEntity.polygon.perPositionHeight = new Cesium.ConstantProperty(!this.clampToGround);
+		polygonEntity.polygon.classificationType = new Cesium.ConstantProperty(
+			Cesium.ClassificationType.BOTH
+		);
 	}
 
 	private setNumberStyle(property: GeoJSONpropertySummary, min: number, max: number): void {
