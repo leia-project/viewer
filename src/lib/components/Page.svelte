@@ -9,7 +9,7 @@
 	import { light } from "$lib/styles/themes";
 
 	import Map from "./Map.svelte";
-	
+
 	import Header from "./header/Header.svelte";
 	import HeaderUtilityGeocoder from "./header/HeaderUtilityGeocoder/HeaderUtilityGeocoder.svelte";
 	import HeaderUtilityModeSwitcher from "./header/HeaderUtilityModeSwitcher/HeaderUtilityModeSwitcher.svelte";
@@ -37,7 +37,6 @@
 	import MapToolFlooding from "./tools/MapToolFlooding/MapToolFlooding.svelte";
 	import MapToolZonalStatistics from "./tools/MapToolZonalStatistics/MapToolZonalStatistics.svelte";
 
-
 	const settings = writable<any>({});
 	const enabledTools = writable<Array<string>>(new Array<string>());
 	const base = process.env.APP_URL;
@@ -47,62 +46,64 @@
 	const userToolOrder: Record<string, number> = {};
 	const aliasDict: { [key: string]: string | undefined } = {};
 	const map = app.map;
-	$: title = $settings.title ? $settings.title + ' - ' + $settings.subTitle : $_('general.loading')
-	
+	$: title = $settings.title ? $settings.title + " - " + $settings.subTitle : $_("general.loading");
+
 	const orderedKeys = [
-		'layerLibrary',
-        'layerManager',
-        'flooding',
-		'stories',
-        'projects',
-        'bookmarks',
-        'measure',
-		'isochrones',
-		'zonalStatistics',
-    ]; // Standard order of top left tools in toolmenu
+		"layerLibrary",
+		"layerManager",
+		"flooding",
+		"zonalStatistics",
+		"stories",
+		"projects",
+		"bookmarks",
+		"measure",
+		"isochrones"
+	]; // Standard order of top left tools in toolmenu
 
 	let toolOrder: Record<string, typeof SvelteComponent<any>> = {
-        layerLibrary: MapToolLayerLibrary,
-        layerManager: MapToolLayerManager,
-        flooding: MapToolFlooding,
-        stories: MapToolStories,
-        projects: MapToolProjects,
+		layerLibrary: MapToolLayerLibrary,
+		layerManager: MapToolLayerManager,
+		flooding: MapToolFlooding,
+		stories: MapToolStories,
+		projects: MapToolProjects,
 		bookmarks: MapToolBookmark,
-        measure: MapToolCesiumMeasure,
+		measure: MapToolCesiumMeasure,
 		isochrones: MapToolIsochrones,
-		zonalStatistics: MapToolZonalStatistics,
-    };
+		zonalStatistics: MapToolZonalStatistics
+	};
 
 	function toolProps(toolKey: string) {
-		if (toolKey === 'layerLibrary') {
-			return { };  
-		} else if (toolKey === 'layerManager') {
+		if (toolKey === "layerLibrary") {
+			return {};
+		} else if (toolKey === "layerManager") {
 			return { map: $map };
-		} else if (toolKey === 'flooding') {
-			return { };
-		} else if (toolKey === 'stories') {
-			return { };
-		} else if (toolKey === 'projects') {
-			return { };
-		} else if (toolKey === 'bookmarks') {
-			return { };
-		} else if (toolKey === 'measure') {
-			return { };
-		} else if (toolKey === 'isochrones') {
-			return { };
-		} else if (toolKey === 'zonalStatistics') {
-			return { };
+		} else if (toolKey === "flooding") {
+			return {};
+		} else if (toolKey === "stories") {
+			return {};
+		} else if (toolKey === "projects") {
+			return {};
+		} else if (toolKey === "bookmarks") {
+			return {};
+		} else if (toolKey === "measure") {
+			return {};
+		} else if (toolKey === "isochrones") {
+			return {};
+		} else if (toolKey === "zonalStatistics") {
+			return {};
 		}
 		return {};
 	}
 
 	map.subscribe((map) => {
 		if (map) {
-			map.on('reload', () => {
+			map.on("reload", () => {
 				mapVisible = false;
 				interfaceVisible = false;
-				setTimeout(() => {mapVisible = true}, 0);
-			})
+				setTimeout(() => {
+					mapVisible = true;
+				}, 0);
+			});
 			map.configLoaded.subscribe((loaded) => {
 				interfaceVisible = true;
 				if (loaded) {
@@ -111,12 +112,12 @@
 					}
 
 					for (const setting of map.toolSettings) {
-    						const alias = setting.settings ? setting.settings.alias : undefined;
-    						aliasDict[setting.id] = alias;
-									
+						const alias = setting.settings ? setting.settings.alias : undefined;
+						aliasDict[setting.id] = alias;
+
 						if (setting.settings && setting.settings.position) {
-							 userToolOrder[setting.id] = setting.settings.position;
-    					}	
+							userToolOrder[setting.id] = setting.settings.position;
+						}
 					}
 
 					toolOrder = createToolOrder(map.toolSettings);
@@ -130,7 +131,7 @@
 				}
 			});
 		}
-	})
+	});
 
 	function setEnabledMapTools(toolSettings: any) {
 		const tools = new Array<string>();
@@ -155,53 +156,60 @@
 	function createToolOrder(toolSettings: any) {
 		const enabledToolIds = new Set(
 			toolSettings
-				.filter((tool: { enabled: boolean; }) => tool.enabled)
-				.map((tool: { id: string; }) => tool.id)
-		); 
-
-		const filteredOrderedKeys = orderedKeys.filter(key => enabledToolIds.has(key)); 
-		
-		const filteredToolOrder = Object.fromEntries(
-			Object.entries(toolOrder)
-			.filter(([key]) => enabledToolIds.has(key))
+				.filter((tool: { enabled: boolean }) => tool.enabled)
+				.map((tool: { id: string }) => tool.id)
 		);
-					
+
+		const filteredOrderedKeys = orderedKeys.filter((key) => enabledToolIds.has(key));
+
+		const filteredToolOrder = Object.fromEntries(
+			Object.entries(toolOrder).filter(([key]) => enabledToolIds.has(key))
+		);
+
 		const sortedUserKeys = Object.entries(userToolOrder)
-			.map(([key, position]) => ({ key, position: position - 1})) // map config tool positions (0-based index)
+			.map(([key, position]) => ({ key, position: position - 1 })) // map config tool positions (0-based index)
 			.sort((a, b) => b.position - a.position); // sort config tool positions high to low
 
 		for (const { key, position } of sortedUserKeys) {
 			const index = filteredOrderedKeys.indexOf(key);
 			if (index > -1) {
 				filteredOrderedKeys.splice(index, 1); // delete tool in array
-			}	
+			}
 			filteredOrderedKeys.splice(Math.min(position, filteredOrderedKeys.length), 0, key); // reinsert tool based on config position into array
 		}
 
 		const newToolOrder: Record<string, typeof SvelteComponent<any>> = {};
-		filteredOrderedKeys.forEach(key => {
+		filteredOrderedKeys.forEach((key) => {
 			if (filteredToolOrder.hasOwnProperty(key)) {
 				newToolOrder[key] = filteredToolOrder[key];
 			}
 		});
-		
+
 		toolOrder = newToolOrder;
 
-		return toolOrder
+		return toolOrder;
 	}
-
 </script>
-
 
 <svelte:head>
 	<title>{title}</title>
-	<base href="{base}"> <!-- This is the base path for the app -->
+	<base href={base} />
+	<!-- This is the base path for the app -->
 </svelte:head>
 
 <CarbonTheme style={light} />
 
 <div class="main">
-	<Header logo={$settings.logo} logoMarginLeft={$settings.logoMarginLeft} logoMarginRight={$settings.logoMarginRight} company={$settings.title} platformName={$settings.subTitle} headerColor={$settings.colors?.["header-color"]} titleColor={$settings.colors?.["title-color"]} subTitleColor={$settings.colors?.["sub-title-color"]}>
+	<Header
+		logo={$settings.logo}
+		logoMarginLeft={$settings.logoMarginLeft}
+		logoMarginRight={$settings.logoMarginRight}
+		company={$settings.title}
+		platformName={$settings.subTitle}
+		headerColor={$settings.colors?.["header-color"]}
+		titleColor={$settings.colors?.["title-color"]}
+		subTitleColor={$settings.colors?.["sub-title-color"]}
+	>
 		<div slot="headerUtilities">
 			<div class="header-utilities">
 				{#if $enabledTools.includes("geocoder")}
@@ -214,7 +222,12 @@
 					<Language />
 				{/if}
 				{#if $enabledTools.includes("github")}
-					<HeaderActionLink title={$_("general.visitGithub")} icon={LogoGithub} href="https://github.com/leia-project" target="_blank"/>
+					<HeaderActionLink
+						title={$_("general.visitGithub")}
+						icon={LogoGithub}
+						href="https://github.com/leia-project"
+						target="_blank"
+					/>
 				{/if}
 			</div>
 		</div>
@@ -227,7 +240,7 @@
 				expandText={$_("tools.menu.expand")}
 				collapseText={$_("tools.menu.collapse")}
 			>
-				{#each Object.entries(toolOrder) as [toolKey, tool] }
+				{#each Object.entries(toolOrder) as [toolKey, tool]}
 					{#if $enabledTools.includes(toolKey)}
 						<svelte:component
 							this={tool}
@@ -239,16 +252,11 @@
 				{/each}
 
 				{#if $enabledTools.includes("theme")}
-					<MapToolTheme id="theme"
-						label={`tools.layerTools.theme.label`}
-					/>
+					<MapToolTheme id="theme" label={`tools.layerTools.theme.label`} />
 				{/if}
 
 				{#if $enabledTools.includes("featureInfo")}
-					<MapToolFeatureInfo
-						id="featureInfo"
-						label={`tools.featureInfo.label`}
-					/>
+					<MapToolFeatureInfo id="featureInfo" label={`tools.featureInfo.label`} />
 				{/if}
 
 				{#if $enabledTools.includes("info")}
@@ -261,25 +269,15 @@
 				{/if}
 
 				{#if $enabledTools.includes("help")}
-					<MapToolHelp
-						id="help"
-						label={`tools.help.label`}
-					/>
+					<MapToolHelp id="help" label={`tools.help.label`} />
 				{/if}
 
 				{#if $enabledTools.includes("cesium")}
-					<MapToolCesiumControls
-						id="cesium"
-						label={`tools.cesium.label`}
-						map={$map}
-					/>
+					<MapToolCesiumControls id="cesium" label={`tools.cesium.label`} map={$map} />
 				{/if}
 
 				{#if $enabledTools.includes("config_switcher")}
-					<MapToolConfigSwitcher
-						id="config_switcher"
-						label={`tools.config_switcher.label`}
-					/>
+					<MapToolConfigSwitcher id="config_switcher" label={`tools.config_switcher.label`} />
 				{/if}
 			</MapToolMenu>
 		{/if}
@@ -289,9 +287,9 @@
 				<div class="map-wrapper">
 					<Map map={$map} />
 					{#if !$enabledTools.includes("flyCamera")}
-						<MapControls map={$map} />												
+						<MapControls map={$map} />
 					{:else}
-						<POVMapControls map={$map} />												
+						<POVMapControls map={$map} />
 					{/if}
 				</div>
 			</div>
@@ -301,7 +299,6 @@
 </div>
 
 <style>
-
 	.main {
 		width: 100%;
 		height: 100%;
@@ -338,5 +335,4 @@
 		min-width: 0;
 		gap: 0.25rem;
 	}
-
 </style>
