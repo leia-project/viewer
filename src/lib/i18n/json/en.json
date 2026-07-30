@@ -393,11 +393,12 @@
             "settlementPercentage": "Settlement Percentage"
         },
         "zonalStatistics": {
-            "label": "Zonal Statistics",
+            "label": "Climate labels",
             "targetLabel": "Target label",
             "currentLabel": "Label",
+            "exportPng": "Download table as PNG",
             "exportPdf": "Generate and download PDF",
-            "exportPdfTitle": "Zonal Statistics Export",
+            "exportPdfTitle": "Climate labels Export",
             "exportCreatedAt": "Created at:",
             "exportPostcode": "Postcode",
             "exportLayer": "Layer",

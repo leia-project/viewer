@@ -390,11 +390,12 @@
             "settlementPercentages": "Répartition des établissements"
         },
         "zonalStatistics": {
-            "label": "Zonal Statistics",
+            "label": "Étiquettes climatiques",
             "targetLabel": "Étiquette cible",
             "currentLabel": "Étiquette",
+            "exportPng": "Télécharger le tableau en PNG",
             "exportPdf": "Générer et télécharger le PDF",
-            "exportPdfTitle": "Export Zonal Statistics",
+            "exportPdfTitle": "Étiquettes climatiques",
             "exportCreatedAt": "Créé le :",
             "exportPostcode": "Code postal",
             "exportLayer": "Couche",

@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { createEventDispatcher, onDestroy } from "svelte";
+	import { createEventDispatcher, onDestroy, tick } from "svelte";
 	import { fade } from "svelte/transition";
 	import { _ } from "svelte-i18n";
 	import { TooltipDefinition } from "carbon-components-svelte";
-	import { Close, GeneratePdf, TrashCan } from "carbon-icons-svelte";
+	import { Close, Download, GeneratePdf, TrashCan } from "carbon-icons-svelte";
+	import { toPng } from "html-to-image";
 	import { jsPDF } from "jspdf";
 	import {
 		A4_PORTRAIT_LAYOUT,
@@ -29,6 +30,8 @@
 	let passport: Passport = { zones: [], rows: [] };
 	let activeCode: string | undefined;
 	let show = true;
+	let exportingPng = false;
+	let passportTableElement: HTMLTableElement | undefined;
 
 	const unsubscribe = controller.selectedZones.subscribe(() => {
 		passport = controller.buildPassport();
@@ -218,6 +221,39 @@
 		doc.save(filename);
 	}
 
+	async function exportPng() {
+		if (!passportTableElement) return;
+
+		try {
+			exportingPng = true;
+			await tick();
+
+			const width = passportTableElement.scrollWidth;
+			const height = passportTableElement.scrollHeight;
+			const dataUrl = await toPng(passportTableElement, {
+				cacheBust: true,
+				pixelRatio: 2,
+				backgroundColor: "#ffffff",
+				width,
+				height,
+				style: {
+					width: `${width}px`,
+					height: `${height}px`
+				}
+			});
+
+			const link = document.createElement("a");
+			link.href = dataUrl;
+			link.download = `Klimaatlabels_${formatTimestamp(new Date())}.png`;
+			link.click();
+		} catch (error) {
+			console.error("zonalStatistics: failed to export table as PNG", error);
+		} finally {
+			exportingPng = false;
+			await tick();
+		}
+	}
+
 	function removeFromView() {
 		show = false;
 		setTimeout(() => dispatch("remove"), 200);
@@ -244,6 +280,14 @@
 			<div class="heading-01">{$_("tools.zonalStatistics.label")}</div>
 			<div class="actions">
 				{#if passport.zones.length > 0}
+					<Button
+						kind="ghost"
+						icon={Download}
+						size="small"
+						iconDescription={$_("tools.zonalStatistics.exportPng")}
+						tooltipPosition="left"
+						on:click={exportPng}
+					/>
 					<Button
 						kind="ghost"
 						icon={GeneratePdf}
@@ -278,7 +322,7 @@
 					{$_("tools.zonalStatistics.noSelection")}
 				</div>
 			{:else}
-				<table class="passport-table">
+				<table class="passport-table" bind:this={passportTableElement}>
 					<thead>
 						<tr>
 							<th class="row-head" rowspan="2" />
@@ -321,7 +365,7 @@
 										class={`value ${labelClassFor(row.values[code])}`}
 										class:active={code === activeCode}
 									>
-										{#if row.valueTooltips[code]}
+										{#if row.valueTooltips[code] && !exportingPng}
 											<TooltipDefinition
 												class="cell-tooltip"
 												direction="top"
@@ -337,7 +381,7 @@
 										class={`value target ${labelClassFor(row.targets[code])}`}
 										class:active={code === activeCode}
 									>
-										{#if row.targetTooltips[code]}
+										{#if row.targetTooltips[code] && !exportingPng}
 											<TooltipDefinition
 												class="cell-tooltip"
 												align="end"
@@ -365,7 +409,7 @@
 		position: absolute;
 		top: var(--cds-spacing-05);
 		right: var(--cds-spacing-05);
-		max-width: 60%;
+		max-width: calc(100% - (2 * var(--cds-spacing-05)));
 		max-height: 60%;
 		display: flex;
 		flex-direction: column;

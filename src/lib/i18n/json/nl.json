@@ -400,11 +400,12 @@
             "settlementPercentage": "Vestigingspercentage"
         },
         "zonalStatistics": {
-            "label": "Zonal Statistics",
+            "label": "Klimaatlabels",
             "targetLabel": "Streeflabel",
             "currentLabel": "Label",
+            "exportPng": "Tabel downloaden als PNG",
             "exportPdf": "Genereer en download PDF",
-            "exportPdfTitle": "Zonal Statistics Export",
+            "exportPdfTitle": "Klimaatlabels Export",
             "exportCreatedAt": "Aangemaakt op:",
             "exportPostcode": "Postcode",
             "exportLayer": "Laag",
