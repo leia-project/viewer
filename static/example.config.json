@@ -1110,13 +1110,13 @@
                 "pointCloudAttenuationMaximum": 2,
                 "terrainProviders": [
                     {
-                        "title": "Zeeland 1m",
-                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
+                        "title": "PDOK Terrain",
+                        "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
                         "vertexNormals": true
                     },
                     {
-                        "title": "PDOK Terrain",
-                        "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
+                        "title": "Zeeland 1m",
+                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
                         "vertexNormals": true
                     },
                     {

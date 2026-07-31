@@ -449,7 +449,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				const idx = property.propertyValues?.indexOf(value);
 				if (idx > -1 && legend[idx]) {
 					styledColor = new Cesium.ColorMaterialProperty(
-						Cesium.Color.fromCssColorString(legend[idx].color)
+						Cesium.Color.fromCssColorString(legend[idx].color).withAlpha(this.alpha)
 					);
 				}
 			}
