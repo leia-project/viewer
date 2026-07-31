@@ -4,7 +4,7 @@
 	import { _ } from "svelte-i18n";
 	import { TooltipDefinition } from "carbon-components-svelte";
 	import { Close, Download, GeneratePdf, TrashCan } from "carbon-icons-svelte";
-	import { toPng } from "html-to-image";
+	import { toJpeg, toPng } from "html-to-image";
 	import { jsPDF } from "jspdf";
 	import {
 		A4_PORTRAIT_LAYOUT,
@@ -30,8 +30,11 @@
 	let passport: Passport = { zones: [], rows: [] };
 	let activeCode: string | undefined;
 	let show = true;
-	let exportingPng = false;
+	let exportingImage = false;
+	let exportingPdf = false;
 	let passportTableElement: HTMLTableElement | undefined;
+
+	$: exportInProgress = exportingImage || exportingPdf;
 
 	const unsubscribe = controller.selectedZones.subscribe(() => {
 		passport = controller.buildPassport();
@@ -173,64 +176,74 @@
 	}
 
 	async function exportPdf() {
+		if (exportInProgress) return;
+
 		const rows = controller.buildExportRows();
 		if (rows.length === 0) return;
-		const brandingAssets = await loadPdfBrandingAssets(branding);
 
-		const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-		const lineHeight = 4;
-		const widths = [20, 32, 13, 45, 13, 45];
+		try {
+			exportingPdf = true;
 
-		drawPdfPageHeader(doc, layout, brandingAssets);
-		let y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
-		y = drawPdfTableHeader(doc, layout.margin, y, widths);
+			const brandingAssets = await loadPdfBrandingAssets(branding);
 
-		const postcodeGroups = groupRowsByPostcode(rows);
-		for (let groupIndex = 0; groupIndex < postcodeGroups.length; groupIndex++) {
-			if (groupIndex > 0) {
-				addPdfPageWithHeader(doc, layout, brandingAssets);
-				y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
-				y = drawPdfTableHeader(doc, layout.margin, y, widths);
-			}
+			const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+			const lineHeight = 4;
+			const widths = [20, 32, 13, 45, 13, 45];
 
-			for (const row of postcodeGroups[groupIndex].rows) {
-				const sampleLines = [
-					doc.splitTextToSize(row.postcode || "", widths[0] - 3),
-					doc.splitTextToSize(row.layerTitle || "", widths[1] - 3),
-					doc.splitTextToSize(row.currentLabel || "", widths[2] - 3),
-					doc.splitTextToSize(row.currentCategoryDescription || "", widths[3] - 3),
-					doc.splitTextToSize(row.targetLabel || "", widths[4] - 3),
-					doc.splitTextToSize(row.targetCategoryDescription || "", widths[5] - 3)
-				];
-				const nextRowHeight =
-					Math.max(...sampleLines.map((lines) => Math.max(1, lines.length))) * lineHeight + 2;
+			drawPdfPageHeader(doc, layout, brandingAssets);
+			let y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
+			y = drawPdfTableHeader(doc, layout.margin, y, widths);
 
-				if (y + nextRowHeight > metrics.bottomLimit) {
+			const postcodeGroups = groupRowsByPostcode(rows);
+			for (let groupIndex = 0; groupIndex < postcodeGroups.length; groupIndex++) {
+				if (groupIndex > 0) {
 					addPdfPageWithHeader(doc, layout, brandingAssets);
 					y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
 					y = drawPdfTableHeader(doc, layout.margin, y, widths);
 				}
 
-				y = drawPdfRow(doc, row, layout.margin, y, widths, lineHeight);
+				for (const row of postcodeGroups[groupIndex].rows) {
+					const sampleLines = [
+						doc.splitTextToSize(row.postcode || "", widths[0] - 3),
+						doc.splitTextToSize(row.layerTitle || "", widths[1] - 3),
+						doc.splitTextToSize(row.currentLabel || "", widths[2] - 3),
+						doc.splitTextToSize(row.currentCategoryDescription || "", widths[3] - 3),
+						doc.splitTextToSize(row.targetLabel || "", widths[4] - 3),
+						doc.splitTextToSize(row.targetCategoryDescription || "", widths[5] - 3)
+					];
+					const nextRowHeight =
+						Math.max(...sampleLines.map((lines) => Math.max(1, lines.length))) * lineHeight + 2;
+
+					if (y + nextRowHeight > metrics.bottomLimit) {
+						addPdfPageWithHeader(doc, layout, brandingAssets);
+						y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
+						y = drawPdfTableHeader(doc, layout.margin, y, widths);
+					}
+
+					y = drawPdfRow(doc, row, layout.margin, y, widths, lineHeight);
+				}
 			}
+
+			drawPdfFooters(doc, layout, brandingAssets, "Pagina");
+
+			const filename = `Klimaatlabels_${formatTimestamp(new Date())}.pdf`;
+			doc.save(filename);
+		} finally {
+			exportingPdf = false;
 		}
-
-		drawPdfFooters(doc, layout, brandingAssets, "Pagina");
-
-		const filename = `Klimaatlabels_${formatTimestamp(new Date())}.pdf`;
-		doc.save(filename);
 	}
 
-	async function exportPng() {
+	async function exportImage(format: "png" | "jpeg") {
+		if (exportInProgress) return;
 		if (!passportTableElement) return;
 
 		try {
-			exportingPng = true;
+			exportingImage = true;
 			await tick();
 
 			const width = passportTableElement.scrollWidth;
 			const height = passportTableElement.scrollHeight;
-			const dataUrl = await toPng(passportTableElement, {
+			const options = {
 				cacheBust: true,
 				pixelRatio: 2,
 				backgroundColor: "#ffffff",
@@ -240,18 +253,30 @@
 					width: `${width}px`,
 					height: `${height}px`
 				}
-			});
+			};
+			const dataUrl =
+				format === "jpeg"
+					? await toJpeg(passportTableElement, { ...options, quality: 0.95 })
+					: await toPng(passportTableElement, options);
 
 			const link = document.createElement("a");
 			link.href = dataUrl;
-			link.download = `Klimaatlabels_${formatTimestamp(new Date())}.png`;
+			link.download = `Klimaatlabels_${formatTimestamp(new Date())}.${format}`;
 			link.click();
 		} catch (error) {
-			console.error("zonalStatistics: failed to export table as PNG", error);
+			console.error(`zonalStatistics: failed to export table as ${format.toUpperCase()}`, error);
 		} finally {
-			exportingPng = false;
+			exportingImage = false;
 			await tick();
 		}
+	}
+
+	async function exportPng() {
+		await exportImage("png");
+	}
+
+	async function exportJpeg() {
+		await exportImage("jpeg");
 	}
 
 	function removeFromView() {
@@ -286,7 +311,17 @@
 						size="small"
 						iconDescription={$_("tools.zonalStatistics.exportPng")}
 						tooltipPosition="left"
+						disabled={exportInProgress}
 						on:click={exportPng}
+					/>
+					<Button
+						kind="ghost"
+						icon={Download}
+						size="small"
+						iconDescription={$_("tools.zonalStatistics.exportJpeg")}
+						tooltipPosition="left"
+						disabled={exportInProgress}
+						on:click={exportJpeg}
 					/>
 					<Button
 						kind="ghost"
@@ -294,6 +329,7 @@
 						size="small"
 						iconDescription={$_("tools.zonalStatistics.exportPdf")}
 						tooltipPosition="left"
+						disabled={exportInProgress}
 						on:click={exportPdf}
 					/>
 					<Button
@@ -365,7 +401,7 @@
 										class={`value ${labelClassFor(row.values[code])}`}
 										class:active={code === activeCode}
 									>
-										{#if row.valueTooltips[code] && !exportingPng}
+										{#if row.valueTooltips[code] && !exportingImage}
 											<TooltipDefinition
 												class="cell-tooltip"
 												direction="top"
@@ -381,7 +417,7 @@
 										class={`value target ${labelClassFor(row.targets[code])}`}
 										class:active={code === activeCode}
 									>
-										{#if row.targetTooltips[code] && !exportingPng}
+										{#if row.targetTooltips[code] && !exportingImage}
 											<TooltipDefinition
 												class="cell-tooltip"
 												align="end"

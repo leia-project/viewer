@@ -394,6 +394,7 @@
             "targetLabel": "Étiquette cible",
             "currentLabel": "Étiquette",
             "exportPng": "Télécharger le tableau en PNG",
+            "exportJpeg": "Télécharger le tableau en JPEG",
             "exportPdf": "Générer et télécharger le PDF",
             "exportPdfTitle": "Étiquettes climatiques",
             "exportCreatedAt": "Créé le :",

@@ -404,6 +404,7 @@
             "targetLabel": "Streeflabel",
             "currentLabel": "Label",
             "exportPng": "Tabel downloaden als PNG",
+            "exportJpeg": "Tabel downloaden als JPEG",
             "exportPdf": "Genereer en download PDF",
             "exportPdfTitle": "Klimaatlabels Export",
             "exportCreatedAt": "Aangemaakt op:",

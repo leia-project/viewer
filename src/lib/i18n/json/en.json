@@ -397,6 +397,7 @@
             "targetLabel": "Target label",
             "currentLabel": "Label",
             "exportPng": "Download table as PNG",
+            "exportJpeg": "Download table as JPEG",
             "exportPdf": "Generate and download PDF",
             "exportPdfTitle": "Climate labels Export",
             "exportCreatedAt": "Created at:",
