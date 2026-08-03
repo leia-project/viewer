@@ -815,29 +815,37 @@
                 "alias": "Labelpaspoort",
                 "zoneLayerId": "999a",
                 "zoneCodeAttribute": "Pc6",
-                "labelTooltipAttribute": "category",
-                "targetLabelAttribute": "ambitie_label",
-                "targetLabelTooltipAttribute": "ambitie_category",
+                "exportTitle": "Klimaatlabels",
+                "exportFileName": "Klimaatlabels",
+                "pdfFooterText": "Provincie Zeeland - Klimaatlabels",
+                "pdfLeftLogo": "/images/Zeeland_logo.png",
+                "columns": [
+                    {
+                        "attribute": "label",
+                        "label": "Huidig",
+                        "tooltipAttribute": "category",
+                        "styled": true
+                    },
+                    {
+                        "attribute": "ambitie_label",
+                        "label": "Ambitie",
+                        "tooltipAttribute": "ambitie_category",
+                        "styled": true
+                    }
+                ],
+                "valueStyles": [
+                    { "value": "A", "color": "#44ce1b", "textColor": "#ffffff" },
+                    { "value": "B", "color": "#bbdb44", "textColor": "#161616" },
+                    { "value": "C", "color": "#f7e379", "textColor": "#161616" },
+                    { "value": "D", "color": "#f2a134", "textColor": "#161616" },
+                    { "value": "E", "color": "#e51f1f", "textColor": "#ffffff" }
+                ],
                 "layers": [
                     {
-                        "id": "999a",
-                        "attribute": "label"
+                        "id": "999a"
                     },
                     {
-                        "id": "999b",
-                        "attribute": "label"
-                    },
-                    {
-                        "id": "999c",
-                        "attribute": "label"
-                    },
-                    {
-                        "id": "999d",
-                        "attribute": "label"
-                    },
-                    {
-                        "id": "999e",
-                        "attribute": "label"
+                        "id": "999b"
                     }
                 ]
             }
@@ -883,7 +891,7 @@
                     {
                         "name": "De Zeeuwse klimaatlabels",
                         "description": "Over de klimaatatlabels",
-                        "width": "calc(80vw - 49px)",
+                        "width": "calc(100vw - 49px)",
                         "force2DMode": false,
                         "staticCamera": true,
                         "requestPolygonArea": {

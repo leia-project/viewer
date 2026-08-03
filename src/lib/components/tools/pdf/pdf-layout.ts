@@ -17,13 +17,11 @@ export interface PdfLayoutMetrics {
 
 export interface PdfBrandingConfig {
 	leftLogoPath: string;
-	rightLogoPath: string;
 	footerText: string;
 }
 
 export interface PdfBrandingAssets {
 	leftLogo: HTMLImageElement | null;
-	rightLogo: HTMLImageElement | null;
 	footerText: string;
 }
 
@@ -38,7 +36,6 @@ export const A4_PORTRAIT_LAYOUT: PdfLayoutConfig = {
 
 export const DEFAULT_PDF_BRANDING: PdfBrandingConfig = {
 	leftLogoPath: "/images/Zeeland_logo.png",
-	rightLogoPath: "/images/SOGELINK_Logo_Monogramme_Bleu.png",
 	footerText: "Provincie Zeeland"
 };
 
@@ -53,14 +50,10 @@ export function getPdfLayoutMetrics(layout: PdfLayoutConfig): PdfLayoutMetrics {
 export async function loadPdfBrandingAssets(
 	branding: PdfBrandingConfig = DEFAULT_PDF_BRANDING
 ): Promise<PdfBrandingAssets> {
-	const [leftLogo, rightLogo] = await Promise.all([
-		preloadImage(branding.leftLogoPath),
-		preloadImage(branding.rightLogoPath)
-	]);
+	const leftLogo = await preloadImage(branding.leftLogoPath);
 
 	return {
 		leftLogo,
-		rightLogo,
 		footerText: branding.footerText
 	};
 }
@@ -73,21 +66,6 @@ export function drawPdfPageHeader(
 	if (assets.leftLogo) {
 		try {
 			doc.addImage(assets.leftLogo, "PNG", layout.margin, layout.margin - 2, 30, 14);
-		} catch {
-			// Ignore logo failures and keep generating the PDF.
-		}
-	}
-
-	if (assets.rightLogo) {
-		try {
-			doc.addImage(
-				assets.rightLogo,
-				"PNG",
-				layout.pageWidth - layout.margin - 18,
-				layout.margin,
-				18,
-				13
-			);
 		} catch {
 			// Ignore logo failures and keep generating the PDF.
 		}

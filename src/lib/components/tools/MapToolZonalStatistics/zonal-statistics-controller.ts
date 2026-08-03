@@ -1,4 +1,4 @@
-import { get, writable, type Unsubscriber, type Writable } from "svelte/store";
+import { get, writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 
 import type { Map as CesiumMap } from "$lib/map-cesium/map";
@@ -14,55 +14,50 @@ export interface SelectedZone {
 	code: string;
 }
 
-/** One row of the passport table (one configured data layer / theme). */
-export interface PassportRow {
+/** One row of the zone table (one configured data layer). */
+export interface ZoneTableRow {
 	/** Config id of the data layer. */
 	layerId: string;
 	/** Human readable title shown as the row label. */
 	title: string;
-	/** Current label per selected zone code. */
-	values: Record<string, string | undefined>;
-	/** Tooltip text for current label cells per selected zone code. */
-	valueTooltips: Record<string, string | undefined>;
-	/** Target ("streef") label per selected zone code. */
-	targets: Record<string, string | undefined>;
-	/** Tooltip text for target label cells per selected zone code. */
-	targetTooltips: Record<string, string | undefined>;
+	/** zone code -> per-column display values (aligned to `settings.columns`). */
+	values: Record<string, Array<string | undefined>>;
+	/** zone code -> per-column tooltip texts (aligned to `settings.columns`). */
+	tooltips: Record<string, Array<string | undefined>>;
 }
 
-/** The full passport table model consumed by the view. */
-export interface Passport {
-	/** Selected zone codes, in selection order (the table columns). */
+/** The full zone table model consumed by the view. */
+export interface ZoneTable {
+	/** Selected zone codes, in selection order (the table columns groups). */
 	zones: Array<string>;
 	/** One row per configured data layer. */
-	rows: Array<PassportRow>;
+	rows: Array<ZoneTableRow>;
 }
 
 /**
- * One flattened export row for the zonal passport.
+ * One flattened export row for the zone table.
  * Each selected zone and data-layer row combination becomes one export row.
  */
 export interface ZonalStatisticsExportRow {
-	postcode: string;
+	zoneCode: string;
 	layerTitle: string;
-	currentLabel: string;
-	currentCategoryDescription: string;
-	targetLabel: string;
-	targetCategoryDescription: string;
+	/** Display value per configured column, aligned to `settings.columns`. */
+	values: Array<string>;
+	/** Tooltip/description per configured column, aligned to `settings.columns`. */
+	tooltips: Array<string>;
 }
 
 export interface ResolvedDataLayer {
 	layerId: string;
 	title: string;
-	attribute: string;
 	layer: GeoJsonLayer;
 }
 
 /**
  * Owns all non-UI logic for the Zonal Statistics tool: resolving the
  * configured zone + data layers, ensuring their data is loaded, handling map
- * clicks to (de)select PC6 zones, highlighting the selection, and building the
- * "labelpaspoort" table. UI components subscribe to the exposed stores.
+ * clicks to (de)select zones, highlighting the selection, and building the
+ * zone table. UI components subscribe to the exposed stores.
  */
 export class ZonalStatisticsController {
 	private readonly map: CesiumMap;
@@ -74,6 +69,8 @@ export class ZonalStatisticsController {
 	public readonly selectedZones: Writable<Array<SelectedZone>> = writable([]);
 
 	private zoneLayer: GeoJsonLayer | undefined;
+	/** Zone code -> zone-layer entity, used to resolve highlight geometry from clicks. */
+	private readonly zoneEntityIndex: Map<string, Cesium.Entity> = new Map();
 	/** Resolved data layers per config id, in config order. */
 	private readonly dataLayers: Array<ResolvedDataLayer> = [];
 	/** Resolved data layers exposed to the zonal panel UI. */
@@ -83,9 +80,8 @@ export class ZonalStatisticsController {
 
 	/** Dedicated data source that draws outlines around selected zones. */
 	private highlightSource: Cesium.CustomDataSource | undefined;
-	/** The zone currently shown in the passport table (drawn light blue). */
+	/** The zone currently shown in the table (drawn light blue). */
 	private activeCode: string | undefined;
-	private readonly unsubscribers: Array<Unsubscriber> = [];
 	private clickHandler: ((l: MouseLocation) => void) | undefined;
 
 	constructor(map: CesiumMap, settings: ZonalStatisticsSettings) {
@@ -107,6 +103,7 @@ export class ZonalStatisticsController {
 		}
 		this.zoneLayer = zone;
 		await this.ensureLoaded(zone);
+		this.indexZoneEntities();
 
 		for (const cfg of this.settings.layers) {
 			const layer = this.map.getLayerById(cfg.id) as GeoJsonLayer | undefined;
@@ -117,8 +114,7 @@ export class ZonalStatisticsController {
 			await this.ensureLoaded(layer);
 			this.dataLayers.push({
 				layerId: cfg.id,
-				title: layer.config.title,
-				attribute: cfg.attribute,
+				title: cfg.title ?? layer.config.title,
 				layer
 			});
 			this.indexLayer(cfg.id, layer);
@@ -140,6 +136,19 @@ export class ZonalStatisticsController {
 			await layer.ensureLoaded();
 		} catch (error) {
 			console.error(`zonalStatistics: failed to load layer '${layer.config.id}'`, error);
+		}
+	}
+
+	/** Build a zone-code -> zone-layer entity lookup for resolving click geometry. */
+	private indexZoneEntities(): void {
+		this.zoneEntityIndex.clear();
+		const entities = this.zoneLayer?.source?.entities?.values ?? [];
+		for (const entity of entities) {
+			const props = entity.properties?.getValue(this.map.viewer.clock.currentTime);
+			const code = props?.[this.settings.zoneCodeAttribute];
+			if (code !== undefined && code !== null) {
+				this.zoneEntityIndex.set(String(code), entity);
+			}
 		}
 	}
 
@@ -169,7 +178,14 @@ export class ZonalStatisticsController {
 		const rawCode = props?.[this.settings.zoneCodeAttribute];
 		if (rawCode === undefined || rawCode === null) return;
 
-		this.toggleZone(String(rawCode), entity);
+		// Resolve the zone from the zone layer so highlight geometry never depends on
+		// which (possibly overlapping) layer was picked. Ignore stray picks on other
+		// entities that merely carry the same attribute.
+		const code = String(rawCode);
+		const zoneEntity = this.zoneEntityIndex.get(code);
+		if (!zoneEntity) return;
+
+		this.toggleZone(code, zoneEntity);
 	}
 
 	/** Add or remove a zone from the selection. */
@@ -179,7 +195,8 @@ export class ZonalStatisticsController {
 			this.removeHighlight(code);
 			this.selectedZones.set(current.filter((z) => z.code !== code));
 		} else {
-			if (entity) this.addHighlight(code, entity);
+			const zoneEntity = entity ?? this.zoneEntityIndex.get(code);
+			if (zoneEntity) this.addHighlight(code, zoneEntity);
 			this.selectedZones.set([...current, { code }]);
 		}
 	}
@@ -212,7 +229,7 @@ export class ZonalStatisticsController {
 	}
 
 	/**
-	 * Mark the zone currently shown in the passport table so it gets a light blue
+	 * Mark the zone currently shown in the table so it gets a light blue
 	 * outline while the other selected zones stay yellow.
 	 */
 	public setActiveZone(code: string | undefined): void {
@@ -254,73 +271,56 @@ export class ZonalStatisticsController {
 		return this.toOptionalString(props?.[attribute]);
 	}
 
-	/** Build one passport row for a resolved data layer across selected zones. */
-	private buildPassportRow(
-		dl: ResolvedDataLayer,
-		zones: Array<string>,
-		valueTooltipAttr: string | undefined,
-		targetAttr: string | undefined,
-		targetTooltipAttr: string | undefined
-	): PassportRow {
+	/** Build one table row for a resolved data layer across selected zones. */
+	private buildTableRow(dl: ResolvedDataLayer, zones: Array<string>): ZoneTableRow {
 		const index = this.valueIndex.get(dl.layerId);
-		const values: Record<string, string | undefined> = {};
-		const valueTooltips: Record<string, string | undefined> = {};
-		const targets: Record<string, string | undefined> = {};
-		const targetTooltips: Record<string, string | undefined> = {};
+		const columns = this.settings.columns;
+		const values: Record<string, Array<string | undefined>> = {};
+		const tooltips: Record<string, Array<string | undefined>> = {};
 
 		for (const code of zones) {
 			const props = index?.get(code);
-			values[code] = this.toOptionalString(props?.[dl.attribute]);
-			valueTooltips[code] = this.readOptionalAttribute(props, valueTooltipAttr);
-			targets[code] = this.readOptionalAttribute(props, targetAttr);
-			targetTooltips[code] = this.readOptionalAttribute(props, targetTooltipAttr);
+			values[code] = columns.map((c) => this.toOptionalString(props?.[c.attribute]));
+			tooltips[code] = columns.map((c) => this.readOptionalAttribute(props, c.tooltipAttribute));
 		}
 
 		return {
 			layerId: dl.layerId,
 			title: dl.title,
 			values,
-			valueTooltips,
-			targets,
-			targetTooltips
+			tooltips
 		};
 	}
 
 	/**
-	 * Build the passport table for the current selection: one row per configured
-	 * data layer, one column per selected zone, plus a target label per row.
+	 * Build the zone table for the current selection: one row per configured
+	 * data layer and one configured column per selected zone.
 	 */
-	public buildPassport(): Passport {
+	public buildTable(): ZoneTable {
 		const zones = get(this.selectedZones).map((z) => z.code);
-		const valueTooltipAttr = this.settings.labelTooltipAttribute;
-		const targetAttr = this.settings.targetLabelAttribute;
-		const targetTooltipAttr = this.settings.targetLabelTooltipAttribute;
-
-		const rows: Array<PassportRow> = this.dataLayers.map((dl) =>
-			this.buildPassportRow(dl, zones, valueTooltipAttr, targetAttr, targetTooltipAttr)
-		);
-
+		const rows: Array<ZoneTableRow> = this.dataLayers.map((dl) => this.buildTableRow(dl, zones));
 		return { zones, rows };
 	}
 
 	/**
-	 * Flatten the current passport table to export rows.
-	 * Export always reflects the currently visible passport state.
-	 * Row order is postcode-first so all entries for the same postcode stay grouped.
+	 * Flatten the current zone table to export rows.
+	 * Export always reflects the currently visible table state.
+	 * Row order is zone-first so all entries for the same zone stay grouped.
 	 */
 	public buildExportRows(): Array<ZonalStatisticsExportRow> {
-		const passport = this.buildPassport();
+		const table = this.buildTable();
+		const columnCount = this.settings.columns.length;
 		const exportRows: Array<ZonalStatisticsExportRow> = [];
 
-		for (const zone of passport.zones) {
-			for (const row of passport.rows) {
+		for (const zone of table.zones) {
+			for (const row of table.rows) {
+				const values = row.values[zone] ?? [];
+				const tooltips = row.tooltips[zone] ?? [];
 				exportRows.push({
-					postcode: zone,
+					zoneCode: zone,
 					layerTitle: row.title,
-					currentLabel: row.values[zone] ?? "",
-					currentCategoryDescription: row.valueTooltips[zone] ?? "",
-					targetLabel: row.targets[zone] ?? "",
-					targetCategoryDescription: row.targetTooltips[zone] ?? ""
+					values: Array.from({ length: columnCount }, (_, i) => values[i] ?? ""),
+					tooltips: Array.from({ length: columnCount }, (_, i) => tooltips[i] ?? "")
 				});
 			}
 		}
@@ -335,7 +335,6 @@ export class ZonalStatisticsController {
 
 	/** Detach listeners and remove highlight graphics. */
 	public destroy(): void {
-		this.unsubscribers.forEach((unsub) => unsub());
 		if (this.clickHandler) {
 			this.map.off("mouseLeftClick", this.clickHandler as (n: unknown) => unknown);
 			this.clickHandler = undefined;

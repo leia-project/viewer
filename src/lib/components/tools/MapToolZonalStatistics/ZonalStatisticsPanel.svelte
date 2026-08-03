@@ -6,12 +6,15 @@
 	import LayerControl from "../MapToolLayerManager/MapToolLayerControl.svelte";
 
 	export let controller: ZonalStatisticsController;
+	export let title: string;
 
 	const resolvedDataLayers = controller.resolvedDataLayers;
 </script>
 
 <div class="panel">
-	<div class="panel-header heading-01">{$_("tools.zonalStatistics.label")}</div>
+	<div class="panel-header heading-01">{title}</div>
+
+	<div class="instructions body-compact-01">{$_("tools.zonalStatistics.instructions")}</div>
 
 	{#if $resolvedDataLayers.length === 0}
 		<div class="empty body-compact-01">{$_("tools.zonalStatistics.noDataLayers")}</div>
@@ -34,6 +37,11 @@
 	}
 
 	.panel-header {
+		margin-bottom: var(--cds-spacing-02);
+	}
+
+	.instructions {
+		color: var(--cds-text-secondary);
 		margin-bottom: var(--cds-spacing-02);
 	}
 

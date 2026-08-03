@@ -3,7 +3,7 @@
 	import { fade } from "svelte/transition";
 	import { _ } from "svelte-i18n";
 	import { TooltipDefinition } from "carbon-components-svelte";
-	import { Close, Download, GeneratePdf, TrashCan } from "carbon-icons-svelte";
+	import { Close, Download, TrashCan } from "carbon-icons-svelte";
 	import { toJpeg, toPng } from "html-to-image";
 	import { jsPDF } from "jspdf";
 	import {
@@ -16,53 +16,89 @@
 		loadPdfBrandingAssets
 	} from "$lib/components/tools/pdf/pdf-layout";
 
-	import { Button } from "carbon-components-svelte";
+	import { Button, OverflowMenu, OverflowMenuItem } from "carbon-components-svelte";
 	import type {
-		Passport,
+		ZoneTable,
 		ZonalStatisticsController,
 		ZonalStatisticsExportRow
 	} from "./zonal-statistics-controller";
 
 	export let controller: ZonalStatisticsController;
+	export let title: string;
 
 	const dispatch = createEventDispatcher();
 
-	let passport: Passport = { zones: [], rows: [] };
+	const settings = controller.settings;
+	const columns = settings.columns;
+
+	function columnLabel(index: number): string {
+		const column = columns[index];
+		return column?.label ?? column?.attribute ?? "";
+	}
+
+	let table: ZoneTable = { zones: [], rows: [] };
 	let activeCode: string | undefined;
 	let show = true;
 	let exportingImage = false;
 	let exportingPdf = false;
-	let passportTableElement: HTMLTableElement | undefined;
+	let tableElement: HTMLTableElement | undefined;
 
 	$: exportInProgress = exportingImage || exportingPdf;
 
 	const unsubscribe = controller.selectedZones.subscribe(() => {
-		passport = controller.buildPassport();
+		table = controller.buildTable();
 		// Drop the active zone if it is no longer selected.
-		if (activeCode && !passport.zones.includes(activeCode)) {
+		if (activeCode && !table.zones.includes(activeCode)) {
 			activeCode = undefined;
 		}
 	});
 
 	$: controller.setActiveZone(activeCode);
 
-	function labelClassFor(value: string | undefined): string {
-		if (!value) return "";
-		const normalized = String(value).trim().toUpperCase();
-		switch (normalized) {
-			case "A":
-				return "label-a";
-			case "B":
-				return "label-b";
-			case "C":
-				return "label-c";
-			case "D":
-				return "label-d";
-			case "E":
-				return "label-e";
-			default:
-				return "";
-		}
+	// value (upper-cased) -> configured style, for cell colours + legend.
+	const valueStyleMap = new Map(settings.valueStyles.map((s) => [s.value.trim().toUpperCase(), s]));
+
+	function styleFor(value: string | undefined) {
+		if (!value) return undefined;
+		return valueStyleMap.get(String(value).trim().toUpperCase());
+	}
+
+	function cellStyle(value: string | undefined, columnIndex: number): string {
+		if (!columns[columnIndex]?.styled) return "";
+		const s = styleFor(value);
+		if (!s) return "";
+		return `background-color: ${s.color};${s.textColor ? ` color: ${s.textColor};` : ""}`;
+	}
+
+	function hexToRgb(hex: string): [number, number, number] | undefined {
+		const h = hex.trim().replace(/^#/, "");
+		const parts =
+			h.length === 3
+				? [h[0] + h[0], h[1] + h[1], h[2] + h[2]]
+				: h.length === 6
+					? [h.slice(0, 2), h.slice(2, 4), h.slice(4, 6)]
+					: undefined;
+		if (!parts) return undefined;
+		const rgb = parts.map((p) => parseInt(p, 16));
+		return rgb.some((n) => Number.isNaN(n)) ? undefined : (rgb as [number, number, number]);
+	}
+
+	// PDF cell colour for a value (hex colours only; other CSS colours render plain in the PDF).
+	function pdfColor(value: string) {
+		const s = styleFor(value);
+		if (!s) return undefined;
+		const fill = hexToRgb(s.color);
+		if (!fill) return undefined;
+		const text = (s.textColor && hexToRgb(s.textColor)) || [0, 0, 0];
+		return { fill, text: text as [number, number, number] };
+	}
+
+	function exportTitle(): string {
+		return settings.exportTitle ?? title;
+	}
+
+	function fileNamePrefix(): string {
+		return (settings.exportFileName ?? title ?? "zonal-statistics").replace(/[^\w.-]+/g, "_");
 	}
 
 	function toggleActive(code: string) {
@@ -84,15 +120,11 @@
 
 	const layout = A4_PORTRAIT_LAYOUT;
 	const metrics = getPdfLayoutMetrics(layout);
-	const branding = {
-		...DEFAULT_PDF_BRANDING,
-		footerText: "Provincie Zeeland - Klimaatlabels"
-	};
 
 	function addPdfHeaderBlock(doc: jsPDF, startY: number): number {
 		doc.setFont("helvetica", "bold");
 		doc.setFontSize(14);
-		doc.text($_("tools.zonalStatistics.exportPdfTitle"), layout.margin, startY);
+		doc.text(exportTitle(), layout.margin, startY);
 
 		doc.setFont("helvetica", "normal");
 		doc.setFontSize(9);
@@ -104,24 +136,52 @@
 		return startY + 12;
 	}
 
-	function drawPdfTableHeader(doc: jsPDF, x: number, y: number, widths: Array<number>): number {
-		const headers = [
-			$_("tools.zonalStatistics.exportPostcode"),
-			$_("tools.zonalStatistics.exportLayer"),
-			$_("tools.zonalStatistics.exportCurrentLabel"),
-			$_("tools.zonalStatistics.exportCurrentCategory"),
-			$_("tools.zonalStatistics.exportTargetLabel"),
-			$_("tools.zonalStatistics.exportTargetCategory")
-		];
+	interface PdfColumn {
+		header: string;
+		width: number;
+		get: (r: ZonalStatisticsExportRow) => string;
+		colored?: boolean;
+	}
 
+	// Columns are built from config: zone + layer, then each configured column
+	// (plus a description column when the column has a tooltip attribute).
+	function pdfColumns(): Array<PdfColumn> {
+		const cols: Array<PdfColumn> = [
+			{ header: $_("tools.zonalStatistics.exportZone"), width: 20, get: (r) => r.zoneCode },
+			{ header: $_("tools.zonalStatistics.exportLayer"), width: 32, get: (r) => r.layerTitle }
+		];
+		columns.forEach((column, i) => {
+			cols.push({
+				header: columnLabel(i),
+				width: 13,
+				get: (r) => r.values[i] ?? "",
+				colored: column.styled
+			});
+			if (column.tooltipAttribute) {
+				cols.push({
+					header: `${columnLabel(i)} – ${$_("tools.zonalStatistics.exportDescription")}`,
+					width: 45,
+					get: (r) => r.tooltips[i] ?? ""
+				});
+			}
+		});
+		return cols;
+	}
+
+	function drawPdfTableHeader(
+		doc: jsPDF,
+		x: number,
+		y: number,
+		columns: Array<PdfColumn>
+	): number {
 		doc.setFont("helvetica", "bold");
 		doc.setFontSize(9);
 
 		let cursorX = x;
-		for (let i = 0; i < headers.length; i++) {
-			doc.rect(cursorX, y, widths[i], 8);
-			doc.text(headers[i], cursorX + 1.5, y + 5.5, { maxWidth: widths[i] - 3 });
-			cursorX += widths[i];
+		for (const col of columns) {
+			doc.rect(cursorX, y, col.width, 8);
+			doc.text(col.header, cursorX + 1.5, y + 5.5, { maxWidth: col.width - 3 });
+			cursorX += col.width;
 		}
 
 		doc.setFont("helvetica", "normal");
@@ -133,41 +193,40 @@
 		row: ZonalStatisticsExportRow,
 		x: number,
 		y: number,
-		widths: Array<number>,
+		columns: Array<PdfColumn>,
 		lineHeight: number
 	): number {
-		const values = [
-			row.postcode,
-			row.layerTitle,
-			row.currentLabel,
-			row.currentCategoryDescription,
-			row.targetLabel,
-			row.targetCategoryDescription
-		];
-
-		const wrapped = values.map((value, index) =>
-			doc.splitTextToSize(value || "", Math.max(1, widths[index] - 3))
+		const wrapped = columns.map((col) =>
+			doc.splitTextToSize(col.get(row) || "", Math.max(1, col.width - 3))
 		);
 		const rowHeight =
 			Math.max(...wrapped.map((lines) => Math.max(1, lines.length))) * lineHeight + 2;
 
 		let cursorX = x;
-		for (let i = 0; i < values.length; i++) {
-			doc.rect(cursorX, y, widths[i], rowHeight);
+		columns.forEach((col, i) => {
+			const color = col.colored ? pdfColor(col.get(row)) : undefined;
+			if (color) {
+				doc.setFillColor(color.fill[0], color.fill[1], color.fill[2]);
+				doc.rect(cursorX, y, col.width, rowHeight, "FD");
+				doc.setTextColor(color.text[0], color.text[1], color.text[2]);
+			} else {
+				doc.rect(cursorX, y, col.width, rowHeight);
+			}
 			doc.text(wrapped[i], cursorX + 1.5, y + 4);
-			cursorX += widths[i];
-		}
+			if (color) doc.setTextColor(0, 0, 0);
+			cursorX += col.width;
+		});
 
 		return y + rowHeight;
 	}
 
-	function groupRowsByPostcode(rows: Array<ZonalStatisticsExportRow>) {
-		const groups: Array<{ postcode: string; rows: Array<ZonalStatisticsExportRow> }> = [];
+	function groupRowsByZone(rows: Array<ZonalStatisticsExportRow>) {
+		const groups: Array<{ zoneCode: string; rows: Array<ZonalStatisticsExportRow> }> = [];
 		for (const row of rows) {
-			const postcode = row.postcode || "";
+			const zoneCode = row.zoneCode || "";
 			const existingGroup = groups[groups.length - 1];
-			if (!existingGroup || existingGroup.postcode !== postcode) {
-				groups.push({ postcode, rows: [row] });
+			if (!existingGroup || existingGroup.zoneCode !== zoneCode) {
+				groups.push({ zoneCode, rows: [row] });
 			} else {
 				existingGroup.rows.push(row);
 			}
@@ -184,50 +243,47 @@
 		try {
 			exportingPdf = true;
 
-			const brandingAssets = await loadPdfBrandingAssets(branding);
+			const brandingAssets = await loadPdfBrandingAssets({
+				leftLogoPath: settings.pdfLeftLogo ?? DEFAULT_PDF_BRANDING.leftLogoPath,
+				footerText: settings.pdfFooterText ?? DEFAULT_PDF_BRANDING.footerText
+			});
 
 			const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 			const lineHeight = 4;
-			const widths = [20, 32, 13, 45, 13, 45];
+			const columns = pdfColumns();
 
 			drawPdfPageHeader(doc, layout, brandingAssets);
 			let y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
-			y = drawPdfTableHeader(doc, layout.margin, y, widths);
+			y = drawPdfTableHeader(doc, layout.margin, y, columns);
 
-			const postcodeGroups = groupRowsByPostcode(rows);
-			for (let groupIndex = 0; groupIndex < postcodeGroups.length; groupIndex++) {
+			const zoneGroups = groupRowsByZone(rows);
+			for (let groupIndex = 0; groupIndex < zoneGroups.length; groupIndex++) {
 				if (groupIndex > 0) {
 					addPdfPageWithHeader(doc, layout, brandingAssets);
 					y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
-					y = drawPdfTableHeader(doc, layout.margin, y, widths);
+					y = drawPdfTableHeader(doc, layout.margin, y, columns);
 				}
 
-				for (const row of postcodeGroups[groupIndex].rows) {
-					const sampleLines = [
-						doc.splitTextToSize(row.postcode || "", widths[0] - 3),
-						doc.splitTextToSize(row.layerTitle || "", widths[1] - 3),
-						doc.splitTextToSize(row.currentLabel || "", widths[2] - 3),
-						doc.splitTextToSize(row.currentCategoryDescription || "", widths[3] - 3),
-						doc.splitTextToSize(row.targetLabel || "", widths[4] - 3),
-						doc.splitTextToSize(row.targetCategoryDescription || "", widths[5] - 3)
-					];
+				for (const row of zoneGroups[groupIndex].rows) {
+					const sampleLines = columns.map((col) =>
+						doc.splitTextToSize(col.get(row) || "", col.width - 3)
+					);
 					const nextRowHeight =
 						Math.max(...sampleLines.map((lines) => Math.max(1, lines.length))) * lineHeight + 2;
 
 					if (y + nextRowHeight > metrics.bottomLimit) {
 						addPdfPageWithHeader(doc, layout, brandingAssets);
 						y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
-						y = drawPdfTableHeader(doc, layout.margin, y, widths);
+						y = drawPdfTableHeader(doc, layout.margin, y, columns);
 					}
 
-					y = drawPdfRow(doc, row, layout.margin, y, widths, lineHeight);
+					y = drawPdfRow(doc, row, layout.margin, y, columns, lineHeight);
 				}
 			}
 
-			drawPdfFooters(doc, layout, brandingAssets, "Pagina");
+			drawPdfFooters(doc, layout, brandingAssets, $_("tools.zonalStatistics.exportPage"));
 
-			const filename = `Klimaatlabels_${formatTimestamp(new Date())}.pdf`;
-			doc.save(filename);
+			doc.save(`${fileNamePrefix()}_${formatTimestamp(new Date())}.pdf`);
 		} finally {
 			exportingPdf = false;
 		}
@@ -235,14 +291,14 @@
 
 	async function exportImage(format: "png" | "jpeg") {
 		if (exportInProgress) return;
-		if (!passportTableElement) return;
+		if (!tableElement) return;
 
 		try {
 			exportingImage = true;
 			await tick();
 
-			const width = passportTableElement.scrollWidth;
-			const height = passportTableElement.scrollHeight;
+			const width = tableElement.scrollWidth;
+			const height = tableElement.scrollHeight;
 			const options = {
 				cacheBust: true,
 				pixelRatio: 2,
@@ -256,12 +312,12 @@
 			};
 			const dataUrl =
 				format === "jpeg"
-					? await toJpeg(passportTableElement, { ...options, quality: 0.95 })
-					: await toPng(passportTableElement, options);
+					? await toJpeg(tableElement, { ...options, quality: 0.95 })
+					: await toPng(tableElement, options);
 
 			const link = document.createElement("a");
 			link.href = dataUrl;
-			link.download = `Klimaatlabels_${formatTimestamp(new Date())}.${format}`;
+			link.download = `${fileNamePrefix()}_${formatTimestamp(new Date())}.${format}`;
 			link.click();
 		} catch (error) {
 			console.error(`zonalStatistics: failed to export table as ${format.toUpperCase()}`, error);
@@ -292,7 +348,7 @@
 {#if show}
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
 	<div
-		class="passport"
+		class="zonal-panel"
 		in:fade={{ delay: 0, duration: 150 }}
 		out:fade={{ delay: 0, duration: 150 }}
 		on:click={(e) => {
@@ -302,36 +358,20 @@
 		role="presentation"
 	>
 		<div class="header">
-			<div class="heading-01">{$_("tools.zonalStatistics.label")}</div>
+			<div class="heading-01">{title}</div>
 			<div class="actions">
-				{#if passport.zones.length > 0}
-					<Button
-						kind="ghost"
+				{#if table.zones.length > 0}
+					<OverflowMenu
 						icon={Download}
-						size="small"
-						iconDescription={$_("tools.zonalStatistics.exportPng")}
-						tooltipPosition="left"
+						flipped
+						size="sm"
+						iconDescription={$_("tools.zonalStatistics.exportMenu")}
 						disabled={exportInProgress}
-						on:click={exportPng}
-					/>
-					<Button
-						kind="ghost"
-						icon={Download}
-						size="small"
-						iconDescription={$_("tools.zonalStatistics.exportJpeg")}
-						tooltipPosition="left"
-						disabled={exportInProgress}
-						on:click={exportJpeg}
-					/>
-					<Button
-						kind="ghost"
-						icon={GeneratePdf}
-						size="small"
-						iconDescription={$_("tools.zonalStatistics.exportPdf")}
-						tooltipPosition="left"
-						disabled={exportInProgress}
-						on:click={exportPdf}
-					/>
+					>
+						<OverflowMenuItem text="PNG" on:click={exportPng} />
+						<OverflowMenuItem text="JPEG" on:click={exportJpeg} />
+						<OverflowMenuItem text="PDF" on:click={exportPdf} />
+					</OverflowMenu>
 					<Button
 						kind="ghost"
 						icon={TrashCan}
@@ -353,83 +393,87 @@
 		</div>
 
 		<div class="content">
-			{#if passport.zones.length === 0}
+			{#if table.zones.length === 0}
 				<div class="no-selection body-compact-01">
 					{$_("tools.zonalStatistics.noSelection")}
 				</div>
 			{:else}
-				<table class="passport-table" bind:this={passportTableElement}>
+				<table class="zonal-table" bind:this={tableElement}>
+					<caption class="bx--visually-hidden">{$_("tools.zonalStatistics.tableCaption")}</caption>
 					<thead>
 						<tr>
 							<th class="row-head" rowspan="2" />
-							{#each passport.zones as code (code)}
+							{#each table.zones as code (code)}
 								<th
 									class="zone-head"
 									class:active={code === activeCode}
-									colspan="2"
-									role="button"
-									tabindex="0"
-									on:click={() => toggleActive(code)}
-									on:keydown={(e) => {
-										if (e.key === "Enter" || e.key === " ") {
-											e.preventDefault();
-											toggleActive(code);
-										}
-									}}
+									colspan={columns.length}
 								>
-									{code}
+									<div class="zone-head-inner">
+										<button
+											type="button"
+											class="zone-code"
+											aria-pressed={code === activeCode}
+											title={$_("tools.zonalStatistics.activateZoneHint")}
+											on:click={() => toggleActive(code)}
+										>
+											{code}
+										</button>
+										{#if !exportingImage}
+											<button
+												type="button"
+												class="zone-remove"
+												aria-label={$_("tools.zonalStatistics.removeZone")}
+												title={$_("tools.zonalStatistics.removeZone")}
+												on:click={() => controller.toggleZone(code)}
+											>
+												<Close size={16} />
+											</button>
+										{/if}
+									</div>
 								</th>
 							{/each}
 						</tr>
 						<tr>
-							{#each passport.zones as code (code)}
-								<th class="sub-head" class:active={code === activeCode}>
-									{$_("tools.zonalStatistics.currentLabel")}
-								</th>
-								<th class="sub-head target" class:active={code === activeCode}>
-									{$_("tools.zonalStatistics.targetLabel")}
-								</th>
+							{#each table.zones as code (code)}
+								{#each columns as column, i (i)}
+									<th
+										class="sub-head"
+										class:last-col={i === columns.length - 1}
+										class:active={code === activeCode}
+									>
+										{columnLabel(i)}
+									</th>
+								{/each}
 							{/each}
 						</tr>
 					</thead>
 					<tbody>
-						{#each passport.rows as row (row.layerId)}
+						{#each table.rows as row (row.layerId)}
 							<tr>
 								<th class="row-head" scope="row">{row.title}</th>
-								{#each passport.zones as code (code)}
-									<td
-										class={`value ${labelClassFor(row.values[code])}`}
-										class:active={code === activeCode}
-									>
-										{#if row.valueTooltips[code] && !exportingImage}
-											<TooltipDefinition
-												class="cell-tooltip"
-												direction="top"
-												tooltipText={row.valueTooltips[code]}
-											>
-												{row.values[code] ?? "–"}
-											</TooltipDefinition>
-										{:else}
-											{row.values[code] ?? "–"}
-										{/if}
-									</td>
-									<td
-										class={`value target ${labelClassFor(row.targets[code])}`}
-										class:active={code === activeCode}
-									>
-										{#if row.targetTooltips[code] && !exportingImage}
-											<TooltipDefinition
-												class="cell-tooltip"
-												align="end"
-												direction="top"
-												tooltipText={row.targetTooltips[code]}
-											>
-												{row.targets[code] ?? "–"}
-											</TooltipDefinition>
-										{:else}
-											{row.targets[code] ?? "–"}
-										{/if}
-									</td>
+								{#each table.zones as code (code)}
+									{#each columns as column, i (i)}
+										<td
+											class="value"
+											class:last-col={i === columns.length - 1}
+											class:active={code === activeCode}
+											style={cellStyle(row.values[code]?.[i], i)}
+										>
+											{#if row.tooltips[code]?.[i] && !exportingImage}
+												<TooltipDefinition
+													class="cell-tooltip"
+													align={i === columns.length - 1 ? "end" : "start"}
+													direction="top"
+													tooltipText={row.tooltips[code][i]}
+												>
+													{row.values[code]?.[i] ?? "–"}
+												</TooltipDefinition>
+											{:else}
+												{row.values[code]?.[i] ?? "–"}
+											{/if}
+										</td>
+									{/each}
 								{/each}
 							</tr>
 						{/each}
@@ -437,11 +481,29 @@
 				</table>
 			{/if}
 		</div>
+
+		{#if settings.valueStyles.length > 0}
+			<div class="legend">
+				<span class="legend-title body-compact-01"
+					>{$_("tools.zonalStatistics.legendTitle")}</span
+				>
+				{#each settings.valueStyles as style (style.value)}
+					<span
+						class="legend-chip"
+						style="background-color: {style.color};{style.textColor
+							? ` color: ${style.textColor};`
+							: ''}"
+					>
+						{style.label ?? style.value}
+					</span>
+				{/each}
+			</div>
+		{/if}
 	</div>
 {/if}
 
 <style>
-	.passport {
+	.zonal-panel {
 		position: absolute;
 		top: var(--cds-spacing-05);
 		right: var(--cds-spacing-05);
@@ -472,26 +534,52 @@
 		overflow: auto;
 	}
 
+	.legend {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: var(--cds-spacing-02);
+		padding: var(--cds-spacing-03) var(--cds-spacing-05);
+		border-top: 1px solid var(--cds-ui-03);
+	}
+
+	.legend-title {
+		color: var(--cds-text-secondary);
+		margin-right: var(--cds-spacing-02);
+	}
+
+	.legend-chip {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 1.25rem;
+		height: 1.25rem;
+		padding: 0 var(--cds-spacing-02);
+		border-radius: 2px;
+		font-size: 0.75rem;
+		font-weight: 600;
+	}
+
 	.no-selection {
 		color: var(--cds-text-secondary);
 		padding: var(--cds-spacing-05);
 	}
 
-	.passport-table {
+	.zonal-table {
 		border-collapse: collapse;
 		width: 100%;
 		font-size: 0.875rem;
 	}
 
-	.passport-table th,
-	.passport-table td {
+	.zonal-table th,
+	.zonal-table td {
 		padding: var(--cds-spacing-03) var(--cds-spacing-05);
 		border-bottom: 1px solid var(--cds-ui-03);
 		text-align: center;
 		white-space: nowrap;
 	}
 
-	.passport-table .row-head {
+	.zonal-table .row-head {
 		text-align: left;
 		font-weight: 600;
 		position: sticky;
@@ -502,11 +590,44 @@
 
 	.zone-head {
 		font-weight: 600;
-		cursor: pointer;
 		border-left: 2px solid var(--cds-ui-03);
 	}
 
-	.zone-tooltip :global(.bx--tooltip__trigger) {
+	.zone-head-inner {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--cds-spacing-02);
+	}
+
+	.zone-code {
+		background: none;
+		border: 0;
+		color: inherit;
+		cursor: pointer;
+		font: inherit;
+		font-weight: 600;
+		padding: 0;
+	}
+
+	.zone-code[aria-pressed="true"] {
+		text-decoration: underline;
+	}
+
+	.zone-remove {
+		background: none;
+		border: 0;
+		color: var(--cds-text-secondary);
+		cursor: pointer;
+		display: inline-flex;
+		padding: 0;
+	}
+
+	.zone-remove:hover {
+		color: var(--cds-text-primary);
+	}
+
+	:global(.cell-tooltip .bx--tooltip__trigger) {
 		background: none;
 		border: 0;
 		color: inherit;
@@ -516,21 +637,7 @@
 		padding: 0;
 	}
 
-	.zone-tooltip :global(.bx--tooltip__trigger--definition) {
-		white-space: nowrap;
-	}
-
-	.cell-tooltip :global(.bx--tooltip__trigger) {
-		background: none;
-		border: 0;
-		color: inherit;
-		cursor: help;
-		display: inline-flex;
-		font: inherit;
-		padding: 0;
-	}
-
-	.cell-tooltip :global(.bx--tooltip__trigger--definition) {
+	:global(.cell-tooltip .bx--tooltip__trigger--definition) {
 		white-space: nowrap;
 	}
 
@@ -539,8 +646,8 @@
 		color: var(--cds-text-secondary);
 	}
 
-	.sub-head.target,
-	.value.target {
+	.sub-head.last-col,
+	.value.last-col {
 		border-right: 1px solid var(--cds-ui-03);
 	}
 
@@ -548,31 +655,6 @@
 	.sub-head.active,
 	.value.active {
 		background-color: var(--cds-highlight, #d0e2ff);
-	}
-
-	.value.label-a {
-		background-color: #44ce1b;
-		color: #ffffff;
-	}
-
-	.value.label-b {
-		background-color: #bbdb44;
-		color: #161616;
-	}
-
-	.value.label-c {
-		background-color: #f7e379;
-		color: #161616;
-	}
-
-	.value.label-d {
-		background-color: #f2a134;
-		color: #161616;
-	}
-
-	.value.label-e {
-		background-color: #e51f1f;
-		color: #ffffff;
 	}
 
 	.value.active {

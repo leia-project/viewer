@@ -1146,6 +1146,55 @@ Tool to calculate and visualize car isochrones (travel-time areas) around an eco
 
 
 
+#### zonalStatistics
+
+Generic tool to inspect statistics per zone (e.g. per postcode area). The user clicks one or more zone geometries on the map and a floating table appears with one row per configured data layer and one or more configurable columns per selected zone. Each column reads an attribute from the row-layer's feature, so the tool can show categorical labels (colour-styled), numeric statistics, or any mix. The table can be exported as PNG, JPEG or PDF. The tool ships no built-in colours or branding — everything is config-driven.
+
+|value|description|type|
+|-|-|-|
+|zoneLayerId|Id of the layer holding the clickable zone geometries|string|
+|zoneCodeAttribute|Attribute on a zone feature that holds its code (e.g. a postcode). Defaults to `postcode`|string|
+|layers|Data layers shown as table rows. Each entry is `{ id, title? }`; `title` defaults to the layer's config title|array|
+|columns|Columns rendered per selected zone. Each entry is `{ attribute, label?, tooltipAttribute?, styled? }`. `label` defaults to `attribute`; `tooltipAttribute` adds a hover description (and a description column in the PDF); `styled: true` colours the cell using `valueStyles`|array|
+|valueStyles|Optional value-to-colour map for styled columns. Each entry is `{ value, color, textColor?, label? }`. Drives styled cell backgrounds, the legend and PDF cell fills (PDF fills require HEX colours; other CSS colours render plain in the PDF)|array|
+|exportTitle|Optional title used for exports. Defaults to the tool title/alias|string|
+|exportFileName|Optional file-name prefix for exports. Defaults to the tool title/alias|string|
+|pdfFooterText|Optional footer text drawn on exported PDFs|string|
+|pdfLeftLogo|Optional left logo image path for exported PDFs|string|
+
+```json
+{
+	"id": "zonalStatistics",
+	"enabled": true,
+	"settings": {
+		"alias": "Labelpaspoort",
+		"zoneLayerId": "999a",
+		"zoneCodeAttribute": "Pc6",
+		"exportTitle": "Klimaatlabels",
+		"exportFileName": "Klimaatlabels",
+		"pdfFooterText": "Provincie Zeeland - Klimaatlabels",
+		"pdfLeftLogo": "/images/Zeeland_logo.png",
+		"columns": [
+			{ "attribute": "label", "label": "Huidig", "tooltipAttribute": "category", "styled": true },
+			{ "attribute": "ambitie_label", "label": "Ambitie", "tooltipAttribute": "ambitie_category", "styled": true }
+		],
+		"valueStyles": [
+			{ "value": "A", "color": "#44ce1b", "textColor": "#ffffff" },
+			{ "value": "B", "color": "#bbdb44", "textColor": "#161616" },
+			{ "value": "C", "color": "#f7e379", "textColor": "#161616" },
+			{ "value": "D", "color": "#f2a134", "textColor": "#161616" },
+			{ "value": "E", "color": "#e51f1f", "textColor": "#ffffff" }
+		],
+		"layers": [
+			{ "id": "999a" },
+			{ "id": "999b" }
+		]
+	}
+}
+```
+
+
+
 #### language
 
 Header tool to enable switching between different languages. If this tool is not included or disabled, Dutch is used.

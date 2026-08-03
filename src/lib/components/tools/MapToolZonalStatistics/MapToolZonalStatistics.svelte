@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getContext, onMount } from "svelte";
+	import { getContext, onDestroy, onMount } from "svelte";
 	import { TableAlias } from "carbon-icons-svelte";
 
 	import { MapToolMenuOption } from "../MapToolMenuOption";
@@ -26,11 +26,12 @@
 
 	let controller: ZonalStatisticsController | undefined;
 	let view: ZonalStatisticsView | undefined;
+	let configLoadedUnsub: (() => void) | undefined;
 
 	onMount(() => {
 		if (!map) return;
 
-		map.configLoaded.subscribe((loaded: boolean) => {
+		configLoadedUnsub = map.configLoaded.subscribe((loaded: boolean) => {
 			if (!loaded || !map.ready || controller) return;
 
 			const toolConfig = map.config.tools.find((t: any) => t.id === id);
@@ -38,11 +39,20 @@
 			if (!settings) return;
 
 			controller = new ZonalStatisticsController(map, settings);
-			controller.initialize();
+			controller.initialize().then(() => {
+				// Activate now if the tool was already selected before the controller was ready.
+				if ($selectedTool === tool) setActive(true);
+			});
 		});
 	});
 
-	// Activate selection + show the floating passport while the tool is open.
+	onDestroy(() => {
+		configLoadedUnsub?.();
+		destroyView();
+		controller?.destroy();
+	});
+
+	// Activate selection + show the floating table while the tool is open.
 	$: setActive($selectedTool === tool);
 
 	function setActive(active: boolean): void {
@@ -62,10 +72,14 @@
 	function enableConfiguredLayers(): void {
 		if (!controller) return;
 
-		for (const cfg of controller.settings.layers) {
-			const layer = map.getLayerById(cfg.id);
+		// Include the zone layer so its clickable geometry is actually visible.
+		const layerIds = new Set<string>([controller.settings.zoneLayerId]);
+		for (const cfg of controller.settings.layers) layerIds.add(cfg.id);
+
+		for (const layerId of layerIds) {
+			const layer = map.getLayerById(layerId);
 			if (!layer) {
-				console.warn(`zonalStatistics: configured layer '${cfg.id}' not found while activating`);
+				console.warn(`zonalStatistics: configured layer '${layerId}' not found while activating`);
 				continue;
 			}
 
@@ -77,7 +91,7 @@
 		if (view || !controller) return;
 		view = new ZonalStatisticsView({
 			target: getMapContainer(),
-			props: { controller }
+			props: { controller, title: label }
 		});
 		view.$on("remove", () => {
 			destroyView();
@@ -95,5 +109,5 @@
 </script>
 
 {#if $selectedTool === tool && controller}
-	<ZonalStatisticsPanel {controller} />
+	<ZonalStatisticsPanel {controller} title={label} />
 {/if}
