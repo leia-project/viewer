@@ -17,11 +17,39 @@
 			"MIT"
 		),
 		new Attribution(
+			"fontsource/fira-mono",
+			"Monospace font used in our application",
+			"Google Inc.",
+			"https://github.com/fontsource/font-files",
+			"OFL-1.1"
+		),
+		new Attribution(
 			"sass",
 			"Used to compile SCSS stylesheets.",
 			"sass",
 			"https://github.com/sass/dart-sass",
 			"MIT"
+		),
+		new Attribution(
+			"carbon-preprocess-svelte",
+			"Used to optimize Carbon component imports at build time.",
+			"Eric Liu",
+			"https://github.com/carbon-design-system/carbon-preprocess-svelte",
+			"Apache-2.0"
+		),
+		new Attribution(
+			"vite-plugin-static-copy",
+			"Used to copy Cesium static assets into the build.",
+			"sapphi-red",
+			"https://github.com/sapphi-red/vite-plugin-static-copy",
+			"MIT"
+		),
+		new Attribution(
+			"dotenv",
+			"Used to load environment variables from the .env file at build time.",
+			"motdotla",
+			"https://github.com/motdotla/dotenv",
+			"BSD-2-Clause"
 		),
 		new Attribution(
 			"carbon-components-svelte",
@@ -99,6 +127,20 @@
 			"Cesium GS, Inc.",
 			"https://github.com/CesiumGS/cesium",
 			"Apache-2.0"
+		),
+		new Attribution(
+			"turf",
+			"Used for geospatial calculations (clipping, isochrones, WFS/OGC feature processing).",
+			"Turf Authors",
+			"https://github.com/Turfjs/turf",
+			"MIT"
+		),
+		new Attribution(
+			"d3-delaunay",
+			"Used to build Delaunay triangulations for the flood layer.",
+			"Mike Bostock",
+			"https://github.com/d3/d3-delaunay",
+			"ISC"
 		),
 		new Attribution(
 			"tile-kiln",
