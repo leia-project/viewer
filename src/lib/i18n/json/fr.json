@@ -32,6 +32,9 @@
         "geocoder": {
             "search": "Rechercher emplacement"
         },
+        "chat": {
+            "label": "Chat"
+        },
         "info": {
             "label": "Information",
             "close": "Fermer",
