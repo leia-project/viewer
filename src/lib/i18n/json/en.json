@@ -408,7 +408,12 @@
             "clearSelection": "Clear selection",
             "close": "Close",
             "noSelection": "Click one or more highlighted areas on the map to view their statistics.",
-            "noDataLayers": "No data layers configured"
+            "noDataLayers": "No data layers configured",
+            "zonesSelected": "{count} selected",
+            "exporting": "Generating {format}…",
+            "exportFailed": "Export failed. Please try again.",
+            "activateZone": "Highlight zone {code} on the map",
+            "removeZoneAria": "Remove zone {code}"
         }
     },
     "errors": {

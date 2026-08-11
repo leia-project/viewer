@@ -415,7 +415,12 @@
             "clearSelection": "Selectie wissen",
             "close": "Sluiten",
             "noSelection": "Klik op één of meer gemarkeerde gebieden op de kaart om hun statistieken te bekijken.",
-            "noDataLayers": "Geen datalagen geconfigureerd"
+            "noDataLayers": "Geen datalagen geconfigureerd",
+            "zonesSelected": "{count} geselecteerd",
+            "exporting": "{format} genereren…",
+            "exportFailed": "Exporteren mislukt. Probeer het opnieuw.",
+            "activateZone": "Markeer gebied {code} op de kaart",
+            "removeZoneAria": "Gebied {code} verwijderen"
         }
     },
     "errors": {

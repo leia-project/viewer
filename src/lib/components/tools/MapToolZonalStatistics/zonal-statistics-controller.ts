@@ -1,4 +1,4 @@
-import { get, writable, type Writable } from "svelte/store";
+import { get, writable, type Unsubscriber, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 
 import type { Map as CesiumMap } from "$lib/map-cesium/map";
@@ -80,6 +80,10 @@ export class ZonalStatisticsController {
 
 	/** Dedicated data source that draws outlines around selected zones. */
 	private highlightSource: Cesium.CustomDataSource | undefined;
+	/** Dedicated data source that draws a thin black outline around every zone feature. */
+	private zoneOutlineSource: Cesium.CustomDataSource | undefined;
+	/** Unsubscriber keeping the zone-outline visibility in sync with the zone layer. */
+	private zoneVisibleUnsub: Unsubscriber | undefined;
 	/** The zone currently shown in the table (drawn light blue). */
 	private activeCode: string | undefined;
 	private clickHandler: ((l: MouseLocation) => void) | undefined;
@@ -121,6 +125,9 @@ export class ZonalStatisticsController {
 		}
 		this.resolvedDataLayers.set([...this.dataLayers]);
 
+		// Add the outline source first so the highlight source (added later) draws on top.
+		this.addZoneOutlines();
+
 		this.highlightSource = new Cesium.CustomDataSource(
 			`${this.settings.zoneLayerId}_zonal_highlight`
 		);
@@ -137,6 +144,33 @@ export class ZonalStatisticsController {
 		} catch (error) {
 			console.error(`zonalStatistics: failed to load layer '${layer.config.id}'`, error);
 		}
+	}
+
+	/** Draw a thin black outline around every zone feature, shown while the zone layer is visible. */
+	private addZoneOutlines(): void {
+		if (!this.zoneLayer) return;
+		const source = new Cesium.CustomDataSource(`${this.settings.zoneLayerId}_zonal_outline`);
+		const time = this.map.viewer.clock.currentTime;
+		for (const entity of this.zoneLayer.source?.entities?.values ?? []) {
+			const positions = entity.polygon?.hierarchy?.getValue(time)?.positions;
+			if (!positions) continue;
+			source.entities.add({
+				polyline: {
+					positions,
+					clampToGround: true,
+					width: new Cesium.ConstantProperty(1),
+					material: new Cesium.ColorMaterialProperty(Cesium.Color.BLACK),
+					// Draw above the selection highlight (zIndex 10) so the border stays crisp.
+					zIndex: new Cesium.ConstantProperty(20)
+				}
+			});
+		}
+		this.zoneOutlineSource = source;
+		this.map.viewer.dataSources.add(source);
+		this.zoneVisibleUnsub = this.zoneLayer.visible.subscribe((visible) => {
+			if (this.zoneOutlineSource) this.zoneOutlineSource.show = visible;
+			this.map.refresh();
+		});
 	}
 
 	/** Build a zone-code -> zone-layer entity lookup for resolving click geometry. */
@@ -210,8 +244,10 @@ export class ZonalStatisticsController {
 			polyline: {
 				positions: hierarchy.positions,
 				clampToGround: true,
-				width: new Cesium.ConstantProperty(4),
-				material: new Cesium.ColorMaterialProperty(this.highlightColor(code))
+				width: new Cesium.ConstantProperty(this.highlightWidth(code)),
+				material: new Cesium.ColorMaterialProperty(this.highlightColor(code)),
+				// Above the black zone outlines (zIndex 0); active zone above the other highlights.
+				zIndex: new Cesium.ConstantProperty(this.highlightZIndex(code))
 			}
 		});
 		this.map.refresh();
@@ -223,14 +259,24 @@ export class ZonalStatisticsController {
 		this.map.refresh();
 	}
 
-	/** Colour used for a zone outline: light blue when it is the active zone. */
+	/** Colour used for a zone outline: bright blue when it is the active zone. */
 	private highlightColor(code: string): Cesium.Color {
-		return code === this.activeCode ? Cesium.Color.LIGHTBLUE : Cesium.Color.YELLOW;
+		return code === this.activeCode ? Cesium.Color.DEEPSKYBLUE : Cesium.Color.YELLOW;
+	}
+
+	/** Outline width for a zone: thicker for the active zone so it clearly stands out. */
+	private highlightWidth(code: string): number {
+		return code === this.activeCode ? 7 : 4;
+	}
+
+	/** Draw order for a zone highlight: active zone above the other (yellow) highlights. */
+	private highlightZIndex(code: string): number {
+		return code === this.activeCode ? 20 : 10;
 	}
 
 	/**
-	 * Mark the zone currently shown in the table so it gets a light blue
-	 * outline while the other selected zones stay yellow.
+	 * Mark the zone currently shown in the table so it gets a bright blue,
+	 * thicker outline while the other selected zones stay yellow.
 	 */
 	public setActiveZone(code: string | undefined): void {
 		if (this.activeCode === code) return;
@@ -240,6 +286,8 @@ export class ZonalStatisticsController {
 			if (!entity.polyline || typeof entity.id !== "string") continue;
 			const entityCode = entity.id.replace(/^zonal_/, "");
 			entity.polyline.material = new Cesium.ColorMaterialProperty(this.highlightColor(entityCode));
+			entity.polyline.width = new Cesium.ConstantProperty(this.highlightWidth(entityCode));
+			entity.polyline.zIndex = new Cesium.ConstantProperty(this.highlightZIndex(entityCode));
 		}
 		this.map.refresh();
 	}
@@ -338,6 +386,14 @@ export class ZonalStatisticsController {
 		if (this.clickHandler) {
 			this.map.off("mouseLeftClick", this.clickHandler as (n: unknown) => unknown);
 			this.clickHandler = undefined;
+		}
+		if (this.zoneVisibleUnsub) {
+			this.zoneVisibleUnsub();
+			this.zoneVisibleUnsub = undefined;
+		}
+		if (this.zoneOutlineSource) {
+			this.map.viewer.dataSources.remove(this.zoneOutlineSource, true);
+			this.zoneOutlineSource = undefined;
 		}
 		if (this.highlightSource) {
 			this.map.viewer.dataSources.remove(this.highlightSource, true);

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { createEventDispatcher, onDestroy, tick } from "svelte";
+	import { createEventDispatcher, onDestroy, onMount, tick } from "svelte";
 	import { get } from "svelte/store";
 	import { fade } from "svelte/transition";
 	import { _, locale } from "svelte-i18n";
 	import { TooltipDefinition } from "carbon-components-svelte";
-	import { Close, Download, TrashCan } from "carbon-icons-svelte";
+	import { Close, Download, Location, TrashCan } from "carbon-icons-svelte";
 	import { toJpeg, toPng } from "html-to-image";
 	import { jsPDF } from "jspdf";
 	import {
@@ -17,7 +17,7 @@
 		loadPdfBrandingAssets
 	} from "$lib/components/tools/pdf/pdf-layout";
 
-	import { Button, OverflowMenu, OverflowMenuItem } from "carbon-components-svelte";
+	import { Button, InlineLoading, OverflowMenu, OverflowMenuItem } from "carbon-components-svelte";
 	import type {
 		ZoneTable,
 		ZonalStatisticsController,
@@ -42,9 +42,39 @@
 	let show = true;
 	let exportingImage = false;
 	let exportingPdf = false;
+	let exportingFormat = "";
+	let exportError = false;
+	let errorTimer: ReturnType<typeof setTimeout> | undefined;
 	let tableElement: HTMLTableElement | undefined;
+	let contentEl: HTMLDivElement | undefined;
+	let stickyColWidth = 0;
+	let scroll = { top: false, bottom: false, left: false, right: false };
 
 	$: exportInProgress = exportingImage || exportingPdf;
+	// Recompute the scroll-shadow cues whenever the table content changes.
+	$: if (table) tick().then(updateScrollShadows);
+
+	// Toggle the edge shadows that hint at content scrolled out of view.
+	function updateScrollShadows(): void {
+		const el = contentEl;
+		if (!el) {
+			scroll = { top: false, bottom: false, left: false, right: false };
+			return;
+		}
+		scroll = {
+			top: el.scrollTop > 0,
+			bottom: el.scrollTop + el.clientHeight < el.scrollHeight - 1,
+			left: el.scrollLeft > 0,
+			right: el.scrollLeft + el.clientWidth < el.scrollWidth - 1
+		};
+	}
+
+	// Surface an export failure briefly, then clear it automatically.
+	function flagExportError(): void {
+		exportError = true;
+		if (errorTimer) clearTimeout(errorTimer);
+		errorTimer = setTimeout(() => (exportError = false), 5000);
+	}
 
 	const unsubscribe = controller.selectedZones.subscribe(() => {
 		table = controller.buildTable();
@@ -257,6 +287,8 @@
 		if (rows.length === 0) return;
 
 		try {
+			exportError = false;
+			exportingFormat = "PDF";
 			exportingPdf = true;
 
 			const brandingAssets = await loadPdfBrandingAssets({
@@ -300,8 +332,12 @@
 			drawPdfFooters(doc, layout, brandingAssets, $_("tools.zonalStatistics.exportPage"));
 
 			doc.save(`${fileNamePrefix()}_${formatTimestamp(new Date())}.pdf`);
+		} catch (error) {
+			console.error("zonalStatistics: failed to export table as PDF", error);
+			flagExportError();
 		} finally {
 			exportingPdf = false;
+			exportingFormat = "";
 		}
 	}
 
@@ -310,6 +346,8 @@
 		if (!tableElement) return;
 
 		try {
+			exportError = false;
+			exportingFormat = format.toUpperCase();
 			exportingImage = true;
 			await tick();
 
@@ -337,8 +375,10 @@
 			link.click();
 		} catch (error) {
 			console.error(`zonalStatistics: failed to export table as ${format.toUpperCase()}`, error);
+			flagExportError();
 		} finally {
 			exportingImage = false;
+			exportingFormat = "";
 			await tick();
 		}
 	}
@@ -356,8 +396,15 @@
 		setTimeout(() => dispatch("remove"), 200);
 	}
 
+	onMount(() => {
+		updateScrollShadows();
+		window.addEventListener("resize", updateScrollShadows);
+	});
+
 	onDestroy(() => {
 		unsubscribe();
+		window.removeEventListener("resize", updateScrollShadows);
+		if (errorTimer) clearTimeout(errorTimer);
 	});
 </script>
 
@@ -374,8 +421,24 @@
 		role="presentation"
 	>
 		<div class="header">
-			<div class="heading-01">{title}</div>
+			<div class="heading-01 title">
+				<span class="title-text">{title}</span>
+				{#if table.zones.length > 0}
+					<span class="count-badge">
+						{$_("tools.zonalStatistics.zonesSelected", {
+							values: { count: table.zones.length }
+						})}
+					</span>
+				{/if}
+			</div>
 			<div class="actions">
+				{#if exportError}
+					<InlineLoading
+						class="export-status"
+						status="error"
+						description={$_("tools.zonalStatistics.exportFailed")}
+					/>
+				{/if}
 				{#if table.zones.length > 0}
 					<OverflowMenu
 						icon={Download}
@@ -408,93 +471,120 @@
 			</div>
 		</div>
 
-		<div class="content">
-			{#if table.zones.length === 0}
-				<div class="no-selection body-compact-01">
-					{$_("tools.zonalStatistics.noSelection")}
-				</div>
-			{:else}
-				<table class="zonal-table" bind:this={tableElement}>
-					<caption class="bx--visually-hidden">{$_("tools.zonalStatistics.tableCaption")}</caption>
-					<thead>
-						<tr>
-							<th class="row-head" rowspan="2" />
-							{#each table.zones as code (code)}
-								<th
-									class="zone-head"
-									class:active={code === activeCode}
-									colspan={columns.length}
-								>
-									<div class="zone-head-inner">
-										<button
-											type="button"
-											class="zone-code"
-											aria-pressed={code === activeCode}
-											title={$_("tools.zonalStatistics.activateZoneHint")}
-											on:click={() => toggleActive(code)}
-										>
-											{code}
-										</button>
-										{#if !exportingImage}
+		<div class="content-wrap">
+			<div class="content" bind:this={contentEl} on:scroll={updateScrollShadows}>
+				{#if table.zones.length === 0}
+					<div class="no-selection body-compact-01">
+						<Location size={32} />
+						<span>{$_("tools.zonalStatistics.noSelection")}</span>
+					</div>
+				{:else}
+					<table class="zonal-table" bind:this={tableElement}>
+						<caption class="bx--visually-hidden"
+							>{$_("tools.zonalStatistics.tableCaption")}</caption
+						>
+						<thead>
+							<tr>
+								<th class="row-head" rowspan="2" bind:offsetWidth={stickyColWidth} />
+								{#each table.zones as code (code)}
+									<th
+										class="zone-head"
+										class:active={code === activeCode}
+										colspan={columns.length}
+									>
+										<div class="zone-head-inner">
 											<button
 												type="button"
-												class="zone-remove"
-												aria-label={$_("tools.zonalStatistics.removeZone")}
-												title={$_("tools.zonalStatistics.removeZone")}
-												on:click={() => controller.toggleZone(code)}
+												class="zone-code"
+												aria-pressed={code === activeCode}
+												aria-label={$_("tools.zonalStatistics.activateZone", {
+													values: { code }
+												})}
+												title={$_("tools.zonalStatistics.activateZoneHint")}
+												on:click={() => toggleActive(code)}
 											>
-												<Close size={16} />
+												{code}
 											</button>
-										{/if}
-									</div>
-								</th>
-							{/each}
-						</tr>
-						<tr>
-							{#each table.zones as code (code)}
-								{#each columns as column, i (i)}
-									<th
-										class="sub-head"
-										class:last-col={i === columns.length - 1}
-										class:active={code === activeCode}
-									>
-										{columnLabel(i)}
+											{#if !exportingImage}
+												<button
+													type="button"
+													class="zone-remove"
+													aria-label={$_("tools.zonalStatistics.removeZoneAria", {
+														values: { code }
+													})}
+													title={$_("tools.zonalStatistics.removeZone")}
+													on:click={() => controller.toggleZone(code)}
+												>
+													<Close size={16} />
+												</button>
+											{/if}
+										</div>
 									</th>
 								{/each}
-							{/each}
-						</tr>
-					</thead>
-					<tbody>
-						{#each table.rows as row (row.layerId)}
+							</tr>
 							<tr>
-								<th class="row-head" scope="row">{row.title}</th>
 								{#each table.zones as code (code)}
 									{#each columns as column, i (i)}
-										<td
-											class="value"
+										<th
+											class="sub-head"
 											class:last-col={i === columns.length - 1}
 											class:active={code === activeCode}
-											style={cellStyle(row.values[code]?.[i], i)}
 										>
-											{#if row.tooltips[code]?.[i] && !exportingImage}
-												<TooltipDefinition
-													class="cell-tooltip"
-													align={i === columns.length - 1 ? "end" : "start"}
-													direction="top"
-													tooltipText={row.tooltips[code][i]}
-												>
-													{row.values[code]?.[i] ?? "–"}
-												</TooltipDefinition>
-											{:else}
-												{row.values[code]?.[i] ?? "–"}
-											{/if}
-										</td>
+											{columnLabel(i)}
+										</th>
 									{/each}
 								{/each}
 							</tr>
-						{/each}
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							{#each table.rows as row (row.layerId)}
+								<tr>
+									<th class="row-head" scope="row">{row.title}</th>
+									{#each table.zones as code (code)}
+										{#each columns as column, i (i)}
+											<td
+												class="value"
+												class:last-col={i === columns.length - 1}
+												class:active={code === activeCode}
+												style={cellStyle(row.values[code]?.[i], i)}
+											>
+												{#if row.tooltips[code]?.[i] && !exportingImage}
+													<TooltipDefinition
+														class="cell-tooltip"
+														align={i === columns.length - 1 ? "end" : "start"}
+														direction="top"
+														tooltipText={row.tooltips[code][i]}
+													>
+														{row.values[code]?.[i] ?? "–"}
+													</TooltipDefinition>
+												{:else}
+													{row.values[code]?.[i] ?? "–"}
+												{/if}
+											</td>
+										{/each}
+									{/each}
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				{/if}
+			</div>
+			<div class="edge edge-top" class:visible={scroll.top}></div>
+			<div class="edge edge-bottom" class:visible={scroll.bottom}></div>
+			<div
+				class="edge edge-left"
+				class:visible={scroll.left}
+				style="left: {stickyColWidth}px"
+			></div>
+			<div class="edge edge-right" class:visible={scroll.right}></div>
+			{#if exportInProgress}
+				<div class="busy-overlay" in:fade={{ duration: 100 }} out:fade={{ duration: 100 }}>
+					<InlineLoading
+						description={$_("tools.zonalStatistics.exporting", {
+							values: { format: exportingFormat }
+						})}
+					/>
+				</div>
 			{/if}
 		</div>
 
@@ -518,7 +608,7 @@
 		position: absolute;
 		top: var(--cds-spacing-05);
 		right: var(--cds-spacing-05);
-		max-width: calc(100% - (2 * var(--cds-spacing-05)));
+		max-width: calc(50% - (2 * var(--cds-spacing-05)));
 		max-height: 60%;
 		display: flex;
 		flex-direction: column;
@@ -537,12 +627,112 @@
 		border-bottom: 1px solid var(--cds-ui-03);
 	}
 
+	.title {
+		display: flex;
+		align-items: center;
+		gap: var(--cds-spacing-03);
+		min-width: 0;
+	}
+
+	.title-text {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.count-badge {
+		flex: 0 0 auto;
+		font-size: 0.75rem;
+		font-weight: 400;
+		color: var(--cds-text-secondary);
+		background-color: var(--cds-ui-01);
+		border: 1px solid var(--cds-ui-03);
+		border-radius: 999px;
+		padding: 0 var(--cds-spacing-03);
+		white-space: nowrap;
+	}
+
 	.actions {
 		display: flex;
+		align-items: center;
+		gap: var(--cds-spacing-02);
+	}
+
+	.actions :global(.export-status) {
+		margin-right: var(--cds-spacing-02);
+	}
+
+	.content-wrap {
+		position: relative;
+		display: flex;
+		flex: 1 1 auto;
+		min-height: 0;
 	}
 
 	.content {
 		overflow: auto;
+		flex: 1 1 auto;
+		min-height: 0;
+	}
+
+	.edge {
+		position: absolute;
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity 120ms ease;
+		z-index: 4;
+	}
+
+	.edge.visible {
+		opacity: 1;
+	}
+
+	.edge-top,
+	.edge-bottom {
+		left: 0;
+		right: 0;
+		height: 0.75rem;
+	}
+
+	.edge-left,
+	.edge-right {
+		top: 0;
+		bottom: 0;
+		width: 0.75rem;
+	}
+
+	.edge-top {
+		top: 0;
+		background: linear-gradient(to bottom, rgba(0, 0, 0, 0.18), transparent);
+	}
+
+	.edge-bottom {
+		bottom: 0;
+		background: linear-gradient(to top, rgba(0, 0, 0, 0.18), transparent);
+	}
+
+	.edge-left {
+		background: linear-gradient(to right, rgba(0, 0, 0, 0.18), transparent);
+	}
+
+	.edge-right {
+		right: 0;
+		background: linear-gradient(to left, rgba(0, 0, 0, 0.18), transparent);
+	}
+
+	.busy-overlay {
+		position: absolute;
+		inset: 0;
+		z-index: 6;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: color-mix(in srgb, var(--cds-ui-02) 78%, transparent);
+		backdrop-filter: blur(2px);
+	}
+
+	.busy-overlay :global(.bx--inline-loading) {
+		width: auto;
 	}
 
 	.legend {
@@ -572,8 +762,14 @@
 	}
 
 	.no-selection {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--cds-spacing-03);
+		text-align: center;
 		color: var(--cds-text-secondary);
-		padding: var(--cds-spacing-05);
+		max-width: 20rem;
+		padding: var(--cds-spacing-07) var(--cds-spacing-05);
 	}
 
 	.zonal-table {
@@ -589,6 +785,7 @@
 		border-bottom: 1px solid var(--cds-ui-03);
 		text-align: center;
 		white-space: nowrap;
+		transition: background-color 120ms ease;
 	}
 
 	.zonal-table .row-head {
@@ -598,6 +795,11 @@
 		left: 0;
 		background-color: var(--cds-ui-02);
 		z-index: 1;
+	}
+
+	.zonal-table tbody tr:hover td:not(.active),
+	.zonal-table tbody tr:hover th.row-head {
+		background-color: var(--cds-hover-ui, rgba(141, 141, 141, 0.16));
 	}
 
 	.zone-head {
@@ -622,8 +824,19 @@
 		padding: 0;
 	}
 
+	.zone-code:hover {
+		text-decoration: underline;
+	}
+
 	.zone-code[aria-pressed="true"] {
 		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.zone-code:focus-visible {
+		outline: 2px solid var(--cds-focus, #0f62fe);
+		outline-offset: 2px;
+		border-radius: 2px;
 	}
 
 	.zone-remove {
@@ -633,10 +846,17 @@
 		cursor: pointer;
 		display: inline-flex;
 		padding: 0;
+		transition: color 120ms ease;
 	}
 
 	.zone-remove:hover {
 		color: var(--cds-text-primary);
+	}
+
+	.zone-remove:focus-visible {
+		outline: 2px solid var(--cds-focus, #0f62fe);
+		outline-offset: 1px;
+		border-radius: 2px;
 	}
 
 	:global(.cell-tooltip .bx--tooltip__trigger) {
@@ -673,5 +893,16 @@
 		outline: 2px solid var(--cds-focus, #0f62fe);
 		outline-offset: -2px;
 		font-weight: 600;
+		transition: background-color 120ms ease, outline-color 120ms ease;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.edge,
+		.zonal-table th,
+		.zonal-table td,
+		.zone-remove,
+		.value.active {
+			transition: none;
+		}
 	}
 </style>

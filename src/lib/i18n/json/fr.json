@@ -405,7 +405,12 @@
             "clearSelection": "Effacer la sélection",
             "close": "Fermer",
             "noSelection": "Cliquez sur une ou plusieurs zones mises en évidence sur la carte pour afficher leurs statistiques.",
-            "noDataLayers": "Aucune couche de données configurée"
+            "noDataLayers": "Aucune couche de données configurée",
+            "zonesSelected": "{count} sélectionné(s)",
+            "exporting": "Génération {format}…",
+            "exportFailed": "Échec de l'exportation. Veuillez réessayer.",
+            "activateZone": "Mettre en évidence la zone {code} sur la carte",
+            "removeZoneAria": "Supprimer la zone {code}"
         }
     },
     "errors": {

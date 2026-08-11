@@ -1148,7 +1148,7 @@ Tool to calculate and visualize car isochrones (travel-time areas) around an eco
 
 #### zonalStatistics
 
-Generic tool to inspect statistics per zone (e.g. per postcode area). The user clicks one or more zone geometries on the map and a floating table appears with one row per configured data layer and one or more configurable columns per selected zone. Each column reads an attribute from the row-layer's feature, so the tool can show categorical labels (colour-styled), numeric statistics, or any mix. The table can be exported as PNG, JPEG or PDF. The tool ships no built-in colours or branding — everything is config-driven.
+Generic tool to inspect statistics per zone (e.g. per postcode area). The user clicks one or more zone geometries on the map and a floating table appears with one row per configured data layer and one or more configurable columns per selected zone. Each column reads an attribute from the row-layer's feature, so the tool can show categorical labels (colour-styled), numeric statistics, or any mix. Selected zones are outlined on the map (the zone currently focused in the table gets a stronger, wider highlight), a live count of the selected zones is shown, and export progress is indicated while a PNG, JPEG or PDF is generated. The tool ships no built-in colours or branding — everything is config-driven.
 
 |value|description|type|
 |-|-|-|
