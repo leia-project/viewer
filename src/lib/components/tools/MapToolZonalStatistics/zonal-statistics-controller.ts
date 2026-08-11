@@ -158,9 +158,8 @@ export class ZonalStatisticsController {
 				polyline: {
 					positions,
 					clampToGround: true,
-					width: new Cesium.ConstantProperty(1),
-					material: new Cesium.ColorMaterialProperty(Cesium.Color.BLACK),
-					// Draw above the selection highlight (zIndex 10) so the border stays crisp.
+					width: new Cesium.ConstantProperty(1.5),
+					material: new Cesium.ColorMaterialProperty(Cesium.Color.BLACK.withAlpha(0.1)),
 					zIndex: new Cesium.ConstantProperty(20)
 				}
 			});
