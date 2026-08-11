@@ -1156,7 +1156,7 @@ Generic tool to inspect statistics per zone (e.g. per postcode area). The user c
 |zoneCodeAttribute|Attribute on a zone feature that holds its code (e.g. a postcode). Defaults to `postcode`|string|
 |layers|Data layers shown as table rows. Each entry is `{ id, title? }`; `title` defaults to the layer's config title|array|
 |columns|Columns rendered per selected zone. Each entry is `{ attribute, label?, tooltipAttribute?, styled? }`. `label` defaults to `attribute`; `tooltipAttribute` adds a hover description (and a description column in the PDF); `styled: true` colours the cell using `valueStyles`|array|
-|valueStyles|Optional value-to-colour map for styled columns. Each entry is `{ value, color, textColor?, label? }`. Drives styled cell backgrounds, the legend and PDF cell fills (PDF fills require HEX colours; other CSS colours render plain in the PDF)|array|
+|valueStyles|Optional value-to-colour map for styled columns. Each entry is `{ value, color, label? }`. Drives styled cell backgrounds, the legend and PDF cell fills (PDF fills require HEX colours; other CSS colours render plain in the PDF). The text colour is derived automatically (black or white, whichever contrasts best with `color`)|array|
 |exportTitle|Optional title used for exports. Defaults to the tool title/alias|string|
 |exportFileName|Optional file-name prefix for exports. Defaults to the tool title/alias|string|
 |pdfFooterText|Optional footer text drawn on exported PDFs|string|
@@ -1179,11 +1179,11 @@ Generic tool to inspect statistics per zone (e.g. per postcode area). The user c
 			{ "attribute": "ambitie_label", "label": "Ambitie", "tooltipAttribute": "ambitie_category", "styled": true }
 		],
 		"valueStyles": [
-			{ "value": "A", "color": "#44ce1b", "textColor": "#ffffff" },
-			{ "value": "B", "color": "#bbdb44", "textColor": "#161616" },
-			{ "value": "C", "color": "#f7e379", "textColor": "#161616" },
-			{ "value": "D", "color": "#f2a134", "textColor": "#161616" },
-			{ "value": "E", "color": "#e51f1f", "textColor": "#ffffff" }
+			{ "value": "A", "color": "#44ce1b" },
+			{ "value": "B", "color": "#bbdb44" },
+			{ "value": "C", "color": "#f7e379" },
+			{ "value": "D", "color": "#f2a134" },
+			{ "value": "E", "color": "#e51f1f" }
 		],
 		"layers": [
 			{ "id": "999a" },

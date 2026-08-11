@@ -56,10 +56,8 @@ export interface ZonalColumn {
 export interface ZonalValueStyle {
 	/** Cell value to match, case-insensitively. */
 	value: string;
-	/** Background colour (any CSS/hex colour). */
+	/** Background colour (any CSS/hex colour). Text colour is derived for contrast. */
 	color: string;
-	/** Optional text colour (defaults to a readable colour). */
-	textColor?: string;
 	/** Optional legend label (defaults to `value`). */
 	label?: string;
 }
@@ -133,7 +131,6 @@ export function parseZonalStatisticsSettings(raw: any): ZonalStatisticsSettings 
 				.map((s: any) => ({
 					value: s.value,
 					color: s.color,
-					textColor: typeof s.textColor === "string" ? s.textColor : undefined,
 					label: typeof s.label === "string" ? s.label : undefined
 				}))
 		: [];

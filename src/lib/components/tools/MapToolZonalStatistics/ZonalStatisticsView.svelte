@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { createEventDispatcher, onDestroy, tick } from "svelte";
+	import { get } from "svelte/store";
 	import { fade } from "svelte/transition";
-	import { _ } from "svelte-i18n";
+	import { _, locale } from "svelte-i18n";
 	import { TooltipDefinition } from "carbon-components-svelte";
 	import { Close, Download, TrashCan } from "carbon-icons-svelte";
 	import { toJpeg, toPng } from "html-to-image";
@@ -55,42 +56,56 @@
 
 	$: controller.setActiveZone(activeCode);
 
+	type Rgb = [number, number, number];
+
+	const TEXT_DARK = { css: "#161616", rgb: [22, 22, 22] as Rgb };
+	const TEXT_LIGHT = { css: "#ffffff", rgb: [255, 255, 255] as Rgb };
+
 	// value (upper-cased) -> configured style, for cell colours + legend.
 	const valueStyleMap = new Map(settings.valueStyles.map((s) => [s.value.trim().toUpperCase(), s]));
 
-	function styleFor(value: string | undefined) {
-		if (!value) return undefined;
-		return valueStyleMap.get(String(value).trim().toUpperCase());
-	}
+	const styleFor = (value: string | undefined) =>
+		value ? valueStyleMap.get(value.trim().toUpperCase()) : undefined;
 
 	function cellStyle(value: string | undefined, columnIndex: number): string {
-		if (!columns[columnIndex]?.styled) return "";
-		const s = styleFor(value);
-		if (!s) return "";
-		return `background-color: ${s.color};${s.textColor ? ` color: ${s.textColor};` : ""}`;
+		const color = columns[columnIndex]?.styled ? styleFor(value)?.color : undefined;
+		return color ? swatchStyle(color) : "";
 	}
 
-	function hexToRgb(hex: string): [number, number, number] | undefined {
-		const h = hex.trim().replace(/^#/, "");
-		const parts =
-			h.length === 3
-				? [h[0] + h[0], h[1] + h[1], h[2] + h[2]]
-				: h.length === 6
-					? [h.slice(0, 2), h.slice(2, 4), h.slice(4, 6)]
-					: undefined;
-		if (!parts) return undefined;
-		const rgb = parts.map((p) => parseInt(p, 16));
-		return rgb.some((n) => Number.isNaN(n)) ? undefined : (rgb as [number, number, number]);
+	function swatchStyle(background: string): string {
+		const rgb = hexToRgb(background);
+		return `background-color: ${background};${rgb ? ` color: ${readableTextColor(rgb).css};` : ""}`;
+	}
+
+	function hexToRgb(hex: string): Rgb | undefined {
+		const short = hex.trim().replace(/^#/, "");
+		const h = short.length === 3 ? short.replace(/./g, (c) => c + c) : short;
+		if (!/^[0-9a-f]{6}$/i.test(h)) return undefined;
+		return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)) as Rgb;
+	}
+
+	function luminance([r, g, b]: Rgb): number {
+		const channel = (c: number) => {
+			const s = c / 255;
+			return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+		};
+		return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+	}
+
+	// Whichever of the two text colours has the higher WCAG contrast on this background.
+	function readableTextColor(background: Rgb) {
+		const contrast = (a: number, b: number) =>
+			(Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+		const bg = luminance(background);
+		return contrast(bg, luminance(TEXT_LIGHT.rgb)) >= contrast(bg, luminance(TEXT_DARK.rgb))
+			? TEXT_LIGHT
+			: TEXT_DARK;
 	}
 
 	// PDF cell colour for a value (hex colours only; other CSS colours render plain in the PDF).
 	function pdfColor(value: string) {
-		const s = styleFor(value);
-		if (!s) return undefined;
-		const fill = hexToRgb(s.color);
-		if (!fill) return undefined;
-		const text = (s.textColor && hexToRgb(s.textColor)) || [0, 0, 0];
-		return { fill, text: text as [number, number, number] };
+		const fill = hexToRgb(styleFor(value)?.color ?? "");
+		return fill ? { fill, text: readableTextColor(fill).rgb } : undefined;
 	}
 
 	function exportTitle(): string {
@@ -128,8 +143,9 @@
 
 		doc.setFont("helvetica", "normal");
 		doc.setFontSize(9);
+		const currentLocale = get(locale) ?? undefined;
 		doc.text(
-			`${$_("tools.zonalStatistics.exportCreatedAt")} ${new Date().toLocaleDateString("nl-NL")} om ${new Date().toLocaleTimeString("nl-NL")}`,
+			`${$_("tools.zonalStatistics.exportCreatedAt")} ${new Date().toLocaleString(currentLocale)}`,
 			layout.margin,
 			startY + 6
 		);
@@ -488,12 +504,7 @@
 					>{$_("tools.zonalStatistics.legendTitle")}</span
 				>
 				{#each settings.valueStyles as style (style.value)}
-					<span
-						class="legend-chip"
-						style="background-color: {style.color};{style.textColor
-							? ` color: ${style.textColor};`
-							: ''}"
-					>
+					<span class="legend-chip" style={swatchStyle(style.color)}>
 						{style.label ?? style.value}
 					</span>
 				{/each}
@@ -567,7 +578,8 @@
 
 	.zonal-table {
 		border-collapse: collapse;
-		width: 100%;
+		width: max-content;
+		min-width: 100%;
 		font-size: 0.875rem;
 	}
 

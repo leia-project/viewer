@@ -834,11 +834,11 @@
                     }
                 ],
                 "valueStyles": [
-                    { "value": "A", "color": "#44ce1b", "textColor": "#ffffff" },
-                    { "value": "B", "color": "#bbdb44", "textColor": "#161616" },
-                    { "value": "C", "color": "#f7e379", "textColor": "#161616" },
-                    { "value": "D", "color": "#f2a134", "textColor": "#161616" },
-                    { "value": "E", "color": "#e51f1f", "textColor": "#ffffff" }
+                    { "value": "A", "color": "#44ce1b" },
+                    { "value": "B", "color": "#bbdb44" },
+                    { "value": "C", "color": "#f7e379" },
+                    { "value": "D", "color": "#f2a134" },
+                    { "value": "E", "color": "#e51f1f" }
                 ],
                 "layers": [
                     {
