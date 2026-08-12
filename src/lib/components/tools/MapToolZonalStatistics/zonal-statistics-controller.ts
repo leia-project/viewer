@@ -81,8 +81,10 @@ export class ZonalStatisticsController {
 	private readonly dataLayers: Array<ResolvedDataLayer> = [];
 	/** Resolved data layers exposed to the zonal panel UI. */
 	public readonly resolvedDataLayers: Writable<Array<ResolvedDataLayer>> = writable([]);
-	/** Per data-layer index: zone code -> feature properties. */
+	/** Per data-layer index: zone code -> feature properties (only the attributes the table reads). */
 	private readonly valueIndex: Map<string, Map<string, Record<string, any>>> = new Map();
+	/** Distinct data-layer attributes the table + tooltips read (column + tooltip attributes). */
+	private readonly neededAttributes: Array<string>;
 
 	/** Single batched ground polyline primitive outlining the selected zones (drawn above the black outline). */
 	private highlightPrimitive: Cesium.GroundPolylinePrimitive | undefined;
@@ -97,6 +99,12 @@ export class ZonalStatisticsController {
 	constructor(map: CesiumMap, settings: ZonalStatisticsSettings) {
 		this.map = map;
 		this.settings = settings;
+		const attrs = new Set<string>();
+		for (const column of settings.columns) {
+			attrs.add(column.attribute);
+			if (column.tooltipAttribute) attrs.add(column.tooltipAttribute);
+		}
+		this.neededAttributes = [...attrs];
 	}
 
 	/**
@@ -203,14 +211,27 @@ export class ZonalStatisticsController {
 		});
 	}
 
+	/** Read a single entity property by name without materialising the whole property bag. */
+	private readProperty(
+		entity: Cesium.Entity,
+		attribute: string,
+		time: Cesium.JulianDate
+	): any {
+		const bag = entity.properties as unknown as
+			| Record<string, { getValue(t: Cesium.JulianDate): any } | undefined>
+			| undefined;
+		return bag?.[attribute]?.getValue(time);
+	}
+
 	/** Build a zone-code -> zone-layer entity lookup for resolving click geometry. */
 	private indexZoneEntities(): void {
 		this.zoneEntityIndex.clear();
 		const time = this.map.viewer.clock.currentTime;
+		const codeAttr = this.settings.zoneCodeAttribute;
 		const entities = this.zoneLayer?.source?.entities?.values ?? [];
 		for (const entity of entities) {
-			const props = entity.properties?.getValue(time);
-			const code = props?.[this.settings.zoneCodeAttribute];
+			// Read only the code property instead of materialising every attribute per entity.
+			const code = this.readProperty(entity, codeAttr, time);
 			if (code !== undefined && code !== null) {
 				const key = String(code);
 				this.zoneEntityIndex.set(key, entity);
@@ -223,16 +244,17 @@ export class ZonalStatisticsController {
 	private indexLayer(layerId: string, layer: GeoJsonLayer): void {
 		const index = new Map<string, Record<string, any>>();
 		const time = this.map.viewer.clock.currentTime;
+		const codeAttr = this.settings.zoneCodeAttribute;
 		const entities = layer.source?.entities?.values ?? [];
 		for (const entity of entities) {
-			const props = entity.properties?.getValue(time);
-			if (!props) continue;
-			const code = props[this.settings.zoneCodeAttribute];
-			if (code !== undefined && code !== null) {
-				const key = String(code);
-				index.set(key, props);
-				this.entityCodeIndex.set(entity, key);
-			}
+			const code = this.readProperty(entity, codeAttr, time);
+			if (code === undefined || code === null) continue;
+			const key = String(code);
+			// Store only the attributes the table + tooltips read, not the whole property bag.
+			const props: Record<string, any> = {};
+			for (const attr of this.neededAttributes) props[attr] = this.readProperty(entity, attr, time);
+			index.set(key, props);
+			this.entityCodeIndex.set(entity, key);
 		}
 		this.valueIndex.set(layerId, index);
 	}
