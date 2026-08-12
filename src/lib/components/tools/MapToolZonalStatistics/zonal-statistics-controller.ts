@@ -73,8 +73,9 @@ export class ZonalStatisticsController {
 	public readonly selectedZones: Writable<Array<SelectedZone>> = writable([]);
 
 	private zoneLayer: GeoJsonLayer | undefined;
-	/** Zone code -> zone-layer entity, used to resolve highlight geometry from clicks. */
-	private readonly zoneEntityIndex: Map<string, Cesium.Entity> = new Map();
+	/** Zone code -> zone-layer entities, used to resolve highlight geometry from clicks. A single
+	 * MultiPolygon zone becomes multiple entities (one per part) that share the same code. */
+	private readonly zoneEntityIndex: Map<string, Array<Cesium.Entity>> = new Map();
 	/** Pickable entity -> its zone code, so clicks resolve the code without a getValue call. */
 	private readonly entityCodeIndex: Map<Cesium.Entity, string> = new Map();
 	/** Resolved data layers per config id, in config order. */
@@ -85,6 +86,9 @@ export class ZonalStatisticsController {
 	private readonly valueIndex: Map<string, Map<string, Record<string, any>>> = new Map();
 	/** Distinct data-layer attributes the table + tooltips read (column + tooltip attributes). */
 	private readonly neededAttributes: Array<string>;
+	/** Cleaned outline rings per zone code (one ring per polygon part), shared by the black outline
+	 * + selection highlights. MultiPolygon zones contribute several rings under the same code. */
+	private readonly ringCache: Map<string, Array<Array<Cesium.Cartesian3>>> = new Map();
 
 	/** Single batched ground polyline primitive outlining the selected zones (drawn above the black outline). */
 	private highlightPrimitive: Cesium.GroundPolylinePrimitive | undefined;
@@ -189,6 +193,14 @@ export class ZonalStatisticsController {
 		for (const entity of this.zoneLayer.source?.entities?.values ?? []) {
 			const positions = this.cleanRing(entity.polygon?.hierarchy?.getValue(time)?.positions);
 			if (positions.length < 2) continue;
+			// Cache the cleaned ring so highlight rebuilds reuse it instead of re-cleaning. A
+			// MultiPolygon zone spans several entities sharing one code, so append per part.
+			const code = this.entityCodeIndex.get(entity);
+			if (code !== undefined) {
+				const rings = this.ringCache.get(code) ?? [];
+				rings.push(positions);
+				this.ringCache.set(code, rings);
+			}
 			instances.push(
 				new Cesium.GeometryInstance({
 					geometry: new Cesium.GroundPolylineGeometry({ positions, width: 1.5, loop: true }),
@@ -234,7 +246,10 @@ export class ZonalStatisticsController {
 			const code = this.readProperty(entity, codeAttr, time);
 			if (code !== undefined && code !== null) {
 				const key = String(code);
-				this.zoneEntityIndex.set(key, entity);
+				// A MultiPolygon zone becomes several entities under one code; keep them all.
+				const list = this.zoneEntityIndex.get(key) ?? [];
+				list.push(entity);
+				this.zoneEntityIndex.set(key, list);
 				this.entityCodeIndex.set(entity, key);
 			}
 		}
@@ -273,8 +288,7 @@ export class ZonalStatisticsController {
 		const code = this.entityCodeIndex.get(entity);
 		if (code === undefined) return;
 
-		const zoneEntity = this.zoneEntityIndex.get(code);
-		if (!zoneEntity) return;
+		if (!this.zoneEntityIndex.has(code)) return;
 
 		this.toggleZone(code);
 	}
@@ -288,6 +302,21 @@ export class ZonalStatisticsController {
 			this.selectedZones.set([...current, { code }]);
 		}
 		this.rebuildHighlights();
+	}
+
+	/** Cleaned outline rings for a zone code (one per polygon part), computed on demand and cached
+	 * (shared with the black outline). MultiPolygon zones return several rings. */
+	private ringPositionsFor(code: string, time: Cesium.JulianDate): Array<Array<Cesium.Cartesian3>> {
+		let rings = this.ringCache.get(code);
+		if (!rings) {
+			rings = [];
+			for (const entity of this.zoneEntityIndex.get(code) ?? []) {
+				const positions = this.cleanRing(entity.polygon?.hierarchy?.getValue(time)?.positions);
+				if (positions.length >= 2) rings.push(positions);
+			}
+			this.ringCache.set(code, rings);
+		}
+		return rings;
 	}
 
 	/**
@@ -305,26 +334,28 @@ export class ZonalStatisticsController {
 		const time = this.map.viewer.clock.currentTime;
 		const instances: Array<Cesium.GeometryInstance> = [];
 		for (const { code } of get(this.selectedZones)) {
-			const entity = this.zoneEntityIndex.get(code);
-			const positions = this.cleanRing(entity?.polygon?.hierarchy?.getValue(time)?.positions);
-			if (positions.length < 2) continue;
+			const rings = this.ringPositionsFor(code, time);
+			if (rings.length === 0) continue;
 			const active = code === this.activeCode;
-			instances.push(
-				new Cesium.GeometryInstance({
-					geometry: new Cesium.GroundPolylineGeometry({
-						positions,
-						width: active ? 7 : 4,
-						loop: true
-					}),
-					attributes: {
-						color: Cesium.ColorGeometryInstanceAttribute.fromColor(
-							active
-								? ZonalStatisticsController.HIGHLIGHT_ACTIVE_COLOR
-								: ZonalStatisticsController.HIGHLIGHT_INACTIVE_COLOR
-						)
-					}
-				})
-			);
+			for (const positions of rings) {
+				if (positions.length < 2) continue;
+				instances.push(
+					new Cesium.GeometryInstance({
+						geometry: new Cesium.GroundPolylineGeometry({
+							positions,
+							width: active ? 7 : 4,
+							loop: true
+						}),
+						attributes: {
+							color: Cesium.ColorGeometryInstanceAttribute.fromColor(
+								active
+									? ZonalStatisticsController.HIGHLIGHT_ACTIVE_COLOR
+									: ZonalStatisticsController.HIGHLIGHT_INACTIVE_COLOR
+							)
+						}
+					})
+				);
+			}
 		}
 		if (instances.length > 0) {
 			// Synchronous so the outline appears immediately on click (few instances).

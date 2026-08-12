@@ -140,9 +140,17 @@
 		return color ? swatchStyle(color) : "";
 	}
 
+	// Cache the computed inline style per colour so cell rendering doesn't rerun the
+	// hex->rgb->luminance math for every cell on every table update (colours are few).
+	const swatchCache = new Map<string, string>();
+
 	function swatchStyle(background: string): string {
+		const cached = swatchCache.get(background);
+		if (cached !== undefined) return cached;
 		const rgb = hexToRgb(background);
-		return `background-color: ${background};${rgb ? ` color: ${readableTextColor(rgb).css};` : ""}`;
+		const style = `background-color: ${background};${rgb ? ` color: ${readableTextColor(rgb).css};` : ""}`;
+		swatchCache.set(background, style);
+		return style;
 	}
 
 	function hexToRgb(hex: string): Rgb | undefined {
