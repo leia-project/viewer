@@ -60,6 +60,10 @@ export interface ResolvedDataLayer {
  * zone table. UI components subscribe to the exposed stores.
  */
 export class ZonalStatisticsController {
+	// Selection-highlight outline colours (per-instance on a batched ground polyline primitive).
+	private static readonly HIGHLIGHT_ACTIVE_COLOR = Cesium.Color.DEEPSKYBLUE;
+	private static readonly HIGHLIGHT_INACTIVE_COLOR = Cesium.Color.YELLOW;
+
 	private readonly map: CesiumMap;
 	public readonly settings: ZonalStatisticsSettings;
 
@@ -71,6 +75,8 @@ export class ZonalStatisticsController {
 	private zoneLayer: GeoJsonLayer | undefined;
 	/** Zone code -> zone-layer entity, used to resolve highlight geometry from clicks. */
 	private readonly zoneEntityIndex: Map<string, Cesium.Entity> = new Map();
+	/** Pickable entity -> its zone code, so clicks resolve the code without a getValue call. */
+	private readonly entityCodeIndex: Map<Cesium.Entity, string> = new Map();
 	/** Resolved data layers per config id, in config order. */
 	private readonly dataLayers: Array<ResolvedDataLayer> = [];
 	/** Resolved data layers exposed to the zonal panel UI. */
@@ -78,10 +84,10 @@ export class ZonalStatisticsController {
 	/** Per data-layer index: zone code -> feature properties. */
 	private readonly valueIndex: Map<string, Map<string, Record<string, any>>> = new Map();
 
-	/** Dedicated data source that draws outlines around selected zones. */
-	private highlightSource: Cesium.CustomDataSource | undefined;
-	/** Dedicated data source that draws a thin black outline around every zone feature. */
-	private zoneOutlineSource: Cesium.CustomDataSource | undefined;
+	/** Single batched ground polyline primitive outlining the selected zones (drawn above the black outline). */
+	private highlightPrimitive: Cesium.GroundPolylinePrimitive | undefined;
+	/** Single batched ground polyline primitive drawing a thin black outline around every zone feature. */
+	private zoneOutlinePrimitive: Cesium.GroundPolylinePrimitive | undefined;
 	/** Unsubscriber keeping the zone-outline visibility in sync with the zone layer. */
 	private zoneVisibleUnsub: Unsubscriber | undefined;
 	/** The zone currently shown in the table (drawn light blue). */
@@ -125,13 +131,8 @@ export class ZonalStatisticsController {
 		}
 		this.resolvedDataLayers.set([...this.dataLayers]);
 
-		// Add the outline source first so the highlight source (added later) draws on top.
+		// Add the black outline first so the (later-added) selection highlights draw on top.
 		this.addZoneOutlines();
-
-		this.highlightSource = new Cesium.CustomDataSource(
-			`${this.settings.zoneLayerId}_zonal_highlight`
-		);
-		this.map.viewer.dataSources.add(this.highlightSource);
 
 		this.clickHandler = (l: MouseLocation) => this.onMapClick(l);
 		this.map.on("mouseLeftClick", this.clickHandler as (n: unknown) => unknown);
@@ -146,28 +147,58 @@ export class ZonalStatisticsController {
 		}
 	}
 
+	/**
+	 * Drop consecutive duplicate vertices and the closing duplicate of a polygon
+	 * ring. `GroundPolylineGeometry` with `loop:true` throws "normalized result is
+	 * not a number" on zero-length segments, which closed GeoJSON rings produce.
+	 */
+	private cleanRing(positions: Array<Cesium.Cartesian3> | undefined): Array<Cesium.Cartesian3> {
+		if (!positions?.length) return [];
+		const cleaned: Array<Cesium.Cartesian3> = [];
+		for (const position of positions) {
+			const previous = cleaned[cleaned.length - 1];
+			if (!previous || !Cesium.Cartesian3.equalsEpsilon(previous, position, Cesium.Math.EPSILON7)) {
+				cleaned.push(position);
+			}
+		}
+		if (
+			cleaned.length > 1 &&
+			Cesium.Cartesian3.equalsEpsilon(cleaned[0], cleaned[cleaned.length - 1], Cesium.Math.EPSILON7)
+		) {
+			cleaned.pop();
+		}
+		return cleaned;
+	}
+
 	/** Draw a thin black outline around every zone feature, shown while the zone layer is visible. */
 	private addZoneOutlines(): void {
 		if (!this.zoneLayer) return;
-		const source = new Cesium.CustomDataSource(`${this.settings.zoneLayerId}_zonal_outline`);
 		const time = this.map.viewer.clock.currentTime;
+		const outlineColor = Cesium.ColorGeometryInstanceAttribute.fromColor(
+			Cesium.Color.BLACK.withAlpha(0.1)
+		);
+		const instances: Array<Cesium.GeometryInstance> = [];
 		for (const entity of this.zoneLayer.source?.entities?.values ?? []) {
-			const positions = entity.polygon?.hierarchy?.getValue(time)?.positions;
-			if (!positions) continue;
-			source.entities.add({
-				polyline: {
-					positions,
-					clampToGround: true,
-					width: new Cesium.ConstantProperty(1.5),
-					material: new Cesium.ColorMaterialProperty(Cesium.Color.BLACK.withAlpha(0.1)),
-					zIndex: new Cesium.ConstantProperty(20)
-				}
-			});
+			const positions = this.cleanRing(entity.polygon?.hierarchy?.getValue(time)?.positions);
+			if (positions.length < 2) continue;
+			instances.push(
+				new Cesium.GeometryInstance({
+					geometry: new Cesium.GroundPolylineGeometry({ positions, width: 1.5, loop: true }),
+					attributes: { color: outlineColor }
+				})
+			);
 		}
-		this.zoneOutlineSource = source;
-		this.map.viewer.dataSources.add(source);
+		if (instances.length === 0) return;
+		// One batched primitive instead of thousands of ground-clamped polyline entities.
+		this.zoneOutlinePrimitive = new Cesium.GroundPolylinePrimitive({
+			geometryInstances: instances,
+			appearance: new Cesium.PolylineColorAppearance(),
+			asynchronous: true,
+			allowPicking: false
+		});
+		this.map.viewer.scene.groundPrimitives.add(this.zoneOutlinePrimitive);
 		this.zoneVisibleUnsub = this.zoneLayer.visible.subscribe((visible) => {
-			if (this.zoneOutlineSource) this.zoneOutlineSource.show = visible;
+			if (this.zoneOutlinePrimitive) this.zoneOutlinePrimitive.show = visible;
 			this.map.refresh();
 		});
 	}
@@ -175,12 +206,15 @@ export class ZonalStatisticsController {
 	/** Build a zone-code -> zone-layer entity lookup for resolving click geometry. */
 	private indexZoneEntities(): void {
 		this.zoneEntityIndex.clear();
+		const time = this.map.viewer.clock.currentTime;
 		const entities = this.zoneLayer?.source?.entities?.values ?? [];
 		for (const entity of entities) {
-			const props = entity.properties?.getValue(this.map.viewer.clock.currentTime);
+			const props = entity.properties?.getValue(time);
 			const code = props?.[this.settings.zoneCodeAttribute];
 			if (code !== undefined && code !== null) {
-				this.zoneEntityIndex.set(String(code), entity);
+				const key = String(code);
+				this.zoneEntityIndex.set(key, entity);
+				this.entityCodeIndex.set(entity, key);
 			}
 		}
 	}
@@ -188,13 +222,16 @@ export class ZonalStatisticsController {
 	/** Build a zone-code -> properties lookup for one data layer. */
 	private indexLayer(layerId: string, layer: GeoJsonLayer): void {
 		const index = new Map<string, Record<string, any>>();
+		const time = this.map.viewer.clock.currentTime;
 		const entities = layer.source?.entities?.values ?? [];
 		for (const entity of entities) {
-			const props = entity.properties?.getValue(this.map.viewer.clock.currentTime);
+			const props = entity.properties?.getValue(time);
 			if (!props) continue;
 			const code = props[this.settings.zoneCodeAttribute];
 			if (code !== undefined && code !== null) {
-				index.set(String(code), props);
+				const key = String(code);
+				index.set(key, props);
+				this.entityCodeIndex.set(entity, key);
 			}
 		}
 		this.valueIndex.set(layerId, index);
@@ -206,97 +243,95 @@ export class ZonalStatisticsController {
 		const picked = this.map.viewer.scene.pick(new Cesium.Cartesian2(location.x, location.y));
 		if (!Cesium.defined(picked) || !(picked.id instanceof Cesium.Entity)) return;
 
-		const entity = picked.id as Cesium.Entity;
-		const props = entity.properties?.getValue(this.map.viewer.clock.currentTime);
-		const rawCode = props?.[this.settings.zoneCodeAttribute];
-		if (rawCode === undefined || rawCode === null) return;
-
-		// Resolve the zone from the zone layer so highlight geometry never depends on
+		// Resolve the code from the cached entity index (no per-click getValue). Then
+		// resolve the zone from the zone layer so highlight geometry never depends on
 		// which (possibly overlapping) layer was picked. Ignore stray picks on other
-		// entities that merely carry the same attribute.
-		const code = String(rawCode);
+		// entities that carry no known code.
+		const entity = picked.id as Cesium.Entity;
+		const code = this.entityCodeIndex.get(entity);
+		if (code === undefined) return;
+
 		const zoneEntity = this.zoneEntityIndex.get(code);
 		if (!zoneEntity) return;
 
-		this.toggleZone(code, zoneEntity);
+		this.toggleZone(code);
 	}
 
-	/** Add or remove a zone from the selection. */
-	public toggleZone(code: string, entity?: Cesium.Entity): void {
+	/** Add or remove a zone from the selection, then redraw the highlight outlines. */
+	public toggleZone(code: string): void {
 		const current = get(this.selectedZones);
 		if (current.some((z) => z.code === code)) {
-			this.removeHighlight(code);
 			this.selectedZones.set(current.filter((z) => z.code !== code));
 		} else {
-			const zoneEntity = entity ?? this.zoneEntityIndex.get(code);
-			if (zoneEntity) this.addHighlight(code, zoneEntity);
 			this.selectedZones.set([...current, { code }]);
 		}
-	}
-
-	private addHighlight(code: string, entity: Cesium.Entity): void {
-		if (!this.highlightSource) return;
-		const hierarchy = entity.polygon?.hierarchy?.getValue(this.map.viewer.clock.currentTime);
-		if (!hierarchy?.positions) return;
-		this.highlightSource.entities.add({
-			id: `zonal_${code}`,
-			polyline: {
-				positions: hierarchy.positions,
-				clampToGround: true,
-				width: new Cesium.ConstantProperty(this.highlightWidth(code)),
-				material: new Cesium.ColorMaterialProperty(this.highlightColor(code)),
-				// Above the black zone outlines (zIndex 0); active zone above the other highlights.
-				zIndex: new Cesium.ConstantProperty(this.highlightZIndex(code))
-			}
-		});
-		this.map.refresh();
-	}
-
-	private removeHighlight(code: string): void {
-		if (!this.highlightSource) return;
-		this.highlightSource.entities.removeById(`zonal_${code}`);
-		this.map.refresh();
-	}
-
-	/** Colour used for a zone outline: bright blue when it is the active zone. */
-	private highlightColor(code: string): Cesium.Color {
-		return code === this.activeCode ? Cesium.Color.DEEPSKYBLUE : Cesium.Color.YELLOW;
-	}
-
-	/** Outline width for a zone: thicker for the active zone so it clearly stands out. */
-	private highlightWidth(code: string): number {
-		return code === this.activeCode ? 7 : 4;
-	}
-
-	/** Draw order for a zone highlight: active zone above the other (yellow) highlights. */
-	private highlightZIndex(code: string): number {
-		return code === this.activeCode ? 20 : 10;
+		this.rebuildHighlights();
 	}
 
 	/**
-	 * Mark the zone currently shown in the table so it gets a bright blue,
-	 * thicker outline while the other selected zones stay yellow.
+	 * Redraw the selection outlines as one batched `GroundPolylinePrimitive` added
+	 * after the black zone outline, so the blue/yellow selection always draws on
+	 * top of the black outline. The active zone is wider + bright blue; the other
+	 * selected zones stay yellow. Rebuilt on each selection/active change
+	 * (selections are few, so this is cheap).
+	 */
+	private rebuildHighlights(): void {
+		if (this.highlightPrimitive) {
+			this.map.viewer.scene.groundPrimitives.remove(this.highlightPrimitive);
+			this.highlightPrimitive = undefined;
+		}
+		const time = this.map.viewer.clock.currentTime;
+		const instances: Array<Cesium.GeometryInstance> = [];
+		for (const { code } of get(this.selectedZones)) {
+			const entity = this.zoneEntityIndex.get(code);
+			const positions = this.cleanRing(entity?.polygon?.hierarchy?.getValue(time)?.positions);
+			if (positions.length < 2) continue;
+			const active = code === this.activeCode;
+			instances.push(
+				new Cesium.GeometryInstance({
+					geometry: new Cesium.GroundPolylineGeometry({
+						positions,
+						width: active ? 7 : 4,
+						loop: true
+					}),
+					attributes: {
+						color: Cesium.ColorGeometryInstanceAttribute.fromColor(
+							active
+								? ZonalStatisticsController.HIGHLIGHT_ACTIVE_COLOR
+								: ZonalStatisticsController.HIGHLIGHT_INACTIVE_COLOR
+						)
+					}
+				})
+			);
+		}
+		if (instances.length > 0) {
+			// Synchronous so the outline appears immediately on click (few instances).
+			this.highlightPrimitive = new Cesium.GroundPolylinePrimitive({
+				geometryInstances: instances,
+				appearance: new Cesium.PolylineColorAppearance(),
+				asynchronous: false,
+				allowPicking: false
+			});
+			this.map.viewer.scene.groundPrimitives.add(this.highlightPrimitive);
+		}
+		this.map.refresh();
+	}
+
+	/**
+	 * Mark the zone currently shown in the table so it gets a bright blue, thicker
+	 * outline while the other selected zones stay yellow.
 	 */
 	public setActiveZone(code: string | undefined): void {
 		if (this.activeCode === code) return;
 		this.activeCode = code;
-		if (!this.highlightSource) return;
-		for (const entity of this.highlightSource.entities.values) {
-			if (!entity.polyline || typeof entity.id !== "string") continue;
-			const entityCode = entity.id.replace(/^zonal_/, "");
-			entity.polyline.material = new Cesium.ColorMaterialProperty(this.highlightColor(entityCode));
-			entity.polyline.width = new Cesium.ConstantProperty(this.highlightWidth(entityCode));
-			entity.polyline.zIndex = new Cesium.ConstantProperty(this.highlightZIndex(entityCode));
-		}
-		this.map.refresh();
+		this.rebuildHighlights();
 	}
 
 	/** Remove all selected zones and their highlights. */
 	public clearSelection(): void {
-		this.highlightSource?.entities.removeAll();
 		this.activeCode = undefined;
 		this.selectedZones.set([]);
-		this.map.refresh();
+		this.rebuildHighlights();
 	}
 
 	/** Whether a zone with the given code is currently selected. */
@@ -337,6 +372,24 @@ export class ZonalStatisticsController {
 			values,
 			tooltips
 		};
+	}
+
+	/**
+	 * Build the per-column value + tooltip slice for a single zone across all
+	 * data layers (aligned to the resolved data-layer order). Used by the view
+	 * to update the table incrementally when one zone is (de)selected.
+	 */
+	public buildZoneSlice(
+		code: string
+	): Array<{ values: Array<string | undefined>; tooltips: Array<string | undefined> }> {
+		const columns = this.settings.columns;
+		return this.dataLayers.map((dl) => {
+			const props = this.valueIndex.get(dl.layerId)?.get(code);
+			return {
+				values: columns.map((c) => this.toOptionalString(props?.[c.attribute])),
+				tooltips: columns.map((c) => this.readOptionalAttribute(props, c.tooltipAttribute))
+			};
+		});
 	}
 
 	/**
@@ -390,13 +443,13 @@ export class ZonalStatisticsController {
 			this.zoneVisibleUnsub();
 			this.zoneVisibleUnsub = undefined;
 		}
-		if (this.zoneOutlineSource) {
-			this.map.viewer.dataSources.remove(this.zoneOutlineSource, true);
-			this.zoneOutlineSource = undefined;
+		if (this.zoneOutlinePrimitive) {
+			this.map.viewer.scene.groundPrimitives.remove(this.zoneOutlinePrimitive);
+			this.zoneOutlinePrimitive = undefined;
 		}
-		if (this.highlightSource) {
-			this.map.viewer.dataSources.remove(this.highlightSource, true);
-			this.highlightSource = undefined;
+		if (this.highlightPrimitive) {
+			this.map.viewer.scene.groundPrimitives.remove(this.highlightPrimitive);
+			this.highlightPrimitive = undefined;
 		}
 		this.map.refresh();
 	}

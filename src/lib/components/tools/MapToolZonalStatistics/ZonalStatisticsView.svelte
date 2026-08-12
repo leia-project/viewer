@@ -3,7 +3,6 @@
 	import { get } from "svelte/store";
 	import { fade } from "svelte/transition";
 	import { _, locale } from "svelte-i18n";
-	import { TooltipDefinition } from "carbon-components-svelte";
 	import { Close, Download, Location, TrashCan } from "carbon-icons-svelte";
 	import { toJpeg, toPng } from "html-to-image";
 	import { jsPDF } from "jspdf";
@@ -37,7 +36,16 @@
 		return column?.label ?? column?.attribute ?? "";
 	}
 
-	let table: ZoneTable = { zones: [], rows: [] };
+	// Rows are stable (one per resolved data layer); zone columns are added/removed incrementally.
+	let table: ZoneTable = {
+		zones: [],
+		rows: controller.getResolvedDataLayers().map((dl) => ({
+			layerId: dl.layerId,
+			title: dl.title,
+			values: {},
+			tooltips: {}
+		}))
+	};
 	let activeCode: string | undefined;
 	let show = true;
 	let exportingImage = false;
@@ -61,11 +69,15 @@
 			scroll = { top: false, bottom: false, left: false, right: false };
 			return;
 		}
+		// Compare against the offset size (which includes the scrollbar) so a
+		// vertical scrollbar can't fake horizontal overflow, and vice versa.
+		const hasHorizontalOverflow = el.scrollWidth - el.offsetWidth > 1;
+		const hasVerticalOverflow = el.scrollHeight - el.offsetHeight > 1;
 		scroll = {
-			top: el.scrollTop > 0,
-			bottom: el.scrollTop + el.clientHeight < el.scrollHeight - 1,
-			left: el.scrollLeft > 0,
-			right: el.scrollLeft + el.clientWidth < el.scrollWidth - 1
+			top: hasVerticalOverflow && el.scrollTop > 0,
+			bottom: hasVerticalOverflow && el.scrollTop + el.clientHeight < el.scrollHeight - 1,
+			left: hasHorizontalOverflow && el.scrollLeft > 0,
+			right: hasHorizontalOverflow && el.scrollLeft + el.clientWidth < el.scrollWidth - 1
 		};
 	}
 
@@ -76,13 +88,39 @@
 		errorTimer = setTimeout(() => (exportError = false), 5000);
 	}
 
-	const unsubscribe = controller.selectedZones.subscribe(() => {
-		table = controller.buildTable();
+	const unsubscribe = controller.selectedZones.subscribe((zones) => {
+		updateTable(zones.map((z) => z.code));
+	});
+
+	// Add/remove only the changed zone columns instead of rebuilding the whole table.
+	function updateTable(codes: Array<string>): void {
+		const next = new Set(codes);
+		const current = new Set(table.zones);
+
+		for (const code of table.zones) {
+			if (next.has(code)) continue;
+			for (const row of table.rows) {
+				delete row.values[code];
+				delete row.tooltips[code];
+			}
+		}
+		for (const code of codes) {
+			if (current.has(code)) continue;
+			const slice = controller.buildZoneSlice(code);
+			table.rows.forEach((row, i) => {
+				row.values[code] = slice[i].values;
+				row.tooltips[code] = slice[i].tooltips;
+			});
+		}
+
+		table.zones = codes;
+		table = table;
+
 		// Drop the active zone if it is no longer selected.
-		if (activeCode && !table.zones.includes(activeCode)) {
+		if (activeCode && !next.has(activeCode)) {
 			activeCode = undefined;
 		}
-	});
+	}
 
 	$: controller.setActiveZone(activeCode);
 
@@ -549,14 +587,10 @@
 												style={cellStyle(row.values[code]?.[i], i)}
 											>
 												{#if row.tooltips[code]?.[i] && !exportingImage}
-													<TooltipDefinition
-														class="cell-tooltip"
-														align={i === columns.length - 1 ? "end" : "start"}
-														direction="top"
-														tooltipText={row.tooltips[code][i]}
-													>
+													<!-- Native title tooltip: no abspos layout, so it can't add phantom horizontal scroll. -->
+													<span class="cell-tooltip" title={row.tooltips[code][i]}>
 														{row.values[code]?.[i] ?? "–"}
-													</TooltipDefinition>
+													</span>
 												{:else}
 													{row.values[code]?.[i] ?? "–"}
 												{/if}
@@ -775,7 +809,6 @@
 	.zonal-table {
 		border-collapse: collapse;
 		width: max-content;
-		min-width: 100%;
 		font-size: 0.875rem;
 	}
 
@@ -859,18 +892,10 @@
 		border-radius: 2px;
 	}
 
-	:global(.cell-tooltip .bx--tooltip__trigger) {
-		background: none;
-		border: 0;
-		color: inherit;
+	.cell-tooltip {
 		cursor: help;
-		display: inline-flex;
-		font: inherit;
-		padding: 0;
-	}
-
-	:global(.cell-tooltip .bx--tooltip__trigger--definition) {
-		white-space: nowrap;
+		text-decoration: underline dotted;
+		text-underline-offset: 3px;
 	}
 
 	.sub-head {
