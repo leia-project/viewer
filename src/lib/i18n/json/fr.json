@@ -397,7 +397,7 @@
             "exportZone": "Zone",
             "exportLayer": "Couche",
             "exportDescription": "Description",
-            "instructions": "Les zones sont mises en évidence sur la carte. Cliquez sur une zone pour l'ajouter au tableau ; cliquez à nouveau pour la retirer.",
+            "instructions": "Les zones sont mises en évidence sur la carte. Cliquez sur une zone pour l'ajouter au tableau. Cliquez à nouveau pour la retirer.",
             "legendTitle": "Légende :",
             "removeZone": "Supprimer la zone",
             "activateZoneHint": "Cliquez pour mettre en évidence cette zone sur la carte",

@@ -109,5 +109,5 @@
 </script>
 
 {#if $selectedTool === tool && controller}
-	<ZonalStatisticsPanel {controller} title={label} />
+	<ZonalStatisticsPanel {controller} />
 {/if}

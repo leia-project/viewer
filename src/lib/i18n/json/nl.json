@@ -407,7 +407,7 @@
             "exportZone": "Gebied",
             "exportLayer": "Laag",
             "exportDescription": "Omschrijving",
-            "instructions": "Gebieden zijn gemarkeerd op de kaart. Klik op een gebied om het aan de tabel toe te voegen; klik nogmaals om het te verwijderen.",
+            "instructions": "Gebieden zijn gemarkeerd op de kaart. Klik op een gebied om het aan de tabel toe te voegen. Klik nogmaals om het te verwijderen.",
             "legendTitle": "Legenda:",
             "removeZone": "Gebied verwijderen",
             "activateZoneHint": "Klik om dit gebied op de kaart te markeren",

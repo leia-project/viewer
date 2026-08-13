@@ -400,7 +400,7 @@
             "exportZone": "Zone",
             "exportLayer": "Layer",
             "exportDescription": "Description",
-            "instructions": "Zones are highlighted on the map. Click a zone to add it to the table; click it again to remove it.",
+            "instructions": "Zones are highlighted on the map. Click a zone to add it to the table. Click it again to remove it.",
             "legendTitle": "Legend:",
             "removeZone": "Remove zone",
             "activateZoneHint": "Click to highlight this zone on the map",

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy } from "svelte";
-	import { Accordion } from "carbon-components-svelte";
+	import { Accordion, InlineNotification } from "carbon-components-svelte";
 	import { _ } from "svelte-i18n";
 
 	import type { ZonalStatisticsController, ZonalSummary } from "./zonal-statistics-controller";
@@ -8,7 +8,6 @@
 	import LayerControl from "../MapToolLayerManager/MapToolLayerControl.svelte";
 
 	export let controller: ZonalStatisticsController;
-	export let title: string;
 
 	const resolvedDataLayers = controller.resolvedDataLayers;
 	const settings = controller.settings;
@@ -31,9 +30,14 @@
 </script>
 
 <div class="panel">
-	<div class="panel-header heading-01">{title}</div>
-
-	<div class="instructions body-compact-01">{$_("tools.zonalStatistics.instructions")}</div>
+	<InlineNotification
+		class="instructions"
+		kind="info"
+		lowContrast
+		hideCloseButton
+		title=""
+		subtitle={$_("tools.zonalStatistics.instructions")}
+	/>
 
 	{#if $resolvedDataLayers.length === 0}
 		<div class="empty body-compact-01">{$_("tools.zonalStatistics.noDataLayers")}</div>
@@ -141,13 +145,10 @@
 		box-sizing: border-box;
 	}
 
-	.panel-header {
-		margin-bottom: var(--cds-spacing-02);
-	}
-
-	.instructions {
-		color: var(--cds-text-secondary);
-		margin-bottom: var(--cds-spacing-02);
+	:global(.instructions.bx--inline-notification) {
+		max-width: 100%;
+		margin-top: 0;
+		margin-bottom: var(--cds-spacing-03);
 	}
 
 	:global(.layer-group-accordion) {

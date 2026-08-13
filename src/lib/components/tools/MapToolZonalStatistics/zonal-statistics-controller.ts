@@ -128,8 +128,8 @@ export class ZonalStatisticsController {
 	// (selected less than hover); active blends towards a tint. All preserve the base opacity.
 	private static readonly ACTIVE_TINT = Cesium.Color.DEEPSKYBLUE;
 	private static readonly ACTIVE_TINT_AMOUNT = 0.8;
-	private static readonly SELECTED_BRIGHTEN = 0.4;
-	private static readonly HOVER_BRIGHTEN = 0.5;
+	private static readonly SELECTED_BRIGHTEN = 0.5;
+	private static readonly HOVER_BRIGHTEN = 0.3;
 	// Static zone-boundary outline colour (does not change with selection/active state).
 	private static readonly OUTLINE_COLOR = Cesium.Color.BLACK;
 
