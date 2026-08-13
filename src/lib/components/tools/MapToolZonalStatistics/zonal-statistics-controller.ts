@@ -130,7 +130,8 @@ export class ZonalStatisticsController {
 	private static readonly ACTIVE_TINT_AMOUNT = 0.8;
 	private static readonly SELECTED_BRIGHTEN = 0.5;
 	private static readonly HOVER_BRIGHTEN = 0.3;
-	// Static zone-boundary outline colour (does not change with selection/active state).
+	// Base zone-boundary outline colour (does not change with selection/active state); its alpha
+	// tracks the zone layer's opacity slider.
 	private static readonly OUTLINE_COLOR = Cesium.Color.BLACK;
 
 	private readonly map: CesiumMap;
@@ -162,6 +163,8 @@ export class ZonalStatisticsController {
 	private readonly fillRenders: Map<string, FillLayerRender> = new Map();
 	/** Single batched primitive outlining every zone boundary (added on top of the fills). */
 	private zoneOutlinePrimitive: Cesium.Primitive | undefined;
+	/** Per-instance ids of the outline primitive, used to rescale their alpha with layer opacity. */
+	private readonly zoneOutlineIds: Array<object> = [];
 	/** Store/event unsubscribers for the fill primitives (visible/opacity/style/active). */
 	private readonly unsubscribers: Array<Unsubscriber> = [];
 	/** The zone currently shown in the table (drawn with the strongest tint). */
@@ -329,22 +332,23 @@ export class ZonalStatisticsController {
 	 * Outline every zone boundary as a single batched `Primitive` of `PolygonOutlineGeometry`
 	 * instances (one draw call, not thousands of entities), flat at height 0 with the depth test
 	 * off so the lines sit on top of the fills. Only the zone layer is outlined (data layers share
-	 * the same geometry); visibility follows the zone layer.
+	 * the same geometry); visibility follows the zone layer and the line alpha tracks its opacity.
 	 */
 	private buildZoneOutlines(): void {
 		const source = this.zoneLayer?.source;
 		if (!this.zoneLayer || !source) return;
 		const time = this.map.viewer.clock.currentTime;
-		const color = Cesium.ColorGeometryInstanceAttribute.fromColor(
-			ZonalStatisticsController.OUTLINE_COLOR
-		);
+		const color = Cesium.ColorGeometryInstanceAttribute.fromColor(this.outlineColor());
 		const instances: Array<Cesium.GeometryInstance> = [];
+		this.zoneOutlineIds.length = 0;
 		for (const entity of source.entities.values) {
 			if (this.entityCodeIndex.get(entity) === undefined) continue;
 			const hierarchy = entity.polygon?.hierarchy?.getValue(time) as
 				| Cesium.PolygonHierarchy
 				| undefined;
 			if (!hierarchy || hierarchy.positions.length < 3) continue;
+			const id = {};
+			this.zoneOutlineIds.push(id);
 			instances.push(
 				new Cesium.GeometryInstance({
 					geometry: new Cesium.PolygonOutlineGeometry({
@@ -352,7 +356,8 @@ export class ZonalStatisticsController {
 						height: 0,
 						perPositionHeight: false
 					}),
-					attributes: { color }
+					attributes: { color },
+					id
 				})
 			);
 		}
@@ -361,12 +366,15 @@ export class ZonalStatisticsController {
 			geometryInstances: instances,
 			appearance: new Cesium.PerInstanceColorAppearance({
 				flat: true,
-				translucent: false,
+				// Draw in the translucent pass (like the fills) so the outlines render *after* the
+				// semi-transparent fills instead of being painted over by them in a later pass. At
+				// equal (flat) depth Cesium's stable sort keeps this last-added primitive on top.
+				translucent: true,
 				renderState: { depthTest: { enabled: false } }
 			}),
 			allowPicking: false,
 			asynchronous: true,
-			releaseGeometryInstances: true
+			releaseGeometryInstances: false
 		});
 		this.zoneOutlinePrimitive.show = get(this.zoneLayer.visible);
 		this.map.viewer.scene.primitives.add(this.zoneOutlinePrimitive);
@@ -374,8 +382,28 @@ export class ZonalStatisticsController {
 			this.zoneLayer.visible.subscribe((visible) => {
 				if (this.zoneOutlinePrimitive) this.zoneOutlinePrimitive.show = visible;
 				this.map.refresh();
-			})
+			}),
+			this.zoneLayer.opacity.subscribe(() => this.applyOutlineOpacity())
 		);
+	}
+
+	/** Outline colour with its alpha scaled to the zone layer's opacity slider (0…100 → 0…1). */
+	private outlineColor(): Cesium.Color {
+		const opacity = this.zoneLayer ? get(this.zoneLayer.opacity) : 100;
+		const alpha = Math.min(1, Math.max(0, opacity / 100));
+		return ZonalStatisticsController.OUTLINE_COLOR.withAlpha(alpha);
+	}
+
+	/** Rescale every outline instance's alpha to match the current zone-layer opacity. */
+	private applyOutlineOpacity(): void {
+		const primitive = this.zoneOutlinePrimitive;
+		if (!primitive || !primitive.ready) return;
+		const value = Cesium.ColorGeometryInstanceAttribute.toValue(this.outlineColor());
+		for (const id of this.zoneOutlineIds) {
+			const attributes = primitive.getGeometryInstanceAttributes(id);
+			if (attributes) attributes.color = value;
+		}
+		this.map.refresh();
 	}
 
 	/** Read a polygon entity's current fill colour (label colour + opacity) from its material. */
@@ -832,6 +860,7 @@ export class ZonalStatisticsController {
 			this.map.viewer.scene.primitives.remove(this.zoneOutlinePrimitive);
 			this.zoneOutlinePrimitive = undefined;
 		}
+		this.zoneOutlineIds.length = 0;
 		for (const render of this.fillRenders.values()) {
 			this.map.viewer.scene.primitives.remove(render.primitive);
 			this.restoreEntityFills(render.layer);
