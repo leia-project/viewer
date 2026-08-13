@@ -124,13 +124,14 @@ export interface ZonalSummary {
  * zone table. UI components subscribe to the exposed stores.
  */
 export class ZonalStatisticsController {
-	// State tints layered over each zone's base label fill colour. Selection + active blend the base
-	// towards a tint (preserving hue + opacity); hover brightens the base.
-	private static readonly SELECTED_TINT = Cesium.Color.YELLOW;
+	// State colours layered over each zone's base label fill. Selected + hover brighten the base
+	// (selected less than hover); active blends towards a tint. All preserve the base opacity.
 	private static readonly ACTIVE_TINT = Cesium.Color.DEEPSKYBLUE;
-	private static readonly SELECTED_TINT_AMOUNT = 0.55;
 	private static readonly ACTIVE_TINT_AMOUNT = 0.8;
+	private static readonly SELECTED_BRIGHTEN = 0.4;
 	private static readonly HOVER_BRIGHTEN = 0.5;
+	// Static zone-boundary outline colour (does not change with selection/active state).
+	private static readonly OUTLINE_COLOR = Cesium.Color.BLACK;
 
 	private readonly map: CesiumMap;
 	public readonly settings: ZonalStatisticsSettings;
@@ -159,6 +160,8 @@ export class ZonalStatisticsController {
 
 	/** One batched fill primitive per unique layer id (zone + data layers), keyed by layer id. */
 	private readonly fillRenders: Map<string, FillLayerRender> = new Map();
+	/** Single batched primitive outlining every zone boundary (added on top of the fills). */
+	private zoneOutlinePrimitive: Cesium.Primitive | undefined;
 	/** Store/event unsubscribers for the fill primitives (visible/opacity/style/active). */
 	private readonly unsubscribers: Array<Unsubscriber> = [];
 	/** The zone currently shown in the table (drawn with the strongest tint). */
@@ -212,6 +215,8 @@ export class ZonalStatisticsController {
 		this.resolvedDataLayers.set([...this.dataLayers]);
 
 		this.buildFillRenders();
+		// Added after the fills so the boundary lines draw on top of them.
+		this.buildZoneOutlines();
 
 		this.clickHandler = (l: MouseLocation) => this.onMapClick(l);
 		this.map.on("mouseLeftClick", this.clickHandler as (n: unknown) => unknown);
@@ -318,6 +323,59 @@ export class ZonalStatisticsController {
 		primitive.show = get(layer.visible);
 		this.map.viewer.scene.primitives.add(primitive);
 		return { layer, primitive, idsByCode, entityById, baseColor };
+	}
+
+	/**
+	 * Outline every zone boundary as a single batched `Primitive` of `PolygonOutlineGeometry`
+	 * instances (one draw call, not thousands of entities), flat at height 0 with the depth test
+	 * off so the lines sit on top of the fills. Only the zone layer is outlined (data layers share
+	 * the same geometry); visibility follows the zone layer.
+	 */
+	private buildZoneOutlines(): void {
+		const source = this.zoneLayer?.source;
+		if (!this.zoneLayer || !source) return;
+		const time = this.map.viewer.clock.currentTime;
+		const color = Cesium.ColorGeometryInstanceAttribute.fromColor(
+			ZonalStatisticsController.OUTLINE_COLOR
+		);
+		const instances: Array<Cesium.GeometryInstance> = [];
+		for (const entity of source.entities.values) {
+			if (this.entityCodeIndex.get(entity) === undefined) continue;
+			const hierarchy = entity.polygon?.hierarchy?.getValue(time) as
+				| Cesium.PolygonHierarchy
+				| undefined;
+			if (!hierarchy || hierarchy.positions.length < 3) continue;
+			instances.push(
+				new Cesium.GeometryInstance({
+					geometry: new Cesium.PolygonOutlineGeometry({
+						polygonHierarchy: hierarchy,
+						height: 0,
+						perPositionHeight: false
+					}),
+					attributes: { color }
+				})
+			);
+		}
+		if (instances.length === 0) return;
+		this.zoneOutlinePrimitive = new Cesium.Primitive({
+			geometryInstances: instances,
+			appearance: new Cesium.PerInstanceColorAppearance({
+				flat: true,
+				translucent: false,
+				renderState: { depthTest: { enabled: false } }
+			}),
+			allowPicking: false,
+			asynchronous: true,
+			releaseGeometryInstances: true
+		});
+		this.zoneOutlinePrimitive.show = get(this.zoneLayer.visible);
+		this.map.viewer.scene.primitives.add(this.zoneOutlinePrimitive);
+		this.unsubscribers.push(
+			this.zoneLayer.visible.subscribe((visible) => {
+				if (this.zoneOutlinePrimitive) this.zoneOutlinePrimitive.show = visible;
+				this.map.refresh();
+			})
+		);
 	}
 
 	/** Read a polygon entity's current fill colour (label colour + opacity) from its material. */
@@ -449,12 +507,7 @@ export class ZonalStatisticsController {
 				new Cesium.Color()
 			);
 		} else if (this.isSelected(code)) {
-			result = Cesium.Color.lerp(
-				base,
-				ZonalStatisticsController.SELECTED_TINT,
-				ZonalStatisticsController.SELECTED_TINT_AMOUNT,
-				new Cesium.Color()
-			);
+			result = base.brighten(ZonalStatisticsController.SELECTED_BRIGHTEN, new Cesium.Color());
 		} else if (code === this.hoveredCode) {
 			result = base.brighten(ZonalStatisticsController.HOVER_BRIGHTEN, new Cesium.Color());
 		} else {
@@ -755,6 +808,10 @@ export class ZonalStatisticsController {
 		}
 		for (const unsubscribe of this.unsubscribers) unsubscribe();
 		this.unsubscribers.length = 0;
+		if (this.zoneOutlinePrimitive) {
+			this.map.viewer.scene.primitives.remove(this.zoneOutlinePrimitive);
+			this.zoneOutlinePrimitive = undefined;
+		}
 		for (const render of this.fillRenders.values()) {
 			this.map.viewer.scene.primitives.remove(render.primitive);
 			this.restoreEntityFills(render.layer);
