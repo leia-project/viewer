@@ -22,6 +22,7 @@
 		ZonalStatisticsController,
 		ZonalStatisticsExportRow
 	} from "./zonal-statistics-controller";
+	import { createZonalStyler } from "./zonal-style";
 
 	export let controller: ZonalStatisticsController;
 	export let title: string;
@@ -53,10 +54,14 @@
 	let exportingFormat = "";
 	let exportError = false;
 	let errorTimer: ReturnType<typeof setTimeout> | undefined;
-	let tableElement: HTMLTableElement | undefined;
+	// Off-screen A4-width sheet captured for PNG/JPEG exports (zones stacked vertically).
+	let exportElement: HTMLDivElement | undefined;
 	let contentEl: HTMLDivElement | undefined;
 	let stickyColWidth = 0;
 	let scroll = { top: false, bottom: false, left: false, right: false };
+	// Space taken by the scrollbars, so the edge shadows can stop before them.
+	let scrollbarW = 0;
+	let scrollbarH = 0;
 
 	$: exportInProgress = exportingImage || exportingPdf;
 	// Recompute the scroll-shadow cues whenever the table content changes.
@@ -73,6 +78,9 @@
 		// vertical scrollbar can't fake horizontal overflow, and vice versa.
 		const hasHorizontalOverflow = el.scrollWidth - el.offsetWidth > 1;
 		const hasVerticalOverflow = el.scrollHeight - el.offsetHeight > 1;
+		// Overlay scrollbars report 0 here, in which case the shadows keep their full extent.
+		scrollbarW = el.offsetWidth - el.clientWidth;
+		scrollbarH = el.offsetHeight - el.clientHeight;
 		scroll = {
 			top: hasVerticalOverflow && el.scrollTop > 0,
 			bottom: hasVerticalOverflow && el.scrollTop + el.clientHeight < el.scrollHeight - 1,
@@ -124,64 +132,10 @@
 
 	$: controller.setActiveZone(activeCode);
 
-	type Rgb = [number, number, number];
-
-	const TEXT_DARK = { css: "#161616", rgb: [22, 22, 22] as Rgb };
-	const TEXT_LIGHT = { css: "#ffffff", rgb: [255, 255, 255] as Rgb };
-
-	// value (upper-cased) -> configured style, for cell colours + legend.
-	const valueStyleMap = new Map(settings.valueStyles.map((s) => [s.value.trim().toUpperCase(), s]));
-
-	const styleFor = (value: string | undefined) =>
-		value ? valueStyleMap.get(value.trim().toUpperCase()) : undefined;
+	const styler = createZonalStyler(settings.valueStyles);
 
 	function cellStyle(value: string | undefined, columnIndex: number): string {
-		const color = columns[columnIndex]?.styled ? styleFor(value)?.color : undefined;
-		return color ? swatchStyle(color) : "";
-	}
-
-	// Cache the computed inline style per colour so cell rendering doesn't rerun the
-	// hex->rgb->luminance math for every cell on every table update (colours are few).
-	const swatchCache = new Map<string, string>();
-
-	function swatchStyle(background: string): string {
-		const cached = swatchCache.get(background);
-		if (cached !== undefined) return cached;
-		const rgb = hexToRgb(background);
-		const style = `background-color: ${background};${rgb ? ` color: ${readableTextColor(rgb).css};` : ""}`;
-		swatchCache.set(background, style);
-		return style;
-	}
-
-	function hexToRgb(hex: string): Rgb | undefined {
-		const short = hex.trim().replace(/^#/, "");
-		const h = short.length === 3 ? short.replace(/./g, (c) => c + c) : short;
-		if (!/^[0-9a-f]{6}$/i.test(h)) return undefined;
-		return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)) as Rgb;
-	}
-
-	function luminance([r, g, b]: Rgb): number {
-		const channel = (c: number) => {
-			const s = c / 255;
-			return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
-		};
-		return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
-	}
-
-	// Whichever of the two text colours has the higher WCAG contrast on this background.
-	function readableTextColor(background: Rgb) {
-		const contrast = (a: number, b: number) =>
-			(Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
-		const bg = luminance(background);
-		return contrast(bg, luminance(TEXT_LIGHT.rgb)) >= contrast(bg, luminance(TEXT_DARK.rgb))
-			? TEXT_LIGHT
-			: TEXT_DARK;
-	}
-
-	// PDF cell colour for a value (hex colours only; other CSS colours render plain in the PDF).
-	function pdfColor(value: string) {
-		const fill = hexToRgb(styleFor(value)?.color ?? "");
-		return fill ? { fill, text: readableTextColor(fill).rgb } : undefined;
+		return styler.cellStyle(value, columns[columnIndex]?.styled === true);
 	}
 
 	function exportTitle(): string {
@@ -296,7 +250,7 @@
 
 		let cursorX = x;
 		columns.forEach((col, i) => {
-			const color = col.colored ? pdfColor(col.get(row)) : undefined;
+			const color = col.colored ? styler.pdfColor(col.get(row)) : undefined;
 			if (color) {
 				doc.setFillColor(color.fill[0], color.fill[1], color.fill[2]);
 				doc.rect(cursorX, y, col.width, rowHeight, "FD");
@@ -387,18 +341,74 @@
 		}
 	}
 
+	// Logical export columns (zone + layer, then each configured column and its
+	// optional description) shared by the CSV export. Mirrors pdfColumns().
+	function csvColumns(): Array<{ header: string; get: (r: ZonalStatisticsExportRow) => string }> {
+		const cols: Array<{ header: string; get: (r: ZonalStatisticsExportRow) => string }> = [
+			{ header: $_("tools.zonalStatistics.exportZone"), get: (r) => r.zoneCode },
+			{ header: $_("tools.zonalStatistics.exportLayer"), get: (r) => r.layerTitle }
+		];
+		columns.forEach((column, i) => {
+			cols.push({ header: columnLabel(i), get: (r) => r.values[i] ?? "" });
+			if (column.tooltipAttribute) {
+				cols.push({
+					header: `${columnLabel(i)} – ${$_("tools.zonalStatistics.exportDescription")}`,
+					get: (r) => r.tooltips[i] ?? ""
+				});
+			}
+		});
+		return cols;
+	}
+
+	function csvCell(value: string): string {
+		const v = value ?? "";
+		return /[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+	}
+
+	function exportCsv() {
+		if (exportInProgress) return;
+
+		const rows = controller.buildExportRows();
+		if (rows.length === 0) return;
+
+		try {
+			exportError = false;
+			const cols = csvColumns();
+			const lines = [cols.map((c) => csvCell(c.header)).join(",")];
+			for (const row of rows) {
+				lines.push(cols.map((c) => csvCell(c.get(row))).join(","));
+			}
+			// Prepend a UTF-8 BOM so Excel opens accented characters correctly.
+			const blob = new Blob(["\uFEFF" + lines.join("\r\n")], {
+				type: "text/csv;charset=utf-8;"
+			});
+			const link = document.createElement("a");
+			link.href = URL.createObjectURL(blob);
+			link.download = `${fileNamePrefix()}_${formatTimestamp(new Date())}.csv`;
+			link.click();
+			URL.revokeObjectURL(link.href);
+		} catch (error) {
+			console.error("zonalStatistics: failed to export table as CSV", error);
+			flagExportError();
+		}
+	}
+
 	async function exportImage(format: "png" | "jpeg") {
 		if (exportInProgress) return;
-		if (!tableElement) return;
+		if (table.zones.length === 0) return;
 
 		try {
 			exportError = false;
 			exportingFormat = format.toUpperCase();
 			exportingImage = true;
+			// Wait for the off-screen export sheet (zones stacked vertically) to render.
 			await tick();
 
-			const width = tableElement.scrollWidth;
-			const height = tableElement.scrollHeight;
+			const node = exportElement;
+			if (!node) return;
+
+			const width = node.scrollWidth;
+			const height = node.scrollHeight;
 			const options = {
 				cacheBust: true,
 				pixelRatio: 2,
@@ -412,8 +422,8 @@
 			};
 			const dataUrl =
 				format === "jpeg"
-					? await toJpeg(tableElement, { ...options, quality: 0.95 })
-					: await toPng(tableElement, options);
+					? await toJpeg(node, { ...options, quality: 0.95 })
+					: await toPng(node, options);
 
 			const link = document.createElement("a");
 			link.href = dataUrl;
@@ -496,13 +506,14 @@
 						<OverflowMenuItem text="PNG" on:click={exportPng} />
 						<OverflowMenuItem text="JPEG" on:click={exportJpeg} />
 						<OverflowMenuItem text="PDF" on:click={exportPdf} />
+						<OverflowMenuItem text="CSV" on:click={exportCsv} />
 					</OverflowMenu>
 					<Button
 						kind="ghost"
 						icon={TrashCan}
 						size="small"
 						iconDescription={$_("tools.zonalStatistics.clearSelection")}
-						tooltipPosition="left"
+						tooltipPosition="bottom"
 						on:click={clear}
 					/>
 				{/if}
@@ -511,7 +522,7 @@
 					icon={Close}
 					size="small"
 					iconDescription={$_("tools.zonalStatistics.close")}
-					tooltipPosition="left"
+					tooltipPosition="bottom"
 					on:click={removeFromView}
 				/>
 			</div>
@@ -525,7 +536,7 @@
 						<span>{$_("tools.zonalStatistics.noSelection")}</span>
 					</div>
 				{:else}
-					<table class="zonal-table" bind:this={tableElement}>
+					<table class="zonal-table">
 						<caption class="bx--visually-hidden"
 							>{$_("tools.zonalStatistics.tableCaption")}</caption
 						>
@@ -551,19 +562,17 @@
 											>
 												{code}
 											</button>
-											{#if !exportingImage}
-												<button
-													type="button"
-													class="zone-remove"
-													aria-label={$_("tools.zonalStatistics.removeZoneAria", {
-														values: { code }
-													})}
-													title={$_("tools.zonalStatistics.removeZone")}
-													on:click={() => controller.toggleZone(code)}
-												>
-													<Close size={16} />
-												</button>
-											{/if}
+											<button
+												type="button"
+												class="zone-remove"
+												aria-label={$_("tools.zonalStatistics.removeZoneAria", {
+													values: { code }
+												})}
+												title={$_("tools.zonalStatistics.removeZone")}
+												on:click={() => controller.toggleZone(code)}
+											>
+												<Close size={16} />
+											</button>
 										</div>
 									</th>
 								{/each}
@@ -594,7 +603,7 @@
 												class:active={code === activeCode}
 												style={cellStyle(row.values[code]?.[i], i)}
 											>
-												{#if row.tooltips[code]?.[i] && !exportingImage}
+												{#if row.tooltips[code]?.[i]}
 													<!-- Native title tooltip: no abspos layout, so it can't add phantom horizontal scroll. -->
 													<span class="cell-tooltip" title={row.tooltips[code][i]}>
 														{row.values[code]?.[i] ?? "–"}
@@ -611,14 +620,26 @@
 					</table>
 				{/if}
 			</div>
-			<div class="edge edge-top" class:visible={scroll.top}></div>
-			<div class="edge edge-bottom" class:visible={scroll.bottom}></div>
+			<div
+				class="edge edge-top"
+				class:visible={scroll.top}
+				style="right: {scrollbarW}px"
+			></div>
+			<div
+				class="edge edge-bottom"
+				class:visible={scroll.bottom}
+				style="right: {scrollbarW}px; bottom: {scrollbarH}px"
+			></div>
 			<div
 				class="edge edge-left"
 				class:visible={scroll.left}
-				style="left: {stickyColWidth}px"
+				style="left: {stickyColWidth}px; bottom: {scrollbarH}px"
 			></div>
-			<div class="edge edge-right" class:visible={scroll.right}></div>
+			<div
+				class="edge edge-right"
+				class:visible={scroll.right}
+				style="right: {scrollbarW}px; bottom: {scrollbarH}px"
+			></div>
 			{#if exportInProgress}
 				<div class="busy-overlay" in:fade={{ duration: 100 }} out:fade={{ duration: 100 }}>
 					<InlineLoading
@@ -636,10 +657,59 @@
 					>{$_("tools.zonalStatistics.legendTitle")}</span
 				>
 				{#each settings.valueStyles as style (style.value)}
-					<span class="legend-chip" style={swatchStyle(style.color)}>
+					<span class="legend-chip" style={styler.swatchStyle(style.color)}>
 						{style.label ?? style.value}
 					</span>
 				{/each}
+			</div>
+		{/if}
+
+		{#if exportingImage}
+			<!-- Off-screen A4-portrait-width sheet: zones stacked vertically so the image fits on A4 pages. -->
+			<div class="export-offscreen" aria-hidden="true">
+				<div class="export-sheet" bind:this={exportElement}>
+					<div class="export-heading">{exportTitle()}</div>
+					{#each table.zones as code (code)}
+						<section class="export-zone">
+							<div class="export-zone-title">{code}</div>
+							<table class="export-table">
+								<thead>
+									<tr>
+										<th class="export-corner">{$_("tools.zonalStatistics.exportLayer")}</th>
+										{#each columns as column, i (i)}
+											<th>{columnLabel(i)}</th>
+										{/each}
+									</tr>
+								</thead>
+								<tbody>
+									{#each table.rows as row (row.layerId)}
+										<tr>
+											<th class="export-row-head" scope="row">{row.title}</th>
+											{#each columns as column, i (i)}
+												<td style={cellStyle(row.values[code]?.[i], i)}>
+													{row.values[code]?.[i] ?? "–"}
+													{#if row.tooltips[code]?.[i]}
+														<span class="cell-tooltip-text">{row.tooltips[code][i]}</span>
+													{/if}
+												</td>
+											{/each}
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</section>
+					{/each}
+					{#if settings.valueStyles.length > 0}
+						<div class="export-legend">
+							<span class="export-legend-title">{$_("tools.zonalStatistics.legendTitle")}</span>
+							{#each settings.valueStyles as style (style.value)}
+								<span class="legend-chip" style={styler.swatchStyle(style.color)}>
+									{style.label ?? style.value}
+								</span>
+							{/each}
+						</div>
+					{/if}
+				</div>
 			</div>
 		{/if}
 	</div>
@@ -904,6 +974,87 @@
 		cursor: help;
 		text-decoration: underline dotted;
 		text-underline-offset: 3px;
+	}
+
+	/* Inline description shown only while rendering an image export (see template). */
+	.cell-tooltip-text {
+		display: block;
+		margin-top: 2px;
+		font-size: 0.6875rem;
+		opacity: 0.8;
+	}
+
+	/* Off-screen sheet captured for PNG/JPEG exports: A4-portrait width, zones stacked vertically. */
+	.export-offscreen {
+		position: absolute;
+		left: -100000px;
+		top: 0;
+	}
+
+	/* The captured node stays statically positioned so html-to-image renders it at 0,0 (not off-screen). */
+	.export-sheet {
+		width: 760px;
+		box-sizing: border-box;
+		padding: 24px;
+		background: #ffffff;
+		color: var(--cds-text-primary, #161616);
+	}
+
+	.export-heading {
+		font-size: 1.25rem;
+		font-weight: 600;
+		margin-bottom: 16px;
+	}
+
+	.export-zone {
+		margin-bottom: 20px;
+	}
+
+	.export-zone-title {
+		font-size: 1rem;
+		font-weight: 600;
+		margin-bottom: 6px;
+		padding-bottom: 4px;
+		border-bottom: 2px solid var(--cds-border-strong, #8d8d8d);
+	}
+
+	.export-table {
+		width: 100%;
+		border-collapse: collapse;
+		table-layout: fixed;
+		font-size: 0.8125rem;
+	}
+
+	.export-table th,
+	.export-table td {
+		border: 1px solid var(--cds-border-subtle, #c6c6c6);
+		padding: 6px 8px;
+		text-align: left;
+		vertical-align: top;
+		word-break: break-word;
+	}
+
+	.export-table thead th {
+		background: var(--cds-layer-accent, #e0e0e0);
+		font-weight: 600;
+	}
+
+	.export-row-head {
+		background: var(--cds-layer, #f4f4f4);
+		font-weight: 600;
+		width: 34%;
+	}
+
+	.export-legend {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+		margin-top: 8px;
+	}
+
+	.export-legend-title {
+		font-weight: 600;
 	}
 
 	.sub-head {

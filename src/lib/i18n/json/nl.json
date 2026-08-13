@@ -420,7 +420,12 @@
             "exporting": "{format} genereren…",
             "exportFailed": "Exporteren mislukt. Probeer het opnieuw.",
             "activateZone": "Markeer gebied {code} op de kaart",
-            "removeZoneAria": "Gebied {code} verwijderen"
+            "removeZoneAria": "Gebied {code} verwijderen",
+            "statistics": "Statistieken",
+            "summaryTotalArea": "{count, plural, one {# gebied} other {# gebieden}} · {area}",
+            "statMin": "Min",
+            "statMax": "Max",
+            "statMean": "Gemiddeld"
         }
     },
     "errors": {

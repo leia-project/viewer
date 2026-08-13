@@ -413,7 +413,12 @@
             "exporting": "Generating {format}…",
             "exportFailed": "Export failed. Please try again.",
             "activateZone": "Highlight zone {code} on the map",
-            "removeZoneAria": "Remove zone {code}"
+            "removeZoneAria": "Remove zone {code}",
+            "statistics": "Statistics",
+            "summaryTotalArea": "{count, plural, one {# zone} other {# zones}} · {area}",
+            "statMin": "Min",
+            "statMax": "Max",
+            "statMean": "Mean"
         }
     },
     "errors": {

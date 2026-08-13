@@ -73,6 +73,8 @@ export interface ZonalStatisticsSettings {
 	columns: Array<ZonalColumn>;
 	/** Optional value -> colour mapping used for styled cell colours + legend. */
 	valueStyles: Array<ZonalValueStyle>;
+	/** Whether to show the computed summary section (area per category / numeric stats). Defaults to true. */
+	showSummary: boolean;
 	/** Optional title used for exports (defaults to the tool title). */
 	exportTitle?: string;
 	/** Optional file-name prefix for exports. */
@@ -142,6 +144,7 @@ export function parseZonalStatisticsSettings(raw: any): ZonalStatisticsSettings 
 		layers,
 		columns,
 		valueStyles,
+		showSummary: raw.showSummary !== false,
 		exportTitle: typeof raw.exportTitle === "string" ? raw.exportTitle : undefined,
 		exportFileName: typeof raw.exportFileName === "string" ? raw.exportFileName : undefined,
 		pdfFooterText: typeof raw.pdfFooterText === "string" ? raw.pdfFooterText : undefined,

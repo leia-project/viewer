@@ -410,7 +410,12 @@
             "exporting": "Génération {format}…",
             "exportFailed": "Échec de l'exportation. Veuillez réessayer.",
             "activateZone": "Mettre en évidence la zone {code} sur la carte",
-            "removeZoneAria": "Supprimer la zone {code}"
+            "removeZoneAria": "Supprimer la zone {code}",
+            "statistics": "Statistiques",
+            "summaryTotalArea": "{count, plural, one {# zone} other {# zones}} · {area}",
+            "statMin": "Min",
+            "statMax": "Max",
+            "statMean": "Moyenne"
         }
     },
     "errors": {

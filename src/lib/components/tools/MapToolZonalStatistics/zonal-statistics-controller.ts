@@ -1,5 +1,6 @@
 import { get, writable, type Unsubscriber, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
+import * as turf from "@turf/turf";
 
 import type { Map as CesiumMap } from "$lib/map-cesium/map";
 import type { MouseLocation } from "$lib/map-core/mouse-location";
@@ -53,6 +54,52 @@ export interface ResolvedDataLayer {
 	layer: GeoJsonLayer;
 }
 
+/** Combined area of the selected zones that carry one categorical value, in m². */
+export interface CategoryArea {
+	/** The categorical (styled) value. */
+	value: string;
+	/** Combined area of the selected zones holding this value, in square metres. */
+	areaSqMeters: number;
+}
+
+/** Basic descriptive statistics for a numeric column across the selected zones. */
+export interface NumericStat {
+	min: number;
+	max: number;
+	mean: number;
+	/** Number of selected zones that had a numeric value for this column. */
+	count: number;
+}
+
+/** Computed summary for one configured column (categorical area breakdown OR numeric stats). */
+export interface SummaryColumn {
+	/** Index into `settings.columns`. */
+	columnIndex: number;
+	/** Whether the column is styled (categorical). */
+	styled: boolean;
+	/** Area per category value (styled columns only), largest first. */
+	categories?: Array<CategoryArea>;
+	/** Descriptive statistics (non-styled numeric columns only). */
+	numeric?: NumericStat;
+}
+
+/** One summary row (one configured data layer) with a result per configured column. */
+export interface SummaryRow {
+	layerId: string;
+	title: string;
+	columns: Array<SummaryColumn>;
+}
+
+/** The computed summary aggregated across all selected zones. */
+export interface ZonalSummary {
+	/** Number of selected zones. */
+	zoneCount: number;
+	/** Combined area of all selected zones, in square metres. */
+	totalAreaSqMeters: number;
+	/** One row per configured data layer. */
+	rows: Array<SummaryRow>;
+}
+
 /**
  * Owns all non-UI logic for the Zonal Statistics tool: resolving the
  * configured zone + data layers, ensuring their data is loaded, handling map
@@ -89,6 +136,8 @@ export class ZonalStatisticsController {
 	/** Cleaned outline rings per zone code (one ring per polygon part), shared by the black outline
 	 * + selection highlights. MultiPolygon zones contribute several rings under the same code. */
 	private readonly ringCache: Map<string, Array<Array<Cesium.Cartesian3>>> = new Map();
+	/** Combined geodesic area per zone code, in square metres, computed on demand and cached. */
+	private readonly areaCache: Map<string, number> = new Map();
 
 	/** Single batched ground polyline primitive outlining the selected zones (drawn above the black outline). */
 	private highlightPrimitive: Cesium.GroundPolylinePrimitive | undefined;
@@ -453,6 +502,126 @@ export class ZonalStatisticsController {
 		const zones = get(this.selectedZones).map((z) => z.code);
 		const rows: Array<ZoneTableRow> = this.dataLayers.map((dl) => this.buildTableRow(dl, zones));
 		return { zones, rows };
+	}
+
+	/** Parse a property value into a finite number (tolerating a comma decimal), or undefined. */
+	private toNumber(value: any): number | undefined {
+		if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
+		if (typeof value === "string") {
+			const normalized = value.trim().replace(",", ".");
+			if (normalized === "") return undefined;
+			const parsed = Number(normalized);
+			return Number.isFinite(parsed) ? parsed : undefined;
+		}
+		return undefined;
+	}
+
+	/**
+	 * Convert a polygon ring's Cartesian3 positions to a closed lon/lat ring for
+	 * Turf, or undefined when it can't form a valid ring (< 4 closed positions).
+	 * Uses the raw hierarchy positions (no `cleanRing` de-duplication) so the area
+	 * matches the full-resolution source geometry.
+	 */
+	private toClosedLonLatRing(
+		positions: Array<Cesium.Cartesian3> | undefined
+	): Array<[number, number]> | undefined {
+		if (!positions || positions.length < 3) return undefined;
+		const ring: Array<[number, number]> = positions.map((position) => {
+			const carto = Cesium.Cartographic.fromCartesian(position);
+			return [Cesium.Math.toDegrees(carto.longitude), Cesium.Math.toDegrees(carto.latitude)];
+		});
+		const first = ring[0];
+		const last = ring[ring.length - 1];
+		if (first[0] !== last[0] || first[1] !== last[1]) ring.push([first[0], first[1]]);
+		return ring.length >= 4 ? ring : undefined;
+	}
+
+	/**
+	 * Geodesic area of one polygon entity, in square metres, computed with Turf
+	 * from its full hierarchy (outer ring minus interior holes).
+	 */
+	private entityAreaSqMeters(entity: Cesium.Entity, time: Cesium.JulianDate): number {
+		const hierarchy = entity.polygon?.hierarchy?.getValue(time) as
+			| Cesium.PolygonHierarchy
+			| undefined;
+		const outer = this.toClosedLonLatRing(hierarchy?.positions);
+		if (!outer) return 0;
+		const rings: Array<Array<[number, number]>> = [outer];
+		for (const hole of hierarchy?.holes ?? []) {
+			const ring = this.toClosedLonLatRing(hole.positions);
+			if (ring) rings.push(ring);
+		}
+		return turf.area(turf.polygon(rings));
+	}
+
+	/** Combined area of a zone (summed over its polygon parts, holes subtracted), in m², cached per code. */
+	private zoneAreaSqMeters(code: string, time: Cesium.JulianDate): number {
+		const cached = this.areaCache.get(code);
+		if (cached !== undefined) return cached;
+		let area = 0;
+		for (const entity of this.zoneEntityIndex.get(code) ?? []) {
+			area += this.entityAreaSqMeters(entity, time);
+		}
+		this.areaCache.set(code, area);
+		return area;
+	}
+
+	/**
+	 * Build the computed summary for the current selection: total selected area
+	 * plus, per configured column, an area-per-category breakdown (styled columns)
+	 * or descriptive statistics (non-styled numeric columns). Recomputed on each
+	 * selection change (selections are few, areas are cached).
+	 */
+	public buildSummary(): ZonalSummary {
+		const codes = get(this.selectedZones).map((z) => z.code);
+		const time = this.map.viewer.clock.currentTime;
+
+		const areaByZone = new Map<string, number>();
+		let totalAreaSqMeters = 0;
+		for (const code of codes) {
+			const area = this.zoneAreaSqMeters(code, time);
+			areaByZone.set(code, area);
+			totalAreaSqMeters += area;
+		}
+
+		const columns = this.settings.columns;
+		const rows: Array<SummaryRow> = this.dataLayers.map((dl) => {
+			const index = this.valueIndex.get(dl.layerId);
+			const columnResults: Array<SummaryColumn> = columns.map((column, columnIndex) => {
+				if (column.styled) {
+					const areaByValue = new Map<string, number>();
+					for (const code of codes) {
+						const value = this.toOptionalString(index?.get(code)?.[column.attribute]);
+						if (value === undefined) continue;
+						areaByValue.set(value, (areaByValue.get(value) ?? 0) + (areaByZone.get(code) ?? 0));
+					}
+					const categories = [...areaByValue.entries()]
+						.map(([value, areaSqMeters]) => ({ value, areaSqMeters }))
+						.sort((a, b) => b.areaSqMeters - a.areaSqMeters);
+					return { columnIndex, styled: true, categories };
+				}
+
+				const numbers: Array<number> = [];
+				for (const code of codes) {
+					const parsed = this.toNumber(index?.get(code)?.[column.attribute]);
+					if (parsed !== undefined) numbers.push(parsed);
+				}
+				let numeric: NumericStat | undefined;
+				if (numbers.length > 0) {
+					const total = numbers.reduce((acc, n) => acc + n, 0);
+					numeric = {
+						min: Math.min(...numbers),
+						max: Math.max(...numbers),
+						mean: total / numbers.length,
+						count: numbers.length
+					};
+				}
+				return { columnIndex, styled: false, numeric };
+			});
+			return { layerId: dl.layerId, title: dl.title, columns: columnResults };
+		});
+
+		return { zoneCount: codes.length, totalAreaSqMeters, rows };
 	}
 
 	/**
