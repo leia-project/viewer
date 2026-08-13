@@ -481,6 +481,26 @@ export class ZonalStatisticsController {
 		return code !== undefined && this.zoneEntityIndex.has(code) ? code : undefined;
 	}
 
+	/** Fly the camera to frame the given zone, using the bounding sphere of all its polygon parts. */
+	public zoomToZone(code: string): void {
+		const time = this.map.viewer.clock.currentTime;
+		const positions: Array<Cesium.Cartesian3> = [];
+		for (const entity of this.zoneEntityIndex.get(code) ?? []) {
+			const hierarchy = entity.polygon?.hierarchy?.getValue(time) as
+				| Cesium.PolygonHierarchy
+				| undefined;
+			if (hierarchy?.positions) positions.push(...hierarchy.positions);
+		}
+		if (positions.length === 0) return;
+		const sphere = Cesium.BoundingSphere.fromPoints(positions);
+		// In 2D mode the camera must stay top-down; range 0 lets Cesium fit the sphere.
+		const pitch = get(this.map.options.use3DMode) ? -60 : -89.9;
+		this.map.viewer.camera.flyToBoundingSphere(sphere, {
+			duration: 1,
+			offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(pitch), 0)
+		});
+	}
+
 	/** Add or remove a zone from the selection, then repaint it. */
 	public toggleZone(code: string): void {
 		const current = get(this.selectedZones);

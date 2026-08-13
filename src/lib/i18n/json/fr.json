@@ -411,6 +411,8 @@
             "exportFailed": "Échec de l'exportation. Veuillez réessayer.",
             "activateZone": "Mettre en évidence la zone {code} sur la carte",
             "removeZoneAria": "Supprimer la zone {code}",
+            "zoomToZone": "Zoomer sur la zone",
+            "zoomToZoneAria": "Zoomer sur la zone {code} sur la carte",
             "statistics": "Statistiques",
             "summaryTotalArea": "{count, plural, one {# zone} other {# zones}} · {area}",
             "statMin": "Min",

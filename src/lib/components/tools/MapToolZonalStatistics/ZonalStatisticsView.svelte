@@ -3,7 +3,7 @@
 	import { get } from "svelte/store";
 	import { fade } from "svelte/transition";
 	import { _, locale } from "svelte-i18n";
-	import { Close, Download, Location, TrashCan } from "carbon-icons-svelte";
+	import { Close, Download, Location, TrashCan, ZoomIn } from "carbon-icons-svelte";
 	import { toJpeg, toPng } from "html-to-image";
 	import { jsPDF } from "jspdf";
 	import {
@@ -564,6 +564,17 @@
 											</button>
 											<button
 												type="button"
+												class="zone-zoom"
+												aria-label={$_("tools.zonalStatistics.zoomToZoneAria", {
+													values: { code }
+												})}
+												title={$_("tools.zonalStatistics.zoomToZone")}
+												on:click={() => controller.zoomToZone(code)}
+											>
+												<ZoomIn size={16} />
+											</button>
+											<button
+												type="button"
 												class="zone-remove"
 												aria-label={$_("tools.zonalStatistics.removeZoneAria", {
 													values: { code }
@@ -970,6 +981,26 @@
 		border-radius: 2px;
 	}
 
+	.zone-zoom {
+		background: none;
+		border: 0;
+		color: var(--cds-text-secondary);
+		cursor: pointer;
+		display: inline-flex;
+		padding: 0;
+		transition: color 120ms ease;
+	}
+
+	.zone-zoom:hover {
+		color: var(--cds-text-primary);
+	}
+
+	.zone-zoom:focus-visible {
+		outline: 2px solid var(--cds-focus, #0f62fe);
+		outline-offset: 1px;
+		border-radius: 2px;
+	}
+
 	.cell-tooltip {
 		cursor: help;
 		text-decoration: underline dotted;
@@ -1085,6 +1116,7 @@
 		.zonal-table th,
 		.zonal-table td,
 		.zone-remove,
+		.zone-zoom,
 		.value.active {
 			transition: none;
 		}

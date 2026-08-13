@@ -421,6 +421,8 @@
             "exportFailed": "Exporteren mislukt. Probeer het opnieuw.",
             "activateZone": "Markeer gebied {code} op de kaart",
             "removeZoneAria": "Gebied {code} verwijderen",
+            "zoomToZone": "Zoom naar gebied",
+            "zoomToZoneAria": "Zoom naar gebied {code} op de kaart",
             "statistics": "Statistieken",
             "summaryTotalArea": "{count, plural, one {# gebied} other {# gebieden}} · {area}",
             "statMin": "Min",

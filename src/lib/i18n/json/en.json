@@ -414,6 +414,8 @@
             "exportFailed": "Export failed. Please try again.",
             "activateZone": "Highlight zone {code} on the map",
             "removeZoneAria": "Remove zone {code}",
+            "zoomToZone": "Zoom to zone",
+            "zoomToZoneAria": "Zoom to zone {code} on the map",
             "statistics": "Statistics",
             "summaryTotalArea": "{count, plural, one {# zone} other {# zones}} · {area}",
             "statMin": "Min",
