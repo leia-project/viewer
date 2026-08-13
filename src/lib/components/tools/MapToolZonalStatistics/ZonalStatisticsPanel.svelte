@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy } from "svelte";
-	import { Accordion, InlineNotification } from "carbon-components-svelte";
+	import { Accordion, InlineNotification, InlineLoading } from "carbon-components-svelte";
 	import { _ } from "svelte-i18n";
 
 	import type { ZonalStatisticsController, ZonalSummary } from "./zonal-statistics-controller";
@@ -10,6 +10,7 @@
 	export let controller: ZonalStatisticsController;
 
 	const resolvedDataLayers = controller.resolvedDataLayers;
+	const loading = controller.loading;
 	const settings = controller.settings;
 	const columns = settings.columns;
 	const styler = createZonalStyler(settings.valueStyles);
@@ -40,7 +41,11 @@
 	/>
 
 	{#if $resolvedDataLayers.length === 0}
-		<div class="empty body-compact-01">{$_("tools.zonalStatistics.noDataLayers")}</div>
+		{#if $loading && settings.layers.length > 0}
+			<InlineLoading description={$_("tools.zonalStatistics.loadingLayers")} />
+		{:else}
+			<div class="empty body-compact-01">{$_("tools.zonalStatistics.noDataLayers")}</div>
+		{/if}
 	{:else}
 		<Accordion class="layer-group-accordion">
 			{#each $resolvedDataLayers as resolved (resolved.layerId)}

@@ -406,6 +406,7 @@
             "close": "Fermer",
             "noSelection": "Cliquez sur une ou plusieurs zones mises en évidence sur la carte pour afficher leurs statistiques.",
             "noDataLayers": "Aucune couche de données configurée",
+            "loadingLayers": "Chargement des couches de données…",
             "zonesSelected": "{count} sélectionné(s)",
             "exporting": "Génération {format}…",
             "exportFailed": "Échec de l'exportation. Veuillez réessayer.",

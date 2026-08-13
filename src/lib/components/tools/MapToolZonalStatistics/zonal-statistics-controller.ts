@@ -152,6 +152,8 @@ export class ZonalStatisticsController {
 	private readonly dataLayers: Array<ResolvedDataLayer> = [];
 	/** Resolved data layers exposed to the zonal panel UI. */
 	public readonly resolvedDataLayers: Writable<Array<ResolvedDataLayer>> = writable([]);
+	/** True while `initialize()` is resolving/loading the configured layers. */
+	public readonly loading: Writable<boolean> = writable(false);
 	/** Per data-layer index: zone code -> feature properties (only the attributes the table reads). */
 	private readonly valueIndex: Map<string, Map<string, Record<string, any>>> = new Map();
 	/** Distinct data-layer attributes the table + tooltips read (column + tooltip attributes). */
@@ -197,39 +199,44 @@ export class ZonalStatisticsController {
 			);
 			return;
 		}
-		this.zoneLayer = zone;
-		await this.ensureLoaded(zone);
-		this.indexZoneEntities();
+		this.loading.set(true);
+		try {
+			this.zoneLayer = zone;
+			await this.ensureLoaded(zone);
+			this.indexZoneEntities();
 
-		for (const cfg of this.settings.layers) {
-			const layer = this.map.getLayerById(cfg.id) as GeoJsonLayer | undefined;
-			if (!layer) {
-				console.warn(`zonalStatistics: data layer '${cfg.id}' not found in map layers`);
-				continue;
+			for (const cfg of this.settings.layers) {
+				const layer = this.map.getLayerById(cfg.id) as GeoJsonLayer | undefined;
+				if (!layer) {
+					console.warn(`zonalStatistics: data layer '${cfg.id}' not found in map layers`);
+					continue;
+				}
+				await this.ensureLoaded(layer);
+				this.dataLayers.push({
+					layerId: cfg.id,
+					title: cfg.title ?? layer.config.title,
+					layer
+				});
+				this.indexLayer(cfg.id, layer);
 			}
-			await this.ensureLoaded(layer);
-			this.dataLayers.push({
-				layerId: cfg.id,
-				title: cfg.title ?? layer.config.title,
-				layer
-			});
-			this.indexLayer(cfg.id, layer);
+			this.resolvedDataLayers.set([...this.dataLayers]);
+
+			this.buildFillRenders();
+			// Added after the fills so the boundary lines draw on top of them.
+			this.buildZoneOutlines();
+
+			this.clickHandler = (l: MouseLocation) => this.onMapClick(l);
+			this.map.on("mouseLeftClick", this.clickHandler as (n: unknown) => unknown);
+			this.moveHandler = (l: MouseLocation) => this.onMouseMove(l);
+			this.map.on("mouseMove", this.moveHandler as (n: unknown) => unknown);
+			this.unsubscribers.push(
+				this.active.subscribe((active) => {
+					if (!active) this.clearHover();
+				})
+			);
+		} finally {
+			this.loading.set(false);
 		}
-		this.resolvedDataLayers.set([...this.dataLayers]);
-
-		this.buildFillRenders();
-		// Added after the fills so the boundary lines draw on top of them.
-		this.buildZoneOutlines();
-
-		this.clickHandler = (l: MouseLocation) => this.onMapClick(l);
-		this.map.on("mouseLeftClick", this.clickHandler as (n: unknown) => unknown);
-		this.moveHandler = (l: MouseLocation) => this.onMouseMove(l);
-		this.map.on("mouseMove", this.moveHandler as (n: unknown) => unknown);
-		this.unsubscribers.push(
-			this.active.subscribe((active) => {
-				if (!active) this.clearHover();
-			})
-		);
 	}
 
 	/** Ensure a layer's data is loaded without toggling its visibility. */

@@ -3,7 +3,7 @@
 	import { get } from "svelte/store";
 	import { fade } from "svelte/transition";
 	import { _, locale } from "svelte-i18n";
-	import { Close, Download, Location, TrashCan, ZoomIn } from "carbon-icons-svelte";
+	import { Close, Download, Location, Reset, ZoomIn } from "carbon-icons-svelte";
 	import { toJpeg, toPng } from "html-to-image";
 	import { jsPDF } from "jspdf";
 	import {
@@ -46,8 +46,7 @@
 			values: {},
 			tooltips: {}
 		}))
-	};
-	let activeCode: string | undefined;
+	};	let activeCode: string | undefined;
 	let show = true;
 	let exportingImage = false;
 	let exportingPdf = false;
@@ -98,6 +97,26 @@
 
 	const unsubscribe = controller.selectedZones.subscribe((zones) => {
 		updateTable(zones.map((z) => z.code));
+	});
+
+	// The tool can open before the configured layers finish loading; when the resolved data layers
+	// arrive (or change), rebuild the stable rows and re-fill values for the already-selected zones.
+	const unsubscribeLayers = controller.resolvedDataLayers.subscribe(() => {
+		const codes = table.zones;
+		table.rows = controller.getResolvedDataLayers().map((dl) => ({
+			layerId: dl.layerId,
+			title: dl.title,
+			values: {},
+			tooltips: {}
+		}));
+		for (const code of codes) {
+			const slice = controller.buildZoneSlice(code);
+			table.rows.forEach((row, i) => {
+				row.values[code] = slice[i].values;
+				row.tooltips[code] = slice[i].tooltips;
+			});
+		}
+		table = table;
 	});
 
 	// Add/remove only the changed zone columns instead of rebuilding the whole table.
@@ -459,6 +478,7 @@
 
 	onDestroy(() => {
 		unsubscribe();
+		unsubscribeLayers();
 		window.removeEventListener("resize", updateScrollShadows);
 		if (errorTimer) clearTimeout(errorTimer);
 	});
@@ -510,7 +530,7 @@
 					</OverflowMenu>
 					<Button
 						kind="ghost"
-						icon={TrashCan}
+						icon={Reset}
 						size="small"
 						iconDescription={$_("tools.zonalStatistics.clearSelection")}
 						tooltipPosition="bottom"

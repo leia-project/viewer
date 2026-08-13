@@ -416,6 +416,7 @@
             "close": "Sluiten",
             "noSelection": "Klik op één of meer gemarkeerde gebieden op de kaart om hun statistieken te bekijken.",
             "noDataLayers": "Geen datalagen geconfigureerd",
+            "loadingLayers": "Datalagen laden…",
             "zonesSelected": "{count} geselecteerd",
             "exporting": "{format} genereren…",
             "exportFailed": "Exporteren mislukt. Probeer het opnieuw.",
