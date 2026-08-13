@@ -273,7 +273,8 @@ export class ZonalStatisticsController {
 				// The GeoJson layer updates its entity materials first on an opacity/style change, so
 				// re-reading here picks up the fresh colours before repainting the primitive.
 				layer.opacity.subscribe(() => this.refreshBaseColors(render)),
-				layer.style.subscribe(() => this.refreshBaseColors(render))
+				layer.style.subscribe(() => this.refreshBaseColors(render)),
+				layer.legend.subscribe(() => this.refreshBaseColors(render))
 			);
 		}
 	}

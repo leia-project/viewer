@@ -70,6 +70,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public colorGradientStart: Cesium.Color = Cesium.Color.BLUE;
 	public colorGradientEnd: Cesium.Color = Cesium.Color.RED;
 	private readonly classMapping: Record<string, Cesium.Color> | undefined;
+	private forceRandomColors: boolean = false;
 	public style: Writable<string> = writable("default");
 	public styleType: Writable<string> = writable();
 	public legend: Writable<GeoJSONlegend> = writable();
@@ -294,6 +295,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		}
 		const prop = this.availableProperties.find((p) => p.propertyName === property);
 		if (!prop) return;
+		if (prop.propertyType !== "string") this.forceRandomColors = false;
 		if (prop.propertyType === "number") {
 			const min = prop.range?.min;
 			const max = prop.range?.max;
@@ -305,6 +307,13 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			this.setStringStyle(prop);
 			this.styleType.set("string");
 		}
+	}
+
+	// Re-applies a string style with fresh random colors, ignoring any configured classMapping.
+	public randomizeStyle(property: string): void {
+		this.forceRandomColors = true;
+		this.setStyle(property);
+		this.forceRandomColors = false;
 	}
 
 	private setDefaultStyle(): void {
@@ -467,6 +476,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		const configuredStyle = this.config.settings.style;
 		const hasClassMapping = !!this.classMapping;
 		const shouldUseClassMapping =
+			!this.forceRandomColors &&
 			hasClassMapping &&
 			typeof configuredStyle === "string" &&
 			configuredStyle === get(this.style) &&
