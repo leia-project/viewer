@@ -506,7 +506,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
-            "opacity": 100,
+            "opacity": 80,
             "settings": {
                 "url": "http://localhost:8000/labelkaart_example.geojson",
                 "theme": "",
@@ -1122,6 +1122,9 @@
                 "pointCloudAttenuationMaximum": 2,
                 "terrainProviders": [
                     {
+                        "title": "Uit"
+                    },
+                    {
                         "title": "PDOK Terrain",
                         "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
                         "vertexNormals": true
@@ -1130,9 +1133,6 @@
                         "title": "Zeeland 1m",
                         "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
                         "vertexNormals": true
-                    },
-                    {
-                        "title": "Uit"
                     }
                 ]
             }

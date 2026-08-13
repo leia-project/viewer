@@ -54,6 +54,23 @@ export interface ResolvedDataLayer {
 	layer: GeoJsonLayer;
 }
 
+/** Per-instance pick id carried by each fill polygon part (all parts of a zone share a code). */
+interface ZoneInstanceId {
+	code: string;
+}
+
+/** Rendering + bookkeeping for one layer's batched fill primitive. */
+interface FillLayerRender {
+	layer: GeoJsonLayer;
+	primitive: Cesium.Primitive;
+	/** zone code -> the instance ids of its polygon parts. */
+	idsByCode: Map<string, Array<ZoneInstanceId>>;
+	/** instance id -> its source entity (to re-read colour on restyle). */
+	entityById: Map<ZoneInstanceId, Cesium.Entity>;
+	/** instance id -> current base label colour. */
+	baseColor: Map<ZoneInstanceId, Cesium.Color>;
+}
+
 /** Combined area of the selected zones that carry one categorical value, in m². */
 export interface CategoryArea {
 	/** The categorical (styled) value. */
@@ -107,9 +124,13 @@ export interface ZonalSummary {
  * zone table. UI components subscribe to the exposed stores.
  */
 export class ZonalStatisticsController {
-	// Selection-highlight outline colours (per-instance on a batched ground polyline primitive).
-	private static readonly HIGHLIGHT_ACTIVE_COLOR = Cesium.Color.DEEPSKYBLUE;
-	private static readonly HIGHLIGHT_INACTIVE_COLOR = Cesium.Color.YELLOW;
+	// State tints layered over each zone's base label fill colour. Selection + active blend the base
+	// towards a tint (preserving hue + opacity); hover brightens the base.
+	private static readonly SELECTED_TINT = Cesium.Color.YELLOW;
+	private static readonly ACTIVE_TINT = Cesium.Color.DEEPSKYBLUE;
+	private static readonly SELECTED_TINT_AMOUNT = 0.55;
+	private static readonly ACTIVE_TINT_AMOUNT = 0.8;
+	private static readonly HOVER_BRIGHTEN = 0.5;
 
 	private readonly map: CesiumMap;
 	public readonly settings: ZonalStatisticsSettings;
@@ -120,10 +141,10 @@ export class ZonalStatisticsController {
 	public readonly selectedZones: Writable<Array<SelectedZone>> = writable([]);
 
 	private zoneLayer: GeoJsonLayer | undefined;
-	/** Zone code -> zone-layer entities, used to resolve highlight geometry from clicks. A single
-	 * MultiPolygon zone becomes multiple entities (one per part) that share the same code. */
+	/** Zone code -> zone-layer entities. A MultiPolygon zone becomes multiple entities (one per
+	 * part) that share the same code. Used to validate picks and compute area. */
 	private readonly zoneEntityIndex: Map<string, Array<Cesium.Entity>> = new Map();
-	/** Pickable entity -> its zone code, so clicks resolve the code without a getValue call. */
+	/** Pickable entity -> its zone code, resolved once so picking/indexing skip getValue calls. */
 	private readonly entityCodeIndex: Map<Cesium.Entity, string> = new Map();
 	/** Resolved data layers per config id, in config order. */
 	private readonly dataLayers: Array<ResolvedDataLayer> = [];
@@ -133,21 +154,19 @@ export class ZonalStatisticsController {
 	private readonly valueIndex: Map<string, Map<string, Record<string, any>>> = new Map();
 	/** Distinct data-layer attributes the table + tooltips read (column + tooltip attributes). */
 	private readonly neededAttributes: Array<string>;
-	/** Cleaned outline rings per zone code (one ring per polygon part), shared by the black outline
-	 * + selection highlights. MultiPolygon zones contribute several rings under the same code. */
-	private readonly ringCache: Map<string, Array<Array<Cesium.Cartesian3>>> = new Map();
 	/** Combined geodesic area per zone code, in square metres, computed on demand and cached. */
 	private readonly areaCache: Map<string, number> = new Map();
 
-	/** Single batched ground polyline primitive outlining the selected zones (drawn above the black outline). */
-	private highlightPrimitive: Cesium.GroundPolylinePrimitive | undefined;
-	/** Single batched ground polyline primitive drawing a thin black outline around every zone feature. */
-	private zoneOutlinePrimitive: Cesium.GroundPolylinePrimitive | undefined;
-	/** Unsubscriber keeping the zone-outline visibility in sync with the zone layer. */
-	private zoneVisibleUnsub: Unsubscriber | undefined;
-	/** The zone currently shown in the table (drawn light blue). */
+	/** One batched fill primitive per unique layer id (zone + data layers), keyed by layer id. */
+	private readonly fillRenders: Map<string, FillLayerRender> = new Map();
+	/** Store/event unsubscribers for the fill primitives (visible/opacity/style/active). */
+	private readonly unsubscribers: Array<Unsubscriber> = [];
+	/** The zone currently shown in the table (drawn with the strongest tint). */
 	private activeCode: string | undefined;
+	/** The zone currently under the mouse (brightened), or undefined. */
+	private hoveredCode: string | undefined;
 	private clickHandler: ((l: MouseLocation) => void) | undefined;
+	private moveHandler: ((l: MouseLocation) => void) | undefined;
 
 	constructor(map: CesiumMap, settings: ZonalStatisticsSettings) {
 		this.map = map;
@@ -192,11 +211,17 @@ export class ZonalStatisticsController {
 		}
 		this.resolvedDataLayers.set([...this.dataLayers]);
 
-		// Add the black outline first so the (later-added) selection highlights draw on top.
-		this.addZoneOutlines();
+		this.buildFillRenders();
 
 		this.clickHandler = (l: MouseLocation) => this.onMapClick(l);
 		this.map.on("mouseLeftClick", this.clickHandler as (n: unknown) => unknown);
+		this.moveHandler = (l: MouseLocation) => this.onMouseMove(l);
+		this.map.on("mouseMove", this.moveHandler as (n: unknown) => unknown);
+		this.unsubscribers.push(
+			this.active.subscribe((active) => {
+				if (!active) this.clearHover();
+			})
+		);
 	}
 
 	/** Ensure a layer's data is loaded without toggling its visibility. */
@@ -209,75 +234,124 @@ export class ZonalStatisticsController {
 	}
 
 	/**
-	 * Drop consecutive duplicate vertices and the closing duplicate of a polygon
-	 * ring. `GroundPolylineGeometry` with `loop:true` throws "normalized result is
-	 * not a number" on zero-length segments, which closed GeoJSON rings produce.
+	 * Build one batched fill primitive per unique layer (zone + data layers): every polygon part
+	 * becomes a flat `PolygonGeometry` instance coloured with the layer's own label colour,
+	 * replacing the slow per-feature GeoJson entities. The entity fills are then hidden; the tool
+	 * renders + picks the primitives instead. No terrain is assumed, so the polygons sit flat at
+	 * height 0.
 	 */
-	private cleanRing(positions: Array<Cesium.Cartesian3> | undefined): Array<Cesium.Cartesian3> {
-		if (!positions?.length) return [];
-		const cleaned: Array<Cesium.Cartesian3> = [];
-		for (const position of positions) {
-			const previous = cleaned[cleaned.length - 1];
-			if (!previous || !Cesium.Cartesian3.equalsEpsilon(previous, position, Cesium.Math.EPSILON7)) {
-				cleaned.push(position);
-			}
-		}
-		if (
-			cleaned.length > 1 &&
-			Cesium.Cartesian3.equalsEpsilon(cleaned[0], cleaned[cleaned.length - 1], Cesium.Math.EPSILON7)
-		) {
-			cleaned.pop();
-		}
-		return cleaned;
-	}
+	private buildFillRenders(): void {
+		const uniqueLayers = new Map<string, GeoJsonLayer>();
+		if (this.zoneLayer) uniqueLayers.set(this.settings.zoneLayerId, this.zoneLayer);
+		for (const dl of this.dataLayers) uniqueLayers.set(dl.layerId, dl.layer);
 
-	/** Draw a thin black outline around every zone feature, shown while the zone layer is visible. */
-	private addZoneOutlines(): void {
-		if (!this.zoneLayer) return;
-		const time = this.map.viewer.clock.currentTime;
-		const outlineColor = Cesium.ColorGeometryInstanceAttribute.fromColor(
-			Cesium.Color.BLACK.withAlpha(0.1)
-		);
-		const instances: Array<Cesium.GeometryInstance> = [];
-		for (const entity of this.zoneLayer.source?.entities?.values ?? []) {
-			const positions = this.cleanRing(entity.polygon?.hierarchy?.getValue(time)?.positions);
-			if (positions.length < 2) continue;
-			// Cache the cleaned ring so highlight rebuilds reuse it instead of re-cleaning. A
-			// MultiPolygon zone spans several entities sharing one code, so append per part.
-			const code = this.entityCodeIndex.get(entity);
-			if (code !== undefined) {
-				const rings = this.ringCache.get(code) ?? [];
-				rings.push(positions);
-				this.ringCache.set(code, rings);
-			}
-			instances.push(
-				new Cesium.GeometryInstance({
-					geometry: new Cesium.GroundPolylineGeometry({ positions, width: 1.5, loop: true }),
-					attributes: { color: outlineColor }
-				})
+		for (const [layerId, layer] of uniqueLayers) {
+			const render = this.buildFillRender(layer);
+			if (!render) continue;
+			this.fillRenders.set(layerId, render);
+			this.hideEntityFills(layer);
+			this.unsubscribers.push(
+				layer.visible.subscribe((visible) => {
+					render.primitive.show = visible;
+					this.map.refresh();
+				}),
+				// The GeoJson layer updates its entity materials first on an opacity/style change, so
+				// re-reading here picks up the fresh colours before repainting the primitive.
+				layer.opacity.subscribe(() => this.refreshBaseColors(render)),
+				layer.style.subscribe(() => this.refreshBaseColors(render))
 			);
 		}
-		if (instances.length === 0) return;
-		// One batched primitive instead of thousands of ground-clamped polyline entities.
-		this.zoneOutlinePrimitive = new Cesium.GroundPolylinePrimitive({
+	}
+
+	/** Build the batched fill primitive + id bookkeeping for one layer. */
+	private buildFillRender(layer: GeoJsonLayer): FillLayerRender | undefined {
+		const source = layer.source;
+		if (!source) return undefined;
+		const time = this.map.viewer.clock.currentTime;
+		const idsByCode = new Map<string, Array<ZoneInstanceId>>();
+		const entityById = new Map<ZoneInstanceId, Cesium.Entity>();
+		const baseColor = new Map<ZoneInstanceId, Cesium.Color>();
+		const instances: Array<Cesium.GeometryInstance> = [];
+
+		for (const entity of source.entities.values) {
+			const code = this.entityCodeIndex.get(entity);
+			if (code === undefined) continue;
+			const hierarchy = entity.polygon?.hierarchy?.getValue(time) as
+				| Cesium.PolygonHierarchy
+				| undefined;
+			if (!hierarchy || hierarchy.positions.length < 3) continue;
+			const color = this.readEntityColor(entity, time);
+			// Unique id object per part carrying the shared zone code (for picking + per-part recolour).
+			const id: ZoneInstanceId = { code };
+			instances.push(
+				new Cesium.GeometryInstance({
+					geometry: new Cesium.PolygonGeometry({
+						polygonHierarchy: hierarchy,
+						vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
+						height: 0,
+						perPositionHeight: false
+					}),
+					attributes: { color: Cesium.ColorGeometryInstanceAttribute.fromColor(color) },
+					id
+				})
+			);
+			const list = idsByCode.get(code) ?? [];
+			list.push(id);
+			idsByCode.set(code, list);
+			entityById.set(id, entity);
+			baseColor.set(id, color);
+		}
+		if (instances.length === 0) return undefined;
+
+		const primitive = new Cesium.Primitive({
 			geometryInstances: instances,
-			appearance: new Cesium.PolylineColorAppearance(),
+			appearance: new Cesium.PerInstanceColorAppearance({
+				translucent: true,
+				closed: false,
+				// Disable the depth test so the flat fills draw over the globe instead of clipping into it.
+				renderState: { depthTest: { enabled: false } }
+			}),
+			allowPicking: true,
 			asynchronous: true,
-			allowPicking: false
+			releaseGeometryInstances: false
 		});
-		this.map.viewer.scene.groundPrimitives.add(this.zoneOutlinePrimitive);
-		this.zoneVisibleUnsub = this.zoneLayer.visible.subscribe((visible) => {
-			if (this.zoneOutlinePrimitive) this.zoneOutlinePrimitive.show = visible;
-			this.map.refresh();
-		});
+		primitive.show = get(layer.visible);
+		this.map.viewer.scene.primitives.add(primitive);
+		return { layer, primitive, idsByCode, entityById, baseColor };
+	}
+
+	/** Read a polygon entity's current fill colour (label colour + opacity) from its material. */
+	private readEntityColor(entity: Cesium.Entity, time: Cesium.JulianDate): Cesium.Color {
+		const material = entity.polygon?.material as Cesium.ColorMaterialProperty | undefined;
+		const color = material?.color?.getValue?.(time);
+		return color instanceof Cesium.Color ? color.clone() : Cesium.Color.GRAY.withAlpha(0.5);
+	}
+
+	/** Hide a layer's GeoJson entity polygon fills so only the batched primitive renders. */
+	private hideEntityFills(layer: GeoJsonLayer): void {
+		for (const entity of layer.source?.entities?.values ?? []) {
+			if (entity.polygon) entity.polygon.show = new Cesium.ConstantProperty(false);
+		}
+	}
+
+	/** Restore a layer's GeoJson entity polygon fills (undo `hideEntityFills`). */
+	private restoreEntityFills(layer: GeoJsonLayer): void {
+		for (const entity of layer.source?.entities?.values ?? []) {
+			if (entity.polygon) entity.polygon.show = new Cesium.ConstantProperty(true);
+		}
+	}
+
+	/** Re-read a layer's entity colours (after an opacity/style change) and repaint every part. */
+	private refreshBaseColors(render: FillLayerRender): void {
+		const time = this.map.viewer.clock.currentTime;
+		for (const [id, entity] of render.entityById) {
+			render.baseColor.set(id, this.readEntityColor(entity, time));
+		}
+		this.recolorRender(render);
 	}
 
 	/** Read a single entity property by name without materialising the whole property bag. */
-	private readProperty(
-		entity: Cesium.Entity,
-		attribute: string,
-		time: Cesium.JulianDate
-	): any {
+	private readProperty(entity: Cesium.Entity, attribute: string, time: Cesium.JulianDate): any {
 		const bag = entity.properties as unknown as
 			| Record<string, { getValue(t: Cesium.JulianDate): any } | undefined>
 			| undefined;
@@ -325,24 +399,31 @@ export class ZonalStatisticsController {
 
 	private onMapClick(location: MouseLocation): void {
 		if (!get(this.active)) return;
-
-		const picked = this.map.viewer.scene.pick(new Cesium.Cartesian2(location.x, location.y));
-		if (!Cesium.defined(picked) || !(picked.id instanceof Cesium.Entity)) return;
-
-		// Resolve the code from the cached entity index (no per-click getValue). Then
-		// resolve the zone from the zone layer so highlight geometry never depends on
-		// which (possibly overlapping) layer was picked. Ignore stray picks on other
-		// entities that carry no known code.
-		const entity = picked.id as Cesium.Entity;
-		const code = this.entityCodeIndex.get(entity);
-		if (code === undefined) return;
-
-		if (!this.zoneEntityIndex.has(code)) return;
-
-		this.toggleZone(code);
+		const code = this.pickZoneCode(location);
+		if (code !== undefined) this.toggleZone(code);
 	}
 
-	/** Add or remove a zone from the selection, then redraw the highlight outlines. */
+	/** Hover handler: brighten the zone under the cursor, reverting the previously hovered one. */
+	private onMouseMove(location: MouseLocation): void {
+		if (!get(this.active)) return;
+		const code = this.pickZoneCode(location);
+		if (code === this.hoveredCode) return;
+		const previous = this.hoveredCode;
+		this.hoveredCode = code;
+		if (previous !== undefined) this.applyColor(previous);
+		if (code !== undefined) this.applyColor(code);
+		this.map.viewer.scene.canvas.style.cursor = code !== undefined ? "pointer" : "";
+	}
+
+	/** Resolve the zone code under a screen location from the picked fill-primitive instance id. */
+	private pickZoneCode(location: MouseLocation): string | undefined {
+		const picked = this.map.viewer.scene.pick(new Cesium.Cartesian2(location.x, location.y));
+		const id = Cesium.defined(picked) ? (picked.id as ZoneInstanceId | undefined) : undefined;
+		const code = id && typeof id === "object" && typeof id.code === "string" ? id.code : undefined;
+		return code !== undefined && this.zoneEntityIndex.has(code) ? code : undefined;
+	}
+
+	/** Add or remove a zone from the selection, then repaint it. */
 	public toggleZone(code: string): void {
 		const current = get(this.selectedZones);
 		if (current.some((z) => z.code === code)) {
@@ -350,90 +431,97 @@ export class ZonalStatisticsController {
 		} else {
 			this.selectedZones.set([...current, { code }]);
 		}
-		this.rebuildHighlights();
-	}
-
-	/** Cleaned outline rings for a zone code (one per polygon part), computed on demand and cached
-	 * (shared with the black outline). MultiPolygon zones return several rings. */
-	private ringPositionsFor(code: string, time: Cesium.JulianDate): Array<Array<Cesium.Cartesian3>> {
-		let rings = this.ringCache.get(code);
-		if (!rings) {
-			rings = [];
-			for (const entity of this.zoneEntityIndex.get(code) ?? []) {
-				const positions = this.cleanRing(entity.polygon?.hierarchy?.getValue(time)?.positions);
-				if (positions.length >= 2) rings.push(positions);
-			}
-			this.ringCache.set(code, rings);
-		}
-		return rings;
+		this.applyColor(code);
 	}
 
 	/**
-	 * Redraw the selection outlines as one batched `GroundPolylinePrimitive` added
-	 * after the black zone outline, so the blue/yellow selection always draws on
-	 * top of the black outline. The active zone is wider + bright blue; the other
-	 * selected zones stay yellow. Rebuilt on each selection/active change
-	 * (selections are few, so this is cheap).
+	 * Blend/brighten a zone's base label colour according to its current state
+	 * (active > selected > hover > base), preserving the base opacity so the label
+	 * hue stays visible in every state.
 	 */
-	private rebuildHighlights(): void {
-		if (this.highlightPrimitive) {
-			this.map.viewer.scene.groundPrimitives.remove(this.highlightPrimitive);
-			this.highlightPrimitive = undefined;
+	private stateColor(code: string, base: Cesium.Color): Cesium.Color {
+		let result: Cesium.Color;
+		if (code === this.activeCode) {
+			result = Cesium.Color.lerp(
+				base,
+				ZonalStatisticsController.ACTIVE_TINT,
+				ZonalStatisticsController.ACTIVE_TINT_AMOUNT,
+				new Cesium.Color()
+			);
+		} else if (this.isSelected(code)) {
+			result = Cesium.Color.lerp(
+				base,
+				ZonalStatisticsController.SELECTED_TINT,
+				ZonalStatisticsController.SELECTED_TINT_AMOUNT,
+				new Cesium.Color()
+			);
+		} else if (code === this.hoveredCode) {
+			result = base.brighten(ZonalStatisticsController.HOVER_BRIGHTEN, new Cesium.Color());
+		} else {
+			return base;
 		}
-		const time = this.map.viewer.clock.currentTime;
-		const instances: Array<Cesium.GeometryInstance> = [];
-		for (const { code } of get(this.selectedZones)) {
-			const rings = this.ringPositionsFor(code, time);
-			if (rings.length === 0) continue;
-			const active = code === this.activeCode;
-			for (const positions of rings) {
-				if (positions.length < 2) continue;
-				instances.push(
-					new Cesium.GeometryInstance({
-						geometry: new Cesium.GroundPolylineGeometry({
-							positions,
-							width: active ? 7 : 4,
-							loop: true
-						}),
-						attributes: {
-							color: Cesium.ColorGeometryInstanceAttribute.fromColor(
-								active
-									? ZonalStatisticsController.HIGHLIGHT_ACTIVE_COLOR
-									: ZonalStatisticsController.HIGHLIGHT_INACTIVE_COLOR
-							)
-						}
-					})
-				);
-			}
-		}
-		if (instances.length > 0) {
-			// Synchronous so the outline appears immediately on click (few instances).
-			this.highlightPrimitive = new Cesium.GroundPolylinePrimitive({
-				geometryInstances: instances,
-				appearance: new Cesium.PolylineColorAppearance(),
-				asynchronous: false,
-				allowPicking: false
-			});
-			this.map.viewer.scene.groundPrimitives.add(this.highlightPrimitive);
+		result.alpha = base.alpha;
+		return result;
+	}
+
+	/** Repaint one instance to match its zone's current state colour. */
+	private paintInstance(render: FillLayerRender, id: ZoneInstanceId): void {
+		const base = render.baseColor.get(id);
+		if (!base) return;
+		const attributes = render.primitive.getGeometryInstanceAttributes(id);
+		if (!attributes) return;
+		attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(
+			this.stateColor(id.code, base),
+			attributes.color
+		);
+	}
+
+	/** Repaint every part of one zone code across all fill primitives. */
+	private applyColor(code: string): void {
+		for (const render of this.fillRenders.values()) {
+			if (!render.primitive.ready) continue;
+			for (const id of render.idsByCode.get(code) ?? []) this.paintInstance(render, id);
 		}
 		this.map.refresh();
 	}
 
+	/** Repaint every part of one fill primitive (after its colours were refreshed). */
+	private recolorRender(render: FillLayerRender): void {
+		if (!render.primitive.ready) return;
+		for (const ids of render.idsByCode.values()) {
+			for (const id of ids) this.paintInstance(render, id);
+		}
+		this.map.refresh();
+	}
+
+	/** Clear the hover highlight (on mouse-out or tool deactivation). */
+	private clearHover(): void {
+		if (this.hoveredCode === undefined) return;
+		const previous = this.hoveredCode;
+		this.hoveredCode = undefined;
+		this.applyColor(previous);
+		this.map.viewer.scene.canvas.style.cursor = "";
+	}
+
 	/**
-	 * Mark the zone currently shown in the table so it gets a bright blue, thicker
-	 * outline while the other selected zones stay yellow.
+	 * Mark the zone currently shown in the table so it gets the strongest tint while
+	 * the other selected zones keep the milder selection tint.
 	 */
 	public setActiveZone(code: string | undefined): void {
 		if (this.activeCode === code) return;
+		const previous = this.activeCode;
 		this.activeCode = code;
-		this.rebuildHighlights();
+		if (previous !== undefined) this.applyColor(previous);
+		if (code !== undefined) this.applyColor(code);
 	}
 
-	/** Remove all selected zones and their highlights. */
+	/** Remove all selected zones and repaint them back to their base colour. */
 	public clearSelection(): void {
+		const affected = new Set(get(this.selectedZones).map((z) => z.code));
+		if (this.activeCode !== undefined) affected.add(this.activeCode);
 		this.activeCode = undefined;
 		this.selectedZones.set([]);
-		this.rebuildHighlights();
+		for (const code of affected) this.applyColor(code);
 	}
 
 	/** Whether a zone with the given code is currently selected. */
@@ -519,8 +607,8 @@ export class ZonalStatisticsController {
 	/**
 	 * Convert a polygon ring's Cartesian3 positions to a closed lon/lat ring for
 	 * Turf, or undefined when it can't form a valid ring (< 4 closed positions).
-	 * Uses the raw hierarchy positions (no `cleanRing` de-duplication) so the area
-	 * matches the full-resolution source geometry.
+	 * Uses the raw hierarchy positions so the area matches the full-resolution
+	 * source geometry.
 	 */
 	private toClosedLonLatRing(
 		positions: Array<Cesium.Cartesian3> | undefined
@@ -655,24 +743,24 @@ export class ZonalStatisticsController {
 		return get(this.resolvedDataLayers);
 	}
 
-	/** Detach listeners and remove highlight graphics. */
+	/** Detach listeners, remove the fill primitives, and restore the GeoJson entity fills. */
 	public destroy(): void {
 		if (this.clickHandler) {
 			this.map.off("mouseLeftClick", this.clickHandler as (n: unknown) => unknown);
 			this.clickHandler = undefined;
 		}
-		if (this.zoneVisibleUnsub) {
-			this.zoneVisibleUnsub();
-			this.zoneVisibleUnsub = undefined;
+		if (this.moveHandler) {
+			this.map.off("mouseMove", this.moveHandler as (n: unknown) => unknown);
+			this.moveHandler = undefined;
 		}
-		if (this.zoneOutlinePrimitive) {
-			this.map.viewer.scene.groundPrimitives.remove(this.zoneOutlinePrimitive);
-			this.zoneOutlinePrimitive = undefined;
+		for (const unsubscribe of this.unsubscribers) unsubscribe();
+		this.unsubscribers.length = 0;
+		for (const render of this.fillRenders.values()) {
+			this.map.viewer.scene.primitives.remove(render.primitive);
+			this.restoreEntityFills(render.layer);
 		}
-		if (this.highlightPrimitive) {
-			this.map.viewer.scene.groundPrimitives.remove(this.highlightPrimitive);
-			this.highlightPrimitive = undefined;
-		}
+		this.fillRenders.clear();
+		this.map.viewer.scene.canvas.style.cursor = "";
 		this.map.refresh();
 	}
 }
