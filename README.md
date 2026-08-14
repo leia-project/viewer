@@ -1014,9 +1014,13 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 |-|-|-|-|
 |alias||**Optional**: Different name for the tool showing in the viewer|string|
 |position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
+|showOnMap||**Optional**: Show story markers on the map initially. The visibility can also be changed with the Stories tool toggle. Defaults to `true`|boolean|
 |stories|name|The name of the story|string|
 ||description|A short description to describe the story|string|
 ||width|The width of the story menu|string|
+||markerCoordinates|**Optional**: Location of the story marker. Use `x` for longitude and `y` for latitude. If omitted, the story is still available in the Stories menu but has no map marker|object|
+|||x|Longitude of the story marker|number|
+|||y|Latitude of the story marker|number|
 ||force2DMode|Sets the camera to 2D mode and prevents users from switching camera mode while the story is open|boolean|
 ||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
 ||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
@@ -1032,11 +1036,16 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 	"settings": {
 		"alias":"My Stories",
 		"position": 6,
+		"showOnMap": true,
 		"stories": [
 			{
 				"name": "My Story",
 				"description": "Description of my story",
 				"width": "600px",
+				"markerCoordinates": {
+					"x": 5.23907,
+					"y": 52.20004
+				},
 				"force2DMode": false,
 				"staticCamera": false,
 				"requestPolygonArea": {
