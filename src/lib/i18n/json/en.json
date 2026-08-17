@@ -349,8 +349,8 @@
             "deletePolygon": "Delete Area",
             "projectAreaTool": "Project Area Tool",
             "downloadPDF": "Generate and download PDF",
-            "showOnMap": "Show stories on map"
-            ,"open": "Open story"
+            "showOnMap": "Show stories on map",
+            "open": "Open story"
         },
         "animation": {
             "speed": "Speed",

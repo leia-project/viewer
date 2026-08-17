@@ -18,13 +18,10 @@ export class StoryMarkerCollection extends Dispatcher {
 	public hoveredStory: Writable<Story | undefined> = writable(undefined);
 	public hoverBoxTimeOut: ReturnType<typeof setTimeout> | undefined;
 	private hoverBox: StoryHoverBox | undefined;
-	private showUnsubscriber: Unsubscriber;
-	private selectionUnsubscriber: Unsubscriber;
-	private toolSelectionUnsubscriber: Unsubscriber;
-	private projectSelectionUnsubscriber: Unsubscriber;
+	private readonly unsubscribers: Unsubscriber[];
 
 	public constructor(
-		private readonly map: Map,
+		public readonly map: Map,
 		private readonly icon: any,
 		selectedTool: Readable<unknown>,
 		storyTool: unknown
@@ -34,10 +31,12 @@ export class StoryMarkerCollection extends Dispatcher {
 		this.storyTool = storyTool;
 		this.inputHandler = new Cesium.ScreenSpaceEventHandler(map.viewer.scene.canvas);
 		map.viewer.dataSources.add(this.markers);
-		this.showUnsubscriber = showStoryMarkers.subscribe(() => this.toggleMarkers());
-		this.selectionUnsubscriber = selectedStory.subscribe(() => this.toggleMarkers());
-		this.toolSelectionUnsubscriber = selectedTool.subscribe(() => this.toggleMarkers());
-		this.projectSelectionUnsubscriber = projectHandler.selectedProject.subscribe(() => this.toggleMarkers());
+		this.unsubscribers = [
+			showStoryMarkers.subscribe(() => this.toggleMarkers()),
+			selectedStory.subscribe(() => this.toggleMarkers()),
+			selectedTool.subscribe(() => this.toggleMarkers()),
+			projectHandler.selectedProject.subscribe(() => this.toggleMarkers())
+		];
 	}
 
 	public load(stories: Story[]): void {
@@ -104,24 +103,25 @@ export class StoryMarkerCollection extends Dispatcher {
 	}
 
 	public destroy(): void {
-		this.showUnsubscriber();
-		this.selectionUnsubscriber();
-		this.toolSelectionUnsubscriber();
-		this.projectSelectionUnsubscriber();
+		this.unsubscribers.forEach((unsubscribe) => unsubscribe());
 		this.hoverBox?.$destroy();
 		this.inputHandler.destroy();
 		this.map.viewer.dataSources.remove(this.markers, true);
 	}
 
-	private toggleMarkers(): void {
-		const activeTool = get(this.toolSelection);
-		const activeToolId = (activeTool as { id?: string } | undefined)?.id;
-		const visible =
+	private markersVisible(): boolean {
+		const activeToolId = (get(this.toolSelection) as { id?: string } | undefined)?.id;
+		return (
 			get(showStoryMarkers) &&
 			!get(selectedStory) &&
 			!get(projectHandler.selectedProject) &&
 			activeToolId !== "projects" &&
-			activeToolId !== "flooding";
+			activeToolId !== "flooding"
+		);
+	}
+
+	private toggleMarkers(): void {
+		const visible = this.markersVisible();
 		this.markers.show = visible;
 		this.map.viewer.scene.requestRender();
 

@@ -356,8 +356,8 @@
             "deletePolygon": "Verwijder Projectgebied",
             "projectAreaTool": "Projectgebied Tool",
             "downloadPDF": "Genereer en download PDF",
-            "showOnMap": "Toon verhalen op kaart"
-            ,"open": "Verhaal openen"
+            "showOnMap": "Toon verhalen op kaart",
+            "open": "Verhaal openen"
         },
         "animation": {
             "speed": "Snelheid",

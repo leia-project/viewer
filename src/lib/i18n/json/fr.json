@@ -346,8 +346,8 @@
             "deletePolygon": "Supprimer la Zone",
             "projectAreaTool": "Outil de Zone de Projet",
             "downloadPDF": "Générer et télécharger le PDF",
-            "showOnMap": "Afficher les histoires sur la carte"
-            ,"open": "Ouvrir l'histoire"
+            "showOnMap": "Afficher les histoires sur la carte",
+            "open": "Ouvrir l'histoire"
         },
         "animation": {
             "speed": "Vitesse",

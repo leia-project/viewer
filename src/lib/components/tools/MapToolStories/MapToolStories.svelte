@@ -28,7 +28,6 @@
 	let stories = new Array<Story>();
 	const selectedStoryStore = selectedStory;
 	let markerCollection: StoryMarkerCollection;
-	let showMarkers = true;
 	let stepNumber: number;
 	let baseLayerId: string | undefined;
 	const layerLegends: Array<LegendOptions> = [];
@@ -37,8 +36,6 @@
 	const tool = new MapToolMenuOption(id, icon, label);
 	registerTool(tool);
 	markerCollection = new StoryMarkerCollection(cesiumMap, Book, selectedTool, tool);
-	const showMarkersUnsubscriber = showStoryMarkers.subscribe((value) => showMarkers = value);
-	$: showStoryMarkers.set(showMarkers);
 
 	$: {
 		tool.width.set($selectedStoryStore?.width ?? "");
@@ -109,7 +106,7 @@
 				const storyStatisticsApi: string | undefined = typeof storyRequestPolygonAreaConfig === "object"
 					? storyRequestPolygonAreaConfig.statisticsApi ?? undefined
 					: undefined;
-				const storyMarkerCoordinates = story.markerCoordinates ?? story.marderCoordinates;
+				const storyMarkerCoordinates = story.markerCoordinates;
 				const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
 				baseLayerId = story.baseLayerId ?? undefined;
 
@@ -182,7 +179,6 @@
 	});
 
 	onDestroy(() => {
-		showMarkersUnsubscriber();
 		markerCollection.destroy();
 	});
 
@@ -231,7 +227,7 @@
 	</div>
 	{#if !$selectedStoryStore}
 		<div class="bottom-container">
-			<ToggleView bind:show={showMarkers} text={$_("tools.stories.showOnMap")} />
+			<ToggleView bind:show={$showStoryMarkers} text={$_("tools.stories.showOnMap")} />
 		</div>
 	{/if}
 {/if}

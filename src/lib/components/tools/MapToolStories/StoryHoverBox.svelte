@@ -22,9 +22,14 @@
 		collection.map.refresh();
 	});
 
+	const hoveredStoryUnsubscriber = collection.hoveredStory.subscribe((hovered) => {
+		opacity = hovered === story ? 100 : 0;
+	});
+
 	onDestroy(() => {
 		collection.map.viewer.clock.onTick.removeEventListener(updatePosition);
 		collection.map.refresh();
+		hoveredStoryUnsubscriber();
 	});
 
 	function updatePosition(): void {
@@ -58,12 +63,6 @@
 		opacity = 100;
 		event.stopPropagation();
 	}
-
-	const hoveredStoryUnsubscriber = collection.hoveredStory.subscribe((hovered) => {
-		opacity = hovered === story ? 100 : 0;
-	});
-
-	onDestroy(() => hoveredStoryUnsubscriber());
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
