@@ -263,7 +263,7 @@ export class Map extends MapCore {
 		viewer.scene.postProcessStages.fxaa.enabled = get(this.options.fxaa);
 
 		// Enable going subsurface
-		viewer.scene.screenSpaceCameraController.enableCollisionDetection = false;
+		viewer.scene.screenSpaceCameraController.enableCollisionDetection = get(this.options.enableCollisionDetection);
 
 		// Set sun position
 		const date = new Date();

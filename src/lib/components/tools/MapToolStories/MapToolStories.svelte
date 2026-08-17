@@ -97,7 +97,7 @@
 				const storyName: string = story.name;
 				const storyDescription: string = story.description;
 				const storyWidth: string = story.width;
-				const storyForce2DMode: boolean = story.force2DMode ?? false;
+				const storyForceCameraMode: "2D" | "3D" | undefined = story.forceCameraMode ?? undefined;
 				const storyStaticCamera: boolean = story.staticCamera ?? false;
 				const storyRequestPolygonAreaConfig = story.requestPolygonArea ?? false;
 				const storyRequestPolygonArea: boolean = typeof storyRequestPolygonAreaConfig === "object"
@@ -137,9 +137,10 @@
 						const storyLayers = new Array<StoryLayer>();
 						for (let l = 0; l < step.layers.length; l++) {
 							const opacity = step.layers[l].opacity ?? 100;
+							const showOpacitySlider = step.layers[l].showOpacitySlider ?? true;
 							const {url, featureName} = getUrlAndFeatureNameForLayer(step.layers[l].id);
 							storyLayers.push(
-								new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName)
+								new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName, showOpacitySlider)
 							);
 							const layerLegendInfo = {
 								generalLegendText: step.layers[l].generalLegendText,
@@ -152,7 +153,7 @@
 					}
 					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForce2DMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyMarkerCoordinates));
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyMarkerCoordinates));
 			}
 		}
 		stories = loadedStories;

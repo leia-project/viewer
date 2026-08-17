@@ -4,7 +4,7 @@
 	import * as Cesium from "cesium";
 	import { writable, get, type Writable } from "svelte/store";
 	import { Button, Tag, SliderSkeleton } from "carbon-components-svelte";
-	import { Exit, ChevronDown, ChevronUp, ChoroplethMap } from "carbon-icons-svelte";
+	import { Return, ChevronDown, ChevronUp, ChoroplethMap } from "carbon-icons-svelte";
 	import "@carbon/charts-svelte/styles.css";
 	import { jsPDF } from 'jspdf';
 
@@ -61,6 +61,7 @@
 	let startVisibleLayers = new Array<string>();
 	let startGlobeOpacity: number;
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
+	let startUse3DMode: boolean = get(map.options.use3DMode);
 
 	let polygonArea: number = 0;
 	let hasDrawnPolygon: Writable<boolean> = writable(false);
@@ -135,9 +136,10 @@
 
 
 	onMount(() => {
-		if (story.force2DMode) {
+		if (story.forceCameraMode) {
+			const targetMode = story.forceCameraMode === "3D";
 			map.options.disableModeSwitcher.set(true);
-			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
+			if (get(map.options.use3DMode) !== targetMode) map.options.use3DMode.set(targetMode);
 		}
 
 		startCameraLocation = cesiumMap.getPosition();
@@ -171,7 +173,11 @@
 
 
 	onDestroy(() => {
-		if (story.force2DMode) map.options.disableModeSwitcher.set(false);
+		if (story.forceCameraMode) {
+			map.options.disableModeSwitcher.set(false);
+			const targetMode = story.forceCameraMode === "3D";
+			if (targetMode !== startUse3DMode) map.options.use3DMode.set(startUse3DMode);
+		}
 
 		map.autoCheckBackground = startAutocheckBackground;
 		resizeObserver?.disconnect();
@@ -225,8 +231,9 @@
 
 
 	currentPage.subscribe((page) => {
-		if (story.force2DMode) {
-			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
+		if (story.forceCameraMode) {
+			const targetMode = story.forceCameraMode === "3D";
+			if (get(map.options.use3DMode) !== targetMode) map.options.use3DMode.set(targetMode);
 		} // Set this again because apparently OnMount is slower than a subscribe :/
 		const index = page - 1;
 
@@ -601,7 +608,7 @@ async function downloadPDF() {
 				iconDescription={textBack}
 				tooltipPosition="bottom"
 				tooltipAlignment="end"
-				icon={Exit}
+				icon={Return}
 				on:click={backToOverview} 
 			/>
 		</div>
@@ -727,18 +734,20 @@ async function downloadPDF() {
 				</div>
 				<div class="opacity-controls">
 					{#each step.layers ?? [] as layer}
-						{#await (async () => {
-							while (!getAdded(layer.id.toString())) {
-								await new Promise(r => setTimeout(r, 100));
-							}
-							return getAdded(layer.id.toString());
-						})() then addedLayer}
-							{#if addedLayer}
-								<StoryOpacitySlider layer={addedLayer} />
-							{/if}
-						{:catch}
-							<SliderSkeleton hideLabel />
-						{/await}
+						{#if layer.showOpacitySlider}
+							{#await (async () => {
+								while (!getAdded(layer.id.toString())) {
+									await new Promise(r => setTimeout(r, 100));
+								}
+								return getAdded(layer.id.toString());
+							})() then addedLayer}
+								{#if addedLayer}
+									<StoryOpacitySlider layer={addedLayer} />
+								{/if}
+							{:catch}
+								<SliderSkeleton hideLabel />
+							{/await}
+						{/if}
 					{/each}
 				</div>
 				<div class="tag">

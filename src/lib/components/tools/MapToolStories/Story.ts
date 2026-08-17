@@ -13,7 +13,7 @@ export class Story {
     public description: string;
     public storyChapters: Array<StoryChapter>;
     public width: string | undefined;
-    public force2DMode: boolean | undefined;
+    public forceCameraMode: "2D" | "3D" | undefined;
     public staticCamera: boolean | undefined;
     public requestPolygonArea: boolean | undefined;
     public statisticsApi: string | undefined;
@@ -24,7 +24,7 @@ export class Story {
                 description: string, 
                 storyChapters: Array<StoryChapter>, 
                 width: string | undefined = undefined, 
-                force2DMode: boolean | undefined, 
+                forceCameraMode: "2D" | "3D" | undefined, 
                 staticCamera: boolean | undefined,
                 requestPolygonArea: boolean | undefined,
                 statisticsApi: string | undefined,
@@ -33,7 +33,7 @@ export class Story {
         this.description = description;
         this.storyChapters = storyChapters;
         this.width = width;
-        this.force2DMode = force2DMode;
+        this.forceCameraMode = forceCameraMode;
         this.staticCamera = staticCamera;
         this.requestPolygonArea = requestPolygonArea;
         this.statisticsApi = statisticsApi;
