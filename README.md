@@ -782,6 +782,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |pointCloudEDLStrength|Eye dome lighting strength (apparent contrast)|1|number|
 |pointCloudEDLRadius|Thickness of contours from eye dome lighting|1|number|
 |globeOpacity|Opacity percentage of the globe|100|number|
+|enableCollisionDetection|Prevent the camera from moving below the terrain/surface. Set to `true` to prevent going subsurface|false|boolean|
 |terrainProviders|Array of terrain providers, first in list is activated by default, leave out URL to create empty provider (see example below)|-|Terrain Provider|
 
 
@@ -800,6 +801,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 		"skyAtmosphere": true,
 		"fog": true,
 		"highDynamicRange": false,
+		"enableCollisionDetection": false,
 		"pointCloudAttenuationMaximum": 2,
 		"terrainProviders": [
           {
@@ -1008,7 +1010,7 @@ Measuring tool accessible through the toolbar, with this tool the user can add 3
 
 #### stories
 
-Tool for storymapping. Create and show multiple stories in the viewer. Each story can contain multiple chapters with steps which the user can click through. Each chapter has an id, title, button text (shorthand for longer titles) and steps. Each step has a title and description (HTML), a fly-to location, and a set of layers with their settings (id, style, opacity). A story can be opened directly in the viewer through the 'story' search parameter, for example: "https://some-site.nl/?story=mystoryname".
+Tool for storymapping. Create and show multiple stories in the viewer. Each story can contain multiple chapters with steps which the user can click through. Each chapter has an id, title, button text (shorthand for longer titles) and steps. Each step has a title and description (HTML), a fly-to location, and a set of layers with their settings (id, style, opacity, showOpacitySlider). A story can be opened directly in the viewer through the 'story' search parameter, for example: "https://some-site.nl/?story=mystoryname".
 
 |value||description|type|
 |-|-|-|-|
@@ -1017,12 +1019,21 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 |stories|name|The name of the story|string|
 ||description|A short description to describe the story|string|
 ||width|The width of the story menu|string|
-||force2DMode|Sets the camera to 2D mode and prevents users from switching camera mode while the story is open|boolean|
+||forceCameraMode|Forces the camera into a fixed mode while the story is open and prevents users from switching camera mode. Accepts `"2D"` or `"3D"`. On opening the story the camera switches to the given mode if needed; on closing it reverts to the previous mode if it was changed|string|
 ||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
 ||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
 ||baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
 ||chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
 ||chapterGroups|Groups the chapter ids refer to|object|
+
+Each layer within a step's `layers` array supports these settings:
+
+|value|description|default|type|
+|-|-|-|-|
+|id|ID of the layer to add in this step|-|string|
+|opacity|Initial opacity percentage of the layer|100|number|
+|style|Style/theme to apply to the layer|-|string|
+|showOpacitySlider|Whether the transparency slider is shown for this layer in the story step|true|boolean|
 
 ```json
 
@@ -1037,7 +1048,7 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 				"name": "My Story",
 				"description": "Description of my story",
 				"width": "600px",
-				"force2DMode": false,
+				"forceCameraMode": "2D",
 				"staticCamera": false,
 				"requestPolygonArea": {
 					"enabled": false,
@@ -1068,11 +1079,11 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 									},
 									{
 										"id": "19747667-ddb2-4162-99f6-a37d5aaa15ea",
-										"style": "Bouwjaar"
+										"style": "Bouwjaar",
+										"showOpacitySlider": false
 									}
 									//etc. You can add as many layers as you want per step
-								]
-							},
+								]							},
 							//etc. You can add as many steps as you want per chapter
 						]
 					},

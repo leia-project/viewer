@@ -33,6 +33,7 @@ export class MapOptions {
 	public selectedProject: Writable<string | undefined> = writable(undefined);
 	public use3DMode: Writable<boolean> = writable(true);
 	public disableModeSwitcher: Writable<boolean> = writable(false);
+	public enableCollisionDetection: Writable<boolean> = writable<boolean>(false);
 
 	public pointCloudAttenuation: Writable<boolean> = writable<boolean>(true);
 	public pointCloudAttenuationMaximum: Writable<number> = writable<number>(0);
@@ -112,6 +113,9 @@ export class MapOptions {
 		this.subscribe<boolean>(this.inspector, (v) => {
 			this.switchTileInspector(v);
 		});
+		this.subscribe<boolean>(this.enableCollisionDetection, (v) => {
+			this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = v;
+		});
 		this.subscribe<{ title: string, url: string, vertexNormals: boolean }>(this.selectedTerrainProvider, (v) => {
 			this.terrainSwitchReady.set(false);
 			this.switchTerrainProvider(v);
@@ -146,6 +150,7 @@ export class MapOptions {
 		this.trySet(this.pointCloudEDLRadius, config.pointCloudEDLRadius);
 		this.trySet(this.proMode, config.proMode);
 		this.trySet(this.globeOpacity, config.globeOpacity);
+		this.trySet(this.enableCollisionDetection, config.enableCollisionDetection);
 		this.loadTerrainProvider(config.terrainProviders);
 	}
 

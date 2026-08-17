@@ -278,6 +278,7 @@
                 "lighting": true,
                 "skyAtmosphere": true,
                 "fog": true,
+                "enableCollisionDetection": false,
                 "highDynamicRange": false,
                 "pointCloudAttenuationMaximum": 2,
                 "terrainProviders": [
