@@ -775,6 +775,7 @@
 		align-items: center;
 		gap: var(--cds-spacing-03);
 		min-width: 0;
+		margin-bottom: 0;
 	}
 
 	.title-text {
