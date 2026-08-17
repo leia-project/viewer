@@ -69,6 +69,7 @@
             "defaultOn": false,
             "transparent": false,
             "opacity": 0,
+            "attribution": "PDOK",
             "settings": {
                 "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/gebouwen/3dtiles",
                 "defaultTheme": "Bouwjaar",
@@ -142,6 +143,9 @@
             "duration": 1.50
         },
         "colors": {
+            "header-color": "#161616",
+            "title-color": "#ffffff",
+            "sub-title-color": "#ffffff",
             "ui-background": "#ffffff",
             "interactive-01": "#214170",
             "interactive-02": "#171717",
@@ -207,6 +211,13 @@
                     {
                         "type": "geonetwork",
                         "url": "https://dataportaal.zeeland.nl/dataportaal"
+                    },
+                    {
+                        "type": "ckan",
+                        "url": "https://data.beta.geodan.nl",
+                        "organizations": [
+                            "pdok"
+                        ]
                     }
                 ]
             }

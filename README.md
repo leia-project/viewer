@@ -117,10 +117,13 @@ The start position of the camera. Since we are using a 3D viewer we need more th
 ```
 
 #### Colors
-Colors for the GUI. The black header cannot be changed currently, this is an open issue for the Carbon Design svelte components devs.
+Colors for the GUI.
 
 |value|description|type|
 |-|-|-|
+|header-color|Background color of the header bar|string|
+|title-color|Color of the title text in the header|string|
+|sub-title-color|Color of the subtitle text in the header|string|
 |ui-background|Default page background|string|
 |interactive-01|Primary interactive color. Primary buttons|string|
 |interactive-02|Secondary interactive color. Secondary button|string|
@@ -921,7 +924,7 @@ This tool can be used to add projects with project-specific layers. The project 
 |projects|name|The name of the project|string|
 ||description|A description for the project|string|
 ||polygon|An array of coordinates describing the project delimitation|array of [lon: number, lat: number]|
-||layers|An array of layer id's to be shown for the project|array|
+||layers|An array of layer objects to be shown for the project|array of { id: string, on: boolean, tileset?: string }|
 ||cameraPosition|The default camera position|cameraLocation|
 
 ```json
@@ -955,9 +958,19 @@ This tool can be used to add projects with project-specific layers. The project 
 					]
 				],
 				"layers": [
-					"DTB 3D",
-					"3D BAG",
-					"Bomen 3D"
+					{
+						"id": "DTB 3D",
+						"on": true
+					},
+					{
+						"id": "3D BAG",
+						"on": false
+					},
+					{
+						"id": "GeoTOP",
+						"on": false,
+						"tileset": "https://virtueel.zeeland.nl/tiles_other/geotop_middelburg/3dtiles/tileset.json"
+					}
 				],
 				"cameraPosition": {
 					"x": 4.94802,
@@ -1079,6 +1092,31 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 	}
 }
 ```
+
+
+#### isochrones
+
+Tool to calculate and visualize car isochrones (travel-time areas) around an economic development location and use accounted population growth data to calculate the net migration surplus in the affected area.
+
+|value|description|type|
+|-|-|-|
+|apiUrl|OpenRouteService isochrones endpoint URL|string|
+|accountedPopulationGrowthLayerId|Layer id used to retrieve accounted population growth data|string|
+|accountedPopulationGrowthAttribute|Attribute name in the configured layer that contains the accounted population growth value|string|
+
+```json
+{
+	"id": "isochrones",
+	"enabled": true,
+	"settings": {
+		"apiUrl": "https://virtueel.zeeland.nl/ors/v2/isochrones/driving-car",
+		"accountedPopulationGrowthLayerId": "053",
+		"accountedPopulationGrowthAttribute": "at_woonplekken"
+	}
+}
+```
+
+
 
 #### language
 

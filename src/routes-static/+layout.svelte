@@ -1,10 +1,12 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { app } from '$lib/app/app';
 	import { page } from '$app/stores';
 	import { ConfigSettings } from '$lib/app/config-settings';
-	import { setupLocalization } from '$lib/components/localization/localization';
-	import { onMount } from 'svelte';
+	import { setupLocalization } from '$lib/i18n/localization';
 	import '../routes/app.css';	
+
+	export let params: Record<string, string> = {};
 
 	app.init();
 	setupLocalization("nl");

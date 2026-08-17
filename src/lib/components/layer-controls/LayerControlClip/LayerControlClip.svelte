@@ -1,0 +1,141 @@
+<script lang="ts">
+	import { _ } from "svelte-i18n";
+	import { Toggle, Slider, Button } from "carbon-components-svelte";
+	import { Reset, ViewFilled, ViewOffFilled } from "carbon-icons-svelte";
+	import type { ClipSlider } from "./clip-slider";
+
+	export let clipSlider: ClipSlider;
+
+	const layerVisible = clipSlider.layer.visible;
+	const clipActive = clipSlider.active;
+	const showSlider = clipSlider.showSlider;
+	const sliderXY = clipSlider.angleXY;
+	const sliderZ = clipSlider.angleZ;
+
+	// const sliceMode = clipSlider.sliceMode;
+
+</script>
+
+
+{#if $layerVisible}
+	<div class="clipper">
+		<div class="clipper-checkbox">
+			<span class="label-02">{$_("tools.layerTools.clipper.label")}</span>
+			<Toggle
+				toggled={$clipActive}
+				hideLabel={true}
+				on:toggle={() => {
+					if ($layerVisible) clipActive.set(!$clipActive)
+				}}
+				labelA=""
+				labelB=""
+			/>
+			
+			<div class="top-buttons">
+				{#if $clipActive}
+					<span class="reset-button" class:hidden={$sliderXY === 180 && $sliderZ === 0}>
+						<Button
+							iconDescription={$_("general.buttons.reset")}
+							icon={Reset}
+							tooltipPosition="bottom"
+							tooltipAlignment="center"
+							size="field"
+							on:click={() => clipSlider.reset()}
+						/>
+					</span>
+				<Button
+					kind="ghost"
+					iconDescription={$showSlider ? $_("general.buttons.hide") :  $_("general.buttons.show")}
+					icon={$showSlider ? ViewOffFilled : ViewFilled}
+					tooltipPosition="bottom"
+					tooltipAlignment="end"
+					size="field"
+					on:click={() => clipSlider.showSlider.set(!$showSlider)}
+				/>
+				{/if}
+			</div>
+		</div>
+
+		{#if $clipActive }
+			<div class="clip-angle-sliders">
+				<div class="slider-label">{$_("tools.layerTools.clipper.rotationVerticalAxis")}</div>
+				<Slider
+					bind:value={$sliderXY}
+					min={0}
+					max={360}
+					step={1}
+					hideTextInput={true}
+					id="slider-1"
+				/>
+				<div class="slider-label">{$_("tools.layerTools.clipper.rotationHorizontalAxis")}</div>
+				<Slider
+					bind:value={$sliderZ}
+					min={-90}
+					max={90}
+					step={1}
+					hideTextInput={true}
+				/>
+				<!-- <div class="slice-mode-label">{$_("tools.layerTools.clipper.sliceModeLabel")}</div>
+				<Toggle
+				toggled={$sliceMode}
+				disabled={true}
+				hideLabel={true}
+				on:toggle={() => {
+					if ($layerVisible) sliceMode.set(!$sliceMode);
+				}}
+				labelA={$_("general.off")}
+				labelB={$_("general.on")}
+				/> -->
+			</div>
+		{/if}
+	</div>
+{/if}
+
+
+<style>
+
+	.clipper {
+		margin: 10px 0 15px;
+		background-color: var(--cds-ui-01);
+		border-radius: 5px;
+	}
+	.clipper-checkbox {
+		display: flex;
+		align-items: center;
+		column-gap: 20px;
+		margin-bottom: 10px;
+		padding-left: 10px;
+	}
+	.top-buttons {
+		display: flex;
+		align-items: center;
+		column-gap: 5px;
+	}
+	.reset-button.hidden {
+		visibility: hidden;
+	}
+	.label-02 {
+		padding: 15px 0;
+	}
+
+	.clip-angle-sliders {
+		padding: 0 10px 10px;
+	}
+
+	.slider-label {
+		width: 100%;
+		text-align: center;
+		display: block;
+		color: #565656;
+		font-size: 14px;
+		margin-top: 10px;
+	}
+
+	.clip-angle-sliders :global(.bx--slider-container) {
+		width: 100% !important;
+	}
+	.clip-angle-sliders :global(.bx--slider) {
+		min-width: 100px !important;
+	}
+
+</style>
