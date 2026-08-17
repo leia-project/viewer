@@ -356,6 +356,10 @@
         margin: 0 var(--cds-spacing-02) 5px 0;
     }
 
+    :global(.layer-control .bx--accordion__arrow:hover) {
+        fill: var(--cds-link-primary, #0f62fe);
+    }
+
     :global(.tool-content.s-XzGKRQKmR8Sm) {
         overflow: visible;
     }

@@ -29,7 +29,7 @@
 		legendUrl || description || layer.config.opacitySupported || ($customControls?.length ?? 0) > 0
 	);
 
-	let settingsOpen = false;
+	let expanded = false;
 	let legendValid = true;
 
 	function columnLabel(index: number): string {
@@ -68,23 +68,21 @@
 					<Information size={16} />
 				</a>
 			{/if}
-			{#if hasSettings}
-				<button
-					class="icon-btn expand-btn"
-					class:open={settingsOpen}
-					type="button"
-					on:click={() => (settingsOpen = !settingsOpen)}
-					aria-expanded={settingsOpen}
-					aria-label={$_("tools.layerManager.styling")}
-					title={$_("tools.layerManager.styling")}
-				>
-					<ChevronDown size={16} />
-				</button>
-			{/if}
+			<button
+				class="icon-btn expand-btn"
+				class:open={expanded}
+				type="button"
+				on:click={() => (expanded = !expanded)}
+				aria-expanded={expanded}
+				aria-label={expanded ? $_("tools.menu.collapse") : $_("tools.menu.expand")}
+				title={expanded ? $_("tools.menu.collapse") : $_("tools.menu.expand")}
+			>
+				<ChevronDown size={16} />
+			</button>
 		</div>
 	</div>
 
-	{#if settingsOpen && hasSettings}
+	{#if expanded && hasSettings}
 		<div class="card-settings">
 			{#if description}
 				<ExpandableDescription text={description} />
@@ -123,7 +121,9 @@
 		</div>
 	{/if}
 
+	{#if expanded}
 	<div class="card-stats">
+		<span class="stats-heading heading-01">{$_("tools.zonalStatistics.statistics")}</span>
 		{#if hasSelection && summaryRow}
 			{#each summaryRow.columns as col (col.columnIndex)}
 				<div class="metric">
@@ -165,6 +165,7 @@
 			<p class="stats-hint body-compact-01">{$_("tools.zonalStatistics.noSelection")}</p>
 		{/if}
 	</div>
+	{/if}
 </div>
 
 <style>
@@ -252,6 +253,11 @@
 		background-color: var(--cds-hover-ui, #e5e5e5);
 	}
 
+	.expand-btn:hover,
+	.expand-btn:focus-visible {
+		background-color: transparent;
+	}
+
 	.expand-btn.open {
 		transform: rotate(180deg);
 	}
@@ -305,15 +311,17 @@
 		flex-direction: column;
 	}
 
+	.stats-heading {
+		color: var(--cds-text-primary);
+		padding: var(--cds-spacing-03) var(--cds-spacing-04);
+		margin-bottom: 0;
+	}
+
 	.metric {
 		display: flex;
 		flex-direction: column;
 		gap: var(--cds-spacing-03);
 		padding: var(--cds-spacing-04);
-	}
-
-	.metric + .metric {
-		border-top: 1px solid var(--cds-ui-03);
 	}
 
 	.metric-label {

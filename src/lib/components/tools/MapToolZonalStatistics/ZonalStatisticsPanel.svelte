@@ -49,7 +49,6 @@
 	{:else}
 		{#if settings.showSummary && hasSelection && summary}
 			<div class="overview">
-				<span class="heading-01 overview-title">{$_("tools.zonalStatistics.statistics")}</span>
 				<Tag type="gray" size="sm">
 					{$_("tools.zonalStatistics.summaryTotalArea", {
 						values: { area: formatArea(summary.totalAreaSqMeters), count: summary.zoneCount }
@@ -97,10 +96,6 @@
 		justify-content: space-between;
 		flex-wrap: wrap;
 		gap: var(--cds-spacing-02);
-	}
-
-	.overview-title {
-		color: var(--cds-text-primary);
 	}
 
 	.overview :global(.bx--tag) {

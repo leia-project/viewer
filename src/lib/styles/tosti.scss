@@ -565,6 +565,10 @@ Header nav {
     margin: 0 1rem 0 0;
 }
 
+.project-accordion .bx--accordion__arrow:hover {
+    fill: var(--cds-link-primary, #0f62fe);
+}
+
 .bx--header__action {
     display: flex;
     align-items: center;

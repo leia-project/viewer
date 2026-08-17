@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getContext, onDestroy, onMount } from "svelte";
+	import { get } from "svelte/store";
 	import { TableAlias } from "carbon-icons-svelte";
 
 	import { MapToolMenuOption } from "../MapToolMenuOption";
@@ -27,6 +28,7 @@
 	let controller: ZonalStatisticsController | undefined;
 	let view: ZonalStatisticsView | undefined;
 	let configLoadedUnsub: (() => void) | undefined;
+	let previousVisibility: Map<string, boolean> | undefined;
 
 	onMount(() => {
 		if (!map) return;
@@ -64,6 +66,7 @@
 			showView();
 		} else {
 			enableInteractionsFromOtherTools();
+			restoreConfiguredLayers();
 			destroyView();
 			controller.clearSelection();
 		}
@@ -76,6 +79,8 @@
 		const layerIds = new Set<string>([controller.settings.zoneLayerId]);
 		for (const cfg of controller.settings.layers) layerIds.add(cfg.id);
 
+		// Remember what was on before we force the tool's layers visible.
+		previousVisibility = new Map<string, boolean>();
 		for (const layerId of layerIds) {
 			const layer = map.getLayerById(layerId);
 			if (!layer) {
@@ -83,8 +88,21 @@
 				continue;
 			}
 
+			previousVisibility.set(layerId, get(layer.visible));
 			layer.visible.set(true);
 		}
+	}
+
+	// Restore each configured layer to the visibility it had before the tool was opened.
+	function restoreConfiguredLayers(): void {
+		if (!previousVisibility) return;
+
+		for (const [layerId, wasVisible] of previousVisibility) {
+			const layer = map.getLayerById(layerId);
+			if (!layer) continue;
+			layer.visible.set(wasVisible);
+		}
+		previousVisibility = undefined;
 	}
 
 	function showView(): void {

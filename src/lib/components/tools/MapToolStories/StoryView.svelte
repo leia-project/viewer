@@ -813,6 +813,10 @@ async function downloadPDF() {
 		gap: 0.25rem; /* spacing between the buttons */
 	}
 
+	.draw-polygon :global(.bx--btn:hover svg) {
+		fill: var(--cds-link-primary, #0f62fe);
+	}
+
 	.nav-close {
 		flex: 0 0 auto;
 	}
