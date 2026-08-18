@@ -58,7 +58,6 @@
 	let contentEl: HTMLDivElement | undefined;
 	let stickyColWidth = 0;
 	let scroll = { top: false, bottom: false, left: false, right: false };
-	// Space taken by the scrollbars, so the edge shadows can stop before them.
 	let scrollbarW = 0;
 	let scrollbarH = 0;
 
@@ -625,7 +624,7 @@
 						<tbody>
 							{#each table.rows as row (row.layerId)}
 								<tr>
-									<th class="row-head" scope="row">{row.title}</th>
+									<th class="row-head" scope="row" title={row.title}>{row.title}</th>
 									{#each table.zones as code (code)}
 										{#each columns as column, i (i)}
 											<td
@@ -811,12 +810,14 @@
 		display: flex;
 		flex: 1 1 auto;
 		min-height: 0;
+		min-width: 0;
 	}
 
 	.content {
 		overflow: auto;
 		flex: 1 1 auto;
 		min-height: 0;
+		min-width: 0;
 	}
 
 	.edge {
@@ -938,6 +939,9 @@
 		left: 0;
 		background-color: var(--cds-ui-02);
 		z-index: 1;
+		max-width: 12rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.zonal-table tbody tr:hover td:not(.active),
