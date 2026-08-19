@@ -9,6 +9,7 @@
 	import type { StoryMarkerCollection } from "./story-marker-collection";
 
 	export let story: Story;
+	export let marker: Cesium.Entity;
 	export let collection: StoryMarkerCollection;
 
 	let left = 0;
@@ -33,7 +34,7 @@
 	});
 
 	function updatePosition(): void {
-		const cartesianPosition = story.marker?.position?.getValue(
+		const cartesianPosition = marker.position?.getValue(
 			collection.map.viewer.clock.currentTime,
 			new Cesium.Cartesian3()
 		);

@@ -1020,7 +1020,7 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 |stories|name|The name of the story|string|
 ||description|A short description to describe the story|string|
 ||width|The width of the story menu|string|
-||markerCoordinates|**Optional**: Location of the story marker. Use `x` for longitude and `y` for latitude. If omitted, the story is still available in the Stories menu but has no map marker|object|
+||markerCoordinates|**Optional**: List of 1 or more locations of story markers. Use `x` for longitude and `y` for latitude. If omitted, the story is still available in the Stories menu but has no map marker|object|
 |||x|Longitude of the story marker|number|
 |||y|Latitude of the story marker|number|
 ||forceCameraMode|Forces the camera into a fixed mode while the story is open and prevents users from switching camera mode. Accepts `"2D"` or `"3D"`. On opening the story the camera switches to the given mode if needed; on closing it reverts to the previous mode if it was changed|string|
@@ -1053,10 +1053,10 @@ Each layer within a step's `layers` array supports these settings:
 				"name": "My Story",
 				"description": "Description of my story",
 				"width": "600px",
-				"markerCoordinates": {
+				"markerCoordinates": [{
 					"x": 5.23907,
 					"y": 52.20004
-				},
+				}],
 				"forceCameraMode": "2D",
 				"staticCamera": false,
 				"requestPolygonArea": {

@@ -5,7 +5,7 @@ import type { Map } from "$lib/map-cesium/map";
 import { getTerrainHeight } from "$lib/map-cesium/terrain-util";
 import { projectHandler } from "../MapToolProjects/project-handler";
 import { selectedStory, showStoryMarkers } from "./story-handler";
-import type { Story } from "./Story";
+import type { Story, StoryMarkerCoordinates } from "./Story";
 import StoryHoverBox from "./StoryHoverBox.svelte";
 
 export class StoryMarkerCollection extends Dispatcher {
@@ -14,7 +14,8 @@ export class StoryMarkerCollection extends Dispatcher {
 	private readonly toolSelection: Readable<unknown>;
 	private readonly storyTool: unknown;
 	private stories: Story[] = [];
-	private hoveredMarkerStory: Story | undefined;
+	private readonly markerStoryMap = new Map<Cesium.Entity, Story>();
+	private hoveredMarker: Cesium.Entity | undefined;
 	public hoveredStory: Writable<Story | undefined> = writable(undefined);
 	public hoverBoxTimeOut: ReturnType<typeof setTimeout> | undefined;
 	private hoverBox: StoryHoverBox | undefined;
@@ -42,28 +43,29 @@ export class StoryMarkerCollection extends Dispatcher {
 	public load(stories: Story[]): void {
 		this.stories = stories;
 		this.markers.entities.removeAll();
+		this.markerStoryMap.clear();
 		const bookMarker = this.createMarkerIcon();
 
 		for (const story of stories) {
-			if (!story.markerCoordinates) continue;
+			story.markers = [];
 
-			const marker = new Cesium.Entity({
-				position: Cesium.Cartesian3.fromDegrees(
-					story.markerCoordinates.x,
-					story.markerCoordinates.y
-				),
-				billboard: {
-					image: bookMarker,
-					width: 52,
-					height: 52,
-					disableDepthTestDistance: Number.POSITIVE_INFINITY,
-					verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-					scaleByDistance: new Cesium.NearFarScalar(5.0e4, 1, 3.0e6, 0.1)
-				}
-			});
-			story.marker = marker;
-			this.markers.entities.add(marker);
-			this.updateMarkerHeight(story);
+			for (const coordinates of story.getMarkerCoordinatesList()) {
+				const marker = new Cesium.Entity({
+					position: Cesium.Cartesian3.fromDegrees(coordinates.x, coordinates.y),
+					billboard: {
+						image: bookMarker,
+						width: 52,
+						height: 52,
+						disableDepthTestDistance: Number.POSITIVE_INFINITY,
+						verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+						scaleByDistance: new Cesium.NearFarScalar(5.0e4, 1, 3.0e6, 0.1)
+					}
+				});
+				story.markers.push(marker);
+				this.markerStoryMap.set(marker, story);
+				this.markers.entities.add(marker);
+				this.updateMarkerHeight(marker, coordinates);
+			}
 		}
 
 		this.toggleMarkers();
@@ -80,25 +82,15 @@ export class StoryMarkerCollection extends Dispatcher {
 		return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(image)}`;
 	}
 
-	private async updateMarkerHeight(story: Story): Promise<void> {
-		if (!story.marker || !story.markerCoordinates) return;
-
+	private async updateMarkerHeight(marker: Cesium.Entity, coordinates: StoryMarkerCoordinates): Promise<void> {
 		let height = 2;
 		if (this.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
-			height = (await getTerrainHeight(
-				this.map,
-				story.markerCoordinates.x,
-				story.markerCoordinates.y
-			)) ?? 0;
+			height = (await getTerrainHeight(this.map, coordinates.x, coordinates.y)) ?? 0;
 			height += 2;
 		}
 
-		story.marker.position = new Cesium.ConstantPositionProperty(
-			Cesium.Cartesian3.fromDegrees(
-				story.markerCoordinates.x,
-				story.markerCoordinates.y,
-				height
-			)
+		marker.position = new Cesium.ConstantPositionProperty(
+			Cesium.Cartesian3.fromDegrees(coordinates.x, coordinates.y, height)
 		);
 	}
 
@@ -134,14 +126,19 @@ export class StoryMarkerCollection extends Dispatcher {
 			clearTimeout(this.hoverBoxTimeOut);
 			this.hoverBox?.$destroy();
 			this.hoverBox = undefined;
-			this.hoveredMarkerStory = undefined;
+			this.hoveredMarker = undefined;
 			this.hoveredStory.set(undefined);
 		}
 	}
 
-	private getStory(picked: any): Story | undefined {
+	private getMarker(picked: any): Cesium.Entity | undefined {
 		const marker = picked?.id as Cesium.Entity | undefined;
-		return this.stories.find((story) => story.marker === marker);
+		return marker && this.markerStoryMap.has(marker) ? marker : undefined;
+	}
+
+	private getStory(picked: any): Story | undefined {
+		const marker = this.getMarker(picked);
+		return marker ? this.markerStoryMap.get(marker) : undefined;
 	}
 
 	private onClick = (movement: any): void => {
@@ -156,16 +153,17 @@ export class StoryMarkerCollection extends Dispatcher {
 		const picked = this.map.viewer.scene.pick(
 			new Cesium.Cartesian2(movement.endPosition.x, movement.endPosition.y)
 		);
-		const story = this.getStory(picked);
+		const marker = this.getMarker(picked);
+		const story = marker ? this.markerStoryMap.get(marker) : undefined;
 		this.map.container.style.cursor = story ? "pointer" : "default";
-		if (story === this.hoveredMarkerStory) return;
-		this.hoveredMarkerStory = story;
-		if (story) {
+		if (marker === this.hoveredMarker) return;
+		this.hoveredMarker = marker;
+		if (story && marker) {
 			clearTimeout(this.hoverBoxTimeOut);
 			this.hoverBox?.$destroy();
 			this.hoverBox = new StoryHoverBox({
 				target: this.map.getContainer(),
-				props: { story, collection: this }
+				props: { story, marker, collection: this }
 			});
 			this.hoveredStory.set(story);
 		} else {
