@@ -818,7 +818,7 @@
                 "exportTitle": "Klimaatlabels",
                 "exportFileName": "Klimaatlabels",
                 "pdfFooterText": "Provincie Zeeland - Klimaatlabels",
-                "pdfLeftLogo": "/images/Zeeland_logo.png",
+                "pdfLogo": "/images/Zeeland_logo.png",
                 "columns": [
                     {
                         "attribute": "label",

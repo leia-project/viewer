@@ -82,7 +82,7 @@ export interface ZonalStatisticsSettings {
 	/** Optional footer text drawn on exported PDFs. */
 	pdfFooterText?: string;
 	/** Optional left logo image path for exported PDFs (defaults to the shared branding logo). */
-	pdfLeftLogo?: string;
+	pdfLogo?: string;
 }
 
 /**
@@ -148,6 +148,6 @@ export function parseZonalStatisticsSettings(raw: any): ZonalStatisticsSettings 
 		exportTitle: typeof raw.exportTitle === "string" ? raw.exportTitle : undefined,
 		exportFileName: typeof raw.exportFileName === "string" ? raw.exportFileName : undefined,
 		pdfFooterText: typeof raw.pdfFooterText === "string" ? raw.pdfFooterText : undefined,
-		pdfLeftLogo: typeof raw.pdfLeftLogo === "string" ? raw.pdfLeftLogo : undefined
+		pdfLogo: typeof raw.pdfLogo === "string" ? raw.pdfLogo : undefined
 	};
 }

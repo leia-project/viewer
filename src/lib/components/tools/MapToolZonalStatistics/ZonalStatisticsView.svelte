@@ -310,7 +310,7 @@
 			exportingPdf = true;
 
 			const brandingAssets = await loadPdfBrandingAssets({
-				leftLogoPath: settings.pdfLeftLogo ?? DEFAULT_PDF_BRANDING.leftLogoPath,
+				leftLogoPath: settings.pdfLogo ?? DEFAULT_PDF_BRANDING.leftLogoPath,
 				footerText: settings.pdfFooterText ?? DEFAULT_PDF_BRANDING.footerText
 			});
 

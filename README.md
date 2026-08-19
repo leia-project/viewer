@@ -1161,7 +1161,7 @@ Generic tool to inspect statistics per zone (e.g. per postcode area). The user c
 |exportTitle|Optional title used for exports. Defaults to the tool title/alias|string|
 |exportFileName|Optional file-name prefix for exports. Defaults to the tool title/alias|string|
 |pdfFooterText|Optional footer text drawn on exported PDFs|string|
-|pdfLeftLogo|Optional left logo image path for exported PDFs|string|
+|pdfLogo|Optional left logo image path for exported PDFs|string|
 
 ```json
 {
@@ -1174,7 +1174,7 @@ Generic tool to inspect statistics per zone (e.g. per postcode area). The user c
 		"exportTitle": "Klimaatlabels",
 		"exportFileName": "Klimaatlabels",
 		"pdfFooterText": "Provincie Zeeland - Klimaatlabels",
-		"pdfLeftLogo": "/images/Zeeland_logo.png",
+		"pdfLogo": "/images/Zeeland_logo.png",
 		"columns": [
 			{ "attribute": "label", "label": "Huidig", "tooltipAttribute": "category", "styled": true },
 			{ "attribute": "ambitie_label", "label": "Ambitie", "tooltipAttribute": "ambitie_category", "styled": true }
