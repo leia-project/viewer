@@ -345,7 +345,9 @@
             "drawPolygonText": "Cliquez sur le bouton 'Dessiner la Zone de Projet' pour commencer à dessiner sur la carte. Cliquez pour créer un polygone. Cliquez avec le bouton droit de la souris sur la carte pour terminer le dessin.",
             "deletePolygon": "Supprimer la Zone",
             "projectAreaTool": "Outil de Zone de Projet",
-            "downloadPDF": "Générer et télécharger le PDF"
+            "downloadPDF": "Générer et télécharger le PDF",
+            "showOnMap": "Afficher les histoires sur la carte",
+            "open": "Ouvrir l'histoire"
         },
         "animation": {
             "speed": "Vitesse",

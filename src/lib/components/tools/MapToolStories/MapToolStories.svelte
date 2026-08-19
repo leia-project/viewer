@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getContext } from "svelte";
+	import { getContext, onDestroy } from "svelte";
 	import { _ } from "svelte-i18n";
 	import { Book } from "carbon-icons-svelte";
 	import { page } from "$app/stores";
@@ -14,6 +14,9 @@
 	import type { LegendOptions } from "./LegendOptions";
 
 	import StoryView from "./StoryView.svelte";
+	import { selectedStory, showStoryMarkers } from "./story-handler";
+	import { StoryMarkerCollection } from "./story-marker-collection";
+	import ToggleView from "../MapToolProjects/components/ToggleView.svelte";
 
 	export let id: string;
 	export let label: string;
@@ -23,7 +26,8 @@
 
 	let cesiumMap = map as Map;
 	let stories = new Array<Story>();
-	let selectedStory: Story | undefined;
+	const selectedStoryStore = selectedStory;
+	let markerCollection: StoryMarkerCollection;
 	let stepNumber: number;
 	let baseLayerId: string | undefined;
 	const layerLegends: Array<LegendOptions> = [];
@@ -31,14 +35,15 @@
 
 	const tool = new MapToolMenuOption(id, icon, label);
 	registerTool(tool);
+	markerCollection = new StoryMarkerCollection(cesiumMap, Book, selectedTool, tool);
 
 	$: {
-		tool.width.set(selectedStory?.width ?? "");
+		tool.width.set($selectedStoryStore?.width ?? "");
 	}
 
 	selectedTool.subscribe((selected: MapToolMenuOption) => {
-		if (tool === selected && selectedStory) {
-			tool.width.set(selectedStory.width ?? "");
+		if (tool === selected && $selectedStoryStore) {
+			tool.width.set($selectedStoryStore.width ?? "");
 		}
 	});
 
@@ -81,6 +86,7 @@
 	}
 
 	function loadStoriesFromSettings(settings: any) {
+		showStoryMarkers.set(settings.showOnMap ?? true);
 		const configStories = settings.stories;
 		const loadedStories = new Array<Story>();
 
@@ -93,8 +99,14 @@
 				const storyWidth: string = story.width;
 				const storyForceCameraMode: "2D" | "3D" | undefined = story.forceCameraMode ?? undefined;
 				const storyStaticCamera: boolean = story.staticCamera ?? false;
-				const storyRequestPolygonArea:boolean = story.requestPolygonArea.enabled ?? false;
-				const storyStatisticsApi: string | undefined = story.requestPolygonArea.statisticsApi ?? undefined;
+				const storyRequestPolygonAreaConfig = story.requestPolygonArea ?? false;
+				const storyRequestPolygonArea: boolean = typeof storyRequestPolygonAreaConfig === "object"
+					? storyRequestPolygonAreaConfig.enabled ?? false
+					: storyRequestPolygonAreaConfig;
+				const storyStatisticsApi: string | undefined = typeof storyRequestPolygonAreaConfig === "object"
+					? storyRequestPolygonAreaConfig.statisticsApi ?? undefined
+					: undefined;
+				const storyMarkerCoordinates = story.markerCoordinates;
 				const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
 				baseLayerId = story.baseLayerId ?? undefined;
 
@@ -141,19 +153,21 @@
 					}
 					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi));
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyMarkerCoordinates));
 			}
 		}
 		stories = loadedStories;
+		markerCollection.load(stories);
 	}
 
 	function activateStory(story: Story) {
 		stepNumber = 1;
-		selectedStory = story;
+		selectedStoryStore.set(story);
+		$selectedTool = tool;
 	}
 
 	function closeStory() {
-		selectedStory = undefined;
+		selectedStoryStore.set(undefined);
 		tool.width.set("");
 	}
 
@@ -161,14 +175,22 @@
 		stepNumber = e.detail.n;
 	}
 
+	markerCollection.on("story-selected", (value: unknown) => {
+		if (value instanceof Story) activateStory(value);
+	});
+
+	onDestroy(() => {
+		markerCollection.destroy();
+	});
+
 </script>
 
 {#if $selectedTool === tool}
 	<div class="wrapper">
-		{#if selectedStory}
+		{#if $selectedStoryStore}
 			<StoryView
 				map={cesiumMap}
-				story={selectedStory}
+				story={$selectedStoryStore}
 				savedStepNumber={stepNumber}
 				textBack={$_("tools.stories.back")}
 				{layerLegends}
@@ -204,12 +226,29 @@
 			{/each}
 		{/if}
 	</div>
+	{#if !$selectedStoryStore}
+		<div class="bottom-container">
+			<ToggleView bind:show={$showStoryMarkers} text={$_("tools.stories.showOnMap")} />
+		</div>
+	{/if}
 {/if}
 
 <style>
 	.wrapper {
+		min-height: 600px;
 		width: 100%;
 		box-sizing: border-box;
+	}
+
+	.bottom-container {
+		margin-top: 50px;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		padding: 15px 10px 25px;
+		height: auto;
+		overflow: hidden;
 	}
 
 	.story {
