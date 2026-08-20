@@ -1,7 +1,7 @@
 import { get, writable, type Readable, type Unsubscriber, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import { Dispatcher } from "$lib/map-core/event/dispatcher";
-import type { Map } from "$lib/map-cesium/map";
+import type { Map as CesiumMap } from "$lib/map-cesium/map";
 import { getTerrainHeight } from "$lib/map-cesium/terrain-util";
 import { projectHandler } from "../MapToolProjects/project-handler";
 import { selectedStory, showStoryMarkers } from "./story-handler";
@@ -15,6 +15,7 @@ export class StoryMarkerCollection extends Dispatcher {
 	private readonly storyTool: unknown;
 	private stories: Story[] = [];
 	private readonly markerStoryMap = new Map<Cesium.Entity, Story>();
+	private readonly markerCoordinates = new Map<Cesium.Entity, StoryMarkerCoordinates>();
 	private hoveredMarker: Cesium.Entity | undefined;
 	public hoveredStory: Writable<Story | undefined> = writable(undefined);
 	public hoverBoxTimeOut: ReturnType<typeof setTimeout> | undefined;
@@ -22,7 +23,7 @@ export class StoryMarkerCollection extends Dispatcher {
 	private readonly unsubscribers: Unsubscriber[];
 
 	public constructor(
-		public readonly map: Map,
+		public readonly map: CesiumMap,
 		private readonly icon: any,
 		selectedTool: Readable<unknown>,
 		storyTool: unknown
@@ -36,7 +37,8 @@ export class StoryMarkerCollection extends Dispatcher {
 			showStoryMarkers.subscribe(() => this.toggleMarkers()),
 			selectedStory.subscribe(() => this.toggleMarkers()),
 			selectedTool.subscribe(() => this.toggleMarkers()),
-			projectHandler.selectedProject.subscribe(() => this.toggleMarkers())
+			projectHandler.selectedProject.subscribe(() => this.toggleMarkers()),
+			map.options.terrainSwitchReady.subscribe(() => this.updateAllMarkerHeights())
 		];
 	}
 
@@ -44,6 +46,7 @@ export class StoryMarkerCollection extends Dispatcher {
 		this.stories = stories;
 		this.markers.entities.removeAll();
 		this.markerStoryMap.clear();
+		this.markerCoordinates.clear();
 		const bookMarker = this.createMarkerIcon();
 
 		for (const story of stories) {
@@ -63,6 +66,7 @@ export class StoryMarkerCollection extends Dispatcher {
 				});
 				story.markers.push(marker);
 				this.markerStoryMap.set(marker, story);
+				this.markerCoordinates.set(marker, coordinates);
 				this.markers.entities.add(marker);
 				this.updateMarkerHeight(marker, coordinates);
 			}
@@ -82,16 +86,22 @@ export class StoryMarkerCollection extends Dispatcher {
 		return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(image)}`;
 	}
 
+	private updateAllMarkerHeights(): void {
+		for (const [marker, coordinates] of this.markerCoordinates) {
+			this.updateMarkerHeight(marker, coordinates);
+		}
+	}
+
 	private async updateMarkerHeight(marker: Cesium.Entity, coordinates: StoryMarkerCoordinates): Promise<void> {
 		let height = 2;
 		if (this.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
-			height = (await getTerrainHeight(this.map, coordinates.x, coordinates.y)) ?? 0;
-			height += 2;
+			height = ((await getTerrainHeight(this.map, coordinates.x, coordinates.y)) ?? 0) + 2;
 		}
 
 		marker.position = new Cesium.ConstantPositionProperty(
 			Cesium.Cartesian3.fromDegrees(coordinates.x, coordinates.y, height)
 		);
+		this.map.viewer.scene.requestRender();
 	}
 
 	public destroy(): void {
@@ -103,9 +113,12 @@ export class StoryMarkerCollection extends Dispatcher {
 
 	private markersVisible(): boolean {
 		const activeToolId = (get(this.toolSelection) as { id?: string } | undefined)?.id;
+		const storyToolId = (this.storyTool as { id?: string } | undefined)?.id;
+		const viewingStory = activeToolId === storyToolId && !!get(selectedStory);
+
 		return (
 			get(showStoryMarkers) &&
-			!get(selectedStory) &&
+			!viewingStory &&
 			!get(projectHandler.selectedProject) &&
 			activeToolId !== "projects" &&
 			activeToolId !== "flooding"
