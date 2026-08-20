@@ -155,7 +155,7 @@ export class MapOptions {
 	}
 
 	private trySet<T>(option: Writable<T>, value: T) {
-		if (value) {
+		if (value !== undefined) {
 			option.set(value);
 		}
 	}
