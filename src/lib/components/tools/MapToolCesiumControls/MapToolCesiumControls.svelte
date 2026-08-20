@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from "svelte";
-	import { writable, type Writable } from "svelte/store";
+	import { get, writable, type Writable } from "svelte/store";
 	import { _ } from "svelte-i18n";
 	import {
 		Checkbox,
@@ -30,8 +30,8 @@
 	registerTool(tool);
 
 
-	let updatingSettings: boolean = true;
-	let selectedPerformance: Writable<string> = writable<string>("medium");
+	let updatingSettings: boolean = false;
+	let selectedPerformance: Writable<string> = writable<string>("custom");
 	let showMouseCoordinates: Writable<boolean> = writable<boolean>(false);	
 	let showCameraPosition: Writable<boolean> = writable<boolean>(false);	
 
@@ -64,83 +64,63 @@
 
 	$: enableDragDropFiles = map.options.enableDragDropFiles;
 
-	map.options.fxaa.subscribe(() => {
-		setCustom();
-	});
-	map.options.msaa.subscribe(() => {
-		setCustom();
-	});
-	map.options.shadows.subscribe(() => {
-		setCustom();
-	});
-	map.options.animate.subscribe(() => {
-		setCustom();
-	});
-	map.options.resolutionScale.subscribe(() => {
-		setCustom();
-	});
-	map.options.maximumScreenSpaceError.subscribe(() => {
-		setCustom();
-	});
-	map.options.groundAtmosphere.subscribe(() => {
-		setCustom();
-	});
-	map.options.lighting.subscribe(() => {
-		setCustom();
-	});
-	map.options.skyAtmosphere.subscribe(() => {
-		setCustom();
-	});
-	map.options.fog.subscribe(() => {
-		setCustom();
-	});
-	map.options.highDynamicRange.subscribe(() => {
-		setCustom();
-	});
+	const performancePresets: Record<string, Record<string, number | boolean>> = {
+		low: {
+			fxaa: false,
+			msaa: 1,
+			shadows: false,
+			animate: false,
+			resolutionScale: 0.8,
+			maximumScreenSpaceError: 1.5,
+			groundAtmosphere: false,
+			lighting: true,
+			skyAtmosphere: true,
+			fog: false,
+			highDynamicRange: false
+		},
+		medium: {
+			fxaa: true,
+			msaa: 1,
+			shadows: false,
+			animate: false,
+			resolutionScale: 1,
+			maximumScreenSpaceError: 1.2,
+			groundAtmosphere: true,
+			lighting: true,
+			skyAtmosphere: true,
+			fog: true,
+			highDynamicRange: false
+		},
+		high: {
+			fxaa: true,
+			msaa: 8,
+			shadows: true,
+			animate: false,
+			resolutionScale: 1,
+			maximumScreenSpaceError: 1.0,
+			groundAtmosphere: true,
+			lighting: true,
+			skyAtmosphere: true,
+			fog: true,
+			highDynamicRange: false
+		}
+	};
+
+	for (const key of Object.keys(performancePresets.medium)) {
+		(map.options as any)[key].subscribe(() => {
+			updateSelectedProfile();
+		});
+	}
 
 	selectedPerformance.subscribe((p) => {
-		if (p === "custom") {
+		const preset = performancePresets[p];
+		if (!preset) {
 			return;
 		}
 
 		updatingSettings = true;
-
-		if (p === "low") {
-			map.options.fxaa.set(false);
-			map.options.msaa.set(1);
-			map.options.shadows.set(false);
-			map.options.animate.set(false);
-			map.options.resolutionScale.set(0.8);
-			map.options.maximumScreenSpaceError.set(1.5);
-			map.options.groundAtmosphere.set(false);
-			map.options.lighting.set(true);
-			map.options.skyAtmosphere.set(true);
-			map.options.fog.set(false);
-			map.options.highDynamicRange.set(false);
-		} else if (p === "medium") {
-			map.options.fxaa.set(true);
-			map.options.msaa.set(1);
-			map.options.shadows.set(false);
-			map.options.animate.set(false);
-			map.options.resolutionScale.set(1);
-			map.options.maximumScreenSpaceError.set(1.2);
-			map.options.groundAtmosphere.set(true);
-			map.options.lighting.set(true);
-			map.options.skyAtmosphere.set(true);
-			map.options.fog.set(true);
-			map.options.highDynamicRange.set(false);
-		} else if (p === "high") {
-			map.options.fxaa.set(true);
-			map.options.msaa.set(8);
-			map.options.shadows.set(true);
-			map.options.animate.set(false);
-			map.options.resolutionScale.set(1);
-			map.options.maximumScreenSpaceError.set(1.0);
-			map.options.groundAtmosphere.set(true);
-			map.options.lighting.set(true);
-			map.options.skyAtmosphere.set(true);
-			map.options.fog.set(true);
-			map.options.highDynamicRange.set(false);
+		for (const [key, value] of Object.entries(preset)) {
+			(map.options as any)[key].set(value);
 		}
 
 		setTimeout(() => {
@@ -148,10 +128,19 @@
 		}, 500);
 	});
 
-	function setCustom() {
-		if (updatingSettings === false) {
-			selectedPerformance.set("custom");
+	// Reflect the preset the current settings match, or "custom" if none matches.
+	function updateSelectedProfile() {
+		if (updatingSettings === true) {
+			return;
 		}
+
+		const match = Object.keys(performancePresets).find((name) =>
+			Object.entries(performancePresets[name]).every(
+				([key, value]) => get((map.options as any)[key]) === value
+			)
+		);
+
+		selectedPerformance.set(match ?? "custom");
 	}
 
 	$: hour = new Date($dateTime).getUTCHours();
