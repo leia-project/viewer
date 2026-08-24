@@ -105,8 +105,10 @@ export class ZonalStatisticsController {
 	private readonly dataLayers: Array<ResolvedDataLayer> = [];
 	/** Resolved data layers exposed to the zonal panel UI. */
 	public readonly resolvedDataLayers: Writable<Array<ResolvedDataLayer>> = writable([]);
-	/** Resolved data layers that are currently visible; drives the table, exports and statistics. */
-	public readonly visibleDataLayers: Writable<Array<ResolvedDataLayer>> = writable([]);
+	/** Id of the single data layer drawn on the map (the panel's radio selection). */
+	public readonly selectedLayerId: Writable<string | undefined> = writable(undefined);
+	/** Data layers added to the table, in the order the user added them; drives the table + exports. */
+	public readonly tableLayers: Writable<Array<ResolvedDataLayer>> = writable([]);
 	/** True while `initialize()` is resolving/loading the configured layers. */
 	public readonly loading: Writable<boolean> = writable(false);
 	/** Per data-layer index: zone code -> feature properties (only the attributes the table reads). */
@@ -122,6 +124,10 @@ export class ZonalStatisticsController {
 	private readonly zoneOutlineIds: Array<object> = [];
 	/** Store/event unsubscribers for the fill primitives (visible/opacity/style/active). */
 	private readonly unsubscribers: Array<Unsubscriber> = [];
+	/** Attribute the zone layer's `classMapping` keys off (its configured `style`), if any. */
+	private classAttribute: string | undefined;
+	/** Zone-layer `classMapping` value -> colour, applied to every layer so all fills match. */
+	private readonly classColors: Map<string, Cesium.Color> = new Map();
 	/** The zone currently shown in the table (drawn with the strongest tint). */
 	private activeCode: string | undefined;
 	/** The zone currently under the mouse (brightened), or undefined. */
@@ -157,6 +163,7 @@ export class ZonalStatisticsController {
 			this.zoneLayer = zone;
 			await this.ensureLoaded(zone);
 			this.indexZoneEntities();
+			this.buildClassColors();
 
 			for (const cfg of this.settings.layers) {
 				const layer = this.map.getLayerById(cfg.id) as GeoJsonLayer | undefined;
@@ -173,10 +180,6 @@ export class ZonalStatisticsController {
 				this.indexLayer(cfg.id, layer);
 				// Publish per layer so the panel can replace its skeletons one by one.
 				this.resolvedDataLayers.set([...this.dataLayers]);
-			}
-			this.syncVisibleDataLayers();
-			for (const dl of this.dataLayers) {
-				this.unsubscribers.push(dl.layer.visible.subscribe(() => this.syncVisibleDataLayers()));
 			}
 
 			this.buildFillRenders();
@@ -197,9 +200,37 @@ export class ZonalStatisticsController {
 		}
 	}
 
-	/** Publish the subset of resolved data layers that is currently visible. */
-	private syncVisibleDataLayers(): void {
-		this.visibleDataLayers.set(this.dataLayers.filter((dl) => get(dl.layer.visible)));
+	/**
+	 * Draw exactly one configured layer on the map: the zone layer and every other data layer are
+	 * switched off so their fills cannot stack on the shared zone geometry.
+	 */
+	public selectLayer(layerId: string): void {
+		if (this.zoneLayer && this.zoneLayer.config.id !== layerId) this.zoneLayer.visible.set(false);
+		for (const dl of this.dataLayers) dl.layer.visible.set(dl.layerId === layerId);
+		this.selectedLayerId.set(layerId);
+	}
+
+	/** Add a data layer's row to the table (no-op when it is already there). */
+	public addTableLayer(layerId: string): void {
+		if (this.isTableLayer(layerId)) return;
+		const dl = this.dataLayers.find((l) => l.layerId === layerId);
+		if (!dl) return;
+		this.tableLayers.set([...get(this.tableLayers), dl]);
+	}
+
+	/** Remove a data layer's row from the table. */
+	public removeTableLayer(layerId: string): void {
+		this.tableLayers.set(get(this.tableLayers).filter((dl) => dl.layerId !== layerId));
+	}
+
+	/** Whether a data layer currently has a row in the table. */
+	public isTableLayer(layerId: string): boolean {
+		return get(this.tableLayers).some((dl) => dl.layerId === layerId);
+	}
+
+	/** Empty the table (keeps the map selection untouched). */
+	public clearTableLayers(): void {
+		this.tableLayers.set([]);
 	}
 
 	/** Ensure a layer's data is loaded without toggling its visibility. */
@@ -303,7 +334,9 @@ export class ZonalStatisticsController {
 	 * Outline every zone boundary as a single batched `Primitive` of `PolygonOutlineGeometry`
 	 * instances (one draw call, not thousands of entities), flat at height 0 with the depth test
 	 * off so the lines sit on top of the fills. Only the zone layer is outlined (data layers share
-	 * the same geometry); visibility follows the zone layer and the line alpha tracks its opacity.
+	 * the same geometry). The outlines are structural to the tool: they are shown while the tool is
+	 * open regardless of which layer the panel's radio has selected, and the line alpha tracks the
+	 * zone layer's opacity slider.
 	 */
 	private buildZoneOutlines(): void {
 		const source = this.zoneLayer?.source;
@@ -347,11 +380,11 @@ export class ZonalStatisticsController {
 			asynchronous: true,
 			releaseGeometryInstances: false
 		});
-		this.zoneOutlinePrimitive.show = get(this.zoneLayer.visible);
+		this.zoneOutlinePrimitive.show = get(this.active);
 		this.map.viewer.scene.primitives.add(this.zoneOutlinePrimitive);
 		this.unsubscribers.push(
-			this.zoneLayer.visible.subscribe((visible) => {
-				if (this.zoneOutlinePrimitive) this.zoneOutlinePrimitive.show = visible;
+			this.active.subscribe((active) => {
+				if (this.zoneOutlinePrimitive) this.zoneOutlinePrimitive.show = active;
 				this.map.refresh();
 			}),
 			this.zoneLayer.opacity.subscribe(() => this.applyOutlineOpacity())
@@ -377,11 +410,34 @@ export class ZonalStatisticsController {
 		this.map.refresh();
 	}
 
-	/** Read a polygon entity's current fill colour (label colour + opacity) from its material. */
+	/**
+	 * Read the zone layer's configured `style` attribute + `classMapping` so every layer in the tool
+	 * renders the same value-to-colour scheme instead of each GeoJson layer's own (random) colours.
+	 */
+	private buildClassColors(): void {
+		const settings = this.zoneLayer?.config.settings;
+		const mapping = settings?.classMapping;
+		if (typeof settings?.style !== "string" || !mapping || typeof mapping !== "object") return;
+		for (const [value, color] of Object.entries(mapping as Record<string, unknown>)) {
+			if (typeof color !== "string") continue;
+			this.classColors.set(value, Cesium.Color.fromCssColorString(color));
+		}
+		if (this.classColors.size > 0) this.classAttribute = settings.style;
+	}
+
+	/**
+	 * Read a polygon entity's current fill colour. The RGB comes from the zone layer's `classMapping`
+	 * when configured (so all layers share one colour scheme), the alpha always from the entity's own
+	 * material so the layer's opacity slider keeps working.
+	 */
 	private readEntityColor(entity: Cesium.Entity, time: Cesium.JulianDate): Cesium.Color {
 		const material = entity.polygon?.material as Cesium.ColorMaterialProperty | undefined;
 		const color = material?.color?.getValue?.(time);
-		return color instanceof Cesium.Color ? color.clone() : Cesium.Color.GRAY.withAlpha(0.5);
+		const base = color instanceof Cesium.Color ? color.clone() : Cesium.Color.GRAY.withAlpha(0.5);
+		if (!this.classAttribute) return base;
+		const value = this.readProperty(entity, this.classAttribute, time);
+		const mapped = value !== undefined && value !== null && this.classColors.get(String(value));
+		return mapped ? mapped.withAlpha(base.alpha) : base;
 	}
 
 	/** Hide a layer's GeoJson entity polygon fills so only the batched primitive renders. */
@@ -638,7 +694,7 @@ export class ZonalStatisticsController {
 
 	/**
 	 * Build the per-column value + tooltip slice for a single zone across the
-	 * currently visible data layers. Used by the view to update the table
+	 * data layers currently in the table. Used by the view to update the table
 	 * incrementally when one zone is (de)selected.
 	 */
 	public buildZoneSlice(
@@ -649,7 +705,7 @@ export class ZonalStatisticsController {
 		tooltips: Array<string | undefined>;
 	}> {
 		const columns = this.settings.columns;
-		return get(this.visibleDataLayers).map((dl) => {
+		return get(this.tableLayers).map((dl) => {
 			const props = this.valueIndex.get(dl.layerId)?.get(code);
 			return {
 				layerId: dl.layerId,
@@ -660,12 +716,12 @@ export class ZonalStatisticsController {
 	}
 
 	/**
-	 * Build the zone table for the current selection: one row per visible data
-	 * layer and one configured column per selected zone.
+	 * Build the zone table for the current selection: one row per data layer
+	 * added to the table and one configured column per selected zone.
 	 */
 	public buildTable(): ZoneTable {
 		const zones = get(this.selectedZones).map((z) => z.code);
-		const rows: Array<ZoneTableRow> = get(this.visibleDataLayers).map((dl) =>
+		const rows: Array<ZoneTableRow> = get(this.tableLayers).map((dl) =>
 			this.buildTableRow(dl, zones)
 		);
 		return { zones, rows };
@@ -697,9 +753,9 @@ export class ZonalStatisticsController {
 		return exportRows;
 	}
 
-	/** Resolved data layers that are currently visible (the ones the table shows). */
-	public getVisibleDataLayers(): Array<ResolvedDataLayer> {
-		return get(this.visibleDataLayers);
+	/** Resolved data layers the table currently shows a row for. */
+	public getTableLayers(): Array<ResolvedDataLayer> {
+		return get(this.tableLayers);
 	}
 
 	/** Detach listeners, remove the fill primitives, and restore the GeoJson entity fills. */
@@ -724,6 +780,7 @@ export class ZonalStatisticsController {
 			this.restoreEntityFills(render.layer);
 		}
 		this.fillRenders.clear();
+		this.tableLayers.set([]);
 		this.map.viewer.scene.canvas.style.cursor = "";
 		this.map.refresh();
 	}

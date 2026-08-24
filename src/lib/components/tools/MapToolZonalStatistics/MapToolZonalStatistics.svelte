@@ -69,10 +69,11 @@
 			restoreConfiguredLayers();
 			destroyView();
 			controller.clearSelection();
+			controller.clearTableLayers();
 		}
 	}
 
-	// Open with only the zone layer on; the user turns data layers on from the panel.
+	// Open with the first configured layer drawn on the map and as the table's first row.
 	function enableConfiguredLayers(): void {
 		if (!controller) return;
 
@@ -90,8 +91,16 @@
 			}
 
 			previousVisibility.set(layerId, get(layer.visible));
-			layer.visible.set(layerId === zoneLayerId);
 		}
+
+		const first = controller.settings.layers[0]?.id;
+		if (first) {
+			controller.selectLayer(first);
+			controller.addTableLayer(first);
+			return;
+		}
+		// Without data layers the zone layer itself has to stay on to keep the zones pickable.
+		map.getLayerById(zoneLayerId)?.visible.set(true);
 	}
 
 	// Restore each configured layer to the visibility it had before the tool was opened.
@@ -104,6 +113,7 @@
 			layer.visible.set(wasVisible);
 		}
 		previousVisibility = undefined;
+		controller?.selectedLayerId.set(undefined);
 	}
 
 	function showView(): void {

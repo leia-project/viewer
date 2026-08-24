@@ -1,36 +1,39 @@
 <script lang="ts">
-	import { Checkbox, Slider } from "carbon-components-svelte";
-	import { ChevronDown } from "carbon-icons-svelte";
+	import { RadioButton, Slider } from "carbon-components-svelte";
+	import { Add, ChevronDown, TrashCan } from "carbon-icons-svelte";
 	import { _ } from "svelte-i18n";
 
 	import type { Layer } from "$lib/map-core/layer";
+	import type { ZonalStatisticsController } from "./zonal-statistics-controller";
 
+	export let controller: ZonalStatisticsController;
 	export let layer: Layer;
+	export let layerId: string;
 
-	const visible = layer.visible;
 	const opacity = layer.opacity;
+	const selectedLayerId = controller.selectedLayerId;
+	const tableLayers = controller.tableLayers;
 	const hasSettings = layer.config.opacitySupported;
 
 	let expanded = false;
+
+	$: selected = $selectedLayerId === layerId;
+	$: inTable = $tableLayers.some((dl) => dl.layerId === layerId);
 </script>
 
-<div class="layer-card" class:is-hidden={!$visible}>
-	<div class="card-head">
-		<div class="head-toggle">
-			<Checkbox
-				title={$visible ? $_("general.off") : $_("general.on")}
-				bind:checked={$visible}
-			/>
-		</div>
-		<button
-			class="title-btn"
-			type="button"
-			on:click={() => ($visible = !$visible)}
-			title={layer.title}
-		>
-			<span class="layer-title label-01">{layer.title}</span>
-		</button>
-		<div class="head-actions">
+<div class="layer-card" class:is-selected={selected}>
+	<div class="card-box">
+		<div class="card-head">
+			<div class="head-label">
+				<RadioButton
+					name="zonal-layer"
+					value={layerId}
+					checked={selected}
+					labelText={layer.title}
+					title={layer.title}
+					on:change={() => controller.selectLayer(layerId)}
+				/>
+			</div>
 			{#if hasSettings}
 				<button
 					class="icon-btn expand-btn"
@@ -45,84 +48,116 @@
 				</button>
 			{/if}
 		</div>
+
+		{#if expanded && hasSettings}
+			<div class="card-settings">
+				<div class="slider-wrapper">
+					<Slider
+						hideTextInput
+						labelText={`${$_("tools.layerManager.opacity")} ` + $opacity + "%"}
+						min={0}
+						max={100}
+						bind:value={$opacity}
+					/>
+				</div>
+			</div>
+		{/if}
 	</div>
 
-	{#if expanded && hasSettings}
-		<div class="card-settings">
-			<div class="slider-wrapper">
-				<Slider
-					hideTextInput
-					labelText={`${$_("tools.layerManager.opacity")} ` + $opacity + "%"}
-					min={0}
-					max={100}
-					bind:value={$opacity}
-				/>
-			</div>
-		</div>
-	{/if}
+	<button
+		class="icon-btn table-btn"
+		class:danger={inTable}
+		type="button"
+		on:click={() =>
+			inTable ? controller.removeTableLayer(layerId) : controller.addTableLayer(layerId)}
+		aria-label={inTable
+			? $_("tools.zonalStatistics.removeFromTable")
+			: $_("tools.zonalStatistics.addToTable")}
+		title={inTable
+			? $_("tools.zonalStatistics.removeFromTable")
+			: $_("tools.zonalStatistics.addToTable")}
+	>
+		{#if inTable}
+			<TrashCan size={16} />
+		{:else}
+			<Add size={16} />
+		{/if}
+	</button>
 </div>
 
 <style>
 	.layer-card {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--cds-spacing-02);
+		min-width: 0;
+	}
+
+	.card-box {
+		flex: 1;
+		min-width: 0;
 		display: flex;
 		flex-direction: column;
 		background-color: var(--cds-ui-02);
 		border: 1px solid var(--cds-ui-03);
 		border-radius: 2px;
 		overflow: hidden;
-		transition: opacity 0.15s ease;
+		transition: border-color 0.15s ease;
 	}
 
-	.layer-card.is-hidden {
-		opacity: 0.6;
+	/* The selected layer is accented rather than the others being dimmed: an unselected layer can
+	   still contribute a table row, so dimming would read as "off". */
+	.layer-card.is-selected .card-box {
+		border-color: var(--cds-interactive-01);
 	}
 
+	/* Fixed height so heads line up whether or not the card renders a chevron, which also keeps the
+	   radio circles on an even column and centres the button that sits outside the box. */
 	.card-head {
 		display: flex;
 		align-items: center;
 		gap: var(--cds-spacing-02);
+		min-height: 2.5rem;
 		padding: var(--cds-spacing-02) var(--cds-spacing-03);
 		background-color: var(--cds-ui-01);
 		min-width: 0;
 	}
 
-	.head-toggle {
-		flex-shrink: 0;
-		display: flex;
-		align-items: center;
+	.layer-card.is-selected .card-head {
+		background-color: var(--cds-selected-ui);
 	}
 
-	.head-toggle :global(.bx--checkbox-label) {
-		padding-left: 1rem;
-	}
-
-	.title-btn {
-		display: flex;
-		align-items: center;
-		gap: var(--cds-spacing-02);
+	.head-label {
 		flex: 1;
 		min-width: 0;
-		background: none;
-		border: none;
-		padding: var(--cds-spacing-01) 0;
-		margin: 0;
-		cursor: pointer;
-		text-align: left;
-		color: var(--cds-text-primary);
 	}
 
-	.layer-title {
+	.head-label :global(.bx--radio-button-wrapper) {
+		margin-right: 0;
+		width: 100%;
+		min-width: 0;
+	}
+
+	/* Carbon's wrapper-scoped rule sets `justify-content:center` + `align-items:flex-start`, which
+	   with a full-width label pads both sides and top-aligns the circle against the title. */
+	.head-label :global(.bx--radio-button__label) {
+		justify-content: flex-start;
+		align-items: center;
+		width: 100%;
+		min-width: 0;
+		margin-right: 0;
+	}
+
+	/* Carbon renders the label text in the last span; match the layer manager's label-01 title and
+	   keep long titles on one line. */
+	.head-label :global(.bx--radio-button__label > span:last-child) {
+		font-size: 0.75rem;
+		line-height: 1.33333;
+		letter-spacing: 0.32px;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		min-width: 0;
-	}
-
-	.head-actions {
-		display: flex;
-		align-items: center;
-		gap: 2px;
-		flex-shrink: 0;
 	}
 
 	.icon-btn {
@@ -144,6 +179,19 @@
 	.icon-btn:focus-visible {
 		color: var(--cds-link-primary, #0f62fe);
 		background-color: transparent;
+	}
+
+	/* Sits outside the card box; the fixed height centres it against the card head row. */
+	.table-btn {
+		flex-shrink: 0;
+		height: 2.5rem;
+		color: var(--cds-link-primary, #0f62fe);
+	}
+
+	.table-btn.danger,
+	.table-btn.danger:hover,
+	.table-btn.danger:focus-visible {
+		color: var(--cds-support-01, #da1e28);
 	}
 
 	.expand-btn.open {

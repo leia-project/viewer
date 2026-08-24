@@ -530,7 +530,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
-            "opacity": 100,
+            "opacity": 80,
             "settings": {
                 "url": "http://localhost:8000/labelkaart_example.geojson",
                 "theme": "",
@@ -677,7 +677,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
-            "opacity": 100,
+            "opacity": 80,
             "settings": {
                 "url": "http://localhost:8000/labelkaart_example.geojson",
                 "theme": "",

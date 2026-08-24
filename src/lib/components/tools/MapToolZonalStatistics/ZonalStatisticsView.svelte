@@ -37,10 +37,10 @@
 		return column?.label ?? column?.attribute ?? "";
 	}
 
-	// Rows are stable (one per visible data layer); zone columns are added/removed incrementally.
+	// Rows are stable (one per data layer added to the table); zone columns are added/removed incrementally.
 	let table: ZoneTable = {
 		zones: [],
-		rows: controller.getVisibleDataLayers().map((dl) => ({
+		rows: controller.getTableLayers().map((dl) => ({
 			layerId: dl.layerId,
 			title: dl.title,
 			values: {},
@@ -98,11 +98,11 @@
 		updateTable(zones.map((z) => z.code));
 	});
 
-	// The tool can open before the configured layers finish loading, and the user can toggle a data
-	// layer on/off; rebuild the rows for the visible layers and refill the already-selected zones.
-	const unsubscribeLayers = controller.visibleDataLayers.subscribe(() => {
+	// The tool can open before the configured layers finish loading, and the user can add/remove a
+	// data layer from the panel; rebuild the rows and refill the already-selected zones.
+	const unsubscribeLayers = controller.tableLayers.subscribe(() => {
 		const codes = table.zones;
-		table.rows = controller.getVisibleDataLayers().map((dl) => ({
+		table.rows = controller.getTableLayers().map((dl) => ({
 			layerId: dl.layerId,
 			title: dl.title,
 			values: {},
@@ -553,7 +553,7 @@
 				{#if table.rows.length === 0}
 					<div class="no-selection body-compact-01">
 						<Layers size={32} />
-						<span>{$_("tools.zonalStatistics.noVisibleLayers")}</span>
+						<span>{$_("tools.zonalStatistics.noTableLayers")}</span>
 					</div>
 				{:else if table.zones.length === 0}
 					<div class="no-selection body-compact-01">
