@@ -408,6 +408,9 @@
             "close": "Fermer",
             "noSelection": "Cliquez sur une ou plusieurs zones mises en évidence sur la carte pour afficher leurs statistiques.",
             "noDataLayers": "Aucune couche de données configurée",
+            "noVisibleLayers": "Aucune couche de données visible. Activez une couche pour afficher ses données.",
+            "allLayersOn": "Activer toutes les couches",
+            "allLayersOff": "Désactiver toutes les couches",
             "loadingLayers": "Chargement des couches de données…",
             "zonesSelected": "{count} sélectionné(s)",
             "exporting": "Génération {format}…",
@@ -415,12 +418,7 @@
             "activateZone": "Mettre en évidence la zone {code} sur la carte",
             "removeZoneAria": "Supprimer la zone {code}",
             "zoomToZone": "Zoomer sur la zone",
-            "zoomToZoneAria": "Zoomer sur la zone {code} sur la carte",
-            "statistics": "Statistiques",
-            "summaryTotalArea": "{count, plural, one {# zone} other {# zones}} · {area}",
-            "statMin": "Min",
-            "statMax": "Max",
-            "statMean": "Moyenne"
+            "zoomToZoneAria": "Zoomer sur la zone {code} sur la carte"
         }
     },
     "errors": {

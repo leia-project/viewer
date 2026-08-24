@@ -1,33 +1,31 @@
 <script lang="ts">
-	import { onDestroy } from "svelte";
-	import { InlineNotification, InlineLoading, Tag } from "carbon-components-svelte";
+	import {
+		Button,
+		InlineNotification,
+		SkeletonPlaceholder,
+		SkeletonText
+	} from "carbon-components-svelte";
+	import { View, ViewOff } from "carbon-icons-svelte";
 	import { _ } from "svelte-i18n";
 
-	import type { ZonalStatisticsController, ZonalSummary, SummaryRow } from "./zonal-statistics-controller";
-	import { createZonalStyler, formatArea } from "./zonal-style";
+	import type { ZonalStatisticsController } from "./zonal-statistics-controller";
 	import ZonalLayerCard from "./ZonalLayerCard.svelte";
 
 	export let controller: ZonalStatisticsController;
 
 	const resolvedDataLayers = controller.resolvedDataLayers;
+	const visibleDataLayers = controller.visibleDataLayers;
 	const loading = controller.loading;
 	const settings = controller.settings;
-	const columns = settings.columns;
-	const styler = createZonalStyler(settings.valueStyles);
 
-	let summary: ZonalSummary | undefined;
+	$: allVisible =
+		$resolvedDataLayers.length > 0 && $visibleDataLayers.length === $resolvedDataLayers.length;
+	// One placeholder card per configured layer that has not resolved yet.
+	$: pendingCount = $loading ? Math.max(0, settings.layers.length - $resolvedDataLayers.length) : 0;
 
-	// Recompute the summary whenever the selection changes (selections are few, areas are cached).
-	const unsubscribe = controller.selectedZones.subscribe(() => {
-		summary = settings.showSummary ? controller.buildSummary() : undefined;
-	});
-
-	onDestroy(unsubscribe);
-
-	$: hasSelection = (summary?.zoneCount ?? 0) > 0;
-
-	function summaryRowFor(layerId: string): SummaryRow | undefined {
-		return summary?.rows.find((row) => row.layerId === layerId);
+	function toggleAllLayers(): void {
+		const next = !allVisible;
+		for (const resolved of $resolvedDataLayers) resolved.layer.visible.set(next);
 	}
 </script>
 
@@ -40,32 +38,37 @@
 		subtitle={$_("tools.zonalStatistics.instructions")}
 	/>
 
-	{#if $resolvedDataLayers.length === 0}
-		{#if $loading && settings.layers.length > 0}
-			<InlineLoading description={$_("tools.zonalStatistics.loadingLayers")} />
-		{:else}
-			<div class="empty body-compact-01">{$_("tools.zonalStatistics.noDataLayers")}</div>
-		{/if}
+	{#if $resolvedDataLayers.length === 0 && pendingCount === 0}
+		<div class="empty body-compact-01">{$_("tools.zonalStatistics.noDataLayers")}</div>
 	{:else}
-		{#if settings.showSummary && hasSelection && summary}
-			<div class="overview">
-				<Tag type="gray" size="sm">
-					{$_("tools.zonalStatistics.summaryTotalArea", {
-						values: { area: formatArea(summary.totalAreaSqMeters), count: summary.zoneCount }
-					})}
-				</Tag>
-			</div>
-		{/if}
+		<div class="toolbar">
+			<Button
+				size="small"
+				kind="ghost"
+				icon={allVisible ? ViewOff : View}
+				disabled={$resolvedDataLayers.length === 0}
+				on:click={toggleAllLayers}
+			>
+				{allVisible
+					? $_("tools.zonalStatistics.allLayersOff")
+					: $_("tools.zonalStatistics.allLayersOn")}
+			</Button>
+		</div>
 
-		<div class="cards">
+		<div
+			class="cards"
+			aria-busy={pendingCount > 0}
+			aria-label={pendingCount > 0 ? $_("tools.zonalStatistics.loadingLayers") : undefined}
+		>
 			{#each $resolvedDataLayers as resolved (resolved.layerId)}
-				<ZonalLayerCard
-					layer={resolved.layer}
-					{columns}
-					{styler}
-					summaryRow={settings.showSummary && summary ? summaryRowFor(resolved.layerId) : undefined}
-					hasSelection={settings.showSummary && hasSelection}
-				/>
+				<ZonalLayerCard layer={resolved.layer} />
+			{/each}
+			{#each Array.from({ length: pendingCount }, (_, i) => i) as index (index)}
+				<div class="card-skeleton">
+					<SkeletonPlaceholder class="toggle-skeleton" />
+					<SkeletonText class="title-skeleton" width="70%" />
+					<SkeletonPlaceholder class="action-skeleton" />
+				</div>
 			{/each}
 		</div>
 	{/if}
@@ -90,22 +93,38 @@
 		color: var(--cds-text-secondary);
 	}
 
-	.overview {
+	.toolbar {
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		flex-wrap: wrap;
-		gap: var(--cds-spacing-02);
-	}
-
-	.overview :global(.bx--tag) {
-		margin: 0;
+		justify-content: flex-end;
 	}
 
 	.cards {
 		display: flex;
 		flex-direction: column;
 		gap: var(--cds-spacing-04);
+	}
+
+	.card-skeleton {
+		display: flex;
+		align-items: center;
+		gap: var(--cds-spacing-02);
+		padding: var(--cds-spacing-03);
+		background-color: var(--cds-ui-01);
+		border: 1px solid var(--cds-ui-03);
+		border-radius: 2px;
+	}
+
+	.card-skeleton :global(.toggle-skeleton),
+	.card-skeleton :global(.action-skeleton) {
+		width: 1rem;
+		height: 1rem;
+		min-width: 1rem;
+		flex: 0 0 auto;
+	}
+
+	.card-skeleton :global(.title-skeleton) {
+		flex: 1 1 auto;
+		margin: 0;
 	}
 </style>
 

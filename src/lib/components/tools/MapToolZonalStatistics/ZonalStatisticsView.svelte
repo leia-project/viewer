@@ -3,7 +3,7 @@
 	import { get } from "svelte/store";
 	import { fade } from "svelte/transition";
 	import { _, locale } from "svelte-i18n";
-	import { Close, Download, Location, Reset, ZoomIn } from "carbon-icons-svelte";
+	import { Close, Download, Layers, Location, Reset, ZoomIn } from "carbon-icons-svelte";
 	import { toJpeg, toPng } from "html-to-image";
 	import { jsPDF } from "jspdf";
 	import {
@@ -37,10 +37,10 @@
 		return column?.label ?? column?.attribute ?? "";
 	}
 
-	// Rows are stable (one per resolved data layer); zone columns are added/removed incrementally.
+	// Rows are stable (one per visible data layer); zone columns are added/removed incrementally.
 	let table: ZoneTable = {
 		zones: [],
-		rows: controller.getResolvedDataLayers().map((dl) => ({
+		rows: controller.getVisibleDataLayers().map((dl) => ({
 			layerId: dl.layerId,
 			title: dl.title,
 			values: {},
@@ -98,25 +98,30 @@
 		updateTable(zones.map((z) => z.code));
 	});
 
-	// The tool can open before the configured layers finish loading; when the resolved data layers
-	// arrive (or change), rebuild the stable rows and re-fill values for the already-selected zones.
-	const unsubscribeLayers = controller.resolvedDataLayers.subscribe(() => {
+	// The tool can open before the configured layers finish loading, and the user can toggle a data
+	// layer on/off; rebuild the rows for the visible layers and refill the already-selected zones.
+	const unsubscribeLayers = controller.visibleDataLayers.subscribe(() => {
 		const codes = table.zones;
-		table.rows = controller.getResolvedDataLayers().map((dl) => ({
+		table.rows = controller.getVisibleDataLayers().map((dl) => ({
 			layerId: dl.layerId,
 			title: dl.title,
 			values: {},
 			tooltips: {}
 		}));
-		for (const code of codes) {
-			const slice = controller.buildZoneSlice(code);
-			table.rows.forEach((row, i) => {
-				row.values[code] = slice[i].values;
-				row.tooltips[code] = slice[i].tooltips;
-			});
-		}
+		for (const code of codes) fillZoneColumn(code);
 		table = table;
 	});
+
+	// Fill one zone column across the current rows, matching each row by layer id.
+	function fillZoneColumn(code: string): void {
+		const slices = new Map(controller.buildZoneSlice(code).map((s) => [s.layerId, s]));
+		for (const row of table.rows) {
+			const slice = slices.get(row.layerId);
+			if (!slice) continue;
+			row.values[code] = slice.values;
+			row.tooltips[code] = slice.tooltips;
+		}
+	}
 
 	// Add/remove only the changed zone columns instead of rebuilding the whole table.
 	function updateTable(codes: Array<string>): void {
@@ -132,11 +137,7 @@
 		}
 		for (const code of codes) {
 			if (current.has(code)) continue;
-			const slice = controller.buildZoneSlice(code);
-			table.rows.forEach((row, i) => {
-				row.values[code] = slice[i].values;
-				row.tooltips[code] = slice[i].tooltips;
-			});
+			fillZoneColumn(code);
 		}
 
 		table.zones = codes;
@@ -520,7 +521,7 @@
 						flipped
 						size="sm"
 						iconDescription={$_("tools.zonalStatistics.exportMenu")}
-						disabled={exportInProgress}
+						disabled={exportInProgress || table.rows.length === 0}
 					>
 						<OverflowMenuItem text="PNG" on:click={exportPng} />
 						<OverflowMenuItem text="JPEG" on:click={exportJpeg} />
@@ -549,7 +550,12 @@
 
 		<div class="content-wrap">
 			<div class="content" bind:this={contentEl} on:scroll={updateScrollShadows}>
-				{#if table.zones.length === 0}
+				{#if table.rows.length === 0}
+					<div class="no-selection body-compact-01">
+						<Layers size={32} />
+						<span>{$_("tools.zonalStatistics.noVisibleLayers")}</span>
+					</div>
+				{:else if table.zones.length === 0}
 					<div class="no-selection body-compact-01">
 						<Location size={32} />
 						<span>{$_("tools.zonalStatistics.noSelection")}</span>

@@ -72,14 +72,15 @@
 		}
 	}
 
+	// Open with only the zone layer on; the user turns data layers on from the panel.
 	function enableConfiguredLayers(): void {
 		if (!controller) return;
 
-		// Include the zone layer so its clickable geometry is actually visible.
-		const layerIds = new Set<string>([controller.settings.zoneLayerId]);
+		const zoneLayerId = controller.settings.zoneLayerId;
+		const layerIds = new Set<string>([zoneLayerId]);
 		for (const cfg of controller.settings.layers) layerIds.add(cfg.id);
 
-		// Remember what was on before we force the tool's layers visible.
+		// Remember what was on before we override the tool's layers.
 		previousVisibility = new Map<string, boolean>();
 		for (const layerId of layerIds) {
 			const layer = map.getLayerById(layerId);
@@ -89,7 +90,7 @@
 			}
 
 			previousVisibility.set(layerId, get(layer.visible));
-			layer.visible.set(true);
+			layer.visible.set(layerId === zoneLayerId);
 		}
 	}
 

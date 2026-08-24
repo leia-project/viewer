@@ -411,6 +411,9 @@
             "close": "Close",
             "noSelection": "Click one or more highlighted areas on the map to view their statistics.",
             "noDataLayers": "No data layers configured",
+            "noVisibleLayers": "No visible data layers. Turn a layer on to show its data.",
+            "allLayersOn": "Turn all layers on",
+            "allLayersOff": "Turn all layers off",
             "loadingLayers": "Loading data layers…",
             "zonesSelected": "{count} selected",
             "exporting": "Generating {format}…",
@@ -418,12 +421,7 @@
             "activateZone": "Highlight zone {code} on the map",
             "removeZoneAria": "Remove zone {code}",
             "zoomToZone": "Zoom to zone",
-            "zoomToZoneAria": "Zoom to zone {code} on the map",
-            "statistics": "Statistics",
-            "summaryTotalArea": "{count, plural, one {# zone} other {# zones}} · {area}",
-            "statMin": "Min",
-            "statMax": "Max",
-            "statMean": "Mean"
+            "zoomToZoneAria": "Zoom to zone {code} on the map"
         }
     },
     "errors": {

@@ -1,11 +1,8 @@
 /**
- * Shared colour + value-formatting helpers for the Zonal Statistics tool, used
- * by both the floating table view and the tool panel so the styled-cell colours,
- * legend chips and summary all render identically.
+ * Shared colour helpers for the Zonal Statistics tool, used by both the floating
+ * table view and the tool panel so the styled-cell colours and legend chips all
+ * render identically.
  */
-import { get } from "svelte/store";
-import { locale } from "svelte-i18n";
-
 import type { ZonalValueStyle } from "./zonal-config";
 
 export type Rgb = [number, number, number];
@@ -79,19 +76,4 @@ export function createZonalStyler(valueStyles: Array<ZonalValueStyle>): ZonalSty
 	}
 
 	return { swatchStyle, styleFor, cellStyle, pdfColor };
-}
-
-/** Format an area in m² as km² (≥ 1 km²) or m² (below 1 km²), localized. */
-export function formatArea(sqMeters: number): string {
-	const currentLocale = get(locale) ?? undefined;
-	if (sqMeters >= 1_000_000) {
-		const km2 = (sqMeters / 1_000_000).toLocaleString(currentLocale, { maximumFractionDigits: 2 });
-		return `${km2} km²`;
-	}
-	return `${Math.round(sqMeters).toLocaleString(currentLocale)} m²`;
-}
-
-/** Format a statistic value with up to two decimals, localized. */
-export function formatNumber(value: number): string {
-	return value.toLocaleString(get(locale) ?? undefined, { maximumFractionDigits: 2 });
 }
