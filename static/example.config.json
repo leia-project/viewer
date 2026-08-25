@@ -834,7 +834,8 @@
                     },
                     {
                         "attribute": "Shape_area",
-                        "label": "Oppervlakte (m²)"
+                        "label": "Oppervlakte (m²)",
+                        "decimals": 0
                     }
                 ],
                 "valueStyles": [

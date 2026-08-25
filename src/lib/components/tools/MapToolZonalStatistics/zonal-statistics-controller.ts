@@ -4,7 +4,7 @@ import * as Cesium from "cesium";
 import type { Map as CesiumMap } from "$lib/map-cesium/map";
 import type { MouseLocation } from "$lib/map-core/mouse-location";
 import type { GeoJsonLayer } from "$lib/map-cesium/layers/geojson-layer";
-import type { ZonalStatisticsSettings } from "./zonal-config";
+import type { ZonalColumn, ZonalStatisticsSettings } from "./zonal-config";
 
 /**
  * A single selected zone (e.g. one PC6 area).
@@ -401,7 +401,7 @@ export class ZonalStatisticsController {
 	/** Rescale every outline instance's alpha to match the current zone-layer opacity. */
 	private applyOutlineOpacity(): void {
 		const primitive = this.zoneOutlinePrimitive;
-		if (!primitive || !primitive.ready) return;
+		if (!primitive?.ready) return;
 		const value = Cesium.ColorGeometryInstanceAttribute.toValue(this.outlineColor());
 		for (const id of this.zoneOutlineIds) {
 			const attributes = primitive.getGeometryInstanceAttributes(id);
@@ -662,6 +662,21 @@ export class ZonalStatisticsController {
 		return value !== undefined && value !== null ? String(value) : undefined;
 	}
 
+	/** Format one cell value using the column config (including optional numeric rounding). */
+	private formatColumnWithDecimals(value: any, column: ZonalColumn): string | undefined {
+		if (value === undefined || value === null) return undefined;
+		if (column.decimals === undefined) return String(value);
+
+		let numericValue = Number.NaN;
+		if (typeof value === "number") {
+			numericValue = value;
+		} else if (typeof value === "string" && value.trim() !== "") {
+			numericValue = Number(value);
+		}
+
+		return Number.isFinite(numericValue) ? numericValue.toFixed(column.decimals) : String(value);
+	}
+
 	/** Read an optional attribute from a props object as a string value. */
 	private readOptionalAttribute(
 		props: Record<string, any> | undefined,
@@ -680,7 +695,7 @@ export class ZonalStatisticsController {
 
 		for (const code of zones) {
 			const props = index?.get(code);
-			values[code] = columns.map((c) => this.toOptionalString(props?.[c.attribute]));
+			values[code] = columns.map((c) => this.formatColumnWithDecimals(props?.[c.attribute], c));
 			tooltips[code] = columns.map((c) => this.readOptionalAttribute(props, c.tooltipAttribute));
 		}
 
@@ -697,9 +712,7 @@ export class ZonalStatisticsController {
 	 * data layers currently in the table. Used by the view to update the table
 	 * incrementally when one zone is (de)selected.
 	 */
-	public buildZoneSlice(
-		code: string
-	): Array<{
+	public buildZoneSlice(code: string): Array<{
 		layerId: string;
 		values: Array<string | undefined>;
 		tooltips: Array<string | undefined>;
@@ -709,7 +722,7 @@ export class ZonalStatisticsController {
 			const props = this.valueIndex.get(dl.layerId)?.get(code);
 			return {
 				layerId: dl.layerId,
-				values: columns.map((c) => this.toOptionalString(props?.[c.attribute])),
+				values: columns.map((c) => this.formatColumnWithDecimals(props?.[c.attribute], c)),
 				tooltips: columns.map((c) => this.readOptionalAttribute(props, c.tooltipAttribute))
 			};
 		});

@@ -43,6 +43,8 @@ export interface ZonalColumn {
 	attribute: string;
 	/** Column header text (defaults to `attribute`). */
 	label?: string;
+	/** Optional number of decimals to round numeric values to (e.g. 0, 1, 2), max 20. */
+	decimals?: number;
 	/** Optional attribute holding tooltip/description text for the cell. */
 	tooltipAttribute?: string;
 	/** When true, cell colours come from `valueStyles` (categorical columns). */
@@ -99,6 +101,12 @@ export function parseZonalStatisticsSettings(raw: any): ZonalStatisticsSettings 
 		return undefined;
 	}
 
+	const normalizeDecimals = (value: unknown): number | undefined => {
+		if (typeof value !== "number" || !Number.isInteger(value)) return undefined;
+		if (value < 0 || value > 20) return undefined;
+		return value;
+	};
+
 	const layers: Array<ZonalLayer> = Array.isArray(raw.layers)
 		? raw.layers
 				.filter((l: any) => l && typeof l.id === "string")
@@ -114,6 +122,7 @@ export function parseZonalStatisticsSettings(raw: any): ZonalStatisticsSettings 
 				.map((c: any) => ({
 					attribute: c.attribute,
 					label: typeof c.label === "string" ? c.label : undefined,
+					decimals: normalizeDecimals(c.decimals),
 					tooltipAttribute:
 						typeof c.tooltipAttribute === "string" ? c.tooltipAttribute : undefined,
 					styled: c.styled === true
