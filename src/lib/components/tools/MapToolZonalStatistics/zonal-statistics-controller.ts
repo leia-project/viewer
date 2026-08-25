@@ -151,6 +151,8 @@ export class ZonalStatisticsController {
 	private readonly zoneOutlineIds: Array<object> = [];
 	/** Batched polyline primitive drawing the thick outlines of the selected + active zones. */
 	private zoneHighlightPrimitive: Cesium.Primitive | undefined;
+	/** Whether a coalesced highlight rebuild is already queued for this tick. */
+	private highlightRebuildPending = false;
 	/** Store/event unsubscribers for the fill primitives (visible/opacity/style/active). */
 	private readonly unsubscribers: Array<Unsubscriber> = [];
 	/** Attribute the zone layer's `classMapping` keys off (its configured `style`), if any. */
@@ -558,10 +560,8 @@ export class ZonalStatisticsController {
 	 * whose width browsers clamp to 1px.
 	 */
 	private rebuildHighlightOutlines(): void {
-		if (this.zoneHighlightPrimitive) {
-			this.map.viewer.scene.primitives.remove(this.zoneHighlightPrimitive);
-			this.zoneHighlightPrimitive = undefined;
-		}
+		const previous = this.zoneHighlightPrimitive;
+		this.zoneHighlightPrimitive = undefined;
 		const instances: Array<Cesium.GeometryInstance> = [];
 		for (const zone of get(this.selectedZones)) {
 			const color = Cesium.ColorGeometryInstanceAttribute.fromColor(
@@ -592,12 +592,30 @@ export class ZonalStatisticsController {
 					renderState: { depthTest: { enabled: false } }
 				}),
 				allowPicking: false,
-				asynchronous: true
+				// Synchronous: a few zones' rings cost little to triangulate, while asynchronous creation
+				// would leave the outlines missing for a frame or more on every selection change.
+				asynchronous: false
 			});
 			// Added last, so it draws on top of both the fills and the black base outline.
 			this.map.viewer.scene.primitives.add(this.zoneHighlightPrimitive);
 		}
+		if (previous) this.map.viewer.scene.primitives.remove(previous);
 		this.map.refresh();
+	}
+
+	/**
+	 * Coalesce the rebuild: one interaction changes both the selection and the active zone (the table
+	 * reacts to the selection), which would otherwise rebuild the primitive twice and briefly draw
+	 * the active zone in the selected colour.
+	 */
+	private scheduleHighlightRebuild(): void {
+		if (this.highlightRebuildPending) return;
+		this.highlightRebuildPending = true;
+		queueMicrotask(() => {
+			this.highlightRebuildPending = false;
+			// The tool may have been destroyed in the meantime.
+			if (this.zoneFill) this.rebuildHighlightOutlines();
+		});
 	}
 
 	/** Closed boundary rings (outer + holes) of every polygon part of a zone. */
@@ -837,7 +855,7 @@ export class ZonalStatisticsController {
 			this.selectedZones.set([...current, { code }]);
 		}
 		this.applyColor(code);
-		this.rebuildHighlightOutlines();
+		this.scheduleHighlightRebuild();
 	}
 
 	/**
@@ -943,7 +961,7 @@ export class ZonalStatisticsController {
 		this.activeCode = code;
 		if (previous !== undefined) this.applyColor(previous);
 		if (code !== undefined) this.applyColor(code);
-		this.rebuildHighlightOutlines();
+		this.scheduleHighlightRebuild();
 	}
 
 	/** Remove all selected zones and repaint them back to their base colour. */
@@ -953,7 +971,7 @@ export class ZonalStatisticsController {
 		this.activeCode = undefined;
 		this.selectedZones.set([]);
 		for (const code of affected) this.applyColor(code);
-		this.rebuildHighlightOutlines();
+		this.scheduleHighlightRebuild();
 	}
 
 	/** Whether a zone with the given code is currently selected. */
