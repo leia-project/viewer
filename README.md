@@ -299,6 +299,7 @@ Layer definition
 |url|base URL for the layer service||string|
 |featureName|Name of feature or wms layer, can be found in WMS GetCapabilities||string|
 |contenttype|The http content type for the map data to be retrieved|image/png|string|
+|webMercator|Use the Web Mercator tiling scheme for EPSG:3857 WMS services. If omitted or false, Cesium's geographic tiling scheme is used.|false|boolean|
 
 ```json
 {
