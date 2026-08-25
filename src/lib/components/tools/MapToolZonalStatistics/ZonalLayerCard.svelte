@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { RadioButton, Slider } from "carbon-components-svelte";
+	import { Loading, RadioButton, Slider } from "carbon-components-svelte";
 	import { Add, ChevronDown, TrashCan } from "carbon-icons-svelte";
 	import { _ } from "svelte-i18n";
 
@@ -13,12 +13,14 @@
 	const opacity = layer.opacity;
 	const selectedLayerId = controller.selectedLayerId;
 	const tableLayers = controller.tableLayers;
+	const loadingLayerIds = controller.loadingLayerIds;
 	const hasSettings = layer.config.opacitySupported;
 
 	let expanded = false;
 
 	$: selected = $selectedLayerId === layerId;
 	$: inTable = $tableLayers.some((dl) => dl.layerId === layerId);
+	$: busy = $loadingLayerIds.has(layerId);
 </script>
 
 <div class="layer-card" class:is-selected={selected}>
@@ -34,6 +36,11 @@
 					on:change={() => controller.selectLayer(layerId)}
 				/>
 			</div>
+			{#if busy}
+				<div class="card-spinner">
+					<Loading small withOverlay={false} description={$_("tools.zonalStatistics.loadingLayers")} />
+				</div>
+			{/if}
 			{#if hasSettings}
 				<button
 					class="icon-btn expand-btn"
@@ -130,6 +137,16 @@
 	.head-label {
 		flex: 1;
 		min-width: 0;
+	}
+
+	/* Keeps Carbon's 1rem small spinner in the same 1.5rem column as the chevron. */
+	.card-spinner {
+		flex-shrink: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.5rem;
+		height: 1.5rem;
 	}
 
 	.head-label :global(.bx--radio-button-wrapper) {

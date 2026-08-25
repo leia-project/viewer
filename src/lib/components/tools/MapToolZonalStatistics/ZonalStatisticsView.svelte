@@ -151,6 +151,12 @@
 		}
 	}
 
+	// Data layers load on first use, so a row's cells can still be empty when it appears.
+	const unsubscribeData = controller.dataVersion.subscribe(() => {
+		for (const code of table.zones) fillZoneColumn(code);
+		table = table;
+	});
+
 	// Add/remove only the changed zone columns instead of rebuilding the whole table.
 	function updateTable(codes: Array<string>): void {
 		const next = new Set(codes);
@@ -593,6 +599,7 @@
 	onDestroy(() => {
 		unsubscribe();
 		unsubscribeLayers();
+		unsubscribeData();
 		window.removeEventListener("resize", updateScrollShadows);
 		if (errorTimer) clearTimeout(errorTimer);
 		for (const timer of flashTimers.values()) clearTimeout(timer);
