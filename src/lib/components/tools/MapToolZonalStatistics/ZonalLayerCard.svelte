@@ -167,28 +167,45 @@
 		width: 1.5rem;
 		height: 1.5rem;
 		border: none;
+		border-radius: 2px;
 		background: none;
 		color: var(--cds-icon-primary, #161616);
 		cursor: pointer;
 		transition: color 0.15s ease, background-color 0.15s ease, transform 0.2s ease;
-		outline: none;
 		text-decoration: none;
 	}
 
 	.icon-btn:hover,
 	.icon-btn:focus-visible {
 		color: var(--cds-link-primary, #0f62fe);
-		background-color: transparent;
+		background-color: var(--cds-hover-ui);
 	}
 
-	/* Sits outside the card box; the fixed height centres it against the card head row. */
+	.icon-btn:focus-visible {
+		outline: 2px solid var(--cds-focus, #0f62fe);
+		outline-offset: -2px;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.icon-btn {
+			transition: none;
+		}
+	}
+
+	/* Sits outside the card box; the 2.5rem hit area centres it against the card head row, while the
+	   hover background stays a 1.5rem square to match the panel header buttons. */
 	.table-btn {
 		flex-shrink: 0;
-		height: 2.5rem;
+		height: 1.5rem;
+		margin: 0.5rem 0;
 		color: var(--cds-link-primary, #0f62fe);
 	}
 
-	.table-btn.danger,
+	/* Neutral at rest: a column of permanently red trash icons reads as an error state. */
+	.table-btn.danger {
+		color: var(--cds-icon-primary, #161616);
+	}
+
 	.table-btn.danger:hover,
 	.table-btn.danger:focus-visible {
 		color: var(--cds-support-01, #da1e28);

@@ -223,6 +223,11 @@ export class ZonalStatisticsController {
 		this.tableLayers.set(get(this.tableLayers).filter((dl) => dl.layerId !== layerId));
 	}
 
+	/** Give every resolved data layer a row in the table, in config order. */
+	public addAllTableLayers(): void {
+		this.tableLayers.set([...this.dataLayers]);
+	}
+
 	/** Whether a data layer currently has a row in the table. */
 	public isTableLayer(layerId: string): boolean {
 		return get(this.tableLayers).some((dl) => dl.layerId === layerId);

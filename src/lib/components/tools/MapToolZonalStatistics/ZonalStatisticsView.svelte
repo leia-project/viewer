@@ -99,6 +99,27 @@
 		updateTable(zones.map((z) => z.code));
 	});
 
+	// Duration of the blue highlight on a freshly added row; must match the CSS animation.
+	const FLASH_MS = 1500;
+	let flashing = new Set<string>();
+	const flashTimers = new Map<string, ReturnType<typeof setTimeout>>();
+	let knownLayerIds = new Set(controller.getTableLayers().map((dl) => dl.layerId));
+
+	function flashRow(layerId: string): void {
+		const running = flashTimers.get(layerId);
+		if (running) clearTimeout(running);
+		flashing.add(layerId);
+		flashing = flashing;
+		flashTimers.set(
+			layerId,
+			setTimeout(() => {
+				flashTimers.delete(layerId);
+				flashing.delete(layerId);
+				flashing = flashing;
+			}, FLASH_MS)
+		);
+	}
+
 	// The tool can open before the configured layers finish loading, and the user can add/remove a
 	// data layer from the panel; rebuild the rows and refill the already-selected zones.
 	const unsubscribeLayers = controller.tableLayers.subscribe(() => {
@@ -111,6 +132,12 @@
 		}));
 		for (const code of codes) fillZoneColumn(code);
 		table = table;
+
+		const currentIds = new Set(table.rows.map((row) => row.layerId));
+		for (const layerId of currentIds) {
+			if (!knownLayerIds.has(layerId)) flashRow(layerId);
+		}
+		knownLayerIds = currentIds;
 	});
 
 	// Fill one zone column across the current rows, matching each row by layer id.
@@ -568,6 +595,8 @@
 		unsubscribeLayers();
 		window.removeEventListener("resize", updateScrollShadows);
 		if (errorTimer) clearTimeout(errorTimer);
+		for (const timer of flashTimers.values()) clearTimeout(timer);
+		flashTimers.clear();
 	});
 </script>
 
@@ -711,7 +740,7 @@
 						</thead>
 						<tbody>
 							{#each table.rows as row (row.layerId)}
-								<tr>
+								<tr class:flash={flashing.has(row.layerId)}>
 									<th class="row-head" scope="row" title={row.title}>{row.title}</th>
 									{#each table.zones as code (code)}
 										{#each columns as column, i (i)}
@@ -1031,6 +1060,22 @@
 		background-color: var(--cds-hover-ui, rgba(141, 141, 141, 0.16));
 	}
 
+	/* Tint via an inset shadow so it also shows over cells with an inline background colour. */
+	@keyframes zonal-row-flash {
+		0%,
+		15% {
+			box-shadow: inset 0 0 0 9999px rgba(15, 98, 254, 0.4);
+		}
+		100% {
+			box-shadow: inset 0 0 0 9999px rgba(15, 98, 254, 0);
+		}
+	}
+
+	.zonal-table tbody tr.flash td,
+	.zonal-table tbody tr.flash th.row-head {
+		animation: zonal-row-flash 1200ms ease-out 1;
+	}
+
 	.zone-head {
 		font-weight: 600;
 		border-left: 2px solid var(--cds-ui-03);
@@ -1228,6 +1273,11 @@
 		.zone-zoom,
 		.value.active {
 			transition: none;
+		}
+
+		.zonal-table tbody tr.flash td,
+		.zonal-table tbody tr.flash th.row-head {
+			animation: none;
 		}
 	}
 </style>
