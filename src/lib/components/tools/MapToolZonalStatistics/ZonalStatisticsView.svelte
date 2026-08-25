@@ -12,11 +12,13 @@
 		addPdfPageWithHeader,
 		drawPdfFooters,
 		drawPdfPageHeader,
+		ensurePdfSpace,
 		getPdfLayoutMetrics,
 		loadPdfBrandingAssets
 	} from "$lib/components/tools/pdf/pdf-layout";
 
 	import { Button, InlineLoading, OverflowMenu, OverflowMenuItem } from "carbon-components-svelte";
+	import { app } from "$lib/app/app";
 	import type {
 		ZoneTable,
 		ZonalStatisticsController,
@@ -218,6 +220,7 @@
 
 	const layout = A4_PORTRAIT_LAYOUT;
 	const metrics = getPdfLayoutMetrics(layout);
+	const PDF_COVER_IMAGE_MAX_HEIGHT = 200;
 
 	function addPdfHeaderBlock(doc: jsPDF, startY: number): number {
 		doc.setFont("helvetica", "bold");
@@ -321,7 +324,11 @@
 					0
 				);
 				preferredWidths.push(
-					Math.max(minimumWidth, measurePdfTextWidth(doc, tooltipHeader) + 4, tooltipContentWidth + 4)
+					Math.max(
+						minimumWidth,
+						measurePdfTextWidth(doc, tooltipHeader) + 4,
+						tooltipContentWidth + 4
+					)
 				);
 				columns.push({
 					header: tooltipHeader,
@@ -371,6 +378,19 @@
 		return y + headerHeight;
 	}
 
+	function pdfTableHeaderHeight(doc: jsPDF, columns: Array<PdfColumn>): number {
+		const headerLineHeight = 4;
+		return (
+			Math.max(
+				...columns.map((col) =>
+					Math.max(1, doc.splitTextToSize(col.header, Math.max(1, col.width - 3)).length)
+				)
+			) *
+				headerLineHeight +
+			2
+		);
+	}
+
 	function drawPdfRow(
 		doc: jsPDF,
 		row: ZonalStatisticsExportRow,
@@ -403,20 +423,6 @@
 		return y + rowHeight;
 	}
 
-	function groupRowsByZone(rows: Array<ZonalStatisticsExportRow>) {
-		const groups: Array<{ zoneCode: string; rows: Array<ZonalStatisticsExportRow> }> = [];
-		for (const row of rows) {
-			const zoneCode = row.zoneCode || "";
-			const existingGroup = groups[groups.length - 1];
-			if (!existingGroup || existingGroup.zoneCode !== zoneCode) {
-				groups.push({ zoneCode, rows: [row] });
-			} else {
-				existingGroup.rows.push(row);
-			}
-		}
-		return groups;
-	}
-
 	async function exportPdf() {
 		if (exportInProgress) return;
 
@@ -441,31 +447,49 @@
 
 			drawPdfPageHeader(doc, layout, brandingAssets);
 			let y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
+			y += 3;
+
+			try {
+				const map = get(app.map);
+				const canvas = map?.viewer?.canvas;
+				if (canvas && canvas.width > 0 && canvas.height > 0) {
+					const mapImage = canvas.toDataURL("image/jpeg", 0.9);
+					const fullWidth = metrics.contentWidth;
+					const fullWidthHeight = (canvas.height / canvas.width) * fullWidth;
+					const availableHeight = Math.min(metrics.bottomLimit - y, PDF_COVER_IMAGE_MAX_HEIGHT);
+
+					if (availableHeight > 0) {
+						const scaleToFitFirstPage = Math.min(1, availableHeight / fullWidthHeight);
+						const imageWidth = fullWidth * scaleToFitFirstPage;
+						const imageHeight = fullWidthHeight * scaleToFitFirstPage;
+						y = ensurePdfSpace(doc, y, imageHeight + 5, layout, brandingAssets);
+						doc.addImage(mapImage, "JPEG", layout.margin, y, imageWidth, imageHeight);
+						y += imageHeight + 5;
+					}
+				}
+			} catch (error) {
+				console.warn("zonalStatistics: failed to capture map screenshot for PDF export", error);
+			}
+
+			// First page is a cover (title + map image); table always starts on page 2.
+			addPdfPageWithHeader(doc, layout, brandingAssets);
+			y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
 			y = drawPdfTableHeader(doc, layout.margin, y, columns);
 
-			const zoneGroups = groupRowsByZone(rows);
-			for (let groupIndex = 0; groupIndex < zoneGroups.length; groupIndex++) {
-				if (groupIndex > 0) {
+			for (const row of rows) {
+				const sampleLines = columns.map((col) =>
+					doc.splitTextToSize(col.get(row) || "", col.width - 3)
+				);
+				const nextRowHeight =
+					Math.max(...sampleLines.map((lines) => Math.max(1, lines.length))) * lineHeight + 2;
+
+				if (y + nextRowHeight > metrics.bottomLimit) {
 					addPdfPageWithHeader(doc, layout, brandingAssets);
 					y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
 					y = drawPdfTableHeader(doc, layout.margin, y, columns);
 				}
 
-				for (const row of zoneGroups[groupIndex].rows) {
-					const sampleLines = columns.map((col) =>
-						doc.splitTextToSize(col.get(row) || "", col.width - 3)
-					);
-					const nextRowHeight =
-						Math.max(...sampleLines.map((lines) => Math.max(1, lines.length))) * lineHeight + 2;
-
-					if (y + nextRowHeight > metrics.bottomLimit) {
-						addPdfPageWithHeader(doc, layout, brandingAssets);
-						y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
-						y = drawPdfTableHeader(doc, layout.margin, y, columns);
-					}
-
-					y = drawPdfRow(doc, row, layout.margin, y, columns, lineHeight);
-				}
+				y = drawPdfRow(doc, row, layout.margin, y, columns, lineHeight);
 			}
 
 			drawPdfFooters(doc, layout, brandingAssets, $_("tools.zonalStatistics.exportPage"));
