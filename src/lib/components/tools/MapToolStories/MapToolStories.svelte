@@ -106,7 +106,6 @@
 				const storyStatisticsApi: string | undefined = typeof storyRequestPolygonAreaConfig === "object"
 					? storyRequestPolygonAreaConfig.statisticsApi ?? undefined
 					: undefined;
-				const storyMarkerCoordinates = story.markerCoordinates;
 				const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
 				baseLayerId = story.baseLayerId ?? undefined;
 
@@ -149,11 +148,11 @@
 							layerLegends.push(layerLegendInfo);
 						}
 						const globeOpacity = step.globeOpacity ?? 100;
-						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent));
+						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent, step.markerCoordinates));
 					}
 					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyMarkerCoordinates));
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi));
 			}
 		}
 		stories = loadedStories;
@@ -162,6 +161,12 @@
 
 	function activateStory(story: Story) {
 		stepNumber = 1;
+		selectedStoryStore.set(story);
+		$selectedTool = tool;
+	}
+
+	function activateStoryStep(story: Story, selectedStepNumber: number) {
+		stepNumber = selectedStepNumber;
 		selectedStoryStore.set(story);
 		$selectedTool = tool;
 	}
@@ -176,7 +181,11 @@
 	}
 
 	markerCollection.on("story-selected", (value: unknown) => {
-		if (value instanceof Story) activateStory(value);
+		if (value instanceof Story) {
+			activateStory(value);
+		} else if (value && typeof value === "object" && "story" in value && "stepNumber" in value && value.story instanceof Story && typeof value.stepNumber === "number") {
+			activateStoryStep(value.story, value.stepNumber as number);
+		}
 	});
 
 	onDestroy(() => {
