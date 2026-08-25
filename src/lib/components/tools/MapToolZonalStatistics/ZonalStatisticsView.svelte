@@ -46,7 +46,8 @@
 			values: {},
 			tooltips: {}
 		}))
-	};	let activeCode: string | undefined;
+	};
+	let activeCode: string | undefined;
 	let show = true;
 	let exportingImage = false;
 	let exportingPdf = false;
@@ -208,49 +209,133 @@
 		colored?: boolean;
 	}
 
-	// Columns are built from config: zone + layer, then each configured column
-	// (plus a description column when the column has a tooltip attribute).
-	function pdfColumns(): Array<PdfColumn> {
-		const cols: Array<PdfColumn> = [
-			{ header: $_("tools.zonalStatistics.exportZone"), width: 20, get: (r) => r.zoneCode },
-			{ header: $_("tools.zonalStatistics.exportLayer"), width: 32, get: (r) => r.layerTitle }
+	function measurePdfTextWidth(doc: jsPDF, text: string): number {
+		return text ? doc.getTextWidth(text) : 0;
+	}
+
+	function minimumPdfColumnWidth(doc: jsPDF): number {
+		return measurePdfTextWidth(doc, "0000000") + 4;
+	}
+
+	function fitPdfColumnWidths(
+		preferredWidths: Array<number>,
+		availableWidth: number,
+		minimumWidth: number
+	): Array<number> {
+		const floorWidths = preferredWidths.map((width) => Math.max(width, minimumWidth));
+		const totalFloor = floorWidths.reduce((sum, width) => sum + width, 0);
+		if (totalFloor <= availableWidth) return floorWidths;
+
+		const minimumTotal = minimumWidth * floorWidths.length;
+		if (availableWidth <= minimumTotal) return floorWidths;
+
+		const flexibleWidths = floorWidths.map((width) => width - minimumWidth);
+		const flexibleTotal = flexibleWidths.reduce((sum, width) => sum + width, 0);
+		if (flexibleTotal <= 0) return floorWidths;
+
+		const remainingWidth = availableWidth - minimumTotal;
+		const scale = remainingWidth / flexibleTotal;
+		return floorWidths.map((width) => minimumWidth + (width - minimumWidth) * scale);
+	}
+
+	function buildPdfColumns(doc: jsPDF, rows: Array<ZonalStatisticsExportRow>): Array<PdfColumn> {
+		const availableWidth = metrics.contentWidth;
+		const minimumWidth = minimumPdfColumnWidth(doc);
+		const preferredWidths: Array<number> = [];
+		const columns: Array<PdfColumn> = [
+			{ header: $_("tools.zonalStatistics.exportZone"), width: 0, get: (r) => r.zoneCode },
+			{ header: $_("tools.zonalStatistics.exportLayer"), width: 0, get: (r) => r.layerTitle }
 		];
-		columns.forEach((column, i) => {
-			cols.push({
-				header: columnLabel(i),
-				width: 13,
+
+		const zoneHeader = columns[0].header;
+		const layerHeader = columns[1].header;
+		const zoneHeaderWidth = measurePdfTextWidth(doc, zoneHeader) + 4;
+		const zoneContentWidth = rows.reduce(
+			(max, row) => Math.max(max, measurePdfTextWidth(doc, row.zoneCode)),
+			0
+		);
+		preferredWidths.push(Math.max(minimumWidth, zoneHeaderWidth, zoneContentWidth + 4));
+
+		const layerHeaderWidth = measurePdfTextWidth(doc, layerHeader) + 4;
+		const layerContentWidth = rows.reduce(
+			(max, row) => Math.max(max, measurePdfTextWidth(doc, row.layerTitle)),
+			0
+		);
+		preferredWidths.push(Math.max(minimumWidth, layerHeaderWidth, layerContentWidth + 4));
+
+		for (let i = 0; i < settings.columns.length; i++) {
+			const column = settings.columns[i];
+			const valueHeader = columnLabel(i);
+			const valueContentWidth = rows.reduce(
+				(max, row) => Math.max(max, measurePdfTextWidth(doc, row.values[i] ?? "")),
+				0
+			);
+			preferredWidths.push(
+				Math.max(minimumWidth, measurePdfTextWidth(doc, valueHeader) + 4, valueContentWidth + 4)
+			);
+
+			columns.push({
+				header: valueHeader,
+				width: 0,
 				get: (r) => r.values[i] ?? "",
 				colored: column.styled
 			});
+
 			if (column.tooltipAttribute) {
-				cols.push({
-					header: `${columnLabel(i)} – ${$_("tools.zonalStatistics.exportDescription")}`,
-					width: 45,
+				const tooltipHeader = `${valueHeader} – ${$_("tools.zonalStatistics.exportDescription")}`;
+				const tooltipContentWidth = rows.reduce(
+					(max, row) => Math.max(max, measurePdfTextWidth(doc, row.tooltips[i] ?? "")),
+					0
+				);
+				preferredWidths.push(
+					Math.max(minimumWidth, measurePdfTextWidth(doc, tooltipHeader) + 4, tooltipContentWidth + 4)
+				);
+				columns.push({
+					header: tooltipHeader,
+					width: 0,
 					get: (r) => r.tooltips[i] ?? ""
 				});
 			}
-		});
-		return cols;
+		}
+
+		const fittedWidths = fitPdfColumnWidths(preferredWidths, availableWidth, minimumWidth);
+		let widthIndex = 0;
+		for (const column of columns) {
+			column.width = fittedWidths[widthIndex++] ?? column.width;
+		}
+
+		return columns;
 	}
 
-	function drawPdfTableHeader(
-		doc: jsPDF,
-		x: number,
-		y: number,
-		columns: Array<PdfColumn>
-	): number {
+	// Columns are built from config: zone + layer, then each configured column
+	// (plus a description column when the column has a tooltip attribute).
+	function pdfColumns(doc: jsPDF, rows: Array<ZonalStatisticsExportRow>): Array<PdfColumn> {
+		return buildPdfColumns(doc, rows);
+	}
+
+	function drawPdfTableHeader(doc: jsPDF, x: number, y: number, columns: Array<PdfColumn>): number {
+		const headerLineHeight = 4;
+		const headerHeight =
+			Math.max(
+				...columns.map((col) =>
+					Math.max(1, doc.splitTextToSize(col.header, Math.max(1, col.width - 3)).length)
+				)
+			) *
+				headerLineHeight +
+			2;
+
 		doc.setFont("helvetica", "bold");
 		doc.setFontSize(9);
 
 		let cursorX = x;
 		for (const col of columns) {
-			doc.rect(cursorX, y, col.width, 8);
-			doc.text(col.header, cursorX + 1.5, y + 5.5, { maxWidth: col.width - 3 });
+			doc.rect(cursorX, y, col.width, headerHeight);
+			doc.text(doc.splitTextToSize(col.header, Math.max(1, col.width - 3)), cursorX + 1.5, y + 4);
 			cursorX += col.width;
 		}
 
 		doc.setFont("helvetica", "normal");
-		return y + 8;
+		return y + headerHeight;
 	}
 
 	function drawPdfRow(
@@ -317,7 +402,9 @@
 
 			const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 			const lineHeight = 4;
-			const columns = pdfColumns();
+			doc.setFont("helvetica", "normal");
+			doc.setFontSize(9);
+			const columns = pdfColumns(doc, rows);
 
 			drawPdfPageHeader(doc, layout, brandingAssets);
 			let y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
@@ -562,18 +649,13 @@
 					</div>
 				{:else}
 					<table class="zonal-table">
-						<caption class="bx--visually-hidden"
-							>{$_("tools.zonalStatistics.tableCaption")}</caption
+						<caption class="bx--visually-hidden">{$_("tools.zonalStatistics.tableCaption")}</caption
 						>
 						<thead>
 							<tr>
 								<th class="row-head" rowspan="2" bind:offsetWidth={stickyColWidth} />
 								{#each table.zones as code (code)}
-									<th
-										class="zone-head"
-										class:active={code === activeCode}
-										colspan={columns.length}
-									>
+									<th class="zone-head" class:active={code === activeCode} colspan={columns.length}>
 										<div class="zone-head-inner">
 											<button
 												type="button"
@@ -656,11 +738,7 @@
 					</table>
 				{/if}
 			</div>
-			<div
-				class="edge edge-top"
-				class:visible={scroll.top}
-				style="right: {scrollbarW}px"
-			></div>
+			<div class="edge edge-top" class:visible={scroll.top} style="right: {scrollbarW}px"></div>
 			<div
 				class="edge edge-bottom"
 				class:visible={scroll.bottom}
@@ -689,9 +767,7 @@
 
 		{#if settings.valueStyles.length > 0}
 			<div class="legend">
-				<span class="legend-title body-compact-01"
-					>{$_("tools.zonalStatistics.legendTitle")}</span
-				>
+				<span class="legend-title body-compact-01">{$_("tools.zonalStatistics.legendTitle")}</span>
 				{#each settings.valueStyles as style (style.value)}
 					<span class="legend-chip" style={styler.swatchStyle(style.color)}>
 						{style.label ?? style.value}
@@ -1139,7 +1215,9 @@
 		outline: 2px solid var(--cds-focus, #0f62fe);
 		outline-offset: -2px;
 		font-weight: 600;
-		transition: background-color 120ms ease, outline-color 120ms ease;
+		transition:
+			background-color 120ms ease,
+			outline-color 120ms ease;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
