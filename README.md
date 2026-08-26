@@ -1020,9 +1020,6 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 |stories|name|The name of the story|string|
 ||description|A short description to describe the story|string|
 ||width|The width of the story menu|string|
-||markerCoordinates|**Optional**: List of 1 or more locations of story markers. Use `x` for longitude and `y` for latitude. If omitted, the story is still available in the Stories menu but has no map marker|object|
-|||x|Longitude of the story marker|number|
-|||y|Latitude of the story marker|number|
 ||forceCameraMode|Forces the camera into a fixed mode while the story is open and prevents users from switching camera mode. Accepts `"2D"` or `"3D"`. On opening the story the camera switches to the given mode if needed; on closing it reverts to the previous mode if it was changed|string|
 ||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
 ||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
@@ -1039,6 +1036,14 @@ Each layer within a step's `layers` array supports these settings:
 |style|Style/theme to apply to the layer|-|string|
 |showOpacitySlider|Whether the transparency slider is shown for this layer in the story step|true|boolean|
 
+Each story step can also define `markerCoordinates`. The marker label shows the story, chapter, and step name. Clicking a marker opens the story directly on its step. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects.
+
+|value|description|type|
+|-|-|-|
+|markerCoordinates|**Optional**: Location or locations of markers for this story step|object or array[object]|
+|x|Longitude of the story marker|number|
+|y|Latitude of the story marker|number|
+
 ```json
 
 {
@@ -1053,10 +1058,6 @@ Each layer within a step's `layers` array supports these settings:
 				"name": "My Story",
 				"description": "Description of my story",
 				"width": "600px",
-				"markerCoordinates": [{
-					"x": 5.23907,
-					"y": 52.20004
-				}],
 				"forceCameraMode": "2D",
 				"staticCamera": false,
 				"requestPolygonArea": {
@@ -1073,6 +1074,10 @@ Each layer within a step's `layers` array supports these settings:
 								"html": "<div>Content of the step.</div>",
 								"globeOpacity": 100,
 								"terrain": "PDOK Terrain",
+								"markerCoordinates": [{
+									"x": 5.23907,
+									"y": 52.20004
+								}],
 								"camera": {
 									"x": 5.23907,
 									"y": 52.20004,
