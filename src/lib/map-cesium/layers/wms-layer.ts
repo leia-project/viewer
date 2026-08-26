@@ -14,6 +14,9 @@ export class WmsLayer extends CesiumImageryLayer {
 		const provider = new Cesium.WebMapServiceImageryProvider({
 			url: this.config.settings["url"].split("?")[0],
 			layers: this.config.settings["featureName"],
+			tilingScheme: this.config.settings["webMercator"]
+				? new Cesium.WebMercatorTilingScheme({ ellipsoid: Cesium.Ellipsoid.WGS84 })
+				: undefined,
 			parameters: {
 				transparent: true,
 				format: this.config.settings["contentType"] ?? "image/png",

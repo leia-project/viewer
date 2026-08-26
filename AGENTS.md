@@ -78,7 +78,8 @@ Hierarchical grouping for the layer library; root parent first. Fields: `id` (un
 Common layer fields: `id`, `type`, `title`, `groupId`, `description`, `imageUrl`, `legendEnabled`, `legendUrl`, `isBackground` (only one active at a time), `defaultAddToManager`, `defaultOn`, `attribution`, `metadata` (array of `{key,value}`), `transparent`, `disablePopup`, `opacity` (0 opaque … 100 transparent), `cameraPosition`, `settings`.
 
 Supported `type` values: `basiskaart`, `wms`, `wmts`, `tms`, `vectortiles`, `3dtiles`, `geojson`, `modelanimation`, `custom` (plus the other classes listed under Architecture). `settings` differs per type — examples:
-- **wms:** `url`, `featureName`, `contenttype` (default `image/png`); optional `tools.styleSwitcher.enabled` to pull styles + dynamic legend from GetCapabilities.
+
+- **wms:** `url`, `featureName`, `contenttype` (default `image/png`), `webMercator` (boolean; use `true` for EPSG:3857 services, default `false` for Cesium's geographic tiling scheme); optional `tools.styleSwitcher.enabled` to pull styles + dynamic legend from GetCapabilities.
 - **wmts:** `url`, `featureName`, `contentType`, `matrixids[]`, `tileMatrixSetID` (default `EPSG:3857`), `tileWidth`/`tileHeigth` (256), `maximumLevel`.
 - **3dtiles:** `url` (tileset.json), `shadows`, `tilesetHeight`, `enableHeightControl`, `defaultTheme`, `style` (Cesium3DTileStyle; `pointSize` for point clouds), `themes[]`, `filter`.
 - **stories:** `settings.stories[].chapters[].steps[].markerCoordinates` defines one or more map marker locations for that step; clicking a marker opens the story at its step.
