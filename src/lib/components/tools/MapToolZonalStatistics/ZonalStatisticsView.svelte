@@ -59,7 +59,9 @@
 	// Off-screen A4-width sheet captured for PNG/JPEG exports (zones stacked vertically).
 	let exportElement: HTMLDivElement | undefined;
 	let contentEl: HTMLDivElement | undefined;
+	let tableHeadEl: HTMLTableSectionElement | undefined;
 	let stickyColWidth = 0;
+	let stickyHeaderHeight = 0;
 	let scroll = { top: false, bottom: false, left: false, right: false };
 	let scrollbarW = 0;
 	let scrollbarH = 0;
@@ -71,6 +73,7 @@
 	// Toggle the edge shadows that hint at content scrolled out of view.
 	function updateScrollShadows(): void {
 		const el = contentEl;
+		stickyHeaderHeight = tableHeadEl?.offsetHeight ?? 0;
 		if (!el) {
 			scroll = { top: false, bottom: false, left: false, right: false };
 			return;
@@ -711,9 +714,14 @@
 					<table class="zonal-table">
 						<caption class="bx--visually-hidden">{$_("tools.zonalStatistics.tableCaption")}</caption
 						>
-						<thead>
+						<thead bind:this={tableHeadEl}>
 							<tr>
-								<th class="row-head" rowspan="2" bind:offsetWidth={stickyColWidth} />
+								<th
+									class="row-head"
+									rowspan="2"
+									bind:offsetWidth={stickyColWidth}
+									id="sticky-cell"
+								/>
 								{#each table.zones as code (code)}
 									<th class="zone-head" class:active={code === activeCode} colspan={columns.length}>
 										<div class="zone-head-inner">
@@ -798,7 +806,11 @@
 					</table>
 				{/if}
 			</div>
-			<div class="edge edge-top" class:visible={scroll.top} style="right: {scrollbarW}px"></div>
+			<div
+				class="edge edge-top"
+				class:visible={scroll.top}
+				style="right: {scrollbarW}px; top: {stickyHeaderHeight - 1}px"
+			></div>
 			<div
 				class="edge edge-bottom"
 				class:visible={scroll.bottom}
@@ -1060,7 +1072,8 @@
 	}
 
 	.zonal-table {
-		border-collapse: collapse;
+		border-collapse: separate;
+		border-spacing: 0;
 		width: max-content;
 		font-size: 0.875rem;
 	}
@@ -1074,12 +1087,33 @@
 		transition: background-color 120ms ease;
 	}
 
+	#sticky-cell {
+		top: 0;
+		left: 0;
+		z-index: 5;
+	}
+
+	.zonal-table thead th {
+		position: sticky;
+		background: var(--cds-ui-02);
+	}
+
+	.zonal-table thead tr:first-child th {
+		top: 0;
+		z-index: 4;
+	}
+
+	.zonal-table thead tr:nth-child(2) th {
+		top: var(--cds-spacing-07);
+		z-index: 3;
+	}
+
 	.zonal-table .row-head {
 		text-align: left;
 		font-weight: 600;
 		position: sticky;
 		left: 0;
-		background-color: var(--cds-ui-02);
+		background: var(--cds-ui-02);
 		z-index: 1;
 		max-width: 12rem;
 		overflow: hidden;
@@ -1109,7 +1143,7 @@
 
 	.zone-head {
 		font-weight: 600;
-		border-left: 2px solid var(--cds-ui-03);
+		border-left: 1px solid var(--cds-ui-03);
 	}
 
 	.zone-head-inner {
