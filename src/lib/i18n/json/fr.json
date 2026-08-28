@@ -395,6 +395,7 @@
             "label": "Statistiques zonales",
             "exportMenu": "Télécharger",
             "exportCreatedAt": "Créé le :",
+            "exportVisibleLayerLabel": "Couche cartographique affichée",
             "exportPage": "Page",
             "exportZone": "Zone",
             "exportLayer": "Couche",

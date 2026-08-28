@@ -398,6 +398,7 @@
             "label": "Zonal statistics",
             "exportMenu": "Download",
             "exportCreatedAt": "Created at:",
+            "exportVisibleLayerLabel": "Visible map layer",
             "exportPage": "Page",
             "exportZone": "Zone",
             "exportLayer": "Layer",

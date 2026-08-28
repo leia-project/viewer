@@ -10,6 +10,7 @@
 		A4_PORTRAIT_LAYOUT,
 		DEFAULT_PDF_BRANDING,
 		addPdfPageWithHeader,
+		addPdfTextAtY,
 		drawPdfFooters,
 		drawPdfPageHeader,
 		ensurePdfSpace,
@@ -221,6 +222,16 @@
 		return `${year}${month}${day}-${hour}${minute}`;
 	}
 
+	function getVisibleLayerTitle(): string | undefined {
+		const selectedLayerId = get(controller.selectedLayerId);
+		if (!selectedLayerId) return undefined;
+
+		const selectedLayer = get(controller.resolvedDataLayers).find(
+			(layer) => layer.layerId === selectedLayerId
+		);
+		return selectedLayer?.title;
+	}
+
 	const layout = A4_PORTRAIT_LAYOUT;
 	const metrics = getPdfLayoutMetrics(layout);
 	const PDF_COVER_IMAGE_MAX_HEIGHT = 200;
@@ -282,19 +293,10 @@
 		const minimumWidth = minimumPdfColumnWidth(doc);
 		const preferredWidths: Array<number> = [];
 		const columns: Array<PdfColumn> = [
-			{ header: $_("tools.zonalStatistics.exportZone"), width: 0, get: (r) => r.zoneCode },
 			{ header: $_("tools.zonalStatistics.exportLayer"), width: 0, get: (r) => r.layerTitle }
 		];
 
-		const zoneHeader = columns[0].header;
-		const layerHeader = columns[1].header;
-		const zoneHeaderWidth = measurePdfTextWidth(doc, zoneHeader) + 4;
-		const zoneContentWidth = rows.reduce(
-			(max, row) => Math.max(max, measurePdfTextWidth(doc, row.zoneCode)),
-			0
-		);
-		preferredWidths.push(Math.max(minimumWidth, zoneHeaderWidth, zoneContentWidth + 4));
-
+		const layerHeader = columns[0].header;
 		const layerHeaderWidth = measurePdfTextWidth(doc, layerHeader) + 4;
 		const layerContentWidth = rows.reduce(
 			(max, row) => Math.max(max, measurePdfTextWidth(doc, row.layerTitle)),
@@ -350,7 +352,7 @@
 		return columns;
 	}
 
-	// Columns are built from config: zone + layer, then each configured column
+	// Columns are built from config: layer, then each configured column
 	// (plus a description column when the column has a tooltip attribute).
 	function pdfColumns(doc: jsPDF, rows: Array<ZonalStatisticsExportRow>): Array<PdfColumn> {
 		return buildPdfColumns(doc, rows);
@@ -379,6 +381,20 @@
 
 		doc.setFont("helvetica", "normal");
 		return y + headerHeight;
+	}
+
+	function drawPdfZoneHeader(doc: jsPDF, zoneCode: string, y: number): number {
+		const height = 8;
+		doc.setFillColor(240, 244, 248);
+		doc.rect(layout.margin, y, metrics.contentWidth, height, "F");
+		doc.setDrawColor(200, 200, 200);
+		doc.rect(layout.margin, y, metrics.contentWidth, height);
+		doc.setFont("helvetica", "bold");
+		doc.setFontSize(10);
+		doc.text(`${$_("tools.zonalStatistics.exportZone")}: ${zoneCode}`, layout.margin + 2, y + 5.25);
+		doc.setFont("helvetica", "normal");
+		doc.setFontSize(9);
+		return y + height;
 	}
 
 	function pdfTableHeaderHeight(doc: jsPDF, columns: Array<PdfColumn>): number {
@@ -468,6 +484,19 @@
 						y = ensurePdfSpace(doc, y, imageHeight + 5, layout, brandingAssets);
 						doc.addImage(mapImage, "JPEG", layout.margin, y, imageWidth, imageHeight);
 						y += imageHeight + 5;
+
+						const visibleLayerTitle = getVisibleLayerTitle();
+						if (visibleLayerTitle) {
+							doc.setFontSize(11);
+							y = addPdfTextAtY(
+								doc,
+								`${$_("tools.zonalStatistics.exportVisibleLayerLabel")}: ${visibleLayerTitle}`,
+								layout.margin,
+								y,
+								metrics.contentWidth
+							);
+							y += 3;
+						}
 					}
 				}
 			} catch (error) {
@@ -476,9 +505,10 @@
 
 			// First page is a cover (title + map image); table always starts on page 2.
 			addPdfPageWithHeader(doc, layout, brandingAssets);
-			y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
+			y = metrics.contentTop;
 			y = drawPdfTableHeader(doc, layout.margin, y, columns);
 
+			let currentZoneCode: string | undefined;
 			for (const row of rows) {
 				const sampleLines = columns.map((col) =>
 					doc.splitTextToSize(col.get(row) || "", col.width - 3)
@@ -486,10 +516,26 @@
 				const nextRowHeight =
 					Math.max(...sampleLines.map((lines) => Math.max(1, lines.length))) * lineHeight + 2;
 
+				if (row.zoneCode !== currentZoneCode) {
+					const extraSpacing = currentZoneCode ? 3 : 0;
+					const zoneHeaderHeight = 8;
+					if (y + extraSpacing + zoneHeaderHeight + nextRowHeight > metrics.bottomLimit) {
+						addPdfPageWithHeader(doc, layout, brandingAssets);
+						y = metrics.contentTop;
+						y = drawPdfTableHeader(doc, layout.margin, y, columns);
+					}
+					y += extraSpacing;
+					y = drawPdfZoneHeader(doc, row.zoneCode, y);
+					currentZoneCode = row.zoneCode;
+				}
+
 				if (y + nextRowHeight > metrics.bottomLimit) {
 					addPdfPageWithHeader(doc, layout, brandingAssets);
-					y = addPdfHeaderBlock(doc, metrics.contentTop + 4);
+					y = metrics.contentTop;
 					y = drawPdfTableHeader(doc, layout.margin, y, columns);
+					if (currentZoneCode) {
+						y = drawPdfZoneHeader(doc, currentZoneCode, y);
+					}
 				}
 
 				y = drawPdfRow(doc, row, layout.margin, y, columns, lineHeight);

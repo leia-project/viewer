@@ -405,6 +405,7 @@
             "label": "Zonale statistiek",
             "exportMenu": "Downloaden",
             "exportCreatedAt": "Aangemaakt op:",
+            "exportVisibleLayerLabel": "Getoonde kaartlaag",
             "exportPage": "Pagina",
             "exportZone": "Gebied",
             "exportLayer": "Laag",
