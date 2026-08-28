@@ -17,8 +17,6 @@
 	import  DOMPurify from "dompurify";
 
 	import { get } from "svelte/store"
-	import { Config } from "$lib/components/map-core/config/config";
-	import { identity } from "@observablehq/plot";
 
 	export let map: Writable<Map | undefined>;
 
@@ -37,11 +35,35 @@
 		sessionToken = data.session_token
 	}
 
-	/* Checkt of de agent al aan het denken is... */
+	// Checkt of de agent al aan het denken is... //
 	let busy = false; 
 
-	/* De prompt van de gebruiker */
+	// De prompt van de gebruiker //
 	let question = "";
+
+	// Model en provider 
+	let modelName: string | null = null;
+	let providerName: string | null = null;
+
+	async function fetchConfig() {
+		const response = await fetch(`${$chatApiUrl}/config`)
+		const data = await response.json()
+
+		modelName = data.llm_model;
+		providerName = data.llm_provider;
+	}
+
+	$: if ($chatApiUrl) fetchConfig()
+
+	const PROVIDER_LABELS: Record<string, string> = {
+		openrouter: "OpenRouter",
+		ollama: "Ollama (lokaal)",
+		anthropic: "Anthropic"
+	};
+
+	function providerLabel(provider: string | null): string {
+		return provider ? PROVIDER_LABELS[provider] ?? provider : "";
+	}
 
 	/* Houdt buffer van chunks bij */
 	let events: any[] = [];
@@ -205,9 +227,16 @@ $: if (events && bodyEl) {
 		<header class="chat-panel__header">
 			<div class="chat-panel__title">
 				<Bot size={20} />
-				<span>
-					{$_("tools.chat.label")}
-				</span>
+				<div class="chat-panel__heading">
+					<span>
+						{$_("tools.chat.label")}
+					</span>
+					{#if modelName}
+						<span class="chat-panel__model">
+							{modelName} via {providerLabel(providerName)}
+						</span>
+					{/if}
+				</div>
 			</div>
 
 			<button on:click={closeChat} class="chat-panel__close" type="button" aria-label="Close chat">
@@ -342,16 +371,29 @@ $: if (events && bodyEl) {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+		/* Zonder dit weigert een flex-item te krimpen onder zijn inhoud, en duwt
+		   een lange modelnaam de sluitknop het paneel uit. */
+		min-width: 0;
+	}
+
+	/* Titel en modelregel onder elkaar, zodat ze samen één flex-item vormen. */
+	.chat-panel__heading {
+		display: flex;
+		flex-direction: column;
+		line-height: 1.2;
+		min-width: 0;
 	}
 
 	.chat-panel__model {
 		opacity: 0.7;
 		font-size: 0.75rem;
+		overflow-wrap: anywhere;
 	}
 
 	.chat-panel__close {
 		display: flex;
 		align-items: center;
+		flex-shrink: 0;
 		padding: 0.25rem;
 		border: none;
 		background: transparent;
