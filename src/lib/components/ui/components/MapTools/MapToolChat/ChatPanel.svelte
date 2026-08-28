@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Bot from "carbon-icons-svelte/lib/Bot.svelte";
 	import Close from "carbon-icons-svelte/lib/Close.svelte";
+	import Download from "carbon-icons-svelte/lib/Download.svelte";
 	import ErrorFilled from "carbon-icons-svelte/lib/ErrorFilled.svelte";
 	import Gears from "carbon-icons-svelte/lib/Gears.svelte";
 	import SendAltFilled from "carbon-icons-svelte/lib/SendAltFilled.svelte";
@@ -11,6 +12,7 @@
 	import type { Map } from "$lib/components/map-cesium/module/map";
 
 	import { isChatOpen, closeChat, chatApiUrl } from "./chat-store";
+	import { exportConversation } from "./conversation-export";
 	import { getWfsAttributeNames } from "$lib/components/map-cesium/module/providers/wfs-attributes";
 
 	import { marked } from "marked";
@@ -36,7 +38,24 @@
 	}
 
 	// Checkt of de agent al aan het denken is... //
-	let busy = false; 
+	let busy = false;
+
+	/* Haalt de volledige agent-state van dit gesprek op als JSON-bestand.
+	   Zonder sessietoken is er nog geen draad om te exporteren. */
+	let exporting = false;
+
+	async function handleExport() {
+		if (exporting || !sessionToken || !$chatApiUrl) return;
+
+		exporting = true;
+		try {
+			await exportConversation($chatApiUrl, sessionToken);
+		} catch (error) {
+			console.error("Export van gesprek mislukt:", error);
+		} finally {
+			exporting = false;
+		}
+	}
 
 	// De prompt van de gebruiker //
 	let question = "";
@@ -239,9 +258,22 @@ $: if (events && bodyEl) {
 				</div>
 			</div>
 
-			<button on:click={closeChat} class="chat-panel__close" type="button" aria-label="Close chat">
-				<Close size={20} />
-			</button>
+			<div class="chat-panel__actions">
+				<button
+					on:click={handleExport}
+					class="chat-panel__action"
+					type="button"
+					disabled={exporting || !sessionToken}
+					title="Exporteer gesprek als JSON"
+					aria-label="Exporteer gesprek als JSON"
+				>
+					<Download size={20} />
+				</button>
+
+				<button on:click={closeChat} class="chat-panel__action" type="button" aria-label="Close chat">
+					<Close size={20} />
+				</button>
+			</div>
 		</header>
 
 		<div bind:this={bodyEl} class="chat-panel__body">
@@ -390,10 +422,16 @@ $: if (events && bodyEl) {
 		overflow-wrap: anywhere;
 	}
 
-	.chat-panel__close {
+	.chat-panel__actions {
 		display: flex;
 		align-items: center;
+		gap: 0.25rem;
 		flex-shrink: 0;
+	}
+
+	.chat-panel__action {
+		display: flex;
+		align-items: center;
 		padding: 0.25rem;
 		border: none;
 		background: transparent;
@@ -401,8 +439,13 @@ $: if (events && bodyEl) {
 		cursor: pointer;
 	}
 
-	.chat-panel__close:hover {
+	.chat-panel__action:hover:not(:disabled) {
 		background: rgb(255 255 255 / 15%);
+	}
+
+	.chat-panel__action:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
 	}
 
 	.chat-panel__body {
