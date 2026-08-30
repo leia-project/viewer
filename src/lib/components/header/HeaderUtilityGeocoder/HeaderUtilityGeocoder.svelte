@@ -2,27 +2,36 @@
 	import { onDestroy } from "svelte";
 	import { writable } from "svelte/store";
 	import { _ } from "svelte-i18n";
-	// @ts-ignore
-	import { Wkt } from "wicket";
 	import * as Cesium from "cesium";
 	import { HeaderSearch } from "carbon-components-svelte";
 	import { app } from "$lib/app/app";
-	import { getFeatureBounds } from "$lib/map-cesium/utils/map-utils";
 	import { searchActive } from "../search-active";
+	import {
+		mergeSuggestions,
+		resolveProviders,
+		geocoderProviders,
+		PER_PROVIDER_LIMIT,
+		TOTAL_RESULT_LIMIT,
+		type GeocoderProvider,
+		type GeocoderSuggestion
+	} from "./geocoder-providers";
 
 
 	const map = app.map;
 	const value = writable<string>();
-	let geocoderName: string;
-	let geocoderUrl: string;
+	let providers = new Array<GeocoderProvider>();
+	let providerUrls: Record<string, string> = {};
 	let selectedResultIndex = 0;
 	let events: any[] = [];
 	let results = new Array<any>();
 	let debounceTimer: ReturnType<typeof setTimeout>;
+	let searchController: AbortController | undefined;
+	let requestId = 0;
 
 
 	onDestroy(() => {
 		clearTimeout(debounceTimer);
+		searchController?.abort();
 	});
 
 
@@ -30,37 +39,22 @@
 		if (map) {
 			map.configLoaded.subscribe((loaded: boolean) => {
 				if (loaded) {
-					let geocoderConfig = map.config.tools.find((t: any) => t.id === "geocoder");
+					const geocoderConfig = map.config.tools.find((t: any) => t.id === "geocoder");
+					if (!geocoderConfig?.enabled) return;
 
-					if (geocoderConfig.enabled) {
-						if (geocoderConfig.settings) {
-							geocoderName = geocoderConfig.settings.name ? geocoderConfig.settings.name.trim().toLowerCase() : "locatieserver";
+					const settings = geocoderConfig.settings;
+					providers = resolveProviders(settings?.name);
+					providerUrls = {};
 
-							switch (geocoderName) {
-								case "nominatim":
-									geocoderUrl = "https://nominatim.openstreetmap.org";
-									break;
-								case "locatieserver":
-									geocoderUrl = "https://api.pdok.nl/bzk/locatieserver/search/v3_1";
-									break;
-								case "geolocation":
-									geocoderUrl = "https://geo.api.vlaanderen.be/geolocation/";
-									break;
-								default:
-									console.warn("Unknown geocoder");
-									break;
-							};
-							// TODO: Add option for custom geocoder
-							if (geocoderConfig.settings.url) {
-								geocoderUrl = geocoderConfig.settings.url;
-								console.warn('Custom geocoder URL is not yet supported');
-							}
-						}
-						// Default geocoder
-						else {
-							console.warn("No geocoder settings found, using default (locatieserver)");
-							geocoderName = "locatieserver";
-							geocoderUrl = "https://api.pdok.nl/bzk/locatieserver/search/v3_1";
+					for (const provider of providers) {
+						providerUrls[provider.id] = provider.defaultUrl;
+					}
+
+					if (settings?.url) {
+						if (providers.length === 1) {
+							providerUrls[providers[0].id] = settings.url;
+						} else {
+							console.warn("A custom geocoder url is only supported when a single geocoder is configured");
 						}
 					}
 				}
@@ -70,129 +64,63 @@
 
 	value.subscribe((v) => {
 		if (v && v.length >= 1) {
-			if (geocoderName === "nominatim") {
-				// Set a new timer that will call geosearch after 1500ms
-				clearTimeout(debounceTimer);
-				debounceTimer = setTimeout(() => {
-					geosearch(v, geocoderName);
-				}, 1500);
-			} 
-			else {
-				// For other geocoders, perform search immediately
-				geosearch(v, geocoderName);
+			clearTimeout(debounceTimer);
+
+			if (providers.some((p) => p.requiresDebounce)) {
+				debounceTimer = setTimeout(() => geosearch(v), 1500);
+			} else {
+				geosearch(v);
 			}
 		} else {
 			results = new Array<any>();
 		}
 	});
 
-	function select(entity: any, geocoder: string): void {
-		const id = entity?.selectedResult?.locationId;
+	function select(entity: any): void {
+		const suggestion = entity?.selectedResult as GeocoderSuggestion | undefined;
+		const provider = suggestion ? geocoderProviders[suggestion.providerId] : undefined;
 
-		if (id) {
-			zoomTo(id, geocoder);
+		if (provider) {
+			zoomTo(suggestion as GeocoderSuggestion, provider);
 		}
 	}
 
-	async function geosearch(query: string, geocoder: string): Promise<void> {
-		try {
-			let searchResults;
-			let entries = new Array<any>();
+	async function geosearch(query: string): Promise<void> {
+		searchController?.abort();
+		const controller = new AbortController();
+		searchController = controller;
+		const currentRequest = ++requestId;
 
-			if (geocoder === "nominatim") {
-				//TODO: Only fire request when no new character is typed within 2000ms
-				const result = await fetch(`${geocoderUrl}/search?format=json&q=${query}`);
-				searchResults = await result.json();
-				
-				searchResults.forEach((searchResult: any) => {
-					entries.push({
-						text: searchResult.display_name,
-						locationId: searchResult.osm_type.charAt(0).toUpperCase() + searchResult.osm_id
-					});
-				});
-			} else if (geocoder === "locatieserver") {
-				const result = await fetch(`${geocoderUrl}/suggest?wt=json&q=${query}`);
-				searchResults = await result.json();
-				
-				searchResults.response.docs.forEach((searchResult: any) => {
-					entries.push({
-						text: searchResult.weergavenaam,
-						locationId: searchResult.id
-					});
-				});
-			// Try Pijkestraat 140
-			} else if (geocoder === "geolocation") {
-				const result = await fetch(`${geocoderUrl}v4/Location?q=${query}&c=5`);
-				searchResults = await result.json();
-				
-				searchResults.LocationResult.forEach((searchResult: any) => {
-					// geolocation ID cannot be used to return adressess, we need the whole object
-					entries.push({
-						text: searchResult.FormattedAddress,
-						locationId: searchResult
-					});
-				});
-			}
-			results = entries;
-		} catch (e) {
-			console.log(`${geocoder} geocoder`, `Error getting suggest (${e})`);
-		}
-	};
+		const settled = await Promise.allSettled(
+			providers.map((provider) =>
+				provider.suggest(query, providerUrls[provider.id], PER_PROVIDER_LIMIT, controller.signal)
+			)
+		);
 
-	async function zoomTo(locationId: string | object, geocoder: string): Promise<void> {
-		try {
-			if (geocoder === "nominatim") {
-				const result = await fetch(`${geocoderUrl}/lookup?format=json&osm_ids=${locationId}`);
-				const lookupResults = await result.json();
-				const firstLookupResult = lookupResults[0];
+		// Discard responses that were superseded by a newer query.
+		if (currentRequest !== requestId) return;
 
-				if (firstLookupResult) {
-					const bbox = firstLookupResult.boundingbox;
-					const box = [parseFloat(bbox[2]), parseFloat(bbox[0]), parseFloat(bbox[3]), parseFloat(bbox[1])];
-					setCameraView(box);
-				}
-			}
-			else if (geocoder === "locatieserver") {
-				const result = await fetch(`${geocoderUrl}/lookup?wt=json&id=${locationId}&fl=geometrie_ll`);
-				const lookupResult = await result.json();
+		const perProvider = settled.map((outcome, i) => {
+			if (outcome.status === "fulfilled") return outcome.value;
+			if (controller.signal.aborted) return [];
 
-				if (lookupResult?.response?.docs?.length > 0) {
-					const geomLL = lookupResult.response.docs[0].geometrie_ll;
-					const box = wktToBox(geomLL);
-					setCameraView(box);
-				}
-			}
-			else if (geocoder === "geolocation") {
-				if (locationId) {
-					//check if type of locationId is object, since this already contains the geometry
-					if (typeof locationId === 'object') {
-						// @ts-ignore
-						const geomLL = locationId.BoundingBox;
+			console.log(`${providers[i].id} geocoder`, `Error getting suggest (${outcome.reason})`);
+			return [];
+		});
 
-						const lowerLeftLat = geomLL.LowerLeft.Lat_WGS84;
-						const lowerLeftLon = geomLL.LowerLeft.Lon_WGS84;
-						const upperRightLat = geomLL.UpperRight.Lat_WGS84;
-						const upperRightLon = geomLL.UpperRight.Lon_WGS84;
-
-						// Create a WKT polygon string
-						const wktString = `POLYGON((${lowerLeftLon} ${lowerLeftLat}, ${lowerLeftLon} ${upperRightLat}, ${upperRightLon} ${upperRightLat}, ${upperRightLon} ${lowerLeftLat}, ${lowerLeftLon} ${lowerLeftLat}))`;
-						const box = wktToBox(wktString);
-						setCameraView(box);
-					} 
-					else {
-						console.log("Expected locationId to be of object type. Type retrieved:", typeof locationId);
-					}
-				}
-			}
-		} catch (e) {
-			console.log(`${geocoder}: Error getting lookup (${e})`);
-		}
+		results = mergeSuggestions(perProvider, TOTAL_RESULT_LIMIT).map((suggestion) => ({
+			...suggestion,
+			description: $_(geocoderProviders[suggestion.providerId].labelKey)
+		}));
 	}
 
-	function wktToBox(wkt: string): Array<number> {
-		const geom = new Wkt(wkt);
-		const geoJson = geom.toJson();
-		return getFeatureBounds(geoJson);
+	async function zoomTo(suggestion: GeocoderSuggestion, provider: GeocoderProvider): Promise<void> {
+		try {
+			const box = await provider.resolveBounds(suggestion.payload, providerUrls[provider.id]);
+			if (box) setCameraView(box);
+		} catch (e) {
+			console.log(`${provider.id}: Error getting lookup (${e})`);
+		}
 	}
 
 	function setCameraView(box: Array<number>) {
@@ -237,7 +165,7 @@
 		events = [...events, { type: "clear" }];
 	}}
 	on:select={(e) => {
-		select(e.detail, geocoderName);
+		select(e.detail);
 	}}
 />
 
@@ -249,5 +177,9 @@
 
 	:global([slot="headerUtilities"]) {
 		width: 100%;
+	}
+
+	:global(.bx--header-search-menu-description) {
+		text-transform: none !important;
 	}
 </style>

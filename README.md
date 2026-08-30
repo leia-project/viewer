@@ -724,12 +724,23 @@ The info tool will display attribution from used libraries in the viewer and som
 
 #### geocoder
 
-Geocoder tool, located at the right corner of the header instead of the toolbar. The user can search for locations using and zoom to locations using this tool. By default the Dutch Locatieserver geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. For international geocoding, OSM's Nominatim can be used: https://nominatim.openstreetmap.org.
+Geocoder tool, located at the right corner of the header instead of the toolbar. The user can search for locations using and zoom to locations using this tool. By default the Dutch Locatieserver geocoder is used.
+
+Supported providers:
+
+|name|coverage|endpoint|
+|-|-|-|
+|`locatieserver`|Netherlands (PDOK)|https://api.pdok.nl/bzk/locatieserver/search/v3_1|
+|`geolocation`|Belgium / Flanders|https://geo.api.vlaanderen.be/geolocation/|
+|`geoportail-lu`|Luxembourg (Geoportail)|https://apiv4.geoportail.lu/fulltextsearch|
+|`nominatim`|Worldwide (OSM)|https://nominatim.openstreetmap.org|
 
 |value|description|type|
 |-|-|-|
-|name|Geocoder name. Currently supporting locatieserver (Dutch), geolocation (Belgian) and nominatim (worldwide)|string|
+|name|A single provider name, or an array of provider names to search several geocoders at once. Defaults to `locatieserver`.|string \| string[]|
+|url|Overrides the provider endpoint. Only applied when exactly one provider is configured, otherwise it is ignored with a warning.|string|
 
+When multiple providers are configured, each one is queried in parallel and the results are merged round-robin (up to 5 per provider, 10 in total). Providers that return no results yield their slots to the others, and the first-listed provider gets any leftover slot. Every result shows which provider it came from.
 
 ```json
 {
@@ -737,6 +748,18 @@ Geocoder tool, located at the right corner of the header instead of the toolbar.
 	"enabled": true,
 	"settings": {
 		"name": "locatieserver"
+	}
+}
+```
+
+Combining the Dutch, Flemish and Luxembourgish geocoders:
+
+```json
+{
+	"id": "geocoder",
+	"enabled": true,
+	"settings": {
+		"name": ["locatieserver", "geolocation", "geoportail-lu"]
 	}
 }
 ```

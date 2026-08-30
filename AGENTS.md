@@ -6,6 +6,8 @@ Leia Open Source 3D Viewer — a generic, config-driven Cesium-based 3D viewer f
 
 Keep this document a living source of truth. Whenever a change warrants it — new architectural decisions, conventions, build/setup steps, gotchas, or pitfalls discovered while working — update AGENTS.md in the same change so it stays accurate. Conversely, if a change documented here is later reverted, revert the corresponding AGENTS.md entry as well so the docs never describe code that no longer exists.
 
+**`README.md` is the user-facing config reference** — every tool, layer type and `settings` key is documented there. Any change to config options or viewer behaviour must update `README.md` in the same change, not just AGENTS.md.
+
 ## Setup & commands
 
 ```sh
