@@ -4,7 +4,7 @@ import * as Cesium from "cesium";
 import type { Map as CesiumMap } from "$lib/map-cesium/map";
 import type { MouseLocation } from "$lib/map-core/mouse-location";
 import type { GeoJsonLayer } from "$lib/map-cesium/layers/geojson-layer";
-import type { ZonalColumn, ZonalStatisticsSettings } from "./zonal-config";
+import type { ZonalColumn, ZonalColumnSource, ZonalStatisticsSettings } from "./zonal-config";
 
 /**
  * A single selected zone (e.g. one PC6 area).
@@ -134,8 +134,8 @@ export class ZonalStatisticsController {
 	private loadQueue: Promise<void> = Promise.resolve();
 	/** Per data-layer index: zone code -> feature properties (only the attributes the table reads). */
 	private readonly valueIndex: Map<string, Map<string, Record<string, any>>> = new Map();
-	/** Distinct data-layer attributes the table + tooltips read (column + tooltip attributes). */
-	private readonly neededAttributes: Array<string>;
+	/** Per layer id: column key -> the source attributes that layer reads for that column. */
+	private readonly columnSources: Map<string, Map<string, ZonalColumnSource>> = new Map();
 
 	/** The single batched fill primitive covering every zone, shared by all configured layers. */
 	private zoneFill: ZoneFillRender | undefined;
@@ -157,6 +157,8 @@ export class ZonalStatisticsController {
 	private readonly unsubscribers: Array<Unsubscriber> = [];
 	/** Attribute the zone layer's `classMapping` keys off (its configured `style`), if any. */
 	private classAttribute: string | undefined;
+	/** The column that attribute belongs to, so each layer's own name for it can be resolved. */
+	private classColumn: ZonalColumn | undefined;
 	/** Zone-layer `classMapping` value -> colour, applied to every layer so all fills match. */
 	private readonly classColors: Map<string, Cesium.Color> = new Map();
 	/** The zone currently shown in the table (drawn with the strongest tint). */
@@ -169,12 +171,44 @@ export class ZonalStatisticsController {
 	constructor(map: CesiumMap, settings: ZonalStatisticsSettings) {
 		this.map = map;
 		this.settings = settings;
-		const attrs = new Set<string>();
-		for (const column of settings.columns) {
-			attrs.add(column.attribute);
-			if (column.tooltipAttribute) attrs.add(column.tooltipAttribute);
+		for (const layer of settings.layers) {
+			if (!layer.columns) continue;
+			this.columnSources.set(layer.id, new Map(Object.entries(layer.columns)));
 		}
-		this.neededAttributes = [...attrs];
+	}
+
+	/** Stable id a per-layer column override is keyed by. */
+	private static columnKey(column: ZonalColumn): string {
+		return column.key ?? column.attribute;
+	}
+
+	/** The attribute `layerId` holds this column's value in (its override, else the column default). */
+	private attributeFor(layerId: string, column: ZonalColumn): string {
+		const source = this.columnSources.get(layerId)?.get(ZonalStatisticsController.columnKey(column));
+		return source?.attribute ?? column.attribute;
+	}
+
+	/** The attribute `layerId` holds this column's tooltip in; overrides apply independently. */
+	private tooltipAttributeFor(layerId: string, column: ZonalColumn): string | undefined {
+		const source = this.columnSources.get(layerId)?.get(ZonalStatisticsController.columnKey(column));
+		return source?.tooltipAttribute ?? column.tooltipAttribute;
+	}
+
+	/** Distinct attributes to read out of `layerId`'s features for the table + tooltips. */
+	private attributesFor(layerId: string): Array<string> {
+		const attrs = new Set<string>();
+		for (const column of this.settings.columns) {
+			attrs.add(this.attributeFor(layerId, column));
+			const tooltip = this.tooltipAttributeFor(layerId, column);
+			if (tooltip) attrs.add(tooltip);
+		}
+		return [...attrs];
+	}
+
+	/** The attribute `layerId` holds the shared `classMapping` value in. */
+	private classAttributeFor(layerId: string): string | undefined {
+		if (!this.classAttribute) return undefined;
+		return this.classColumn ? this.attributeFor(layerId, this.classColumn) : this.classAttribute;
 	}
 
 	/**
@@ -446,7 +480,8 @@ export class ZonalStatisticsController {
 	 */
 	private resolveColorLayerId(): string | undefined {
 		const selected = get(this.selectedLayerId);
-		if (selected && this.colorIndex.has(selected)) return selected;
+		// An indexed-but-empty colour map would repaint every zone transparent, leaving bare outlines.
+		if (selected && (this.colorIndex.get(selected)?.size ?? 0) > 0) return selected;
 		return this.colorLayerId ?? this.settings.zoneLayerId;
 	}
 
@@ -650,9 +685,17 @@ export class ZonalStatisticsController {
 		if (typeof settings?.style !== "string" || !mapping || typeof mapping !== "object") return;
 		for (const [value, color] of Object.entries(mapping as Record<string, unknown>)) {
 			if (typeof color !== "string") continue;
-			this.classColors.set(value, Cesium.Color.fromCssColorString(color));
+			this.classColors.set(
+				ZonalStatisticsController.normalizeClassValue(value),
+				Cesium.Color.fromCssColorString(color)
+			);
 		}
-		if (this.classColors.size > 0) this.classAttribute = settings.style;
+		if (this.classColors.size === 0) return;
+		this.classAttribute = settings.style;
+		const zoneLayerId = this.settings.zoneLayerId;
+		this.classColumn = this.settings.columns.find(
+			(column) => this.attributeFor(zoneLayerId, column) === settings.style
+		);
 	}
 
 	/**
@@ -665,7 +708,7 @@ export class ZonalStatisticsController {
 		const base = color instanceof Cesium.Color ? color.clone() : Cesium.Color.GRAY.withAlpha(0.5);
 		if (!this.classAttribute) return base;
 		const value = this.readProperty(entity, this.classAttribute, time);
-		const mapped = value !== undefined && value !== null && this.classColors.get(String(value));
+		const mapped = this.classColor(value);
 		return mapped ? mapped.withAlpha(base.alpha) : base;
 	}
 
@@ -701,6 +744,25 @@ export class ZonalStatisticsController {
 		return bag?.[attribute]?.getValue(time);
 	}
 
+	/**
+	 * Join key for a zone code. The data layers are separate datasets keyed on the same code, so the
+	 * key is case- and whitespace-insensitive (`"4331 ab"` and `"4331AB"` are the same zone).
+	 */
+	private static normalizeCode(code: unknown): string {
+		return String(code).replace(/\s+/g, "").toUpperCase();
+	}
+
+	/** Lookup key for a `classMapping` value, matched case-insensitively across datasets. */
+	private static normalizeClassValue(value: unknown): string {
+		return String(value).trim().toUpperCase();
+	}
+
+	/** Shared `classMapping` colour for a raw feature/entity value, if it maps to one. */
+	private classColor(value: unknown): Cesium.Color | undefined {
+		if (value === undefined || value === null) return undefined;
+		return this.classColors.get(ZonalStatisticsController.normalizeClassValue(value));
+	}
+
 	/** Build a zone-code -> zone-layer entity lookup for resolving click geometry. */
 	private indexZoneEntities(): void {
 		this.zoneEntityIndex.clear();
@@ -711,7 +773,7 @@ export class ZonalStatisticsController {
 			// Read only the code property instead of materialising every attribute per entity.
 			const code = this.readProperty(entity, codeAttr, time);
 			if (code !== undefined && code !== null) {
-				const key = String(code);
+				const key = ZonalStatisticsController.normalizeCode(code);
 				// A MultiPolygon zone becomes several entities under one code; keep them all.
 				const list = this.zoneEntityIndex.get(key) ?? [];
 				list.push(entity);
@@ -726,11 +788,12 @@ export class ZonalStatisticsController {
 	/** Index the zone layer's own attribute values so it can be used as a table row like any layer. */
 	private indexZoneValues(): void {
 		const time = this.map.viewer.clock.currentTime;
+		const attributes = this.attributesFor(this.settings.zoneLayerId);
 		const index = new Map<string, Record<string, any>>();
 		for (const [code, entities] of this.zoneEntityIndex) {
 			const entity = entities[0];
 			const props: Record<string, any> = {};
-			for (const attr of this.neededAttributes) props[attr] = this.readProperty(entity, attr, time);
+			for (const attr of attributes) props[attr] = this.readProperty(entity, attr, time);
 			index.set(code, props);
 		}
 		this.valueIndex.set(this.settings.zoneLayerId, index);
@@ -768,19 +831,27 @@ export class ZonalStatisticsController {
 		}
 
 		const codeAttr = this.settings.zoneCodeAttribute;
+		const attributes = this.attributesFor(layerId);
+		const classAttr = this.classAttributeFor(layerId);
 		const index = new Map<string, Record<string, any>>();
 		const colors = new Map<string, Cesium.Color>();
 		for (const feature of features) {
 			const properties = feature?.properties;
 			const code = properties?.[codeAttr];
 			if (code === undefined || code === null) continue;
-			const key = String(code);
+			const key = ZonalStatisticsController.normalizeCode(code);
 			// Store only the attributes the table + tooltips read, not the whole property bag.
 			const props: Record<string, any> = {};
-			for (const attr of this.neededAttributes) props[attr] = properties[attr];
+			for (const attr of attributes) props[attr] = properties[attr];
 			index.set(key, props);
-			const color = this.featureColor(key, properties);
+			const color = this.featureColor(key, properties, classAttr);
 			if (color) colors.set(key, color);
+		}
+		if (colors.size === 0) {
+			console.warn(
+				`zonalStatistics: layer '${layerId}' produced no zone colours from ${features.length} features ` +
+					`(check '${codeAttr}' matches the zone layer's codes and '${classAttr}' matches its classMapping)`
+			);
 		}
 		this.valueIndex.set(layerId, index);
 		this.colorIndex.set(layerId, colors);
@@ -788,16 +859,17 @@ export class ZonalStatisticsController {
 
 	/**
 	 * Fill colour for a feature. Without Cesium entities the only colour source is the zone layer's
-	 * shared `classMapping`; when none is configured the zone layer's own colour for that zone is
-	 * reused, so the geometry still renders instead of turning transparent.
+	 * shared `classMapping`, read from `classAttr` (this layer's own name for that column); when it
+	 * yields nothing the zone layer's own colour for that zone is reused, so the geometry still
+	 * renders instead of turning transparent.
 	 */
-	private featureColor(code: string, properties: Record<string, any>): Cesium.Color | undefined {
-		if (!this.classAttribute) {
-			return this.colorIndex.get(this.settings.zoneLayerId)?.get(code);
-		}
-		const value = properties[this.classAttribute];
-		if (value === undefined || value === null) return undefined;
-		return this.classColors.get(String(value));
+	private featureColor(
+		code: string,
+		properties: Record<string, any>,
+		classAttr: string | undefined
+	): Cesium.Color | undefined {
+		const mapped = classAttr ? this.classColor(properties[classAttr]) : undefined;
+		return mapped ?? this.colorIndex.get(this.settings.zoneLayerId)?.get(code);
 	}
 
 	private onMapClick(location: MouseLocation): void {
@@ -1017,8 +1089,12 @@ export class ZonalStatisticsController {
 
 		for (const code of zones) {
 			const props = index?.get(code);
-			values[code] = columns.map((c) => this.formatColumnWithDecimals(props?.[c.attribute], c));
-			tooltips[code] = columns.map((c) => this.readOptionalAttribute(props, c.tooltipAttribute));
+			values[code] = columns.map((c) =>
+				this.formatColumnWithDecimals(props?.[this.attributeFor(dl.layerId, c)], c)
+			);
+			tooltips[code] = columns.map((c) =>
+				this.readOptionalAttribute(props, this.tooltipAttributeFor(dl.layerId, c))
+			);
 		}
 
 		return {
@@ -1044,8 +1120,12 @@ export class ZonalStatisticsController {
 			const props = this.valueIndex.get(dl.layerId)?.get(code);
 			return {
 				layerId: dl.layerId,
-				values: columns.map((c) => this.formatColumnWithDecimals(props?.[c.attribute], c)),
-				tooltips: columns.map((c) => this.readOptionalAttribute(props, c.tooltipAttribute))
+				values: columns.map((c) =>
+					this.formatColumnWithDecimals(props?.[this.attributeFor(dl.layerId, c)], c)
+				),
+				tooltips: columns.map((c) =>
+					this.readOptionalAttribute(props, this.tooltipAttributeFor(dl.layerId, c))
+				)
 			};
 		});
 	}

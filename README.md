@@ -1153,9 +1153,9 @@ Generic tool to inspect statistics per zone (e.g. per postcode area). The user c
 |value|description|type|
 |-|-|-|
 |zoneLayerId|Id of the layer holding the clickable zone geometries. This is the only layer of the tool that is actually drawn: it is switched on while the tool is open and every data layer's values are painted onto it. Its `settings.classMapping` (keyed on its `settings.style` attribute) is applied to every data layer, so all layers in the tool share one colour scheme|string|
-|zoneCodeAttribute|Attribute on a zone feature that holds its code (e.g. a postcode). Defaults to `postcode`|string|
-|layers|Data layers selectable in the panel; each can be added to the table as a row. Each entry is `{ id, title? }`; `title` defaults to the layer's config title. The first entry is shown on the map and added to the table when the tool opens. Data layers are attribute joins on `zoneCodeAttribute` and are drawn on the `zoneLayerId` geometry, so a zone the layer has no feature for is left blank. They are never added to the map as layers themselves: only the `zoneLayerId` layer is loaded on viewer start, and each data layer's GeoJSON is downloaded one at a time — the first time it is selected or added to the table — to read its attributes and colours|array|
-|columns|Columns rendered per selected zone. Each entry is `{ attribute, label?, decimals?, tooltipAttribute?, styled? }`. `label` defaults to `attribute`; `decimals` (integer 0-20) rounds numeric values of that column to a fixed number of decimals in the table and in every export (omit it to show the raw value); `tooltipAttribute` adds a hover description (and a description column in the PDF and CSV exports, rendered inline in image exports); `styled: true` colours the cell using `valueStyles`|array|
+|zoneCodeAttribute|Attribute on a zone feature that holds its code (e.g. a postcode). Defaults to `postcode`. Because the data layers are separate datasets joined on this code, codes are matched ignoring case and whitespace (`"4331 ab"` and `"4331AB"` are the same zone); values from `classMapping` are matched ignoring case too|string|
+|layers|Data layers selectable in the panel; each can be added to the table as a row. Each entry is `{ id, title?, columns? }`; `title` defaults to the layer's config title, and `columns` overrides the source attribute names this layer reads for one or more columns (see below). The first entry is shown on the map and added to the table when the tool opens. Data layers are attribute joins on `zoneCodeAttribute` and are drawn on the `zoneLayerId` geometry, so a zone the layer has no feature for is left blank. They are never added to the map as layers themselves: only the `zoneLayerId` layer is loaded on viewer start, and each data layer's GeoJSON is downloaded one at a time — the first time it is selected or added to the table — to read its attributes and colours|array|
+|columns|Columns rendered per selected zone. Each entry is `{ key?, attribute, label?, decimals?, tooltipAttribute?, styled? }`. `attribute` is the *default* source attribute name and `key` is the stable id a layer's `columns` override refers to (defaults to `attribute`); `label` defaults to `attribute`; `decimals` (integer 0-20) rounds numeric values of that column to a fixed number of decimals in the table and in every export (omit it to show the raw value); `tooltipAttribute` adds a hover description (and a description column in the PDF and CSV exports, rendered inline in image exports); `styled: true` colours the cell using `valueStyles`|array|
 |valueStyles|Optional value-to-colour map for styled columns. Each entry is `{ value, color, label? }`. Drives styled cell backgrounds, the legend and PDF cell fills (PDF fills require HEX colours; other CSS colours render plain in the PDF). The text colour is derived automatically (black or white, whichever contrasts best with `color`)|array|
 |exportTitle|Optional title used for exports. Defaults to the tool title/alias|string|
 |exportFileName|Optional file-name prefix for exports. Defaults to the tool title/alias|string|
@@ -1175,8 +1175,8 @@ Generic tool to inspect statistics per zone (e.g. per postcode area). The user c
 		"pdfFooterText": "Provincie Zeeland - Klimaatlabels",
 		"pdfLogo": "/images/Zeeland_logo.png",
 		"columns": [
-			{ "attribute": "label", "label": "Huidig", "tooltipAttribute": "category", "styled": true },
-			{ "attribute": "ambitie_label", "label": "Ambitie", "tooltipAttribute": "ambitie_category", "styled": true },
+			{ "key": "huidig", "attribute": "label", "label": "Huidig", "tooltipAttribute": "category", "styled": true },
+			{ "key": "ambitie", "attribute": "ambitie_label", "label": "Ambitie", "tooltipAttribute": "ambitie_category", "styled": true },
 			{ "attribute": "Shape_area", "label": "Oppervlakte (m²)", "decimals": 0 }
 		],
 		"valueStyles": [
@@ -1188,11 +1188,35 @@ Generic tool to inspect statistics per zone (e.g. per postcode area). The user c
 		],
 		"layers": [
 			{ "id": "999a" },
-			{ "id": "999b" }
+			{ "id": "999b", "columns": { "ambitie": { "attribute": "label_ca", "tooltipAttribute": "category_ca" } } }
 		]
 	}
 }
 ```
+
+### Matching differently named source columns
+
+Source datasets do not always use the same attribute names for the same logical
+column — one may call the ambition label `ambitie_label`, another `label_ca`.
+Give the column a stable `key` and let the deviating layer override the source
+attribute name it uses for that key:
+
+```json
+"columns": [
+	{ "key": "ambitie", "attribute": "ambitie_label", "label": "Ambitie", "tooltipAttribute": "ambitie_category" }
+],
+"layers": [
+	{ "id": "999a" },
+	{ "id": "999c", "columns": { "ambitie": { "attribute": "label_ca" } } }
+]
+```
+
+Both layers then fill the same **Ambitie** column. Notes:
+
+- Layers without a `columns` override keep using the column's `attribute`, so existing configs need no change.
+- `attribute` and `tooltipAttribute` are overridden independently; omitting one keeps the column's default.
+- `{ "ambitie": "label_ca" }` is accepted as shorthand for overriding only the value attribute.
+- The override also applies to the shared colour scheme: the zone layer's `classMapping` is looked up on each layer's *own* name for the class column, so a layer that names it differently still gets coloured instead of rendering as bare outlines.
 
 The panel lists the configured data layers as a flat set of cards, in config order. Above them a header row shows how many layers are in the table (`N / M`) and two icon buttons add every configured layer to the table at once or empty the table again.
 

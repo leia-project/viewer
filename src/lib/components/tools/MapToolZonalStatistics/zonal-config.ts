@@ -16,20 +16,33 @@
  *     "zoneCodeAttribute": "postcode",
  *     "layers": [
  *       { "id": "heat" },
- *       { "id": "drought" }
+ *       { "id": "drought", "columns": { "ambition": { "attribute": "label_ca" } } }
  *     ],
  *     "columns": [
- *       { "attribute": "value", "label": "Value", "tooltipAttribute": "description", "styled": true }
+ *       { "key": "ambition", "attribute": "value", "label": "Value", "tooltipAttribute": "description", "styled": true }
  *     ]
  *   }
  * }
  */
+
+/**
+ * Per-layer override of the source attributes a column reads. Lets datasets that
+ * name the same logical column differently still feed one table column.
+ */
+export interface ZonalColumnSource {
+	/** Attribute holding this column's value in this layer's features. */
+	attribute?: string;
+	/** Attribute holding this column's tooltip text in this layer's features. */
+	tooltipAttribute?: string;
+}
 
 export interface ZonalLayer {
 	/** Unique id of the layer (used as a stable key). Provides one table row. */
 	id: string;
 	/** Optional row label (defaults to the layer's config title). */
 	title?: string;
+	/** Source-attribute overrides for this layer, keyed by column `key` (or its `attribute`). */
+	columns?: Record<string, ZonalColumnSource>;
 }
 
 /**
@@ -39,13 +52,15 @@ export interface ZonalLayer {
  * (e.g. a current value next to a target value).
  */
 export interface ZonalColumn {
-	/** Attribute name read from the row-layer feature for this column's value. */
+	/** Stable id used by per-layer `columns` overrides. Defaults to `attribute`. */
+	key?: string;
+	/** Default attribute name read for this column; a layer may override it. */
 	attribute: string;
 	/** Column header text (defaults to `attribute`). */
 	label?: string;
 	/** Optional number of decimals to round numeric values to (e.g. 0, 1, 2), max 20. */
 	decimals?: number;
-	/** Optional attribute holding tooltip/description text for the cell. */
+	/** Default attribute holding tooltip/description text; a layer may override it. */
 	tooltipAttribute?: string;
 	/** When true, cell colours come from `valueStyles` (categorical columns). */
 	styled?: boolean;
@@ -86,6 +101,16 @@ export interface ZonalStatisticsSettings {
 }
 
 /**
+ * Whether a column carries description text anywhere — either by default or
+ * through a per-layer override. Drives the extra description column in exports.
+ */
+export function columnHasTooltip(settings: ZonalStatisticsSettings, column: ZonalColumn): boolean {
+	if (column.tooltipAttribute) return true;
+	const key = column.key ?? column.attribute;
+	return settings.layers.some((layer) => layer.columns?.[key]?.tooltipAttribute !== undefined);
+}
+
+/**
  * Parse and validate the raw tool settings object into a typed
  * {@link ZonalStatisticsSettings}. Returns `undefined` when the settings are
  * missing or incomplete so callers can fail gracefully.
@@ -107,12 +132,33 @@ export function parseZonalStatisticsSettings(raw: any): ZonalStatisticsSettings 
 		return value;
 	};
 
+	const parseColumnSources = (raw: any): Record<string, ZonalColumnSource> | undefined => {
+		if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+		const sources: Record<string, ZonalColumnSource> = {};
+		for (const [key, value] of Object.entries(raw as Record<string, any>)) {
+			// A bare string is shorthand for overriding just the value attribute.
+			const source: ZonalColumnSource =
+				typeof value === "string"
+					? { attribute: value }
+					: value && typeof value === "object"
+						? {
+								attribute: typeof value.attribute === "string" ? value.attribute : undefined,
+								tooltipAttribute:
+									typeof value.tooltipAttribute === "string" ? value.tooltipAttribute : undefined
+							}
+						: {};
+			if (source.attribute || source.tooltipAttribute) sources[key] = source;
+		}
+		return Object.keys(sources).length > 0 ? sources : undefined;
+	};
+
 	const layers: Array<ZonalLayer> = Array.isArray(raw.layers)
 		? raw.layers
 				.filter((l: any) => l && typeof l.id === "string")
 				.map((l: any) => ({
 					id: l.id,
-					title: typeof l.title === "string" ? l.title : undefined
+					title: typeof l.title === "string" ? l.title : undefined,
+					columns: parseColumnSources(l.columns)
 				}))
 		: [];
 
@@ -120,6 +166,7 @@ export function parseZonalStatisticsSettings(raw: any): ZonalStatisticsSettings 
 		? raw.columns
 				.filter((c: any) => c && typeof c.attribute === "string")
 				.map((c: any) => ({
+					key: typeof c.key === "string" ? c.key : undefined,
 					attribute: c.attribute,
 					label: typeof c.label === "string" ? c.label : undefined,
 					decimals: normalizeDecimals(c.decimals),

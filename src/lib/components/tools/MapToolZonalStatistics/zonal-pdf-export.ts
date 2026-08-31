@@ -12,6 +12,7 @@ import {
 } from "$lib/components/tools/pdf/pdf-layout";
 
 import type { ZonalStatisticsSettings } from "./zonal-config";
+import { columnHasTooltip } from "./zonal-config";
 import type { Rgb } from "./zonal-style";
 import type { ZonalStatisticsExportRow } from "./zonal-statistics-controller";
 
@@ -138,7 +139,7 @@ function buildPdfColumns(
 			colored: column.styled
 		});
 
-		if (column.tooltipAttribute) {
+		if (columnHasTooltip(settings, column)) {
 			const tooltipHeader = `${valueHeader} - ${labels.exportDescription}`;
 			const tooltipContentWidth = rows.reduce(
 				(max, row) => Math.max(max, measurePdfTextWidth(doc, row.tooltips[i] ?? "")),

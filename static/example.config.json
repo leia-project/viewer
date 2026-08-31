@@ -500,7 +500,7 @@
         },        {
             "id": "999a",
             "type": "geojson",
-            "title": "Impact overstroming (scenario 1:4000)",
+            "title": "Labelkaart impact overstroming",
             "groupId": "",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -524,7 +524,7 @@
         {
             "id": "999b",
             "type": "geojson",
-            "title": "Test 2: labelkaart_2",
+            "title": "Labelkaart gevoelstemperatuur huidig",
             "groupId": "",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -532,7 +532,7 @@
             "transparent": true,
             "opacity": 80,
             "settings": {
-                "url": "http://localhost:8000/labelkaart_example.geojson",
+                "url": "http://localhost:8000/labelkaart_gevoelstemperatuur_huidig.geojson",
                 "theme": "",
                 "style": "label"
             }
@@ -540,15 +540,15 @@
         {
             "id": "999c",
             "type": "geojson",
-            "title": "Test 3: labelkaart_3",
+            "title": "Labelkaart schaduw langzaamverkeersroutes",
             "groupId": "",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
-            "opacity": 100,
+            "opacity": 80,
             "settings": {
-                "url": "http://localhost:8000/labelkaart_example.geojson",
+                "url": "http://localhost:8000/labelkaart_schaduw_langzaamverkeersroutes.geojson",
                 "theme": "",
                 "style": "label"
             }
@@ -562,7 +562,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
-            "opacity": 100,
+            "opacity": 80,
             "settings": {
                 "url": "http://localhost:8000/labelkaart_example.geojson",
                 "theme": "",
@@ -578,7 +578,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
-            "opacity": 100,
+            "opacity": 80,
             "settings": {
                 "url": "http://localhost:8000/labelkaart_example.geojson",
                 "theme": "",
@@ -597,7 +597,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
-            "opacity": 100,
+            "opacity": 80,
             "settings": {
                 "url": "http://localhost:8000/labelkaart_example.geojson",
                 "theme": "",
@@ -613,7 +613,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
-            "opacity": 100,
+            "opacity": 80,
             "settings": {
                 "url": "http://localhost:8000/labelkaart_example.geojson",
                 "theme": "",
@@ -629,7 +629,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
-            "opacity": 100,
+            "opacity": 80,
             "settings": {
                 "url": "http://localhost:8000/labelkaart_example.geojson",
                 "theme": "",
@@ -645,7 +645,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
-            "opacity": 100,
+            "opacity": 80,
             "settings": {
                 "url": "http://localhost:8000/labelkaart_example.geojson",
                 "theme": "",
@@ -661,7 +661,7 @@
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
-            "opacity": 100,
+            "opacity": 80,
             "settings": {
                 "url": "http://localhost:8000/labelkaart_example.geojson",
                 "theme": "",
@@ -814,25 +814,28 @@
             "settings": {
                 "alias": "Labelpaspoort",
                 "zoneLayerId": "999a",
-                "zoneCodeAttribute": "Pc6",
+                "zoneCodeAttribute": "postcode",
                 "exportTitle": "Klimaatlabels",
                 "exportFileName": "Klimaatlabels",
                 "pdfFooterText": "Provincie Zeeland - Klimaatlabels",
                 "pdfLogo": "/images/Zeeland_logo.png",
                 "columns": [
                     {
+                        "key": "huidig",
                         "attribute": "label",
                         "label": "Huidig",
                         "tooltipAttribute": "category",
                         "styled": true
                     },
                     {
+                        "key": "ambitie",
                         "attribute": "ambitie_label",
                         "label": "Ambitie",
                         "tooltipAttribute": "ambitie_category",
                         "styled": true
                     },
                     {
+                        "key": "oppervlakte",
                         "attribute": "Shape_area",
                         "label": "Oppervlakte (m²)",
                         "decimals": 1
@@ -850,7 +853,17 @@
                         "id": "999a"
                     },
                     {
-                        "id": "999b"
+                        "id": "999b",
+                        "columns": {
+                            "ambitie": {
+                                "attribute": "ambitie_la",
+                                "tooltipAttribute": "ambitie_ca"
+                            },
+                            "oppervlakte": {
+                                "attribute": "geom_Area",
+                                "decimals": 1
+                            }
+                        }
                     },
                     {
                         "id": "999c"

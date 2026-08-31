@@ -13,6 +13,7 @@
 		ZonalStatisticsController,
 		ZonalStatisticsExportRow
 	} from "./zonal-statistics-controller";
+	import { columnHasTooltip } from "./zonal-config";
 	import { createZonalStyler } from "./zonal-style";
 	import { exportZonalPdf } from "./zonal-pdf-export";
 
@@ -269,7 +270,7 @@
 		];
 		columns.forEach((column, i) => {
 			cols.push({ header: columnLabel(i), get: (r) => r.values[i] ?? "" });
-			if (column.tooltipAttribute) {
+			if (columnHasTooltip(settings, column)) {
 				cols.push({
 					header: `${columnLabel(i)} – ${$_("tools.zonalStatistics.exportDescription")}`,
 					get: (r) => r.tooltips[i] ?? ""
