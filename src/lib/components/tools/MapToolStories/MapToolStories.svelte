@@ -35,7 +35,7 @@
 
 	const tool = new MapToolMenuOption(id, icon, label);
 	registerTool(tool);
-	markerCollection = new StoryMarkerCollection(cesiumMap, Book, selectedTool, tool);
+	markerCollection = new StoryMarkerCollection(cesiumMap, Book, selectedTool);
 
 	$: {
 		tool.width.set($selectedStoryStore?.width ?? "");
@@ -250,14 +250,15 @@
 	}
 
 	.bottom-container {
-		margin-top: 50px;
 		position: absolute;
 		bottom: 0;
 		left: 0;
+		z-index: 2;
 		width: 100%;
-		padding: 15px 10px 25px;
-		height: auto;
-		overflow: hidden;
+		box-sizing: border-box;
+		padding: var(--cds-spacing-05);
+		background-color: var(--cds-ui-01);
+		border-top: 1px solid var(--cds-ui-03);
 	}
 
 	.story {

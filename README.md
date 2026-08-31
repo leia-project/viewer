@@ -1017,7 +1017,7 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 |-|-|-|-|
 |alias||**Optional**: Different name for the tool showing in the viewer|string|
 |position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
-|showOnMap||**Optional**: Show story markers on the map initially. The visibility can also be changed with the Stories tool toggle. Defaults to `true`|boolean|
+|showOnMap||**Optional**: Show story markers on the map initially. The visibility can also be changed with the Stories tool toggle, which is available both in the story overview and at the bottom of an opened story. Defaults to `true`|boolean|
 |stories|name|The name of the story|string|
 ||description|A short description to describe the story|string|
 ||width|The width of the story menu|string|
@@ -1037,7 +1037,7 @@ Each layer within a step's `layers` array supports these settings:
 |style|Style/theme to apply to the layer|-|string|
 |showOpacitySlider|Whether the transparency slider is shown for this layer in the story step|true|boolean|
 
-Each story step can also define `markerCoordinates`. The marker label shows the story, chapter, and step name. Clicking a marker opens the story directly on its step. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects.
+Each story step can also define `markerCoordinates`. The marker label shows the story, chapter, and step name. Clicking a marker opens the story directly on its step. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story.
 
 |value|description|type|
 |-|-|-|

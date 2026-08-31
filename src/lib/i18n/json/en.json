@@ -350,6 +350,7 @@
             "projectAreaTool": "Project Area Tool",
             "downloadPDF": "Generate and download PDF",
             "showOnMap": "Show stories on map",
+            "showStoryOnMap": "Show story on map",
             "open": "Open story"
         },
         "animation": {

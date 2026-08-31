@@ -12,7 +12,6 @@ export class StoryMarkerCollection extends Dispatcher {
 	private readonly markers = new Cesium.CustomDataSource("story-markers");
 	private readonly inputHandler: Cesium.ScreenSpaceEventHandler;
 	private readonly toolSelection: Readable<unknown>;
-	private readonly storyTool: unknown;
 	private stories: Story[] = [];
 	private readonly markerStoryMap = new Map<Cesium.Entity, Story>();
 	private readonly markerStepMap = new Map<Cesium.Entity, number>();
@@ -27,12 +26,10 @@ export class StoryMarkerCollection extends Dispatcher {
 	public constructor(
 		public readonly map: CesiumMap,
 		private readonly icon: any,
-		selectedTool: Readable<unknown>,
-		storyTool: unknown
+		selectedTool: Readable<unknown>
 	) {
 		super();
 		this.toolSelection = selectedTool;
-		this.storyTool = storyTool;
 		this.inputHandler = new Cesium.ScreenSpaceEventHandler(map.viewer.scene.canvas);
 		map.viewer.dataSources.add(this.markers);
 		this.unsubscribers = [
@@ -125,12 +122,9 @@ export class StoryMarkerCollection extends Dispatcher {
 
 	private markersVisible(): boolean {
 		const activeToolId = (get(this.toolSelection) as { id?: string } | undefined)?.id;
-		const storyToolId = (this.storyTool as { id?: string } | undefined)?.id;
-		const viewingStory = activeToolId === storyToolId && !!get(selectedStory);
 
 		return (
 			get(showStoryMarkers) &&
-			!viewingStory &&
 			!get(projectHandler.selectedProject) &&
 			activeToolId !== "projects" &&
 			activeToolId !== "flooding"
@@ -139,7 +133,11 @@ export class StoryMarkerCollection extends Dispatcher {
 
 	private toggleMarkers(): void {
 		const visible = this.markersVisible();
+		const openStory = get(selectedStory);
 		this.markers.show = visible;
+		for (const [marker, story] of this.markerStoryMap) {
+			marker.show = !openStory || story === openStory;
+		}
 		this.map.viewer.scene.requestRender();
 
 		if (visible) {

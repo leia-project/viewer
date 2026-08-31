@@ -28,6 +28,8 @@
 	import StoryChart from "./StoryChart/StoryChart.svelte";
 	import StoryOpacitySlider from "./StoryOpacitySlider.svelte";
 	import StoryChartDownloadButton from "./StoryChart/StoryChartDownloadButton.svelte";
+	import { showStoryMarkers } from "./story-handler";
+	import ToggleView from "../MapToolProjects/components/ToggleView.svelte";
 
 
 	export let map: Map;
@@ -41,6 +43,7 @@
 	const dispatch = createEventDispatcher();
 
 	let currentPage = writable<number>(1);
+	let lastAppliedSavedStepNumber: number | undefined;
 	let activeStep: StoryStep | undefined;
 	let activeChapter: StoryChapter | undefined;
 	let activeChapterSteps: Array<StoryStep> | undefined;
@@ -313,6 +316,12 @@
 			}
 		}
 	});
+
+	$: if (savedStepNumber !== lastAppliedSavedStepNumber) {
+		lastAppliedSavedStepNumber = savedStepNumber;
+		lastInputType = "click";
+		currentPage.set(savedStepNumber);
+	}
 
 	function scrollToStep(index: number): void {
 		const stepElement = getStepElementByIndex(index);
@@ -614,9 +623,6 @@ async function downloadPDF() {
 		</div>
 		</div>
 		
-		<!-- <div class="story-description body-compact-01">
-			{story.description}
-		</div> -->
 		{#if story.requestPolygonArea}
 			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={showPolygonMenu}/>
 		{/if}
@@ -759,11 +765,20 @@ async function downloadPDF() {
 		<!-- <div style="height:{height}px" /> -->
 	</div>
 	</div>
+
+	<div class="marker-footer">
+		<div class="footer-gradient" />
+		<ToggleView bind:show={$showStoryMarkers} text={$_("tools.stories.showStoryOnMap")} />
+	</div>
 </div>
 
 <style>
 	:global(.content-wrapper:has(.story-viewer)) {
 		scrollbar-gutter: auto;
+	}
+
+	:global(.tool-content:has(.story-viewer)) {
+		margin-bottom: 0;
 	}
 
 	.story {
@@ -774,7 +789,6 @@ async function downloadPDF() {
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
-		margin-bottom: calc(-1 * var(--cds-spacing-07));
 	}
 
 	.scroll {
@@ -864,10 +878,6 @@ async function downloadPDF() {
 		padding-bottom: var(--cds-spacing-03);
 	}
 
-	.step-heading-sub {
-		padding-top: var(--cds-spacing-05);
-	}
-
 	.step-stats {
 		background-color: var(--cds-ui-01);
 	}
@@ -922,5 +932,26 @@ async function downloadPDF() {
 		width: 1.2rem;
 		height: 1.2rem;
 		font-size: 0.75rem;
+	}
+
+	.marker-footer {
+		flex: 0 0 auto;
+		position: relative;
+		z-index: 2;
+		width: 100%;
+		box-sizing: border-box;
+		padding: var(--cds-spacing-05);
+		background-color: var(--cds-ui-01);
+		border-top: 1px solid var(--cds-ui-03);
+	}
+
+	.footer-gradient {
+		position: absolute;
+		bottom: 100%;
+		left: 0;
+		width: 100%;
+		height: 1.5rem;
+		background: linear-gradient(0deg, var(--cds-ui-02) 5%, rgba(255, 255, 255, 0) 100%);
+		pointer-events: none;
 	}
 </style>
