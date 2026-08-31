@@ -554,7 +554,7 @@
             "id": "chat",
             "enabled": true,
             "settings": {
-                "apiUrl": "http://localhost:8000"
+                "apiUrl": "https://leia.enoki-ai.nl/api"
             }
         }
     ]
