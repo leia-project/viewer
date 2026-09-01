@@ -832,13 +832,16 @@
                         "attribute": "ambitie_label",
                         "label": "Ambitie",
                         "tooltipAttribute": "ambitie_category",
-                        "styled": true
+                        "styled": true,
+						"hideInTable": true
                     },
                     {
                         "key": "oppervlakte",
                         "attribute": "Shape_area",
                         "label": "Oppervlakte (m²)",
-                        "decimals": 1
+                        "decimals": 0,
+						"hideInTable": true,
+                        "hideInImageExport": true
                     }
                 ],
                 "valueStyles": [

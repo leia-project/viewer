@@ -24,6 +24,12 @@
 
 	const settings = controller.settings;
 	const columns = settings.columns;
+	const tableColumns = columns
+		.map((column, index) => ({ column, index }))
+		.filter(({ column }) => column.hideInTable !== true);
+	const imageColumns = columns
+		.map((column, index) => ({ column, index }))
+		.filter(({ column }) => column.hideInImageExport !== true);
 
 	function columnLabel(index: number): string {
 		const column = columns[index];
@@ -477,7 +483,11 @@
 									id="sticky-cell"
 								/>
 								{#each table.zones as code (code)}
-									<th class="zone-head" class:active={code === activeCode} colspan={columns.length}>
+									<th
+										class="zone-head"
+										class:active={code === activeCode}
+										colspan={tableColumns.length}
+									>
 										<div class="zone-head-inner">
 											<button
 												type="button"
@@ -519,13 +529,13 @@
 							</tr>
 							<tr>
 								{#each table.zones as code (code)}
-									{#each columns as column, i (i)}
+									{#each tableColumns as item, visibleIndex (item.index)}
 										<th
 											class="sub-head"
-											class:last-col={i === columns.length - 1}
+											class:last-col={visibleIndex === tableColumns.length - 1}
 											class:active={code === activeCode}
 										>
-											{columnLabel(i)}
+											{columnLabel(item.index)}
 										</th>
 									{/each}
 								{/each}
@@ -536,20 +546,20 @@
 								<tr class:flash={flashing.has(row.layerId)}>
 									<th class="row-head" scope="row" title={row.title}>{row.title}</th>
 									{#each table.zones as code (code)}
-										{#each columns as column, i (i)}
+										{#each tableColumns as item, visibleIndex (item.index)}
 											<td
 												class="value"
-												class:last-col={i === columns.length - 1}
+												class:last-col={visibleIndex === tableColumns.length - 1}
 												class:active={code === activeCode}
-												style={cellStyle(row.values[code]?.[i], i)}
+												style={cellStyle(row.values[code]?.[item.index], item.index)}
 											>
-												{#if row.tooltips[code]?.[i]}
+												{#if row.tooltips[code]?.[item.index]}
 													<!-- Native title tooltip: no abspos layout, so it can't add phantom horizontal scroll. -->
-													<span class="cell-tooltip" title={row.tooltips[code][i]}>
-														{row.values[code]?.[i] ?? "–"}
+													<span class="cell-tooltip" title={row.tooltips[code][item.index]}>
+														{row.values[code]?.[item.index] ?? "–"}
 													</span>
 												{:else}
-													{row.values[code]?.[i] ?? "–"}
+													{row.values[code]?.[item.index] ?? "–"}
 												{/if}
 											</td>
 										{/each}
@@ -614,8 +624,8 @@
 								<thead>
 									<tr>
 										<th class="export-corner">{$_("tools.zonalStatistics.exportLayer")}</th>
-										{#each columns as column, i (i)}
-											<th>{columnLabel(i)}</th>
+										{#each imageColumns as item (item.index)}
+											<th>{columnLabel(item.index)}</th>
 										{/each}
 									</tr>
 								</thead>
@@ -623,11 +633,11 @@
 									{#each table.rows as row (row.layerId)}
 										<tr>
 											<th class="export-row-head" scope="row">{row.title}</th>
-											{#each columns as column, i (i)}
-												<td style={cellStyle(row.values[code]?.[i], i)}>
-													{row.values[code]?.[i] ?? "–"}
-													{#if row.tooltips[code]?.[i]}
-														<span class="cell-tooltip-text">{row.tooltips[code][i]}</span>
+											{#each imageColumns as item (item.index)}
+												<td style={cellStyle(row.values[code]?.[item.index], item.index)}>
+													{row.values[code]?.[item.index] ?? "–"}
+													{#if row.tooltips[code]?.[item.index]}
+														<span class="cell-tooltip-text">{row.tooltips[code][item.index]}</span>
 													{/if}
 												</td>
 											{/each}

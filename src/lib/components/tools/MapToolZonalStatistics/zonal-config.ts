@@ -64,6 +64,16 @@ export interface ZonalColumn {
 	tooltipAttribute?: string;
 	/** When true, cell colours come from `valueStyles` (categorical columns). */
 	styled?: boolean;
+	/**
+	 * Whether this column is shown in the interactive table and PNG/JPEG image export.
+	 * Defaults to false when omitted.
+	 */
+	hideInTable?: boolean;
+	/**
+	 * Whether this column is shown in PNG/JPEG image exports.
+	 * Defaults to false when omitted.
+	 */
+	hideInImageExport?: boolean;
 }
 
 /**
@@ -170,9 +180,11 @@ export function parseZonalStatisticsSettings(raw: any): ZonalStatisticsSettings 
 					attribute: c.attribute,
 					label: typeof c.label === "string" ? c.label : undefined,
 					decimals: normalizeDecimals(c.decimals),
-					tooltipAttribute:
-						typeof c.tooltipAttribute === "string" ? c.tooltipAttribute : undefined,
-					styled: c.styled === true
+					tooltipAttribute: typeof c.tooltipAttribute === "string" ? c.tooltipAttribute : undefined,
+					styled: c.styled === true,
+					hideInTable: typeof c.hideInTable === "boolean" ? c.hideInTable : undefined,
+					hideInImageExport:
+						typeof c.hideInImageExport === "boolean" ? c.hideInImageExport : undefined
 				}))
 		: [];
 
