@@ -347,6 +347,7 @@
             "projectAreaTool": "Outil de Zone de Projet",
             "downloadPDF": "Générer et télécharger le PDF",
             "showOnMap": "Afficher les histoires sur la carte",
+            "showStoryOnMap": "Afficher l'histoire sur la carte",
             "open": "Ouvrir l'histoire"
         },
         "animation": {

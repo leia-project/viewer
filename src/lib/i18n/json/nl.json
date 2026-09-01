@@ -357,6 +357,7 @@
             "projectAreaTool": "Projectgebied Tool",
             "downloadPDF": "Genereer en download PDF",
             "showOnMap": "Toon verhalen op kaart",
+            "showStoryOnMap": "Toon verhaal op de kaart",
             "open": "Verhaal openen"
         },
         "animation": {
