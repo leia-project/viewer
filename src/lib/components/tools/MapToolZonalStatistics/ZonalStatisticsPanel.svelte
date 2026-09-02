@@ -12,6 +12,7 @@
 	const tableLayers = controller.tableLayers;
 	const loading = controller.loading;
 	const settings = controller.settings;
+	const instructionsDismissed = controller.instructionsDismissed;
 
 	// One placeholder card per configured layer that has not resolved yet.
 	$: pendingCount = $loading ? Math.max(0, settings.layers.length - $resolvedDataLayers.length) : 0;
@@ -20,13 +21,16 @@
 </script>
 
 <div class="panel">
-	<InlineNotification
-		class="instructions"
-		kind="info"
-		lowContrast
-		title=""
-		subtitle={$_("tools.zonalStatistics.instructions")}
-	/>
+	{#if !$instructionsDismissed}
+		<InlineNotification
+			class="instructions"
+			kind="info"
+			lowContrast
+			title=""
+			subtitle={$_("tools.zonalStatistics.instructions")}
+			on:close={() => instructionsDismissed.set(true)}
+		/>
+	{/if}
 
 	{#if $resolvedDataLayers.length === 0 && pendingCount === 0}
 		<div class="empty body-compact-01">{$_("tools.zonalStatistics.noDataLayers")}</div>

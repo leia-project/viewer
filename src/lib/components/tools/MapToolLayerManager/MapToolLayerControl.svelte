@@ -2,12 +2,13 @@
     import { getContext, onMount } from "svelte";
     import { _ } from "svelte-i18n";
     import { Slider, Checkbox, Button, AccordionItem, Dropdown } from "carbon-components-svelte";
-	import { Search, TrashCan, Information } from "carbon-icons-svelte";
+	import { Search, TrashCan } from "carbon-icons-svelte";
 
     import type { Layer } from "$lib/map-core/layer";
     import { buildGetCapabilitiesUrl, fetchCapabilitiesDocument } from "$lib/components/tools/MapToolLayerLibrary/CustomLayers/capabilities";
     import ErrorMessage from "$lib/components/theme/ErrorMessage/ErrorMessage.svelte"
     import ExpandableDescription from "$lib/components/theme/ExpandableDescription/ExpandableDescription.svelte"
+    import MetadataLink from "$lib/components/theme/MetadataLink/MetadataLink.svelte"
 
     const { map } = getContext<any>("mapTools");
 
@@ -173,18 +174,7 @@
                     {layer.title}
                 </div>
             </div>
-            {#if metadataUrl}
-                <a
-                    href={metadataUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="metadata-link"
-                    title={$_("tools.layerManager.openMetadata")}
-                    aria-label={$_("tools.layerManager.openMetadata")}
-                >
-                    <Information size={16} />
-                </a>
-            {/if}
+            <MetadataLink url={metadataUrl} />
         </div>
     </svelte:fragment>
 
@@ -371,22 +361,4 @@
         gap: var(--cds-spacing-02);
     }
 
-    .metadata-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        border-radius: 999px;
-        padding: 2px;
-        color: var(--cds-icon-primary, #161616);
-        transition: color 0.15s ease, background-color 0.15s ease;
-        cursor: pointer;
-        outline: none;
-    }
-
-    .metadata-link:hover,
-    .metadata-link:focus-visible {
-        color: var(--cds-link-primary, #0f62fe);
-        background-color: var(--cds-hover-ui, #e5e5e5);
-    }
 </style>

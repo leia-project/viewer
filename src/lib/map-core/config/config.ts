@@ -47,6 +47,8 @@ export class Config extends Dispatcher {
                 defaultOn: c.defaultOn,
                 attribution: c.attribution,
                 metadata: c.metadata,
+                metadataUrl: c.metadataUrl,
+                metadataLink: c.metadataLink,
                 transparent: c.transparent,
                 disablePopup: c.disablePopup,
                 opacity: c.opacity,

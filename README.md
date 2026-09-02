@@ -286,6 +286,7 @@ Layer definition
 |defaultOn|True if this layer should be visible at start up, use this together with defaultAddToManager|boolean|
 |attribution|Attribution for the layer data, to be displayed at at layer information page|string|
 |metadata|An array of {"key":"somekey","value":"somevalue"} pairs, to store custom metadata which is shown in the layer library|array[KeyValue]|
+|metadataUrl|URL of a metadata document for the layer. The layer library parses it and shows its contents, and falls back to a link to the document when no `metadata` entries are set; the layer manager and the zonal statistics panel show an information icon that opens the URL in a new tab|string|
 |transparent|True if layer can be transparent|boolean|
 |disablePopup|True if the feature info popup should be turned off|boolean|
 |opacity|Number between 0 (opaque) and 100 (transparent)|number|

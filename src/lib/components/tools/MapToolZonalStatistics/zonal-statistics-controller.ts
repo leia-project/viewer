@@ -131,6 +131,8 @@ export class ZonalStatisticsController {
 	public readonly loadingLayerIds: Writable<Set<string>> = writable(new Set());
 	/** Bumped whenever a data layer finished indexing, so the table can refill its cells. */
 	public readonly dataVersion: Writable<number> = writable(0);
+	/** Dismiss notification after reopening the tool. */
+	public readonly instructionsDismissed: Writable<boolean> = writable(false);
 	/** Per data layer: its load+index promise, so each layer is fetched at most once. */
 	private readonly layerLoads: Map<string, Promise<void>> = new Map();
 	/** Serialises the on-demand loads so "add all" can never fetch + parse every layer at once. */

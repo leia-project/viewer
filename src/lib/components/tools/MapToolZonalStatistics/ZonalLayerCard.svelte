@@ -3,6 +3,7 @@
 	import { Add, ChevronDown, TrashCan } from "carbon-icons-svelte";
 	import { _ } from "svelte-i18n";
 
+	import MetadataLink from "$lib/components/theme/MetadataLink/MetadataLink.svelte";
 	import type { Layer } from "$lib/map-core/layer";
 	import type { ZonalStatisticsController } from "./zonal-statistics-controller";
 
@@ -15,6 +16,7 @@
 	const tableLayers = controller.tableLayers;
 	const loadingLayerIds = controller.loadingLayerIds;
 	const hasSettings = layer.config.opacitySupported;
+	const metadataUrl = layer.config.metadataLink || layer.config.metadataUrl;
 
 	let expanded = false;
 
@@ -36,6 +38,7 @@
 					on:change={() => controller.selectLayer(layerId)}
 				/>
 			</div>
+			<MetadataLink url={metadataUrl} />
 			{#if busy}
 				<div class="card-spinner">
 					<Loading small withOverlay={false} description={$_("tools.zonalStatistics.loadingLayers")} />
