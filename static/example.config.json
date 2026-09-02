@@ -63,6 +63,7 @@
             "type": "3dtiles",
             "title": "3D BAG",
             "groupId": "",
+            "metadataUrl": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/",
             "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
