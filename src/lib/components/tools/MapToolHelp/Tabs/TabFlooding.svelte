@@ -1,26 +1,27 @@
 <script lang="ts">    
     export let _: any;
     export let base: string; 
+    export let toolTitle: string;
 </script>
 
-<div class="heading-04">{$_("tools.help.tabs.flood")}</div>
+<div class="heading-04">{toolTitle}</div>
 
 
 
 <div class="body-02">
-    {$_("tools.help.flood.description")}
+    {$_("tools.help.flood.description", { values: { title: toolTitle } })}
 </div>
 
-<div class="heading-02">{$_("tools.help.flood.headingFloodOpen")}</div>
+<div class="heading-02">{$_("tools.help.flood.headingFloodOpen", { values: { title: toolTitle } })}</div>
 <div class="body-02">
-    {$_("tools.help.flood.openFlood")}
+    {$_("tools.help.flood.openFlood", { values: { title: toolTitle } })}
 </div>
 
 <div class="img-left">
     <img src="{base}/images/help_flood_open.png" alt="flood icon" />
 </div>
 
-<div class="heading-02">{$_("tools.help.flood.headingUsingFlood")}</div>
+<div class="heading-02">{$_("tools.help.flood.headingUsingFlood", { values: { title: toolTitle } })}</div>
 <div class="body-02">
     {$_("tools.help.flood.floodBreachDescription")}
 </div>

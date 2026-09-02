@@ -73,6 +73,9 @@ interface TrackedLayer {
 	layer: GeoJsonLayer;
 }
 
+/** Lower-cased attribute texts that mean "no tooltip" rather than actual content. */
+const PLACEHOLDER_TEXTS = new Set(["null", "nan", "undefined"]);
+
 /**
  * Owns all non-UI logic for the Zonal Statistics tool: resolving the
  * configured zone + data layers, ensuring their data is loaded, handling map
@@ -1051,27 +1054,30 @@ export class ZonalStatisticsController {
 		return get(this.selectedZones).some((z) => z.code === code);
 	}
 
-	/** Convert a property value into an optional string for table display. */
+	/**
+	 * Convert a property value into an optional string for table display.
+	 * Blank and placeholder texts ("null"/"nan"/"undefined") count as no value.
+	 */
 	private toOptionalString(value: any): string | undefined {
-		return value !== undefined && value !== null ? String(value) : undefined;
+		if (value === undefined || value === null) return undefined;
+		const text = String(value).trim();
+		if (!text || PLACEHOLDER_TEXTS.has(text.toLowerCase())) return undefined;
+		return text;
 	}
 
 	/** Format one cell value using the column config (including optional numeric rounding). */
 	private formatColumnWithDecimals(value: any, column: ZonalColumn): string | undefined {
-		if (value === undefined || value === null) return undefined;
-		if (column.decimals === undefined) return String(value);
+		const text = this.toOptionalString(value);
+		if (text === undefined || column.decimals === undefined) return text;
 
-		let numericValue = Number.NaN;
-		if (typeof value === "number") {
-			numericValue = value;
-		} else if (typeof value === "string" && value.trim() !== "") {
-			numericValue = Number(value);
-		}
-
-		return Number.isFinite(numericValue) ? numericValue.toFixed(column.decimals) : String(value);
+		const numericValue = Number(text);
+		return Number.isFinite(numericValue) ? numericValue.toFixed(column.decimals) : text;
 	}
 
-	/** Read an optional attribute from a props object as a string value. */
+	/**
+	 * Read an optional tooltip attribute from a props object as a string value.
+	 * Blank and placeholder texts ("null"/"nan"/"undefined") count as no tooltip.
+	 */
 	private readOptionalAttribute(
 		props: Record<string, any> | undefined,
 		attribute: string | undefined

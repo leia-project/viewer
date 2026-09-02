@@ -45,12 +45,7 @@
             "closeDontShowOnStart": "Close and don't show on startup",
             "tabs": {
                 "intro": "Introduction",
-                "movement": "Movement",
-                "library": "Library",
-                "search": "Search",
-                "flood": "Flooding",
-                "stories": "Stories",
-                "isochrones": "Isochrones"
+                "movement": "Movement"
             },
             "intro": {
                 "introDescription": "A digital twin is a digital representation of a intended or existing physical product, system, or process that serves as a virtually identical digital counterpart for practical purposes, such as simulation, integration, testing, monitoring, and maintenance. For more information on using the viewer, see the various topics."
@@ -82,19 +77,19 @@
                 "libraryDescription": "Use the search bar on the bottom to search for desired layers or click trough the shown groups. To show more information about the layer click the layer, to add the layer to the map, enable the checkbox or press the 'Add to map' button in the layer description view"
             },
             "flood": {
-                "headingFloodOpen": "Open the flooding tool",
-                "headingUsingFlood": "Using the flooding tool",
-                "description": "The flooding tool enables you to simulate and analyze floods in the area.",
-                "openFlood": "To open the flooding tool, click the 'flooding' button on the left side.",
+                "headingFloodOpen": "Open {title}",
+                "headingUsingFlood": "Using {title}",
+                "description": "{title} enables you to simulate and analyze floods in the area.",
+                "openFlood": "To open the tool, click the ''{title}'' button on the left side.",
                 "floodBreachDescription": "First select a breach location by clicking on a breach icon on the map. This will act as the starting point for the flood simulation.",
                 "floodMenuDescription": "After that, use the different options in the flooding tool to customize and run the simulation. First choose the desired scenario, for example 1:3000 years. Then you can use the 'Time slider' to play the scenario. Use the 'Play' button to automatically play the scenario, or use the arrows to view the flood step by step.",
                 "headingMeasureDepth": "Measure depth",
                 "measureDepthDescription": "To measure the water depth at a specific location, turn on the 'Measure depth' button and then click on a flooded area at the desired location. The tool can only be used when zoomed in, as the terrain height is then loaded correctly."
             },
             "stories": {
-                "description": "This module allows you to view pre-made tours that tell a story.",
-                "headingOpenStories": "Opening Stories",
-                "openStories": "Open the story tool by clicking the 'Stories' button on the left side. Select a story from the list to start the tour.",
+                "description": "The {title} module allows you to view pre-made tours that tell a story.",
+                "headingOpenStories": "Opening {title}",
+                "openStories": "Open the tool by clicking the ''{title}'' button on the left side. Select a story from the list to start the tour.",
                 "headingStoryNavigation": "Navigation",
                 "storyNavigation": "Use the chapter (top row) and page buttons (bottom row) to move through the story, or simply scroll down in the menu. You can go back to the overview at any time by clicking the 'Back to overview' button.",
                 "headingStoryDrawArea": "Drawing a Project Area",
@@ -107,7 +102,20 @@
                 "storyExportPDF": "You can export the story as a PDF by clicking the 'Generate and download PDF' button. The option will become available once all data is loaded in. It will generate a PDF that contains the content of the story, including the charts with detailed percentages. This allows you to easily share your project area analysis with others."
             },
             "isochrones": {
-                "description": "The location planner allows you to simulate and analyze the impact of any development on the number of new residents in the NSPD area. To use the tool, click the 'Draw development location' button. This allows you to select the location of the development in the area. Then click the 'Calculate car travel time distances' button, which calculates travel time distances by car for 20, 40 and 60 minutes from the location. These are displayed using colored areas around the location, where the colors indicate the number of new residents that will settle in these areas. The default value for the number of new residents is 10,000, you can manually adjust this with a slider between the values of 0 and 20,000, to simulate different types of developments. The values for the settlement percentages are assumptions, these are set by default to 50% for 20 minutes travel time, 30% for 40 minutes travel time and 20% for 60 minutes travel time. You can use a slider to adjust the default value of 50% for 20 minutes travel time, to analyze the impact on the distribution of the number of new residents."
+                "description": "{title} allows you to simulate and analyze the impact of any development on the number of new residents in the NSPD area. To use the tool, click the 'Draw development location' button. This allows you to select the location of the development in the area. Then click the 'Calculate car travel time distances' button, which calculates travel time distances by car for 20, 40 and 60 minutes from the location. These are displayed using colored areas around the location, where the colors indicate the number of new residents that will settle in these areas. The default value for the number of new residents is 10,000, you can manually adjust this with a slider between the values of 0 and 20,000, to simulate different types of developments. The values for the settlement percentages are assumptions, these are set by default to 50% for 20 minutes travel time, 30% for 40 minutes travel time and 20% for 60 minutes travel time. You can use a slider to adjust the default value of 50% for 20 minutes travel time, to analyze the impact on the distribution of the number of new residents."
+            },
+            "zonalStatistics": {
+                "description": "This tool lets you compare the values of several datasets for the same areas, side by side in one table. The panel on the left decides which layer colours the areas on the map and which layers appear as rows; the table floats over the map in the top right.",
+                "headingOpen": "Opening the tool",
+                "open": "Open the tool by clicking the ''{title}'' button in the menu on the left side. The areas are drawn on the map and the table appears in the top right of the screen.",
+                "headingSelectLayer": "Choosing the layer shown on the map",
+                "selectLayer": "The panel lists the available data layers. The radio button in front of a layer chooses which layer's values colour the areas on the map; only one layer is shown at a time and the selected layer is highlighted. Use the chevron next to a layer to fold out its transparency slider.",
+                "headingTable": "Adding layers to the table",
+                "table": "Which layer is shown on the map and which layers are in the table are set separately. Use the + button on the right of a layer to add its values as a row in the table, and the bin button to remove that row again. The counter above the list (2 / 3 in the example) shows how many layers are in the table; the + and bin buttons next to it add all layers at once or empty the table.",
+                "headingSelectZones": "Selecting areas",
+                "selectZones": "Click an area on the map to add it to the table as a column; click it again to remove it. Each column header shows the area code and lets you highlight the area on the map (click the code), zoom to it (magnifier) or remove the column (cross). Values with a dotted underline have a description that appears when you hover over them, and the legend below the table explains the colours of the cells and of the areas on the map.",
+                "headingExport": "Exporting the table",
+                "export": "Use the download button in the table header to save the results as a PDF, CSV, PNG or JPEG file. The button next to it clears the whole selection, and the cross closes the tool."
             }
         },
         "layerLibrary": {

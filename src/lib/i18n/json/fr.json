@@ -45,12 +45,7 @@
             "closeDontShowOnStart": "Fermer et ne pas afficher au démarrage",
             "tabs": {
                 "intro": "Introduction",
-                "movement": "Mouvement",
-                "library": "Bibliothèque",
-                "search": "Recherche",
-                "flood": "Inondation",
-                "stories": "Histoires",
-                "isochrones": "Isochrones"
+                "movement": "Mouvement"
             },
             "intro": {
                 "introDescription": "Un Digital Twin est une représentation digitale d’un produit, système ou processus physique existant ou prévu, qui sert de contrepartie numérique quasiment identique à des fins pratiques telles que la simulation, l’intégration, les tests, la surveillance et la maintenance. Pour plus d’informations sur l’utilisation du viewer, consultez les différents sujets."
@@ -80,19 +75,19 @@
                 "libraryDescription": "Utilisez la barre de recherche en bas pour rechercher les couches souhaitées ou parcourez les groupes affichés. Pour afficher plus d'informations sur la couche, cliquez dessus. Pour l'ajouter à la carte, cochez la case correspondante ou cliquez sur le bouton 'Ajouter à la Carte' dans la description de la couche."
             },
             "flood": {
-                "headingFloodOpen": "Ouvrir l'outil d'inondation",
-                "headingUsingFlood": "Utilisation de l'outil d'inondation",
-                "description": "L'outil d'inondation vous permet de simuler et d'analyser les inondations dans la région.",
-                "openFlood": "Pour ouvrir l'outil d'inondation, cliquez sur le bouton 'inondation' sur le côté gauche.",
+                "headingFloodOpen": "Ouvrir {title}",
+                "headingUsingFlood": "Utilisation de {title}",
+                "description": "{title} vous permet de simuler et d'analyser les inondations dans la région.",
+                "openFlood": "Pour ouvrir l'outil, cliquez sur le bouton ''{title}'' sur le côté gauche.",
                 "floodBreachDescription": "Sélectionnez d'abord un emplacement de brèche en cliquant sur une icône de brèche sur la carte. Ceci servira de point de départ pour la simulation d'inondation.",
                 "floodMenuDescription": "Utilisez ensuite les différentes options de l'outil d'inondation pour personnaliser et exécuter la simulation. Choisissez d'abord le scénario souhaité, par exemple 1:3000 ans. Vous pouvez ensuite utiliser le 'curseur de temps' pour jouer le scénario. Utilisez le bouton 'Jouer' pour que le scénario se déroule automatiquement, ou utilisez les flèches pour visualiser l'inondation étape par étape.",
                 "headingMeasureDepth": "Mesurer la profondeur",
                 "measureDepthDescription": "Pour mesurer la profondeur de l'eau à un endroit précis, activez le bouton 'Mesurer la profondeur' puis cliquez sur une zone inondée à l'endroit souhaité. L'outil ne peut être utilisé que lorsque vous êtes zoomé, car la hauteur du terrain est alors correctement chargée."
             },
             "stories": {
-                "description": "Affichez avec le module histoires des visites préfabriquées qui racontent une histoire.",
-                "headingOpenStories": "Ouverture des histoires",
-                "openStories": "Ouvrez le module histoires en cliquant sur le bouton 'Histoires' sur le côté gauche. Sélectionnez une histoire dans la liste pour démarrer la visite.",
+                "description": "Affichez avec le module {title} des visites préfabriquées qui racontent une histoire.",
+                "headingOpenStories": "Ouvrir {title}",
+                "openStories": "Ouvrez l'outil en cliquant sur le bouton ''{title}'' sur le côté gauche. Sélectionnez une histoire dans la liste pour démarrer la visite.",
                 "headingStoryNavigation": "Navigation",
                 "storyNavigation": "Utilisez les boutons de chapitre et de page pour naviguer dans l'histoire, ou faites défiler vers le bas dans le menu pour passer à la page suivante. Vous pouvez fermer l'histoire à tout moment en cliquant sur le bouton 'Retour à l'aperçu'.",
                 "headingStoryDrawArea": "Dessiner une zone de projet",
@@ -105,7 +100,20 @@
                 "storyExportPDF": "Vous pouvez exporter l'histoire au format PDF en cliquant sur le bouton 'Générer et télécharger le PDF'. L'option deviendra disponible une fois que toutes les données seront chargées. Cela générera un PDF contenant le contenu de l'histoire, y compris les graphiques avec des pourcentages détaillés. Cela vous permet de partager facilement votre analyse de zone de projet avec d'autres."
             },
             "isochrones": {
-                "description": "Le planificateur d'établissement vous permet de simuler et d'analyser l'impact d'un développement arbitraire sur le nombre de nouveaux résidents dans la zone NSPD. Pour utiliser l'outil, cliquez sur le bouton 'Dessiner le centre des isochrones'. Cela vous permet de sélectionner l'emplacement du développement dans la zone. Ensuite, cliquez sur le bouton 'Calculer les isochrones', ce qui calculera les distances de temps de trajet en voiture pour 20, 40 et 60 minutes depuis l'emplacement. Celles-ci sont affichées à l'aide de zones colorées autour de l'emplacement, où les couleurs indiquent le nombre de nouveaux résidents qui s'installeront dans ces zones. La valeur par défaut pour le nombre de nouveaux résidents est de 10 000, vous pouvez l'ajuster manuellement avec un curseur entre les valeurs de 0 et 20 000, pour simuler différents types de développements. Les valeurs des pourcentages d'établissement sont des hypothèses, elles sont définies par défaut à 50% pour 20 minutes de temps de trajet, 30% pour 40 minutes de temps de trajet et 20% pour 60 minutes de temps de trajet. Vous pouvez ajuster avec un curseur la valeur par défaut de 50% pour 20 minutes de temps de trajet, afin d'analyser l'impact sur la répartition du nombre de nouveaux résidents."
+                "description": "{title} vous permet de simuler et d'analyser l'impact d'un développement arbitraire sur le nombre de nouveaux résidents dans la zone NSPD. Pour utiliser l'outil, cliquez sur le bouton 'Dessiner le centre des isochrones'. Cela vous permet de sélectionner l'emplacement du développement dans la zone. Ensuite, cliquez sur le bouton 'Calculer les isochrones', ce qui calculera les distances de temps de trajet en voiture pour 20, 40 et 60 minutes depuis l'emplacement. Celles-ci sont affichées à l'aide de zones colorées autour de l'emplacement, où les couleurs indiquent le nombre de nouveaux résidents qui s'installeront dans ces zones. La valeur par défaut pour le nombre de nouveaux résidents est de 10 000, vous pouvez l'ajuster manuellement avec un curseur entre les valeurs de 0 et 20 000, pour simuler différents types de développements. Les valeurs des pourcentages d'établissement sont des hypothèses, elles sont définies par défaut à 50% pour 20 minutes de temps de trajet, 30% pour 40 minutes de temps de trajet et 20% pour 60 minutes de temps de trajet. Vous pouvez ajuster avec un curseur la valeur par défaut de 50% pour 20 minutes de temps de trajet, afin d'analyser l'impact sur la répartition du nombre de nouveaux résidents."
+            },
+            "zonalStatistics": {
+                "description": "Cet outil vous permet de comparer les valeurs de plusieurs jeux de données pour les mêmes zones, côte à côte dans un seul tableau. Le panneau de gauche détermine quelle couche colore les zones sur la carte et quelles couches apparaissent en tant que lignes ; le tableau flotte au-dessus de la carte en haut à droite.",
+                "headingOpen": "Ouvrir l'outil",
+                "open": "Ouvrez l'outil en cliquant sur le bouton ''{title}'' dans le menu sur le côté gauche. Les zones sont dessinées sur la carte et le tableau apparaît en haut à droite de l'écran.",
+                "headingSelectLayer": "Choisir la couche affichée sur la carte",
+                "selectLayer": "Le panneau répertorie les couches de données disponibles. Le bouton radio devant une couche détermine quelle couche colore les zones sur la carte ; une seule couche est affichée à la fois et la couche sélectionnée est mise en évidence. Utilisez le chevron à côté d'une couche pour déplier son curseur de transparence.",
+                "headingTable": "Ajouter des couches au tableau",
+                "table": "La couche affichée sur la carte et les couches présentes dans le tableau se règlent séparément. Utilisez le bouton + à droite d'une couche pour ajouter ses valeurs sous forme de ligne dans le tableau, et le bouton corbeille pour retirer cette ligne. Le compteur au-dessus de la liste (2 / 3 dans l'exemple) indique combien de couches figurent dans le tableau ; le + et la corbeille à côté ajoutent toutes les couches en une seule fois ou vident le tableau.",
+                "headingSelectZones": "Sélectionner des zones",
+                "selectZones": "Cliquez sur une zone de la carte pour l'ajouter au tableau en tant que colonne ; cliquez à nouveau pour la retirer. Chaque en-tête de colonne affiche le code de la zone et permet de mettre la zone en évidence (cliquez sur le code), de zoomer dessus (loupe) ou de retirer la colonne (croix). Les valeurs soulignées en pointillés possèdent une description qui apparaît au survol, et la légende sous le tableau explique les couleurs des cellules et des zones sur la carte.",
+                "headingExport": "Exporter le tableau",
+                "export": "Utilisez le bouton de téléchargement dans l'en-tête du tableau pour enregistrer les résultats au format PDF, CSV, PNG ou JPEG. Le bouton à côté efface toute la sélection et la croix ferme l'outil."
             }
         },
         "layerLibrary": {

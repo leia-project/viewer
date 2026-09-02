@@ -847,6 +847,8 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 
 The help tool can be opend from the toolbar or configured to open on startup of the viewer. The help tool presents basic information on how to use the viewer and supports additional information to show in the introduction tab.
 
+Next to the always visible tabs (introduction, movement and library), tabs are shown for the `flooding`, `stories`, `isochrones` and `zonalStatistics` tools when those tools are enabled.
+
 |value|description|type|
 |-|-|-|
 |showOnStart|Show the popup on opening the viewer, can be disabled by the user after the first time|boolean|

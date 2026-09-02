@@ -1,5 +1,7 @@
 <script lang="ts">
-    import { createEventDispatcher, onMount } from "svelte";
+    import { createEventDispatcher, onDestroy, onMount } from "svelte";
+    import type { ComponentType } from "svelte";
+    import { get, writable, type Unsubscriber } from "svelte/store";
     import { _ } from "svelte-i18n";
     import { Tabs, Tab } from "carbon-components-svelte";
     import { Modal } from "carbon-components-svelte";
@@ -11,92 +13,89 @@
     import TabFlooding from "./Tabs/TabFlooding.svelte";
     import TabStories from "./Tabs/TabStories.svelte";
     import TabIsochrones from "./Tabs/TabIsochrones.svelte";
+    import TabZonalStatistics from "./Tabs/TabZonalStatistics.svelte";
 	import type { IDownloadButton } from "./download-button";
     
 
     export let showOnStart: boolean = false;
 
+    interface ITabComponent {
+        label: string;
+        component: ComponentType;
+        props?: Record<string, any>;
+    }
+
+    // A tab that is only shown when its tool is enabled in the config.
+    interface IToolTab {
+        id: string;
+        component: ComponentType;
+        props?: Record<string, any>;
+    }
+
 	const map = app.map;
-
-    $: txtTitle = $map?.config?.name ?? $_("tools.help.title");
-
-    let customIntroText: string | undefined = undefined;
-    let downloadButtonEnabled: boolean | undefined = undefined;
-    let downloadButtonUrl: string | undefined = undefined;
-    let downloadButtonLabel: string |undefined = undefined;
-
-    let floodingToolEnabled: boolean = false;
-    let storyToolEnabled: boolean = false;
-    let storyToolRequestPolygonArea: boolean = false;
-    let isochronesToolEnabled: boolean = false;
-
-    let downloadButton: IDownloadButton | undefined = undefined;
-
-    onMount(() => {
-        if ($map?.config && $map.config.tools) {
-            // Prepare intro tab data
-            const helpTool = $map.config.tools.find((t: any) => t.id === "help");
-
-            customIntroText = helpTool.settings.introSettings?.customDescription ?? undefined;
-            downloadButtonEnabled = helpTool.settings.introSettings?.downloadButton?.enabled ?? false;
-            downloadButtonUrl = helpTool.settings.introSettings?.downloadButton?.url ?? undefined;
-            downloadButtonLabel = helpTool.settings.introSettings?.downloadButton?.label ?? undefined;
-            if (downloadButtonEnabled && downloadButtonUrl && downloadButtonLabel) {
-                downloadButton = {
-                    enabled: downloadButtonEnabled,
-                    url: downloadButtonUrl,
-                    label: downloadButtonLabel
-                };
-            }
-            
-            // Prepare data for optional tabs
-            const floodingTool = $map.config.tools.find((t: any) => t.id === "flooding");
-            floodingToolEnabled = floodingTool ? floodingTool.enabled : false;
-
-            const storyTool = $map.config.tools.find((t: any) => t.id === "stories");
-            storyToolEnabled = storyTool ? storyTool.enabled : false;
-            storyToolRequestPolygonArea = Array.isArray(storyTool?.settings?.stories)
-                ? storyTool.settings.stories.some((story: any) => story?.requestPolygonArea?.enabled)
-                : false;
-
-            const isochronesTool = $map.config.tools.find((t: any) => t.id === "isochrones");
-            isochronesToolEnabled = isochronesTool ? isochronesTool.enabled : false;
-        }
-    });
-
     const base = process.env.APP_URL;
+    const dispatch = createEventDispatcher();
 
     let selectedTab = 0;
 
-    interface ITabComponent {
-        label: string;
-        component: typeof TabIntro | typeof TabMovement | typeof TabLibrary | typeof TabFlooding | typeof TabStories | typeof TabIsochrones;
-        enabled: boolean;
-        props?: any;
-    }
-      
-    $: tabs = [
-        { 
-            label: $_("tools.help.tabs.intro"), 
-            component: TabIntro, 
-            enabled: true, 
-            props: { customIntroText, downloadButton } 
-        },
-        { label: $_("tools.help.tabs.movement"), component: TabMovement, enabled: true, props: { _, base }},
-        { label: $_("tools.help.tabs.library"), component: TabLibrary, enabled: true, props: { _, base }},
-        { label: $_("tools.help.tabs.flood"), component: TabFlooding, enabled: floodingToolEnabled, props: { _, base }},
-        { 
-            label: $_("tools.help.tabs.stories"), 
-            component: TabStories, 
-            enabled: storyToolEnabled, 
-            props: { _, base, storyToolRequestPolygonArea }
-        },
-        { label: $_("tools.help.tabs.isochrones"), component: TabIsochrones, enabled: isochronesToolEnabled, props: { _, base }},
-    ] as ITabComponent[];
+    const toolConfigs = writable<Record<string, any>>({});
+    const tabs = writable<ITabComponent[]>([]);
+    const unsubscribers: Unsubscriber[] = [];
 
-    $: enabledTabs = tabs.filter(tab => tab.enabled);
-    
-    const dispatch = createEventDispatcher();
+    onMount(() => {
+        const tools = $map?.config?.tools;
+        if (Array.isArray(tools)) {
+            toolConfigs.set(Object.fromEntries(tools.map((tool: any) => [tool.id, tool])));
+        }
+        // Rebuild when the config arrives and when the language changes.
+        unsubscribers.push(toolConfigs.subscribe(buildTabs), _.subscribe(buildTabs));
+    });
+
+    onDestroy(() => unsubscribers.forEach((unsubscribe) => unsubscribe()));
+
+    function buildTabs(): void {
+        const configs = get(toolConfigs);
+        const translate = get(_);
+        // The help texts name the tool as it appears in the menu: its `alias` when set, its own label otherwise.
+        const toolTitle = (id: string): string => configs[id]?.settings?.alias || translate(`tools.${id}.label`);
+
+        const toolTabs: IToolTab[] = [
+            { id: "flooding", component: TabFlooding },
+            { id: "stories", component: TabStories, props: storyProps(configs) },
+            { id: "isochrones", component: TabIsochrones },
+            { id: "zonalStatistics", component: TabZonalStatistics }
+        ];
+
+        tabs.set([
+            { label: translate("tools.help.tabs.intro"), component: TabIntro, props: introProps(configs) },
+            { label: translate("tools.help.tabs.movement"), component: TabMovement, props: { _, base } },
+            { label: toolTitle("layerLibrary"), component: TabLibrary, props: { _, base } },
+            ...toolTabs
+                .filter(({ id }) => configs[id]?.enabled === true)
+                .map(({ id, component, props }) => {
+                    const label = toolTitle(id);
+                    return { label, component, props: { _, base, toolTitle: label, ...props } };
+                })
+        ]);
+    }
+
+    function introProps(configs: Record<string, any>): Record<string, any> {
+        const intro = configs["help"]?.settings?.introSettings;
+        const button = intro?.downloadButton;
+        return {
+            customIntroText: intro?.customDescription ?? undefined,
+            downloadButton: (button?.enabled && button.url && button.label ? button : undefined) as IDownloadButton | undefined
+        };
+    }
+
+    function storyProps(configs: Record<string, any>): Record<string, any> {
+        const stories = configs["stories"]?.settings?.stories;
+        return {
+            storyToolRequestPolygonArea: Array.isArray(stories)
+                ? stories.some((story: any) => story?.requestPolygonArea?.enabled)
+                : false
+        };
+    }
 
     function removeFromViewDontShowAgain(e: any): void {
         handleE(e);
@@ -120,7 +119,7 @@
 <help>
     <Modal
         open={true}
-        modalHeading={txtTitle}
+        modalHeading={$map?.config?.name ?? $_("tools.help.title")}
         primaryButtonText={$_("tools.help.close")}
         secondaryButtonText={showOnStart ? $_("tools.help.closeDontShowOnStart") : ""}
         size="lg"
@@ -140,15 +139,15 @@
         <div class="wrapper">
             <div class="tabs">
                 <Tabs autoWidth bind:selected={selectedTab}>
-                    {#each enabledTabs as { label }, index}
+                    {#each $tabs as { label }}
                             <Tab label={label} />
                     {/each}
                 </Tabs>
             </div>
 
             <div class="content">
-                {#if enabledTabs[selectedTab].enabled}
-                    <svelte:component this={enabledTabs[selectedTab].component} {...enabledTabs[selectedTab].props} />
+                {#if $tabs[selectedTab]}
+                    <svelte:component this={$tabs[selectedTab].component} {...$tabs[selectedTab].props} />
                 {/if}
             </div>
         </div>

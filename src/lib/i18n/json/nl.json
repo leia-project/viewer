@@ -45,12 +45,7 @@
             "closeDontShowOnStart": "Sluit en geef niet meer weer bij opstarten",
             "tabs": {
                 "intro": "Introductie",
-                "movement": "Beweging",
-                "library": "Bibliotheek",
-                "search": "Zoeken",
-                "flood": "Overstroming",
-                "stories": "Verhalen",
-                "isochrones": "Isochronen"
+                "movement": "Beweging"
             },
             "intro": {
                 "introDescription": "Een digital twin is een digitale representatie van een beoogd of bestaand fysiek product, systeem of proces dat dient als een vrijwel identieke digitale tegenhanger voor praktische doeleinden, zoals simulatie, integratie, testen, monitoring en onderhoud. Voor meer informatie over het gebruik van de viewer, zie de verschillende onderwerpen."
@@ -82,19 +77,19 @@
                 "libraryDescription": "Gebruik de zoekbalk onderaan om de gewenste lagen te zoeken of klik door de getoonde groepen. Klik op de laag om meer informatie over de laag weer te geven, schakel het selectievakje in om de laag aan de kaart toe te voegen of druk op de knop 'Toevoegen aan kaart' in de laagbeschrijvingsweergave"
             },
             "flood": {
-                "headingFloodOpen": "Open de overstromingstool",
-                "headingUsingFlood": "Gebruik van de overstromingstool",
-                "description": "De overstromingstool stelt u in staat om overstromingen in het gebied te simuleren en te analyseren.",
-                "openFlood": "Om de overstromingstool te openen, klikt u op de knop 'overstroming' aan de linkerkant.",
+                "headingFloodOpen": "Open {title}",
+                "headingUsingFlood": "Gebruik van {title}",
+                "description": "{title} stelt u in staat om overstromingen in het gebied te simuleren en te analyseren.",
+                "openFlood": "Om de tool te openen, klikt u op de knop ''{title}'' aan de linkerkant.",
                 "floodBreachDescription": "Selecteer eerst een breslocatie door op de kaart een bresicoon aan te klikken. Dit zal fungeren als het startpunt voor de overstromingssimulatie.",
                 "floodMenuDescription": "Gebruik vervolgens de verschillende opties in de overstromingstool om de simulatie aan te passen en uit te voeren. Kies eerst het gewenste scenario, bijvoorbeeld 1:3000 jaar. Vervolgens kun je de 'Tijd slider' gebruiken om het scenario af te spelen. Gebruik de 'Play' knop om automatisch het scenario zich te laten afspelen, of gebruik de pijltjes om per tijdstap de overstroming te bekijken.",
                 "headingMeasureDepth": "Diepte meten",
                 "measureDepthDescription": "Om de waterdiepte op een specifieke locatie te meten, zet de 'Diepte meten' knop aan en klik vervolgens op een overstroomd gebied op de gewenste locatie. De tool kan alleen gebruikt worden als je ingezoomd bent, omdat de terreinhoogte dan juist ingeladen wordt."
             },
             "stories": {
-                "description": "Bekijk met de verhalenmodule voorgemaakte rondleidingen die een verhaal vertellen.",
-                "headingOpenStories": "Verhalen openen",
-                "openStories": "Open de verhalenmodule door op de 'Verhalen' knop aan de linkerkant te klikken. Selecteer een verhaal uit de lijst om de rondleiding te starten.",
+                "description": "Bekijk met de verhalen module voorgemaakte rondleidingen die een verhaal vertellen.",
+                "headingOpenStories": "{title} openen",
+                "openStories": "Open de tool door op de knop ''{title}'' aan de linkerkant te klikken. Selecteer een verhaal uit de lijst om de rondleiding te starten.",
                 "headingStoryNavigation": "Navigeren",
                 "storyNavigation": "Gebruik de hoofdstuk- (bovenste rij) en paginaknoppen (onderste rij) om door het verhaal te navigeren, of scroll naar beneden in het menu om door te gaan naar de volgende pagina. U kunt op elk moment het verhaal sluiten door op de knop 'Terug naar overzicht' te klikken.",
                 "headingStoryDrawArea": "Een projectgebied tekenen",
@@ -107,7 +102,20 @@
                 "storyExportPDF": "U kunt het verhaal exporteren als PDF door op de knop 'Genereer en download PDF' te klikken. De optie wordt beschikbaar zodra alle data is ingeladen. Er wordt een PDF gegenereerd die de inhoud van het verhaal bevat, inclusief de grafieken met gedetailleerde percentages. Hierdoor kunt u uw projectgebiedanalyse eenvoudig met anderen delen."
             },
             "isochrones": {
-                "description": "De vestigingsplanner stelt u in staat om de impact van een willekeurige ontwikkeling op het aantal nieuwe inwoners in het NSPD gebied te simuleren en te analyseren. Om de tool te gebruiken, klikt up op de knop 'Teken locatie ontwikkeling'. Hiermee kunt u de locatie van de ontwikkeling in het gebied selecteren. Vervolgens klikt u op de knop 'Bereken autoreistijdafstanden', hiermee worden reistijdafstanden met de auto berekend voor 20, 40 en 60 minuten vanaf de locatie. Deze worden weergegeven aan de hand van gekleurde gebieden rondom de locatie, waarbij de kleuren het aantal nieuwe inwoners dat zal vestigen in deze gebieden aanduidt. De standaardwaarde voor het aantal nieuwe inwoners is 10 000, deze kunt u met een schuifje handmatig aanpassen tussen de waardes van 0 en 20 000, om verschillende types ontwikkelingen te simuleren. De waardes voor de vestigingspercentages zijn aannames, deze zijn standaard ingesteld op 50% voor 20 minuten reistijd, 30% voor 40 minuten reistijd en 20% voor 60 minuten reistijd. U kunt met een schuifje de standaardwaarde van 50% voor 20 minuten reistijd aanpassen, om te analyseren wat de impact daarvan is op de verdeling van het aantal nieuwe inwoners."
+                "description": "{title} stelt u in staat om de impact van een willekeurige ontwikkeling op het aantal nieuwe inwoners in het NSPD gebied te simuleren en te analyseren. Om de tool te gebruiken, klikt up op de knop 'Teken locatie ontwikkeling'. Hiermee kunt u de locatie van de ontwikkeling in het gebied selecteren. Vervolgens klikt u op de knop 'Bereken autoreistijdafstanden', hiermee worden reistijdafstanden met de auto berekend voor 20, 40 en 60 minuten vanaf de locatie. Deze worden weergegeven aan de hand van gekleurde gebieden rondom de locatie, waarbij de kleuren het aantal nieuwe inwoners dat zal vestigen in deze gebieden aanduidt. De standaardwaarde voor het aantal nieuwe inwoners is 10 000, deze kunt u met een schuifje handmatig aanpassen tussen de waardes van 0 en 20 000, om verschillende types ontwikkelingen te simuleren. De waardes voor de vestigingspercentages zijn aannames, deze zijn standaard ingesteld op 50% voor 20 minuten reistijd, 30% voor 40 minuten reistijd en 20% voor 60 minuten reistijd. U kunt met een schuifje de standaardwaarde van 50% voor 20 minuten reistijd aanpassen, om te analyseren wat de impact daarvan is op de verdeling van het aantal nieuwe inwoners."
+            },
+            "zonalStatistics": {
+                "description": "Met deze tool vergelijkt u de waardes van meerdere datasets voor dezelfde gebieden, naast elkaar in één tabel. In het paneel links bepaalt u welke laag de gebieden op de kaart kleurt en welke lagen als rij in de tabel staan; de tabel zweeft rechtsboven over de kaart.",
+                "headingOpen": "De tool openen",
+                "open": "Open de tool door in het menu aan de linkerkant op de knop ''{title}'' te klikken. De gebieden worden op de kaart getekend en de tabel verschijnt rechtsboven in het scherm.",
+                "headingSelectLayer": "De kaartlaag kiezen",
+                "selectLayer": "In het paneel staan de beschikbare datalagen. Met het rondje voor een laag kiest u welke laag de gebieden op de kaart kleurt; er wordt steeds één laag getoond en de gekozen laag is gemarkeerd. Klap met het pijltje naast een laag de transparantieschuif uit.",
+                "headingTable": "Lagen aan de tabel toevoegen",
+                "table": "Welke laag op de kaart staat en welke lagen in de tabel staan, stelt u los van elkaar in. Gebruik de +-knop rechts van een laag om de waardes als rij aan de tabel toe te voegen, en de prullenbak om die rij weer te verwijderen. De teller boven de lijst (2 / 3 in het voorbeeld) geeft aan hoeveel lagen in de tabel staan; met de + en de prullenbak ernaast voegt u alle lagen in één keer toe of maakt u de tabel leeg.",
+                "headingSelectZones": "Gebieden selecteren",
+                "selectZones": "Klik op een gebied op de kaart om het als kolom aan de tabel toe te voegen; klik er nogmaals op om het te verwijderen. In elke kolomkop staat de gebiedscode: klik op de code om het gebied op de kaart te markeren, op het vergrootglas om ernaartoe te zoomen of op het kruisje om de kolom te verwijderen. Waardes met een stippellijn eronder hebben een toelichting die verschijnt als u er met de muis overheen gaat, en de legenda onder de tabel verklaart de kleuren van de cellen en van de gebieden op de kaart.",
+                "headingExport": "De tabel exporteren",
+                "export": "Gebruik de downloadknop in de kop van de tabel om de resultaten op te slaan als PDF-, CSV-, PNG- of JPEG-bestand. Met de knop ernaast wist u de hele selectie en met het kruisje sluit u de tool."
             }
         },
         "config_switcher": {
