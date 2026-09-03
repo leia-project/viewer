@@ -53,6 +53,13 @@ export interface ResolvedDataLayer {
 	layer: GeoJsonLayer;
 }
 
+export interface GroupedDataLayers {
+	/** Undefined means the layers are ungrouped and should render without a group header. */
+	groupId: string | undefined;
+	title: string;
+	layers: Array<ResolvedDataLayer>;
+}
+
 /** Per-instance pick id carried by each fill polygon part (all parts of a zone share a code). */
 interface ZoneInstanceId {
 	code: string;
@@ -121,6 +128,8 @@ export class ZonalStatisticsController {
 	private readonly dataLayers: Array<ResolvedDataLayer> = [];
 	/** Resolved data layers exposed to the zonal panel UI. */
 	public readonly resolvedDataLayers: Writable<Array<ResolvedDataLayer>> = writable([]);
+	/** Resolved data layers grouped by each layer config's groupId for the zonal panel. */
+	public readonly groupedDataLayers: Writable<Array<GroupedDataLayers>> = writable([]);
 	/** Id of the single data layer drawn on the map (the panel's radio selection). */
 	public readonly selectedLayerId: Writable<string | undefined> = writable(undefined);
 	/** Data layers added to the table, in the order the user added them; drives the table + exports. */
@@ -173,6 +182,8 @@ export class ZonalStatisticsController {
 	private clickHandler: ((l: MouseLocation) => void) | undefined;
 	private moveHandler: ((l: MouseLocation) => void) | undefined;
 
+	private static readonly UNGROUPED_GROUP_ID = "";
+
 	constructor(map: CesiumMap, settings: ZonalStatisticsSettings) {
 		this.map = map;
 		this.settings = settings;
@@ -189,13 +200,17 @@ export class ZonalStatisticsController {
 
 	/** The attribute `layerId` holds this column's value in (its override, else the column default). */
 	private attributeFor(layerId: string, column: ZonalColumn): string {
-		const source = this.columnSources.get(layerId)?.get(ZonalStatisticsController.columnKey(column));
+		const source = this.columnSources
+			.get(layerId)
+			?.get(ZonalStatisticsController.columnKey(column));
 		return source?.attribute ?? column.attribute;
 	}
 
 	/** The attribute `layerId` holds this column's tooltip in; overrides apply independently. */
 	private tooltipAttributeFor(layerId: string, column: ZonalColumn): string | undefined {
-		const source = this.columnSources.get(layerId)?.get(ZonalStatisticsController.columnKey(column));
+		const source = this.columnSources
+			.get(layerId)
+			?.get(ZonalStatisticsController.columnKey(column));
 		return source?.tooltipAttribute ?? column.tooltipAttribute;
 	}
 
@@ -214,6 +229,29 @@ export class ZonalStatisticsController {
 	private classAttributeFor(layerId: string): string | undefined {
 		if (!this.classAttribute) return undefined;
 		return this.classColumn ? this.attributeFor(layerId, this.classColumn) : this.classAttribute;
+	}
+
+	private rebuildGroupedDataLayers(): void {
+		const groupsById = new Map<string, GroupedDataLayers>();
+		const grouped: Array<GroupedDataLayers> = [];
+
+		for (const resolved of this.dataLayers) {
+			const groupId = resolved.layer.config.groupId?.trim() ?? "";
+			const key = groupId || ZonalStatisticsController.UNGROUPED_GROUP_ID;
+			let group = groupsById.get(key);
+			if (!group) {
+				group = {
+					groupId: groupId || undefined,
+					title: groupId ? (this.map.layerLibrary.findGroup(groupId)?.title ?? groupId) : "",
+					layers: []
+				};
+				groupsById.set(key, group);
+				grouped.push(group);
+			}
+			group.layers.push(resolved);
+		}
+
+		this.groupedDataLayers.set(grouped);
 	}
 
 	/**
@@ -250,6 +288,7 @@ export class ZonalStatisticsController {
 				});
 			}
 			this.resolvedDataLayers.set([...this.dataLayers]);
+			this.rebuildGroupedDataLayers();
 
 			this.buildZoneFill();
 			// Added after the fill so the boundary lines draw on top of it.
@@ -278,7 +317,7 @@ export class ZonalStatisticsController {
 	 */
 	public ensureLayerReady(layerId: string): Promise<void> {
 		const running = this.layerLoads.get(layerId);
-		if (running) return running;
+		if (running !== undefined) return running;
 		const dl = this.dataLayers.find((l) => l.layerId === layerId);
 		if (!dl) return Promise.resolve();
 		// The zone layer carries the geometry and is already loaded + indexed by `initialize()`.

@@ -41,7 +41,11 @@
 			<MetadataLink url={metadataUrl} />
 			{#if busy}
 				<div class="card-spinner">
-					<Loading small withOverlay={false} description={$_("tools.zonalStatistics.loadingLayers")} />
+					<Loading
+						small
+						withOverlay={false}
+						description={$_("tools.zonalStatistics.loadingLayers")}
+					/>
 				</div>
 			{/if}
 			{#if hasSettings}
@@ -98,7 +102,7 @@
 <style>
 	.layer-card {
 		display: flex;
-		align-items: flex-start;
+		align-items: center;
 		gap: var(--cds-spacing-02);
 		min-width: 0;
 	}
@@ -108,17 +112,11 @@
 		min-width: 0;
 		display: flex;
 		flex-direction: column;
-		background-color: var(--cds-ui-02);
-		border: 1px solid var(--cds-ui-03);
-		border-radius: 2px;
-		overflow: hidden;
-		transition: border-color 0.15s ease;
-	}
-
-	/* The selected layer is accented rather than the others being dimmed: an unselected layer can
-	   still contribute a table row, so dimming would read as "off". */
-	.layer-card.is-selected .card-box {
-		border-color: var(--cds-interactive-01);
+		background-color: transparent;
+		border: none;
+		border-radius: 0;
+		overflow: visible;
+		transition: background-color 0.15s ease;
 	}
 
 	/* Fixed height so heads line up whether or not the card renders a chevron, which also keeps the
@@ -128,9 +126,14 @@
 		align-items: center;
 		gap: var(--cds-spacing-02);
 		min-height: 2.5rem;
-		padding: var(--cds-spacing-02) var(--cds-spacing-03);
-		background-color: var(--cds-ui-01);
+		padding: 0 var(--cds-spacing-02) 0 0;
+		background-color: transparent;
 		min-width: 0;
+		transition: background-color 0.15s ease;
+	}
+
+	.layer-card:hover .card-head {
+		background-color: var(--cds-ui-03);
 	}
 
 	.layer-card.is-selected .card-head {
@@ -191,7 +194,10 @@
 		background: none;
 		color: var(--cds-icon-primary, #161616);
 		cursor: pointer;
-		transition: color 0.15s ease, background-color 0.15s ease, transform 0.2s ease;
+		transition:
+			color 0.15s ease,
+			background-color 0.15s ease,
+			transform 0.2s ease;
 		text-decoration: none;
 	}
 
@@ -239,8 +245,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--cds-spacing-04);
-		padding: var(--cds-spacing-04);
-		border-top: 1px solid var(--cds-ui-03);
+		padding: 0 0 var(--cds-spacing-04) var(--cds-spacing-05);
+		border-top: none;
 	}
 
 	.slider-wrapper {
