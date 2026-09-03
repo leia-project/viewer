@@ -766,10 +766,12 @@ async function downloadPDF() {
 	</div>
 	</div>
 
-	<div class="marker-footer">
-		<div class="footer-gradient" />
-		<ToggleView bind:show={$showStoryMarkers} text={$_("tools.stories.showStoryOnMap")} />
-	</div>
+	{#if story.hasMarkers}
+		<div class="marker-footer">
+			<div class="footer-gradient" />
+			<ToggleView bind:show={$showStoryMarkers} text={$_("tools.stories.showStoryOnMap")} />
+		</div>
+	{/if}
 </div>
 
 <style>
