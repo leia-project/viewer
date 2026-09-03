@@ -107,6 +107,7 @@
 					? storyRequestPolygonAreaConfig.statisticsApi ?? undefined
 					: undefined;
 				const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
+				let storyHasMarkers = false;
 				baseLayerId = story.baseLayerId ?? undefined;
 
 				// Load all chapter groups
@@ -123,6 +124,10 @@
 					// Load all chapter steps
 					for (let k = 0; k < chapter.steps.length; k++) {
 						const step = chapter.steps[k];
+						const markerCoordinates = step.markerCoordinates;
+						if (Array.isArray(markerCoordinates) ? markerCoordinates.length > 0 : markerCoordinates) {
+							storyHasMarkers = true;
+						}
 						const cl = new CameraLocation(
 							step.camera["x"],
 							step.camera["y"],
@@ -152,7 +157,7 @@
 					}
 					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi));
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers));
 			}
 		}
 		stories = loadedStories;
@@ -195,7 +200,7 @@
 </script>
 
 {#if $selectedTool === tool}
-	<div class="wrapper">
+	<div class="wrapper story-selector">
 		{#if $selectedStoryStore}
 			<StoryView
 				map={cesiumMap}
@@ -235,7 +240,7 @@
 			{/each}
 		{/if}
 	</div>
-	{#if !$selectedStoryStore}
+	{#if !$selectedStoryStore && stories.some((story) => story.hasMarkers)}
 		<div class="bottom-container">
 			<ToggleView bind:show={$showStoryMarkers} text={$_("tools.stories.showOnMap")} />
 		</div>
@@ -243,6 +248,10 @@
 {/if}
 
 <style>
+	:global(.content-wrapper:has(.story-selector)) {
+		scrollbar-gutter: auto;
+	}
+
 	.wrapper {
 		min-height: 600px;
 		width: 100%;
