@@ -131,7 +131,7 @@
             }
         },
         {
-            "id": "999g",
+            "id": "10",
             "type": "geojson",
             "title": "Aantal zichtbare bomen per pand",
             "groupId": "hitte",
@@ -155,7 +155,7 @@
             }
         },
         {
-            "id": "999d",
+            "id": "11",
             "type": "geojson",
             "title": "Afstand tot koelteplek",
             "groupId": "hitte",
@@ -179,7 +179,7 @@
             }
         },
         {
-            "id": "999p",
+            "id": "12",
             "type": "geojson",
             "title": "Groen per buurt",
             "groupId": "hitte",
@@ -203,7 +203,7 @@
             }
         },
         {
-            "id": "999u",
+            "id": "13",
             "type": "geojson",
             "title": "Laag groen",
             "groupId": "hitte",
@@ -227,7 +227,7 @@
             }
         },
         {
-            "id": "999v",
+            "id": "14",
             "type": "geojson",
             "title": "Hoog groen",
             "groupId": "hitte",
@@ -251,7 +251,7 @@
             }
         },        
         {
-            "id": "999e",
+            "id": "15",
             "type": "geojson",
             "title": "% schaduw op langzaamverkeersroutes",
             "groupId": "hitte",
@@ -275,7 +275,7 @@
             }
         },
         {
-            "id": "999f",
+            "id": "16",
             "type": "geojson",
             "title": "Gevoelstemperatuur",
             "groupId": "hitte",
@@ -299,7 +299,7 @@
             }
         },
         {
-            "id": "999h",
+            "id": "17",
             "type": "geojson",
             "title": "Verkoelende en warmtewerende oppervlaktes",
             "groupId": "hitte",
@@ -323,7 +323,7 @@
             }
         },
         {
-            "id": "999i",
+            "id": "18",
             "type": "geojson",
             "title": "Waterdiepte neerslag T100",
             "groupId": "wateroverlast",
@@ -347,7 +347,7 @@
             }
         },
         {
-            "id": "999j",
+            "id": "19",
             "type": "geojson",
             "title": "Water tegen panden neerslag T100",
             "groupId": "wateroverlast",
@@ -371,7 +371,7 @@
             }
         },
         {
-            "id": "999k",
+            "id": "20",
             "type": "geojson",
             "title": "Waterdiepte neerslag T1000",
             "groupId": "wateroverlast",
@@ -395,7 +395,7 @@
             }
         },
         {
-            "id": "999l",
+            "id": "21",
             "type": "geojson",
             "title": "Water tegen panden neerslag T1000",
             "groupId": "wateroverlast",
@@ -419,7 +419,7 @@
             }
         },
         {
-            "id": "999m",
+            "id": "22",
             "type": "geojson",
             "title": "Overstroming",
             "groupId": "overstroming",
@@ -443,7 +443,7 @@
             }
         },
         {
-            "id": "999n",
+            "id": "23",
             "type": "geojson",
             "title": "Impact overstroming",
             "groupId": "overstroming",
@@ -467,31 +467,7 @@
             }
         },
         {
-            "id": "999o",
-            "type": "geojson",
-            "title": "Toename zoute kwel",
-            "groupId": "verzilting",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "transparent": true,
-            "opacity": 80,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
-                "theme": "",
-                "style": "toename_zoute_kwel_label",
-                "classMapping": {
-                    "A": "#44ce1b",
-                    "B": "#bbdb44",
-                    "C": "#f7e379",
-                    "D": "#f2a134",
-                    "E": "#e51f1f",
-                    "null": "#d6d4d4"
-                }
-            }
-        },
-        {
-            "id": "999t",
+            "id": "24",
             "type": "geojson",
             "title": "Risico droogtestress groen",
             "groupId": "droogte",
@@ -515,7 +491,7 @@
             }
         },
         {
-            "id": "999s",
+            "id": "25",
             "type": "geojson",
             "title": "Risico paalrot",
             "groupId": "droogte",
@@ -539,7 +515,7 @@
             }
         },
         {
-            "id": "999r",
+            "id": "26",
             "type": "geojson",
             "title": "Risico verschilzetting",
             "groupId": "droogte",
@@ -563,7 +539,7 @@
             }
         },
         {
-            "id": "999q",
+            "id": "27",
             "type": "geojson",
             "title": "Zakking GLG",
             "groupId": "droogte",
@@ -576,6 +552,30 @@
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
                 "theme": "",
                 "style": "zakking_glg_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "28",
+            "type": "geojson",
+            "title": "Toename zoute kwel",
+            "groupId": "verzilting",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "toename_zoute_kwel_label",
                 "classMapping": {
                     "A": "#44ce1b",
                     "B": "#bbdb44",
@@ -725,7 +725,7 @@
             "enabled": true,
             "settings": {
                 "alias": "Labelpaspoort",
-                "zoneLayerId": "999g",
+                "zoneLayerId": "10",
                 "zoneCodeAttribute": "postcode",
                 "exportTitle": "Klimaatlabels",
                 "exportFileName": "Klimaatlabels",
@@ -764,47 +764,8 @@
                     { "value": "E", "color": "#e51f1f" }
                 ],
                 "layers": [
-                      {
-                        "id": "999d",
-                           "columns": {
-                            "huidig": {
-                                "attribute": "koelte_label",
-                                "tooltipAttribute": "koelte_category"                   
-                            },
-                            "ambitie": {
-                                "attribute": "koelte_streven_label",
-                                "tooltipAttribute": "koelte_streven_category"
-                            }
-                        }
-                    },
                     {
-                        "id": "999e",
-                        "columns": {
-                            "huidig": {
-                                "attribute": "schaduw_label",
-                                "tooltipAttribute": "schaduw_category"
-                            },
-                            "ambitie": {
-                                "attribute": "schaduw_streven_label",
-                                "tooltipAttribute": "schaduw_streven_category"
-                            }
-                        }
-                    },
-                    {
-                        "id": "999f",
-                        "columns": {
-                            "huidig": {
-                                "attribute": "gev_temp_huidig_label",
-                                "tooltipAttribute": "gev_temp_huidig_category"
-                            },
-                            "ambitie": {
-                                "attribute": "gev_temp_huidig_streven_label",
-                                "tooltipAttribute": "gev_temp_huidig_streven_category"
-                            }
-                        }
-                    },
-                    {
-                        "id": "999g",
+                        "id": "10",
                         "columns": {
                             "huidig": {
                                 "attribute": "bomen_label",
@@ -817,20 +778,20 @@
                         }
                     },
                     {
-                        "id": "999h",
-                        "columns": {
+                        "id": "11",
+                           "columns": {
                             "huidig": {
-                                "attribute": "verkoelend_label",
-                                "tooltipAttribute": "verkoelend_category"
+                                "attribute": "koelte_label",
+                                "tooltipAttribute": "koelte_category"                   
                             },
                             "ambitie": {
-                                "attribute": "verkoelend_streven_label",
-                                "tooltipAttribute": "verkoelend_streven_category"
+                                "attribute": "koelte_streven_label",
+                                "tooltipAttribute": "koelte_streven_category"
                             }
                         }
                     },
                     {
-                        "id": "999p",
+                        "id": "12",
                         "columns": {
                             "huidig": {
                                 "attribute": "groen_label",
@@ -843,7 +804,7 @@
                         }
                     },
                     {
-                        "id": "999u",
+                        "id": "13",
                         "columns": {
                             "huidig": {
                                 "attribute": "laag_groen_label",
@@ -856,7 +817,7 @@
                         }
                     },
                     {
-                        "id": "999v",
+                        "id": "14",
                         "columns": {
                             "huidig": {
                                 "attribute": "hoog_groen_label",
@@ -869,7 +830,46 @@
                         }
                     },
                     {
-                        "id": "999i",
+                        "id": "15",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "schaduw_label",
+                                "tooltipAttribute": "schaduw_category"
+                            },
+                            "ambitie": {
+                                "attribute": "schaduw_streven_label",
+                                "tooltipAttribute": "schaduw_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "16",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "gev_temp_huidig_label",
+                                "tooltipAttribute": "gev_temp_huidig_category"
+                            },
+                            "ambitie": {
+                                "attribute": "gev_temp_huidig_streven_label",
+                                "tooltipAttribute": "gev_temp_huidig_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "17",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "verkoelend_label",
+                                "tooltipAttribute": "verkoelend_category"
+                            },
+                            "ambitie": {
+                                "attribute": "verkoelend_streven_label",
+                                "tooltipAttribute": "verkoelend_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "18",
                         "columns": {
                             "huidig": {
                                 "attribute": "watdiep_neerslag_t100_label",
@@ -882,7 +882,7 @@
                         }
                     },
                     {
-                        "id": "999j",
+                        "id": "19",
                         "columns": {
                             "huidig": {
                                 "attribute": "panden_neerslag_t100_label",
@@ -895,7 +895,7 @@
                         }
                     },
                     {
-                        "id": "999k",
+                        "id": "20",
                         "columns": {
                             "huidig": {
                                 "attribute": "watdiep_neerslag_t1000_label",
@@ -908,7 +908,7 @@
                         }
                     },
                     {
-                        "id": "999l",
+                        "id": "21",
                         "columns": {
                             "huidig": {
                                 "attribute": "panden_neerslag_t1000_label",
@@ -921,7 +921,7 @@
                         }
                     },
                     {
-                        "id": "999m",
+                        "id": "22",
                         "columns": {
                             "huidig": {
                                 "attribute": "overstroming_label",
@@ -934,7 +934,7 @@
                         }
                     },
                     {
-                        "id": "999n",
+                        "id": "23",
                         "columns": {
                             "huidig": {
                                 "attribute": "impact_label",
@@ -947,7 +947,7 @@
                         }
                     },
                     {
-                        "id": "999t",
+                        "id": "24",
                         "columns": {
                             "huidig": {
                                 "attribute": "droogtestress_2050_label",
@@ -960,7 +960,7 @@
                         }
                     },
                     {
-                        "id": "999s",
+                        "id": "25",
                         "columns": {
                             "huidig": {
                                 "attribute": "paalrot_label",
@@ -973,7 +973,7 @@
                         }
                     },
                     {
-                        "id": "999r",
+                        "id": "26",
                         "columns": {
                             "huidig": {
                                 "attribute": "verschilzetting_label",
@@ -986,7 +986,7 @@
                         }
                     },
                     {
-                        "id": "999q",
+                        "id": "27",
                         "columns": {
                             "huidig": {
                                 "attribute": "zakking_glg_label",
@@ -999,7 +999,7 @@
                         }
                     },
                     {
-                        "id": "999o",
+                        "id": "28",
                         "columns": {
                             "huidig": {
                                 "attribute": "toename_zoute_kwel_label",
