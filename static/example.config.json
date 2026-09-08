@@ -498,69 +498,11 @@
                 "layers": "0",
                 "options": {}
             }
-        },        {
-            "id": "999a",
-            "type": "geojson",
-            "title": "Labelkaart impact overstroming",
-            "groupId": "wateroverlast",
-            "metadataUrl": "https://www.example.com/",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "transparent": true,
-            "opacity": 80,
-            "settings": {
-                "url": "http://localhost:8000/labelkaart_example.geojson",
-                "theme": "",
-                "style": "label",
-                "classMapping": {
-                    "A": "#44ce1b",
-                    "B": "#bbdb44",
-                    "C": "#f7e379",
-                    "D": "#f2a134",
-                    "E": "#e51f1f",
-                    "NULL": "#0f0f0f"
-                }
-            }
-        },
+        },   
         {
-            "id": "999b",
+            "id": "999g",
             "type": "geojson",
-            "title": "Labelkaart gevoelstemperatuur huidig",
-            "groupId": "wateroverlast",
-            "metadataUrl": "https://www.example.com/",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "transparent": true,
-            "opacity": 80,
-            "settings": {
-                "url": "http://localhost:8000/labelkaart_gevoelstemperatuur_huidig.geojson",
-                "theme": "",
-                "style": "label"
-            }
-        },
-        {
-            "id": "999c",
-            "type": "geojson",
-            "title": "Labelkaart schaduw langzaamverkeersroutes",
-            "groupId": "wateroverlast",
-            "metadataUrl": "https://www.example.com/",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "transparent": true,
-            "opacity": 80,
-            "settings": {
-                "url": "http://localhost:8000/labelkaart_schaduw_langzaamverkeersroutes.geojson",
-                "theme": "",
-                "style": "label"
-            }
-        },
-        {
-            "id": "999d",
-            "type": "geojson",
-            "title": "Test 4: labelkaart_4",
+            "title": "Aantal zichtbare bomen per pand",
             "groupId": "hitte",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -568,15 +510,359 @@
             "transparent": true,
             "opacity": 80,
             "settings": {
-                "url": "http://localhost:8000/labelkaart_example.geojson",
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326&srsName=EPSG:4326",
                 "theme": "",
-                "style": "label"
+                "style": "bomen_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
             }
         },
         {
+            "id": "999d",
+            "type": "geojson",
+            "title": "Afstand tot koelteplek",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "koelte_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999p",
+            "type": "geojson",
+            "title": "Groen per buurt",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "groen_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999u",
+            "type": "geojson",
+            "title": "Laag groen",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "laag_groen_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999v",
+            "type": "geojson",
+            "title": "Hoog groen",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "hoog_groen_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },        
+        {
             "id": "999e",
             "type": "geojson",
-            "title": "Test 5: labelkaart_5",
+            "title": "% schaduw op langzaamverkeersroutes",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "schaduw_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999f",
+            "type": "geojson",
+            "title": "Gevoelstemperatuur",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "gev_temp_huidig_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999h",
+            "type": "geojson",
+            "title": "Verkoelende en warmtewerende oppervlaktes",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "verkoelend_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999i",
+            "type": "geojson",
+            "title": "Waterdiepte neerslag T100",
+            "groupId": "wateroverlast",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "watdiep_neerslag_t100_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999j",
+            "type": "geojson",
+            "title": "Water tegen panden neerslag T100",
+            "groupId": "wateroverlast",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "panden_neerslag_t100_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999k",
+            "type": "geojson",
+            "title": "Waterdiepte neerslag T1000",
+            "groupId": "wateroverlast",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "watdiep_neerslag_t1000_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999l",
+            "type": "geojson",
+            "title": "Water tegen panden neerslag T1000",
+            "groupId": "wateroverlast",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "panden_neerslag_t1000_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999m",
+            "type": "geojson",
+            "title": "Overstroming",
+            "groupId": "overstroming",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "overstroming_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999n",
+            "type": "geojson",
+            "title": "Impact overstroming",
+            "groupId": "overstroming",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "impact_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999o",
+            "type": "geojson",
+            "title": "Toename zoute kwel",
+            "groupId": "verzilting",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "toename_zoute_kwel_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
+            }
+        },
+        {
+            "id": "999t",
+            "type": "geojson",
+            "title": "Risico droogtestress groen",
             "groupId": "droogte",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -584,108 +870,89 @@
             "transparent": true,
             "opacity": 80,
             "settings": {
-                "url": "http://localhost:8000/labelkaart_example.geojson",
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
                 "theme": "",
-            "colorGradientStart": "#00ff00",
-            "colorGradientEnd": "#ff0000",
-            "defaultColorPolygon": "#0000ff",
-                "style": "label"
+                "style": "droogtestress_2050_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
             }
         },
         {
-            "id": "999f",
+            "id": "999s",
             "type": "geojson",
-            "title": "Test 6: labelkaart_6",
-            "groupId": "",
+            "title": "Risico paalrot",
+            "groupId": "droogte",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
             "opacity": 80,
             "settings": {
-                "url": "http://localhost:8000/labelkaart_example.geojson",
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
                 "theme": "",
-                "style": "label"
+                "style": "paalrot_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
             }
         },
         {
-            "id": "999g",
+            "id": "999r",
             "type": "geojson",
-            "title": "Test 7: labelkaart_7",
-            "groupId": "",
+            "title": "Risico verschilzetting",
+            "groupId": "droogte",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
             "opacity": 80,
             "settings": {
-                "url": "http://localhost:8000/labelkaart_example.geojson",
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
                 "theme": "",
-                "style": "label"
+                "style": "verschilzetting_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
             }
         },
         {
-            "id": "999h",
+            "id": "999q",
             "type": "geojson",
-            "title": "Test 8: labelkaart_8",
-            "groupId": "",
+            "title": "Zakking GLG",
+            "groupId": "droogte",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
             "transparent": true,
             "opacity": 80,
             "settings": {
-                "url": "http://localhost:8000/labelkaart_example.geojson",
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
                 "theme": "",
-                "style": "label"
-            }
-        },
-        {
-            "id": "999i",
-            "type": "geojson",
-            "title": "Test 9: labelkaart_9",
-            "groupId": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "transparent": true,
-            "opacity": 80,
-            "settings": {
-                "url": "http://localhost:8000/labelkaart_example.geojson",
-                "theme": "",
-                "style": "label"
-            }
-        },
-        {
-            "id": "999j",
-            "type": "geojson",
-            "title": "Test 10: labelkaart_10",
-            "groupId": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "transparent": true,
-            "opacity": 80,
-            "settings": {
-                "url": "http://localhost:8000/labelkaart_example.geojson",
-                "theme": "",
-                "style": "label"
-            }
-        },
-        {
-            "id": "999k",
-            "type": "geojson",
-            "title": "Test 11: labelkaart_11",
-            "groupId": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "transparent": true,
-            "opacity": 80,
-            "settings": {
-                "url": "http://localhost:8000/labelkaart_example.geojson",
-                "theme": "",
-                "style": "label"
+                "style": "zakking_glg_label",
+                "classMapping": {
+                    "A": "#44ce1b",
+                    "B": "#bbdb44",
+                    "C": "#f7e379",
+                    "D": "#f2a134",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
+                }
             }
         }
     ],
@@ -768,11 +1035,6 @@
             "parentId": ""
         },
         {
-            "id": "droogte",
-            "title": "Droogte",
-            "parentId": ""
-        },
-        {
             "id": "wateroverlast",
             "title": "Wateroverlast",
             "parentId": ""
@@ -780,6 +1042,21 @@
         {
             "id": "overstroming",
             "title": "Overstroming",
+            "parentId": ""
+        },
+        {
+            "id": "droogte",
+            "title": "Droogte",
+            "parentId": ""
+        },
+        {
+            "id": "archief",
+            "title": "Archief",
+            "parentId": ""
+        },
+        {
+            "id": "verzilting",
+            "title": "Verzilting",
             "parentId": ""
         }
     ],
@@ -817,7 +1094,7 @@
             "enabled": true,
             "settings": {
                 "alias": "Labelpaspoort",
-                "zoneLayerId": "999a",
+                "zoneLayerId": "999g",
                 "zoneCodeAttribute": "postcode",
                 "exportTitle": "Klimaatlabels",
                 "exportFileName": "Klimaatlabels",
@@ -856,48 +1133,252 @@
                     { "value": "E", "color": "#e51f1f" }
                 ],
                 "layers": [
-                    {
-                        "id": "999a"
-                    },
-                    {
-                        "id": "999b",
-                        "columns": {
-                            "ambitie": {
-                                "attribute": "ambitie_la",
-                                "tooltipAttribute": "ambitie_ca"
+                      {
+                        "id": "999d",
+                           "columns": {
+                            "huidig": {
+                                "attribute": "koelte_label",
+                                "tooltipAttribute": "koelte_category"                   
                             },
-                            "oppervlakte": {
-                                "attribute": "geom_Area",
-                                "decimals": 1
+                            "ambitie": {
+                                "attribute": "koelte_streven_label",
+                                "tooltipAttribute": "koelte_streven_category"
                             }
                         }
                     },
                     {
-                        "id": "999c"
+                        "id": "999e",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "schaduw_label",
+                                "tooltipAttribute": "schaduw_category"
+                            },
+                            "ambitie": {
+                                "attribute": "schaduw_streven_label",
+                                "tooltipAttribute": "schaduw_streven_category"
+                            }
+                        }
                     },
                     {
-                        "id": "999d"
+                        "id": "999f",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "gev_temp_huidig_label",
+                                "tooltipAttribute": "gev_temp_huidig_category"
+                            },
+                            "ambitie": {
+                                "attribute": "gev_temp_huidig_streven_label",
+                                "tooltipAttribute": "gev_temp_huidig_streven_category"
+                            }
+                        }
                     },
                     {
-                        "id": "999e"
+                        "id": "999g",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "bomen_label",
+                                "tooltipAttribute": "bomen_category"
+                            },
+                            "ambitie": {
+                                "attribute": "bomen_streven_label",
+                                "tooltipAttribute": "bomen_streven_category"
+                            }
+                        }
                     },
                     {
-                        "id": "999f"
+                        "id": "999h",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "verkoelend_label",
+                                "tooltipAttribute": "verkoelend_category"
+                            },
+                            "ambitie": {
+                                "attribute": "verkoelend_streven_label",
+                                "tooltipAttribute": "verkoelend_streven_category"
+                            }
+                        }
                     },
                     {
-                        "id": "999g"
+                        "id": "999p",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "groen_label",
+                                "tooltipAttribute": "groen_category"
+                            },
+                            "ambitie": {
+                                "attribute": "groen_streven_label",
+                                "tooltipAttribute": "groen_streven_category"
+                            }
+                        }
                     },
                     {
-                        "id": "999h"
+                        "id": "999u",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "laag_groen_label",
+                                "tooltipAttribute": "laag_groen_category"
+                            },
+                            "ambitie": {
+                                "attribute": "laag_groen_streven_label",
+                                "tooltipAttribute": "laag_groen_streven_category"
+                            }
+                        }
                     },
                     {
-                        "id": "999i"
+                        "id": "999v",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "hoog_groen_label",
+                                "tooltipAttribute": "hoog_groen_category"
+                            },
+                            "ambitie": {
+                                "attribute": "hoog_groen_streven_label",
+                                "tooltipAttribute": "hoog_groen_streven_category"
+                            }
+                        }
                     },
                     {
-                        "id": "999j"
+                        "id": "999i",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "watdiep_neerslag_t100_label",
+                                "tooltipAttribute": "watdiep_neerslag_t100_category"
+                            },
+                            "ambitie": {
+                                "attribute": "watdiep_neerslag_t100_streven_label",
+                                "tooltipAttribute": "watdiep_neerslag_t100_streven_category"
+                            }
+                        }
                     },
                     {
-                        "id": "999k"
+                        "id": "999j",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "panden_neerslag_t100_label",
+                                "tooltipAttribute": "panden_neerslag_t100_category"
+                            },
+                            "ambitie": {
+                                "attribute": "panden_neerslag_t100_streven_label",
+                                "tooltipAttribute": "panden_neerslag_t100_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "999k",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "watdiep_neerslag_t1000_label",
+                                "tooltipAttribute": "watdiep_neerslag_t1000_category"
+                            },
+                            "ambitie": {
+                                "attribute": "watdiep_neerslag_t1000_streven_label",
+                                "tooltipAttribute": "watdiep_neerslag_t1000_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "999l",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "panden_neerslag_t1000_label",
+                                "tooltipAttribute": "panden_neerslag_t1000_category"
+                            },
+                            "ambitie": {
+                                "attribute": "panden_neerslag_t1000_streven_label",
+                                "tooltipAttribute": "panden_neerslag_t1000_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "999m",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "overstroming_label",
+                                "tooltipAttribute": "overstroming_category"
+                            },
+                            "ambitie": {
+                                "attribute": "overstroming_streven_label",
+                                "tooltipAttribute": "overstroming_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "999n",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "impact_label",
+                                "tooltipAttribute": "impact_category"
+                            },
+                            "ambitie": {
+                                "attribute": "impact_streven_label",
+                                "tooltipAttribute": "impact_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "999t",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "droogtestress_2050_label",
+                                "tooltipAttribute": "droogtestress_2050_category"
+                            },
+                            "ambitie": {
+                                "attribute": "droogtestress_2050_streven_label",
+                                "tooltipAttribute": "droogtestress_2050_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "999s",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "paalrot_label",
+                                "tooltipAttribute": "paalrot_category"
+                            },
+                            "ambitie": {
+                                "attribute": "paalrot_streven_label",
+                                "tooltipAttribute": "paalrot_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "999r",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "verschilzetting_label",
+                                "tooltipAttribute": "verschilzetting_category"
+                            },
+                            "ambitie": {
+                                "attribute": "verschilzetting_streven_label",
+                                "tooltipAttribute": "verschilzetting_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "999q",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "zakking_glg_label",
+                                "tooltipAttribute": "zakking_glg_category"
+                            },
+                            "ambitie": {
+                                "attribute": "zakking_glg_streven_label",
+                                "tooltipAttribute": "zakking_glg_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "999o",
+                        "columns": {
+                            "huidig": {
+                                "attribute": "toename_zoute_kwel_label",
+                                "tooltipAttribute": "toename_zoute_kwel_category"
+                            },
+                            "ambitie": {
+                                "attribute": "toename_zoute_kwel_streven_label",
+                                "tooltipAttribute": "toename_zoute_kwel_streven_category"
+                            }
+                        }
                     }
                 ]
             }
