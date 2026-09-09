@@ -62,6 +62,7 @@ Top-level config shape:
 | `startPosition` | Start camera position (below) | object |
 | `startCameraMode3D` | Start in 3D (true) or 2D (false; pitch forced to -90) | boolean |
 | `startToolOpen` | Tool id to open on start (e.g. `layermanager`, `stories`) | string |
+| `accessibility` | `{ trackpadMode, trackpadStepAngle, trackpadStepHeightFactor }` — enables the trackpad camera controls on the map | object |
 | `colors` | Carbon Design color tokens plus header colors `header-color` (bar background), `title-color` / `sub-title-color` (any CSS color); see `static/example.config.json` | object |
 | `title` / `subTitle` | Header title / subtitle | string |
 | `logo` | Header logo image URL | string |
@@ -91,6 +92,7 @@ Refer to `static/example.config.json` for concrete, copy-pasteable examples of e
 - **Dual build.** `src/routes/` (Node/SSR, includes `+layout.server.ts` and `hooks.server.ts`) vs `src/routes-static/` (static, no server scripts). `svelte.config.js` swaps the routes folder via `npm_config_adapter` and selects `adapter-node` vs `adapter-static`. A change in one routes folder usually needs mirroring in the other.
 - **Cesium import:** `import * as Cesium from "cesium"`. Assets are copied to `/Cesium` via `viteStaticCopy`; `CESIUM_BASE_URL` is derived from `APP_URL`. The viewer is `Map.viewer`; layers attach via `viewer.imageryLayers`, `viewer.dataSources`, `viewer.scene.primitives`.
 - **Tools** (`src/lib/components/tools/`): each tool self-registers via `getContext("mapTools").registerTool(new MapToolMenuOption(...))`; `Page.svelte` holds a `toolOrder` map from tool id → Svelte component. Tools are enabled/configured through the config `tools` array.
+- **On-map controls:** `MapControls.svelte` and `POVMapControls.svelte` (`src/lib/components/controls/`) are near-duplicates — `Page.svelte` picks one based on whether the `flyCamera` tool is enabled. Changes to the button row must be mirrored in both. `TrackpadControls.svelte` is included by both and renders nothing unless `viewer.accessibility.trackpadMode` is true; it drives `map.adjustHeight/adjustHeading/adjustPitch` (see `map.ts`), which use `camera.move` along the ellipsoid normal and `camera.setView` with `roll: 0` so the horizon stays level. Pitch is a no-op / disabled in 2D mode.
 - **State:** Svelte `writable` stores; the `Map` is a singleton store on `app` (`src/lib/app/app.ts`). Persist a store with `register(store, key)` in `src/lib/app/stores/app-storage.ts` (syncs to `localStorage`).
 - **i18n:** `svelte-i18n` with `$_('key.path')`. When adding a key, add it to **all three** files in `src/lib/i18n/json/`: `en.json`, `nl.json`, `fr.json`. `document.documentElement.lang` is kept in sync inside `selectedLanguage.subscribe` in `src/lib/i18n/localization.ts`.
 - **Styling:** SCSS + Carbon tokens (`var(--cds-*)`). Global rules (scrollbars, focus-visible outline, `prefers-reduced-motion`) live in `src/lib/styles/tosti.scss` (imported via `CarbonTheme.svelte`); do not add per-component scrollbar overrides.

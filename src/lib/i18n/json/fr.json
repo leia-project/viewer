@@ -70,7 +70,15 @@
                 "buttonsHome": "Réinitialiser la vue à la position de départ",
                 "buttonsCompass": "Réinitialiser le cap vers le nord",
                 "buttonsZoomIn": "Zoom avant",
-                "buttonsZoomOut": "Zoom arrière"
+                "buttonsZoomOut": "Zoom arrière",
+                "buttonsTrackpadShow": "Afficher les commandes de caméra",
+                "buttonsTrackpadHide": "Masquer les commandes de caméra",
+                "buttonsHeightUp": "Monter la caméra",
+                "buttonsHeightDown": "Descendre la caméra",
+                "buttonsPitchUp": "Incliner la caméra vers le haut",
+                "buttonsPitchDown": "Incliner la caméra vers le bas",
+                "buttonsRotateLeft": "Tourner la caméra vers la gauche",
+                "buttonsRotateRight": "Tourner la caméra vers la droite"
             },
             "library": {
                 "headingLibraryOpen": "Ouvrir Bibliothèque de Calques",
