@@ -41,10 +41,9 @@
 			if (!settings) return;
 
 			controller = new ZonalStatisticsController(map, settings);
-			controller.initialize().then(() => {
-				// Activate now if the tool was already selected before the controller was ready.
-				if ($selectedTool === tool) setActive(true);
-			});
+			controller.initialize();
+			// Activate now if the tool was already selected before the controller was ready.
+			if ($selectedTool === tool) setActive(true);
 		});
 	});
 
@@ -88,6 +87,9 @@
 			zoneLayerWasVisible = get(zoneLayer.visible);
 			zoneLayer.visible.set(true);
 		}
+
+		// The tool's dataset is only downloaded and drawn once the user actually opens it.
+		void controller.prepare();
 
 		const first = controller.settings.layers[0]?.id;
 		if (!first) return;

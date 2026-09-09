@@ -146,6 +146,12 @@ export class ZonalStatisticsController {
 	private readonly layerLoads: Map<string, Promise<void>> = new Map();
 	/** Serialises the on-demand loads so "add all" can never fetch + parse every layer at once. */
 	private loadQueue: Promise<void> = Promise.resolve();
+	/** In-flight/parsed GeoJSON per url, so layers sharing a dataset download it once. */
+	private readonly featureLoads: Map<string, Promise<Array<any>>> = new Map();
+	/** Number of queued loads; the (multi-MB) parsed documents are dropped once it hits zero. */
+	private pendingFeatureLoads = 0;
+	/** Latches the one-off heavy setup (zone load, indexing, primitives) done on first activation. */
+	private prepared: Promise<void> | undefined;
 	/** Per data-layer index: zone code -> feature properties (only the attributes the table reads). */
 	private readonly valueIndex: Map<string, Map<string, Record<string, any>>> = new Map();
 	/** Per layer id: column key -> the source attributes that layer reads for that column. */
@@ -179,8 +185,18 @@ export class ZonalStatisticsController {
 	private activeCode: string | undefined;
 	/** The zone currently under the mouse (brightened), or undefined. */
 	private hoveredCode: string | undefined;
+	/** Selected zone codes as a set, so painting a zone does not scan the selection array. */
+	private readonly selectedCodes: Set<string> = new Set();
 	private clickHandler: ((l: MouseLocation) => void) | undefined;
 	private moveHandler: ((l: MouseLocation) => void) | undefined;
+	/** Last mouse position awaiting a hover pick, and the frame that will perform it. */
+	private hoverLocation: MouseLocation | undefined;
+	private hoverFrame: number | undefined;
+	/** True between the camera's moveStart/moveEnd, while the zone under a still cursor keeps changing. */
+	private cameraMoving = false;
+	/** Frames coalescing the full-primitive repaints an opacity slider drag would otherwise spam. */
+	private colorRefreshFrame: number | undefined;
+	private outlineOpacityFrame: number | undefined;
 
 	private static readonly UNGROUPED_GROUP_ID = "";
 
@@ -255,11 +271,11 @@ export class ZonalStatisticsController {
 	}
 
 	/**
-	 * Load + index the zone layer (the tool's geometry), resolve the configured data layers without
-	 * loading them, and start listening for clicks. Data layers are fetched lazily by
-	 * `ensureLayerReady()` the first time they are selected or added to the table.
+	 * Resolve the configured zone + data layers so the panel can render, without loading any data.
+	 * Runs on `configLoaded`, so it must stay cheap; everything that touches the network or the
+	 * scene happens in `prepare()` on first activation.
 	 */
-	public async initialize(): Promise<void> {
+	public initialize(): void {
 		const zone = this.map.getLayerById(this.settings.zoneLayerId) as GeoJsonLayer | undefined;
 		if (!zone) {
 			console.warn(
@@ -267,28 +283,45 @@ export class ZonalStatisticsController {
 			);
 			return;
 		}
-		this.loading.set(true);
-		try {
-			this.zoneLayer = zone;
-			await this.ensureLoaded(zone);
-			// Before indexing: the zone colours are snapshotted through the shared class mapping.
-			this.buildClassColors();
-			this.indexZoneEntities();
+		this.zoneLayer = zone;
+		// Config-only, so the shared class mapping is available before anything is indexed.
+		this.buildClassColors();
 
-			for (const cfg of this.settings.layers) {
-				const layer = this.map.getLayerById(cfg.id) as GeoJsonLayer | undefined;
-				if (!layer) {
-					console.warn(`zonalStatistics: data layer '${cfg.id}' not found in map layers`);
-					continue;
-				}
-				this.dataLayers.push({
-					layerId: cfg.id,
-					title: cfg.title ?? layer.config.title,
-					layer
-				});
+		for (const cfg of this.settings.layers) {
+			const layer = this.map.getLayerById(cfg.id) as GeoJsonLayer | undefined;
+			if (!layer) {
+				console.warn(`zonalStatistics: data layer '${cfg.id}' not found in map layers`);
+				continue;
 			}
-			this.resolvedDataLayers.set([...this.dataLayers]);
-			this.rebuildGroupedDataLayers();
+			this.dataLayers.push({
+				layerId: cfg.id,
+				title: cfg.title ?? layer.config.title,
+				layer
+			});
+		}
+		this.resolvedDataLayers.set([...this.dataLayers]);
+		this.rebuildGroupedDataLayers();
+	}
+
+	/**
+	 * Load + index the zone layer and build the map primitives. This downloads the tool's whole
+	 * dataset, so it is deferred to the first activation instead of running on `configLoaded`:
+	 * a viewer session that never opens the tool must not pay for it. Latched, so every entry point
+	 * (activation, `ensureLayerReady`) can await it.
+	 */
+	public prepare(): Promise<void> {
+		if (!this.prepared) this.prepared = this.runPrepare();
+		return this.prepared;
+	}
+
+	private async runPrepare(): Promise<void> {
+		const zone = this.zoneLayer;
+		if (!zone) return;
+		this.loading.set(true);
+		this.markLayerLoading(this.settings.zoneLayerId, true);
+		try {
+			await this.ensureLoaded(zone);
+			this.indexZoneEntities();
 
 			this.buildZoneFill();
 			// Added after the fill so the boundary lines draw on top of it.
@@ -298,37 +331,56 @@ export class ZonalStatisticsController {
 			this.map.on("mouseLeftClick", this.clickHandler as (n: unknown) => unknown);
 			this.moveHandler = (l: MouseLocation) => this.onMouseMove(l);
 			this.map.on("mouseMove", this.moveHandler as (n: unknown) => unknown);
+			const camera = this.map.viewer.camera;
 			this.unsubscribers.push(
 				this.active.subscribe((active) => {
 					if (!active) this.clearHover();
+				}),
+				// The zone under a stationary cursor changes when the camera does, so keep picking.
+				camera.moveStart.addEventListener(() => {
+					this.cameraMoving = true;
+					this.scheduleHoverPick();
+				}),
+				camera.moveEnd.addEventListener(() => {
+					this.cameraMoving = false;
+					this.scheduleHoverPick();
 				})
 			);
+			// The zone layer can be a table row itself, and is indexed here rather than by
+			// `ensureLayerReady`, so tell the table its cells can be filled.
+			this.dataVersion.update((version) => version + 1);
 		} finally {
+			this.markLayerLoading(this.settings.zoneLayerId, false);
 			this.loading.set(false);
 		}
 	}
 
 	/**
-	 * Fetch + index one data layer, at most once. Only the feature **properties** are read: the data
-	 * layers are attribute joins on the zone code, so their geometry is a duplicate of the zone
-	 * layer's and is deliberately never turned into Cesium entities — doing so kept a full copy of
-	 * every polygon alive per layer and ran the tab out of memory after a handful of layers. The
-	 * loads are queued so they can never run in parallel.
+	 * Index one data layer, at most once. Only the feature **properties** are read: the data layers
+	 * are attribute joins on the zone code, so their geometry is a duplicate of the zone layer's and
+	 * is deliberately never turned into Cesium entities — doing so kept a full copy of every polygon
+	 * alive per layer and ran the tab out of memory after a handful of layers. The loads are queued
+	 * so they can never run in parallel.
 	 */
 	public ensureLayerReady(layerId: string): Promise<void> {
 		const running = this.layerLoads.get(layerId);
 		if (running !== undefined) return running;
 		const dl = this.dataLayers.find((l) => l.layerId === layerId);
 		if (!dl) return Promise.resolve();
-		// The zone layer carries the geometry and is already loaded + indexed by `initialize()`.
-		if (layerId === this.settings.zoneLayerId) return Promise.resolve();
+		// The zone layer carries the geometry and is loaded + indexed by `prepare()`.
+		if (layerId === this.settings.zoneLayerId) return this.prepare();
 
 		this.markLayerLoading(layerId, true);
+		this.pendingFeatureLoads++;
 		const load = this.loadQueue.then(async () => {
 			try {
-				await this.indexLayerProperties(layerId, dl.layer);
+				// The zone layer's index is the join target and may double as this layer's source.
+				await this.prepare();
+				await this.indexDataLayer(layerId, dl.layer);
 			} finally {
 				this.markLayerLoading(layerId, false);
+				// Release the parsed documents once the whole burst ("add all") has been indexed.
+				if (--this.pendingFeatureLoads === 0) this.featureLoads.clear();
 			}
 			this.refreshColorSource(layerId);
 			this.dataVersion.update((version) => version + 1);
@@ -337,6 +389,46 @@ export class ZonalStatisticsController {
 		this.loadQueue = load.catch(() => undefined);
 		this.layerLoads.set(layerId, load);
 		return load;
+	}
+
+	/**
+	 * Index a data layer's attributes, preferring the cheapest available source: the zone layer's
+	 * entities when both point at the same dataset (nothing to download at all), otherwise its own
+	 * GeoJSON — shared with every other layer loading the same url.
+	 */
+	private async indexDataLayer(layerId: string, layer: GeoJsonLayer): Promise<void> {
+		const url = layer.config.settings?.url;
+		if (typeof url !== "string" || url === "") {
+			console.warn(`zonalStatistics: data layer '${layerId}' has no settings.url to index`);
+			return;
+		}
+		if (url === this.zoneLayer?.config.settings?.url) {
+			this.indexFromZoneEntities(layerId);
+			return;
+		}
+		this.indexFeatures(layerId, await this.loadFeatures(url));
+	}
+
+	/**
+	 * Fetch + parse a GeoJSON document once per url. Configurations routinely point several layers
+	 * at one dataset and only differ in the attributes they read, so this turns N downloads of a
+	 * multi-megabyte document into one.
+	 */
+	private loadFeatures(url: string): Promise<Array<any>> {
+		const cached = this.featureLoads.get(url);
+		if (cached !== undefined) return cached;
+		const request = fetch(url)
+			.then(async (response) => {
+				if (!response.ok) throw new Error(`HTTP ${response.status}`);
+				const geojson = await response.json();
+				return Array.isArray(geojson?.features) ? (geojson.features as Array<any>) : [];
+			})
+			.catch((error) => {
+				console.error(`zonalStatistics: failed to load '${url}'`, error);
+				return [] as Array<any>;
+			});
+		this.featureLoads.set(url, request);
+		return request;
 	}
 
 	private markLayerLoading(layerId: string, loading: boolean): void {
@@ -510,7 +602,7 @@ export class ZonalStatisticsController {
 		}
 		for (const tracked of this.trackedLayers) {
 			this.unsubscribers.push(
-				tracked.layer.opacity.subscribe(() => this.refreshColorSource(tracked.id))
+				tracked.layer.opacity.subscribe(() => this.scheduleColorRefresh(tracked.id))
 			);
 		}
 		this.unsubscribers.push(this.selectedLayerId.subscribe(() => this.syncFillSource()));
@@ -551,6 +643,18 @@ export class ZonalStatisticsController {
 	/** Re-read the colours after the colour-source layer changed its opacity/style. */
 	private refreshColorSource(layerId: string): void {
 		if (layerId === this.colorLayerId) this.refreshBaseColors();
+	}
+
+	/**
+	 * Same, coalesced into one frame: dragging an opacity slider emits a store update per pixel and
+	 * each one would otherwise recompute and re-upload the colour of every zone.
+	 */
+	private scheduleColorRefresh(layerId: string): void {
+		if (layerId !== this.colorLayerId || this.colorRefreshFrame !== undefined) return;
+		this.colorRefreshFrame = requestAnimationFrame(() => {
+			this.colorRefreshFrame = undefined;
+			if (this.zoneFill) this.refreshBaseColors();
+		});
 	}
 
 	/**
@@ -627,7 +731,7 @@ export class ZonalStatisticsController {
 				if (this.zoneOutlinePrimitive) this.zoneOutlinePrimitive.show = active;
 				this.map.refresh();
 			}),
-			this.zoneLayer.opacity.subscribe(() => this.applyOutlineOpacity())
+			this.zoneLayer.opacity.subscribe(() => this.scheduleOutlineOpacity())
 		);
 	}
 
@@ -648,6 +752,15 @@ export class ZonalStatisticsController {
 			if (attributes) attributes.color = value;
 		}
 		this.map.refresh();
+	}
+
+	/** Same, coalesced into one frame so an opacity slider drag rewrites the instances once. */
+	private scheduleOutlineOpacity(): void {
+		if (this.outlineOpacityFrame !== undefined) return;
+		this.outlineOpacityFrame = requestAnimationFrame(() => {
+			this.outlineOpacityFrame = undefined;
+			this.applyOutlineOpacity();
+		});
 	}
 
 	/**
@@ -826,40 +939,40 @@ export class ZonalStatisticsController {
 		return this.classColors.get(ZonalStatisticsController.normalizeClassValue(value));
 	}
 
-	/** Build a zone-code -> zone-layer entity lookup for resolving click geometry. */
+	/**
+	 * Walk the zone layer's entities once, building everything derived from them: the code -> entity
+	 * lookup used to resolve clicks, the zone layer's own table values, and its fill colours. One
+	 * pass rather than three, since each read materialises a Cesium property per attribute.
+	 */
 	private indexZoneEntities(): void {
 		this.zoneEntityIndex.clear();
 		const time = this.map.viewer.clock.currentTime;
 		const codeAttr = this.settings.zoneCodeAttribute;
+		const attributes = this.attributesFor(this.settings.zoneLayerId);
+		const values = new Map<string, Record<string, any>>();
+		const colors = new Map<string, Cesium.Color>();
 		const entities = this.zoneLayer?.source?.entities?.values ?? [];
 		for (const entity of entities) {
 			// Read only the code property instead of materialising every attribute per entity.
 			const code = this.readProperty(entity, codeAttr, time);
-			if (code !== undefined && code !== null) {
-				const key = ZonalStatisticsController.normalizeCode(code);
-				// A MultiPolygon zone becomes several entities under one code; keep them all.
-				const list = this.zoneEntityIndex.get(key) ?? [];
+			if (code === undefined || code === null) continue;
+			const key = ZonalStatisticsController.normalizeCode(code);
+			// A MultiPolygon zone becomes several entities under one code; keep them all.
+			const list = this.zoneEntityIndex.get(key);
+			if (list) {
 				list.push(entity);
-				this.zoneEntityIndex.set(key, list);
-				this.entityCodeIndex.set(entity, key);
+			} else {
+				this.zoneEntityIndex.set(key, [entity]);
+				// First entity of a zone is the one its values + colour are read from.
+				const props: Record<string, any> = {};
+				for (const attr of attributes) props[attr] = this.readProperty(entity, attr, time);
+				values.set(key, props);
+				colors.set(key, this.readEntityColor(entity, time).withAlpha(1));
 			}
+			this.entityCodeIndex.set(entity, key);
 		}
-		this.indexZoneValues();
-		this.indexZoneColors();
-	}
-
-	/** Index the zone layer's own attribute values so it can be used as a table row like any layer. */
-	private indexZoneValues(): void {
-		const time = this.map.viewer.clock.currentTime;
-		const attributes = this.attributesFor(this.settings.zoneLayerId);
-		const index = new Map<string, Record<string, any>>();
-		for (const [code, entities] of this.zoneEntityIndex) {
-			const entity = entities[0];
-			const props: Record<string, any> = {};
-			for (const attr of attributes) props[attr] = this.readProperty(entity, attr, time);
-			index.set(code, props);
-		}
-		this.valueIndex.set(this.settings.zoneLayerId, index);
+		this.valueIndex.set(this.settings.zoneLayerId, values);
+		this.colorIndex.set(this.settings.zoneLayerId, colors);
 	}
 
 	/** Snapshot the zone layer's entity fill colours; re-run when it is restyled. */
@@ -873,26 +986,10 @@ export class ZonalStatisticsController {
 	}
 
 	/**
-	 * Fetch a data layer's GeoJSON and index the attributes the table + fill colours need. Nothing
-	 * else is kept: the parsed document (and its geometry) is dropped as soon as this returns.
+	 * Index the attributes the table + fill colours need out of a data layer's features. Nothing
+	 * else is kept: the parsed document (and its geometry) is dropped as soon as the load burst ends.
 	 */
-	private async indexLayerProperties(layerId: string, layer: GeoJsonLayer): Promise<void> {
-		const url = layer.config.settings?.url;
-		if (typeof url !== "string" || url === "") {
-			console.warn(`zonalStatistics: data layer '${layerId}' has no settings.url to index`);
-			return;
-		}
-		let features: Array<any>;
-		try {
-			const response = await fetch(url);
-			if (!response.ok) throw new Error(`HTTP ${response.status}`);
-			const geojson = await response.json();
-			features = Array.isArray(geojson?.features) ? geojson.features : [];
-		} catch (error) {
-			console.error(`zonalStatistics: failed to load layer '${layerId}'`, error);
-			return;
-		}
-
+	private indexFeatures(layerId: string, features: Array<any>): void {
 		const codeAttr = this.settings.zoneCodeAttribute;
 		const attributes = this.attributesFor(layerId);
 		const classAttr = this.classAttributeFor(layerId);
@@ -915,6 +1012,29 @@ export class ZonalStatisticsController {
 				`zonalStatistics: layer '${layerId}' produced no zone colours from ${features.length} features ` +
 					`(check '${codeAttr}' matches the zone layer's codes and '${classAttr}' matches its classMapping)`
 			);
+		}
+		this.valueIndex.set(layerId, index);
+		this.colorIndex.set(layerId, colors);
+	}
+
+	/**
+	 * Index a data layer straight off the zone layer's entities. Only valid when both layers point
+	 * at the same dataset, in which case the layer differs from the zone layer purely in which
+	 * attributes it reads and there is nothing to download.
+	 */
+	private indexFromZoneEntities(layerId: string): void {
+		const time = this.map.viewer.clock.currentTime;
+		const attributes = new Set(this.attributesFor(layerId));
+		const classAttr = this.classAttributeFor(layerId);
+		if (classAttr) attributes.add(classAttr);
+		const index = new Map<string, Record<string, any>>();
+		const colors = new Map<string, Cesium.Color>();
+		for (const [code, entities] of this.zoneEntityIndex) {
+			const props: Record<string, any> = {};
+			for (const attr of attributes) props[attr] = this.readProperty(entities[0], attr, time);
+			index.set(code, props);
+			const color = this.featureColor(code, props, classAttr);
+			if (color) colors.set(code, color);
 		}
 		this.valueIndex.set(layerId, index);
 		this.colorIndex.set(layerId, colors);
@@ -944,7 +1064,27 @@ export class ZonalStatisticsController {
 	/** Hover handler: brighten the zone under the cursor, reverting the previously hovered one. */
 	private onMouseMove(location: MouseLocation): void {
 		if (!get(this.active)) return;
-		const code = this.pickZoneCode(location);
+		this.hoverLocation = location;
+		this.scheduleHoverPick();
+	}
+
+	/**
+	 * `mouseMove` fires far more often than the scene renders, so the pick — the expensive part — is
+	 * coalesced to at most one per frame. While the camera moves the cursor keeps ending up over a
+	 * different zone without a `mouseMove`, so the frame re-arms itself until the move ends.
+	 */
+	private scheduleHoverPick(): void {
+		if (this.hoverFrame !== undefined) return;
+		this.hoverFrame = requestAnimationFrame(() => {
+			this.hoverFrame = undefined;
+			if (this.hoverLocation === undefined || !get(this.active)) return;
+			this.applyHover(this.pickZoneCode(this.hoverLocation));
+			if (this.cameraMoving) this.scheduleHoverPick();
+		});
+	}
+
+	/** Move the hover highlight to `code`, repainting only the two zones that changed state. */
+	private applyHover(code: string | undefined): void {
 		if (code === this.hoveredCode) return;
 		const previous = this.hoveredCode;
 		this.hoveredCode = code;
@@ -984,9 +1124,10 @@ export class ZonalStatisticsController {
 	/** Add or remove a zone from the selection, then repaint it. */
 	public toggleZone(code: string): void {
 		const current = get(this.selectedZones);
-		if (current.some((z) => z.code === code)) {
+		if (this.selectedCodes.delete(code)) {
 			this.selectedZones.set(current.filter((z) => z.code !== code));
 		} else {
+			this.selectedCodes.add(code);
 			this.selectedZones.set([...current, { code }]);
 		}
 		this.applyColor(code);
@@ -1079,11 +1220,8 @@ export class ZonalStatisticsController {
 
 	/** Clear the hover highlight (on mouse-out or tool deactivation). */
 	private clearHover(): void {
-		if (this.hoveredCode === undefined) return;
-		const previous = this.hoveredCode;
-		this.hoveredCode = undefined;
-		this.applyColor(previous);
-		this.map.viewer.scene.canvas.style.cursor = "";
+		this.hoverLocation = undefined;
+		this.applyHover(undefined);
 	}
 
 	/**
@@ -1101,9 +1239,10 @@ export class ZonalStatisticsController {
 
 	/** Remove all selected zones and repaint them back to their base colour. */
 	public clearSelection(): void {
-		const affected = new Set(get(this.selectedZones).map((z) => z.code));
+		const affected = new Set(this.selectedCodes);
 		if (this.activeCode !== undefined) affected.add(this.activeCode);
 		this.activeCode = undefined;
+		this.selectedCodes.clear();
 		this.selectedZones.set([]);
 		for (const code of affected) this.applyColor(code);
 		this.scheduleHighlightRebuild();
@@ -1111,7 +1250,7 @@ export class ZonalStatisticsController {
 
 	/** Whether a zone with the given code is currently selected. */
 	public isSelected(code: string): boolean {
-		return get(this.selectedZones).some((z) => z.code === code);
+		return this.selectedCodes.has(code);
 	}
 
 	/**
@@ -1251,6 +1390,13 @@ export class ZonalStatisticsController {
 		}
 		for (const unsubscribe of this.unsubscribers) unsubscribe();
 		this.unsubscribers.length = 0;
+		for (const frame of [this.hoverFrame, this.colorRefreshFrame, this.outlineOpacityFrame]) {
+			if (frame !== undefined) cancelAnimationFrame(frame);
+		}
+		this.hoverFrame = undefined;
+		this.colorRefreshFrame = undefined;
+		this.outlineOpacityFrame = undefined;
+		this.hoverLocation = undefined;
 		this.paintWhenReady?.();
 		this.paintWhenReady = undefined;
 		if (this.zoneOutlinePrimitive) {
@@ -1271,6 +1417,8 @@ export class ZonalStatisticsController {
 		this.colorLayerId = undefined;
 		this.colorIndex.clear();
 		this.valueIndex.clear();
+		this.featureLoads.clear();
+		this.selectedCodes.clear();
 		this.tableLayers.set([]);
 		this.map.viewer.scene.canvas.style.cursor = "";
 		this.map.refresh();

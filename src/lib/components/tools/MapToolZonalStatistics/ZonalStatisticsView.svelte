@@ -23,6 +23,7 @@
 	const dispatch = createEventDispatcher();
 
 	const settings = controller.settings;
+	const selectedLayerId = controller.selectedLayerId;
 	const columns = settings.columns;
 	const tableColumns = columns
 		.map((column, index) => ({ column, index }))
@@ -223,11 +224,10 @@
 	}
 
 	function getVisibleLayerTitle(): string | undefined {
-		const selectedLayerId = get(controller.selectedLayerId);
-		if (!selectedLayerId) return undefined;
+		if (!$selectedLayerId) return undefined;
 
 		const selectedLayer = get(controller.resolvedDataLayers).find(
-			(layer) => layer.layerId === selectedLayerId
+			(layer) => layer.layerId === $selectedLayerId
 		);
 		return selectedLayer?.title;
 	}
@@ -555,7 +555,12 @@
 						<tbody>
 							{#each table.rows as row (row.layerId)}
 								<tr class:flash={flashing.has(row.layerId)}>
-									<th class="row-head" scope="row" title={row.title}>{row.title}</th>
+									<th
+										class="row-head"
+										class:selected={row.layerId === $selectedLayerId}
+										scope="row"
+										title={row.title}>{row.title}</th
+									>
 									{#each table.zones as code (code)}
 										{#each tableColumns as item, visibleIndex (item.index)}
 											<td
@@ -893,7 +898,7 @@
 
 	.zonal-table .row-head {
 		text-align: left;
-		font-weight: 600;
+		font-weight: 400;
 		position: sticky;
 		left: 0;
 		background: var(--cds-ui-02);
@@ -901,6 +906,11 @@
 		max-width: 12rem;
 		overflow: hidden;
 		text-overflow: ellipsis;
+	}
+
+	/* Only the layer painted on the map (radio selection in the panel) is emphasised. */
+	.zonal-table .row-head.selected {
+		font-weight: 600;
 	}
 
 	.zonal-table tbody tr:hover td:not(.active),

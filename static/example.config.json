@@ -141,7 +141,7 @@
             "transparent": true,
             "opacity": 80,
             "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326&srsName=EPSG:4326",
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
                 "theme": "",
                 "style": "bomen_label",
                 "classMapping": {
