@@ -272,7 +272,7 @@
                 "shadows": false,
                 "animate": false,
                 "resolutionScale": 1,
-                "maximumScreenSpaceError": 16,
+                "maximumScreenSpaceError": 1.2,
                 "groundAtmosphere": true,
                 "globeOpacity": 100,
                 "lighting": true,

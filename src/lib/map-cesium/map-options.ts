@@ -8,13 +8,13 @@ export class MapOptions {
 
 	public dateTime: Writable<number> = writable<number>(1720602000 * 1000); // 10-07-2024 11:00:00
 	public shadows: Writable<boolean> = writable<boolean>(false);
-	public fxaa: Writable<boolean> = writable<boolean>(false);
+	public fxaa: Writable<boolean> = writable<boolean>(true);
 	public animate: Writable<boolean> = writable<boolean>(false);
 	public resolutionScale: Writable<number> = writable<number>(1);
 	public maximumScreenSpaceError: Writable<number> = writable<number>(1.2);
 	public groundAtmosphere: Writable<boolean> = writable<boolean>(true);
 	public lighting: Writable<boolean> = writable<boolean>(true);
-	public msaa: Writable<number> = writable<number>(4);
+	public msaa: Writable<number> = writable<number>(1);
 	public skyAtmosphere: Writable<boolean> = writable<boolean>(true);
 	public fog: Writable<boolean> = writable<boolean>(true);
 	public highDynamicRange: Writable<boolean> = writable<boolean>(false);
