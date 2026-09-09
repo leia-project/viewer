@@ -261,6 +261,7 @@ export class Map extends MapCore {
 
 		viewer.scene.highDynamicRange = get(this.options.highDynamicRange);
 		viewer.scene.postProcessStages.fxaa.enabled = get(this.options.fxaa);
+		viewer.scene.msaaSamples = get(this.options.msaa);
 
 		// Enable going subsurface
 		viewer.scene.screenSpaceCameraController.enableCollisionDetection = get(this.options.enableCollisionDetection);

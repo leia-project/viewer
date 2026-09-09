@@ -766,15 +766,15 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |showMouseCoordinates|Debug window in viewer to show coordinates for mouse position|false|boolean|
 |showCameraPosition|Debug window to show the current camera position, updates on move|false|boolean|
 |showLoadingWidget|Show a small bar on the bottom of the viewer showing the loading progress of layers|false|boolean|
-|fxaa|FXAA enabled|false|Boolean|
-|msaa|MSAA samples|4|number|
+|fxaa|FXAA enabled|true|Boolean|
+|msaa|MSAA samples|1|number|
 |lighting|Enable lighting the globe with the scene's light source|true|boolean|
 |animate|Enable when displaying animated models else animations only update when the viewer refreshes it's view such as when panning/zooming|false|boolean|
 |resolutionScale|Gets or sets a scaling factor for rendering resolution. Values less than 1.0 can improve performance on less powerful devices while values greater than 1.0 will render at a higher resolution and then scale down, resulting in improved visual fidelity|window.devicePixelRatio|number|
-|maximumScreenSpaceError|The maximum screen space error used to drive level of detail refinement. for 3D tile layers|1.5|number|
+|maximumScreenSpaceError|The maximum screen space error used to drive level of detail refinement. for 3D tile layers|1.2|number|
 |groundAtmosphere|Ground atmosphere enabled|true|boolean|
 |fog|Fog enabled|true|boolean|
-|highDynamicRange|HDR enabled|true|boolean|
+|highDynamicRange|HDR enabled|false|boolean|
 |pointCloudAttenuation|3D Tile Point Cloud Attenuation enabled, Perform point attenuation based on geometric error|true|boolean|
 |pointCloudAttenuationMaximum|3D Tile Point Cloud Maximum point attenuation in pixels. If undefined, the Cesium3DTileset's maximumScreenSpaceError will be used|0|number|
 |pointCloudAttenuationErrorScale|Scale to be applied to the geometric error before computing attenuation|1|number|
