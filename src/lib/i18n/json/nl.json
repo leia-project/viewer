@@ -72,7 +72,15 @@
                 "buttonsHome": "Reset het aanzicht naar de startpositie",
                 "buttonsCompass": "Reset de camera naar het noorden",
                 "buttonsZoomIn": "Zoom in",
-                "buttonsZoomOut": "Zoom out"
+                "buttonsZoomOut": "Zoom out",
+                "buttonsTrackpadShow": "Camerabediening tonen",
+                "buttonsTrackpadHide": "Camerabediening verbergen",
+                "buttonsHeightUp": "Camera omhoog verplaatsen",
+                "buttonsHeightDown": "Camera omlaag verplaatsen",
+                "buttonsPitchUp": "Camera omhoog kantelen",
+                "buttonsPitchDown": "Camera omlaag kantelen",
+                "buttonsRotateLeft": "Camera naar links draaien",
+                "buttonsRotateRight": "Camera naar rechts draaien"
             },
             "library": {
                 "headingLibraryOpen": "Open de bibliotheek",

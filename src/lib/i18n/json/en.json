@@ -72,7 +72,15 @@
                 "buttonsHome": "Reset the view to the start position",
                 "buttonsCompass": "Reset the heading to North",
                 "buttonsZoomIn": "Zoom in",
-                "buttonsZoomOut": "Zoom out"
+                "buttonsZoomOut": "Zoom out",
+                "buttonsTrackpadShow": "Show camera controls",
+                "buttonsTrackpadHide": "Hide camera controls",
+                "buttonsHeightUp": "Move the camera up",
+                "buttonsHeightDown": "Move the camera down",
+                "buttonsPitchUp": "Tilt the camera up",
+                "buttonsPitchDown": "Tilt the camera down",
+                "buttonsRotateLeft": "Rotate the camera left",
+                "buttonsRotateRight": "Rotate the camera right"
             },
             "library": {
                 "headingLibraryOpen": "Open Layer Library",
