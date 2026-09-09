@@ -379,6 +379,25 @@ export class ZonalStatisticsController {
 		this.tableLayers.set(get(this.tableLayers).filter((dl) => dl.layerId !== layerId));
 	}
 
+	/** Add rows for every given data layer, appended in config order. */
+	public addTableLayers(layerIds: Array<string>): void {
+		const wanted = new Set(layerIds);
+		const current = get(this.tableLayers);
+		const currentIds = new Set(current.map((dl) => dl.layerId));
+		const added = this.dataLayers.filter(
+			(dl) => wanted.has(dl.layerId) && !currentIds.has(dl.layerId)
+		);
+		if (added.length === 0) return;
+		this.tableLayers.set([...current, ...added]);
+		for (const dl of added) void this.ensureLayerReady(dl.layerId);
+	}
+
+	/** Remove the rows of every given data layer. */
+	public removeTableLayers(layerIds: Array<string>): void {
+		const unwanted = new Set(layerIds);
+		this.tableLayers.set(get(this.tableLayers).filter((dl) => !unwanted.has(dl.layerId)));
+	}
+
 	/** Give every resolved data layer a row in the table, in config order. */
 	public addAllTableLayers(): void {
 		this.tableLayers.set([...this.dataLayers]);

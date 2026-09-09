@@ -1,6 +1,8 @@
 <script lang="ts">
 	import {
 		InlineNotification,
+		OverflowMenu,
+		OverflowMenuItem,
 		SkeletonPlaceholder,
 		SkeletonText,
 		Tag
@@ -27,6 +29,7 @@
 			expanded: boolean;
 			panelId?: string;
 			inTableCount: number;
+			allInTable: boolean;
 			hasSelectedChild: boolean;
 		}
 	> = [];
@@ -49,6 +52,7 @@
 			expanded,
 			panelId: groupId ? groupPanelId(groupId) : undefined,
 			inTableCount,
+			allInTable: group.layers.length > 0 && inTableCount === group.layers.length,
 			hasSelectedChild
 		};
 	});
@@ -63,6 +67,12 @@
 
 	function groupPanelId(groupId: string): string {
 		return `zonal-group-${groupId.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+	}
+
+	function setGroupTable(group: GroupedDataLayers, inTable: boolean): void {
+		const layerIds = group.layers.map((resolved) => resolved.layerId);
+		if (inTable) controller.addTableLayers(layerIds);
+		else controller.removeTableLayers(layerIds);
 	}
 </script>
 
@@ -95,7 +105,7 @@
 					aria-label={$_("tools.zonalStatistics.addAllToTable")}
 					title={$_("tools.zonalStatistics.addAllToTable")}
 				>
-					<Add size={16} />
+					<Add size={20} />
 				</button>
 				<button
 					class="icon-btn danger"
@@ -105,7 +115,7 @@
 					aria-label={$_("tools.zonalStatistics.removeAllFromTable")}
 					title={$_("tools.zonalStatistics.removeAllFromTable")}
 				>
-					<TrashCan size={16} />
+					<TrashCan size={20} />
 				</button>
 			</div>
 		</div>
@@ -117,22 +127,42 @@
 			{#each renderGroups as group (group.groupId ?? "ungrouped")}
 				{#if group.groupId}
 					<section class="group-section">
-						<button
-							class="group-toggle"
-							class:is-selected={group.hasSelectedChild}
-							type="button"
-							aria-expanded={group.expanded}
-							aria-controls={group.panelId}
-							on:click={() => toggleGroup(group.groupId)}
-						>
-							<span class="group-chevron" class:chevron-rotated={group.expanded}>
-								<ChevronRight size={16} />
-							</span>
-							<span class="group-title">{group.title}</span>
-							<span class="group-count">
-								<Tag size="sm">{group.inTableCount}/{group.layers.length}</Tag>
-							</span>
-						</button>
+						<div class="group-row" class:is-selected={group.hasSelectedChild}>
+							<button
+								class="group-toggle"
+								type="button"
+								aria-expanded={group.expanded}
+								aria-controls={group.panelId}
+								on:click={() => toggleGroup(group.groupId)}
+							>
+								<span class="group-chevron" class:chevron-rotated={group.expanded}>
+									<ChevronRight size={16} />
+								</span>
+								<span class="group-title">{group.title}</span>
+							</button>
+							<div
+								class="group-menu"
+								title={$_("tools.zonalStatistics.groupInTable", {
+									values: { count: group.inTableCount, total: group.layers.length }
+								})}
+							>
+								<OverflowMenu size="sm" flipped>
+									<div slot="menu">
+										<Tag size="sm">{group.inTableCount}/{group.layers.length}</Tag>
+									</div>
+									<OverflowMenuItem
+										text={$_("tools.zonalStatistics.addAllToTable")}
+										disabled={group.allInTable}
+										on:click={() => setGroupTable(group, true)}
+									/>
+									<OverflowMenuItem
+										text={$_("tools.zonalStatistics.removeAllFromTable")}
+										disabled={group.inTableCount === 0}
+										on:click={() => setGroupTable(group, false)}
+									/>
+								</OverflowMenu>
+							</div>
+						</div>
 						{#if group.expanded}
 							<div class="group-cards" id={group.panelId}>
 								{#each group.layers as resolved (resolved.layerId)}
@@ -225,8 +255,8 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 1.5rem;
-		height: 1.5rem;
+		width: 2rem;
+		height: 2rem;
 		border: none;
 		border-radius: 2px;
 		background-color: transparent;
@@ -275,10 +305,11 @@
 		}
 	}
 
+	/* No gaps: consecutive rows are separated by the cards' own top border, like the layer manager. */
 	.cards {
 		display: flex;
 		flex-direction: column;
-		gap: var(--cds-spacing-04);
+		gap: 0;
 	}
 
 	.group-section {
@@ -287,11 +318,21 @@
 		gap: 0;
 	}
 
+	.group-row {
+		display: flex;
+		align-items: center;
+		min-height: 2.5rem;
+		padding-right: var(--cds-spacing-02);
+		border-top: 1px solid var(--cds-ui-03);
+	}
+
 	.group-toggle {
 		display: flex;
 		align-items: center;
 		gap: 0;
-		width: 100%;
+		flex: 1;
+		min-width: 0;
+		min-height: 2.5rem;
 		padding: 0;
 		border: none;
 		background: transparent;
@@ -308,7 +349,7 @@
 		color: var(--cds-link-primary, #0f62fe);
 	}
 
-	.group-toggle.is-selected .group-count :global(.bx--tag) {
+	.group-row.is-selected .group-menu :global(.bx--tag) {
 		background-color: var(--cds-interactive-01, #0f62fe);
 		color: var(--cds-text-04, #ffffff);
 	}
@@ -339,20 +380,26 @@
 		white-space: nowrap;
 	}
 
-	.group-count {
+	.group-menu {
 		flex: 0 0 auto;
-		display: inline-flex;
-		align-items: center;
+		white-space: nowrap;
+		margin-left: var(--cds-spacing-02);
 	}
 
-	.group-count :global(.bx--tag) {
+	:global(.group-menu .bx--overflow-menu),
+	:global(.group-menu .bx--overflow-menu__trigger) {
+		width: fit-content;
+		cursor: pointer;
+	}
+
+	.group-menu :global(.bx--tag) {
 		font-variant-numeric: tabular-nums;
 	}
 
 	.group-cards {
 		display: flex;
 		flex-direction: column;
-		gap: var(--cds-spacing-04);
+		gap: 0;
 		margin-left: var(--cds-spacing-05);
 	}
 
@@ -361,21 +408,20 @@
 		outline-offset: 1px;
 	}
 
-	/* Mirrors ZonalLayerCard's row: bordered box with a 2.5rem head, plus the button slot outside it. */
+	/* Mirrors ZonalLayerCard's row: 2.5rem head plus the button slot outside the box. */
 	.card-skeleton {
 		display: flex;
 		align-items: flex-start;
 		gap: var(--cds-spacing-02);
 		min-width: 0;
+		border-top: 1px solid var(--cds-ui-03);
 	}
 
 	.card-skeleton .card-box {
 		flex: 1;
 		min-width: 0;
-		background-color: var(--cds-ui-02);
-		border: 1px solid var(--cds-ui-03);
-		border-radius: 2px;
-		overflow: hidden;
+		background-color: transparent;
+		border: none;
 	}
 
 	.card-skeleton .card-head {
@@ -383,8 +429,8 @@
 		align-items: center;
 		gap: var(--cds-spacing-03);
 		min-height: 2.5rem;
-		padding: var(--cds-spacing-02) var(--cds-spacing-03);
-		background-color: var(--cds-ui-01);
+		padding: 0 var(--cds-spacing-02) 0 var(--cds-spacing-03);
+		background-color: transparent;
 		min-width: 0;
 	}
 

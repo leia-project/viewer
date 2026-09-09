@@ -100,11 +100,14 @@
 </div>
 
 <style>
+	/* Divider between consecutive layer rows, matching the layer manager's accordion items.
+	   Top-aligned so the table button stays level with the title when the card folds open. */
 	.layer-card {
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 		gap: var(--cds-spacing-02);
 		min-width: 0;
+		border-top: 1px solid var(--cds-ui-03);
 	}
 
 	.card-box {
@@ -218,8 +221,7 @@
 		}
 	}
 
-	/* Sits outside the card box; the 2.5rem hit area centres it against the card head row, while the
-	   hover background stays a 1.5rem square to match the panel header buttons. */
+	/* Sits outside the card box; the vertical margin centres it against the 2.5rem card head row. */
 	.table-btn {
 		flex-shrink: 0;
 		height: 1.5rem;

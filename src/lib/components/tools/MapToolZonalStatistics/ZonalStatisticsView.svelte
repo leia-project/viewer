@@ -187,6 +187,10 @@
 
 	$: controller.setActiveZone(activeCode);
 
+	const loadingLayerIds = controller.loadingLayerIds;
+	// A row appears as soon as its layer is added, but its cells stay empty until the layer is indexed.
+	$: tableLoading = table.rows.some((row) => $loadingLayerIds.has(row.layerId));
+
 	const styler = createZonalStyler(settings.valueStyles);
 
 	function cellStyle(value: string | undefined, columnIndex: number): string {
@@ -418,6 +422,13 @@
 				{/if}
 			</div>
 			<div class="actions">
+				{#if tableLoading}
+					<InlineLoading
+						class="export-status"
+						aria-label={$_("tools.zonalStatistics.loadingLayers")}
+						title={$_("tools.zonalStatistics.loadingLayers")}
+					/>
+				{/if}
 				{#if exportError}
 					<InlineLoading
 						class="export-status"
@@ -719,8 +730,16 @@
 		gap: var(--cds-spacing-02);
 	}
 
+	/* Carbon defaults InlineLoading to `width:100%`, which squeezes the action buttons. */
 	.actions :global(.export-status) {
+		flex: 0 1 auto;
+		width: auto;
 		margin-right: var(--cds-spacing-02);
+	}
+
+	.actions :global(.bx--btn),
+	.actions :global(.bx--overflow-menu) {
+		flex-shrink: 0;
 	}
 
 	.content-wrap {

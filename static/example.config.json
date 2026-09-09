@@ -761,7 +761,8 @@
                     { "value": "B", "color": "#bbdb44" },
                     { "value": "C", "color": "#f7e379" },
                     { "value": "D", "color": "#f2a134" },
-                    { "value": "E", "color": "#e51f1f" }
+                    { "value": "E", "color": "#e51f1f" },
+                    { "value": "?", "color": "#d6d4d4" }
                 ],
                 "layers": [
                     {
