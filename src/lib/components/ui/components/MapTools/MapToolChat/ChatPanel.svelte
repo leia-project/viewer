@@ -19,6 +19,7 @@
 	import  DOMPurify from "dompurify";
 
 	import { get } from "svelte/store"
+	import { tick } from "svelte";
 
 	export let map: Writable<Map | undefined>;
 
@@ -171,10 +172,44 @@
 }
 
 /* Stuur ook een bericht met Ctrl+Enter */
+/* Enter verstuurt, Ctrl/Cmd+Enter en Shift+Enter maken een nieuwe regel.
+   Shift+Enter doet de browser zelf; Ctrl+Enter doet in een textarea niets,
+   dus die regel zetten we hieronder met de hand op de cursorpositie. */
 function handleKeydown(event: KeyboardEvent) {
-	if (event.code === "Enter" && event.ctrlKey == true) {
-		ask()
+	if (event.key !== "Enter") return;
+
+	if (event.shiftKey) return;
+
+	if (event.ctrlKey || event.metaKey) {
+		event.preventDefault();
+		insertNewline(event.currentTarget as HTMLTextAreaElement);
+		return;
 	}
+
+	/* Zonder dit zet de browser alsnog een regeleinde in het veld. */
+	event.preventDefault();
+	ask();
+}
+
+async function insertNewline(el: HTMLTextAreaElement) {
+	const start = el.selectionStart;
+	const end = el.selectionEnd;
+
+	question = question.slice(0, start) + "\n" + question.slice(end);
+
+	/* `tick` wacht tot Svelte de nieuwe waarde in de DOM heeft gezet; pas
+	   daarna kun je de cursor achter het ingevoegde teken zetten. */
+	await tick();
+	el.setSelectionRange(start + 1, start + 1);
+	autoGrow({ currentTarget: el } as unknown as Event);
+}
+
+/* Een textarea groeit niet vanzelf mee. Hoogte eerst op auto, zodat
+   scrollHeight de echte inhoud meet, daarna afgetopt op 7.5rem. */
+function autoGrow(event: Event) {
+	const el = event.currentTarget as HTMLTextAreaElement;
+	el.style.height = "auto";
+	el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
 }
 
 const MAX_ROWS = 15;
@@ -380,13 +415,15 @@ $: if (events && bodyEl) {
 		</div>
 
 		<div class="chat-panel__footer">
-			<input
+			<textarea
 				class="chat-panel__input"
 				bind:value={question}
 				placeholder="Stel een vraag"
 				disabled={busy}
+				rows="1"
 				on:keydown={handleKeydown}
-			/>
+				on:input={autoGrow}
+			></textarea>
 			<button
 				class="chat-panel__send"
 				on:click={ask}
@@ -519,7 +556,8 @@ $: if (events && bodyEl) {
 
 	.chat-panel__footer {
 		display: flex;
-		align-items: center;
+		/* Groeit de textarea, dan blijft de verstuurknop onderaan uitgelijnd. */
+		align-items: flex-end;
 		gap: 0.5rem;
 		border-top: 1px solid var(--cds-ui-03, #e0e0e0);
 		padding: 1rem;
@@ -528,6 +566,9 @@ $: if (events && bodyEl) {
 	.chat-panel__input {
 		flex: 1;
 		min-width: 0;
+		/* Zelf slepen uit; de hoogte komt van autoGrow. */
+		resize: none;
+		overflow-y: auto;
 		padding: 0.5rem;
 		border: 1px solid var(--cds-ui-04, #8d8d8d);
 		background: var(--cds-field-01, #ffffff);
