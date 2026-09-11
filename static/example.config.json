@@ -561,30 +561,6 @@
                     "null": "#d6d4d4"
                 }
             }
-        },
-        {
-            "id": "28",
-            "type": "geojson",
-            "title": "Toename zoute kwel",
-            "groupId": "verzilting",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "transparent": true,
-            "opacity": 80,
-            "settings": {
-                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
-                "theme": "",
-                "style": "toename_zoute_kwel_label",
-                "classMapping": {
-                    "A": "#44ce1b",
-                    "B": "#bbdb44",
-                    "C": "#f7e379",
-                    "D": "#f2a134",
-                    "E": "#e51f1f",
-                    "null": "#d6d4d4"
-                }
-            }
         }
     ],
     "viewer": {
@@ -679,16 +655,6 @@
             "id": "droogte",
             "title": "Droogte",
             "parentId": ""
-        },
-        {
-            "id": "archief",
-            "title": "Archief",
-            "parentId": ""
-        },
-        {
-            "id": "verzilting",
-            "title": "Verzilting",
-            "parentId": ""
         }
     ],
     "tools": [
@@ -762,7 +728,7 @@
                     { "value": "C", "color": "#f7e379" },
                     { "value": "D", "color": "#f2a134" },
                     { "value": "E", "color": "#e51f1f" },
-                    { "value": "?", "color": "#d6d4d4" }
+                    { "value": "-", "color": "#d6d4d4" }
                 ],
                 "layers": [
                     {
@@ -996,19 +962,6 @@
                             "ambitie": {
                                 "attribute": "zakking_glg_streven_label",
                                 "tooltipAttribute": "zakking_glg_streven_category"
-                            }
-                        }
-                    },
-                    {
-                        "id": "28",
-                        "columns": {
-                            "huidig": {
-                                "attribute": "toename_zoute_kwel_label",
-                                "tooltipAttribute": "toename_zoute_kwel_category"
-                            },
-                            "ambitie": {
-                                "attribute": "toename_zoute_kwel_streven_label",
-                                "tooltipAttribute": "toename_zoute_kwel_streven_category"
                             }
                         }
                     }
