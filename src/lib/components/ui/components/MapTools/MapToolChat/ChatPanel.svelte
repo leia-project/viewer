@@ -44,12 +44,40 @@
 	   Zonder sessietoken is er nog geen draad om te exporteren. */
 	let exporting = false;
 
+	/* De exportknop downloadt niet meteen, maar vraagt eerst waarom je exporteert.
+	   Die reden belandt in het bestand, zodat een map met exports vanzelf een
+	   lijst met klachten wordt. */
+	let exportDialogOpen = false;
+	let exportReason = "";
+
+	function openExportDialog() {
+		if (exporting || !sessionToken) return;
+		exportReason = "";
+		exportDialogOpen = true;
+	}
+
+	function cancelExport() {
+		exportDialogOpen = false;
+	}
+
+	/* Een Svelte-action: deze functie krijgt het element zodra het in de DOM
+	   komt, zodat de cursor meteen in het invoerveld staat. */
+	function focusOnMount(node: HTMLElement) {
+		node.focus();
+	}
+
+	function handleExportKeydown(event: KeyboardEvent) {
+		if (event.key === "Escape") cancelExport();
+		if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) handleExport();
+	}
+
 	async function handleExport() {
 		if (exporting || !sessionToken || !$chatApiUrl) return;
 
 		exporting = true;
+		exportDialogOpen = false;
 		try {
-			await exportConversation($chatApiUrl, sessionToken);
+			await exportConversation($chatApiUrl, sessionToken, exportReason.trim());
 		} catch (error) {
 			console.error("Export van gesprek mislukt:", error);
 		} finally {
@@ -260,7 +288,7 @@ $: if (events && bodyEl) {
 
 			<div class="chat-panel__actions">
 				<button
-					on:click={handleExport}
+					on:click={openExportDialog}
 					class="chat-panel__action"
 					type="button"
 					disabled={exporting || !sessionToken}
@@ -369,6 +397,35 @@ $: if (events && bodyEl) {
 				<SendAltFilled size={20} />
 			</button>
 		</div>
+
+		{#if exportDialogOpen}
+			<div class="export-dialog">
+				<div class="export-dialog__box">
+					<label class="export-dialog__label" for="export-reason">Waarom exporteer je dit?</label>
+					<textarea
+						id="export-reason"
+						class="export-dialog__input"
+						bind:value={exportReason}
+						use:focusOnMount
+						on:keydown={handleExportKeydown}
+						rows="3"
+						placeholder="Wat ging er mis?"
+					></textarea>
+					<div class="export-dialog__actions">
+						<button class="export-dialog__button" type="button" on:click={cancelExport}>
+							Annuleren
+						</button>
+						<button
+							class="export-dialog__button export-dialog__button--primary"
+							type="button"
+							on:click={handleExport}
+						>
+							Exporteren
+						</button>
+					</div>
+				</div>
+			</div>
+		{/if}
 	</div>
 {/if}
 
@@ -493,6 +550,67 @@ $: if (events && bodyEl) {
 	.chat-panel__send:disabled {
 		opacity: 0.4;
 		cursor: not-allowed;
+	}
+
+	/* ---- Exportdialoog ---- */
+
+	/* Absolute binnen .chat-panel (die staat op position: absolute), dus de
+	   overlay dekt alleen het chatpaneel en niet de hele kaart. */
+	.export-dialog {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1rem;
+		background: rgb(0 0 0 / 40%);
+		z-index: 11;
+	}
+
+	.export-dialog__box {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		width: 100%;
+		padding: 1rem;
+		background: var(--cds-ui-01, #f4f4f4);
+		border: 1px solid var(--cds-ui-03, #e0e0e0);
+		box-shadow: 0 2px 12px rgb(0 0 0 / 25%);
+	}
+
+	.export-dialog__label {
+		font-size: 0.875rem;
+		font-weight: 600;
+	}
+
+	.export-dialog__input {
+		padding: 0.5rem;
+		border: 1px solid var(--cds-ui-04, #8d8d8d);
+		background: var(--cds-field-01, #ffffff);
+		color: inherit;
+		font: inherit;
+		resize: vertical;
+	}
+
+	.export-dialog__actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.5rem;
+	}
+
+	.export-dialog__button {
+		padding: 0.5rem 0.75rem;
+		border: 1px solid var(--cds-ui-04, #8d8d8d);
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		cursor: pointer;
+	}
+
+	.export-dialog__button--primary {
+		border-color: var(--cds-interactive-01, #0f62fe);
+		background: var(--cds-interactive-01, #0f62fe);
+		color: var(--cds-text-04, #ffffff);
 	}
 
 	/* ---- Bubbels: de vraag en het antwoord ---- */

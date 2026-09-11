@@ -12,7 +12,11 @@
  * zonder id op: dat is precies dezelfde draad.
  */
 
-export async function exportConversation(apiUrl: string, sessionToken: string): Promise<void> {
+export async function exportConversation(
+	apiUrl: string,
+	sessionToken: string,
+	reason: string
+): Promise<void> {
 	const response = await fetch(`${apiUrl}/conversation/export`, {
 		headers: { "X-Session-Token": sessionToken }
 	});
@@ -23,10 +27,19 @@ export async function exportConversation(apiUrl: string, sessionToken: string): 
 
 	const data = await response.json();
 
+	/* De reden staat bovenaan, los van het gesprek zelf. Zo kun je later met
+	   `jq -r '.reason' *.json` in één keer de lijst met klachten uitlezen
+	   zonder de gesprekken open te hoeven klappen. */
+	const payload = {
+		reason,
+		exported_at: new Date().toISOString(),
+		conversation: data.conversation
+	};
+
 	/* Een Blob is een bestand in het geheugen; createObjectURL geeft er een
 	   tijdelijke URL op uit, waar een nagebootste klik op <a download> naartoe
 	   "navigeert". Zo dwing je een download af zonder server-bestand. */
-	const blob = new Blob([JSON.stringify(data.conversation, null, 2)], {
+	const blob = new Blob([JSON.stringify(payload, null, 2)], {
 		type: "application/json"
 	});
 	const url = URL.createObjectURL(blob);
