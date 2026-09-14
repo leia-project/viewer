@@ -7,12 +7,16 @@ export class WmsLayer extends CesiumImageryLayer {
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
+		this.setBoundingBoxCameraPosition("wms");
 	}
 
 	createLayer(dropDownStyleName?: string): void {
 		const provider = new Cesium.WebMapServiceImageryProvider({
-			url: this.config.settings["url"],
+			url: this.config.settings["url"].split("?")[0],
 			layers: this.config.settings["featureName"],
+			tilingScheme: this.config.settings["webMercator"]
+				? new Cesium.WebMercatorTilingScheme({ ellipsoid: Cesium.Ellipsoid.WGS84 })
+				: undefined,
 			parameters: {
 				transparent: true,
 				format: this.config.settings["contentType"] ?? "image/png",

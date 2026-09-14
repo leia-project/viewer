@@ -12,6 +12,8 @@ export class LayerManagerGroup {
     public open: Writable<boolean>;
     public totalLayerCount: Writable<number>;
     public visibleLayerCount: Writable<number>;
+    public connector: Record<string, string>;
+    public toolGroup: { label: string } | undefined;
 
     private groupTotalLayerCountUnsubscribers: Record<string, Unsubscriber>;
     private groupEnabledLayerCountUnsubscribers: Record<string, Unsubscriber>;
@@ -24,6 +26,8 @@ export class LayerManagerGroup {
         this.groupTotalLayerCountUnsubscribers = {};
         this.groupEnabledLayerCountUnsubscribers = {};
         this.layerUnsubscribers = {};
+        this.connector = {};
+        this.toolGroup = undefined;
         this.childGroups = writable<Array<LayerManagerGroup>>(new Array<LayerManagerGroup>());
         this.layers = writable<Array<Layer>>(new Array<Layer>());
         this.open = writable<boolean>(false);
@@ -57,7 +61,6 @@ export class LayerManagerGroup {
     
         // layer already added to group
         if(filtered && filtered.length > 0) {
-            // console.info("layer already added to group");
             return;
         }
 

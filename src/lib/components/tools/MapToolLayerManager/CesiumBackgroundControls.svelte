@@ -55,7 +55,6 @@
 <style>
 	.custom {
 		width: 100%;
-		padding-top: var(--cds-spacing-05);
 	}
 
 	.spacer {

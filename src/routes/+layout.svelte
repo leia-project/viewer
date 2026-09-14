@@ -7,6 +7,8 @@
 
 	import './app.css';	
 
+	export let params: Record<string, string> = {};
+
 	app.init();
 
 	/* const translations = new Array<{ locale: string, translations: {} }>();

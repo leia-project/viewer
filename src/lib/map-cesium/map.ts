@@ -16,12 +16,14 @@ import { CesiumLayerFactory } from "./cesium-layer-factory";
 import { MapOptions } from "./map-options";
 
 import type { CesiumLayer } from "./layers/cesium-layer";
+import { ClipHandler } from "./clip";
 
 
 export class Map extends MapCore {
 	public viewer!: Cesium.Viewer;
 	public camera!: Cesium.Camera;
 	public options: MapOptions;
+	public clipHandler: ClipHandler;
 	public featureInfoHandler!: FeatureInfoHandler;
 
 	public flyCamera: FlyCamera | undefined; // Do not remove
@@ -32,6 +34,7 @@ export class Map extends MapCore {
 
 		this.options = new MapOptions(this);
 		this.layerFactory = new CesiumLayerFactory();
+		this.clipHandler = new ClipHandler(this);
 		this.configLoaded.subscribe((loaded) => {
 			this.handleConfig(loaded);
 		});
@@ -120,11 +123,13 @@ export class Map extends MapCore {
 	}
 
 	public flyTo(position: CameraLocation): void {
+		// In 2D mode the camera must stay top-down, so ignore any tilt from the target position
+		const pitch = get(this.options.use3DMode) ? position.pitch : -89.9;
 		this.camera?.flyTo({
 			destination: Cesium.Cartesian3.fromDegrees(position.x, position.y, position.z),
 			orientation: {
 				heading: Cesium.Math.toRadians(position.heading),
-				pitch: Cesium.Math.toRadians(position.pitch),
+				pitch: Cesium.Math.toRadians(pitch),
 				roll: 0.0
 			},
 			duration: position.duration
@@ -256,9 +261,10 @@ export class Map extends MapCore {
 
 		viewer.scene.highDynamicRange = get(this.options.highDynamicRange);
 		viewer.scene.postProcessStages.fxaa.enabled = get(this.options.fxaa);
+		viewer.scene.msaaSamples = get(this.options.msaa);
 
 		// Enable going subsurface
-		viewer.scene.screenSpaceCameraController.enableCollisionDetection = false;
+		viewer.scene.screenSpaceCameraController.enableCollisionDetection = get(this.options.enableCollisionDetection);
 
 		// Set sun position
 		const date = new Date();

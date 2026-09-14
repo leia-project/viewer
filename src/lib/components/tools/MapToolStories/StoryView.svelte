@@ -4,7 +4,7 @@
 	import * as Cesium from "cesium";
 	import { writable, get, type Writable } from "svelte/store";
 	import { Button, Tag, SliderSkeleton } from "carbon-components-svelte";
-	import { Exit, ChevronDown, ChevronUp, ChoroplethMap } from "carbon-icons-svelte";
+	import { Return, ChevronDown, ChevronUp, ChoroplethMap } from "carbon-icons-svelte";
 	import "@carbon/charts-svelte/styles.css";
 	import { jsPDF } from 'jspdf';
 
@@ -28,6 +28,8 @@
 	import StoryChart from "./StoryChart/StoryChart.svelte";
 	import StoryOpacitySlider from "./StoryOpacitySlider.svelte";
 	import StoryChartDownloadButton from "./StoryChart/StoryChartDownloadButton.svelte";
+	import { showStoryMarkers } from "./story-handler";
+	import ToggleView from "../MapToolProjects/components/ToggleView.svelte";
 
 
 	export let map: Map;
@@ -41,6 +43,7 @@
 	const dispatch = createEventDispatcher();
 
 	let currentPage = writable<number>(1);
+	let lastAppliedSavedStepNumber: number | undefined;
 	let activeStep: StoryStep | undefined;
 	let activeChapter: StoryChapter | undefined;
 	let activeChapterSteps: Array<StoryStep> | undefined;
@@ -48,8 +51,11 @@
 	let width: number;
 	let height: number;
 	let navHeight: number;
+	let viewportHeight: number = 0;
 	let container: HTMLElement;
 	let content: HTMLElement;
+	let scrollContainer: HTMLElement;
+	let resizeObserver: ResizeObserver | undefined;
 	let lastInputType: string;
 
 	let storyLayers = new Array<Layer>();
@@ -58,6 +64,7 @@
 	let startVisibleLayers = new Array<string>();
 	let startGlobeOpacity: number;
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
+	let startUse3DMode: boolean = get(map.options.use3DMode);
 
 	let polygonArea: number = 0;
 	let hasDrawnPolygon: Writable<boolean> = writable(false);
@@ -132,9 +139,10 @@
 
 
 	onMount(() => {
-		if (story.force2DMode) {
+		if (story.forceCameraMode) {
+			const targetMode = story.forceCameraMode === "3D";
 			map.options.disableModeSwitcher.set(true);
-			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
+			if (get(map.options.use3DMode) !== targetMode) map.options.use3DMode.set(targetMode);
 		}
 
 		startCameraLocation = cesiumMap.getPosition();
@@ -142,7 +150,11 @@
 		let toolContainer = getToolContainer();
 		height = toolContainer.clientHeight;
 
-		container = getToolContentContainer();
+		const contentContainer = getToolContentContainer();
+		viewportHeight = contentContainer.clientHeight;
+		resizeObserver = new ResizeObserver(() => { viewportHeight = contentContainer.clientHeight; });
+		resizeObserver.observe(contentContainer);
+		container = scrollContainer;
 		container.addEventListener("scroll", onScroll);
 		container.addEventListener("wheel", onWheel);
 		startAutocheckBackground = map.autoCheckBackground;
@@ -164,9 +176,14 @@
 
 
 	onDestroy(() => {
-		if (story.force2DMode) map.options.disableModeSwitcher.set(false);
+		if (story.forceCameraMode) {
+			map.options.disableModeSwitcher.set(false);
+			const targetMode = story.forceCameraMode === "3D";
+			if (targetMode !== startUse3DMode) map.options.use3DMode.set(startUse3DMode);
+		}
 
 		map.autoCheckBackground = startAutocheckBackground;
+		resizeObserver?.disconnect();
 		container.removeEventListener("scroll", onScroll);
 		container.removeEventListener("wheel", onWheel);
 		resetToStart();
@@ -217,8 +234,9 @@
 
 
 	currentPage.subscribe((page) => {
-		if (story.force2DMode) {
-			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
+		if (story.forceCameraMode) {
+			const targetMode = story.forceCameraMode === "3D";
+			if (get(map.options.use3DMode) !== targetMode) map.options.use3DMode.set(targetMode);
 		} // Set this again because apparently OnMount is slower than a subscribe :/
 		const index = page - 1;
 
@@ -299,14 +317,19 @@
 		}
 	});
 
+	$: if (savedStepNumber !== lastAppliedSavedStepNumber) {
+		lastAppliedSavedStepNumber = savedStepNumber;
+		lastInputType = "click";
+		currentPage.set(savedStepNumber);
+	}
+
 	function scrollToStep(index: number): void {
 		const stepElement = getStepElementByIndex(index);
 		if (stepElement) {
 			container.scrollTo({
 				top:
 					stepElement.getBoundingClientRect().top -
-					content.getBoundingClientRect().top -
-					navHeight
+					content.getBoundingClientRect().top
 			});
 		}
 	}
@@ -418,7 +441,7 @@
 
 	function checkStep() {
 		const steps = content.getElementsByClassName("step");
-		const intersectLine = navHeight + 200; //TODO: make this dynamic
+		const intersectLine = container.getBoundingClientRect().top + 200;
 
 		for (let i = 0; i < steps.length; i++) {
 			const rect = steps[i].getBoundingClientRect();
@@ -546,17 +569,17 @@ async function downloadPDF() {
 
 </script>
 
-<div class="story" bind:clientWidth={width}>
+<div class="story story-viewer" bind:clientWidth={width} style={viewportHeight ? `height:${viewportHeight}px` : undefined}>
 	<div
 		class="nav"
-		style="width:{width}px"
 		bind:clientHeight={navHeight}
 		on:scroll={(e) => {
 			e.preventDefault();
 			e.stopPropagation();
 		}}
 	>	
-		<div class="heading-03" style="font-weight: bold; text-align: left; width: 100%;">
+		<div class="nav-header">
+		<div class="heading-03 nav-title" title={story.name} style="font-weight: bold; text-align: left;">
 			{story.name}
 		</div>
 		<div class="nav-controls">
@@ -570,7 +593,7 @@ async function downloadPDF() {
 					<Button
 						kind="tertiary"
 						iconDescription={$baseMapVisible ? `${$_("general.close")} ${$_("tools.stories.basemap")}` : `${$_("general.open")} ${$_("tools.stories.basemap")}`}
-						tooltipPosition="top"
+						tooltipPosition="bottom"
 						icon={ChoroplethMap}
 						on:click={() => $baseMapVisible = !$baseMapVisible}
 					/>
@@ -581,26 +604,25 @@ async function downloadPDF() {
 					<Button
 						kind={"primary"}
 						iconDescription={showPolygonMenu ? `${$_("general.open")} ${$_("tools.stories.projectAreaTool")}` : `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
-						tooltipPosition="top"
+						tooltipPosition="bottom"
 						icon={$showPolygonMenu ? ChevronUp : ChevronDown}
 						on:click={() => $showPolygonMenu = !$showPolygonMenu} 
 					/>
 				</div>
 			{/if}
-			<div class="close">
-				<Button
-					kind="tertiary"
-					iconDescription={textBack}
-					tooltipPosition="top"
-					icon={Exit}
-					on:click={backToOverview} 
-				/>
-			</div>
+		</div>
+		<div class="nav-close">
+			<Button
+				kind="tertiary"
+				iconDescription={textBack}
+				tooltipPosition="bottom"
+				tooltipAlignment="end"
+				icon={Return}
+				on:click={backToOverview} 
+			/>
+		</div>
 		</div>
 		
-		<!-- <div class="story-description body-compact-01">
-			{story.description}
-		</div> -->
 		{#if story.requestPolygonArea}
 			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={showPolygonMenu}/>
 		{/if}
@@ -623,7 +645,7 @@ async function downloadPDF() {
 			{/each}
 		</div>
 		<hr style="width: 100%;"/>
-		<div>
+		<div style="width: 100%;">
 			<CustomPaginationNav
 				bind:page={$currentPage}
 				bind:lastInputType ={lastInputType}
@@ -632,8 +654,8 @@ async function downloadPDF() {
 		</div>
 	</div>
 
+	<div class="scroll" bind:this={scrollContainer}>
 	<div class="content" bind:this={content}>
-		<div style="height:{navHeight}px" />
 		{#each flattenedSteps as { step, chapter }, index}
 			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
 				<div class="step-heading heading-01">
@@ -641,9 +663,6 @@ async function downloadPDF() {
 				</div>
 				<div class="step-heading heading-04">
 					{step.title}
-				</div>
-				<div class="step-heading-sub heading-03">
-					{$_("tools.stories.description")}
 				</div>
 				<div>
 					{@html step.html}
@@ -721,18 +740,20 @@ async function downloadPDF() {
 				</div>
 				<div class="opacity-controls">
 					{#each step.layers ?? [] as layer}
-						{#await (async () => {
-							while (!getAdded(layer.id.toString())) {
-								await new Promise(r => setTimeout(r, 100));
-							}
-							return getAdded(layer.id.toString());
-						})() then addedLayer}
-							{#if addedLayer}
-								<StoryOpacitySlider layer={addedLayer} />
-							{/if}
-						{:catch}
-							<SliderSkeleton hideLabel />
-						{/await}
+						{#if layer.showOpacitySlider}
+							{#await (async () => {
+								while (!getAdded(layer.id.toString())) {
+									await new Promise(r => setTimeout(r, 100));
+								}
+								return getAdded(layer.id.toString());
+							})() then addedLayer}
+								{#if addedLayer}
+									<StoryOpacitySlider layer={addedLayer} />
+								{/if}
+							{:catch}
+								<SliderSkeleton hideLabel />
+							{/await}
+						{/if}
 					{/each}
 				</div>
 				<div class="tag">
@@ -743,19 +764,45 @@ async function downloadPDF() {
 		{/each}
 		<!-- <div style="height:{height}px" /> -->
 	</div>
+	</div>
+
+	{#if story.hasMarkers}
+		<div class="marker-footer">
+			<div class="footer-gradient" />
+			<ToggleView bind:show={$showStoryMarkers} text={$_("tools.stories.showStoryOnMap")} />
+		</div>
+	{/if}
 </div>
 
 <style>
+	:global(.content-wrapper:has(.story-viewer)) {
+		scrollbar-gutter: auto;
+	}
+
+	:global(.tool-content:has(.story-viewer)) {
+		margin-bottom: 0;
+	}
+
 	.story {
 		height: 100%;
 		max-height: 100%;
 		width: inherit;
 		position: relative;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+	}
+
+	.scroll {
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow-y: auto;
+		overflow-x: hidden;
 		scroll-behavior: smooth;
 	}
 
 	.nav {
-		position: fixed;
+		position: relative;
 		display: flex;
 		justify-content: center;
 		flex-direction: column;
@@ -765,39 +812,44 @@ async function downloadPDF() {
 		border-top: 1px solid var(--cds-ui-03);
 		border-bottom: 1px solid var(--cds-ui-03);
 		padding: var(--cds-spacing-05);
-		margin-top: -1px;
+		flex: 0 0 auto;
 	}
 
-	.nav .close {
-		position: absolute;
-		top: 0;
-		right: 0;
-		margin-left: 1rem;
+	.nav-header {
+		display: flex;
+		flex-wrap: nowrap;
+		align-items: center;
+		gap: 0.5rem;
+		width: 100%;
 	}
 
-	.nav .draw-polygon {
-		position: absolute;
-		top: 0;
-		right:5
+	.nav-title {
+		flex: 1 1 auto;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.nav-controls {
-		position: absolute;
-		top: 0;
-		right: 0;
+		flex: 0 0 auto;
 		display: flex;
+		flex-wrap: nowrap;
 		gap: 0.25rem; /* spacing between the buttons */
-		padding: 0.5rem;
 	}
-	
-	.nav-controls .draw-polygon,
-	.nav-controls .close {
-		position: static; /* Override absolute positioning from before */
+
+	.nav-close {
+		flex: 0 0 auto;
 	}
 
 	.chapter-buttons {
 		justify-content: center;
 		flex-wrap: wrap;
+	}
+
+	.nav .chapter-buttons {
+		position: relative;
+		z-index: 10;
 	}
 
 
@@ -826,10 +878,6 @@ async function downloadPDF() {
 	.step-heading {
 		font-weight: bold;
 		padding-bottom: var(--cds-spacing-03);
-	}
-
-	.step-heading-sub {
-		padding-top: var(--cds-spacing-05);
 	}
 
 	.step-stats {
@@ -886,5 +934,26 @@ async function downloadPDF() {
 		width: 1.2rem;
 		height: 1.2rem;
 		font-size: 0.75rem;
+	}
+
+	.marker-footer {
+		flex: 0 0 auto;
+		position: relative;
+		z-index: 2;
+		width: 100%;
+		box-sizing: border-box;
+		padding: var(--cds-spacing-05);
+		background-color: var(--cds-ui-01);
+		border-top: 1px solid var(--cds-ui-03);
+	}
+
+	.footer-gradient {
+		position: absolute;
+		bottom: 100%;
+		left: 0;
+		width: 100%;
+		height: 1.5rem;
+		background: linear-gradient(0deg, var(--cds-ui-02) 5%, rgba(255, 255, 255, 0) 100%);
+		pointer-events: none;
 	}
 </style>

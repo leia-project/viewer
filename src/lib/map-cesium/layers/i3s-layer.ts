@@ -8,9 +8,12 @@ export class I3sLayer extends PrimitiveLayer {
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
-		
-		this.createLayer();
+
 		this.addListeners();
+	}
+
+	protected startLoading(): void {
+		this.createLayer();
 	}
 
 	private addListeners(): void {

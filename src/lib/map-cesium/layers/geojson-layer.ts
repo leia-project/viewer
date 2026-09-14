@@ -131,6 +131,8 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	}
 
 	public async addToMap(): Promise<void> {
+		// Lazy loading: only fetch/parse data once the layer has been activated
+		if (!this.loadInitiated || !this.source) return;
 		if (!this.loaded && this.url) this.loaded = this.loadData();
 		await this.loaded;
 		await this.map.viewer.dataSources.add(this.source);
@@ -138,6 +140,10 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.setAvailableProperties();
 		get(this.visible) ? this.show() : this.hide();
 		if (this.config.settings["dragDropped"]) this.zoomTo();
+	}
+
+	protected startLoading(): Promise<void> {
+		return this.addToMap();
 	}
 
 	public removeFromMap(): void {
@@ -309,7 +315,9 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			if (entity.point) entity.point.color = new Cesium.ColorMaterialProperty(this.defaultColorPoint.withAlpha(this.alpha));
 			else if (entity.polyline) entity.polyline.material = this.defaultColorLine;
 			else if (entity.polygon) {
-				const colorProp = new Cesium.ColorMaterialProperty(Cesium.Color.fromCssColorString(this.config.settings.style.fill).withAlpha(this.alpha))
+				const colorProp = this.config.settings.style?.fill
+					? new Cesium.ColorMaterialProperty(Cesium.Color.fromCssColorString(this.config.settings.style.fill).withAlpha(this.alpha))
+					: this.defaultColorPolygon;
 				this.setPolygonMaterial(entity, colorProp);
 			}
 		}

@@ -8,6 +8,7 @@
 	import { HeaderSearch } from "carbon-components-svelte";
 	import { app } from "$lib/app/app";
 	import { getFeatureBounds } from "$lib/map-cesium/utils/map-utils";
+	import { searchActive } from "../search-active";
 
 
 	const map = app.map;
@@ -222,12 +223,14 @@
 	bind:value={$value}
 	bind:selectedResultIndex
 	placeholder={$_("tools.geocoder.search")}
-	width={"600px"}
+	width={"min(600px, 80vw)"}
 	{results}
 	on:active={() => {
+		searchActive.set(true);
 		events = [...events, { type: "active" }];
 	}}
 	on:inactive={() => {
+		searchActive.set(false);
 		events = [...events, { type: "inactive" }];
 	}}
 	on:clear={() => {

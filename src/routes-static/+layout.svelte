@@ -6,6 +6,8 @@
 	import { setupLocalization } from '$lib/i18n/localization';
 	import '../routes/app.css';	
 
+	export let params: Record<string, string> = {};
+
 	app.init();
 	setupLocalization("nl");
 

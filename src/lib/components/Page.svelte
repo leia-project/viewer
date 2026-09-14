@@ -196,7 +196,7 @@
 <CarbonTheme style={light} />
 
 <div class="main">
-	<Header logo={$settings.logo} logoMarginLeft={$settings.logoMarginLeft} logoMarginRight={$settings.logoMarginRight} company={$settings.title} platformName={$settings.subTitle}>
+	<Header logo={$settings.logo} logoMarginLeft={$settings.logoMarginLeft} logoMarginRight={$settings.logoMarginRight} company={$settings.title} platformName={$settings.subTitle} headerColor={$settings.colors?.["header-color"]} titleColor={$settings.colors?.["title-color"]} subTitleColor={$settings.colors?.["sub-title-color"]}>
 		<div slot="headerUtilities">
 			<div class="header-utilities">
 				{#if $enabledTools.includes("geocoder")}
@@ -209,7 +209,7 @@
 					<Language />
 				{/if}
 				{#if $enabledTools.includes("github")}
-					<HeaderActionLink title="Visit GitHub" icon={LogoGithub} href="https://github.com/leia-project" target="_blank"/>
+					<HeaderActionLink title={$_("general.visitGithub")} icon={LogoGithub} href="https://github.com/leia-project" target="_blank"/>
 				{/if}
 			</div>
 		</div>
@@ -330,6 +330,8 @@
 		display: flex;
 		justify-content: right;
 		width: 100%;
+		min-width: 0;
+		gap: 0.25rem;
 	}
 
 </style>

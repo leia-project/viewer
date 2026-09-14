@@ -91,13 +91,17 @@
       <Button
         kind={page === activeChapterIndex + idx + 1 ? "tertiary" : "ghost"}
         size="small"
-        style="margin: 0.1rem; padding: 0 8px; width: fit-content; min-width: 30px;"
+        class="step-label-btn"
+        title={label}
+        style={page === activeChapterIndex + idx + 1
+          ? "margin: 0.1rem; padding: 0 8px; min-width: 0; flex-shrink: 1;"
+          : "margin: 0.1rem; padding: 0 8px; min-width: 0; max-width: 8rem; flex-shrink: 999;"}
         on:click={() => {
           lastInputType = "click";
           page = activeChapterIndex + idx + 1;
         }}
       >
-        {label}
+        <span class="step-label-text">{label}</span>
       </Button>
     {/if}
   {/each}
@@ -120,8 +124,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: nowrap;
+    width: 100%;
+    max-width: 100%;
     margin-top: 4px;
+    overflow: hidden;
 }
 
-
+.step-label-text {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 </style>

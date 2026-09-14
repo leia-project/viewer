@@ -117,10 +117,13 @@ The start position of the camera. Since we are using a 3D viewer we need more th
 ```
 
 #### Colors
-Colors for the GUI. The black header cannot be changed currently, this is an open issue for the Carbon Design svelte components devs.
+Colors for the GUI.
 
 |value|description|type|
 |-|-|-|
+|header-color|Background color of the header bar|string|
+|title-color|Color of the title text in the header|string|
+|sub-title-color|Color of the subtitle text in the header|string|
 |ui-background|Default page background|string|
 |interactive-01|Primary interactive color. Primary buttons|string|
 |interactive-02|Secondary interactive color. Secondary button|string|
@@ -296,6 +299,7 @@ Layer definition
 |url|base URL for the layer service||string|
 |featureName|Name of feature or wms layer, can be found in WMS GetCapabilities||string|
 |contenttype|The http content type for the map data to be retrieved|image/png|string|
+|webMercator|Use the Web Mercator tiling scheme for EPSG:3857 WMS services. If omitted or false, Cesium's geographic tiling scheme is used.|false|boolean|
 
 ```json
 {
@@ -762,15 +766,15 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |showMouseCoordinates|Debug window in viewer to show coordinates for mouse position|false|boolean|
 |showCameraPosition|Debug window to show the current camera position, updates on move|false|boolean|
 |showLoadingWidget|Show a small bar on the bottom of the viewer showing the loading progress of layers|false|boolean|
-|fxaa|FXAA enabled|false|Boolean|
-|msaa|MSAA samples|4|number|
+|fxaa|FXAA enabled|true|Boolean|
+|msaa|MSAA samples|1|number|
 |lighting|Enable lighting the globe with the scene's light source|true|boolean|
 |animate|Enable when displaying animated models else animations only update when the viewer refreshes it's view such as when panning/zooming|false|boolean|
 |resolutionScale|Gets or sets a scaling factor for rendering resolution. Values less than 1.0 can improve performance on less powerful devices while values greater than 1.0 will render at a higher resolution and then scale down, resulting in improved visual fidelity|window.devicePixelRatio|number|
-|maximumScreenSpaceError|The maximum screen space error used to drive level of detail refinement. for 3D tile layers|1.5|number|
+|maximumScreenSpaceError|The maximum screen space error used to drive level of detail refinement. for 3D tile layers|1.2|number|
 |groundAtmosphere|Ground atmosphere enabled|true|boolean|
 |fog|Fog enabled|true|boolean|
-|highDynamicRange|HDR enabled|true|boolean|
+|highDynamicRange|HDR enabled|false|boolean|
 |pointCloudAttenuation|3D Tile Point Cloud Attenuation enabled, Perform point attenuation based on geometric error|true|boolean|
 |pointCloudAttenuationMaximum|3D Tile Point Cloud Maximum point attenuation in pixels. If undefined, the Cesium3DTileset's maximumScreenSpaceError will be used|0|number|
 |pointCloudAttenuationErrorScale|Scale to be applied to the geometric error before computing attenuation|1|number|
@@ -779,6 +783,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |pointCloudEDLStrength|Eye dome lighting strength (apparent contrast)|1|number|
 |pointCloudEDLRadius|Thickness of contours from eye dome lighting|1|number|
 |globeOpacity|Opacity percentage of the globe|100|number|
+|enableCollisionDetection|Prevent the camera from moving below the terrain/surface. Set to `true` to prevent going subsurface|false|boolean|
 |terrainProviders|Array of terrain providers, first in list is activated by default, leave out URL to create empty provider (see example below)|-|Terrain Provider|
 
 
@@ -797,6 +802,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 		"skyAtmosphere": true,
 		"fog": true,
 		"highDynamicRange": false,
+		"enableCollisionDetection": false,
 		"pointCloudAttenuationMaximum": 2,
 		"terrainProviders": [
           {
@@ -921,7 +927,7 @@ This tool can be used to add projects with project-specific layers. The project 
 |projects|name|The name of the project|string|
 ||description|A description for the project|string|
 ||polygon|An array of coordinates describing the project delimitation|array of [lon: number, lat: number]|
-||layers|An array of layer id's to be shown for the project|array|
+||layers|An array of layer objects to be shown for the project|array of { id: string, on: boolean, tileset?: string }|
 ||cameraPosition|The default camera position|cameraLocation|
 
 ```json
@@ -955,9 +961,19 @@ This tool can be used to add projects with project-specific layers. The project 
 					]
 				],
 				"layers": [
-					"DTB 3D",
-					"3D BAG",
-					"Bomen 3D"
+					{
+						"id": "DTB 3D",
+						"on": true
+					},
+					{
+						"id": "3D BAG",
+						"on": false
+					},
+					{
+						"id": "GeoTOP",
+						"on": false,
+						"tileset": "https://virtueel.zeeland.nl/tiles_other/geotop_middelburg/3dtiles/tileset.json"
+					}
 				],
 				"cameraPosition": {
 					"x": 4.94802,
@@ -995,21 +1011,39 @@ Measuring tool accessible through the toolbar, with this tool the user can add 3
 
 #### stories
 
-Tool for storymapping. Create and show multiple stories in the viewer. Each story can contain multiple chapters with steps which the user can click through. Each chapter has an id, title, button text (shorthand for longer titles) and steps. Each step has a title and description (HTML), a fly-to location, and a set of layers with their settings (id, style, opacity). A story can be opened directly in the viewer through the 'story' search parameter, for example: "https://some-site.nl/?story=mystoryname".
+Tool for storymapping. Create and show multiple stories in the viewer. Each story can contain multiple chapters with steps which the user can click through. Each chapter has an id, title, button text (shorthand for longer titles) and steps. Each step has a title and description (HTML), a fly-to location, and a set of layers with their settings (id, style, opacity, showOpacitySlider). A story can be opened directly in the viewer through the 'story' search parameter, for example: "https://some-site.nl/?story=mystoryname".
 
 |value||description|type|
 |-|-|-|-|
 |alias||**Optional**: Different name for the tool showing in the viewer|string|
 |position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
+|showOnMap||**Optional**: Show story markers on the map initially. The visibility can also be changed with the Stories tool toggle, which is available both in the story overview and at the bottom of an opened story. Defaults to `true`|boolean|
 |stories|name|The name of the story|string|
 ||description|A short description to describe the story|string|
 ||width|The width of the story menu|string|
-||force2DMode|Sets the camera to 2D mode and prevents users from switching camera mode while the story is open|boolean|
+||forceCameraMode|Forces the camera into a fixed mode while the story is open and prevents users from switching camera mode. Accepts `"2D"` or `"3D"`. On opening the story the camera switches to the given mode if needed; on closing it reverts to the previous mode if it was changed|string|
 ||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
 ||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
 ||baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
 ||chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
 ||chapterGroups|Groups the chapter ids refer to|object|
+
+Each layer within a step's `layers` array supports these settings:
+
+|value|description|default|type|
+|-|-|-|-|
+|id|ID of the layer to add in this step|-|string|
+|opacity|Initial opacity percentage of the layer|100|number|
+|style|Style/theme to apply to the layer|-|string|
+|showOpacitySlider|Whether the transparency slider is shown for this layer in the story step|true|boolean|
+
+Each story step can also define `markerCoordinates`. The marker label shows the story, chapter, and step name. Clicking a marker opens the story directly on its step. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story.
+
+|value|description|type|
+|-|-|-|
+|markerCoordinates|**Optional**: Location or locations of markers for this story step|object or array[object]|
+|x|Longitude of the story marker|number|
+|y|Latitude of the story marker|number|
 
 ```json
 
@@ -1019,12 +1053,13 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 	"settings": {
 		"alias":"My Stories",
 		"position": 6,
+		"showOnMap": true,
 		"stories": [
 			{
 				"name": "My Story",
 				"description": "Description of my story",
 				"width": "600px",
-				"force2DMode": false,
+				"forceCameraMode": "2D",
 				"staticCamera": false,
 				"requestPolygonArea": {
 					"enabled": false,
@@ -1040,6 +1075,10 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 								"html": "<div>Content of the step.</div>",
 								"globeOpacity": 100,
 								"terrain": "PDOK Terrain",
+								"markerCoordinates": [{
+									"x": 5.23907,
+									"y": 52.20004
+								}],
 								"camera": {
 									"x": 5.23907,
 									"y": 52.20004,
@@ -1055,11 +1094,11 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 									},
 									{
 										"id": "19747667-ddb2-4162-99f6-a37d5aaa15ea",
-										"style": "Bouwjaar"
+										"style": "Bouwjaar",
+										"showOpacitySlider": false
 									}
 									//etc. You can add as many layers as you want per step
-								]
-							},
+								]							},
 							//etc. You can add as many steps as you want per chapter
 						]
 					},

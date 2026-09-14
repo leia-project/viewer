@@ -7,10 +7,9 @@ import { CesiumImageryLayer } from "./imagery-layer";
 export class VectorTilesLayer extends CesiumImageryLayer {
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
-		this.createLayer();
 	}
 
-	private createLayer() {
+	createLayer() {
 		const provider = new VectorImageryProvider(this.config.settings["url"], {});
 		this.source = new Cesium.ImageryLayer(provider);
 	}

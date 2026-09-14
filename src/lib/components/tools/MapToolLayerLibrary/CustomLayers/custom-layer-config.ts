@@ -1,7 +1,8 @@
 import { get, writable, type Unsubscriber, type Writable } from "svelte/store";
 import { LayerConfig } from "$lib/map-core/layer-config";
 import { Dispatcher } from "$lib/map-core/event/dispatcher";
-
+import { buildGetCapabilitiesUrl } from "./capabilities";
+import { v4 as uuid } from '@lukeed/uuid';
 
 
 export class CustomLayerConfigTracker extends Dispatcher {
@@ -21,7 +22,7 @@ export class CustomLayerConfigTracker extends Dispatcher {
 
 	constructor(layerConfig?: LayerConfig) {
 		super();
-		this.layerConfig = layerConfig ?? new LayerConfig({id: String(Math.floor(Math.random() * 1000)), groupId: "myData", title: "New layer", settings: {}});
+		this.layerConfig = layerConfig ?? new LayerConfig({id: uuid(), groupId: "myData", title: "New layer", settings: {}, defaultOn: true});
 		this.titleInput = writable(this.layerConfig.title);
 		this.layerTypeInput = writable(this.layerConfig.type);
 		this.settingsInput = writable(this.layerConfig.settings);
@@ -38,6 +39,7 @@ export class CustomLayerConfigTracker extends Dispatcher {
 
 		this.unsubscribers[1] = this.layerTypeInput.subscribe((value) => {
 			this.layerConfig.type = value;
+			this.applyTypeDefaults(value);
 			this.onInputChange();
 		});
 
@@ -53,6 +55,8 @@ export class CustomLayerConfigTracker extends Dispatcher {
 					this.dispatch("urlError", {});
 					this.added.set(false);
 				} else {
+					// Adding a My Data layer (new or restored) turns it on immediately.
+					this.layerConfig.defaultOn = true;
 					this.layerConfig.added.set(true);
 				}
 				this.dispatch("updated", {});
@@ -70,13 +74,32 @@ export class CustomLayerConfigTracker extends Dispatcher {
 		if (this.unsubscribers[3]) this.added.set(false); // Checking this.unsubscribers[3] to see if setup is finished
 	}
 
+	/**
+	 * Enables sensible defaults for certain layer types. For WMS layers the legend
+	 * and the style switcher are turned on automatically, so the dynamic legend and
+	 * available styles are retrieved from the service's GetCapabilities.
+	 */
+	private applyTypeDefaults(type: string): void {
+		if (type === "wms") {
+			this.layerConfig.legendEnabled = true;
+			const settings = get(this.settingsInput) ?? {};
+			if (!settings.tools) settings.tools = {};
+			if (!settings.tools.styleSwitcher) settings.tools.styleSwitcher = {};
+			if (settings.tools.styleSwitcher.enabled !== true) {
+				settings.tools.styleSwitcher.enabled = true;
+				this.settingsInput.set(settings);
+			}
+		}
+	}
+
 	private validateType(type: string): boolean {
 		return ["3dtiles", "wms", "wmts", "geojson", "modelanimation", "arcgis"].includes(type);
 	}
 
 	private validateSettings(settings: any = this.layerConfig.settings): boolean {
 		if (["wms", "wmts"].includes(this.layerConfig.type) && !settings["featureName"]) return false;
-		if (this.layerConfig.type === "modelAnimation" && (!settings["modelUrl"] || !settings["timeKey"])) return false;
+		if (["wms", "wmts"].includes(this.layerConfig.type) && !String(settings["contenttype"] ?? "").trim()) return false;
+		if (this.layerConfig.type === "modelanimation" && (!settings["modelUrl"] || !settings["timeKey"])) return false;
 		else return true;
 	}
 
@@ -86,10 +109,13 @@ export class CustomLayerConfigTracker extends Dispatcher {
 			const url = new URL(settings.url); // --> requires https:// at start
 			if (!["https:", "http:"].includes(url.protocol)) return false;
 			//if (this.layerConfig.type === "3dtiles" && !settings.url.endsWith("/tileset.json")) return false; //Google 3D Tiles does not end with tileset.json
-			//if (this.layerConfig.type === "wms" && !url.href.includes("/wms")) return false; 
-			//if (this.layerConfig.type === "wmts" && !url.href.includes("/wmts")) return false;
-			if (this.layerConfig.type === "geojson" && !url.href.endsWith(".geojson")) return false;
-			if (this.layerConfig.type === "modelanimation" && !url.href.endsWith(".geojson")) return false;
+			const href = url.href.toLowerCase();
+			const pathname = url.pathname.toLowerCase();
+			const search = url.search.toLowerCase();
+			if (this.layerConfig.type === "wms" && !pathname.includes("/wms") && !pathname.includes("/ows") && !search.includes("service=wms")) return false;
+			//if (this.layerConfig.type === "wmts" && !href.includes("wmts")) return false;
+			if (this.layerConfig.type === "geojson" && !pathname.endsWith(".geojson")) return false;
+			if (this.layerConfig.type === "modelanimation" && !pathname.endsWith(".geojson")) return false;
 			return true; 
 		} catch {
 			return false;
@@ -114,8 +140,8 @@ export class CustomLayerConfigTracker extends Dispatcher {
 	public async checkIfUrlExists(): Promise<boolean> {
 		let url = this.layerConfig.settings.url;
 		if (!url || !get(this.validUrl)) return false;
-		if (this.layerConfig.type === "wms") url += "?service=wms&request=getcapabilities";
-		if (this.layerConfig.type === "wmts") url += "?service=wmts&request=getcapabilities";
+		if (this.layerConfig.type === "wms") url = buildGetCapabilitiesUrl(url, "wms");
+		if (this.layerConfig.type === "wmts") url = buildGetCapabilitiesUrl(url, "wmts");
 
 		const controller = new AbortController();
 		const timeout = setTimeout(() => controller.abort(), 1000); // if no response after 1000ms, then consider the request as failed

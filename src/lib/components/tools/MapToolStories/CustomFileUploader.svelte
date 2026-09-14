@@ -9,6 +9,9 @@
     export let kind: "primary" | "secondary" | "tertiary" | "ghost" | "danger" | "danger-tertiary" | "danger-ghost" | undefined = "tertiary";
     export let size: "small" | "default" | "field" | "lg" | "xl" | undefined = "default";
     export let labelText: string = "Add file";
+    export let iconOnly: boolean = false;
+    export let iconDescription: string = "";
+    export let tooltipPosition: "top" | "right" | "bottom" | "left" = "bottom";
     export let id: string = "ccs-" + Math.random().toString(36);
     export let name: string = "";
 
@@ -23,10 +26,22 @@
 
 </script>
 
-<div class="custom-file-uploader-wrapper">
-    <Button icon={Upload} kind={kind} size={size} disabled={disabled} on:click={() => !disabled && inputElement.click()}>
-        {labelText}
-    </Button>
+<div class="custom-file-uploader-wrapper" class:icon-only={iconOnly}>
+    {#if iconOnly}
+        <Button
+            icon={Upload}
+            kind={kind}
+            size={size}
+            disabled={disabled}
+            iconDescription={iconDescription}
+            tooltipPosition={tooltipPosition}
+            on:click={() => !disabled && inputElement.click()}
+        />
+    {:else}
+        <Button icon={Upload} kind={kind} size={size} disabled={disabled} on:click={() => !disabled && inputElement.click()}>
+            {labelText}
+        </Button>
+    {/if}
     <input
         type="file"
         id={id}
@@ -38,12 +53,11 @@
         bind:this={inputElement}
         on:change={handleFileChange}
     />  
-
-    <style>
-        .custom-file-uploader-wrapper .bx--btn {
-            width: 100% !important;  /* Or whatever width you want */
-        }
-    </style>  
-
 </div>
+
+<style>
+    .custom-file-uploader-wrapper:not(.icon-only) :global(.bx--btn) {
+        width: 100% !important;  /* Or whatever width you want */
+    }
+</style>
 
