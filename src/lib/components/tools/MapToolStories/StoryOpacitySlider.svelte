@@ -7,7 +7,6 @@
 	export let layer: Layer;
 
 	const opacity: Writable<number> = layer.opacity;
-    opacity.set(100); // Set initial opacity to 100%
 
 	$: labelText = layer.title + ` ${$_("tools.layerManager.opacity")}: ` + $opacity + "%";
 
