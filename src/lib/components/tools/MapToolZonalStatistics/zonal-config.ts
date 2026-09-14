@@ -142,21 +142,26 @@ export function parseZonalStatisticsSettings(raw: any): ZonalStatisticsSettings 
 		return value;
 	};
 
+	const parseColumnSource = (value: any): ZonalColumnSource => {
+		// A bare string is shorthand for overriding just the value attribute.
+		if (typeof value === "string") {
+			return { attribute: value };
+		}
+		if (value && typeof value === "object") {
+			return {
+				attribute: typeof value.attribute === "string" ? value.attribute : undefined,
+				tooltipAttribute:
+					typeof value.tooltipAttribute === "string" ? value.tooltipAttribute : undefined
+			};
+		}
+		return {};
+	};
+
 	const parseColumnSources = (raw: any): Record<string, ZonalColumnSource> | undefined => {
 		if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
 		const sources: Record<string, ZonalColumnSource> = {};
 		for (const [key, value] of Object.entries(raw as Record<string, any>)) {
-			// A bare string is shorthand for overriding just the value attribute.
-			const source: ZonalColumnSource =
-				typeof value === "string"
-					? { attribute: value }
-					: value && typeof value === "object"
-						? {
-								attribute: typeof value.attribute === "string" ? value.attribute : undefined,
-								tooltipAttribute:
-									typeof value.tooltipAttribute === "string" ? value.tooltipAttribute : undefined
-							}
-						: {};
+			const source = parseColumnSource(value);
 			if (source.attribute || source.tooltipAttribute) sources[key] = source;
 		}
 		return Object.keys(sources).length > 0 ? sources : undefined;

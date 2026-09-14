@@ -131,7 +131,7 @@ export class ZonalStatisticsController {
 	/** Resolved data layers grouped by each layer config's groupId for the zonal panel. */
 	public readonly groupedDataLayers: Writable<Array<GroupedDataLayers>> = writable([]);
 	/** Id of the single data layer drawn on the map (the panel's radio selection). */
-	public readonly selectedLayerId: Writable<string | undefined> = writable(undefined);
+	public readonly selectedLayerId: Writable<string | undefined> = writable();
 	/** Data layers added to the table, in the order the user added them; drives the table + exports. */
 	public readonly tableLayers: Writable<Array<ResolvedDataLayer>> = writable([]);
 	/** True while `initialize()` is resolving the configured layers. */
@@ -541,6 +541,39 @@ export class ZonalStatisticsController {
 		const baseColor = new Map<string, Cesium.Color>();
 		const instances: Array<Cesium.GeometryInstance> = [];
 
+		this.createZoneInstances(source, time, idsByCode, baseColor, instances);
+
+		if (instances.length === 0) return;
+
+		const primitive = new Cesium.Primitive({
+			geometryInstances: instances,
+			appearance: new Cesium.PerInstanceColorAppearance({
+				translucent: true,
+				closed: false,
+				// Disable the depth test so the flat fills draw over the globe instead of clipping into it.
+				renderState: { depthTest: { enabled: false } }
+			}),
+			allowPicking: true,
+			asynchronous: true,
+			releaseGeometryInstances: false
+		});
+		primitive.show = this.zoneLayer ? get(this.zoneLayer.visible) : false;
+		this.map.viewer.scene.primitives.add(primitive);
+		this.zoneFill = { primitive, idsByCode, baseColor };
+
+		this.setupZoneLayerSubscriptions();
+		this.setupTrackedLayerSubscriptions();
+		this.unsubscribers.push(this.selectedLayerId.subscribe(() => this.syncFillSource()));
+	}
+
+	/** Create geometry instances from zone entities. */
+	private createZoneInstances(
+		source: any,
+		time: Cesium.JulianDate,
+		idsByCode: Map<string, Array<ZoneInstanceId>>,
+		baseColor: Map<string, Cesium.Color>,
+		instances: Array<Cesium.GeometryInstance>
+	): void {
 		for (const entity of source.entities.values) {
 			const code = this.entityCodeIndex.get(entity);
 			if (code === undefined) continue;
@@ -571,25 +604,10 @@ export class ZonalStatisticsController {
 			list.push(id);
 			idsByCode.set(code, list);
 		}
-		if (instances.length === 0) return;
+	}
 
-		const primitive = new Cesium.Primitive({
-			geometryInstances: instances,
-			appearance: new Cesium.PerInstanceColorAppearance({
-				translucent: true,
-				closed: false,
-				// Disable the depth test so the flat fills draw over the globe instead of clipping into it.
-				renderState: { depthTest: { enabled: false } }
-			}),
-			allowPicking: true,
-			asynchronous: true,
-			releaseGeometryInstances: false
-		});
-		primitive.show = this.zoneLayer ? get(this.zoneLayer.visible) : false;
-		this.map.viewer.scene.primitives.add(primitive);
-		this.zoneFill = { primitive, idsByCode, baseColor };
-
-		// Only the zone layer has entities; the data layers are never materialised in Cesium.
+	/** Setup subscriptions for zone layer visibility and style changes. */
+	private setupZoneLayerSubscriptions(): void {
 		if (this.zoneLayer) {
 			this.hideEntityFills(this.zoneLayer);
 			this.unsubscribers.push(
@@ -600,12 +618,15 @@ export class ZonalStatisticsController {
 				this.zoneLayer.legend.subscribe(() => this.restyleZoneColors())
 			);
 		}
+	}
+
+	/** Setup subscriptions for tracked layer opacity changes. */
+	private setupTrackedLayerSubscriptions(): void {
 		for (const tracked of this.trackedLayers) {
 			this.unsubscribers.push(
 				tracked.layer.opacity.subscribe(() => this.scheduleColorRefresh(tracked.id))
 			);
 		}
-		this.unsubscribers.push(this.selectedLayerId.subscribe(() => this.syncFillSource()));
 	}
 
 	/** Re-snapshot the zone layer's entity colours after it was restyled. */
@@ -837,7 +858,7 @@ export class ZonalStatisticsController {
 			const positions = hierarchy.positions;
 			if (positions?.length >= 3) {
 				const first = positions[0];
-				const last = positions[positions.length - 1];
+				const last = positions.at(-1);
 				rings.push(Cesium.Cartesian3.equals(first, last) ? positions : [...positions, first]);
 			}
 			for (const hole of hierarchy.holes ?? []) collect(hole);

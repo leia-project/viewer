@@ -49,6 +49,13 @@ export interface ExportZonalPdfOptions {
 const layout = A4_PORTRAIT_LAYOUT;
 const metrics = getPdfLayoutMetrics(layout);
 const PDF_COVER_IMAGE_MAX_HEIGHT = 200;
+const MISSING_VALUE_PLACEHOLDER = "–";
+const EMPTY_BRANDING_ASSETS = { leftLogo: null, footerText: "" };
+
+function displayPdfValue(value: string | undefined): string {
+	if (value === undefined) return MISSING_VALUE_PLACEHOLDER;
+	return value.trim().length > 0 ? value : MISSING_VALUE_PLACEHOLDER;
+}
 
 function addPdfHeaderBlock(
 	doc: jsPDF,
@@ -125,7 +132,7 @@ function buildPdfColumns(
 		const column = settings.columns[i];
 		const valueHeader = columnLabel(i);
 		const valueContentWidth = rows.reduce(
-			(max, row) => Math.max(max, measurePdfTextWidth(doc, row.values[i] ?? "")),
+			(max, row) => Math.max(max, measurePdfTextWidth(doc, displayPdfValue(row.values[i]))),
 			0
 		);
 		preferredWidths.push(
@@ -135,14 +142,14 @@ function buildPdfColumns(
 		columns.push({
 			header: valueHeader,
 			width: 0,
-			get: (r) => r.values[i] ?? "",
+			get: (r) => displayPdfValue(r.values[i]),
 			colored: column.styled
 		});
 
 		if (columnHasTooltip(settings, column)) {
 			const tooltipHeader = `${valueHeader} - ${labels.exportDescription}`;
 			const tooltipContentWidth = rows.reduce(
-				(max, row) => Math.max(max, measurePdfTextWidth(doc, row.tooltips[i] ?? "")),
+				(max, row) => Math.max(max, measurePdfTextWidth(doc, displayPdfValue(row.tooltips[i]))),
 				0
 			);
 			preferredWidths.push(
@@ -151,7 +158,7 @@ function buildPdfColumns(
 			columns.push({
 				header: tooltipHeader,
 				width: 0,
-				get: (r) => r.tooltips[i] ?? ""
+				get: (r) => displayPdfValue(r.tooltips[i])
 			});
 		}
 	}
@@ -241,6 +248,87 @@ function drawPdfRow(
 	return y + rowHeight;
 }
 
+function addMapImageToCover(
+	doc: jsPDF,
+	mapCanvas: HTMLCanvasElement,
+	y: number,
+	labels: ZonalPdfLabels
+): number {
+	if (mapCanvas.width <= 0 || mapCanvas.height <= 0) return y;
+
+	try {
+		const mapImage = mapCanvas.toDataURL("image/jpeg", 0.9);
+		const fullWidth = metrics.contentWidth;
+		const fullWidthHeight = (mapCanvas.height / mapCanvas.width) * fullWidth;
+		const availableHeight = Math.min(metrics.bottomLimit - y, PDF_COVER_IMAGE_MAX_HEIGHT);
+
+		if (availableHeight <= 0) return y;
+
+		const scaleToFitFirstPage = Math.min(1, availableHeight / fullWidthHeight);
+		const imageWidth = fullWidth * scaleToFitFirstPage;
+		const imageHeight = fullWidthHeight * scaleToFitFirstPage;
+		y = ensurePdfSpace(doc, y, imageHeight + 5, layout, EMPTY_BRANDING_ASSETS);
+		doc.addImage(mapImage, "JPEG", layout.margin, y, imageWidth, imageHeight);
+		y += imageHeight + 5;
+
+		if (labels.exportVisibleLayerLabel) {
+			doc.setFontSize(11);
+			y = addPdfTextAtY(
+				doc,
+				labels.exportVisibleLayerLabel,
+				layout.margin,
+				y,
+				metrics.contentWidth
+			);
+			y += 3;
+		}
+	} catch (error) {
+		console.warn("zonalStatistics: failed to capture map screenshot for PDF export", error);
+	}
+	return y;
+}
+
+function processRowWithZoneHandling(
+	doc: jsPDF,
+	row: ZonalStatisticsExportRow,
+	columns: PdfColumn[],
+	lineHeight: number,
+	pdfColor: (value: string) => { fill: Rgb; text: Rgb } | undefined,
+	currentZone: { code?: string; y: number },
+	labels: ZonalPdfLabels
+): number {
+	let y = currentZone.y;
+	const sampleLines = columns.map((col) => doc.splitTextToSize(col.get(row) || "", col.width - 3));
+	const nextRowHeight =
+		Math.max(...sampleLines.map((lines) => Math.max(1, lines.length))) * lineHeight + 2;
+
+	if (row.zoneCode !== currentZone.code) {
+		const extraSpacing = currentZone.code ? 3 : 0;
+		const zoneHeaderHeight = 8;
+		if (y + extraSpacing + zoneHeaderHeight + nextRowHeight > metrics.bottomLimit) {
+			addPdfPageWithHeader(doc, layout, EMPTY_BRANDING_ASSETS);
+			y = metrics.contentTop;
+			y = drawPdfTableHeader(doc, layout.margin, y, columns);
+		}
+		y += extraSpacing;
+		y = drawPdfZoneHeader(doc, row.zoneCode, y, labels);
+		currentZone.code = row.zoneCode;
+	}
+
+	if (y + nextRowHeight > metrics.bottomLimit) {
+		addPdfPageWithHeader(doc, layout, EMPTY_BRANDING_ASSETS);
+		y = metrics.contentTop;
+		y = drawPdfTableHeader(doc, layout.margin, y, columns);
+		if (currentZone.code) {
+			y = drawPdfZoneHeader(doc, currentZone.code, y, labels);
+		}
+	}
+
+	y = drawPdfRow(doc, row, layout.margin, y, columns, lineHeight, pdfColor);
+	currentZone.y = y;
+	return y;
+}
+
 export async function exportZonalPdf(options: ExportZonalPdfOptions): Promise<void> {
 	const {
 		rows,
@@ -271,74 +359,19 @@ export async function exportZonalPdf(options: ExportZonalPdfOptions): Promise<vo
 	let y = addPdfHeaderBlock(doc, metrics.contentTop + 4, title, labels, currentLocale);
 	y += 3;
 
-	try {
-		if (mapCanvas && mapCanvas.width > 0 && mapCanvas.height > 0) {
-			const mapImage = mapCanvas.toDataURL("image/jpeg", 0.9);
-			const fullWidth = metrics.contentWidth;
-			const fullWidthHeight = (mapCanvas.height / mapCanvas.width) * fullWidth;
-			const availableHeight = Math.min(metrics.bottomLimit - y, PDF_COVER_IMAGE_MAX_HEIGHT);
-
-			if (availableHeight > 0) {
-				const scaleToFitFirstPage = Math.min(1, availableHeight / fullWidthHeight);
-				const imageWidth = fullWidth * scaleToFitFirstPage;
-				const imageHeight = fullWidthHeight * scaleToFitFirstPage;
-				y = ensurePdfSpace(doc, y, imageHeight + 5, layout, brandingAssets);
-				doc.addImage(mapImage, "JPEG", layout.margin, y, imageWidth, imageHeight);
-				y += imageHeight + 5;
-
-				if (visibleLayerTitle) {
-					doc.setFontSize(11);
-					y = addPdfTextAtY(
-						doc,
-						`${labels.exportVisibleLayerLabel}: ${visibleLayerTitle}`,
-						layout.margin,
-						y,
-						metrics.contentWidth
-					);
-					y += 3;
-				}
-			}
-		}
-	} catch (error) {
-		console.warn("zonalStatistics: failed to capture map screenshot for PDF export", error);
+	if (mapCanvas && visibleLayerTitle) {
+		const newVisibleLayerLabel = `${labels.exportVisibleLayerLabel}: ${visibleLayerTitle}`;
+		const labelsWithLayer = { ...labels, exportVisibleLayerLabel: newVisibleLayerLabel };
+		y = addMapImageToCover(doc, mapCanvas, y, labelsWithLayer);
 	}
 
-	// First page is a cover (title + map image); table always starts on page 2.
 	addPdfPageWithHeader(doc, layout, brandingAssets);
 	y = metrics.contentTop;
 	y = drawPdfTableHeader(doc, layout.margin, y, columns);
 
-	let currentZoneCode: string | undefined;
+	const currentZone = { code: undefined as string | undefined, y };
 	for (const row of rows) {
-		const sampleLines = columns.map((col) =>
-			doc.splitTextToSize(col.get(row) || "", col.width - 3)
-		);
-		const nextRowHeight =
-			Math.max(...sampleLines.map((lines) => Math.max(1, lines.length))) * lineHeight + 2;
-
-		if (row.zoneCode !== currentZoneCode) {
-			const extraSpacing = currentZoneCode ? 3 : 0;
-			const zoneHeaderHeight = 8;
-			if (y + extraSpacing + zoneHeaderHeight + nextRowHeight > metrics.bottomLimit) {
-				addPdfPageWithHeader(doc, layout, brandingAssets);
-				y = metrics.contentTop;
-				y = drawPdfTableHeader(doc, layout.margin, y, columns);
-			}
-			y += extraSpacing;
-			y = drawPdfZoneHeader(doc, row.zoneCode, y, labels);
-			currentZoneCode = row.zoneCode;
-		}
-
-		if (y + nextRowHeight > metrics.bottomLimit) {
-			addPdfPageWithHeader(doc, layout, brandingAssets);
-			y = metrics.contentTop;
-			y = drawPdfTableHeader(doc, layout.margin, y, columns);
-			if (currentZoneCode) {
-				y = drawPdfZoneHeader(doc, currentZoneCode, y, labels);
-			}
-		}
-
-		y = drawPdfRow(doc, row, layout.margin, y, columns, lineHeight, pdfColor);
+		processRowWithZoneHandling(doc, row, columns, lineHeight, pdfColor, currentZone, labels);
 	}
 
 	drawPdfFooters(doc, layout, brandingAssets, labels.exportPage);

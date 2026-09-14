@@ -14,7 +14,7 @@ export function hexToRgb(hex: string): Rgb | undefined {
 	const short = hex.trim().replace(/^#/, "");
 	const h = short.length === 3 ? short.replace(/./g, (c) => c + c) : short;
 	if (!/^[0-9a-f]{6}$/i.test(h)) return undefined;
-	return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)) as Rgb;
+	return [0, 2, 4].map((i) => Number.parseInt(h.slice(i, i + 2), 16)) as Rgb;
 }
 
 function luminance([r, g, b]: Rgb): number {
@@ -60,7 +60,8 @@ export function createZonalStyler(valueStyles: Array<ZonalValueStyle>): ZonalSty
 		const cached = swatchCache.get(background);
 		if (cached !== undefined) return cached;
 		const rgb = hexToRgb(background);
-		const style = `background-color: ${background};${rgb ? ` color: ${readableTextColor(rgb).css};` : ""}`;
+		const colorPart = rgb ? ` color: ${readableTextColor(rgb).css};` : "";
+		const style = `background-color: ${background};${colorPart}`;
 		swatchCache.set(background, style);
 		return style;
 	}
