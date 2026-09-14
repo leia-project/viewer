@@ -192,7 +192,7 @@
         "backgroundControls": {
             "opacity": "Globe Opacity",
             "terrain": "Terrain",
-            "verticalExaggeration": "Vertical exaggeration"
+            "subsurfaceExaggeration": "Subsurface exaggeration"
         },
         "voxel": {
             "property": "Property",

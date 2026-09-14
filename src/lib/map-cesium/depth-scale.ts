@@ -2,33 +2,54 @@ import * as Cesium from "cesium";
 import { get, type Unsubscriber } from "svelte/store";
 import type { Map } from "./map";
 
-const NAP_OFFSET_M = 44;
+export const NAP_OFFSET_M = 44;
 
 export class DepthScale {
 	private polylines: Cesium.PolylineCollection;
 	private labels: Cesium.LabelCollection;
-	private veUnsubscribe: Unsubscriber;
+	private unsubscribers: Array<Unsubscriber>;
 
 	constructor(
 		private map: Map,
 		private lon: number,
 		private lat: number,
 		private topM: number,
-		private bottomM: number
+		private bottomM: number,
+		private pivotZ: number = NAP_OFFSET_M
 	) {
 		this.polylines = new Cesium.PolylineCollection();
 		this.labels = new Cesium.LabelCollection();
-		this.build(get(map.options.verticalExaggeration));
-		this.veUnsubscribe = map.options.verticalExaggeration.subscribe((vertExag) => {
-			this.rebuild(vertExag);
-		});
+		// Force initial build of depth scale and subscribe to subsurface ex. changes
+		this.unsubscribers = [map.options.subsurfaceExaggeration.subscribe(() => this.rebuild())];
 	}
 
-	private build(vertExag: number): void {
+	public setPosition(lon: number, lat: number): void {
+		if (lon === this.lon && lat === this.lat) {
+			return;
+		}
+
+		this.lon = lon;
+		this.lat = lat;
+		this.rebuild();
+	}
+
+	/**
+	 * True height to rendered height: the subsurface exaggeration stretches
+	 * away from the pivot datum (same formula as {@link VoxelLayer.stretchZ},
+	 * so pass the layer's pivot), matching what happens to the voxels. Labels
+	 * keep true depths at stretched positions.
+	 */
+	private displayHeight(ellipsoidal: number): number {
+		const k = get(this.map.options.subsurfaceExaggeration);
+
+		return this.pivotZ + k * (ellipsoidal - this.pivotZ);
+	}
+
+	private build(): void {
 		this.polylines.add({
 			positions: [
-				Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.topM * vertExag),
-				Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.bottomM * vertExag)
+				Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.displayHeight(this.topM)),
+				Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.displayHeight(this.bottomM))
 			],
 			width: 2,
 			material: Cesium.Material.fromType(Cesium.Material.ColorType, {
@@ -38,14 +59,18 @@ export class DepthScale {
 
 		const topNap = this.topM - NAP_OFFSET_M;
 		const bottomNap = this.bottomM - NAP_OFFSET_M;
-		const step = tickIntervalForVe(vertExag);
+		const step = tickIntervalForVe(get(this.map.options.subsurfaceExaggeration));
 		const firstTickNap = Math.floor(topNap / step) * step;
 
 		for (let nap = firstTickNap; nap >= bottomNap; nap -= step) {
 			const ellipsoidal = nap + NAP_OFFSET_M;
 
 			this.labels.add({
-				position: Cesium.Cartesian3.fromRadians(this.lon, this.lat, ellipsoidal * vertExag),
+				position: Cesium.Cartesian3.fromRadians(
+					this.lon,
+					this.lat,
+					this.displayHeight(ellipsoidal)
+				),
 				text: formatNap(nap),
 				font: "14px sans-serif",
 				fillColor: Cesium.Color.WHITE,
@@ -59,10 +84,10 @@ export class DepthScale {
 		}
 	}
 
-	private rebuild(vertExag: number): void {
+	private rebuild(): void {
 		this.polylines.removeAll();
 		this.labels.removeAll();
-		this.build(vertExag);
+		this.build();
 		this.map.refresh();
 	}
 
@@ -72,7 +97,7 @@ export class DepthScale {
 	}
 
 	public removeFromScene(): void {
-		this.veUnsubscribe();
+		this.unsubscribers.forEach((unsubscribe) => unsubscribe());
 		this.map.viewer.scene.primitives.remove(this.polylines);
 		this.map.viewer.scene.primitives.remove(this.labels);
 	}
@@ -96,10 +121,10 @@ function formatNap(z: number) {
  */
 function tickIntervalForVe(vertExag: number): number {
 	if (vertExag >= 80) {
-		return 5;
+		return 10;
 	}
 	if (vertExag >= 40) {
-		return 10;
+		return 15;
 	}
 	if (vertExag >= 15) {
 		return 20;

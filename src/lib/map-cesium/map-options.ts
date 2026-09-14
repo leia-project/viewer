@@ -30,7 +30,7 @@ export class MapOptions {
 	public showLoadingWidget: Writable<boolean> = writable<boolean>(true);
 	public enableDragDropFiles: Writable<boolean> = writable<boolean>(true);
 	public globeOpacity: Writable<number> = writable<number>(100);
-	public verticalExaggeration: Writable<number> = writable<number>(1);
+	public subsurfaceExaggeration: Writable<number> = writable<number>(1);
 	public inspector: Writable<boolean> = writable<boolean>(false);
 	public proMode: Writable<boolean> = writable<boolean>(false);
 	public terrainProviders: Writable<Array<{ title: string, url: string, vertexNormals: boolean }>> = writable<Array<{ title: string, url: string, vertexNormals: boolean }>>(new Array<{ title: string, url: string, vertexNormals: boolean}>());
@@ -94,9 +94,6 @@ export class MapOptions {
 		this.subscribe<number>(this.globeOpacity, (v) => {
 			this.setGlobeOpacity(v);
 		});
-		this.subscribe<number>(this.verticalExaggeration, (v) => {
-			this.map.viewer.scene.verticalExaggeration = v;
-		});
 		this.subscribe<boolean>(this.pointCloudAttenuation, (v) => {
 			this.setPointCloudSetting("attenuation", v);
 		});
@@ -155,7 +152,7 @@ export class MapOptions {
 		this.trySet(this.pointCloudEDLRadius, config.pointCloudEDLRadius);
 		this.trySet(this.proMode, config.proMode);
 		this.trySet(this.globeOpacity, config.globeOpacity);
-		this.trySet(this.verticalExaggeration, config.verticalExaggeration);
+		this.trySet(this.subsurfaceExaggeration, config.subsurfaceExaggeration);
 		this.loadTerrainProvider(config.terrainProviders);
 	}
 

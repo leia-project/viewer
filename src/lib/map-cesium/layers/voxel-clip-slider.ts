@@ -20,9 +20,9 @@ function clamp({ value, min = 0, max = 1 }: { value: number; min?: number; max?:
  * plane and the sidebar's vertical range slider stay in sync because they read
  * & write the same `clipping` store.
  *
- * Heights are multiplied by the scene's vertical exaggeration when positioning
- * the plane (voxels are vertically exaggerated, Entities are not), while the
- * clip window stays in normalized units.
+ * Heights are mapped through the layer's subsurface exaggeration when
+ * positioning the plane
+ * Clip window stays in normalized units.
  */
 export class VoxelClipSlider {
 	public layer: VoxelLayer;
@@ -50,7 +50,7 @@ export class VoxelClipSlider {
 		this.map = map;
 		this.bounds = bounds;
 
-		// Voxel provider bounds are geographic. x = lon (rad), y = lat (rad), z = height (m).
+		// Voxel provider bounds are geographic. x = lon (rad), y = lat (rad), z = height (m)
 		this.centerLon = (bounds.min.x + bounds.max.x) / 2;
 		this.centerLat = (bounds.min.y + bounds.max.y) / 2;
 		this.centerPosition = Cesium.Cartesian3.fromRadians(this.centerLon, this.centerLat, 0);
@@ -132,7 +132,7 @@ export class VoxelClipSlider {
 	}
 
 	private displayHeight(): number {
-		return this.currentHeight() * get(this.map.options.verticalExaggeration);
+		return this.layer.stretchZ(this.currentHeight());
 	}
 
 	private makePlaneEntity(): void {
@@ -196,8 +196,7 @@ export class VoxelClipSlider {
 				return;
 			}
 
-			const verticalExaggeration = get(this.map.options.verticalExaggeration);
-			const realHeight = displayHeight / verticalExaggeration;
+			const realHeight = this.layer.unstretchZ(displayHeight);
 			const span = this.bounds.max.z - this.bounds.min.z;
 
 			const normalizedHeight = (realHeight - this.bounds.min.z) / span;

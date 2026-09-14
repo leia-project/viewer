@@ -183,7 +183,8 @@
         },
         "backgroundControls": {
             "opacity": "Opacité du Globe",
-            "terrain": "Terrain"
+            "terrain": "Terrain",
+            "subsurfaceExaggeration": "Exagération du sous-sol"
         },
         "voxel": {
             "property": "Propriété",

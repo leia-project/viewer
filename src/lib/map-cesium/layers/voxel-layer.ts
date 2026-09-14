@@ -1,4 +1,4 @@
-import { writable, type Writable, get } from "svelte/store";
+import { writable, type Writable, get, type Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
 import { CesiumLayer } from "./cesium-layer";
 import { CustomLayerControl } from "$lib/map-core/custom-layer-control";
@@ -11,7 +11,7 @@ import {
 	type ResolvedVoxelProperty,
 	type VoxelPropertyConfig
 } from "./voxel-legend";
-import { DepthScale } from "../depth-scale";
+import { DepthScale, NAP_OFFSET_M } from "../depth-scale";
 import { VoxelClipSlider } from "./voxel-clip-slider";
 
 import LayerControlVoxel from "$lib/components/layer-controls/LayerControlVoxel/LayerControlVoxel.svelte";
@@ -22,6 +22,8 @@ export type VoxelLayerSettings = {
 	legendDataUrl?: string;
 	defaultProperty?: string;
 	properties: Array<VoxelPropertyConfig>;
+	/** The height that the subsurface exaggeration stretches away from. */
+	exaggerationPivot?: number;
 };
 
 export type ClipRange = { x: [number, number]; y: [number, number]; z: [number, number] };
@@ -36,6 +38,8 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	public clipSlider: VoxelClipSlider | null = null;
 	private bounds: { min: Cesium.Cartesian3; max: Cesium.Cartesian3 } | null = null;
 	private depthScale: DepthScale | null = null;
+	private unsubscribers: Array<Unsubscriber> = [];
+	private pivotZ: number = NAP_OFFSET_M;
 
 	constructor(map: CesiumMap, config: LayerConfig) {
 		super(map, config);
@@ -47,6 +51,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			throw new Error(`VoxelLayer "${config.title}": no properties configured`);
 		}
 
+		this.pivotZ = settings.exaggerationPivot ?? NAP_OFFSET_M;
 		this.selectedProperty = writable(initial);
 		this.resolvedProperties = writable<Array<ResolvedVoxelProperty>>([]);
 		this.hiddenValues = writable(new Map());
@@ -94,6 +99,9 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	 * Bounds are in provider space (x = lon, y = lat, z = height), so x/y slice
 	 * horizontally and z slices vertically. At an axis extreme we hand Cesium
 	 * ±Infinity so that side stays fully open rather than clamping to the bound.
+	 *
+	 * The z axis uses the exaggerated bounds.
+	 * Normalised t values need no conversion since the stretch is linear.
 	 */
 	private applyClipping(): void {
 		if (!this.source || !this.bounds) {
@@ -112,16 +120,48 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		this.source.minClippingBounds = new Cesium.Cartesian3(
 			clipLo(c.x[0], min.x, max.x),
 			clipLo(c.y[0], min.y, max.y),
-			clipLo(c.z[0], min.z, max.z)
+			clipLo(c.z[0], this.stretchZ(min.z), this.stretchZ(max.z))
 		);
 
 		this.source.maxClippingBounds = new Cesium.Cartesian3(
 			clipHi(c.x[1], min.x, max.x),
 			clipHi(c.y[1], min.y, max.y),
-			clipHi(c.z[1], min.z, max.z)
+			clipHi(c.z[1], this.stretchZ(min.z), this.stretchZ(max.z))
 		);
 
 		this.map.refresh();
+	}
+
+	/**
+	 * Subsurface exaggeration, from the surface datum so voxels near the surface stick to terrain
+	 * while the terrain itself is untouched. Inspired by Cesium's internal scene wide verticalExaggeration, but that is a scene-wide setting and we want to exaggerate only the voxels.
+	 * scene-wide verticalExaggeration applies to a VoxelPrimitive: stretching
+	 * the shape's z bounds (the data fills the shape, so it stretches with them).
+	 */
+	private applyExaggeration(): void {
+		if (!this.source || !this.bounds) {
+			return;
+		}
+
+		const { min, max } = this.bounds;
+
+		this.source.minBounds = new Cesium.Cartesian3(min.x, min.y, this.stretchZ(min.z));
+		this.source.maxBounds = new Cesium.Cartesian3(max.x, max.y, this.stretchZ(max.z));
+		this.applyClipping();
+	}
+
+	/** Maps a real provider height into the exaggerated shape space (pivot = surface datum). */
+	public stretchZ(z: number): number {
+		const k = get(this.map.options.subsurfaceExaggeration);
+
+		return this.pivotZ + k * (z - this.pivotZ);
+	}
+
+	/** Inverse of {@link stretchZ}: exaggerated shape-space height back to real height. */
+	public unstretchZ(z: number): number {
+		const k = get(this.map.options.subsurfaceExaggeration);
+
+		return this.pivotZ + (z - this.pivotZ) / k;
 	}
 
 	private get settings(): VoxelLayerSettings {
@@ -148,6 +188,11 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			this.map.viewer.scene.primitives.remove(this.source);
 		}
 
+		for (const unsubscribe of this.unsubscribers) {
+			unsubscribe();
+		}
+		this.unsubscribers = [];
+
 		this.depthScale?.removeFromScene();
 		this.depthScale = null;
 
@@ -169,7 +214,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		if (!this.source) {
 			return;
 		}
-		
+
 		this.source.show = value;
 		this.depthScale?.setVisible(value);
 		// FXAA tanks performance with voxel layers so disable it while any voxel layer is visible
@@ -219,7 +264,14 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				const east = maxBounds.x; // lon
 				const nsMiddle = (minBounds.y + maxBounds.y) / 2; // lat
 
-				this.depthScale = new DepthScale(this.map, east, nsMiddle, maxBounds.z, minBounds.z);
+				this.depthScale = new DepthScale(
+					this.map,
+					east,
+					nsMiddle,
+					maxBounds.z,
+					minBounds.z,
+					this.pivotZ
+				);
 				this.depthScale.addToScene();
 				this.depthScale.setVisible(get(this.visible));
 
@@ -228,6 +280,24 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				clipControl.component = LayerControlVoxelClip;
 				clipControl.props = { clipSlider: this.clipSlider };
 				this.addCustomControl(clipControl);
+
+				this.unsubscribers.push(
+					this.map.options.subsurfaceExaggeration.subscribe(() => this.applyExaggeration()),
+
+					// Keep the depth scale on the volume's visible east face when clipped
+					// E-W, and at its N-S midpoint until a N-S clip crosses it, then on
+					// crossing face so the scale stays on the visible volume
+					this.clipping.subscribe((c) => {
+						const east = minBounds.x + c.x[1] * (maxBounds.x - minBounds.x);
+
+						const latSpan = maxBounds.y - minBounds.y;
+						const southFace = minBounds.y + c.y[0] * latSpan;
+						const northFace = minBounds.y + c.y[1] * latSpan;
+						const lat = Math.min(Math.max(nsMiddle, southFace), northFace);
+
+						this.depthScale?.setPosition(east, lat);
+					})
+				);
 			}
 
 			this.map.refresh();
@@ -330,7 +400,7 @@ function packHiddenMask(values: Set<number> | undefined): number {
 		for (const value of values) {
 			if (value >= 0 && value < 31) {
 				// (1 << value) is the mask with only bit `value` on;
-				// |= turns that bit on in mask.
+				// |= turns that bit on in mask
 				mask |= 1 << value;
 			}
 		}
