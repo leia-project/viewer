@@ -238,7 +238,17 @@
         },
         "backgroundControls": {
             "opacity": "Opacité du Globe",
-            "terrain": "Terrain"
+            "terrain": "Terrain",
+            "subsurfaceExaggeration": "Exagération du sous-sol"
+        },
+        "voxel": {
+            "property": "Propriété",
+            "legend": "Légende",
+            "slicing": "Découpage",
+            "westEast": "Ouest–Est",
+            "southNorth": "Sud–Nord",
+            "vertical": "Vertical",
+            "resetSlicing": "Réinitialiser le découpage"
         },
         "bookmarks": {
             "label": "Signets",
@@ -313,6 +323,7 @@
             "custom": "Personnalisée",
             "animate": "Animer",
             "fxaa": "FXAA",
+            "fxaaDisabledByVoxel": "Désactivé tant qu'une couche de voxels est affichée",
             "fog": "Brouillard",
             "groundAtmosphere": "Atmosphère Terrestre",
             "dynamicRange": "HDR",
