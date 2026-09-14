@@ -388,7 +388,7 @@
             "id": "geocoder",
             "enabled": true,
             "settings": {
-                "name": "locatieserver"
+                "name": ["locatieserver", "geolocation", "geoportail-lu"]
             }
         },
         {
