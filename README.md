@@ -286,6 +286,7 @@ Layer definition
 |defaultOn|True if this layer should be visible at start up, use this together with defaultAddToManager|boolean|
 |attribution|Attribution for the layer data, to be displayed at at layer information page|string|
 |metadata|An array of {"key":"somekey","value":"somevalue"} pairs, to store custom metadata which is shown in the layer library|array[KeyValue]|
+|metadataUrl|URL of a metadata document for the layer. The layer library parses it and shows its contents, and falls back to a link to the document when no `metadata` entries are set; the layer manager and the zonal statistics panel show an information icon that opens the URL in a new tab|string|
 |transparent|True if layer can be transparent|boolean|
 |disablePopup|True if the feature info popup should be turned off|boolean|
 |opacity|Number between 0 (opaque) and 100 (transparent)|number|
@@ -299,6 +300,7 @@ Layer definition
 |url|base URL for the layer service||string|
 |featureName|Name of feature or wms layer, can be found in WMS GetCapabilities||string|
 |contenttype|The http content type for the map data to be retrieved|image/png|string|
+|webMercator|Use the Web Mercator tiling scheme for EPSG:3857 WMS services. If omitted or false, Cesium's geographic tiling scheme is used.|false|boolean|
 
 ```json
 {
@@ -496,6 +498,7 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 |url|URL to the GeoJSON file||string|
 |clampToGround|Choose to clamp the layer to the terrain|true|boolean|
 |style|If it is a string, it points to the property of the GeoJSON to base the styling on. If it is an object, it can contain a `stroke` (HEX-string), `strokeWidth` (number) and `fill` (HEX-string).||string or object|
+|classMapping|Optional value-to-color map for class-based styling of the `style` attribute. Keys are attribute values, values are HEX colors. The layer manager's color randomizer overrides these with random colors on demand.||object|
 |tools|Selection of GeoJSON tools available in the layer manager||tool|
 
 ##### GeoJSON tools
@@ -527,6 +530,33 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 			"stroke": "#0000ff",
 			"strokeWidth": 10,
 			"fill": "#ff0000"
+		},
+		"clampToGround": true,
+		"tools": {
+			"extrude": {
+				"slider_min": 0,
+				"slider_max": 10,
+				"slider_step": 1
+			}
+		}
+	}
+},{
+	"id": "2",
+	"type": "geojson",
+	"title": "GeoJSON layer 2",
+	"groupId": "1",
+	"isBackground": false,
+	"defaultAddToManager": true,
+	"defaultOn": true,
+	"settings": {
+		"url": "https://some-site.nl/file.geojson",
+		"style": "label",
+		"classMapping": {
+			"A": "#44ce1b",
+			"B": "#bbdb44",
+			"C": "#f7e379",
+			"D": "#f2a134",
+			"E": "#e51f1f"
 		},
 		"clampToGround": true,
 		"tools": {
@@ -765,15 +795,15 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |showMouseCoordinates|Debug window in viewer to show coordinates for mouse position|false|boolean|
 |showCameraPosition|Debug window to show the current camera position, updates on move|false|boolean|
 |showLoadingWidget|Show a small bar on the bottom of the viewer showing the loading progress of layers|false|boolean|
-|fxaa|FXAA enabled|false|Boolean|
-|msaa|MSAA samples|4|number|
+|fxaa|FXAA enabled|true|Boolean|
+|msaa|MSAA samples|1|number|
 |lighting|Enable lighting the globe with the scene's light source|true|boolean|
 |animate|Enable when displaying animated models else animations only update when the viewer refreshes it's view such as when panning/zooming|false|boolean|
 |resolutionScale|Gets or sets a scaling factor for rendering resolution. Values less than 1.0 can improve performance on less powerful devices while values greater than 1.0 will render at a higher resolution and then scale down, resulting in improved visual fidelity|window.devicePixelRatio|number|
-|maximumScreenSpaceError|The maximum screen space error used to drive level of detail refinement. for 3D tile layers|1.5|number|
+|maximumScreenSpaceError|The maximum screen space error used to drive level of detail refinement. for 3D tile layers|1.2|number|
 |groundAtmosphere|Ground atmosphere enabled|true|boolean|
 |fog|Fog enabled|true|boolean|
-|highDynamicRange|HDR enabled|true|boolean|
+|highDynamicRange|HDR enabled|false|boolean|
 |pointCloudAttenuation|3D Tile Point Cloud Attenuation enabled, Perform point attenuation based on geometric error|true|boolean|
 |pointCloudAttenuationMaximum|3D Tile Point Cloud Maximum point attenuation in pixels. If undefined, the Cesium3DTileset's maximumScreenSpaceError will be used|0|number|
 |pointCloudAttenuationErrorScale|Scale to be applied to the geometric error before computing attenuation|1|number|
@@ -782,6 +812,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |pointCloudEDLStrength|Eye dome lighting strength (apparent contrast)|1|number|
 |pointCloudEDLRadius|Thickness of contours from eye dome lighting|1|number|
 |globeOpacity|Opacity percentage of the globe|100|number|
+|enableCollisionDetection|Prevent the camera from moving below the terrain/surface. Set to `true` to prevent going subsurface|false|boolean|
 |terrainProviders|Array of terrain providers, first in list is activated by default, leave out URL to create empty provider (see example below)|-|Terrain Provider|
 
 
@@ -800,6 +831,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 		"skyAtmosphere": true,
 		"fog": true,
 		"highDynamicRange": false,
+		"enableCollisionDetection": false,
 		"pointCloudAttenuationMaximum": 2,
 		"terrainProviders": [
           {
@@ -818,6 +850,8 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 #### help
 
 The help tool can be opend from the toolbar or configured to open on startup of the viewer. The help tool presents basic information on how to use the viewer and supports additional information to show in the introduction tab.
+
+Next to the always visible tabs (introduction, movement and library), tabs are shown for the `flooding`, `stories`, `isochrones` and `zonalStatistics` tools when those tools are enabled.
 
 |value|description|type|
 |-|-|-|
@@ -1008,21 +1042,39 @@ Measuring tool accessible through the toolbar, with this tool the user can add 3
 
 #### stories
 
-Tool for storymapping. Create and show multiple stories in the viewer. Each story can contain multiple chapters with steps which the user can click through. Each chapter has an id, title, button text (shorthand for longer titles) and steps. Each step has a title and description (HTML), a fly-to location, and a set of layers with their settings (id, style, opacity). A story can be opened directly in the viewer through the 'story' search parameter, for example: "https://some-site.nl/?story=mystoryname".
+Tool for storymapping. Create and show multiple stories in the viewer. Each story can contain multiple chapters with steps which the user can click through. Each chapter has an id, title, button text (shorthand for longer titles) and steps. Each step has a title and description (HTML), a fly-to location, and a set of layers with their settings (id, style, opacity, showOpacitySlider). A story can be opened directly in the viewer through the 'story' search parameter, for example: "https://some-site.nl/?story=mystoryname".
 
 |value||description|type|
 |-|-|-|-|
 |alias||**Optional**: Different name for the tool showing in the viewer|string|
 |position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
+|showOnMap||**Optional**: Show story markers on the map initially. The visibility can also be changed with the Stories tool toggle, which is available both in the story overview and at the bottom of an opened story. Defaults to `true`|boolean|
 |stories|name|The name of the story|string|
 ||description|A short description to describe the story|string|
 ||width|The width of the story menu|string|
-||force2DMode|Sets the camera to 2D mode and prevents users from switching camera mode while the story is open|boolean|
+||forceCameraMode|Forces the camera into a fixed mode while the story is open and prevents users from switching camera mode. Accepts `"2D"` or `"3D"`. On opening the story the camera switches to the given mode if needed; on closing it reverts to the previous mode if it was changed|string|
 ||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
 ||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
 ||baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
 ||chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
 ||chapterGroups|Groups the chapter ids refer to|object|
+
+Each layer within a step's `layers` array supports these settings:
+
+|value|description|default|type|
+|-|-|-|-|
+|id|ID of the layer to add in this step|-|string|
+|opacity|Initial opacity percentage of the layer|100|number|
+|style|Style/theme to apply to the layer|-|string|
+|showOpacitySlider|Whether the transparency slider is shown for this layer in the story step|true|boolean|
+
+Each story step can also define `markerCoordinates`. The marker label shows the story, chapter, and step name. Clicking a marker opens the story directly on its step. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story.
+
+|value|description|type|
+|-|-|-|
+|markerCoordinates|**Optional**: Location or locations of markers for this story step|object or array[object]|
+|x|Longitude of the story marker|number|
+|y|Latitude of the story marker|number|
 
 ```json
 
@@ -1032,12 +1084,13 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 	"settings": {
 		"alias":"My Stories",
 		"position": 6,
+		"showOnMap": true,
 		"stories": [
 			{
 				"name": "My Story",
 				"description": "Description of my story",
 				"width": "600px",
-				"force2DMode": false,
+				"forceCameraMode": "2D",
 				"staticCamera": false,
 				"requestPolygonArea": {
 					"enabled": false,
@@ -1053,6 +1106,10 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 								"html": "<div>Content of the step.</div>",
 								"globeOpacity": 100,
 								"terrain": "PDOK Terrain",
+								"markerCoordinates": [{
+									"x": 5.23907,
+									"y": 52.20004
+								}],
 								"camera": {
 									"x": 5.23907,
 									"y": 52.20004,
@@ -1068,11 +1125,11 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 									},
 									{
 										"id": "19747667-ddb2-4162-99f6-a37d5aaa15ea",
-										"style": "Bouwjaar"
+										"style": "Bouwjaar",
+										"showOpacitySlider": false
 									}
 									//etc. You can add as many layers as you want per step
-								]
-							},
+								]							},
 							//etc. You can add as many steps as you want per chapter
 						]
 					},
@@ -1115,6 +1172,82 @@ Tool to calculate and visualize car isochrones (travel-time areas) around an eco
 	}
 }
 ```
+
+
+
+#### zonalStatistics
+
+Generic tool to inspect statistics per zone (e.g. per postcode area). The user clicks one or more zone geometries on the map and a floating table appears with one row per data layer added to the table and one or more configurable columns per selected zone. What the map shows and what the table shows are independent: in the tool panel each configured data layer gets a card with a **radio button** that makes it the layer whose values are painted on the zones (so it is always clear which layer you are looking at), while its data is added to the table with the **+** button on the same card (which turns into a red trash-can button to remove the row again). Removing and re-adding a layer immediately updates the rows for the already selected zones; a newly added row briefly flashes blue so it is easy to spot. All layers in the tool are drawn with **one shared colour scheme**: the `classMapping` on the `zoneLayerId` layer (keyed on that layer's `style` attribute) is applied to every configured data layer, so the same value always gets the same colour instead of each GeoJSON layer picking random colours. Because the data layers are attribute joins on the zone code, they all share the zone layer's geometry: the zones are drawn once and only recoloured when another layer is selected, and the data layers themselves are never drawn as map layers at all — only their attributes and colours are read — so adding more layers to the tool does not slow the map down or grow its memory use. The opacity slider on a layer's card sets the fill transparency while that layer is selected. The tool opens with the first configured data layer shown on the map and as the table's first row; when the table has no layers it shows a hint instead of rows and exports are disabled. Data layers are only downloaded when they are actually used: on viewer start just the zone layer is loaded, and each other layer is fetched (one at a time) the first time it is selected on the map or added to the table, with a spinner on its panel card while that happens. The zone boundaries are outlined in black for as long as the tool is open, whichever layer is selected; the zones in the table get a thicker yellow outline and the zone currently focused in the table a thicker blue one. Closing the tool empties the table and restores the zone layer to the visibility it had before the tool was opened. Each column reads an attribute from the row-layer's feature, so the tool can show categorical labels (colour-styled), numeric statistics, or any mix. Hovering a zone highlights it on the map; selected zones are tinted (the zone currently focused in the table gets the strongest tint), a live count of the selected zones is shown, and export progress is indicated while a PNG, JPEG, PDF or CSV is generated. Each selected zone's table column header has a zoom button that flies the camera to frame that zone. The table can be exported as PNG, JPEG, PDF or CSV; the `tooltipAttribute` description text is included in every export (a description column in the PDF and CSV, and rendered inline in the PNG/JPEG). The PNG/JPEG exports use a dedicated A4-portrait-width sheet where each selected zone is a separate table stacked vertically (rather than the wide side-by-side on-screen table), so the image fits on A4 pages. In the tool panel (left menu) each configured data layer gets a compact card with the radio button and the add/remove-from-table button, plus an opacity slider behind a chevron. The tool ships no built-in colours or branding — everything is config-driven.
+
+|value|description|type|
+|-|-|-|
+|zoneLayerId|Id of the layer holding the clickable zone geometries. This is the only layer of the tool that is actually drawn: it is switched on while the tool is open and every data layer's values are painted onto it. Its `settings.classMapping` (keyed on its `settings.style` attribute) is applied to every data layer, so all layers in the tool share one colour scheme|string|
+|zoneCodeAttribute|Attribute on a zone feature that holds its code (e.g. a postcode). Defaults to `postcode`. Because the data layers are separate datasets joined on this code, codes are matched ignoring case and whitespace (`"4331 ab"` and `"4331AB"` are the same zone); values from `classMapping` are matched ignoring case too|string|
+|layers|Data layers selectable in the panel; each can be added to the table as a row. Each entry is `{ id, title?, columns? }`; `title` defaults to the layer's config title, and `columns` overrides the source attribute names this layer reads for one or more columns (see below). The first entry is shown on the map and added to the table when the tool opens. Data layers are attribute joins on `zoneCodeAttribute` and are drawn on the `zoneLayerId` geometry, so a zone the layer has no feature for is left blank. They are never added to the map as layers themselves: only the `zoneLayerId` layer is loaded on viewer start, and each data layer's GeoJSON is downloaded one at a time — the first time it is selected or added to the table — to read its attributes and colours|array|
+|columns|Columns rendered per selected zone. Each entry is `{ key?, attribute, label?, hideInTable?, hideInImageExport?, decimals?, tooltipAttribute?, styled? }`. `attribute` is the *default* source attribute name and `key` is the stable id a layer's `columns` override refers to (defaults to `attribute`); `label` defaults to `attribute`; `hideInTable` hides the column in the interactive table; `hideInImageExport` hides the column in the image export; `decimals` (integer 0-20) rounds numeric values of that column to a fixed number of decimals in the table and in every export (omit it to show the raw value); `tooltipAttribute` adds a hover description (and a description column in the PDF and CSV exports, rendered inline in image exports); `styled: true` colours the cell using `valueStyles`|array|
+|valueStyles|Optional value-to-colour map for styled columns. Each entry is `{ value, color, label? }`. Drives styled cell backgrounds, the legend and PDF cell fills (PDF fills require HEX colours; other CSS colours render plain in the PDF). The text colour is derived automatically (black or white, whichever contrasts best with `color`)|array|
+|exportTitle|Optional title used for exports. Defaults to the tool title/alias|string|
+|exportFileName|Optional file-name prefix for exports. Defaults to the tool title/alias|string|
+|pdfFooterText|Optional footer text drawn on exported PDFs|string|
+|pdfLogo|Optional left logo image path for exported PDFs|string|
+
+```json
+{
+	"id": "zonalStatistics",
+	"enabled": true,
+	"settings": {
+		"alias": "Labelpaspoort",
+		"zoneLayerId": "999a",
+		"zoneCodeAttribute": "Pc6",
+		"exportTitle": "Klimaatlabels",
+		"exportFileName": "Klimaatlabels",
+		"pdfFooterText": "Provincie Zeeland - Klimaatlabels",
+		"pdfLogo": "/images/Zeeland_logo.png",
+		"columns": [
+			{ "key": "huidig", "attribute": "label", "label": "Huidig", "tooltipAttribute": "category", "styled": true },
+			{ "key": "ambitie", "attribute": "ambitie_label", "label": "Ambitie", "tooltipAttribute": "ambitie_category", "styled": true, "hideInTable": true},
+			{ "attribute": "Shape_area", "label": "Oppervlakte (m²)", "hideInTable": true, "hideInImageExport": true, "decimals": 0 }
+		],
+		"valueStyles": [
+			{ "value": "A", "color": "#44ce1b" },
+			{ "value": "B", "color": "#bbdb44" },
+			{ "value": "C", "color": "#f7e379" },
+			{ "value": "D", "color": "#f2a134" },
+			{ "value": "E", "color": "#e51f1f" }
+		],
+		"layers": [
+			{ "id": "999a" },
+			{ "id": "999b", "columns": { "ambitie": { "attribute": "label_ca", "tooltipAttribute": "category_ca" } } }
+		]
+	}
+}
+```
+
+### Matching differently named source columns
+
+Source datasets do not always use the same attribute names for the same logical
+column — one may call the ambition label `ambitie_label`, another `label_ca`.
+Give the column a stable `key` and let the deviating layer override the source
+attribute name it uses for that key:
+
+```json
+"columns": [
+	{ "key": "ambitie", "attribute": "ambitie_label", "label": "Ambitie", "tooltipAttribute": "ambitie_category" }
+],
+"layers": [
+	{ "id": "999a" },
+	{ "id": "999c", "columns": { "ambitie": { "attribute": "label_ca" } } }
+]
+```
+
+Both layers then fill the same **Ambitie** column. Notes:
+
+- Layers without a `columns` override keep using the column's `attribute`, so existing configs need no change.
+- `attribute` and `tooltipAttribute` are overridden independently; omitting one keeps the column's default.
+- `{ "ambitie": "label_ca" }` is accepted as shorthand for overriding only the value attribute.
+- The override also applies to the shared colour scheme: the zone layer's `classMapping` is looked up on each layer's *own* name for the class column, so a layer that names it differently still gets coloured instead of rendering as bare outlines.
+
+The panel lists the configured data layers as a flat set of cards, in config order. Above them a header row shows how many layers are in the table (`N / M`) and two icon buttons add every configured layer to the table at once or empty the table again.
 
 
 

@@ -8,13 +8,13 @@ export class MapOptions {
 
 	public dateTime: Writable<number> = writable<number>(1720602000 * 1000); // 10-07-2024 11:00:00
 	public shadows: Writable<boolean> = writable<boolean>(false);
-	public fxaa: Writable<boolean> = writable<boolean>(false);
+	public fxaa: Writable<boolean> = writable<boolean>(true);
 	public animate: Writable<boolean> = writable<boolean>(false);
 	public resolutionScale: Writable<number> = writable<number>(1);
 	public maximumScreenSpaceError: Writable<number> = writable<number>(1.2);
 	public groundAtmosphere: Writable<boolean> = writable<boolean>(true);
 	public lighting: Writable<boolean> = writable<boolean>(true);
-	public msaa: Writable<number> = writable<number>(4);
+	public msaa: Writable<number> = writable<number>(1);
 	public skyAtmosphere: Writable<boolean> = writable<boolean>(true);
 	public fog: Writable<boolean> = writable<boolean>(true);
 	public highDynamicRange: Writable<boolean> = writable<boolean>(false);
@@ -33,6 +33,7 @@ export class MapOptions {
 	public selectedProject: Writable<string | undefined> = writable(undefined);
 	public use3DMode: Writable<boolean> = writable(true);
 	public disableModeSwitcher: Writable<boolean> = writable(false);
+	public enableCollisionDetection: Writable<boolean> = writable<boolean>(false);
 
 	public pointCloudAttenuation: Writable<boolean> = writable<boolean>(true);
 	public pointCloudAttenuationMaximum: Writable<number> = writable<number>(0);
@@ -112,6 +113,9 @@ export class MapOptions {
 		this.subscribe<boolean>(this.inspector, (v) => {
 			this.switchTileInspector(v);
 		});
+		this.subscribe<boolean>(this.enableCollisionDetection, (v) => {
+			this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = v;
+		});
 		this.subscribe<{ title: string, url: string, vertexNormals: boolean }>(this.selectedTerrainProvider, (v) => {
 			this.terrainSwitchReady.set(false);
 			this.switchTerrainProvider(v);
@@ -146,11 +150,12 @@ export class MapOptions {
 		this.trySet(this.pointCloudEDLRadius, config.pointCloudEDLRadius);
 		this.trySet(this.proMode, config.proMode);
 		this.trySet(this.globeOpacity, config.globeOpacity);
+		this.trySet(this.enableCollisionDetection, config.enableCollisionDetection);
 		this.loadTerrainProvider(config.terrainProviders);
 	}
 
 	private trySet<T>(option: Writable<T>, value: T) {
-		if (value) {
+		if (value !== undefined) {
 			option.set(value);
 		}
 	}

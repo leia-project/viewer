@@ -28,7 +28,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
 		this.tilesetHeight = writable<number>(0);
-		this.alpha = this.getOpacity(this.config.opacity);
+		this.alpha = this.getOpacity(get(this.opacity));
 	}
 
 	protected startLoading(): void {
@@ -37,16 +37,17 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 	// Called from opacity subscriber in layer.ts
 	public opacityChanged(opacity: number): void {
-		this.alpha = (opacity > 100 ? 1.0 : opacity < 0 ? 0 : opacity / 100);
+		this.alpha = this.getOpacity(opacity);
 		if (this.source) {
 			this.updateStyles();
 		}
 	}
 
-	// Input is percentage, output is cleaned and normalized to 0-1
+	// Input is percentage (100 = opaque), output is cleaned and normalized to 0-1
 	private getOpacity(opacity: number | undefined): number {
 		if (opacity === undefined) return 1;
-		return opacity === 0 ? 1 : 1 - (opacity / 100);
+		opacity = opacity / 100;
+		return opacity > 1 ? 1 : opacity < 0 ? 0 : opacity;
 	}
 
 	private addListeners(): void {
