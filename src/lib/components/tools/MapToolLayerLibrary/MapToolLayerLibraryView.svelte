@@ -117,10 +117,12 @@
     function getFlatList(): Array<{ key: string; value: LayerConfig }> {
         const layers = new Array<LayerConfig>();
         const groups = get(library.groups);
+        // A layer can be listed under several groups, but must be offered once.
+        const seen = new Set<LayerConfig>();
 
         for (let i = 0; i < groups.length; i++) {
             const g = groups[i];
-            recursiveAdd(g, layers);
+            recursiveAdd(g, layers, seen);
         }
 
         return layers.map((l) => ({ key: l.title.toLowerCase(), value: l }));
@@ -140,11 +142,13 @@
         selectedTagIDs.set([]);
     }
 
-    function recursiveAdd(group: LayerConfigGroup, layers: Array<LayerConfig>): void {
+    function recursiveAdd(group: LayerConfigGroup, layers: Array<LayerConfig>, seen: Set<LayerConfig>): void {
         const configs = get(group.layerConfigs);
         if (configs) {
             for (let j = 0; j < configs.length; j++) {
                 const c = configs[j];
+                if (seen.has(c)) continue;
+                seen.add(c);
                 layers.push(c);
             }
         }
@@ -152,7 +156,7 @@
         const childGroups = get(group.childGroups);
         if (childGroups) {
             for (let i = 0; i < childGroups.length; i++) {
-                recursiveAdd(childGroups[i], layers);
+                recursiveAdd(childGroups[i], layers, seen);
             }
         }
     }

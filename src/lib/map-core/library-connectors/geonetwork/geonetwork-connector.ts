@@ -7,6 +7,14 @@ import type { GeoNetworkConnectorSettings } from "./geonetwork-connector-setting
 import { fetchCapabilitiesLayers } from "$lib/components/tools/MapToolLayerLibrary/CustomLayers/capabilities";
 
 
+interface GeoNetworkRecord {
+    metadata: any;
+    uuid: string;
+    groupIds: Array<string>;
+    settingsList: Array<any>;
+}
+
+
 export class GeoNetworkConnector implements LibraryConnector {
     public readonly label = "GeoNetwork";
     private data: LibraryConnectorData = new LibraryConnectorData();
@@ -14,6 +22,7 @@ export class GeoNetworkConnector implements LibraryConnector {
     private readonly settings: GeoNetworkConnectorSettings;
     private readonly endpointSearch = "/srv/dut/q";
     private readonly linkFormat = "/srv/dut/catalog.search#/metadata/{uuid}?tab=general";
+    private readonly capabilitiesTimeout = 15000;
 
     constructor(settings: GeoNetworkConnectorSettings = {
         url: "",
@@ -23,22 +32,30 @@ export class GeoNetworkConnector implements LibraryConnector {
 
     public async getData(): Promise<LibraryConnectorData> {
         if (!(this.data.groups.length > 0 || this.data.layerConfigs.length > 0)) {
-            try {  
-                const groups = await this.getAllGroups();
-                const layerConfigs = new Array<LayerConfig>();
-                const recordGroups = new Array<LayerConfigGroup>();
+            const groups = await this.getAllGroups();
+            const records = new Map<string, GeoNetworkRecord>();
 
-                for (let i = 0; i < groups.length; i++) {
-                    if (groups[i].id === "dataportal") continue;  // skip fake parent
-                    const { configs, subgroups } = await this.getLayerConfigs(groups[i]);
-                    layerConfigs.push(...configs);
-                    recordGroups.push(...subgroups);
+            for (let i = 0; i < groups.length; i++) {
+                if (groups[i].id === "dataportal") continue;  // skip fake parent
+
+                for (const record of await this.getRecords(groups[i])) {
+                    // The API returns a record once per topic category it declares; merge those
+                    // into one record listed under all of them, instead of duplicating the layers.
+                    const merged = records.get(record.uuid);
+                    if (merged) {
+                        merged.groupIds.push(...record.groupIds);
+                    } else {
+                        records.set(record.uuid, record);
+                    }
                 }
-
-                this.data = new LibraryConnectorData([...groups, ...recordGroups], layerConfigs);
-            } catch (error) {
-                throw error;
             }
+
+            // Resolved once for the whole catalog, so the search paging is never
+            // blocked on GetCapabilities requests.
+            const titleMap = await this.getWmsTitleMap([...records.values()]);
+            const { configs, subgroups } = this.recordsToLayerConfigs([...records.values()], titleMap);
+
+            this.data = new LibraryConnectorData([...groups, ...subgroups], configs);
         }
 
         return this.data;
@@ -64,40 +81,40 @@ export class GeoNetworkConnector implements LibraryConnector {
     }
 
     /**
-     * Request all packages and resources from CKAN
-     * @param type Either 'organization', 'group' or 'dataset'
-     * @returns The parsed LayerConfigs and any per-record subgroups
+     * Requests every metadata record of a topic category, page by page, and keeps
+     * the ones that expose at least one WMS layer.
+     * @returns The raw records paired with their parsed WMS settings
      */
-    private async getLayerConfigs(group: LayerConfigGroup): Promise<{ configs: Array<LayerConfig>, subgroups: Array<LayerConfigGroup> }> {
-        const allConfigs = new Array<LayerConfig>();
-        const allSubgroups = new Array<LayerConfigGroup>();
+    private async getRecords(group: LayerConfigGroup): Promise<Array<GeoNetworkRecord>> {
+        const records = new Array<GeoNetworkRecord>();
         const pageSize = 100;
         const maxPages = 1000; // safety guard against an API that ignores paging
         let from = 1;
 
-        try {
-            for (let page = 0; page < maxPages; page++) {
-                const to = from + pageSize - 1;
-                const suffix = `&topicCat=${group.id}&resultType=details&buildSummary=false&fast=index`;
-                const request = `${this.settings.url}/${this.endpointSearch}?_content_type=json&${suffix}&from=${from}&to=${to}`;
-                const result = await this.get(request);
+        for (let page = 0; page < maxPages; page++) {
+            const to = from + pageSize - 1;
+            const suffix = `&topicCat=${group.id}&resultType=details&buildSummary=false&fast=index`;
+            const request = `${this.settings.url}/${this.endpointSearch}?_content_type=json&${suffix}&from=${from}&to=${to}`;
+            const result = await this.get(request);
 
-                if (!result?.metadata) break;
+            if (!result?.metadata) break;
 
-                const { configs, subgroups } = await this.geoNetworkLayersToLayerConfigs(result, group.id);
-                allConfigs.push(...configs);
-                allSubgroups.push(...subgroups);
-
-                const returned = Array.isArray(result.metadata) ? result.metadata.length : 1;
-                if (returned < pageSize) break;
-
-                from += pageSize;
+            const metadata = Array.isArray(result.metadata) ? result.metadata : [result.metadata];
+            for (const record of metadata) {
+                // `identifier` is shared between records in this catalog, the uuid is not.
+                const uuid = record["geonet:info"]?.uuid;
+                const settingsList = this.getSettings(record.link);
+                if (uuid && settingsList.length > 0) {
+                    records.push({ metadata: record, uuid, groupIds: [group.id], settingsList });
+                }
             }
-        } catch (error) {
-            throw error;
+
+            if (metadata.length < pageSize) break;
+
+            from += pageSize;
         }
 
-        return { configs: allConfigs, subgroups: allSubgroups };
+        return records;
     }
 
 
@@ -137,47 +154,34 @@ export class GeoNetworkConnector implements LibraryConnector {
         return groups;
     }
 
-    private async geoNetworkLayersToLayerConfigs(result: any, groupId: string): Promise<{ configs: Array<LayerConfig>, subgroups: Array<LayerConfigGroup> }> {
+    private recordsToLayerConfigs(records: Array<GeoNetworkRecord>, titleMap: Map<string, string>): { configs: Array<LayerConfig>, subgroups: Array<LayerConfigGroup> } {
         const configs = new Array<LayerConfig>();
         const subgroups = new Array<LayerConfigGroup>();
 
-        if(!result?.metadata) {
-            return { configs, subgroups };
-        }
-
-        const layers = Array.isArray(result.metadata) ? result.metadata : [result.metadata];
-
-        // Resolve settings per record first, so WMS capabilities can be fetched
-        // once per unique endpoint (cached) instead of once per layer.
-        const parsed: Array<{ l: any; settingsList: Array<any> }> = layers
-            .map((l: any) => ({ l, settingsList: this.getSettings(l.link) }))
-            .filter((entry: { l: any; settingsList: Array<any> }) => entry.settingsList.length > 0);
-
-        const urls: Array<string> = [];
-        for (const entry of parsed) {
-            for (const s of entry.settingsList) urls.push(s.url);
-        }
-        const titleMap = await this.getWmsTitleMap(urls);
-
-        for (const { l, settingsList } of parsed) {
+        for (const { metadata: l, uuid, groupIds, settingsList } of records) {
             const multipleLayers = settingsList.length > 1;
 
             // Records exposing multiple WMS layers are nested under a subgroup named
             // after the record, so the near-identical child layers are easier to tell apart.
-            const childGroupId = multipleLayers ? l.identifier : groupId;
+            // A LayerConfigGroup has a single parent, so a record spanning several topic
+            // categories needs one subgroup per category.
+            const childGroupIds = multipleLayers ? groupIds.map((groupId) => `${groupId}__${uuid}`) : groupIds;
             if (multipleLayers) {
-                subgroups.push(new LayerConfigGroup(l.identifier, l.title, groupId));
+                for (let i = 0; i < groupIds.length; i++) {
+                    subgroups.push(new LayerConfigGroup(childGroupIds[i], l.title, groupIds[i]));
+                }
             }
 
             for (let j = 0; j < settingsList.length; j++) {
                 const layerSettings = settingsList[j];
                 const wmsTitle = titleMap.get(`${layerSettings.url}::${layerSettings.featureName}`) ?? layerSettings.featureName;
                 const lc = new LayerConfig({
-                    id: multipleLayers ? `${l.identifier}__${layerSettings.featureName}` : l.identifier,
+                    id: multipleLayers ? `${uuid}__${layerSettings.featureName}` : uuid,
                     type: "wms",
                     title: multipleLayers ? wmsTitle : l.title,
                     description: l.abstract,
-                    groupId: childGroupId,
+                    groupId: childGroupIds[0],
+                    groupIds: childGroupIds,
                     imageUrl: this.getImageUrl(l.image),
                     attribution: l.lineage,
                     isBackground: false,
@@ -186,7 +190,7 @@ export class GeoNetworkConnector implements LibraryConnector {
                     defaultOn: false,
                     metadata: undefined,
                     metadataUrl: '',
-                    metadataLink: this.settings.url + this.linkFormat.replace('{uuid}', l['geonet:info'].uuid),
+                    metadataLink: this.settings.url + this.linkFormat.replace('{uuid}', uuid),
                     dateCreated: l.publicationDate ?? l.creationDate ?? "",
                     dateRevision: l.revisionDate ?? "",
                     settings: layerSettings,
@@ -207,23 +211,29 @@ export class GeoNetworkConnector implements LibraryConnector {
     }
 
     /**
-     * Fetches WMS GetCapabilities once per unique endpoint (deduplicated and cached by
-     * the capabilities helper) and builds a lookup of `${url}::${featureName}` to the
-     * human-readable layer title. Endpoints are fetched in parallel.
+     * Builds a lookup of `${url}::${featureName}` to the human-readable WMS layer
+     * title. Only records exposing multiple layers need it, so only their endpoints
+     * are requested; GetCapabilities is fetched once per unique endpoint
+     * (deduplicated and cached by the capabilities helper), in parallel and with a
+     * timeout. Without that timeout a single slow endpoint - a GeoServer root URL
+     * advertising every workspace takes minutes to answer - stalls the whole library.
      */
-    private async getWmsTitleMap(urls: Array<string>): Promise<Map<string, string>> {
+    private async getWmsTitleMap(records: Array<GeoNetworkRecord>): Promise<Map<string, string>> {
         const titleMap = new Map<string, string>();
-        const uniqueUrls = Array.from(new Set(urls));
-        await Promise.all(uniqueUrls.map(async (url) => {
-            try {
-                const capabilitiesLayers = await fetchCapabilitiesLayers(url, "wms");
-                for (const layer of capabilitiesLayers) {
-                    titleMap.set(`${url}::${layer.id}`, layer.text);
-                }
-            } catch (error) {
-                console.error(error);
+        const urls = new Set<string>();
+
+        for (const record of records) {
+            if (record.settingsList.length < 2) continue;
+            for (const settings of record.settingsList) urls.add(settings.url);
+        }
+
+        await Promise.all([...urls].map(async (url) => {
+            const capabilitiesLayers = await fetchCapabilitiesLayers(url, "wms", this.capabilitiesTimeout);
+            for (const layer of capabilitiesLayers) {
+                titleMap.set(`${url}::${layer.id}`, layer.text);
             }
         }));
+
         return titleMap;
     }
 

@@ -136,13 +136,14 @@ function createParser(): XMLParser {
 /**
  * Fetches and parses a GetCapabilities document to raw XML, cached per URL and
  * de-duplicated in flight so all consumers share one request. Failed fetches
- * are evicted so they can be retried.
+ * are evicted so they can be retried. `timeoutMs` aborts the request so a slow
+ * service cannot hold a connection slot indefinitely.
  */
-export function fetchCapabilitiesDocument(url: string): Promise<any> {
+export function fetchCapabilitiesDocument(url: string, timeoutMs?: number): Promise<any> {
 	let cached = documentCache.get(url);
 	if (!cached) {
 		cached = (async () => {
-			const response = await fetch(url);
+			const response = await fetch(url, timeoutMs ? { signal: AbortSignal.timeout(timeoutMs) } : undefined);
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`);
 			}
@@ -165,7 +166,8 @@ export function fetchCapabilitiesDocument(url: string): Promise<any> {
  */
 export async function fetchCapabilitiesLayers(
 	baseUrl: string,
-	type: "wms" | "wmts"
+	type: "wms" | "wmts",
+	timeoutMs?: number
 ): Promise<Array<CapabilitiesLayer>> {
 	const cacheKey = getCacheKey(baseUrl, type);
 	const cachedLayers = capabilitiesCache.get(cacheKey);
@@ -180,7 +182,7 @@ export async function fetchCapabilitiesLayers(
 
 	const request = (async () => {
 		try {
-			const parsedXml = await fetchCapabilitiesDocument(buildGetCapabilitiesUrl(baseUrl, type));
+			const parsedXml = await fetchCapabilitiesDocument(buildGetCapabilitiesUrl(baseUrl, type), timeoutMs);
 			if (!parsedXml) return [];
 			const layers = type === "wms" ? parseWmsLayers(parsedXml) : parseWmtsLayers(parsedXml);
 			capabilitiesCache.set(cacheKey, cloneLayers(layers));

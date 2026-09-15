@@ -9,6 +9,8 @@ export class LayerConfig {
     public title!: string;
     public description!: string;
     public groupId!: string;
+    // Extra library groups the same layer is listed under; `groupId` stays the primary one.
+    public groupIds?: Array<string>;
     public imageUrl!: string;
     public legendEnabled: boolean = false;
     public legendUrl!: string;

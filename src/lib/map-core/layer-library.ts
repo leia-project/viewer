@@ -141,17 +141,22 @@ export class LayerLibrary extends Dispatcher {
     }
 
     public addLayerConfig(config: LayerConfig): void {
-        let group = this.findGroup(config.groupId);
+        const groupIds = config.groupIds?.length ? config.groupIds : [config.groupId];
 
-        if(!group && config.isBackground) {
-            group = this.groupBackgroundLayers;
-        }
-        
-        if(!group) {
-            group = this.groupNoCategory;
+        for(let i = 0; i < groupIds.length; i++) {
+            let group = this.findGroup(groupIds[i]);
+
+            if(!group && config.isBackground) {
+                group = this.groupBackgroundLayers;
+            }
+
+            if(!group) {
+                group = this.groupNoCategory;
+            }
+
+            group.addLayerConfig(config);
         }
 
-        group.addLayerConfig(config);
         this.subscribeLayerConfig(config);
 
         
@@ -169,8 +174,13 @@ export class LayerLibrary extends Dispatcher {
 
     public removeLayerConfig(config: LayerConfig): void {
         this.dispatch("layerRemoved", config);
-        const group = this.findGroup(config.groupId);
-        if (group) group.removeLayerConfig(config);
+        const groupIds = config.groupIds?.length ? config.groupIds : [config.groupId];
+
+        for(let i = 0; i < groupIds.length; i++) {
+            const group = this.findGroup(groupIds[i]);
+            if (group) group.removeLayerConfig(config);
+        }
+
         if (config.id) {
             this.unsubscribers[config.id]();
             delete this.unsubscribers[config.id];
