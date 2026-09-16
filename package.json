@@ -55,6 +55,7 @@
 		"html-to-image": "^1.11.13",
 		"jsonwebtoken": "^9.0.2",
 		"jspdf": "^4.2.1",
+		"proj4": "^2.22.0",
 		"sass": "^1.92.1",
 		"tile-kiln": "^0.1.6",
 		"vite-plugin-static-copy": "^2.3.0",
