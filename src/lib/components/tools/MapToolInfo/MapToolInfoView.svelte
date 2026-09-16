@@ -157,6 +157,13 @@
 			"LGPL-2.1 license"
 		),
 		new Attribution(
+			"proj4",
+			"Used to reproject uploaded project areas (e.g. RD New) to WGS84 in the Stories tool.",
+			"proj4js",
+			"https://github.com/proj4js/proj4js",
+			"MIT"
+		),
+		new Attribution(
 			"wicket",
 			"Used for WKT parsing and conversion in geocoder workflows.",
 			"arthur-e",
