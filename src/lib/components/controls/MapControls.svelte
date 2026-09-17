@@ -5,6 +5,7 @@
 	import type { Map } from "$lib/map-cesium/map"
     import Button from "$lib/components/theme/Button/Button.svelte";
     import Divider from "$lib/components/theme/Divider/Divider.svelte";
+    import TrackpadControls from "$lib/components/controls/TrackpadControls.svelte";
 
     export let map: Map;
     export let place: string = "bottom-right";
@@ -77,6 +78,7 @@
         tooltipPosition="top"
         iconDescription={$_("tools.help.movement.buttonsZoomIn")}
     />
+    <TrackpadControls {map} />
 </div>
 
 <style>
