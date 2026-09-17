@@ -32,6 +32,7 @@ Two-layer design — **keep the boundary intact**:
 Data flow: **JSON config → `LayerConfig` → `CesiumLayerFactory` → `CesiumLayer<T>` subclass → `Map.viewer`**.
 
 Concrete Cesium layers in `src/lib/map-cesium/layers/`:
+
 - **Imagery:** `WmsLayer`, `WmtsLayer`, `BasiskaartLayer`, `ArcGISLayer`, `VectorTilesLayer`.
 - **Vector / custom:** `GeoJsonLayer`, `WfsLayer`, `OgcFeaturesLayer`, `IconLayer`, `DroppedGLBLayer`.
 - **3D / primitive:** `ThreedeeLayer` (3D Tiles), `I3sLayer`, `ModelAnimation`, `FloodLayer`.
@@ -41,6 +42,7 @@ Concrete Cesium layers in `src/lib/map-cesium/layers/`:
 Behavior comes from a JSON config, **not hardcoded**. New layer/tool capabilities should be exposed through config `settings`. An example is `static/example.config.json`.
 
 Config loading (static build) supports two ways:
+
 1. `?url=http://host/some_config.json` — load config from URL.
 2. A `config.json` placed at the build root (ignored when `?url` is supplied).
 
@@ -48,10 +50,18 @@ Top-level config shape:
 
 ```jsonc
 {
-  "viewer":  { /* base viewer settings (below) */ },
-  "groups":  [ /* layer-library grouping tree */ ],
-  "layers":  [ /* layer definitions */ ],
-  "tools":   [ /* tool enablement + settings */ ]
+	"viewer": {
+		/* base viewer settings (below) */
+	},
+	"groups": [
+		/* layer-library grouping tree */
+	],
+	"layers": [
+		/* layer definitions */
+	],
+	"tools": [
+		/* tool enablement + settings */
+	]
 }
 ```
 
@@ -80,7 +90,7 @@ Common layer fields: `id`, `type`, `title`, `groupId`, `description`, `imageUrl`
 
 Supported `type` values: `basiskaart`, `wms`, `wmts`, `tms`, `vectortiles`, `3dtiles`, `geojson`, `modelanimation`, `custom` (plus the other classes listed under Architecture). `settings` differs per type — examples:
 
-- **wms:** `url`, `featureName`, `contenttype` (default `image/png`), `webMercator` (boolean; use `true` for EPSG:3857 services, default `false` for Cesium's geographic tiling scheme); optional `tools.styleSwitcher.enabled` to pull styles + dynamic legend from GetCapabilities.
+- **wms:** `url`, `featureName`, `contenttype` (default `image/png`); optional `tools.styleSwitcher.enabled` to pull styles + dynamic legend from GetCapabilities.
 - **wmts:** `url`, `featureName`, `contentType`, `matrixids[]`, `tileMatrixSetID` (default `EPSG:3857`), `tileWidth`/`tileHeigth` (256), `maximumLevel`.
 - **3dtiles:** `url` (tileset.json), `shadows`, `tilesetHeight`, `enableHeightControl`, `defaultTheme`, `style` (Cesium3DTileStyle; `pointSize` for point clouds), `themes[]`, `filter`.
 - **stories:** `settings.stories[].chapters[].steps[].markerCoordinates` defines one or more map marker locations for that step; clicking a marker opens the story at its step.
@@ -94,16 +104,20 @@ Refer to `static/example.config.json` for concrete, copy-pasteable examples of e
 - **Tools** (`src/lib/components/tools/`): each tool self-registers via `getContext("mapTools").registerTool(new MapToolMenuOption(...))`; `Page.svelte` holds a `toolOrder` map from tool id → Svelte component. Tools are enabled/configured through the config `tools` array.
 - **On-map controls:** `MapControls.svelte` and `POVMapControls.svelte` (`src/lib/components/controls/`) are near-duplicates — `Page.svelte` picks one based on whether the `flyCamera` tool is enabled. Changes to the button row must be mirrored in both. `TrackpadControls.svelte` is included by both and renders nothing unless `viewer.accessibility.trackpadMode` is true; it drives `map.adjustHeight/adjustHeading/adjustPitch` (see `map.ts`), which use `camera.move` along the ellipsoid normal and `camera.setView` with `roll: 0` so the horizon stays level. Pitch is a no-op / disabled in 2D mode.
 - **State:** Svelte `writable` stores; the `Map` is a singleton store on `app` (`src/lib/app/app.ts`). Persist a store with `register(store, key)` in `src/lib/app/stores/app-storage.ts` (syncs to `localStorage`).
-- **i18n:** `svelte-i18n` with `$_('key.path')`. When adding a key, add it to **all three** files in `src/lib/i18n/json/`: `en.json`, `nl.json`, `fr.json`. `document.documentElement.lang` is kept in sync inside `selectedLanguage.subscribe` in `src/lib/i18n/localization.ts`.
+- **i18n:** `svelte-i18n` with `$_('key.path')`. When adding a key, add it to **all three** files in `src/lib/i18n/json/`: `en.json`, `nl.json`, `fr.json`. `document.documentElement.lang` is kept in sync inside `selectedLanguage.subscribe` in `src/lib/i18n/localization.ts`. Messages are ICU MessageFormat: a `'` directly before a `{` starts a **quoted literal**, so `'{title}'` renders as the raw text `{title}` instead of interpolating — write `''{title}''` (a doubled apostrophe is one literal `'`). A lone apostrophe elsewhere (`l'outil`) is fine.
 - **Styling:** SCSS + Carbon tokens (`var(--cds-*)`). Global rules (scrollbars, focus-visible outline, `prefers-reduced-motion`) live in `src/lib/styles/tosti.scss` (imported via `CarbonTheme.svelte`); do not add per-component scrollbar overrides.
-- **Accessibility:** Use the `use:clickable` action (`src/lib/actions/clickable.ts`) to add Enter/Space activation to div-buttons — and still add a `<!-- svelte-ignore a11y-click-events-have-key-events -->` comment at each site (Svelte can't see into actions). The skip link in `Page.svelte` targets `#main-content`.
+- **Accessibility:** Prefer a real `<button>` over a clickable div for anything interactive (the `use:clickable` action this file used to reference does not exist in this branch); where a div-button is unavoidable, add `role="button"`, `tabindex`, a key handler and a `<!-- svelte-ignore a11y-click-events-have-key-events -->` comment. The skip link in `Page.svelte` targets `#main-content`.
 
 ## Pitfalls (verified, hard-won)
 
+- **Three metadata fields, two audiences.** `LayerConfig.metadata` (key/value pairs) is the metadata content itself, `metadataUrl` is a machine-readable document the layer library fetches + parses (`MapToolLayerLibrary/metadata.ts`), and `metadataLink` is a human-readable catalog page that is only ever set by the **GeoNetwork connector** — it is not a config option and is deliberately left out of the README's layer table. Consumers that just link out (layer manager, zonalStatistics card) use `metadataLink || metadataUrl` and render it through the shared `src/lib/components/theme/MetadataLink/MetadataLink.svelte` — it owns the `Information` icon, the `tools.layerManager.openMetadata` label (that one key is reused everywhere, so there are no `tools.zonalStatistics.*` metadata keys) and the styling, renders nothing when the url is empty, and uses a native `title` rather than a Carbon tooltip since a panel's `overflow-y:auto` clips popovers. Do not re-inline that anchor in a component again. `LibraryLayerInfo.svelte`'s metadata block also falls back to `metadataLink || metadataUrl` (as a plain link) when `config.metadata` is empty — parsing only yields entries for ISO 19115 XML, so an arbitrary `metadataUrl` would otherwise show "no metadata"; note the emptiness check is `metadata && metadata.length > 0`, an empty array previously rendered a blank block.
+- **`LayerConfig` fields are whitelisted when parsing the config.** `Config.createLayerConfigs()` in `src/lib/map-core/config/config.ts` copies a fixed list of keys from the JSON layer object; a field that exists on `LayerConfig` but is missing there is silently `undefined` for every config-defined layer (this is why `metadataUrl`/`metadataLink` did nothing until they were added). Adding a `LayerConfig` field always means adding it to that list too.
 - **Lazy layer loading.** `CesiumLayer` defers data loading until the layer is first visible or a tool explicitly requests it. `protected startLoading()` runs once (latched by `loadInitiated`, never reloads); `public ensureLoaded(): Promise<void>` lets tools load a hidden layer's data without toggling visibility. Most layers (imagery base / threedee / i3s / vectortiles / wfs / ogc) create the SOURCE in `startLoading()`; `addToMap()` is attach-only, triggered by the base `_source.subscribe` — no extra guard needed. A tool that needs a hidden layer's data must `await layer.ensureLoaded()`, not rely on `loaded`.
-- **`GeoJsonLayer` is the deliberate exception** to the lazy-source pattern: its source is created eagerly in the constructor and `addToMap` is gated by `if (!this.loadInitiated || !this.source) return;`, with `startLoading()` overridden to call `addToMap()`. Reason: its `addToMap → addListeners()` path reads subclass fields (`this.style`, color defaults, `clampToGround`) that only initialize **after** `super()`, while for `defaultOn:true` layers `startLoading` fires *during* `super()`. Do **not** centralize the `loadInitiated` check into the base `_source.subscribe` — non-lazy layers (icon/custom/dropped-glb/flood/model) set source in the ctor and rely on the unguarded subscription to attach eagerly.
+- **`GeoJsonLayer` is the deliberate exception** to the lazy-source pattern: its source is created eagerly in the constructor and `addToMap` is gated by `if (!this.loadInitiated || !this.source) return;`, with `startLoading()` overridden to call `addToMap()`. Reason: its `addToMap → addListeners()` path reads subclass fields (`this.style`, color defaults, `clampToGround`) that only initialize **after** `super()`, while for `defaultOn:true` layers `startLoading` fires _during_ `super()`. Do **not** centralize the `loadInitiated` check into the base `_source.subscribe` — non-lazy layers (icon/custom/dropped-glb/flood/model) set source in the ctor and rely on the unguarded subscription to attach eagerly.
 - **GeoJson `setCustomStyle`.** When `config.settings.style` is an object without a `fill` (e.g. `{stroke:'#0000ff'}`), `Cesium.Color.fromCssColorString(style.fill)` throws (`fill` undefined). Guard it: `const colorProp = settings.style?.fill ? new ColorMaterialProperty(fromCssColorString(...)) : this.defaultColorPolygon;`. Note: reading `entity.properties[attr] * factor` on a Cesium `ConstantProperty` is correct (it coerces via `valueOf`) — do **not** "fix" it with `.getValue()`.
+- **GeoJson class style naming.** The strict naming convention is to set `style` to the GeoJSON attribute name (for example `"label"`) and optionally provide `settings.classMapping` for deterministic value-to-color maps on that style attribute.
 - **Localized numeric input.** Numeric UI values (e.g. height control) can arrive as locale strings like `4,5` despite numeric typing; normalize before feeding Cesium math, and guard matrix/model transforms against non-finite numbers to avoid render crashes.
-- **In-panel tooltips.** Carbon tooltips on right-aligned icon buttons inside a scrolling panel get clipped (the panel's `overflow-y:auto` traps them) and appear "behind the map". z-index does **not** help — set `tooltipPosition="left"` so they open inward. (Separately, the collapsed left-menu icon tooltips that extend right over the map *are* a stacking issue, fixed by `.tosti-tool-menu { z-index:10 }` in `MapToolMenu.svelte` + `.map-body { position:relative; z-index:1 }` in `Page.svelte`.)
+- **In-panel tooltips.** Carbon tooltips on right-aligned icon buttons inside a scrolling panel get clipped (the panel's `overflow-y:auto` traps them) and appear "behind the map". z-index does **not** help — set `tooltipPosition="left"` so they open inward. (Separately, the collapsed left-menu icon tooltips that extend right over the map _are_ a stacking issue, fixed by `.tosti-tool-menu { z-index:10 }` in `MapToolMenu.svelte` + `.map-body { position:relative; z-index:1 }` in `Page.svelte`.)
+- **Tooltips inside a horizontally-scrollable table (zonalStatistics cells).** Do **not** use Carbon `TooltipDefinition`/popover tooltips inside the `overflow:auto` zonal table: their absolutely-positioned tooltip content is counted in Chrome's scrollable overflow (but not Firefox's), which adds a phantom scrollable empty strip on the right even when the table fits. The cell value tooltips use a plain native `title` attribute (`.cell-tooltip`, dotted underline) instead — no abspos layout, no phantom scroll. Relatedly, the table is `width: max-content` with **no** `min-width:100%` (that `min-width` caused the same phantom strip in Firefox).
 - **Scrollbars.** Apply `scrollbar-width: thin; scrollbar-color: var(--cds-text-secondary) transparent;` on a universal `*` selector in `tosti.scss`, not on `html` alone (`scrollbar-width` is not inherited, unlike `scrollbar-color`). Do not add a custom `::-webkit-scrollbar` block alongside the standard props — it makes Chromium ignore `scrollbar-gutter: stable`. To avoid content shift, reserve gutter only in Chromium via `@supports selector(::-webkit-scrollbar) { .content-wrapper { scrollbar-gutter: stable; } }`.
 - **Nested opacity slider overflow.** Carbon `.bx--slider` has a default `min-width: ~12.5rem` and won't shrink in a narrowed container. In `MapToolLayerControl.svelte`, wrap the Slider and override `:global(.bx--slider){min-width:0; flex:1 1 auto}` + `:global(.bx--slider-container){width:100%}` (the `min-width:0` override is the critical part).
