@@ -2,19 +2,20 @@
     export let _: any;
     export let base: string;
     export let storyToolRequestPolygonArea: boolean;
+    export let toolTitle: string;
 
 </script>
 
 
-<div class="heading-04">{$_("tools.help.tabs.stories")}</div>
+<div class="heading-04">{toolTitle}</div>
 
 <div class="body-02">
-    {$_("tools.help.stories.description")}
+    {$_("tools.help.stories.description", { values: { title: toolTitle } })}
 </div>
 
-<div class="heading-02">{$_("tools.help.stories.headingOpenStories")}</div>
+<div class="heading-02">{$_("tools.help.stories.headingOpenStories", { values: { title: toolTitle } })}</div>
 <div class="body-02">
-    {$_("tools.help.stories.openStories")}
+    {$_("tools.help.stories.openStories", { values: { title: toolTitle } })}
 </div>
 
 <div class="img-left">

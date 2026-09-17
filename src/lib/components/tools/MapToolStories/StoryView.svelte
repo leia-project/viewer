@@ -4,7 +4,7 @@
 	import * as Cesium from "cesium";
 	import { writable, get, type Writable } from "svelte/store";
 	import { Button, Tag, SliderSkeleton } from "carbon-components-svelte";
-	import { Exit, ChevronDown, ChevronUp, ChoroplethMap } from "carbon-icons-svelte";
+	import { Return, ChevronDown, ChevronUp, ChoroplethMap } from "carbon-icons-svelte";
 	import "@carbon/charts-svelte/styles.css";
 	import { jsPDF } from 'jspdf';
 
@@ -28,6 +28,8 @@
 	import StoryChart from "./StoryChart/StoryChart.svelte";
 	import StoryOpacitySlider from "./StoryOpacitySlider.svelte";
 	import StoryChartDownloadButton from "./StoryChart/StoryChartDownloadButton.svelte";
+	import { showStoryMarkers } from "./story-handler";
+	import ToggleView from "../MapToolProjects/components/ToggleView.svelte";
 
 
 	export let map: Map;
@@ -41,6 +43,7 @@
 	const dispatch = createEventDispatcher();
 
 	let currentPage = writable<number>(1);
+	let lastAppliedSavedStepNumber: number | undefined;
 	let activeStep: StoryStep | undefined;
 	let activeChapter: StoryChapter | undefined;
 	let activeChapterSteps: Array<StoryStep> | undefined;
@@ -61,6 +64,7 @@
 	let startVisibleLayers = new Array<string>();
 	let startGlobeOpacity: number;
 	let startTerrain: {title: string, url: string, vertexNormals: boolean};
+	let startUse3DMode: boolean = get(map.options.use3DMode);
 
 	let polygonArea: number = 0;
 	let hasDrawnPolygon: Writable<boolean> = writable(false);
@@ -135,9 +139,10 @@
 
 
 	onMount(() => {
-		if (story.force2DMode) {
+		if (story.forceCameraMode) {
+			const targetMode = story.forceCameraMode === "3D";
 			map.options.disableModeSwitcher.set(true);
-			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
+			if (get(map.options.use3DMode) !== targetMode) map.options.use3DMode.set(targetMode);
 		}
 
 		startCameraLocation = cesiumMap.getPosition();
@@ -171,7 +176,11 @@
 
 
 	onDestroy(() => {
-		if (story.force2DMode) map.options.disableModeSwitcher.set(false);
+		if (story.forceCameraMode) {
+			map.options.disableModeSwitcher.set(false);
+			const targetMode = story.forceCameraMode === "3D";
+			if (targetMode !== startUse3DMode) map.options.use3DMode.set(startUse3DMode);
+		}
 
 		map.autoCheckBackground = startAutocheckBackground;
 		resizeObserver?.disconnect();
@@ -225,8 +234,9 @@
 
 
 	currentPage.subscribe((page) => {
-		if (story.force2DMode) {
-			if (get(map.options.use3DMode)) map.options.use3DMode.set(false);
+		if (story.forceCameraMode) {
+			const targetMode = story.forceCameraMode === "3D";
+			if (get(map.options.use3DMode) !== targetMode) map.options.use3DMode.set(targetMode);
 		} // Set this again because apparently OnMount is slower than a subscribe :/
 		const index = page - 1;
 
@@ -306,6 +316,12 @@
 			}
 		}
 	});
+
+	$: if (savedStepNumber !== lastAppliedSavedStepNumber) {
+		lastAppliedSavedStepNumber = savedStepNumber;
+		lastInputType = "click";
+		currentPage.set(savedStepNumber);
+	}
 
 	function scrollToStep(index: number): void {
 		const stepElement = getStepElementByIndex(index);
@@ -601,15 +617,12 @@ async function downloadPDF() {
 				iconDescription={textBack}
 				tooltipPosition="bottom"
 				tooltipAlignment="end"
-				icon={Exit}
+				icon={Return}
 				on:click={backToOverview} 
 			/>
 		</div>
 		</div>
 		
-		<!-- <div class="story-description body-compact-01">
-			{story.description}
-		</div> -->
 		{#if story.requestPolygonArea}
 			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={showPolygonMenu}/>
 		{/if}
@@ -727,18 +740,20 @@ async function downloadPDF() {
 				</div>
 				<div class="opacity-controls">
 					{#each step.layers ?? [] as layer}
-						{#await (async () => {
-							while (!getAdded(layer.id.toString())) {
-								await new Promise(r => setTimeout(r, 100));
-							}
-							return getAdded(layer.id.toString());
-						})() then addedLayer}
-							{#if addedLayer}
-								<StoryOpacitySlider layer={addedLayer} />
-							{/if}
-						{:catch}
-							<SliderSkeleton hideLabel />
-						{/await}
+						{#if layer.showOpacitySlider}
+							{#await (async () => {
+								while (!getAdded(layer.id.toString())) {
+									await new Promise(r => setTimeout(r, 100));
+								}
+								return getAdded(layer.id.toString());
+							})() then addedLayer}
+								{#if addedLayer}
+									<StoryOpacitySlider layer={addedLayer} />
+								{/if}
+							{:catch}
+								<SliderSkeleton hideLabel />
+							{/await}
+						{/if}
 					{/each}
 				</div>
 				<div class="tag">
@@ -750,11 +765,22 @@ async function downloadPDF() {
 		<!-- <div style="height:{height}px" /> -->
 	</div>
 	</div>
+
+	{#if story.hasMarkers}
+		<div class="marker-footer">
+			<div class="footer-gradient" />
+			<ToggleView bind:show={$showStoryMarkers} text={$_("tools.stories.showStoryOnMap")} />
+		</div>
+	{/if}
 </div>
 
 <style>
 	:global(.content-wrapper:has(.story-viewer)) {
 		scrollbar-gutter: auto;
+	}
+
+	:global(.tool-content:has(.story-viewer)) {
+		margin-bottom: 0;
 	}
 
 	.story {
@@ -765,7 +791,6 @@ async function downloadPDF() {
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
-		margin-bottom: calc(-1 * var(--cds-spacing-07));
 	}
 
 	.scroll {
@@ -813,6 +838,10 @@ async function downloadPDF() {
 		gap: 0.25rem; /* spacing between the buttons */
 	}
 
+	.draw-polygon :global(.bx--btn:hover svg) {
+		fill: var(--cds-link-primary, #0f62fe);
+	}
+
 	.nav-close {
 		flex: 0 0 auto;
 	}
@@ -853,10 +882,6 @@ async function downloadPDF() {
 	.step-heading {
 		font-weight: bold;
 		padding-bottom: var(--cds-spacing-03);
-	}
-
-	.step-heading-sub {
-		padding-top: var(--cds-spacing-05);
 	}
 
 	.step-stats {
@@ -913,5 +938,26 @@ async function downloadPDF() {
 		width: 1.2rem;
 		height: 1.2rem;
 		font-size: 0.75rem;
+	}
+
+	.marker-footer {
+		flex: 0 0 auto;
+		position: relative;
+		z-index: 2;
+		width: 100%;
+		box-sizing: border-box;
+		padding: var(--cds-spacing-05);
+		background-color: var(--cds-ui-01);
+		border-top: 1px solid var(--cds-ui-03);
+	}
+
+	.footer-gradient {
+		position: absolute;
+		bottom: 100%;
+		left: 0;
+		width: 100%;
+		height: 1.5rem;
+		background: linear-gradient(0deg, var(--cds-ui-02) 5%, rgba(255, 255, 255, 0) 100%);
+		pointer-events: none;
 	}
 </style>

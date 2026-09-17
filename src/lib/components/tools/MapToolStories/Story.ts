@@ -1,33 +1,43 @@
 import { StoryStep } from "./StoryStep";
 import { StoryChapter } from "./StoryChapter";
 import { StoryLayer } from "./StoryLayer";
+import type * as Cesium from "cesium";
+
+export interface StoryMarkerCoordinates {
+    x: number;
+    y: number;
+}
 
 export class Story {
     public name: string;
     public description: string;
     public storyChapters: Array<StoryChapter>;
     public width: string | undefined;
-    public force2DMode: boolean | undefined;
+    public forceCameraMode: "2D" | "3D" | undefined;
     public staticCamera: boolean | undefined;
     public requestPolygonArea: boolean | undefined;
     public statisticsApi: string | undefined;
+    public markers: Array<Cesium.Entity> = [];
+    public hasMarkers: boolean;
     
     constructor(name: string, 
                 description: string, 
                 storyChapters: Array<StoryChapter>, 
                 width: string | undefined = undefined, 
-                force2DMode: boolean | undefined, 
+                forceCameraMode: "2D" | "3D" | undefined, 
                 staticCamera: boolean | undefined,
                 requestPolygonArea: boolean | undefined,
-                statisticsApi: string | undefined) {
+                statisticsApi: string | undefined,
+                hasMarkers: boolean = false) {
         this.name = name;
         this.description = description;
         this.storyChapters = storyChapters;
         this.width = width;
-        this.force2DMode = force2DMode;
+        this.forceCameraMode = forceCameraMode;
         this.staticCamera = staticCamera;
         this.requestPolygonArea = requestPolygonArea;
         this.statisticsApi = statisticsApi;
+        this.hasMarkers = hasMarkers;
     }
 
     getStoryLayers(): Array<StoryLayer> {
