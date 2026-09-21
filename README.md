@@ -1052,6 +1052,7 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 |stories|name|The name of the story|string|
 ||description|A short description to describe the story|string|
 ||width|The width of the story menu|string|
+||maxWidth|**Optional**: Maximum width of the story menu, as a CSS length (for example `"50rem"` or `"800px"`). Keeps the text readable on wide screens: the menu is as wide as `width`, but never wider than `maxWidth`. Without this option the width is not limited|string|
 ||forceCameraMode|Forces the camera into a fixed mode while the story is open and prevents users from switching camera mode. Accepts `"2D"` or `"3D"`. On opening the story the camera switches to the given mode if needed; on closing it reverts to the previous mode if it was changed|string|
 ||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
 ||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
