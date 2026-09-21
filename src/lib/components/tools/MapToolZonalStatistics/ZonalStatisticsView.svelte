@@ -20,6 +20,10 @@
 	export let controller: ZonalStatisticsController;
 	export let title: string;
 
+	// Breakpoint below which the sticky column is disabled to allow horizontal scrolling on small screens
+	// If this value is altered, make sure to update the corresponding CSS media query as well.
+	const STICKY_COLUMN_BREAKPOINT = 1260;
+
 	const dispatch = createEventDispatcher();
 
 	const settings = controller.settings;
@@ -72,6 +76,8 @@
 	function updateScrollShadows(): void {
 		const el = contentEl;
 		stickyHeaderHeight = tableHeadEl?.offsetHeight ?? 0;
+		// Reset sticky column width on small screens where sticky positioning is disabled
+		stickyColWidth = window.innerWidth <= STICKY_COLUMN_BREAKPOINT ? 0 : stickyColWidth;
 		if (!el) {
 			scroll = { top: false, bottom: false, left: false, right: false };
 			return;
@@ -684,7 +690,7 @@
 		position: absolute;
 		top: var(--cds-spacing-05);
 		right: var(--cds-spacing-05);
-		max-width: calc(50% - (2 * var(--cds-spacing-05)));
+		max-width: calc(50% - var(--cds-spacing-05));
 		max-height: 60%;
 		display: flex;
 		flex-direction: column;
@@ -903,7 +909,8 @@
 		left: 0;
 		background: var(--cds-ui-02);
 		z-index: 1;
-		max-width: 12rem;
+		min-width: 6rem;
+		max-width: 18rem;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
@@ -937,6 +944,7 @@
 	.zone-head {
 		font-weight: 600;
 		border-left: 1px solid var(--cds-ui-03);
+		min-width: 6rem;
 	}
 
 	.zone-head-inner {
@@ -1101,11 +1109,16 @@
 	.sub-head {
 		font-weight: 400;
 		color: var(--cds-text-secondary);
+		min-width: 6rem;
 	}
 
 	.sub-head.last-col,
 	.value.last-col {
 		border-right: 1px solid var(--cds-ui-03);
+	}
+
+	.value {
+		min-width: 6rem;
 	}
 
 	.zone-head.active,
@@ -1136,6 +1149,20 @@
 		.zonal-table tbody tr.flash td,
 		.zonal-table tbody tr.flash th.row-head {
 			animation: none;
+		}
+	}
+
+	/* On small screens, disable sticky positioning of the row-head column to allow scrolling to data columns.
+	   Breakpoint matches STICKY_COLUMN_BREAKPOINT constant in script (1260px). */
+	@media (max-width: 1260px) {
+		.zonal-table .row-head {
+			position: static;
+			z-index: 0;
+		}
+
+		#sticky-cell {
+			position: static;
+			z-index: 0;
 		}
 	}
 </style>
