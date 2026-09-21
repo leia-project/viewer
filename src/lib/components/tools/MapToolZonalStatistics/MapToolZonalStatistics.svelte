@@ -29,6 +29,8 @@
 	let view: ZonalStatisticsView | undefined;
 	let configLoadedUnsub: (() => void) | undefined;
 	let zoneLayerWasVisible: boolean | undefined;
+	// Store the visibility state of all visible layers before opening the tool, so they can be restored
+	let visibleLayersBeforeTool: Map<string, boolean> = new Map();
 
 	onMount(() => {
 		if (!map) return;
@@ -51,6 +53,7 @@
 		configLoadedUnsub?.();
 		destroyView();
 		controller?.destroy();
+		visibleLayersBeforeTool.clear();
 	});
 
 	// Activate selection + show the floating table while the tool is open.
@@ -76,13 +79,28 @@
 	function enableConfiguredLayers(): void {
 		if (!controller) return;
 
+		// Store and hide all currently visible layers that are configured in this tool's settings
+		// (except zone layer and background layers) so the focus is on the zonal statistics
+		const allLayers = get(map.layers);
+		const zoneLayerId = controller.settings.zoneLayerId;
+		const configuredLayerIds = controller.settings.layers.map((l: any) => l.id);
+		visibleLayersBeforeTool.clear();
+		for (const layer of allLayers) {
+			if (!configuredLayerIds.includes(layer.config.id)) continue; // Only hide layers configured in this tool
+			if (layer.config.id === zoneLayerId) continue; // Don't hide/track the zone layer
+			if (layer.config.isBackground === true) continue; // Don't hide background layers
+			const isVisible = get(layer.visible);
+			if (isVisible) {
+				visibleLayersBeforeTool.set(layer.config.id, true);
+				layer.visible.set(false);
+			}
+		}
+
 		// The zone layer carries the geometry every data layer is painted onto, so it stays on while
 		// the tool is open. The data layers are attribute joins and are never switched on.
-		const zoneLayer = map.getLayerById(controller.settings.zoneLayerId);
+		const zoneLayer = map.getLayerById(zoneLayerId);
 		if (!zoneLayer) {
-			console.warn(
-				`zonalStatistics: zone layer '${controller.settings.zoneLayerId}' not found while activating`
-			);
+			console.warn(`zonalStatistics: zone layer '${zoneLayerId}' not found while activating`);
 		} else {
 			zoneLayerWasVisible = get(zoneLayer.visible);
 			zoneLayer.visible.set(true);
@@ -97,9 +115,20 @@
 		controller.addTableLayer(first);
 	}
 
-	// Restore the zone layer to the visibility it had before the tool was opened.
+	// Restore layers to their visibility state before the tool was opened.
 	function restoreConfiguredLayers(): void {
 		if (!controller) return;
+
+		// Restore all layers that were visible before the tool was activated
+		for (const [layerId] of visibleLayersBeforeTool) {
+			const layer = map.getLayerById(layerId);
+			if (layer) {
+				layer.visible.set(true);
+			}
+		}
+		visibleLayersBeforeTool.clear();
+
+		// Restore the zone layer to its original visibility
 		if (zoneLayerWasVisible !== undefined) {
 			map.getLayerById(controller.settings.zoneLayerId)?.visible.set(zoneLayerWasVisible);
 			zoneLayerWasVisible = undefined;
