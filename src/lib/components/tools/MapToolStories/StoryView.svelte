@@ -42,6 +42,8 @@
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
 	const dispatch = createEventDispatcher();
 
+	const intersectOffset = 200; //TODO: make this dynamic
+
 	let currentPage = writable<number>(1);
 	let lastAppliedSavedStepNumber: number | undefined;
 	let activeStep: StoryStep | undefined;
@@ -327,6 +329,12 @@
 		currentPage.set(savedStepNumber);
 	}
 
+	// Spacer below the last step, so it can scroll past the intersect line like every other
+	// step. Sized so that at maximum scroll the last step ends at the intersect line: still
+	// visible, which also hints that scrolling back up is possible (there is no scrollbar).
+	// Depends on viewportHeight so it is recalculated when the tool panel is resized.
+	$: bottomSpacerHeight = Math.max(0, (viewportHeight && (container?.clientHeight ?? 0)) - intersectOffset);
+
 	function scrollToStep(index: number): void {
 		const stepElement = getStepElementByIndex(index);
 		if (stepElement) {
@@ -447,7 +455,7 @@
 
 	function checkStep() {
 		const steps = content.getElementsByClassName("step");
-		const intersectLine = container.getBoundingClientRect().top + 200;
+		const intersectLine = container.getBoundingClientRect().top + intersectOffset;
 
 		for (let i = 0; i < steps.length; i++) {
 			const rect = steps[i].getBoundingClientRect();
@@ -768,7 +776,7 @@ async function downloadPDF() {
 				</div>
 			</div>
 		{/each}
-		<!-- <div style="height:{height}px" /> -->
+		<div style="height:{bottomSpacerHeight}px" />
 	</div>
 	</div>
 
