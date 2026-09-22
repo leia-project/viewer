@@ -199,7 +199,8 @@
         "backgroundControls": {
             "opacity": "Wereld Transparantie",
             "terrain": "Terrein",
-            "verticalExaggeration": "Verticale overdrijving"
+            "verticalExaggeration": "Verticale overdrijving",
+            "subsurfaceExaggeration": "Overdrijving ondergrond"
         },
         "bookmarks": {
             "label": "Bladwijzers",
@@ -224,7 +225,17 @@
             "label": "Object Informatie",
             "noData": "Geen data, Klik op een object voor meer informatie",
             "attribute": "Attribuut",
-            "value": "Waarde"
+            "value": "Waarde",
+            "bro": {
+                "graphTab": "Grafiek",
+                "dataTab": "Gegevens",
+                "graphType": "Grafiektype",
+                "layers": "Lagen",
+                "loading": "BRO gegevens ophalen...",
+                "loadError": "Ophalen van BRO gegevens mislukt",
+                "graphError": "Ophalen van BRO grafiek mislukt",
+                "retry": "Opnieuw proberen"
+            }
         },
         "measure": {
             "label": "Meten",

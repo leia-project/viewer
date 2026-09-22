@@ -12,6 +12,20 @@ export default defineConfig(({ command, mode }) => {
   const cesiumBaseUrl = `${process.env.APP_URL}/Cesium`
 
   return {
+      server: {
+        proxy: {
+          "/zeeland-terrain": {
+            target: "https://virtueel.zeeland.nl",
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/zeeland-terrain/, "/tiles_other"),
+          },
+          "/zeeland-pygeoapi": {
+            target: "https://virtueel.zeeland.nl",
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/zeeland-pygeoapi/, "/pygeoapi"),
+          },
+        },
+      },
       define: {
         // This is the base url for static files that CesiumJS needs to load.
         // Set to an empty string to place the files at the site's root path

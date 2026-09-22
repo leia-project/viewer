@@ -1,7 +1,7 @@
 import * as Cesium from "cesium";
 import { get, type Unsubscriber } from "svelte/store";
 
-import { DepthScale } from "./depth-scale";
+import { DepthScale, NAP_OFFSET_M } from "./depth-scale";
 import type { Map } from "./map";
 
 interface NapExtent {
@@ -15,7 +15,7 @@ interface NapExtent {
  *
  * The boreholes 3D Tiles glb contains `top_nap`/`bottom_nap` per interval
  * - the full borehole span (NAP) is the highest top / lowest base across all
- *   intervals sharing the clicked feature's `location_uid`, aggregated straight
+ *   intervals sharing the clicked feature's `bro_id`, aggregated straight
  *   from the tileset metadata (cached per borehole);
  * - lon/lat and the geoid separation come from the pick point on the cylinder.
  */
@@ -57,7 +57,7 @@ export class BoreholeDepthScaleController {
 			return;
 		}
 
-		const uid = String(feature.getProperty("location_uid") ?? ""); // MAYBE make id string configurable?
+		const uid = String(feature.getProperty("bro_id") ?? "");
 		if (!uid) {
 			return;
 		}
@@ -82,9 +82,13 @@ export class BoreholeDepthScaleController {
 			return;
 		}
 
-		// The pick is in exaggerated scene space undo it to recover the true ellipsoidal hit height
+		// The pick is in exaggerated scene space. undo the scene-wide vertical
+		// exaggeration and then the subsurface pivot stretch to recover the
+		// true ellipsoidal hit height.
 		const vertExag = get(this.map.options.verticalExaggeration) || 1;
-		const ellipsoidalHit = cartoPosition.height / vertExag;
+		const subExag = get(this.map.options.subsurfaceExaggeration) || 1;
+		const ellipsoidalHit =
+			NAP_OFFSET_M + (cartoPosition.height / vertExag - NAP_OFFSET_M) / subExag;
 
 		// Geoid separation is constant down a borehole, so estimate it once from
 		// the clicked interval's NAP midpoint: ellipsoidal = NAP + separation.
@@ -117,7 +121,7 @@ export class BoreholeDepthScaleController {
 		for (let i = 0; i < content.featuresLength; i++) {
 			const f = content.getFeature(i);
 
-			if (String(f.getProperty("location_uid")) !== uid) {
+			if (String(f.getProperty("bro_id")) !== uid) {
 				continue;
 			}
 

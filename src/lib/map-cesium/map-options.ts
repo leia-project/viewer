@@ -26,6 +26,7 @@ export class MapOptions {
 	public enableDragDropFiles: Writable<boolean> = writable<boolean>(true);
 	public globeOpacity: Writable<number> = writable<number>(100);
 	public verticalExaggeration: Writable<number> = writable<number>(1);
+	public subsurfaceExaggeration: Writable<number> = writable<number>(1);
 	public inspector: Writable<boolean> = writable<boolean>(false);
 	public proMode: Writable<boolean> = writable<boolean>(false);
 	public terrainProviders: Writable<Array<{ title: string, url: string, vertexNormals: boolean }>> = writable<Array<{ title: string, url: string, vertexNormals: boolean }>>(new Array<{ title: string, url: string, vertexNormals: boolean}>());
@@ -151,6 +152,7 @@ export class MapOptions {
 		this.trySet(this.proMode, config.proMode);
 		this.trySet(this.globeOpacity, config.globeOpacity);
 		this.trySet(this.verticalExaggeration, config.verticalExaggeration);
+		this.trySet(this.subsurfaceExaggeration, config.subsurfaceExaggeration);
 		this.loadTerrainProvider(config.terrainProviders);
 	}
 

@@ -192,7 +192,8 @@
         "backgroundControls": {
             "opacity": "Globe Opacity",
             "terrain": "Terrain",
-            "verticalExaggeration": "Vertical exaggeration"
+            "verticalExaggeration": "Vertical exaggeration",
+            "subsurfaceExaggeration": "Subsurface exaggeration"
         },
         "bookmarks": {
             "label": "Bookmarks",
@@ -217,7 +218,17 @@
             "label": "Object Information",
             "noData": "No data, press an object for more information",
             "attribute": "Attribute",
-            "value": "Value"
+            "value": "Value",
+            "bro": {
+                "graphTab": "Graph",
+                "dataTab": "Data",
+                "graphType": "Graph type",
+                "layers": "Layers",
+                "loading": "Fetching BRO data...",
+                "loadError": "Failed to fetch BRO data",
+                "graphError": "Failed to fetch BRO graph",
+                "retry": "Retry"
+            }
         },
         "measure": {
             "label": "Measure",

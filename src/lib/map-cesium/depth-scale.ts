@@ -3,10 +3,20 @@ import { ticks } from "d3-array";
 import { get, type Unsubscriber } from "svelte/store";
 import type { Map } from "./map";
 
+/**
+ * Approximate ellipsoidal height of NAP 0 in Zeeland which we take as the datum the subsurface
+ * exaggeration stretches away from.
+ * This is shared by all subsurface layers (voxels, boreholes, CPT')
+ * so equal NAP depths render at equal heights.
+ * Columns on terrain above NAP 0 rise proportionally above the (unstretched) terrain
+ * by design
+ */
+export const NAP_OFFSET_M = 44;
+
 export class DepthScale {
 	private polylines: Cesium.PolylineCollection;
 	private labels: Cesium.LabelCollection;
-	private veUnsubscribe: Unsubscriber;
+	private unsubscribers: Array<Unsubscriber> = [];
 
 	/**
 	 * @param lon            longitude, radians
@@ -27,26 +37,30 @@ export class DepthScale {
 	) {
 		this.polylines = new Cesium.PolylineCollection();
 		this.labels = new Cesium.LabelCollection();
-		this.build(get(map.options.verticalExaggeration));
-		this.veUnsubscribe = map.options.verticalExaggeration.subscribe((vertExag) => {
-			this.rebuild(vertExag);
-		});
+		this.build();
+		this.unsubscribers.push(
+			map.options.verticalExaggeration.subscribe(() => this.rebuild()),
+			map.options.subsurfaceExaggeration.subscribe(() => this.rebuild())
+		);
 	}
 
-	/** NAP metres → exaggerated ellipsoidal height, matching the rendered tileset. */
-	private ellipsoidal(nap: number, vertExag: number): number {
-		return (nap + this.geoidSeparation) * vertExag;
+	/**
+	 * NAP metres → rendered ellipsoidal height, matching the tileset: the
+	 * subsurface exaggeration stretches away from NAP_OFFSET_M, then the
+	 * scene-wide vertical exaggeration scales from the ellipsoid.
+	 */
+	private ellipsoidal(nap: number): number {
+		const vertExag = get(this.map.options.verticalExaggeration) || 1;
+		const subExag = get(this.map.options.subsurfaceExaggeration) || 1;
+		const trueHeight = nap + this.geoidSeparation;
+		return (NAP_OFFSET_M + (trueHeight - NAP_OFFSET_M) * subExag) * vertExag;
 	}
 
-	private build(vertExag: number): void {
+	private build(): void {
 		this.polylines.add({
 			positions: [
-				Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.ellipsoidal(this.topNap, vertExag)),
-				Cesium.Cartesian3.fromRadians(
-					this.lon,
-					this.lat,
-					this.ellipsoidal(this.bottomNap, vertExag)
-				)
+				Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.ellipsoidal(this.topNap)),
+				Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.ellipsoidal(this.bottomNap))
 			],
 			width: 2,
 			material: Cesium.Material.fromType(Cesium.Material.ColorType, {
@@ -55,15 +69,14 @@ export class DepthScale {
 		});
 
 		// more ticks with higher exaggeration
-		const targetTicks = vertExag >= 80 ? 12 : vertExag >= 40 ? 9 : 6;
+		const exaggeration =
+			(get(this.map.options.verticalExaggeration) || 1) *
+			(get(this.map.options.subsurfaceExaggeration) || 1);
+		const targetTicks = exaggeration >= 80 ? 12 : exaggeration >= 40 ? 9 : 6;
 
 		for (const nap of ticks(this.bottomNap, this.topNap, targetTicks)) {
 			this.labels.add({
-				position: Cesium.Cartesian3.fromRadians(
-					this.lon,
-					this.lat,
-					this.ellipsoidal(nap, vertExag)
-				),
+				position: Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.ellipsoidal(nap)),
 				text: formatNap(nap),
 				font: "14px sans-serif",
 				fillColor: Cesium.Color.WHITE,
@@ -77,22 +90,36 @@ export class DepthScale {
 		}
 	}
 
-	private rebuild(vertExag: number): void {
+	private rebuild(): void {
 		this.polylines.removeAll();
 		this.labels.removeAll();
-		this.build(vertExag);
-		this.map.refresh();
+		this.build();
+		this.refreshWithLabels();
 	}
 
 	public addToScene(): void {
 		this.map.viewer.scene.primitives.add(this.polylines);
 		this.map.viewer.scene.primitives.add(this.labels);
-		// Show depth scale immediately
+		this.refreshWithLabels();
+	}
+
+	/**
+	 * Render now and once more after this frame: label glyphs are written to
+	 * the texture atlas during the first render pass, so with requestRenderMode
+	 * the tick text would stay invisible until the camera moves.
+	 */
+	private refreshWithLabels(): void {
 		this.map.refresh();
+		const scene = this.map.viewer.scene;
+		const unlisten = scene.postRender.addEventListener(() => {
+			unlisten();
+			this.map.refresh();
+		});
 	}
 
 	public removeFromScene(): void {
-		this.veUnsubscribe();
+		this.unsubscribers.forEach((unsub) => unsub());
+		this.unsubscribers = [];
 		this.map.viewer.scene.primitives.remove(this.polylines);
 		this.map.viewer.scene.primitives.remove(this.labels);
 		this.map.refresh();

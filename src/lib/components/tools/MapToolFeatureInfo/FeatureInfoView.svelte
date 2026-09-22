@@ -11,6 +11,7 @@
     import { ComposedRow } from "./composed-row";
     import { ComposedFeatureInfoResult } from "./composed-feature-info-result";
     import Button from "$lib/components/theme/Button/Button.svelte";
+    import BroDetail from "./BroDetail/BroDetail.svelte";
 
     export let map: MapCore;
     export let featureInfoResults: FeatureInfoResults = map.featureInfo;
@@ -96,7 +97,7 @@
         if (!fieldConfig) return;
 
         handler = fieldConfig.handler.toLowerCase();
-        handlerModalTitle = field.charAt(0).toUpperCase() + field.slice(1);
+        handlerModalTitle = handler === "bro" ? value : field.charAt(0).toUpperCase() + field.slice(1);
         handlerData = value;
         handlerOpen = true;
     }
@@ -269,6 +270,10 @@
                         <div>No online PDF viewer installed</div>
                     </object>
                 </div>
+            {/if}
+
+            {#if handler === "bro"}
+                <BroDetail broId={handlerData} />
             {/if}
 
             {#if handler === "chart"}

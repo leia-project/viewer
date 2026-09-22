@@ -10,24 +10,35 @@
 	export let layer: GeoJsonLayer;
 	export let properties: Array<GeoJSONpropertySummary>;
 	export let defaultStyle: string;
+	export let propertyLabels: Record<string, string> = {};
 
 	let { extrusionSliderHeight, extrusionSliderLabel } = layer;
 
-	function getDropdownList(): Array<{id: number; text: string}> {
+	// `value` is the style key passed to layer.style (property name / "default" / "custom");
+	// `text` is the human-readable label shown in the dropdown (from settings.propertyLabels).
+	function getDropdownList(): Array<{id: number; text: string; value: string}> {
 		const items = [{
 			id: 0,
-			text: defaultStyle
+			text: propertyLabels[defaultStyle] ?? defaultStyle,
+			value: defaultStyle
 		}];
-		for (let i=0; i<properties.length; i++) {
+		for (let i = 0; i < properties.length; i++) {
+			const name = properties[i].propertyName;
 			items.push({
 				id: i + 1,
-				text: properties[i].propertyName
+				text: propertyLabels[name] ?? name,
+				value: name
 			});
 		}
 		return items;
 	}
 	let dropdownItems = getDropdownList();
-	let activeStyle = dropdownItems.find((item) => item.text === get(layer.style))?.id ?? 0;
+	let activeStyle = dropdownItems.find((item) => item.value === get(layer.style))?.id ?? 0;
+
+	function onStyleSelect(e: CustomEvent<{ selectedId: number }>): void {
+		const item = dropdownItems.find((d) => d.id === e.detail.selectedId);
+		if (item) layer.style.set(item.value);
+	}
 
 	$: legend = layer.legend;
 	$: styleType = layer.styleType;
@@ -55,7 +66,7 @@
 				bind:selectedId={activeStyle}
 				items={dropdownItems}
 				size="sm"
-				on:select={(e) => layer.style.set(e.detail.selectedItem.text)}
+				on:select={onStyleSelect}
 			></Dropdown>
 		</div>
 
