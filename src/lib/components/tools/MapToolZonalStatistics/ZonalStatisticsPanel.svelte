@@ -166,14 +166,14 @@
 						{#if group.expanded}
 							<div class="group-cards" id={group.panelId}>
 								{#each group.layers as resolved (resolved.layerId)}
-									<ZonalLayerCard {controller} layer={resolved.layer} layerId={resolved.layerId} />
+									<ZonalLayerCard {controller} layer={resolved} layerId={resolved.layerId} />
 								{/each}
 							</div>
 						{/if}
 					</section>
 				{:else}
 					{#each group.layers as resolved (resolved.layerId)}
-						<ZonalLayerCard {controller} layer={resolved.layer} layerId={resolved.layerId} />
+						<ZonalLayerCard {controller} layer={resolved} layerId={resolved.layerId} />
 					{/each}
 				{/if}
 			{/each}

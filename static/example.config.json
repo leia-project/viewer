@@ -61,8 +61,9 @@
         {
             "id": "3",
             "type": "3dtiles",
-            "title": "3D BAG",
+            "title": "3D Gebouwen",
             "groupId": "",
+            "metadataUrl": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/",
             "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -108,39 +109,384 @@
             }
         },
         {
-           "id": "4",
-            "type": "wms",
-            "title": "PDOK Wijken",
+            "id": "pc6",
+            "type": "geojson",
+            "title": "Klimaatlabels: PC6 Gebieden (vectordata)",
             "groupId": "",
-            "legendEnabled": true,
-            "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
-            "transparent": false,
+            "transparent": true,
+            "opacity": 80,
             "settings": {
-                "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
-                "featureName": "wijken",
-                "contenttype": "image/png",
-                "tools": {
-                    "styleSwitcher": {
-                        "enabled": true
-                    }
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wfs?service=WFS&version=1.1.0&request=GetFeature&layers=kli%3Aklmlabels_pasptot_zld_vlk_2026&outputFormat=application/json&typeName=kli:klmlabels_pasptot_zld_vlk_2026&srsName=EPSG:4326",
+                "theme": "",
+                "style": "label",
+                "classMapping": {
+                    "A": "#018935",
+                    "B": "#98e600",
+                    "C": "#ffff00",
+                    "D": "#efac2f",
+                    "E": "#e51f1f",
+                    "null": "#d6d4d4"
                 }
+            }
+        },
+        {
+            "id": "10",
+            "type": "wms",
+            "title": "Gemiddeld totaal aantal zichtbare bomen per gebouw 2026",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "bomen_label"
+            }
+        },
+        {
+            "id": "11",
+            "type": "wms",
+            "title": "Afstand tot koelte",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "koelte_label"
+            }
+        },
+        {
+            "id": "12",
+            "type": "wms",
+            "title": "% Groen totaal (totale oppervlak) 2025",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "groen_label"
+            }
+        },
+        {
+            "id": "13",
+            "type": "wms",
+            "title": "% Laag groen (publiek beheerd) 2025",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "laag_groen_label"
+            }
+        },
+        {
+            "id": "14",
+            "type": "wms",
+            "title": "% Hoog groen (publiek beheerd) 2025",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "hoog_groen_label"
+            }
+        },
+        {
+            "id": "15",
+            "type": "wms",
+            "title": "% Schaduwvorming op langzaamverkeersroutes 2026",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "schaduw_label"
+            }
+        },
+        {
+            "id": "16",
+            "type": "wms",
+            "title": "Gemodelleerde gevoelstemperatuur op tropische dag van 33 °C, huidig (2022) 2026 (PET in °C)",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "gev_temp_huidig_label"
+            }
+        },
+        {
+            "id": "17",
+            "type": "wms",
+            "title": "% Verkoelende/warmtewerende oppervlaktes",
+            "groupId": "hitte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "verkoelend_label"
+            }
+        },
+        {
+            "id": "18",
+            "type": "wms",
+            "title": "Max. waterdiepte op straat (T=100)",
+            "groupId": "wateroverlast",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "watdiep_neerslag_t100_label"
+            }
+        },
+        {
+            "id": "19",
+            "type": "wms",
+            "title": "Water tegen panden (T=100)",
+            "groupId": "wateroverlast",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "panden_neerslag_t100_label"
+            }
+        },
+        {
+            "id": "20",
+            "type": "wms",
+            "title": "Max. waterdiepte op straat (T=1000)",
+            "groupId": "wateroverlast",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "watdiep_neerslag_t1000_label"
+            }
+        },
+        {
+            "id": "21",
+            "type": "wms",
+            "title": "Water tegen panden (T=1000)",
+            "groupId": "wateroverlast",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "panden_neerslag_t1000_label"
+            }
+        },
+        {
+            "id": "22",
+            "type": "wms",
+            "title": "Max. waterdiepte overstroming (scenario 1:4000)",
+            "groupId": "overstroming",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "overstroming_label"
+            }
+        },
+        {
+            "id": "23",
+            "type": "wms",
+            "title": "Impact overstroming (scenario 1:4000)",
+            "groupId": "overstroming",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "impact_label"
+            }
+        },
+        {
+            "id": "24",
+            "type": "wms",
+            "title": "Risico paalrot (WH2050)",
+            "groupId": "droogte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "paalrot_label"
+            }
+        },
+        {
+            "id": "25",
+            "type": "wms",
+            "title": "Risico verschilzetting (WH2050)",
+            "groupId": "droogte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "verschilzetting_label"
+            }
+        },
+        {
+            "id": "26",
+            "type": "wms",
+            "title": "Zakking GLG (WH2050)",
+            "groupId": "droogte",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "zakking_glg_label"
             }
         }
     ],
     "viewer": {
-        "title": "3D viewer",
-        "subTitle": "Leia Example",
+        "title": "Digital Twin",
+        "subTitle": "Klimaatlabels",
         "logo": "images/leia_logo.png",
+        "isPrivate" : true,
+        "startCameraMode3D": false,
+        "startToolOpen": "zonalStatistics",
         "startPosition": {
-            "x": 5.40068,
-            "y": 51.20089,
-            "z": 55885.52117,
-            "heading": 360.00000,
+            "x": 3.8844,
+            "y": 51.5986,
+            "z": 105618.7,
+            "heading": 0.00000,
             "pitch": -34.77194,
-            "duration": 1.50
+            "duration": 0.0
         },
         "colors": {
             "header-color": "#161616",
@@ -201,12 +547,34 @@
             "disabled-03": "#8c8c8c"
         }
     },
-    "groups": [],
+    "groups": [
+        {
+            "id": "hitte",
+            "title": "Hitte (& groen)",
+            "parentId": ""
+        },
+        {
+            "id": "wateroverlast",
+            "title": "Wateroverlast",
+            "parentId": ""
+        },
+        {
+            "id": "overstroming",
+            "title": "Overstroming",
+            "parentId": ""
+        },
+        {
+            "id": "droogte",
+            "title": "Droogte",
+            "parentId": ""
+        }
+    ],
     "tools": [
         {
             "id": "layerLibrary",
             "enabled": true,
             "settings": {
+                "position": "4",
                 "connectors": [
                     {
                         "type": "geonetwork",
@@ -225,11 +593,326 @@
         {
             "id": "layerManager",
             "enabled": true,
-            "settings": {}
+            "settings": {
+                "position": "3"
+            }
         },
         {
             "id": "featureInfo",
             "enabled": true
+        },
+        {
+            "id": "zonalStatistics",
+            "enabled": true,
+            "settings": {
+                "position": "2",
+                "alias": "Labelpaspoort",
+                "zoneLayerId": "pc6",
+                "zoneCodeAttribute": "postcode",
+                "exportTitle": "Klimaatlabels",
+                "exportFileName": "Klimaatlabels",
+                "pdfFooterText": "Provincie Zeeland - Klimaatlabels",
+                "pdfLogo": "/images/Zeeland_logo.png",
+                "columns": [
+                    {
+                        "key": "huidig",
+                        "attribute": "label",
+                        "label": "Huidig",
+                        "tooltipAttribute": "category",
+                        "styled": true
+                    },
+                    {
+                        "key": "ambitie",
+                        "attribute": "ambitie_label",
+                        "label": "Ambitie",
+                        "tooltipAttribute": "ambitie_category",
+                        "styled": true,
+						"hideInTable": true
+                    }
+                ],
+                "valueStyles": [
+                    { "value": "A", "color": "#018935" },
+                    { "value": "B", "color": "#98e600" },
+                    { "value": "C", "color": "#ffff00" },
+                    { "value": "D", "color": "#efac2f" },
+                    { "value": "E", "color": "#e51f1f" },
+                    { "value": "null", "label": "-", "color": "#d6d4d4" }
+                ],
+                "layers": [
+                    {
+                        "id": "bomen",
+                        "title": "Gemiddeld totaal aantal zichtbare bomen per gebouw 2026",
+                        "groupId": "hitte",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "bomen_label",
+                                "tooltipAttribute": "bomen_category"
+                            },
+                            "ambitie": {
+                                "attribute": "bomen_streven_label",
+                                "tooltipAttribute": "bomen_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "koelte",
+                        "title": "Afstand tot koelte",
+                        "groupId": "hitte",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "koelte_label",
+                                "tooltipAttribute": "koelte_category"                   
+                            },
+                            "ambitie": {
+                                "attribute": "koelte_streven_label",
+                                "tooltipAttribute": "koelte_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "groen",
+                        "title": "% Groen totaal (totale oppervlak) 2025",
+                        "groupId": "hitte",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "groen_label",
+                                "tooltipAttribute": "groen_category"
+                            },
+                            "ambitie": {
+                                "attribute": "groen_streven_label",
+                                "tooltipAttribute": "groen_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "laag_groen",
+                        "title": "% Laag groen (publiek beheerd) 2025",
+                        "groupId": "hitte",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "laag_groen_label",
+                                "tooltipAttribute": "laag_groen_category"
+                            },
+                            "ambitie": {
+                                "attribute": "laag_groen_streven_label",
+                                "tooltipAttribute": "laag_groen_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "hoog_groen",
+                        "title": "% Hoog groen (publiek beheerd) 2025",
+                        "groupId": "hitte",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "hoog_groen_label",
+                                "tooltipAttribute": "hoog_groen_category"
+                            },
+                            "ambitie": {
+                                "attribute": "hoog_groen_streven_label",
+                                "tooltipAttribute": "hoog_groen_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "schaduw",
+                        "title": "% Schaduwvorming op langzaamverkeersroutes 2026",
+                        "groupId": "hitte",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "schaduw_label",
+                                "tooltipAttribute": "schaduw_category"
+                            },
+                            "ambitie": {
+                                "attribute": "schaduw_streven_label",
+                                "tooltipAttribute": "schaduw_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "gev_temp",
+                        "title": "Gemodelleerde gevoelstemperatuur op tropische dag van 33 °C, huidig (2022) 2026 (PET in °C)",
+                        "groupId": "hitte",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "gev_temp_huidig_label",
+                                "tooltipAttribute": "gev_temp_huidig_category"
+                            },
+                            "ambitie": {
+                                "attribute": "gev_temp_huidig_streven_label",
+                                "tooltipAttribute": "gev_temp_huidig_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "verkoelend",
+                        "title": "% Verkoelende/warmtewerende oppervlaktes",
+                        "groupId": "hitte",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "verkoelend_label",
+                                "tooltipAttribute": "verkoelend_category"
+                            },
+                            "ambitie": {
+                                "attribute": "verkoelend_streven_label",
+                                "tooltipAttribute": "verkoelend_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "watdiep_neerslag_t100",
+                        "title": "Max. waterdiepte op straat (T=100)",
+                        "groupId": "wateroverlast",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "watdiep_neerslag_t100_label",
+                                "tooltipAttribute": "watdiep_neerslag_t100_category"
+                            },
+                            "ambitie": {
+                                "attribute": "watdiep_neerslag_t100_streven_label",
+                                "tooltipAttribute": "watdiep_neerslag_t100_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "panden_neerslag_t100",
+                        "title": "Water tegen panden (T=100)",
+                        "groupId": "wateroverlast",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "panden_neerslag_t100_label",
+                                "tooltipAttribute": "panden_neerslag_t100_category"
+                            },
+                            "ambitie": {
+                                "attribute": "panden_neerslag_t100_streven_label",
+                                "tooltipAttribute": "panden_neerslag_t100_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "watdiep_neerslag_t1000",
+                        "title": "Max. waterdiepte op straat (T=1000)",
+                        "groupId": "wateroverlast",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "watdiep_neerslag_t1000_label",
+                                "tooltipAttribute": "watdiep_neerslag_t1000_category"
+                            },
+                            "ambitie": {
+                                "attribute": "watdiep_neerslag_t1000_streven_label",
+                                "tooltipAttribute": "watdiep_neerslag_t1000_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "panden_neerslag_t1000",
+                        "title": "Water tegen panden (T=1000)",
+                        "groupId": "wateroverlast",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "panden_neerslag_t1000_label",
+                                "tooltipAttribute": "panden_neerslag_t1000_category"
+                            },
+                            "ambitie": {
+                                "attribute": "panden_neerslag_t1000_streven_label",
+                                "tooltipAttribute": "panden_neerslag_t1000_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "overstroming",
+                        "title": "Max. waterdiepte overstroming (scenario 1:4000)",
+                        "groupId": "overstroming",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "overstroming_label",
+                                "tooltipAttribute": "overstroming_category"
+                            },
+                            "ambitie": {
+                                "attribute": "overstroming_streven_label",
+                                "tooltipAttribute": "overstroming_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "impact",
+                        "title": "Impact overstroming (scenario 1:4000)",
+                        "groupId": "overstroming",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "impact_label",
+                                "tooltipAttribute": "impact_category"
+                            },
+                            "ambitie": {
+                                "attribute": "impact_streven_label",
+                                "tooltipAttribute": "impact_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "paalrot",
+                        "title": "Risico paalrot (WH2050)",
+                        "groupId": "droogte",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "paalrot_label",
+                                "tooltipAttribute": "paalrot_category"
+                            },
+                            "ambitie": {
+                                "attribute": "paalrot_streven_label",
+                                "tooltipAttribute": "paalrot_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "verschilzetting",
+                        "title": "Risico verschilzetting (WH2050)",
+                        "groupId": "droogte",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "verschilzetting_label",
+                                "tooltipAttribute": "verschilzetting_category"
+                            },
+                            "ambitie": {
+                                "attribute": "verschilzetting_streven_label",
+                                "tooltipAttribute": "verschilzetting_streven_category"
+                            }
+                        }
+                    },
+                    {
+                        "id": "zakking_glg",
+                        "title": "Zakking GLG (WH2050)",
+                        "groupId": "droogte",
+                        "opacity": 80,
+                        "columns": {
+                            "huidig": {
+                                "attribute": "zakking_glg_label",
+                                "tooltipAttribute": "zakking_glg_category"
+                            },
+                            "ambitie": {
+                                "attribute": "zakking_glg_streven_label",
+                                "tooltipAttribute": "zakking_glg_streven_category"
+                            }
+                        }
+                    }
+                ]
+            }
         },
         {
             "id": "info",
@@ -248,7 +931,7 @@
         },
         {
             "id": "bookmarks",
-            "enabled": true,
+            "enabled": false,
             "settings": {
                 "bookmarks": [
                     {
@@ -260,6 +943,210 @@
                         "heading": 0,
                         "pitch": -65,
                         "duration": 2
+                    }
+                ]
+            }
+        },
+        {
+            "id": "stories",
+            "enabled": true,
+            "settings": {
+                "position": "1",
+                "stories": [
+                    {
+                        "name": "De Zeeuwse klimaatlabels",
+                        "description": "Over de klimaatatlabels",
+                        "width": "calc(80vw - 49px)",
+                        "force2DMode": false,
+                        "staticCamera": true,
+                        "requestPolygonArea": {
+                            "enabled": false
+                        },
+                        "baseLayerId": "1",
+                        "chapters": [
+                            {
+                                "id": "intro",
+                                "steps": [
+                                    {
+                                        "title": "Introductie",
+                                        "html": "<style>.kl-story h1{font-size:1.25rem;font-weight:600;text-align:left;margin:0 0 var(--cds-spacing-05);}.kl-story ul{list-style:disc;padding-left:1.5em;}.kl-story ol{list-style:decimal;padding-left:1.5em;}.kl-story li{display:list-item;}</style><div class=\"kl-story\"><div><style>.kl-quote{margin:var(--cds-spacing-06) 0;padding:0 0 0 var(--cds-spacing-05);border-left:4px solid var(--cds-interactive-01,#0f62fe);font-size:1.15rem;line-height:1.4;font-style:italic;}</style><style>.kl-hero{position:relative;display:flex;align-items:center;aspect-ratio:4 / 1;min-height:15rem;margin:0 calc(-1 * var(--cds-spacing-05)) var(--cds-spacing-06);background-image:url(\"https://virtueel.zeeland.nl/tiles_other/klimaatlabels/story/intro_achtergrond.webp\");background-size:cover;background-position:center;}.kl-hero::before{content:\"\";position:absolute;inset:0;background:rgba(0,0,0,0.2);}.kl-hero-inner{position:relative;padding:var(--cds-spacing-06) var(--cds-spacing-05);color:#fff;max-width:38rem;}.kl-hero-title{margin:0 0 var(--cds-spacing-04);font-size:clamp(1.8rem,4vw,2.75rem);line-height:1.15;font-weight:600;text-shadow:0 2px 6px rgba(0,0,0,0.45);}.kl-hero-sub{margin:0;font-size:clamp(1rem,1.6vw,1.25rem);line-height:1.35;font-weight:600;text-shadow:0 2px 6px rgba(0,0,0,0.45);}</style><div class=\"kl-hero\"><div class=\"kl-hero-inner\"><div class=\"kl-hero-title\">De Zeeuwse klimaatlabels</div><p class=\"kl-hero-sub\">Kwantitatieve maatlat voor een gezonde en leefbare openbare ruimte</p></div></div><p>In de labelkaarten zijn de klimaateffecten en de kwetsbaarheden voor het bebouwd gebied van provincie Zeeland in beeld gebracht. Deze inzichten kunnen worden meegenomen bij toekomstige ontwikkelingen en (her-)inrichtingen van de (openbare) ruimte om de kwetsbaarheid te verminderen. Dit zorgt ervoor dat Zeeland steeds klimaatbestendiger wordt ingericht. Het aanpassen aan klimaatverandering noemen we klimaatadaptatie.</p><blockquote class=\"kl-quote\">Klimaatadaptatie begint bij het in beeld brengen van de kwetsbaarheden als gevolg van klimaatverandering.</blockquote><p>Dit in beeld brengen bestaat in de kern uit het verzamelen en creëren van informatie die beschrijft welke effecten klimaatverandering (de ‘stress’ die op het systeem wordt gezet) in de toekomst kan hebben en wat dit betekent voor de gevoeligheid van objecten en functies. De verzamelde informatie wordt gecombineerd om zo tot handelingsperspectief te komen.</p><p>Op basis van de landelijke maatlat voor een Groene Klimaatadaptieve Gebouwde Omgeving is voor Zeeland een klimaatlabelsystematiek opgezet voor de bestaande bebouwde omgeving.</p><img src=\"https://virtueel.zeeland.nl/tiles_other/klimaatlabels/story/landelijke_maatlat.png\" alt=\"Landelijke maatlat voor een Groene Klimaatadaptieve Gebouwde Omgeving\" style=\"width:100%;max-width:960px;height:auto\" loading=\"lazy\" /><p><em>Bron: Rijksoverheid</em></p><p>Er staan meerdere kwantitatieve eisen in de Landelijke Maatlat op het gebied van hitte, wateroverlast, droogte en overstromingen. Deze zijn meegenomen in het proces om tot gedragen klimaatindicatoren te komen voor de Zeeuwse klimaatlabelsystematiek. Daarbij hebben we aangenomen dat Zeeuwse indicatoren die overeenkomen met richtlijnen vanuit de Landelijke Maatlat, label B gelijk wordt gesteld aan de waarde uit de maatlat.</p><blockquote class=\"kl-quote\">Wanneer een gebied minstens een label B scoort, voldoet deze aan dat aspect uit de Landelijke maatlat.</blockquote><p>De Landelijke Maatlat is opgesteld voor klimaatadaptieve nieuwbouw. In de Zeeuwse labelkaarten wordt de Maatlat ook ingezet om bestaande bouw te toetsen. Een gebouwde omgeving die op alle indicatoren minstens een label B scoort, is dan ook klimaatadaptief volgens landelijke richtlijnen.</p><h4 style=\"margin-top:var(--cds-spacing-07)\">De Zeeuwse labelsystematiek</h4><p>De Zeeuwse overheden streven ernaar om een gezonde en leefbare openbare ruimte te behouden en te realiseren waar het fijn wonen, werken, ontmoeten en recreëren is.</p><p>Om deze ambitie kracht bij te zetten zijn de klimaatlabels uitgewerkt. Voor elke postcode in het bebouwde gebied van provincie Zeeland zijn verschillende labelkaarten voor klimaatadaptatie indicatoren opgesteld. Dit doen we op basis van de huidige inrichting en voorspellingen voor het klimaat in de KNMI’23 Hd en Hn scenario’s (sommige data moet nog geactualiseerd worden en is nu nog op basis van KNMI ’14 WH2050 scenario’s). Zo wordt duidelijk hoe een straat scoort op verschillende klimaatthema's.</p><img src=\"https://virtueel.zeeland.nl/tiles_other/klimaatlabels/story/labeldefinities_uitgelegd.png\" alt=\"uitleg labeldefinities\" width=500><p>Per klimaatthema definiëren we meerdere indicatoren om inzichtelijk te krijgen hoe de overheden in provincie Zeeland scoren op het thema. Elke indicator heeft bijbehorende labeldefinities waarop we toetsen. Als een gebied op alle indicatoren van een klimaatthema minimaal een label B scoort, dan is het klimaatadaptief ingericht op dat klimaateffect.</p><img src=\"https://virtueel.zeeland.nl/tiles_other/klimaatlabels/story/uitleg_labels_flowchart.png\" alt=\"flowchart labeldefinties\" style=\"width:100%;height:auto\"></div></div>",
+                                        "globeOpacity": 100,
+                                        "camera": {
+                                            "x": 5.40068,
+                                            "y": 51.20089,
+                                            "z": 55885.52117,
+                                            "heading": 360,
+                                            "pitch": -34.77194,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "def",
+                                "steps": [
+                                    {
+                                        "title": "Klimaatlabel definities",
+                                        "html": "<div class=\"kl-story\"><div><p>Voor de klimaatthema's hitte (& groen), wateroverlast, overstroming en droogte zijn er indicatoren met bijbehorende labels gedefinieerd. In de tabel is te zien welke indicatoren zijn gebruikt, en welke labeldefinities daarbij horen. De indicatoren en labeldefinities kunnen in meer detail worden bekeken per thema.</p><style>.kl-labels{margin-top:var(--cds-spacing-06);border-collapse:collapse;width:100%;table-layout:fixed;}.kl-labels td{border:2px solid #000;padding:2px 4px;text-align:center;vertical-align:middle;color:#000;background-color:#FFD9CD;font-size:0.75rem;word-break:break-word;}.kl-labels p{margin:0;}.kl-labels .kl-h{background-color:#FFFFFF;font-weight:bold;}.kl-labels .kl-theme,.kl-labels .kl-ind{font-weight:bold;}.kl-labels .kl-ind{text-align:left;}.kl-labels .kl-ind-sub{font-weight:normal;padding-left:12px;}.kl-labels .kl-t-hitte td,.kl-labels td.kl-t-hitte{background-color:#FFD9CD;}.kl-labels .kl-t-water td,.kl-labels td.kl-t-water{background-color:#DEEAF6;}.kl-labels .kl-t-overstroming td,.kl-labels td.kl-t-overstroming{background-color:#9CC2E5;}.kl-labels .kl-t-droogte td,.kl-labels td.kl-t-droogte{background-color:#FFF2CC;}.kl-labels .kl-t-archief td,.kl-labels td.kl-t-archief{background-color:#E7E6E6;}.kl-labels .kl-a{background-color:#70AD47;}.kl-labels .kl-b{background-color:#E2EFD9;}.kl-labels .kl-c{background-color:#FFE599;}.kl-labels .kl-d{background-color:#F2AD7E;}.kl-labels .kl-e{background-color:#FF7979;}.kl-labels .kl-a,.kl-labels .kl-b,.kl-labels .kl-c,.kl-labels .kl-d,.kl-labels .kl-e{font-weight:bold;}</style><table class=\"kl-labels\"><tbody><tr><td class=\"kl-h\" rowspan=\"2\"><p>Klimaatthema</p></td><td class=\"kl-h\" rowspan=\"2\"><p>Indicator</p></td><td class=\"kl-h\" rowspan=\"2\"><p>Schaalniveau</p></td><td class=\"kl-h\" colspan=\"5\"><p>Labeldefinitie</p></td></tr><tr><td class=\"kl-a\"><p>A</p></td><td class=\"kl-b\"><p>B</p></td><td class=\"kl-c\"><p>C</p></td><td class=\"kl-d\"><p>D</p></td><td class=\"kl-e\"><p>E</p></td></tr><tr class=\"kl-t-hitte\"><td class=\"kl-theme\" rowspan=\"9\"><p>Hitte (&amp; groen)</p></td><td class=\"kl-ind\"><p>% Schaduwvorming op langzaamverkeersroutes en verblijfsplekken</p></td><td class=\"kl-v\"><p>Postcode-6</p></td><td class=\"kl-v\"><p>&gt;40%</p></td><td class=\"kl-v\"><p>30-40%</p></td><td class=\"kl-v\"><p>20-30%</p></td><td class=\"kl-v\"><p>10-20%</p></td><td class=\"kl-v\"><p>&lt;10%</p></td></tr><tr class=\"kl-t-hitte\"><td class=\"kl-ind\"><p>Afstand tot koelteplek</p></td><td class=\"kl-v\"><p>Postcode-6</p></td><td class=\"kl-v\"><p>0-200m</p></td><td class=\"kl-v\"><p>200-300m</p></td><td class=\"kl-v\"><p>300-400m</p></td><td class=\"kl-v\"><p>400-500m</p></td><td class=\"kl-v\"><p>&gt;500m</p></td></tr><tr class=\"kl-t-hitte\"><td class=\"kl-ind\"><p>Laag groen percentage (gras, struiken) in publiek beheerd gebied (2025)</p></td><td class=\"kl-v\"><p>Postcode-6</p></td><td class=\"kl-v\"><p>&gt;30%</p></td><td class=\"kl-v\"><p>20-30%</p></td><td class=\"kl-v\"><p>10-20%</p></td><td class=\"kl-v\"><p>5-10%</p></td><td class=\"kl-v\"><p>&lt;5%</p></td></tr><tr class=\"kl-t-hitte\"><td class=\"kl-ind\"><p>Hoog groen percentage (bomen, hoge struiken, bladoppervlak) in publiek beheerd gebied (2025)</p></td><td class=\"kl-v\"><p>Postcode-6</p></td><td class=\"kl-v\"><p>&gt;30%</p></td><td class=\"kl-v\"><p>20-30%</p></td><td class=\"kl-v\"><p>10-20%</p></td><td class=\"kl-v\"><p>5-10%</p></td><td class=\"kl-v\"><p>&lt;5%</p></td></tr><tr class=\"kl-t-hitte\"><td class=\"kl-ind\"><p>Totaal groenpercentage (publiek + privaat gebied) (2025)</p></td><td class=\"kl-v\"><p>Postcode-6</p></td><td class=\"kl-v\"><p>&gt; 40%</p></td><td class=\"kl-v\"><p>30-40%</p></td><td class=\"kl-v\"><p>20-30%</p></td><td class=\"kl-v\"><p>10-20%</p></td><td class=\"kl-v\"><p>&lt;10%</p></td></tr><tr class=\"kl-t-hitte\"><td class=\"kl-ind\"><p>Gemiddeld aantal zichtbare bomen per gebouw</p></td><td class=\"kl-v\"><p>Postcode-6</p></td><td class=\"kl-v\"><p>&gt;4</p></td><td class=\"kl-v\"><p>3-4</p></td><td class=\"kl-v\"><p>1.5-3</p></td><td class=\"kl-v\"><p>0.5-1.5</p></td><td class=\"kl-v\"><p>&lt;0.5</p></td></tr><tr class=\"kl-t-hitte\"><td class=\"kl-ind\" rowspan=\"2\"><p>Gemodelleerde gevoelstemperatuur op tropische dag van 33 °C, huidig (2022) 2026 (PET in °C)</p></td><td class=\"kl-v\" rowspan=\"2\"><p>Postcode-6</p></td><td class=\"kl-v\"><p>&lt;29°C</p></td><td class=\"kl-v\"><p>29-35°C</p></td><td class=\"kl-v\"><p>35-41 °C</p></td><td class=\"kl-v\"><p>41-46°C</p></td><td class=\"kl-v\"><p>&gt;46°C</p></td></tr><tr class=\"kl-t-hitte\"><td class=\"kl-v\"><p>Lichte hittestress</p></td><td class=\"kl-v\"><p>Gematigde hittestress;</p></td><td class=\"kl-v\"><p>Grote hittestress</p></td><td class=\"kl-v\"><p>Extreme hittestress (niveau 1)</p></td><td class=\"kl-v\"><p>Extreme hittestress (niveau 2+)</p></td></tr><tr class=\"kl-t-hitte\"><td class=\"kl-ind\"><p>% warmtewerende of verkoelende oppervlakten</p></td><td class=\"kl-v\"><p>Postcode-6</p></td><td class=\"kl-v\"><p>&gt;40%</p></td><td class=\"kl-v\"><p>30-40%</p></td><td class=\"kl-v\"><p>20-30%</p></td><td class=\"kl-v\"><p>10-20%</p></td><td class=\"kl-v\"><p>&lt;10%</p></td></tr><tr class=\"kl-t-water\"><td class=\"kl-theme\" rowspan=\"2\"><p>Wateroverlast</p></td><td class=\"kl-ind\"><p>Water(diepte) op straat (bij bui T=100 in 2050)</p></td><td class=\"kl-v\"><p>Postcode-6</p></td><td class=\"kl-v\"><p>0-5cm</p></td><td class=\"kl-v\"><p>5-10cm</p></td><td class=\"kl-v\"><p>10-20cm</p></td><td class=\"kl-v\"><p>20-30cm</p></td><td class=\"kl-v\"><p>&gt;30cm</p></td></tr><tr class=\"kl-t-water\"><td class=\"kl-ind\"><p>Water tegen panden (bij bui T=100 in 2050)</p></td><td class=\"kl-v\"><p>Postcode-6</p></td><td class=\"kl-v\"><p>Geen water tegen panden</p></td><td class=\"kl-v\"><p>0-5% panden</p></td><td class=\"kl-v\"><p>5-10% panden</p></td><td class=\"kl-v\"><p>10-20% panden</p></td><td class=\"kl-v\"><p>&gt;20% panden</p></td></tr><tr class=\"kl-t-overstroming\"><td class=\"kl-theme\" rowspan=\"1\"><p>Overstroming</p></td><td class=\"kl-ind\"><p>Maximale overstromingsdieptes bij een overstromingsscenario van 1/4000 jr (kans 1:4000)</p></td><td class=\"kl-v\"><p>Postcode-6</p></td><td class=\"kl-v\"><p>0-20cm</p></td><td class=\"kl-v\"><p>20-50cm</p></td><td class=\"kl-v\"><p>50-200cm</p></td><td class=\"kl-v\"><p>200-500cm</p></td><td class=\"kl-v\"><p>&gt;500cm</p></td></tr><tr class=\"kl-t-droogte\"><td class=\"kl-theme\" rowspan=\"6\"><p>Droogte</p></td><td class=\"kl-ind\" rowspan=\"2\"><p>Zakking in Gemiddeld Laagste Grondwaterstand (GLG) in WH2050</p></td><td class=\"kl-v\" rowspan=\"2\"><p>Buurt</p></td><td class=\"kl-v\"><p>Geen of verwaarloosbare daling</p></td><td class=\"kl-v\"><p>Lichte daling</p></td><td class=\"kl-v\"><p>Daling</p></td><td class=\"kl-v\"><p>Sterke Daling</p></td><td class=\"kl-v\"><p>Hele sterke daling</p></td></tr><tr class=\"kl-t-droogte\"><td class=\"kl-v\"><p>&lt;0.1m</p></td><td class=\"kl-v\"><p>0,1-0,25m</p></td><td class=\"kl-v\"><p>0,25-0,5m</p></td><td class=\"kl-v\"><p>0,5m-0,75m</p></td><td class=\"kl-v\"><p>&gt;0,75m</p></td></tr><tr class=\"kl-t-droogte\"><td class=\"kl-ind\" rowspan=\"2\"><p>Risico op verschilzetting in WH 2050</p></td><td class=\"kl-v\" rowspan=\"2\"><p>Buurt</p></td><td class=\"kl-v\"><p>Zeer laag risico</p></td><td class=\"kl-v\"><p>Laag risico</p></td><td class=\"kl-v\"><p>Matig risico</p></td><td class=\"kl-v\"><p>Hoog risico</p></td><td class=\"kl-v\"><p>Zeer hoog risico</p></td></tr><tr class=\"kl-t-droogte\"><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;1</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt &lt;5</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;10</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;25</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;100</p></td></tr><tr class=\"kl-t-droogte\"><td class=\"kl-ind\" rowspan=\"2\"><p>Risico op paalrot in WH2050</p></td><td class=\"kl-v\" rowspan=\"2\"><p>Buurt</p></td><td class=\"kl-v\"><p>Zeer laag risico</p></td><td class=\"kl-v\"><p>Laag risico</p></td><td class=\"kl-v\"><p>Matig risico</p></td><td class=\"kl-v\"><p>Hoog risico</p></td><td class=\"kl-v\"><p>Zeer hoog risico</p></td></tr><tr class=\"kl-t-droogte\"><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;1</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt &lt;5</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;10</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;25</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;100</p></td></tr><tr class=\"kl-t-archief\"><td class=\"kl-theme\" rowspan=\"2\"><p>Archief</p></td><td class=\"kl-ind\" rowspan=\"2\"><p>Gevoelstemperatuur (PET): huidig en WH2050</p></td><td class=\"kl-v\" rowspan=\"2\"><p>Postcode-6</p></td><td class=\"kl-v\"><p>&lt;29°C</p></td><td class=\"kl-v\"><p>29-35°C</p></td><td class=\"kl-v\"><p>35-38 °C</p></td><td class=\"kl-v\"><p>38-41°C</p></td><td class=\"kl-v\"><p>&gt;41°C</p></td></tr><tr class=\"kl-t-archief\"><td class=\"kl-v\"><p>Lichte hittestress</p></td><td class=\"kl-v\"><p>Gematigde hittestress;</p></td><td class=\"kl-v\"><p>Hittestress</p></td><td class=\"kl-v\"><p>Zware hittestress</p></td><td class=\"kl-v\"><p>Extreme hittestress</p></td></tr></tbody></table></div></div>",
+                                        "globeOpacity": 100,
+                                        "camera": {
+                                            "x": 5.40068,
+                                            "y": 51.20089,
+                                            "z": 55885.52117,
+                                            "heading": 360,
+                                            "pitch": -34.77194,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
+                                    },
+                                    {
+                                        "title": "Hitte",
+                                        "html": "<div class=\"kl-story\"><article id=\"page-content\" class=\"article article--report js-FindAcronym js-article\" data-id=\"1144\" data-lastupdate=\"2026-07-15T15:50:20Z\">    <p>De laatste jaren zijn diverse warmterecords verbroken. De verwachting is dat het gemiddeld steeds warmer gaat worden en dat langere periodes van hitte vaker voor gaan komen. Het aantal tropische nachten (meer dan 20 graden Celsius) zal ook fors toenemen, zeker in onze bebouwde kernen.</p><p>Dit heeft impact op het gebied van gezondheid, arbeidsproductiviteit en energiebehoefte. Daarnaast hebben de hogere temperaturen effecten op waterkwaliteit, natuur en landbouw.</p>    <header class=\"article_header\">        <h1 class=\"kl-steptitle\">Indicatoren en labeldefinities hitte &amp; groen</h1>    </header><style>.kl-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.9fr);column-gap:14px;row-gap:12px;align-items:start;margin-top:var(--cds-spacing-06);}.kl-cols > *:nth-child(odd),.kl-cols > *:nth-child(odd) p,.kl-cols > *:nth-child(odd) li{font-weight:600;}.kl-steptitle{text-align:left;}</style><div class=\"kl-cols\"><div><p>% Schaduwvorming op langzaamverkeersroutes</p></div><div><p>Percentage schaduw op belangrijke langzaamverkeersroutes (voetpaden, pleinen en fietspaden) tijdens 12:00 op 21 juni (hoge zonnestand op lange zomerse dag, zonstand 55 graden boven de horizon)</p></div><div><p>Afstand tot koelteplek</p></div><div><p>Een koelteplek is een openbare buitenruimte van tenminste 200m&#178;. Op de koelteplek is de waargenomen temperatuur tijdens een zeer warme dag maximaal 35&#176;C. Met afstand tot koelte bedoelen we de totale afstand van een gebouw tot de koele plek die daar het dichtste bij ligt. De afstand meten we door een netwerkanalyse uit te voeren met behulp van het wegennet.</p></div><div><p>Laag groen percentage (gras, struiken) in publiek beheerd gebied (2025)</p></div><div><p>Laag groen (gras + lage struiken etc.) in het publiek beheerde gebied als percentage van het totale publiek beheerde gebied.&#160;Deze data is gebaseerd op de NDVI classificatie van de zomer luchtfoto van 2024 in combinatie met publiek-privaat data, BGT/Top10 classificatie en de AHN. Op deze data heeft een voorspellingsmodel (RandomForrest) voorspeld voor elke 25cm of dit geen, laag (&lt;1m), middel (1m - 2,5m) of hoog (+2,5m) groen is.</p></div><div><p>Hoog groen percentage (bomen, hoge struiken, bladoppervlak) in publiek beheerd gebied (2025)</p></div><div><p>Hoog groen (bomen+ hoge struiken etc.) in het publiek beheerde gebied als percentage van het totale publiek beheerde gebied.&#160;Deze data is gebaseerd op de NDVI classificatie van de zomer luchtfoto van 2024 in combinatie met publiek-privaat data, BGT/Top10 classificatie en de AHN. Op deze data heeft een voorspellingsmodel (RandomForrest) voorspeld voor elke 25cm of dit geen, laag (&lt;1m), middel (1m - 2,5m) of hoog (+2,5m) groen is.</p></div><div><p>Totaal groenpercentage (publiek + privaat gebied) (2025)</p></div><div><p>Totaal groen (laag en hoog) als percentage van het totale oppervlak (privaat en publiek).&#160;Deze data is gebaseerd op de NDVI classificatie van de zomer luchtfoto van 2024 in combinatie met publiek-privaat data, BGT/Top10 classificatie en de AHN. Op deze data heeft een voorspellingsmodel (RandomForrest) voorspeld voor elke 25cm of dit geen, laag (&lt;1m), middel (1m - 2,5m) of hoog (+2,5m) groen is.</p></div><div><p>Gemiddeld aantal zichtbare bomen (in beheer bij gemeente) per gebouw</p></div><div><p>Het aantal bomen dat zichtbaar is vanaf een gebouw. Hierin worden alleen de bomen uit het gemeentelijke bomenbestand meegenomen. Bij deze analyse bekijken het aantal vrije gevels van woningen en de zichtlijnen daarvan op bestaande bomen.</p></div><div><p>Gevoelstemperatuur (PET): huidig en WH2050</p></div><div><p>De gevoelstemperatuur geeft aan hoe warm een persoon het heeft in een bepaalde weersituatie. De data presenteert de gemiddelde gevoelstemperatuur in &#186;C voor het tijdvak 12:00-18:00 lokale tijd op een hete zomerdag. Die temperatuur noemen we ook wel de fysiologisch equivalente temperatuur of PET.</p></div><div><p>% warmtewerende of verkoelende oppervlakten</p></div><div><p>Percentage van het totale oppervlak in het gebied dat ‘warmtewerend’ of ‘verkoelend’ is ingericht.&#160;We kijken hierbij alleen naar groen (incl. groene daken) en schaduwoppervlakten.</p></div></div><style>.kl-labels{margin-top:var(--cds-spacing-06);border-collapse:collapse;width:100%;table-layout:fixed;}.kl-labels td{border:1px solid #000;padding:4px 6px;text-align:center;vertical-align:middle;color:#000;background-color:#FFFFFF;font-size:0.75rem;line-height:1.3;overflow-wrap:break-word;hyphens:auto;}.kl-labels p{margin:0;}.kl-labels .kl-h{background-color:#E7E6E6;font-weight:bold;}.kl-labels .kl-ind-sub{padding-left:12px;text-align:left;}.kl-labels .kl-src{text-align:center;}.kl-labels .kl-a{background-color:#70AD47;font-weight:bold;}.kl-labels .kl-b{background-color:#E2EFD9;font-weight:bold;}.kl-labels .kl-c{background-color:#FFE599;font-weight:bold;}.kl-labels .kl-d{background-color:#F2AD7E;font-weight:bold;}.kl-labels .kl-e{background-color:#FF7979;font-weight:bold;}</style>            <table class=\"kl-labels\"><colgroup><col style=\"width:23%\"><col style=\"width:7.4%\"><col style=\"width:7.4%\"><col style=\"width:7.4%\"><col style=\"width:7.4%\"><col style=\"width:7.4%\"><col style=\"width:40%\"></colgroup><tbody><tr><td class=\"kl-h\" rowspan=\"2\"><p>Indicator</p></td><td class=\"kl-h\" colspan=\"5\"><p>Labeldefinitie</p></td><td class=\"kl-h kl-h-src\" rowspan=\"2\"><p>Richtlijnen en bronnen labeldefinities</p></td></tr><tr><td class=\"kl-a\"><p>A</p></td><td class=\"kl-b\"><p>B</p></td><td class=\"kl-c\"><p>C</p></td><td class=\"kl-d\"><p>D</p></td><td class=\"kl-e\"><p>E</p></td></tr><tr><td class=\"kl-ind\"><p>% Schaduwvorming op langzaamverkeersroutes en verblijfsplekken</p></td><td class=\"kl-v\"><p>&gt;40%</p></td><td class=\"kl-v\"><p>30-40%</p></td><td class=\"kl-v\"><p>20-30%</p></td><td class=\"kl-v\"><p>10-20%</p></td><td class=\"kl-v\"><p>&lt;10%</p></td><td class=\"kl-src\"><p>Landelijke maatlat: richtlijn is 30% op buurt niveau, 40% op belangrijke verblijfplekken en langzaamverkeersroutes</p></td></tr><tr><td class=\"kl-ind\"><p>Afstand tot koelteplek</p></td><td class=\"kl-v\"><p>0-200m</p></td><td class=\"kl-v\"><p>200-300m</p></td><td class=\"kl-v\"><p>300-400m</p></td><td class=\"kl-v\"><p>400-500m</p></td><td class=\"kl-v\"><p>&gt;500m</p></td><td class=\"kl-src\"><p>Landelijke maatlat: 200m² groen en schaduw op max 300m lopen; 3-30-300 richtlijn (WUR, NBS institute Canada); ; Onderzoeksrapport ‘De hittebestendige stad’; Richtlijnen klimaatbestendige nieuwbouw. MRA(2020)</p></td></tr><tr><td class=\"kl-ind\"><p>Laag groen percentage (gras, struiken) in publiek beheerd gebied (2025)</p></td><td class=\"kl-v\"><p>&gt;30%</p></td><td class=\"kl-v\"><p>20-30%</p></td><td class=\"kl-v\"><p>10-20%</p></td><td class=\"kl-v\"><p>5-10%</p></td><td class=\"kl-v\"><p>&lt;5%</p></td><td class=\"kl-src\"><p>Onderzoeksrapport ‘De hittebestendige stad’: er moet zoveel groen zijn dat er verdamping kan optreden en de gemiddelde luchttemperatuur wordt beperkt (voorstel afhankelijk per wijktype); 3-30-300 richtlijn (WUR, NBS institute Canada);</p></td></tr><tr><td class=\"kl-ind\"><p>Hoog groen percentage (bomen, hoge struiken, bladoppervlak) in publiek beheerd gebied (2025)</p></td><td class=\"kl-v\"><p>&gt;30%</p></td><td class=\"kl-v\"><p>20-30%</p></td><td class=\"kl-v\"><p>10-20%</p></td><td class=\"kl-v\"><p>5-10%</p></td><td class=\"kl-v\"><p>&lt;5%</p></td><td class=\"kl-src\"><p></p></td></tr><tr><td class=\"kl-ind\"><p>Totaal groenpercentage (publiek + privaat gebied) (2025)</p></td><td class=\"kl-v\"><p>&gt; 40%</p></td><td class=\"kl-v\"><p>30-40%</p></td><td class=\"kl-v\"><p>20-30%</p></td><td class=\"kl-v\"><p>10-20%</p></td><td class=\"kl-v\"><p>&lt;10%</p></td><td class=\"kl-src\"><p></p></td></tr><tr><td class=\"kl-ind\"><p>Gemiddeld aantal zichtbare bomen per gebouw</p></td><td class=\"kl-v\"><p>&gt;4</p></td><td class=\"kl-v\"><p>3-4</p></td><td class=\"kl-v\"><p>1.5-3</p></td><td class=\"kl-v\"><p>0.5-1.5</p></td><td class=\"kl-v\"><p>&lt;0.5</p></td><td class=\"kl-src\"><p>3-30-300 richtlijn (WUR, NBS institute Canada);</p></td></tr><tr><td class=\"kl-ind\" rowspan=\"2\"><p>Gemodelleerde gevoelstemperatuur op tropische dag van 33 °C, huidig (2022) 2026 (PET in °C)</p></td><td class=\"kl-v\"><p>&lt;29°C</p></td><td class=\"kl-v\"><p>29-35°C</p></td><td class=\"kl-v\"><p>35-41 °C</p></td><td class=\"kl-v\"><p>41-46°C</p></td><td class=\"kl-v\"><p>&gt;46°C</p></td><td class=\"kl-src\" rowspan=\"2\"><p>Klimaateffectatlas, Santos Nouri et al., 2018</p></td></tr><tr><td class=\"kl-v\"><p>Lichte hittestress</p></td><td class=\"kl-v\"><p>Gematigde hittestress;</p></td><td class=\"kl-v\"><p>Grote hittestress</p></td><td class=\"kl-v\"><p>Extreme hittestress (niveau 1)</p></td><td class=\"kl-v\"><p>Extreme hittestress (niveau 2+)</p></td></tr><tr><td class=\"kl-ind\"><p>% warmtewerende of verkoelende oppervlakten</p></td><td class=\"kl-v\"><p>&gt;40%</p></td><td class=\"kl-v\"><p>30-40%</p></td><td class=\"kl-v\"><p>20-30%</p></td><td class=\"kl-v\"><p>10-20%</p></td><td class=\"kl-v\"><p>&lt;10%</p></td><td class=\"kl-src\"><p>Landelijke maatlat: plangebied wordt zo ingericht dat een belangrijk deel van de oppervlakten (range 40-50%) warmtewerend zijn</p></td></tr></tbody></table>            <h4 id=\"f_bd2cb04e-136b-48ea-8c73-1da337155bc7\" class=\"f-import-before f-area-after f-area-list-unordered-after\" data-id=\"2\" data-content-type=\"heading\">                Overige kaarten in de klimaatatlas:            </h4>            <ul id=\"f_7bd57e77-53d6-4f84-9d78-180a90334b4f\" class=\"f-list f-list--ul f-heading-before f-paragraph-after \" data-id=\"3\" data-content-type=\"list\">                    <li class=\"f-list_item \">                        <p id=\"f_8f2e2095-d0e2-4537-acf8-3599ccb53306\" class=\"f-paragraph f-paragraph-after\" data-id=\"3_0\" data-content-type=\"paragraph\"><strong><a href=\"https://www.klimaateffectatlas.nl/nl/warme-nachten\" target=\"_blank\">Hittestress door warme nachten (WEnR, 2016)</a></strong></p>                    </li>                    <li class=\"f-list_item \">                        <p id=\"f_f411ba91-d509-423b-9b55-7b929bd3dee2\" class=\"f-paragraph f-paragraph-before f-paragraph-after\" data-id=\"3_1\" data-content-type=\"paragraph\"><strong><a href=\"https://www.atlasnatuurlijkkapitaal.nl/stedelijk-hitte-eiland-effect-uhi-in-nederland\" target=\"_blank\">Stedelijk Hitte Eiland effect (UHI) (Atlas Natuurlijk Kapitaal, 2017)</a></strong></p>                    </li>                                        <li class=\"f-list_item \">                        <p id=\"f_99ffd3b8-fa5d-4a6b-89e6-a64fe51228db\" class=\"f-paragraph f-paragraph-before\" data-id=\"3_3\" data-content-type=\"paragraph\"><strong><a href=\"https://www.vzinfo.nl/bevolking/regionaal/leeftijdsopbouw\" target=\"_blank\">Leeftijdsopbouw: 65 plussers (CBS, 2022)</a></strong></p>                    </li>            </ul>            <div class=\"page-options_wrapper\">    <div class=\"page-options\">    </div></div></article></div>",
+                                        "globeOpacity": 100,
+                                        "camera": {
+                                            "x": 5.40068,
+                                            "y": 51.20089,
+                                            "z": 55885.52117,
+                                            "heading": 360,
+                                            "pitch": -34.77194,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
+                                    },
+                                    {
+                                        "title": "Wateroverlast",
+                                        "html": "<div class=\"kl-story\"><article><p>Hevige neerslag zal door klimaatverandering vaker en in extremere mate voorkomen. Dat kan leiden tot ongemak (natte voeten) op wegen, pleinen en tuinen. Maar het kan ook leiden tot schade als bijvoorbeeld het regenwater panden instroomt.</p><p>Wateroverlast kan daarnaast gevaarlijke situaties opleveren als hulpdiensten niet meer overal kunnen komen. Soms is wateroverlast ook een direct gevaar voor de gezondheid van mensen. Bij hevige regenbuien kan de riolering het vele water namelijk niet aan. Vervuild water uit het riool komt dan op straat te staan.</p><header><h1 class=\"kl-steptitle\">Indicatoren en labeldefinities wateroverlast</h1></header><style>.kl-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.9fr);column-gap:14px;row-gap:12px;align-items:start;margin-top:var(--cds-spacing-06);}.kl-cols > *:nth-child(odd),.kl-cols > *:nth-child(odd) p,.kl-cols > *:nth-child(odd) li{font-weight:600;}.kl-steptitle{text-align:left;}</style><div class=\"kl-cols\"><div><p>Water(diepte) op straat:</p><p>bij 70mm/ 2u (T=100 in huidige klimaat)</p><p>bij 140mm/ 2u (T=1000 in huidige klimaat)</p></div><div><p>Gesimuleerde maximale waterdiepte op straat (inundatie) die op een bepaalde plek kan optreden als gevolg van hevige neerslag:</p><ul><li><p>een bui van 70mm in twee uur (herhalingstijd T=100 in huidige klimaat, T~50 klimaatscenario WH2050).&#160;</p></li><li><p>een bui van 140mm in twee uur (herhalingstijd T=1000 in huidige klimaat, T~750 klimaatscenario WH2050).&#160;</p></li></ul><p>De gesimuleerde buien komen uit de klimaateffectatlas, opgesteld door Deltares als landelijk beschikbare stresstesten. De maximale opgetreden waterdiepte is berekend voor een uniforme bui van 2 uur en daarna 4 droge uren, waarin enkel afstroming over land, afvoer via riool en bodeminfiltratie plaatsvindt.&#160;De rioolbergings-en afvoercapaciteit is overal 20 mm / uur. Hierbij is aangenomen dat de verharde buitenruimte in de bebouwde kom &#160;optimaal is aangesloten op het riool.&#160;Aangenomen is dat &#8211; vanwege de korte simulatieduur &#8211; de interactie met het oppervlaktewatersysteem bij deze bui-intensiteit verwaarloosbaar is. Wateroverlast treedt in dit model op voordat het regenwater het oppervlaktewater heeft bereikt; oppervlaktewater heeft een onbeperkte bergingscapaciteit.</p><p><em>We nemen bij deze analyse het 90 percentiel van de waterdiepte. Dit is de waarde dat 90% van het oppervlak van het postcodegebied een lagere waterstand heeft (of droog is), en 10% procent van het oppervlak een hogere waterstand heeft. De brondata (waterdieptekaart) werkt met 5 diepteklasses in plaats van de echte dieptewaarde. Hierdoor is de 90 percentielwaarde soms gelijk aan de maximale waarde, net afhankelijk van in welke klasse deze valt.</em></p></div><div><p>Water tegen panden:</p><p>bij 70mm/ 2u (T=100 in huidige klimaat)</p><p>bij 140mm/ 2u (T=1000 in huidige klimaat)</p></div><div><p>Percentage van panden in een bepaalde straat waar water tegenaan staat bij hevige neerslag:</p><ul><li><p>een bui van 70mm in twee uur (herhalingstijd T=100 in huidige klimaat, T~50 klimaatscenario WH2050).&#160;</p></li><li><p>een bui van 140mm in twee uur (herhalingstijd T=1000 in huidige klimaat, T~750 klimaatscenario WH2050)</p></li></ul><p><em>Bij deze analyse wordt per pand de 95 percentielwaarde berekend. Als hier de klasse 4 (20 - 30 cm water) of hoger uitkomt wordt het pand als kwetsbaar bestempeld. Per postcodegebied wordt het percentage kwetsbare panden berekend en vertaald naar labels.</em></p></div></div><style>.kl-labels{margin-top:var(--cds-spacing-06);border-collapse:collapse;width:100%;table-layout:fixed;}.kl-labels td{border:1px solid #000;padding:4px 6px;text-align:center;vertical-align:middle;color:#000;background-color:#FFFFFF;font-size:0.75rem;line-height:1.3;overflow-wrap:break-word;hyphens:auto;}.kl-labels p{margin:0;}.kl-labels .kl-h{background-color:#E7E6E6;font-weight:bold;}.kl-labels .kl-ind-sub{padding-left:12px;text-align:left;}.kl-labels .kl-src{text-align:center;}.kl-labels .kl-a{background-color:#70AD47;font-weight:bold;}.kl-labels .kl-b{background-color:#E2EFD9;font-weight:bold;}.kl-labels .kl-c{background-color:#FFE599;font-weight:bold;}.kl-labels .kl-d{background-color:#F2AD7E;font-weight:bold;}.kl-labels .kl-e{background-color:#FF7979;font-weight:bold;}</style><table class=\"kl-labels\"><colgroup><col style=\"width:23%\"><col style=\"width:7.4%\"><col style=\"width:7.4%\"><col style=\"width:7.4%\"><col style=\"width:7.4%\"><col style=\"width:7.4%\"><col style=\"width:40%\"></colgroup><tbody><tr><td class=\"kl-h\" rowspan=\"2\"><p>Indicator</p></td><td class=\"kl-h\" colspan=\"5\"><p>Labeldefinitie</p></td><td class=\"kl-h kl-h-src\" rowspan=\"2\"><p>Richtlijnen en bronnen labeldefinities</p></td></tr><tr><td class=\"kl-a\"><p>A</p></td><td class=\"kl-b\"><p>B</p></td><td class=\"kl-c\"><p>C</p></td><td class=\"kl-d\"><p>D</p></td><td class=\"kl-e\"><p>E</p></td></tr><tr><td class=\"kl-ind\"><p>Water(diepte) op straat bij:</p></td><td class=\"kl-v\" rowspan=\"3\"><p>0-5cm</p></td><td class=\"kl-v\" rowspan=\"3\"><p>5-10cm</p></td><td class=\"kl-v\" rowspan=\"3\"><p>10-20cm</p></td><td class=\"kl-v\" rowspan=\"3\"><p>20-30cm</p></td><td class=\"kl-v\" rowspan=\"3\"><p>&gt;30cm</p></td><td class=\"kl-src\" rowspan=\"3\"><p>Landelijke maatlat: Geen waterschade t/m een bui die 1 x per 100 jaar voorkomt, vitale en kwetsbare functies blijven beschikbaar; Bestuursakkoord Water; Richtlijn overstromingsrisico's LIWO</p></td></tr><tr><td class=\"kl-ind kl-ind-sub\"><p>&gt; een bui van 70mm/ 2u (T=100 in huidige klimaat, T~50 klimaatscenario WH2050).</p></td></tr><tr><td class=\"kl-ind kl-ind-sub\"><p>&gt; een bui van 140mm/ 2u (T=1000 in huidige klimaat, T~750 klimaatscenario WH2050)</p></td></tr><tr><td class=\"kl-ind\"><p>Water tegen panden bij:</p></td><td class=\"kl-v\" rowspan=\"3\"><p>Geen water tegen panden</p></td><td class=\"kl-v\" rowspan=\"3\"><p>0-5% panden</p></td><td class=\"kl-v\" rowspan=\"3\"><p>5-10% panden</p></td><td class=\"kl-v\" rowspan=\"3\"><p>10-20% panden</p></td><td class=\"kl-v\" rowspan=\"3\"><p>&gt;20% panden</p></td><td class=\"kl-src\" rowspan=\"3\"><p>Landelijke maatlat: Geen waterschade bij 0,2 meter waterdiepte op straat</p></td></tr><tr><td class=\"kl-ind kl-ind-sub\"><p>&gt; een bui van 70mm/ 2u (T=100 in huidige klimaat, T~50 klimaatscenario WH2050).</p></td></tr><tr><td class=\"kl-ind kl-ind-sub\"><p>&gt; een bui van 140mm/ 2u (T=1000 in huidige klimaat, T~750 klimaatscenario WH2050)</p></td></tr></tbody></table><h4 id=\"f_3c8e0154-ce8c-4cfb-a66e-b220d533dece\" class=\"f-import-before f-area-after f-area-list-unordered-after\" data-id=\"2\" data-content-type=\"heading\"> Overige kaarten in de klimaatatlas: </h4><ul id=\"f_9a1cbd4d-8bf0-4811-b053-1570d7837d6f\" class=\"f-list f-list--ul f-heading-before f-list-style--filled-circle\" data-id=\"3\" data-content-type=\"list\"><li class=\"f-list_item \"><p id=\"f_b576f4f4-6236-4ecd-8129-3e6808dd1595\" class=\"f-paragraph f-paragraph-after\" data-id=\"3_0\" data-content-type=\"paragraph\"><strong><a href=\"https://www.helpdeskwater.nl/onderwerpen/applicaties-modellen/applicaties-per/watermanagement/watermanagement/nationaal-water-model/\" target=\"_blank\">Gemiddeld Hoogste Grondwaterstand (GHG) in huidig klimaat (Nationaal Water Model, 2016)</a></strong></p></li><li class=\"f-list_item \"><p id=\"f_58333748-052e-461c-9a5a-10c86d873854\" class=\"f-paragraph f-paragraph-before\" data-id=\"3_1\" data-content-type=\"paragraph\"><strong><a href=\"https://www.ahn.nl/\" target=\"_blank\">Actueel Hoogtebestand Nederland (AHN)-4</a></strong></p></li></ul><div class=\"page-options_wrapper\"><div class=\"page-options\"></div></div></article></div>",
+                                        "globeOpacity": 100,
+                                        "camera": {
+                                            "x": 5.40068,
+                                            "y": 51.20089,
+                                            "z": 55885.52117,
+                                            "heading": 360,
+                                            "pitch": -34.77194,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
+                                    },
+                                    {
+                                        "title": "Droogte",
+                                        "html": "<div class=\"kl-story\"><article><p>Klimaatverandering zorgt ervoor dat periodes van droogte vaker voorkomen in de zomermaanden. Droogte wordt veroorzaakt door een hoge verdamping en een tekort aan neerslag.</p><p>Als er meer water verdampt dan dat er door regen bijkomt, hebben we te maken met een neerslagtekort. Het neerslagtekort zal rond 2050 gemiddeld met 30% (Hd) of 16% (Hn) zijn gestegen ten opzichte van nu. Dit kan onder andere leiden tot schade aan gebouwen, planten en bomen, kwetsbare oppervlaktewateren, een afname van de kwaliteit van (zwem-)water en verdroging van landbouwgronden.</p><header><h1 class=\"kl-steptitle\">Indicatoren en labeldefinities droogte</h1></header><style>.kl-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.9fr);column-gap:14px;row-gap:12px;align-items:start;margin-top:var(--cds-spacing-06);}.kl-cols > *:nth-child(odd),.kl-cols > *:nth-child(odd) p,.kl-cols > *:nth-child(odd) li{font-weight:600;}.kl-steptitle{text-align:left;}</style><div class=\"kl-cols\"><div><p>Zakking in Gemiddeld Laagste Grondwaterstand (GLG) in WH2050</p></div><div><p>Verwachte daling in de gemiddelde laagste grondwaterstand (GLG) in klimaatscenario WH2050 (ten opzichte van nu). De GLG wordt berekend door het gemiddelde te nemen van de drie laagst waargenomen of berekende grondwaterstanden per jaar, op basis van de waarden op de 14e en 28e van de maand, gedurende minimaal acht jaren.</p></div><div><p>Risico op verschilzetting in WH2050</p></div><div><p>Het risico op verschilzetting van panden op staal door bodemdaling tot 2050 bij sterke klimaatverandering (WH2050). Het risico wordt berekend door het percentage funderingen op staal (blootstelling) te vermenigvuldigen met de kwetsbaarheid (o.b.v. de verwachte bodemdaling, de kwetsbaarheid van de gebouwconstructie en de gevoeligheid van de ondergrond).</p></div><div><p>Risico op paalrot in WH2050</p></div><div><p>Het risico op paalrot van panden op hout gefundeerd door een lage grondwaterstand tot 2050 bij sterke klimaatverandering (WH2050).&#160;Het risico wordt berekend door het percentage houten palen (blootstelling) te vermenigvuldigen met de kwetsbaarheid (o.b.v. verwachte zakking waterpeil, verwachte bodemdaling, kwetsbaarheid, de gevoeligheid van de ondergrond).</p></div></div><style>.kl-labels{margin-top:var(--cds-spacing-06);border-collapse:collapse;width:100%;table-layout:fixed;}.kl-labels td{border:1px solid #000;padding:4px 6px;text-align:center;vertical-align:middle;color:#000;background-color:#FFFFFF;font-size:0.75rem;line-height:1.3;overflow-wrap:break-word;hyphens:auto;}.kl-labels p{margin:0;}.kl-labels .kl-h{background-color:#E7E6E6;font-weight:bold;}.kl-labels .kl-ind-sub{padding-left:12px;text-align:left;}.kl-labels .kl-src{text-align:center;}.kl-labels .kl-a{background-color:#70AD47;font-weight:bold;}.kl-labels .kl-b{background-color:#E2EFD9;font-weight:bold;}.kl-labels .kl-c{background-color:#FFE599;font-weight:bold;}.kl-labels .kl-d{background-color:#F2AD7E;font-weight:bold;}.kl-labels .kl-e{background-color:#FF7979;font-weight:bold;}</style><table class=\"kl-labels\"><colgroup><col style=\"width:18%\"><col style=\"width:13%\"><col style=\"width:13%\"><col style=\"width:13%\"><col style=\"width:13%\"><col style=\"width:13%\"><col style=\"width:17%\"></colgroup><tbody><tr><td class=\"kl-h\" rowspan=\"2\"><p>Indicator</p></td><td class=\"kl-h\" colspan=\"5\"><p>Labeldefinitie</p></td><td class=\"kl-h kl-h-src\" rowspan=\"2\"><p>Richtlijnen en bronnen labeldefinities</p></td></tr><tr><td class=\"kl-a\"><p>A</p></td><td class=\"kl-b\"><p>B</p></td><td class=\"kl-c\"><p>C</p></td><td class=\"kl-d\"><p>D</p></td><td class=\"kl-e\"><p>E</p></td></tr><tr><td class=\"kl-ind\" rowspan=\"2\"><p>Zakking in Gemiddeld Laagste Grondwaterstand (GLG) in WH2050</p></td><td class=\"kl-v\"><p>Geen of verwaarloosbare daling</p></td><td class=\"kl-v\"><p>Lichte daling</p></td><td class=\"kl-v\"><p>Daling</p></td><td class=\"kl-v\"><p>Sterke Daling</p></td><td class=\"kl-v\"><p>Hele sterke daling</p></td><td class=\"kl-src\" rowspan=\"2\"><p>Nationaal Watermodel</p></td></tr><tr><td class=\"kl-v\"><p>&lt;0.1m</p></td><td class=\"kl-v\"><p>0,1-0,25m</p></td><td class=\"kl-v\"><p>0,25-0,5m</p></td><td class=\"kl-v\"><p>0,5m-0,75m</p></td><td class=\"kl-v\"><p>&gt;0,75m</p></td></tr><tr><td class=\"kl-ind\" rowspan=\"2\"><p>Risico op verschilzetting in WH 2050</p></td><td class=\"kl-v\"><p>Zeer laag risico</p></td><td class=\"kl-v\"><p>Laag risico</p></td><td class=\"kl-v\"><p>Matig risico</p></td><td class=\"kl-v\"><p>Hoog risico</p></td><td class=\"kl-v\"><p>Zeer hoog risico</p></td><td class=\"kl-src\" rowspan=\"2\"><p>Deltares</p></td></tr><tr><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;1</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt &lt;5</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;10</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;25</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;100</p></td></tr><tr><td class=\"kl-ind\" rowspan=\"2\"><p>Risico op paalrot in WH2050</p></td><td class=\"kl-v\"><p>Zeer laag risico</p></td><td class=\"kl-v\"><p>Laag risico</p></td><td class=\"kl-v\"><p>Matig risico</p></td><td class=\"kl-v\"><p>Hoog risico</p></td><td class=\"kl-v\"><p>Zeer hoog risico</p></td><td class=\"kl-src\" rowspan=\"2\"><p>Deltares</p></td></tr><tr><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;1</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt &lt;5</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;10</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;25</p></td><td class=\"kl-v\"><p>Som (aantal panden/ schadeklasse * weging schadeklasse)/ totaal aantal panden in buurt  &lt;100</p></td></tr></tbody></table><h4>Overige kaarten in de klimaatatlas:</h4><ul><li><p><strong><a href=\"https://www.helpdeskwater.nl/onderwerpen/applicaties-modellen/applicaties-per/watermanagement/watermanagement/nationaal-water-model/\" target=\"_blank\">Bodemdaling 2020-2050 (in WH2050 scenario) (Deltares, WEnR &amp; TNO, 2021)</a></strong></p></li><li><p><strong><a href=\"https://www.klimaateffectatlas.nl/nl/basiskaart-natuurlijk-systeem-nederland\" target=\"_blank\">Bodemtypen:&#160;basiskaart natuurlijk systeem (Geo-Inspiratie &amp; GrondRR, 2021)</a></strong></p></li><li><p><strong><a href=\"https://www.klimaateffectatlas.nl/nl/droogtestress\" target=\"_blank\">Risico droogtestress groen (opbrengstderving bij gras) (KWR Water, 2017)</a></strong></p></li><li><p><strong><a href=\"https://www.cob.nl/document/zettingskaart-nederland/\" target=\"_blank\">Zettingsgevoeligheid (Deltares &amp; TNO, 2014)</a></strong></p></li><li><p><strong><a href=\"https://www.helpdeskwater.nl/onderwerpen/applicaties-modellen/applicaties-per/watermanagement/watermanagement/nationaal-water-model/\" target=\"_blank\">Gemiddeld Laagste Grondwaterstand (GLG) huidig klimaat (Nationaal Water Model, 2019)</a></strong></p></li></ul><div class=\"page-options_wrapper\"><div class=\"page-options\"></div></div></article></div>",
+                                        "globeOpacity": 100,
+                                        "camera": {
+                                            "x": 5.40068,
+                                            "y": 51.20089,
+                                            "z": 55885.52117,
+                                            "heading": 360,
+                                            "pitch": -34.77194,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
+                                    },
+                                    {
+                                        "title": "Overstroming",
+                                        "html": "<div class=\"kl-story\"><article><p>Door de stijging van de zeespiegel, meer en extremere stormen en verhoogde neerslag zullen de zee en rivieren vaker overstromingen veroorzaken.</p><p>Overstromingen zijn moeilijk te voorspellen, wat zorgt voor een beperkte waarschuwingstijd en potentieel grote gevolgen. Belangrijke gevolgen zijn onder andere het onder water lopen van panden en landbouwgebieden, een achteruitgang van de waterkwaliteit en het uitvallen van infrastructuur zoals stroom en wegen, wat problematisch is voor de hulpdiensten.</p><header><h1 class=\"kl-steptitle\">Indicatoren en labeldefinities overstromingen</h1></header><style>.kl-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.9fr);column-gap:14px;row-gap:12px;align-items:start;margin-top:var(--cds-spacing-06);}.kl-cols > *:nth-child(odd),.kl-cols > *:nth-child(odd) p,.kl-cols > *:nth-child(odd) li{font-weight:600;}.kl-steptitle{text-align:left;}</style><div class=\"kl-cols\"><div><p>Maximale waterdiepte bij overstromingskans (hoge waterstanden) 1:4000</p></div><div><p>De theoretische maximale waterdieptes die op kunnen treden bij een dijkdoorbraak van primaire keringen bij een buitenwaterstand die eens per 4000 jaar voorkomt. Op deze kaart zijn de maximale waterdieptes van verschillende scenario&#8217;s samengesteld weergegeven.</p></div></div><style>.kl-labels{margin-top:var(--cds-spacing-06);border-collapse:collapse;width:100%;table-layout:fixed;}.kl-labels td{border:1px solid #000;padding:4px 6px;text-align:center;vertical-align:middle;color:#000;background-color:#FFFFFF;font-size:0.75rem;line-height:1.3;overflow-wrap:break-word;hyphens:auto;}.kl-labels p{margin:0;}.kl-labels .kl-h{background-color:#E7E6E6;font-weight:bold;}.kl-labels .kl-ind-sub{padding-left:12px;text-align:left;}.kl-labels .kl-src{text-align:center;}.kl-labels .kl-a{background-color:#70AD47;font-weight:bold;}.kl-labels .kl-b{background-color:#E2EFD9;font-weight:bold;}.kl-labels .kl-c{background-color:#FFE599;font-weight:bold;}.kl-labels .kl-d{background-color:#F2AD7E;font-weight:bold;}.kl-labels .kl-e{background-color:#FF7979;font-weight:bold;}</style><table class=\"kl-labels\"><colgroup><col style=\"width:28%\"><col style=\"width:8.4%\"><col style=\"width:8.4%\"><col style=\"width:8.4%\"><col style=\"width:8.4%\"><col style=\"width:8.4%\"><col style=\"width:30%\"></colgroup><tbody><tr><td class=\"kl-h\" rowspan=\"2\"><p>Indicator</p></td><td class=\"kl-h\" colspan=\"5\"><p>Labeldefinitie</p></td><td class=\"kl-h kl-h-src\" rowspan=\"2\"><p>Richtlijnen en bronnen labeldefinities</p></td></tr><tr><td class=\"kl-a\"><p>A</p></td><td class=\"kl-b\"><p>B</p></td><td class=\"kl-c\"><p>C</p></td><td class=\"kl-d\"><p>D</p></td><td class=\"kl-e\"><p>E</p></td></tr><tr><td class=\"kl-ind\"><p>Maximale overstromingsdieptes bij een overstromingsscenario van 1/4000 jr (kans 1:4000)</p></td><td class=\"kl-v\"><p>0-20cm</p></td><td class=\"kl-v\"><p>20-50cm</p></td><td class=\"kl-v\"><p>50-200cm</p></td><td class=\"kl-v\"><p>200-500cm</p></td><td class=\"kl-v\"><p>&gt;500cm</p></td><td class=\"kl-src\"><p>Veiligheidsregio Zeeland; Waterschap Scheldestromen</p></td></tr></tbody></table><h4>Overige kaarten in de klimaatatlas:</h4><ul><li><ul><li><p><strong><a href=\"https://www.helpdeskwater.nl/onderwerpen/applicaties-modellen/applicaties-per/watermanagement/watermanagement/nationaal-water-model/\" target=\"_blank\">Gemiddeld Hoogste Grondwaterstand (GHG) in huidig klimaat (Nationaal Water Model, 2016)</a></strong></p></li><li><p><strong><a href=\"https://www.ahn.nl/\" target=\"_blank\">Actueel Hoogtebestand Nederland (AHN)-4</a></strong></p></li></ul></li></ul><div class=\"page-options_wrapper\"><div class=\"page-options\"></div></div></article></div>",
+                                        "globeOpacity": 100,
+                                        "camera": {
+                                            "x": 5.40068,
+                                            "y": 51.20089,
+                                            "z": 55885.52117,
+                                            "heading": 360,
+                                            "pitch": -34.77194,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "gebruik",
+                                "steps": [
+                                    {
+                                        "title": "Gebruik klimaatlabels",
+                                        "html": "<div class=\"kl-story\"><article><p>De klimaatlabelkaarten voor Zeeland zijn zorgvuldig opgesteld door een team van specialisten. Het werken met klimaatlabels helpt bij de monitoring en communicatie van beleid en klimaatadaptieve maatregelen. Hieronder wordt toegelicht hoe dat werkt.</p>\n<img src=\"https://virtueel.zeeland.nl/tiles_other/klimaatlabels/story/monitoring_afbeelding.png\" alt=\"\" width=\"300\" />\n<h4>Monitoren van resultaten</h4>\n<p>Een kaart met de klimaatlabels in &#8216;de huidige situatie&#8217; vormt het vertrekpunt voor het monitoren van vooruitgang richting een klimaatrobuuste leefomgeving. De komende jaren vinden er in Zeeland allerlei (her)inrichtingsprojecten en andere (ruimtelijke) ontwikkelingen plaats. Wanneer deze ontwikkelingen klimaatrobuust uitgevoerd worden, zijn de effecten hiervan te zien op de kaart in de vorm van bijvoorbeeld een verandering van &#8216;label D&#8217; naar &#8216;Label B&#8217;. Op een ijk- of evaluatiemoment (bijvoorbeeld afgestemd met de 6-jarige cyclus van het DPRA) kunnen wij de effecten van uitgevoerde ontwikkelingen inzichtelijk maken. Deze kaarten kunt u vervolgens gebruiken als verantwoording (bijvoorbeeld naar het gemeentebestuur).</p>\n<h4>Monitoren van beleid</h4>\n<p>De labelkaarten en het labelpaspoort bieden grip op uw klimaatbeleid. De kaart met labels geeft op de lange termijn inzicht in de gestelde ambities en de vooruitgang. Wanneer we na het toepassen van maatregelen nieuwe labelanalyses uitvoeren ziet u in &#233;&#233;n oogopslag vooruitgang per gebied en per thema. Indien ambitieniveaus niet worden behaald of niet haalbaar blijken kunt u een besluit tot actie nemen: meer inspanning leveren om de ambitie na te leven &#243;f de gestelde ambitie aanpassen.</p>\n<h4>Een helder communicatiemiddel</h4>\n<p>De klimaatlabelkaarten voor Zeeland en bijbehorende labelsystematiek draagt bij aan de communicatie over de nut en noodzaak van klimaatadaptieve maatregelen. De kleurschema&#8217;s maken knelpunten en resultaten van klimaatadaptieve maatregelen inzichtelijk, dat zorgt voor begrip voor de genomen en te treffen maatregelen. De labelsystematiek is overzichtelijk en spreekt tot de verbeelding. Dit draagt bij aan een heldere communicatie over een klimaatrobuuste leefomgeving richting de politiek, burgers en andere belanghebbenden.</p>\n<h4>Dynamisch en aanpasbaar op ontwikkelingen</h4>\n<p>De labelsystematiek richt zich op vooruitgang. De kleurwijziging zorgt ervoor dat veranderingen eerder zichtbaar worden dan bij een op risico&#8217;s gebaseerde methode, zoals risicocijfers. Dit is met name relevant voor monitoring van klimaatbestendige en waterrobuuste inrichting op wijk- en straatniveau. De kaarten kunnen ten alle tijden worden aangepast. Wij kunnen data updaten, toevoegen en vervangen. Het is ook mogelijk om bij een eventuele toekomstige herijking van data (nieuwe modellen of nieuwe inzichten op een klimaatthema) de oude data terug te halen. Daarnaast biedt het gebruik van een online kaartdashboard (zoals deze atlas) ruimte om nieuwe inzichten in te voegen en daarmee te blijven doorontwikkelen. Hierbij is het bijvoorbeeld ook mogelijk om data van andere partijen toe te voegen.</p></article></div>",
+                                        "globeOpacity": 100,
+                                        "camera": {
+                                            "x": 5.40068,
+                                            "y": 51.20089,
+                                            "z": 55885.52117,
+                                            "heading": 360,
+                                            "pitch": -34.77194,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "methodiek",
+                                "steps": [
+                                    {
+                                        "title": "Methodiek & gegevens",
+                                        "html": "<div class=\"kl-story\"><div><p>Op deze webpagina's geven we inzicht in de methoden die ten grondslag liggen aan de Zeeuwse klimaatlabels, evenals de gebruikte gegevens en analysetechnieken. Ontdek hoe deze labels tot stand zijn gekomen en welke gegevens en methoden daarbij een centrale rol spelen. </p><p>Daarnaast bieden we op deze pagina een ZIP-bestand en WMS links aan waarmee u direct toegang heeft tot gegevenssets en resultaten van de klimaatlabelkaarten voor Zeeland. Hiermee geven we u de mogelijkheid om zelf de data en resultaten te verkennen en analyseren, wat kan bijdragen aan een dieper begrip van de onderliggende informatie.</p></div></div>",
+                                        "globeOpacity": 100,
+                                        "camera": {
+                                            "x": 5.40068,
+                                            "y": 51.20089,
+                                            "z": 55885.52117,
+                                            "heading": 360,
+                                            "pitch": -34.77194,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
+                                    },
+                                    {
+                                        "title": "Klimaatlabelmethodiek",
+                                        "html": "<div class=\"kl-story\"><article><details><summary>Basis klimaatlabelmethodiek</summary>\n<p>Voor het maken van de labels maken wij gebruik van twee databronnen:</p>\n<ul>\n<li><p>De klimaatdata. Voor de klimaatthema's hebben wij verschillende rasterkaarten gebruikt. Deze data komt vanuit verschillende bronnen, zoals publiek beschikbare bronnen (zoals bijvoorbeeld BAG, PDOK, Klimaateffectatlas), data vanuit het waterschap Scheldestromen, Veiligheidsregio Zeeland, de deelnemende gemeenten of Provincie Zeeland. Deze kaarten zijn te bekijken in het labeldashboard.</p></li>\n<li><p>Postcode (PC6) gebieden</p></li>\n</ul>\n<p>Voor het berekenen van de labels hebben wij de klimaatkaarten gecombineerd met de PC6 gebieden. De afbeelding hieronder geeft weer hoe dat in zijn werk gaat.</p>\n<ol>\n<li><p>Een klimaatkaart (bijvoorbeeld voor het thema wateroverlast, waarbij we een waterdieptekaart kaart gebruiken voor een maatgevende bui) wordt in de figuur gepresenteerd als roze vlakken kaart. Elk vlakje (cell) geeft een bepaalde waarde aan. In het geval van de wateroverlast kaart geeft elke cell dus een waarde voor de waterdiepte t.o.v. het maaiveld.&#160;</p></li>\n<li><p>De postcode gebieden (PC6) zijn weergegeven als de zwart-omlijnde gebieden.&#160;</p></li>\n<li><p>Per postcode wordt de gemiddelde waarde berekend van de roze vlakken die binnen een straatzone vallen.&#160;</p></li>\n</ol>\n<img src=\"https://virtueel.zeeland.nl/tiles_other/klimaatlabels/story/image001.gif\" alt=\"\" />\n<p>Vervolgens analyseren we welke op basis van de labeldefinities welk label bij welke postcode past. Deze kaarten hebben we voor elke indicator geproduceerd.&#160;</p>\n</details><details><summary>Methodiek sociale kwetsbaarheidskaart voor hitte</summary>\n<p>De kaart \"Sociale kwetsbaarheid voor hitte\" onder de tab \"Hitte (&amp; groen)\" is opgebouwd in samenwerking met de provincie Zeeland, GGD Zeeland en verschillende gemeenten. De totstandkoming, methodiek, databronnen en gebruik en interpretatie van de kaart zijn te lezen in de aanpak hieronder.</p>\n<p><a href=\"https://virtueel.zeeland.nl/tiles_other/klimaatlabels/story/Aanpak_voor_de_kwetsbaarheidsanalyse_Zeeland.pdf\" title=\"Download Aanpak voor de kwetsbaarheidsanalyse Zeeland.pdf\" target=\"_blank\" rel=\"noopener noreferrer\">Aanpak voor de kwetsbaarheidsanalyse Zeeland.pdf (364,0 KB)</a></p>\n</details><details><summary>GIS rekenmethode en brondata</summary>\n<p>In onderstaande tabel wordt er per indicator aangegeven welke brondata en kaarten er zijn gebruikt om de labelkaarten te produceren.&#160;</p>\n<style>.tbl1009-TRD_htmlChWebsite_1 .x2 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;font-weight: bold;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x3 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; color: #000000;background-color: #FFD9CD;font-weight: bold;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x4 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; color: #000000;background-color: #FFD9CD;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x5 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;background-color: #FFD9CD;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x6 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;background-color: #FFD9CD;font-weight: bold;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x7 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;background-color: #FFD9CD;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x8 {border-left: 2px solid #000000; border-right: 2px solid #000000; color: #000000;background-color: #FFD9CD;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x9 {border-left: 2px solid #000000; border-top: 2px solid #000000; color: #000000;background-color: #DEEAF6;font-weight: bold;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x10 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; color: #000000;background-color: #DEEAF6;font-weight: bold;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x11 {border-right: 2px solid #000000; border-top: 2px solid #000000; color: #000000;background-color: #DEEAF6;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x12 {border-left: 2px solid #000000; border-right: 2px solid #000000; color: #000000;background-color: #DEEAF6;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x13 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; color: #000000;background-color: #DEEAF6;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x14 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;background-color: #DEEAF6;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x15 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; color: #000000;background-color: #9CC2E5;font-weight: bold;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x16 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;background-color: #9CC2E5;font-weight: bold;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x17 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;background-color: #9CC2E5;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x18 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;background-color: #ECE7FF;font-weight: bold;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x19 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;background-color: #ECE7FF;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x20 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;background-color: #FFF2CC;font-weight: bold;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x21 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;background-color: #FFF2CC;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x22 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;background-color: #C0C0BE;font-weight: bold;text-align: center;vertical-align: middle;}\n.tbl1009-TRD_htmlChWebsite_1 .x23 {border-left: 2px solid #000000; border-right: 2px solid #000000; border-top: 2px solid #000000; border-bottom: 2px solid #000000; color: #000000;background-color: #C0C0BE;text-align: center;vertical-align: middle;}\n</style><table class=\"tbl1009 tbl1009-TRD_htmlChWebsite_1\"><tbody><tr><td class=\"x2\"><p>Klimaatthema</p></td><td class=\"x2\"><p>Indicator</p></td><td class=\"x2\"><p>Brondata</p></td></tr><tr><td class=\"x3\" rowspan=\"11\"><p>Hitte (&amp; groen)</p></td><td class=\"x3\" rowspan=\"2\"><p>% Schaduwvorming op langzaamverkeersroutes&#160;</p></td><td class=\"x4\"><p>Haskoning, 2026, gebruikmakend van de AHN5 DTM en DSM met een resolutie van 0.5 meter (2023-2024). Schaduw is bepaald met behulp van de UMEP Shadow Generator op het tijdstip 21 juni om 12.00 (UTC+2 ivm zomertijd) voor gebouwen. Voor schaduw onder bomen is de boomkruin als oppervlak genomen. De boomkruin is bepaald door de DSM en de DTM met elkaar te vergelijken.</p></td></tr><tr><td class=\"x5\"><p>Per postcodegebied worden de BGT voetpaden ([\"voetpad\", 'voetpad op trap', 'voetgangersgebied']) en fietspaden geselecteerd, en wordt er gekeken welk percentage van het oppervlak binnen de voetpaden in het gebied schaduw hebben. Dit percentage wordt voor het postcodegebied omgezet in een label.</p></td></tr><tr><td class=\"x6\"><p>Afstand tot koelteplek</p></td><td class=\"x7\"><p>Afstand tot koeltekaart (TAUW &amp; Hogeschool van Amsterdam, 2021) uit Klimaateffectatlas</p></td></tr><tr><td class=\"x3\"><p>Groenpercentage (laag groen &#8211; gras, struiken) publiek beheerd gebied</p></td><td class=\"x4\"><p>Haskoning, 2025: publiek-privaat kaart o.b.v. Top10NL en BGT data; groenkaart o.b.v. hoog publiek groen/laag publiek groen/ totaal groen (privaat en publiek) kaart provincie Zeeland (o.b.v. luchtfoto zomer 2024)</p></td></tr><tr><td class=\"x6\"><p>Groenpercentage (hoog groen &#8211; bomen, hoge struiken, bladoppervlak) publiek beheerd gebied</p></td><td class=\"x7\"><p>Haskoning, 2025: publiek-privaat kaart o.b.v. Top10NL en BGT data; groenkaart o.b.v. hoog publiek groen/laag publiek groen/ totaal groen (privaat en publiek) kaart provincie Zeeland (o.b.v. luchtfoto zomer 2024)</p></td></tr><tr><td class=\"x6\"><p>Groenpercentage totaal (publiek + privaat, t.o.v. totale oppervlak)</p></td><td class=\"x7\"><p>Haskoning, 2025: publiek-privaat kaart o.b.v. Top10NL en BGT data; groenkaart o.b.v. hoog publiek groen/laag publiek groen/ totaal groen (privaat en publiek) kaart provincie Zeeland (o.b.v. luchtfoto zomer 2024)</p></td></tr><tr><td class=\"x3\" rowspan=\"2\"><p>Gemiddeld aantal zichtbare bomen per gebouw</p></td><td class=\"x4\"><p>Haskoning, 2026, gebruikmakend van LiDAR&#8209;data (satellietdata; AHN&#8209;puntenwolk). Deze data zijn omgezet naar een objectgerichte bomenlaag. Dit resulteert in een punt&#8209;shapefile waarbij elke boom afzonderlijk wordt gedetecteerd en gerepresenteerd met &#233;&#233;n punt. Op basis van deze gegenereerde bomenlaag is berekend wat de zichtlijnen tot 50 meter naar bomen zijn per pand. In tegenstelling tot een aanpak die uitsluitend gemeentelijke bomen omvat (en afhankelijk is van gemeentelijk databeheer), worden hiermee &#225;lle bomen meegenomen: inclusief bomen in bosgebieden, op priv&#233;terrein en langs provinciale, rijkswegen etc. Hierdoor ontstaat een compleet en uniform beeld van de boomstructuur in het gehele onderzoeksgebied</p></td></tr><tr><td class=\"x5\"><p>Per postcodegebied worden alle panden in het gebied geselecteerd en wordt een gemiddelde berekend. Dit wordt omgezet in een label.</p></td></tr><tr><td class=\"x6\"><p>Gemodelleerde gevoelstemperatuur op tropische dag van 33 &#176;C, huidig (2022) 2026 (PET in &#176;C)</p></td><td class=\"x7\"><p>Gevoelstemperatuur 2022 (Nelen &amp; Schuurmans, 2024) uit Klimaateffectatlas. Iedere pixel op de PET kaart heeft een temperatuur waarde. De (label)waarde van de postcode wordt bepaald o.b.v. het 50e percentiel (mediaan): 50 % van de pixels binnen de postcode scoren lager dan de waarde (en 50% hoger). Dit geeft dus gemiddelde waarde over het totale oppervlak, waarbij kleine uitschieters minder zwaar meewegen, zodat goed geprioriteerd kan worden tussen de postcodes.</p></td></tr><tr><td class=\"x3\" rowspan=\"2\"><p>% warmtewerende of verkoelende oppervlakten</p></td><td class=\"x4\"><p>Haskoning, 2023, gebruikmakend van 25 cm CIR-luchtfoto uit 2022 (om de NDVI te berekenen), schaduw oppervlak: resultaatraster uit de schaduwanalyse.</p></td></tr><tr><td class=\"x8\"><p>Per postcodegebied worden alle pixels binnen het gebied opgeteld, gedeeld door 4 (1 pixel is 0.25 m2) en vergeleken met het totaaloppervlak van het postcodegebied om zo een percentage uit te rekenen.</p></td></tr><tr><td class=\"x9\" rowspan=\"6\"><p>Wateroverlast</p></td><td class=\"x10\"><p>Water(diepte) op straat bij:</p></td><td class=\"x11\" rowspan=\"3\"><p>Waterdieptekaart 70mm / 2uur (Deltares &amp; Richtlijn Overstromingsrisico&#8217;s, 2018) en waterdieptekaart 140mm / 2uur (Deltares &amp; Richtlijn Overstromingsrisico&#8217;s, 2018), beiden uit Klimaateffectatlas</p></td></tr><tr><td class=\"x12\"><p>&gt; een bui van 70mm/ 2u (T=100 in huidige klimaat, T~50 klimaatscenario WH2050).</p></td></tr><tr><td class=\"x12\"><p>&gt; een bui van 140mm/ 2u (T=1000 in huidige klimaat, T~750 klimaatscenario WH2050)</p></td></tr><tr><td class=\"x10\"><p>Water tegen panden bij:</p></td><td class=\"x13\" rowspan=\"2\"><p>Waterdieptekaart 70mm / 2uur (Deltares &amp; Richtlijn Overstromingsrisico&#8217;s, 2018) en waterdieptekaart 140mm / 2uur (Deltares &amp; Richtlijn Overstromingsrisico&#8217;s, 2018), beiden uit Klimaateffectatlas</p></td></tr><tr><td class=\"x12\"><p>&gt; een bui van 70mm/ 2u (T=100 in huidige klimaat, T~50 klimaatscenario WH2050).</p></td></tr><tr><td class=\"x14\"><p>&gt; een bui van 140mm/ 2u (T=1000 in huidige klimaat, T~750 klimaatscenario WH2050)</p></td><td class=\"x14\"><p>Basis Registratie Adressen en Gebouwen (BAG), opgeroepen in zomer 2023</p></td></tr><tr><td class=\"x15\"><p>Overstroming</p></td><td class=\"x16\"><p>Maximale waterdiepte bij overstromingskans (hoge waterstanden) 1:4000</p></td><td class=\"x17\"><p>Waterdieptekaart (Veiligheidsregio Zeeland, 2019) als onderdeel van Programma WAVE2/Waterveiligheid, beschikbaar gesteld via de Veiligheidsregio Zeeland in zomer 2023</p></td></tr><tr><td class=\"x20\" rowspan=\"3\"><p>Droogte</p></td><td class=\"x20\"><p>Zakking in Gemiddeld Laagste Grondwaterstand (GLG) in WH2050</p></td><td class=\"x21\"><p>Kaart Laagste grondwaterstanden (Nationaal Water Model, 2019) uit Klimaateffectatlas</p></td></tr><tr><td class=\"x20\"><p>Risico op verschilzetting in WH 2050</p></td><td class=\"x21\"><p>Risicokaarten funderingen (Deltares, 2021) uit Klimaateffectatlas</p></td></tr><tr><td class=\"x20\"><p>Risico op paalrot in WH2050</p></td><td class=\"x21\"><p>Risicokaarten funderingen (Deltares, 2021) uit klimaateffectatlas</p></td></tr><tr><td class=\"x22\" rowspan=\"6\"><p>Archief</p></td><td class=\"x22\"><p>Gevoelstemperatuur (PET): huidig en WH2050</p></td><td class=\"x23\"><p>Hittekaart gevoelstemperatuur (Witteveen &amp; Bos, 2021) via Klimaateffectatlas. Iedere pixel op de PET kaart heeft een temperatuur waarde. De (label)waarde van de postcode wordt bepaald o.b.v. het 50e percentiel (mediaan): 50 % van de pixels binnen de postcode scoren lager dan de waarde (en 50% hoger). Dit geeft dus gemiddelde waarde over het totale oppervlak, waarbij kleine uitschieters minder zwaar meewegen, zodat goed geprioriteerd kan worden tussen de postcodes.</p></td></tr><tr><td class=\"x22\"><p>% Schaduwvorming op langzaamverkeersroutes&#160;</p></td><td class=\"x23\"><p>Haskoning, 2023, gebruikmakend van de AHN4 DTM en DSM met een resolutie van 0.5 meter. Schaduw is bepaald met behulp van de UMEP Shadow Generator op het tijdstip 21 juni om 12.00 (UTC+2 ivm zomertijd) voor gebouwen. Voor schaduw onder bomen is de boomkruin als oppervlak genomen. De boomkruin is bepaald door de DSM en de DTM met elkaar te vergelijken.</p></td></tr><tr><td class=\"x22\"><p>Groenpercentage (laag groen &#8211; gras, struiken) publiek beheerd gebied</p></td><td class=\"x23\"><p>Basiskaart Groen en Grijs op buurtniveau (Cobra Groeninzichten, 2021) uit Klimaateffectatlas</p></td></tr><tr><td class=\"x22\"><p>Groenpercentage (hoog groen &#8211; bomen, hoge struiken, bladoppervlak) publiek beheerd gebied</p></td><td class=\"x23\"><p>Basiskaart Groen en Grijs op buurtniveau (Cobra Groeninzichten, 2021) uit Klimaateffectatlas</p></td></tr><tr><td class=\"x22\"><p>Groenpercentage totaal (publiek + privaat, t.o.v. totale oppervlak)</p></td><td class=\"x23\"><p>Basiskaart Groen en Grijs op buurtniveau (Cobra Groeninzichten, 2021) uit Klimaateffectatlas</p></td></tr><tr><td class=\"x22\"><p>Gemiddeld aantal zichtbare bomen per gebouw</p></td><td class=\"x23\"><p>Haskoning, 2023, gebruikmakend van gemeentelijk bomenbestanden (aangeleverd per gemeente), en de BAG panden (woningen, winkels, kantoren, schuurtjes, etc).</p></td></tr></tbody></table>\n<p>De bronnen van de overige kaarten weergegeven in de klimaatatlas zijn als volgt:</p>\n<ul>\n<li><p><a href=\"https://www.klimaateffectatlas.nl/nl/warme-nachten\" target=\"_blank\" rel=\"noopener noreferrer\">Hittestress door warme nachten (WEnR, 2016)</a></p></li>\n<li><p><a href=\"https://www.atlasnatuurlijkkapitaal.nl/stedelijk-hitte-eiland-effect-uhi-in-nederland\" target=\"_blank\" rel=\"noopener noreferrer\">Stedelijk Hitte Eiland effect (UHI) (Atlas Natuurlijk Kapitaal, 2017)</a></p></li>\n\n<li><p><a href=\"https://www.vzinfo.nl/bevolking/regionaal/leeftijdsopbouw\" target=\"_blank\" rel=\"noopener noreferrer\">Leeftijdsopbouw: 65 plussers (CBS, 2022)</a></p></li>\n<li><p><a href=\"https://www.helpdeskwater.nl/onderwerpen/applicaties-modellen/applicaties-per/watermanagement/watermanagement/nationaal-water-model/\" target=\"_blank\" rel=\"noopener noreferrer\">Gemiddeld Hoogste Grondwaterstand (GHG) in huidig klimaat (Nationaal Water Model, 2016)</a></p></li>\n<li><p><a href=\"https://www.helpdeskwater.nl/onderwerpen/applicaties-modellen/applicaties-per/watermanagement/watermanagement/nationaal-water-model/\" target=\"_blank\" rel=\"noopener noreferrer\">Bodemdaling 2020-2050 (in WH2050 scenario) (Deltares, WEnR &amp; TNO, 2021)</a></p></li>\n<li><p><a href=\"https://www.klimaateffectatlas.nl/nl/basiskaart-natuurlijk-systeem-nederland\" target=\"_blank\" rel=\"noopener noreferrer\">Bodemtypen:&#160;basiskaart natuurlijk systeem (Geo-Inspiratie &amp; GrondRR, 2021)</a></p></li>\n<li><p><a href=\"https://www.klimaateffectatlas.nl/nl/droogtestress\" target=\"_blank\" rel=\"noopener noreferrer\">Risico droogtestress groen (opbrengstderving bij gras) (KWR Water, 2017)</a></p></li>\n<li><p><a href=\"https://www.cob.nl/document/zettingskaart-nederland/\" target=\"_blank\" rel=\"noopener noreferrer\">Zettingsgevoeligheid (Deltares &amp; TNO, 2014)</a></p></li>\n<li><p><a href=\"https://www.helpdeskwater.nl/onderwerpen/applicaties-modellen/applicaties-per/watermanagement/watermanagement/nationaal-water-model/\" target=\"_blank\" rel=\"noopener noreferrer\">Gemiddeld Laagste Grondwaterstand (GLG) huidig klimaat (Nationaal Water Model, 2019)</a></p></li>\n<li><p><a href=\"https://www.atlasnatuurlijkkapitaal.nl/kaarten?config=58bf95bc-67bf-402d-a355-af211ad33949&amp;gm-x=150000&amp;gm-y=460000&amp;gm-z=3&amp;gm-b=1544180834512%2ctrue%2c1%3b1554377515276%2ctrue%2c0.8&amp;activateOnStart=layermanager&amp;deactivateOnStart=layercollection\" target=\"_blank\" rel=\"noopener noreferrer\">Verzilting van grondwater (Deltares, 2015)</a></p></li>\n<li><p><a href=\"https://www.ahn.nl/\" target=\"_blank\" rel=\"noopener noreferrer\">Actueel Hoogtebestand Nederland (AHN) 4</a></p></li>\n</ul>\n<p>De bronnen van de sociale kwetsbaarheidskaart zijn te vinden in het <a href=\"https://virtueel.zeeland.nl/tiles_other/klimaatlabels/story/Aanpak_voor_de_kwetsbaarheidsanalyse_Zeeland.pdf\" target=\"_blank\">Aanpak document.</a></p>\n</details><details><summary>GIS stroomdiagrammen</summary>\n<p>De GIS methodes (incl. gebruikte databronnen en processing stappen) worden weergegeven in stroomdiagrammen. U kunt deze stroomdiagrammen downloaden door op de knop te drukken.&#160;</p>\n<p><a href=\"https://virtueel.zeeland.nl/tiles_other/klimaatlabels/story/Stroomdiagrammen_GIS_analyses_Zeeuwse_Klimaatatlas_juli2026.pdf\" title=\"Download Stroomdiagrammen GIS analyses Zeeuwse Klimaatatlas juli 2026.pdf\" target=\"_blank\" rel=\"noopener noreferrer\">Download de stroomdiagrammen (680,2 KB)</a></p>\n</details></article></div>",
+                                        "globeOpacity": 100,
+                                        "camera": {
+                                            "x": 5.40068,
+                                            "y": 51.20089,
+                                            "z": 55885.52117,
+                                            "heading": 360,
+                                            "pitch": -34.77194,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
+                                    },
+                                    {
+                                        "title": "Data",
+                                        "html": "<div class=\"kl-story\"><article>\n<p>De data en resultaten van de klimaatatlas zijn op deze pagina te vinden.&#160;</p>\n<br />\n<div>\n<h4>Download hier de data en resultaten van de klimaatlabelkaarten voor Zeeland als zipbestand</h4>\n<h5>Let op: 790 MB</h5>\n<p><a href=\"https://virtueel.zeeland.nl/tiles_other/klimaatlabels/story/Klimaatlabels_Zeeland_GIS.zip\" title=\"Download Klimaatlabels Zeeland GIS.zip\">Klimaatlabels Zeeland GIS.zip</a></p>\n</div>\n<br />\n<details><summary>Geoservice link totaal</summary>\n<p>Om alle data in uw eigen GIS project te laden kunt u gebruik maken van de geodata service links:</p>\n<h3><a href=\"https://services.geosolutions.nl/arcgis/rest/services/BI8531_klimaatadaptatie_zeeland/klimaatadaptatie_zeeland/MapServer\" target=\"_blank\" rel=\"noopener noreferrer\">ArcGIS Mapservice</a></h3>\n<h3><a href=\"https://services.geosolutions.nl/arcgis/services/BI8531_klimaatadaptatie_zeeland/klimaatadaptatie_zeeland/MapServer/WFSServer?request=GetCapabilities&amp;service=WFS\" target=\"_blank\" rel=\"noopener noreferrer\">WFS link (totaal)</a></h3>\n</details>\n<br />\n<details><summary>WFS links per datalaag</summary>\n<p>Alle vectordata zijn ook beschikbaar gesteld als WFS links. Hieronder vindt u dat overzicht:</p>\n<div class=\"f-block-columns\"><style>.f-block-columns{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;row-gap:4px;align-items:start;}</style>\n<div><h3>Hitte (&amp; groen)</h3>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Aantal_zichtbare_bomen_per_pand/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Aantal zichtbare bomen per pand</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Bomen_zeeland/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Bomenbestand (samengevoegd) Zeeland</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Labelkaart_gemiddeld_aantal_bomen/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart gemiddeld aantal zichtbare bomen</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Labelkaart_afstand_tot_koelte/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart afstand tot koelte</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Label_Verkoelende_warmtewerende_oppervlaktes/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Label verkoelende en warmtewerende oppervlaktes</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Labelkaart_gevoelstemperatuur_2050/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart gevoelstemperatuur WH2050</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Labelkaart_gevoelstemperatuur_huidig/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart gevoelstemperatuur huidig</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Groen_per_buurt/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart groen per buurt</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Hoog_groen_openbaar_gebied/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart hoog groen openbaar gebied</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/BI8531_Schaduwvorming_routes_verblijfplekken/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart % schaduw op langzaamverkeersroutes</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Voet_en_fietspaden/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Gebruikte voet- en fietspaden</a></h5>\n<h3>Verzilting</h3>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Toename_zoute_kwel/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart toename zoute kwel</a></h5>\n<h3>Overig</h3>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Labelpaspoort_klimaatatlas_Zeeland/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelpaspoort</a></h5></div>\n<div><h3>Droogte</h3>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Bodemtypen/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Bodemtypen</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Risico_paalrot_in_WH2050/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart risico paalrot in WH2050</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Risico_verschilzetting_in_WH_2050/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart risico verschilzetting in WH2050</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Risico_droogtestress_groen_WH2050/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Risico droogtestress groen WH2050</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Zakking_GLG__WH2050_/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart zakking GLG WH2050</a></h5>\n<h3>Wateroverlast</h3>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/BI8531_Water_op_straat_T100/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart water op straat T100</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/BI8531_Label__water_tegen_panden_T100/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart water tegen panden T100</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Panden_kwetsbaarheid_T100/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Kwetsbare panden T100</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Label_Max__waterdiepte_op_straat__T_1000__huidig/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart water op straat T1000</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Water_tegen_panden/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Labelkaart water tegen panden T1000</a></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Panden_kwetsbaarheid_T1000/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Kwetsbare panden T1000</a></h5>\n<h3>Overstroming</h3>\n<h5><strong><em>Labelkaart impact&#160;actualisatie begin 2025</em></strong></h5>\n<h5><a href=\"https://dservices.arcgis.com/zmBQLV64TsFvEpV0/arcgis/services/Maximale_waterdiepte_bij_overstromingskans_1_4000/WFSServer?service=wfs&amp;request=getcapabilities\" target=\"_blank\" rel=\"noopener noreferrer\">Maximale waterdiepte bij overstromingskans (hoge waterstanden) 1:4000</a></h5></div>\n</div>\n</details>\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n<br />\n</article></div>",
+                                        "globeOpacity": 100,
+                                        "camera": {
+                                            "x": 5.40068,
+                                            "y": 51.20089,
+                                            "z": 55885.52117,
+                                            "heading": 360,
+                                            "pitch": -34.77194,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
+                                    }
+                                ]
+                            }
+                        ],
+                        "chapterGroups": [
+                            {
+                                "id": "intro",
+                                "title": "Introductie",
+                                "buttonText": "Intro"
+                            },
+                            {
+                                "id": "def",
+                                "title": "Klimaatlabel definities",
+                                "buttonText": "Definities"
+                            },
+                            {
+                                "id": "gebruik",
+                                "title": "Gebruik klimaatlabels",
+                                "buttonText": "Gebruik"
+                            },
+                            {
+                                "id": "methodiek",
+                                "title": "Methodiek & gegevens",
+                                "buttonText": "Methodiek"
+                            }
+                        ]
                     }
                 ]
             }
@@ -283,6 +1170,9 @@
                 "pointCloudAttenuationMaximum": 2,
                 "terrainProviders": [
                     {
+                        "title": "Uit"
+                    },
+                    {
                         "title": "PDOK Terrain",
                         "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
                         "vertexNormals": true
@@ -291,9 +1181,6 @@
                         "title": "Zeeland 1m",
                         "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
                         "vertexNormals": true
-                    },
-                    {
-                        "title": "Uit"
                     }
                 ]
             }
@@ -371,10 +1258,6 @@
                     }
                 ]
             }
-        },
-        {
-            "id": "stories",
-            "enabled": false
         },
         {
             "id": "measure",

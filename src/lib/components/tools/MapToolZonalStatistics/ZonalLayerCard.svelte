@@ -4,19 +4,17 @@
 	import { _ } from "svelte-i18n";
 
 	import MetadataLink from "$lib/components/theme/MetadataLink/MetadataLink.svelte";
-	import type { Layer } from "$lib/map-core/layer";
-	import type { ZonalStatisticsController } from "./zonal-statistics-controller";
+	import type { ResolvedDataLayer, ZonalStatisticsController } from "./zonal-statistics-controller";
 
 	export let controller: ZonalStatisticsController;
-	export let layer: Layer;
+	export let layer: ResolvedDataLayer;
 	export let layerId: string;
 
 	const opacity = layer.opacity;
 	const selectedLayerId = controller.selectedLayerId;
 	const tableLayers = controller.tableLayers;
 	const loadingLayerIds = controller.loadingLayerIds;
-	const hasSettings = layer.config.opacitySupported;
-	const metadataUrl = layer.config.metadataLink || layer.config.metadataUrl;
+	const metadataUrl = layer.metadataUrl;
 
 	let expanded = false;
 
@@ -48,22 +46,20 @@
 					/>
 				</div>
 			{/if}
-			{#if hasSettings}
-				<button
-					class="icon-btn expand-btn"
-					class:open={expanded}
-					type="button"
-					on:click={() => (expanded = !expanded)}
-					aria-expanded={expanded}
-					aria-label={expanded ? $_("tools.menu.collapse") : $_("tools.menu.expand")}
-					title={expanded ? $_("tools.menu.collapse") : $_("tools.menu.expand")}
-				>
-					<ChevronDown size={16} />
-				</button>
-			{/if}
+			<button
+				class="icon-btn expand-btn"
+				class:open={expanded}
+				type="button"
+				on:click={() => (expanded = !expanded)}
+				aria-expanded={expanded}
+				aria-label={expanded ? $_("tools.menu.collapse") : $_("tools.menu.expand")}
+				title={expanded ? $_("tools.menu.collapse") : $_("tools.menu.expand")}
+			>
+				<ChevronDown size={16} />
+			</button>
 		</div>
 
-		{#if expanded && hasSettings}
+		{#if expanded}
 			<div class="card-settings">
 				<div class="slider-wrapper">
 					<Slider

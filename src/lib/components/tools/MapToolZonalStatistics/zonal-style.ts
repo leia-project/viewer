@@ -4,6 +4,7 @@
  * render identically.
  */
 import type { ZonalValueStyle } from "./zonal-config";
+import { NODATA_VALUE } from "./zonal-config";
 
 export type Rgb = [number, number, number];
 
@@ -37,7 +38,7 @@ export function readableTextColor(background: Rgb) {
 export interface ZonalStyler {
 	/** Inline style (background + contrasting text colour) for a colour swatch. */
 	swatchStyle(background: string): string;
-	/** The configured style for a (categorical) value, matched case-insensitively. */
+	/** The configured style for a (categorical) value; a missing value uses the nodata style. */
 	styleFor(value: string | undefined): ZonalValueStyle | undefined;
 	/** Inline cell style for a value; empty string unless the column is styled + matched. */
 	cellStyle(value: string | undefined, styled: boolean): string;
@@ -53,8 +54,9 @@ export function createZonalStyler(valueStyles: Array<ZonalValueStyle>): ZonalSty
 	// hex->rgb->luminance math for every cell (colours are few).
 	const swatchCache = new Map<string, string>();
 
+	// A blank/missing cell is "no data" and is looked up under the shared nodata value.
 	const styleFor = (value: string | undefined) =>
-		value ? valueStyleMap.get(value.trim().toUpperCase()) : undefined;
+		valueStyleMap.get((value?.trim() || NODATA_VALUE).toUpperCase());
 
 	function swatchStyle(background: string): string {
 		const cached = swatchCache.get(background);
