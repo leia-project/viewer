@@ -366,7 +366,9 @@
             "downloadPDF": "Générer et télécharger le PDF",
             "showOnMap": "Afficher les histoires sur la carte",
             "showStoryOnMap": "Afficher l'histoire sur la carte",
-            "open": "Ouvrir l'histoire"
+            "open": "Ouvrir l'histoire",
+            "galleryNext": "Image suivante",
+            "galleryPrevious": "Image précédente"
         },
         "animation": {
             "speed": "Vitesse",

@@ -1,5 +1,6 @@
 import { get, writable, type Readable, type Unsubscriber, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
+import { Camera } from "carbon-icons-svelte";
 import { Dispatcher } from "$lib/map-core/event/dispatcher";
 import type { Map as CesiumMap } from "$lib/map-cesium/map";
 import { getTerrainHeight } from "$lib/map-cesium/terrain-util";
@@ -7,6 +8,8 @@ import { projectHandler } from "../MapToolProjects/project-handler";
 import { selectedStory, showStoryMarkers } from "./story-handler";
 import type { Story, StoryMarkerCoordinates } from "./Story";
 import StoryHoverBox from "./StoryHoverBox.svelte";
+import StoryMarkerTextBubble from "./StoryMarkerTextBubble.svelte";
+import StoryImageGallery from "./StoryImageGallery.svelte";
 
 export class StoryMarkerCollection extends Dispatcher {
 	private readonly markers = new Cesium.CustomDataSource("story-markers");
@@ -17,6 +20,8 @@ export class StoryMarkerCollection extends Dispatcher {
 	private readonly markerStepMap = new Map<Cesium.Entity, number>();
 	private readonly markerLabelMap = new Map<Cesium.Entity, { chapterTitle: string; stepTitle: string }>();
 	private readonly markerCoordinates = new Map<Cesium.Entity, StoryMarkerCoordinates>();
+	private textBubbles: StoryMarkerTextBubble[] = [];
+	private imageGallery: StoryImageGallery | undefined;
 	private hoveredMarker: Cesium.Entity | undefined;
 	public hoveredStory: Writable<Story | undefined> = writable(undefined);
 	public hoverBoxTimeOut: ReturnType<typeof setTimeout> | undefined;
@@ -48,7 +53,10 @@ export class StoryMarkerCollection extends Dispatcher {
 		this.markerStepMap.clear();
 		this.markerLabelMap.clear();
 		this.markerCoordinates.clear();
-		const bookMarker = this.createMarkerIcon();
+		this.textBubbles.forEach((bubble) => bubble.$destroy());
+		this.textBubbles = [];
+		const bookMarker = this.createMarkerIcon(this.icon);
+		const cameraMarker = this.createMarkerIcon(Camera);
 
 		for (const story of stories) {
 			story.markers = [];
@@ -58,17 +66,23 @@ export class StoryMarkerCollection extends Dispatcher {
 				for (const step of chapter.steps) {
 					stepNumber++;
 					for (const coordinates of step.getMarkerCoordinatesList()) {
-						const marker = new Cesium.Entity({
-							position: Cesium.Cartesian3.fromDegrees(coordinates.x, coordinates.y),
-							billboard: {
-								image: bookMarker,
-								width: 52,
-								height: 52,
-								disableDepthTestDistance: Number.POSITIVE_INFINITY,
-								verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-								scaleByDistance: new Cesium.NearFarScalar(5.0e4, 1, 3.0e6, 0.1)
-							}
-						});
+						const type = coordinates.type ?? "chapter";
+
+						const marker = new Cesium.Entity(
+							type === "text"
+								? { position: Cesium.Cartesian3.fromDegrees(coordinates.x, coordinates.y) }
+								: {
+										position: Cesium.Cartesian3.fromDegrees(coordinates.x, coordinates.y),
+										billboard: {
+											image: type === "image" ? cameraMarker : bookMarker,
+											width: 52,
+											height: 52,
+											disableDepthTestDistance: Number.POSITIVE_INFINITY,
+											verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+											scaleByDistance: new Cesium.NearFarScalar(5.0e4, 1, 3.0e6, 0.1)
+										}
+									}
+						);
 						story.markers.push(marker);
 						this.markerStoryMap.set(marker, story);
 						this.markerStepMap.set(marker, stepNumber);
@@ -76,6 +90,15 @@ export class StoryMarkerCollection extends Dispatcher {
 						this.markerCoordinates.set(marker, coordinates);
 						this.markers.entities.add(marker);
 						this.updateMarkerHeight(marker, coordinates);
+
+						if (type === "text" && coordinates.text) {
+							this.textBubbles.push(
+								new StoryMarkerTextBubble({
+									target: this.map.getContainer(),
+									props: { map: this.map, marker, text: coordinates.text }
+								})
+							);
+						}
 					}
 				}
 			}
@@ -84,14 +107,14 @@ export class StoryMarkerCollection extends Dispatcher {
 		this.toggleMarkers();
 	}
 
-	private createMarkerIcon(): string {
+	private createMarkerIcon(icon: any): string {
 		const target = document.createElement("div");
-		const icon = new this.icon({ target });
+		const iconInstance = new icon({ target });
 		const svg = target.querySelector("svg");
 		const image = svg
 			? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><circle cx="32" cy="32" r="29" fill="#071b49" stroke="#68b6f7" stroke-width="3"/><g transform="translate(16 16)" fill="#ffffff">${svg.innerHTML}</g></svg>`
 			: "";
-		icon.$destroy();
+		iconInstance.$destroy();
 		return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(image)}`;
 	}
 
@@ -116,6 +139,8 @@ export class StoryMarkerCollection extends Dispatcher {
 	public destroy(): void {
 		this.unsubscribers.forEach((unsubscribe) => unsubscribe());
 		this.hoverBox?.$destroy();
+		this.imageGallery?.$destroy();
+		this.textBubbles.forEach((bubble) => bubble.$destroy());
 		this.inputHandler.destroy();
 		this.map.viewer.dataSources.remove(this.markers, true);
 	}
@@ -168,11 +193,29 @@ export class StoryMarkerCollection extends Dispatcher {
 		const picked = this.map.viewer.scene.pick(
 			new Cesium.Cartesian2(movement.position.x, movement.position.y)
 		);
-		const story = this.getStory(picked);
 		const marker = this.getMarker(picked);
-		const stepNumber = marker ? this.markerStepMap.get(marker) : undefined;
-		if (story && marker && stepNumber !== undefined) this.dispatch("story-selected", { story, stepNumber });
+		if (!marker) return;
+		const coordinates = this.markerCoordinates.get(marker);
+		const type = coordinates?.type ?? "chapter";
+
+		if (type === "image" && coordinates?.url) {
+			const images = Array.isArray(coordinates.url) ? coordinates.url : [coordinates.url];
+			this.openGallery(images);
+			return;
+		}
+
+		const story = this.getStory(picked);
+		const stepNumber = this.markerStepMap.get(marker);
+		if (story && stepNumber !== undefined) this.dispatch("story-selected", { story, stepNumber });
 	};
+
+	private openGallery(images: Array<string>): void {
+		this.imageGallery?.$destroy();
+		this.imageGallery = new StoryImageGallery({
+			target: this.map.getContainer(),
+			props: { images, onClose: () => this.imageGallery?.$destroy() }
+		});
+	}
 
 	private onHover = (movement: any): void => {
 		const picked = this.map.viewer.scene.pick(
@@ -180,10 +223,11 @@ export class StoryMarkerCollection extends Dispatcher {
 		);
 		const marker = this.getMarker(picked);
 		const story = marker ? this.markerStoryMap.get(marker) : undefined;
+		const type = marker ? (this.markerCoordinates.get(marker)?.type ?? "chapter") : undefined;
 		this.map.container.style.cursor = story ? "pointer" : "default";
 		if (marker === this.hoveredMarker) return;
 		this.hoveredMarker = marker;
-		if (story && marker) {
+		if (story && marker && type === "chapter") {
 			const stepNumber = this.markerStepMap.get(marker);
 			const label = this.markerLabelMap.get(marker);
 			if (stepNumber === undefined || !label) return;

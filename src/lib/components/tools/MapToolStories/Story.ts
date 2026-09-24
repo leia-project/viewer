@@ -6,6 +6,12 @@ import type * as Cesium from "cesium";
 export interface StoryMarkerCoordinates {
     x: number;
     y: number;
+    /** Defaults to "chapter" when omitted. */
+    type?: "chapter" | "text" | "image";
+    /** Mandatory when type is "text": the text shown in the speech bubble. */
+    text?: string;
+    /** Mandatory when type is "image": one or more image urls shown in gallery mode. */
+    url?: string | Array<string>;
 }
 
 export class Story {

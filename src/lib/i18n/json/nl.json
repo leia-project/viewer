@@ -376,7 +376,9 @@
             "downloadPDF": "Genereer en download PDF",
             "showOnMap": "Toon verhalen op kaart",
             "showStoryOnMap": "Toon verhaal op de kaart",
-            "open": "Verhaal openen"
+            "open": "Verhaal openen",
+            "galleryNext": "Volgende afbeelding",
+            "galleryPrevious": "Vorige afbeelding"
         },
         "animation": {
             "speed": "Snelheid",

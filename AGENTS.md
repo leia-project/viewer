@@ -93,7 +93,7 @@ Supported `type` values: `basiskaart`, `wms`, `wmts`, `tms`, `vectortiles`, `3dt
 - **wms:** `url`, `featureName`, `contenttype` (default `image/png`); optional `tools.styleSwitcher.enabled` to pull styles + dynamic legend from GetCapabilities.
 - **wmts:** `url`, `featureName`, `contentType`, `matrixids[]`, `tileMatrixSetID` (default `EPSG:3857`), `tileWidth`/`tileHeigth` (256), `maximumLevel`.
 - **3dtiles:** `url` (tileset.json), `shadows`, `tilesetHeight`, `enableHeightControl`, `defaultTheme`, `style` (Cesium3DTileStyle; `pointSize` for point clouds), `themes[]`, `filter`.
-- **stories:** `settings.stories[].chapters[].steps[].markerCoordinates` defines one or more map marker locations for that step; clicking a marker opens the story at its step.
+- **stories:** `settings.stories[].chapters[].steps[].markerCoordinates` defines one or more map marker locations for that step. Each marker has a `type` (default `chapter`): `chapter` opens the story at its step (book icon); `text` shows the mandatory `text` in a speech bubble instead of an icon; `image` shows a camera icon and opens the mandatory `url` (string or array of strings) in a gallery modal with prev/next arrows when there are multiple images. Implemented in `MapToolStories/story-marker-collection.ts` (`StoryMarkerTextBubble.svelte` / `StoryImageGallery.svelte` for the non-chapter types).
 
 Refer to `static/example.config.json` for concrete, copy-pasteable examples of every type.
 

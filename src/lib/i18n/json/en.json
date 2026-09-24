@@ -369,7 +369,9 @@
             "downloadPDF": "Generate and download PDF",
             "showOnMap": "Show stories on map",
             "showStoryOnMap": "Show story on map",
-            "open": "Open story"
+            "open": "Open story",
+            "galleryNext": "Next image",
+            "galleryPrevious": "Previous image"
         },
         "animation": {
             "speed": "Speed",
