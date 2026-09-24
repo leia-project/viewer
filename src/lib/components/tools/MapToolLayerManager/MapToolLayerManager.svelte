@@ -42,9 +42,11 @@
     // set the groups array, derived from the layers present in the layer manager
     let groups = Array<LayerManagerGroup>();
     $: {
+        // rebuilds discard old group instances, so their open/closed state is carried over by id first
+        const previousGroups = groups;
         groups = []
         if ($layers.length > 0) {
-            groups = buildGroupsRecursive($libraryGroups);
+            groups = buildGroupsRecursive($libraryGroups, previousGroups);
         }
     }
 
@@ -77,7 +79,17 @@
         return get(group.childGroups).some(groupSubtreeHasLayers);
     }
 
-    function buildGroupsRecursive(layerConfigGroups: Array<LayerConfigGroup>) {
+    // searches the previous (pre-rebuild) tree, including nested child groups, for a matching id
+    function findPreviousGroup(id: string, previousGroups: Array<LayerManagerGroup>): LayerManagerGroup | undefined {
+        for (let i = 0; i < previousGroups.length; i++) {
+            if (previousGroups[i].id === id) return previousGroups[i];
+            const found = findPreviousGroup(id, get(previousGroups[i].childGroups));
+            if (found) return found;
+        }
+        return undefined;
+    }
+
+    function buildGroupsRecursive(layerConfigGroups: Array<LayerConfigGroup>, previousGroups: Array<LayerManagerGroup> = []) {
         let groups = Array<LayerManagerGroup>();
         // copy library groups to layer groups
         for (let i = 0; i < layerConfigGroups.length; i++) {
@@ -85,6 +97,13 @@
             const layerManagerGroup = new LayerManagerGroup(group.id, group.title);
             layerManagerGroup.connector = group.connector;
             layerManagerGroup.toolGroup = group.toolGroup;
+
+            // preserve open/closed state across rebuilds so folders don't collapse as layers stream in
+            const previous = findPreviousGroup(group.id, previousGroups);
+            if (previous) {
+                layerManagerGroup.open.set(get(previous.open));
+            }
+
             // add layers belonging to this group to the layer manager group
             const layersFiltered = $layers.filter(l => l.parentGroup == group.id)
             for (let i = 0; i < layersFiltered.length; i++) {
@@ -93,7 +112,7 @@
             }
             // add childgroups
             const childConfigGroups = get(group.childGroups).filter(groupSubtreeHasLayers)
-            const childLayerGroups = buildGroupsRecursive(childConfigGroups)
+            const childLayerGroups = buildGroupsRecursive(childConfigGroups, previousGroups)
             for (let i = 0; i < childLayerGroups.length; i++) {
                 const childLayerGroup = childLayerGroups[i];
                 layerManagerGroup.addGroup(childLayerGroup)
