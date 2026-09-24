@@ -144,12 +144,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabel_bomen",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "bomen_label"
+                "styles": "klimaatlabel_bomen"
             }
         },
         {
@@ -164,12 +164,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_koelte",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "koelte_label"
+                "styles": "klimaatlabels_koelte"
             }
         },
         {
@@ -184,12 +184,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_groen",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "groen_label"
+                "styles": "klimaatlabels_groen"
             }
         },
         {
@@ -204,12 +204,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_laag_groen",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "laag_groen_label"
+                "styles": "klimaatlabels_laag_groen"
             }
         },
         {
@@ -224,12 +224,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_hoog_groen",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "hoog_groen_label"
+                "styles": "klimaatlabels_hoog_groen"
             }
         },
         {
@@ -244,12 +244,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_schaduw",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "schaduw_label"
+                "styles": "klimaatlabels_schaduw"
             }
         },
         {
@@ -264,12 +264,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_gev_temp_huidig",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "gev_temp_huidig_label"
+                "styles": "klimaatlabels_gev_temp_huidig"
             }
         },
         {
@@ -284,12 +284,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_verkoelend",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "verkoelend_label"
+                "styles": "klimaatlabels_verkoelend"
             }
         },
         {
@@ -304,12 +304,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_watdiep_neerslag_t100",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "watdiep_neerslag_t100_label"
+                "styles": "klimaatlabels_watdiep_neerslag_t100"
             }
         },
         {
@@ -324,12 +324,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_panden_neerslag_t100",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "panden_neerslag_t100_label"
+                "styles": "klimaatlabels_panden_neerslag_t100"
             }
         },
         {
@@ -344,12 +344,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_watdiep_neerslag_t1000",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "watdiep_neerslag_t1000_label"
+                "styles": "klimaatlabels_watdiep_neerslag_t1000"
             }
         },
         {
@@ -364,12 +364,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_panden_neerslag_t1000",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "panden_neerslag_t1000_label"
+                "styles": "klimaatlabels_panden_neerslag_t1000"
             }
         },
         {
@@ -384,12 +384,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_overstroming",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "overstroming_label"
+                "styles": "klimaatlabels_overstroming"
             }
         },
         {
@@ -404,12 +404,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_impact",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "impact_label"
+                "styles": "klimaatlabels_impact"
             }
         },
         {
@@ -424,12 +424,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_paalrot",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "paalrot_label"
+                "styles": "klimaatlabels_paalrot"
             }
         },
         {
@@ -444,12 +444,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_verschilzetting",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "verschilzetting_label"
+                "styles": "klimaatlabels_verschilzetting"
             }
         },
         {
@@ -464,12 +464,32 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_zakking_glg",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "zakking_glg_label"
+                "styles": "klimaatlabels_zakking_glg"
+            }
+        },
+        {
+            "id": "27",
+            "type": "wms",
+            "title": "Klimaatlabels Gebieden",
+            "groupId": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "transparent": true,
+            "opacity": 80,
+            "legendEnabled": true,
+            "disablePopup": true,
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_postcode",
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
+                "featureName": "klmlabels_pasptot_zld_vlk_2026",
+                "contentType": "image/png",
+                "styles": "klimaatlabels_postcode"
             }
         }
     ],

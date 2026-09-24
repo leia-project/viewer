@@ -29,8 +29,7 @@
 	let view: ZonalStatisticsView | undefined;
 	let configLoadedUnsub: (() => void) | undefined;
 	let zoneLayerWasVisible: boolean | undefined;
-	// Store the visibility state of all visible layers before opening the tool, so they can be restored
-	let visibleLayersBeforeTool: Map<string, boolean> = new Map();
+	let visibleLayersBeforeTool: Set<string> = new Set();
 
 	onMount(() => {
 		if (!map) return;
@@ -64,36 +63,28 @@
 		controller.active.set(active);
 		if (active) {
 			disableInteractionFromOtherTools(id);
-			enableConfiguredLayers();
+			hideMapLayers();
 			showView();
 		} else {
 			enableInteractionsFromOtherTools();
-			restoreConfiguredLayers();
+			restoreMapLayers();
 			destroyView();
 			controller.clearSelection();
 			controller.clearTableLayers();
 		}
 	}
 
-	// Open with the zone geometry drawn and the first configured layer as the table's first row.
-	function enableConfiguredLayers(): void {
+	// Hide every other layer so only the zones are drawn, and open with the first configured layer as the table's first row.
+	function hideMapLayers(): void {
 		if (!controller) return;
 
-		// Store and hide all currently visible layers that are configured in this tool's settings
-		// (except zone layer and background layers) so the focus is on the zonal statistics
-		const allLayers = get(map.layers);
 		const zoneLayerId = controller.settings.zoneLayerId;
-		const configuredLayerIds = controller.settings.layers.map((l: any) => l.id);
 		visibleLayersBeforeTool.clear();
-		for (const layer of allLayers) {
-			if (!configuredLayerIds.includes(layer.config.id)) continue; // Only hide layers configured in this tool
-			if (layer.config.id === zoneLayerId) continue; // Don't hide/track the zone layer
-			if (layer.config.isBackground === true) continue; // Don't hide background layers
-			const isVisible = get(layer.visible);
-			if (isVisible) {
-				visibleLayersBeforeTool.set(layer.config.id, true);
-				layer.visible.set(false);
-			}
+		for (const layer of get<any[]>(map.layers)) {
+			if (layer.config.id === zoneLayerId || layer.config.isBackground === true) continue;
+			if (!get(layer.visible)) continue;
+			visibleLayersBeforeTool.add(layer.config.id);
+			layer.visible.set(false);
 		}
 
 		// The zone layer carries the geometry every data layer is painted onto, so it stays on while
@@ -116,19 +107,14 @@
 	}
 
 	// Restore layers to their visibility state before the tool was opened.
-	function restoreConfiguredLayers(): void {
+	function restoreMapLayers(): void {
 		if (!controller) return;
 
-		// Restore all layers that were visible before the tool was activated
-		for (const [layerId] of visibleLayersBeforeTool) {
-			const layer = map.getLayerById(layerId);
-			if (layer) {
-				layer.visible.set(true);
-			}
+		for (const layerId of visibleLayersBeforeTool) {
+			map.getLayerById(layerId)?.visible.set(true);
 		}
 		visibleLayersBeforeTool.clear();
 
-		// Restore the zone layer to its original visibility
 		if (zoneLayerWasVisible !== undefined) {
 			map.getLayerById(controller.settings.zoneLayerId)?.visible.set(zoneLayerWasVisible);
 			zoneLayerWasVisible = undefined;
