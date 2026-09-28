@@ -1069,6 +1069,8 @@ Each layer within a step's `layers` array supports these settings:
 |style|Style/theme to apply to the layer|-|string|
 |showOpacitySlider|Whether the transparency slider is shown for this layer in the story step|true|boolean|
 
+On each step the map shows exactly that step's layers; other layers are hidden and restored when the story is closed. Layers that are already shown with the right settings are left untouched, so they are not reloaded between steps. A step layer without `style` reuses the layer with the same `id` that is already in the layer manager instead of loading a copy. A step with an empty `layers` array shows the map layers as they were before the story was opened, so a story without layers leaves the map unchanged. When the story has a `baseLayerId`, that base layer replaces the user's own background layers for the whole story.
+
 Each story step can also define `markerCoordinates`. The marker label shows the story, chapter, and step name. Clicking a marker opens the story directly on its step. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story.
 
 |value|description|type|
