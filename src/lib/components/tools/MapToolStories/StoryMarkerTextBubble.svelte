@@ -22,7 +22,8 @@
 	});
 
 	function updatePosition(): void {
-		if (!marker.show) {
+		// isShowing also reflects the data source / collection visibility, not just the entity's own flag.
+		if (!marker.isShowing) {
 			display = "none";
 			return;
 		}

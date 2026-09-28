@@ -1098,7 +1098,7 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 |type|**Optional**: `chapter` (default), `text`, or `image`|string|
 |x|Longitude of the story marker|number|
 |y|Latitude of the story marker|number|
-|text|**Mandatory when type is `text`**: text shown in the speech bubble|string|
+|text|**Mandatory when type is `text`**: text shown in the speech bubble. **Optional for type `image`**: tooltip shown when hovering the marker|string|
 |url|**Mandatory when type is `image`**: image url, or array of image urls for gallery mode|string or array[string]|
 
 ```json

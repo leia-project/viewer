@@ -223,11 +223,13 @@ export class StoryMarkerCollection extends Dispatcher {
 		);
 		const marker = this.getMarker(picked);
 		const story = marker ? this.markerStoryMap.get(marker) : undefined;
-		const type = marker ? (this.markerCoordinates.get(marker)?.type ?? "chapter") : undefined;
+		const coordinates = marker ? this.markerCoordinates.get(marker) : undefined;
+		const type = marker ? (coordinates?.type ?? "chapter") : undefined;
 		this.map.container.style.cursor = story ? "pointer" : "default";
 		if (marker === this.hoveredMarker) return;
 		this.hoveredMarker = marker;
-		if (story && marker && type === "chapter") {
+		const imageText = type === "image" ? coordinates?.text : undefined;
+		if (story && marker && (type === "chapter" || imageText)) {
 			const stepNumber = this.markerStepMap.get(marker);
 			const label = this.markerLabelMap.get(marker);
 			if (stepNumber === undefined || !label) return;
@@ -235,7 +237,7 @@ export class StoryMarkerCollection extends Dispatcher {
 			this.hoverBox?.$destroy();
 			this.hoverBox = new StoryHoverBox({
 				target: this.map.getContainer(),
-				props: { story, marker, stepNumber, chapterTitle: label.chapterTitle, stepTitle: label.stepTitle, collection: this }
+				props: { story, marker, stepNumber, chapterTitle: label.chapterTitle, stepTitle: label.stepTitle, collection: this, text: imageText }
 			});
 			this.hoveredStory.set(story);
 		} else {
