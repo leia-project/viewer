@@ -508,6 +508,11 @@
             "pitch": -34.77194,
             "duration": 0.0
         },
+        "accessibility": {
+            "trackpadMode": false,
+            "trackpadStepAngle": 5,
+            "trackpadStepHeightFactor": 0.2
+        },
         "colors": {
             "header-color": "#161616",
             "title-color": "#ffffff",
