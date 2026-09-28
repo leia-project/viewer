@@ -13,6 +13,7 @@ export class Story {
     public description: string;
     public storyChapters: Array<StoryChapter>;
     public width: string | undefined;
+    public maxWidth: string | undefined;
     public forceCameraMode: "2D" | "3D" | undefined;
     public staticCamera: boolean | undefined;
     public requestPolygonArea: boolean | undefined;
@@ -28,11 +29,13 @@ export class Story {
                 staticCamera: boolean | undefined,
                 requestPolygonArea: boolean | undefined,
                 statisticsApi: string | undefined,
-                hasMarkers: boolean = false) {
+                hasMarkers: boolean = false,
+                maxWidth: string | undefined = undefined) {
         this.name = name;
         this.description = description;
         this.storyChapters = storyChapters;
         this.width = width;
+        this.maxWidth = maxWidth;
         this.forceCameraMode = forceCameraMode;
         this.staticCamera = staticCamera;
         this.requestPolygonArea = requestPolygonArea;

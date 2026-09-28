@@ -37,13 +37,21 @@
 	registerTool(tool);
 	markerCollection = new StoryMarkerCollection(cesiumMap, Book, selectedTool);
 
+	// Width of the tool panel for a story. Without maxWidth this is simply the configured width;
+	// with maxWidth the panel never grows beyond it, e.g. width "calc(80vw - 49px)" and maxWidth "50rem".
+	function getToolWidth(story: Story | undefined): string {
+		if (!story) return "";
+		if (!story.maxWidth) return story.width ?? "";
+		return `min(${story.width || "21rem"}, ${story.maxWidth})`;
+	}
+
 	$: {
-		tool.width.set($selectedStoryStore?.width ?? "");
+		tool.width.set(getToolWidth($selectedStoryStore));
 	}
 
 	selectedTool.subscribe((selected: MapToolMenuOption) => {
 		if (tool === selected && $selectedStoryStore) {
-			tool.width.set($selectedStoryStore.width ?? "");
+			tool.width.set(getToolWidth($selectedStoryStore));
 		}
 	});
 
@@ -97,6 +105,7 @@
 				const storyName: string = story.name;
 				const storyDescription: string = story.description;
 				const storyWidth: string = story.width;
+				const storyMaxWidth: string | undefined = story.maxWidth;
 				const storyForceCameraMode: "2D" | "3D" | undefined = story.forceCameraMode ?? undefined;
 				const storyStaticCamera: boolean = story.staticCamera ?? false;
 				const storyRequestPolygonAreaConfig = story.requestPolygonArea ?? false;
@@ -157,7 +166,7 @@
 					}
 					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers));
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers, storyMaxWidth));
 			}
 		}
 		stories = loadedStories;
