@@ -378,7 +378,8 @@
             "showStoryOnMap": "Toon verhaal op de kaart",
             "open": "Verhaal openen",
             "galleryNext": "Volgende afbeelding",
-            "galleryPrevious": "Vorige afbeelding"
+            "galleryPrevious": "Vorige afbeelding",
+            "galleryImageUnavailable": "Afbeelding kon niet worden geladen"
         },
         "animation": {
             "speed": "Snelheid",

@@ -368,7 +368,8 @@
             "showStoryOnMap": "Afficher l'histoire sur la carte",
             "open": "Ouvrir l'histoire",
             "galleryNext": "Image suivante",
-            "galleryPrevious": "Image précédente"
+            "galleryPrevious": "Image précédente",
+            "galleryImageUnavailable": "Impossible de charger l'image"
         },
         "animation": {
             "speed": "Vitesse",

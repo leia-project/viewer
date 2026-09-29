@@ -1,11 +1,17 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
-	import { ChevronLeft, ChevronRight, Close } from "carbon-icons-svelte";
+	import { ChevronLeft, ChevronRight, Close, Image } from "carbon-icons-svelte";
 
 	export let images: Array<string>;
 	export let onClose: () => void;
 
 	let index = 0;
+	let failed = new Set<number>();
+
+	function onImageError(i: number): void {
+		failed.add(i);
+		failed = failed;
+	}
 
 	function next(): void {
 		index = (index + 1) % images.length;
@@ -45,7 +51,20 @@
 			</button>
 		{/if}
 		{#each images as image, i (image)}
-			<img src={image} alt="" class="gallery-image" class:gallery-image-active={i === index} />
+			{#if failed.has(i)}
+				<div class="gallery-placeholder" class:gallery-image-active={i === index}>
+					<Image size={32} />
+					<span>{$_("tools.stories.galleryImageUnavailable")}</span>
+				</div>
+			{:else}
+				<img
+					src={image}
+					alt=""
+					class="gallery-image"
+					class:gallery-image-active={i === index}
+					on:error={() => onImageError(i)}
+				/>
+			{/if}
 		{/each}
 		{#if images.length > 1}
 			<button
@@ -86,8 +105,25 @@
 		object-fit: contain;
 	}
 
+	.gallery-placeholder {
+		display: none;
+		width: min(640px, 90vw);
+		height: min(420px, 90vh);
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		background: #262626;
+		color: #c6c6c6;
+		text-align: center;
+	}
+
 	.gallery-image-active {
 		display: block;
+	}
+
+	.gallery-placeholder.gallery-image-active {
+		display: flex;
 	}
 
 	.gallery-close {
