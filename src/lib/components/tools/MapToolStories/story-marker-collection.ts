@@ -199,8 +199,7 @@ export class StoryMarkerCollection extends Dispatcher {
 		const type = coordinates?.type ?? "chapter";
 
 		if (type === "image" && coordinates?.url) {
-			const images = Array.isArray(coordinates.url) ? coordinates.url : [coordinates.url];
-			this.openGallery(images);
+			this.openGallery(coordinates.url);
 			return;
 		}
 

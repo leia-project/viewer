@@ -7,7 +7,7 @@
 	import { CameraLocation } from "$lib/map-core/camera-location";
 	import type { Map } from "$lib/map-cesium/map";
 	import { MapToolMenuOption } from "../MapToolMenuOption";
-	import { Story } from "./Story";
+	import { Story, type StoryMarkerCoordinates } from "./Story";
 	import { StoryStep } from "./StoryStep";
 	import { StoryLayer } from "./StoryLayer";
 	import { StoryChapter } from "./StoryChapter";
@@ -85,6 +85,58 @@
 		}
 	}
 
+	function isNonEmptyString(value: unknown): value is string {
+		return typeof value === "string" && value.trim().length > 0;
+	}
+
+	// Only http(s) and relative urls; rejects javascript:, data:, etc.
+	function isSafeImageUrl(value: string): boolean {
+		try {
+			const { protocol } = new URL(value, window.location.href);
+			return protocol === "http:" || protocol === "https:";
+		} catch {
+			return false;
+		}
+	}
+
+	function parseMarkerCoordinates(raw: unknown): Array<StoryMarkerCoordinates> {
+		const entries: Array<any> = Array.isArray(raw) ? raw : raw ? [raw] : [];
+		const markers = new Array<StoryMarkerCoordinates>();
+
+		for (const entry of entries) {
+			const { x, y } = entry ?? {};
+			if (!Number.isFinite(x) || !Number.isFinite(y)) {
+				console.warn("Story marker skipped: x and y must be numbers", entry);
+				continue;
+			}
+
+			const type = entry.type ?? "chapter";
+			if (type === "chapter") {
+				markers.push({ x, y, type });
+			} else if (type === "text") {
+				if (!isNonEmptyString(entry.text)) {
+					console.warn("Story marker skipped: type 'text' requires a non-empty text", entry);
+					continue;
+				}
+				markers.push({ x, y, type, text: entry.text });
+			} else if (type === "image") {
+				const urls = (Array.isArray(entry.url) ? entry.url : [entry.url])
+					.filter(isNonEmptyString)
+					.map((url: string) => url.trim())
+					.filter(isSafeImageUrl);
+				if (urls.length === 0) {
+					console.warn("Story marker skipped: type 'image' requires at least one valid http(s) or relative url", entry);
+					continue;
+				}
+				markers.push({ x, y, type, url: urls, text: isNonEmptyString(entry.text) ? entry.text : undefined });
+			} else {
+				console.warn("Story marker skipped: unknown type", entry);
+			}
+		}
+
+		return markers;
+	}
+
 	function loadStoriesFromSettings(settings: any) {
 		showStoryMarkers.set(settings.showOnMap ?? true);
 		const configStories = settings.stories;
@@ -124,8 +176,8 @@
 					// Load all chapter steps
 					for (let k = 0; k < chapter.steps.length; k++) {
 						const step = chapter.steps[k];
-						const markerCoordinates = step.markerCoordinates;
-						if (Array.isArray(markerCoordinates) ? markerCoordinates.length > 0 : markerCoordinates) {
+						const markerCoordinates = parseMarkerCoordinates(step.markerCoordinates);
+						if (markerCoordinates.length > 0) {
 							storyHasMarkers = true;
 						}
 						const cl = new CameraLocation(
@@ -153,7 +205,7 @@
 							layerLegends.push(layerLegendInfo);
 						}
 						const globeOpacity = step.globeOpacity ?? 100;
-						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent, step.markerCoordinates));
+						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent, markerCoordinates));
 					}
 					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 				}

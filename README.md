@@ -1090,7 +1090,7 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 
 - **`chapter`** (default): shows the book icon. The marker label shows the story, chapter, and step name; clicking it opens the story directly on its step.
 - **`text`**: shows the given `text` in a speech bubble on the map instead of an icon. `text` is mandatory for this type.
-- **`image`**: shows a camera icon; clicking it opens the image(s) from `url` in gallery mode. `url` is mandatory for this type and can be a single string or an array of strings — with multiple images the gallery shows arrow controls to navigate between them.
+- **`image`**: shows a camera icon; clicking it opens the image(s) from `url` in gallery mode. `url` is mandatory for this type and can be a single string or an array of strings — with multiple images the gallery shows arrow controls to navigate between them. Only `http(s)` and relative urls are used.
 
 |value|description|type|
 |-|-|-|

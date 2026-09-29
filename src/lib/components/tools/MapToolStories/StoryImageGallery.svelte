@@ -50,7 +50,7 @@
 				<ChevronLeft size={32} />
 			</button>
 		{/if}
-		{#each images as image, i (image)}
+		{#each images as image, i}
 			{#if failed.has(i)}
 				<div class="gallery-placeholder" class:gallery-image-active={i === index}>
 					<Image size={32} />
