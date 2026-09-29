@@ -135,7 +135,7 @@
         {
             "id": "10",
             "type": "wms",
-            "title": "Gemiddeld totaal aantal zichtbare bomen per gebouw 2026",
+            "title": "% Schaduwvorming op langzaamverkeersroutes 2026",
             "groupId": "hitte",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -144,12 +144,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabel_bomen",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_schaduw",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "klimaatlabel_bomen"
+                "styles": "klimaatlabels_schaduw"
             }
         },
         {
@@ -175,7 +175,7 @@
         {
             "id": "12",
             "type": "wms",
-            "title": "% Groen totaal (totale oppervlak) 2025",
+            "title": "Gemodelleerde gevoelstemperatuur op tropische dag van 33 °C, huidig (2022) 2026 (PET in °C)",
             "groupId": "hitte",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -184,12 +184,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_groen",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_gev_temp_huidig",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "klimaatlabels_groen"
+                "styles": "klimaatlabels_gev_temp_huidig"
             }
         },
         {
@@ -235,7 +235,7 @@
         {
             "id": "15",
             "type": "wms",
-            "title": "% Schaduwvorming op langzaamverkeersroutes 2026",
+            "title": "% Groen totaal (totale oppervlak) 2025",
             "groupId": "hitte",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -244,18 +244,18 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_schaduw",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_groen",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "klimaatlabels_schaduw"
+                "styles": "klimaatlabels_groen"
             }
         },
         {
             "id": "16",
             "type": "wms",
-            "title": "Gemodelleerde gevoelstemperatuur op tropische dag van 33 °C, huidig (2022) 2026 (PET in °C)",
+            "title": "Gemiddeld totaal aantal zichtbare bomen per gebouw 2026",
             "groupId": "hitte",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -264,12 +264,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_gev_temp_huidig",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabel_bomen",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "klimaatlabels_gev_temp_huidig"
+                "styles": "klimaatlabel_bomen"
             }
         },
         {
@@ -415,7 +415,7 @@
         {
             "id": "24",
             "type": "wms",
-            "title": "Risico paalrot (WH2050)",
+            "title": "Zakking GLG (WH2050)",
             "groupId": "droogte",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -424,12 +424,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_paalrot",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_zakking_glg",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "klimaatlabels_paalrot"
+                "styles": "klimaatlabels_zakking_glg"
             }
         },
         {
@@ -455,7 +455,7 @@
         {
             "id": "26",
             "type": "wms",
-            "title": "Zakking GLG (WH2050)",
+            "title": "Risico paalrot (WH2050)",
             "groupId": "droogte",
             "isBackground": false,
             "defaultAddToManager": true,
@@ -464,12 +464,12 @@
             "opacity": 80,
             "legendEnabled": true,
             "disablePopup": true,
-            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_zakking_glg",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/kli/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=klmlabels_pasptot_zld_vlk_2026&style=klimaatlabels_paalrot",
             "settings": {
                 "url": "https://opengeodata.zeeland.nl/geoserver/kli/wms?",
                 "featureName": "klmlabels_pasptot_zld_vlk_2026",
                 "contentType": "image/png",
-                "styles": "klimaatlabels_zakking_glg"
+                "styles": "klimaatlabels_paalrot"
             }
         },
         {
@@ -665,18 +665,18 @@
                 ],
                 "layers": [
                     {
-                        "id": "bomen",
-                        "title": "Gemiddeld totaal aantal zichtbare bomen per gebouw 2026",
+                        "id": "schaduw",
+                        "title": "% Schaduwvorming op langzaamverkeersroutes 2026",
                         "groupId": "hitte",
                         "opacity": 80,
                         "columns": {
                             "huidig": {
-                                "attribute": "bomen_label",
-                                "tooltipAttribute": "bomen_category"
+                                "attribute": "schaduw_label",
+                                "tooltipAttribute": "schaduw_category"
                             },
                             "ambitie": {
-                                "attribute": "bomen_streven_label",
-                                "tooltipAttribute": "bomen_streven_category"
+                                "attribute": "schaduw_streven_label",
+                                "tooltipAttribute": "schaduw_streven_category"
                             }
                         }
                     },
@@ -697,18 +697,18 @@
                         }
                     },
                     {
-                        "id": "groen",
-                        "title": "% Groen totaal (totale oppervlak) 2025",
+                        "id": "gev_temp",
+                        "title": "Gemodelleerde gevoelstemperatuur op tropische dag van 33 °C, huidig (2022) 2026 (PET in °C)",
                         "groupId": "hitte",
                         "opacity": 80,
                         "columns": {
                             "huidig": {
-                                "attribute": "groen_label",
-                                "tooltipAttribute": "groen_category"
+                                "attribute": "gev_temp_huidig_label",
+                                "tooltipAttribute": "gev_temp_huidig_category"
                             },
                             "ambitie": {
-                                "attribute": "groen_streven_label",
-                                "tooltipAttribute": "groen_streven_category"
+                                "attribute": "gev_temp_huidig_streven_label",
+                                "tooltipAttribute": "gev_temp_huidig_streven_category"
                             }
                         }
                     },
@@ -745,34 +745,34 @@
                         }
                     },
                     {
-                        "id": "schaduw",
-                        "title": "% Schaduwvorming op langzaamverkeersroutes 2026",
+                        "id": "groen",
+                        "title": "% Groen totaal (totale oppervlak) 2025",
                         "groupId": "hitte",
                         "opacity": 80,
                         "columns": {
                             "huidig": {
-                                "attribute": "schaduw_label",
-                                "tooltipAttribute": "schaduw_category"
+                                "attribute": "groen_label",
+                                "tooltipAttribute": "groen_category"
                             },
                             "ambitie": {
-                                "attribute": "schaduw_streven_label",
-                                "tooltipAttribute": "schaduw_streven_category"
+                                "attribute": "groen_streven_label",
+                                "tooltipAttribute": "groen_streven_category"
                             }
                         }
                     },
                     {
-                        "id": "gev_temp",
-                        "title": "Gemodelleerde gevoelstemperatuur op tropische dag van 33 °C, huidig (2022) 2026 (PET in °C)",
+                        "id": "bomen",
+                        "title": "Gemiddeld totaal aantal zichtbare bomen per gebouw 2026",
                         "groupId": "hitte",
                         "opacity": 80,
                         "columns": {
                             "huidig": {
-                                "attribute": "gev_temp_huidig_label",
-                                "tooltipAttribute": "gev_temp_huidig_category"
+                                "attribute": "bomen_label",
+                                "tooltipAttribute": "bomen_category"
                             },
                             "ambitie": {
-                                "attribute": "gev_temp_huidig_streven_label",
-                                "tooltipAttribute": "gev_temp_huidig_streven_category"
+                                "attribute": "bomen_streven_label",
+                                "tooltipAttribute": "bomen_streven_category"
                             }
                         }
                     },
@@ -889,18 +889,18 @@
                         }
                     },
                     {
-                        "id": "paalrot",
-                        "title": "Risico paalrot (WH2050)",
+                        "id": "zakking_glg",
+                        "title": "Zakking GLG (WH2050)",
                         "groupId": "droogte",
                         "opacity": 80,
                         "columns": {
                             "huidig": {
-                                "attribute": "paalrot_label",
-                                "tooltipAttribute": "paalrot_category"
+                                "attribute": "zakking_glg_label",
+                                "tooltipAttribute": "zakking_glg_category"
                             },
                             "ambitie": {
-                                "attribute": "paalrot_streven_label",
-                                "tooltipAttribute": "paalrot_streven_category"
+                                "attribute": "zakking_glg_streven_label",
+                                "tooltipAttribute": "zakking_glg_streven_category"
                             }
                         }
                     },
@@ -921,18 +921,18 @@
                         }
                     },
                     {
-                        "id": "zakking_glg",
-                        "title": "Zakking GLG (WH2050)",
+                        "id": "paalrot",
+                        "title": "Risico paalrot (WH2050)",
                         "groupId": "droogte",
                         "opacity": 80,
                         "columns": {
                             "huidig": {
-                                "attribute": "zakking_glg_label",
-                                "tooltipAttribute": "zakking_glg_category"
+                                "attribute": "paalrot_label",
+                                "tooltipAttribute": "paalrot_category"
                             },
                             "ambitie": {
-                                "attribute": "zakking_glg_streven_label",
-                                "tooltipAttribute": "zakking_glg_streven_category"
+                                "attribute": "paalrot_streven_label",
+                                "tooltipAttribute": "paalrot_streven_category"
                             }
                         }
                     }
