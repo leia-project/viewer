@@ -8,3 +8,11 @@ package
 .output
 node_modules
 
+# Static geodata & 3D tiles (generated / large — not Prettier-managed)
+static/**/*.geojson
+static/**/tileset.json
+static/**/subtrees/
+static/geotop_zeeland_ellipsoid/
+static/bro-bhr-gt/
+static/bro-cpt/
+
