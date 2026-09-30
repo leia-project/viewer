@@ -1,24 +1,34 @@
-@use '@fontsource/open-sans';
+@use "@fontsource/open-sans";
 
 html {
-    box-sizing: border-box;
-    font-family: "Open Sans", Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+	box-sizing: border-box;
+	font-family:
+		"Open Sans",
+		Arial,
+		-apple-system,
+		BlinkMacSystemFont,
+		"Segoe UI",
+		Roboto,
+		Oxygen,
+		Ubuntu,
+		Cantarell,
+		"Helvetica Neue",
+		sans-serif !important;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: inherit;
+	box-sizing: inherit;
 }
 
 html,
 body {
-    width: 100%;
-    height: 100%;
+	width: 100%;
+	height: 100%;
 }
 
 body {
-    margin: 0;
-    padding: 0;
+	margin: 0;
+	padding: 0;
 }

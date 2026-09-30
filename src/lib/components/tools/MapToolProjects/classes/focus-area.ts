@@ -6,14 +6,9 @@ import { CameraLocation } from "$lib/map-core/camera-location";
 import type { Map } from "$lib/map-cesium/map";
 import { ProjectCamera } from "./project-camera";
 import { projectHandler } from "../project-handler";
-import {
-	getPolygonCenter,
-	polygonToCartesians
-} from "$lib/map-cesium/helpers";
-
+import { getPolygonCenter, polygonToCartesians } from "$lib/map-cesium/helpers";
 
 export class FocusArea {
-
 	public uuid: string = uuidv4();
 	public map: Map;
 	protected animationTime: number;
@@ -26,7 +21,13 @@ export class FocusArea {
 
 	public processing: Writable<boolean> = writable(false);
 
-	constructor(map: Map, polygon: Array<[lon: number, lat: number]>, animationTime: number = 1500, cameraPosition?: CameraLocation, useGeoTOP?: boolean) {
+	constructor(
+		map: Map,
+		polygon: Array<[lon: number, lat: number]>,
+		animationTime: number = 1500,
+		cameraPosition?: CameraLocation,
+		useGeoTOP?: boolean
+	) {
 		this.map = map;
 		this.animationTime = animationTime;
 		this.useGeoTOP = useGeoTOP;
@@ -59,14 +60,17 @@ export class FocusArea {
 
 	public cutout(clip: boolean): void {
 		if (clip) {
-			this.map.clipHandler.clip({
-				clipId: this.uuid,
-				polygon: this.coordinates,
-				outside: true,
-				clipTilesets: true,
-				box: true,
-				useGeoTOP: this.useGeoTOP
-			}, 1);
+			this.map.clipHandler.clip(
+				{
+					clipId: this.uuid,
+					polygon: this.coordinates,
+					outside: true,
+					clipTilesets: true,
+					box: true,
+					useGeoTOP: this.useGeoTOP
+				},
+				1
+			);
 		} else {
 			this.map.clipHandler.removeClipById(this.uuid);
 		}

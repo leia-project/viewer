@@ -12,7 +12,6 @@ import { FreaticLine } from "./freatic-line";
 
 import LayerControlSlider from "$lib/components/layer-controls/LayerControlSlider/LayerControlSlider.svelte";
 
-
 export class WellsLayer extends CustomLayer {
 	private loaded: boolean;
 	private loading: boolean;
@@ -34,28 +33,37 @@ export class WellsLayer extends CustomLayer {
 	}
 
 	private addListeners(): void {
-		this.timeValue.subscribe(v => {
+		this.timeValue.subscribe((v) => {
 			this.timeChanged(v);
-		})
+		});
 	}
 
 	private createSliderControl(min: number, max: number, step: number): void {
 		this.timeControl = new CustomLayerControl();
 		this.timeControl.component = LayerControlSlider;
-		this.timeControl.props = { value: this.timeValue, title: "Datum/Tijd", minLabel: " ", maxLabel: " ", min: min, max: max, step: step, displayValue: this.displayValue };
+		this.timeControl.props = {
+			value: this.timeValue,
+			title: "Datum/Tijd",
+			minLabel: " ",
+			maxLabel: " ",
+			min: min,
+			max: max,
+			step: step,
+			displayValue: this.displayValue
+		};
 		this.addCustomControl(this.timeControl);
 	}
 
 	private timeChanged(time: number): void {
-		this.displayValue.set(this.freaticLine?.data[time]['']);
-		this.freaticLine?.generateFreaticLinePast('ew', time);
+		this.displayValue.set(this.freaticLine?.data[time][""]);
+		this.freaticLine?.generateFreaticLinePast("ew", time);
 	}
 
 	private async loadData(): Promise<void> {
 		this.loading = true;
 
-		if(!this.config.settings["dataUrl"] || !this.config.settings["configUrl"]) {
-			console.log("Well layer: missing dataUrl or configUrl")
+		if (!this.config.settings["dataUrl"] || !this.config.settings["configUrl"]) {
+			console.log("Well layer: missing dataUrl or configUrl");
 			return;
 		}
 
@@ -65,13 +73,13 @@ export class WellsLayer extends CustomLayer {
 		const wellData = await this.fetchData(this.config.settings["dataUrl"]);
 		const parsedData = csvToArray(wellData);
 		//Remove empty lines (if existing) from end of data file:
-		for (let x=0; x<parsedData.length; x++) { 
+		for (let x = 0; x < parsedData.length; x++) {
 			console.log(parsedData.length);
-			console.log(parsedData[parsedData.length-1]);
-			if (!parsedData[parsedData.length-1][Object.keys(parsedData[parsedData.length-1])[0]]) {
+			console.log(parsedData[parsedData.length - 1]);
+			if (!parsedData[parsedData.length - 1][Object.keys(parsedData[parsedData.length - 1])[0]]) {
 				parsedData.pop(); //Remove last line if empty
 			} else {
-				break
+				break;
 			}
 		}
 

@@ -10,13 +10,11 @@ import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
 import { CesiumLayer } from "./cesium-layer";
 import LayerControlModelAnimation from "$lib/components/layer-controls/LayerControls/LayerControlModelAnimation.svelte";
 
-
 export class DroppedGLBLayer extends CesiumLayer<Cesium.CustomDataSource> {
-
 	public collection!: DraggableCollection;
 
 	constructor(map: Map, config: LayerConfig) {
-        super(map, config);
+		super(map, config);
 		this.collection = get(this.config.settings.collection);
 		this.source = this.collection.droppedItems;
 		this.setup();
@@ -35,22 +33,20 @@ export class DroppedGLBLayer extends CesiumLayer<Cesium.CustomDataSource> {
 		this.map.viewer.dataSources.remove(this.source);
 	}
 
-	public opacityChanged(opacity: number): void {
-		
-	}
+	public opacityChanged(opacity: number): void {}
 
 	public show(): void {
 		if (this.source) {
 			this.source.show = true;
-            this.map.refresh();
-        }
-    }
-    public hide(): void {
-        if (this.source) {
-            this.source.show = false;
+			this.map.refresh();
+		}
+	}
+	public hide(): void {
+		if (this.source) {
+			this.source.show = false;
 			this.collection?.deactivate();
-            this.map.refresh();
-        }
+			this.map.refresh();
+		}
 	}
 
 	private setup(): void {
@@ -67,9 +63,11 @@ export class DroppedGLBLayer extends CesiumLayer<Cesium.CustomDataSource> {
 	}
 
 	private updateCameraPosition(): void {
-		const entityPositions = this.source.entities.values.map((entity: Cesium.Entity) => {
-			return entity.position?.getValue(this.map.viewer.clock.currentTime);
-		}).filter((position) => position !== undefined) as Cesium.Cartesian3[];
+		const entityPositions = this.source.entities.values
+			.map((entity: Cesium.Entity) => {
+				return entity.position?.getValue(this.map.viewer.clock.currentTime);
+			})
+			.filter((position) => position !== undefined) as Cesium.Cartesian3[];
 		if (entityPositions.length > 0) {
 			const boundingSphere = Cesium.BoundingSphere.fromPoints(entityPositions);
 			boundingSphere.radius += 100;
@@ -79,12 +77,9 @@ export class DroppedGLBLayer extends CesiumLayer<Cesium.CustomDataSource> {
 			}
 		}
 	}
-	
 }
 
-
 export class DraggableCollection extends Dispatcher {
-
 	private map: Map;
 	public droppedItems = new Cesium.CustomDataSource();
 	private selectedEntity!: Cesium.Entity;
@@ -92,7 +87,11 @@ export class DraggableCollection extends Dispatcher {
 	private handler!: Cesium.ScreenSpaceEventHandler;
 	public mode: "drag" | "rotate" | "remove" | "clone" = "drag";
 
-	constructor(map: Map, datasource: Cesium.CustomDataSource, handler: Cesium.ScreenSpaceEventHandler) {
+	constructor(
+		map: Map,
+		datasource: Cesium.CustomDataSource,
+		handler: Cesium.ScreenSpaceEventHandler
+	) {
 		super();
 		this.map = map;
 		this.droppedItems = datasource;
@@ -148,8 +147,8 @@ export class DraggableCollection extends Dispatcher {
 				}
 			}
 		}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-		
-		this.handler.setInputAction((): void =>  {
+
+		this.handler.setInputAction((): void => {
 			this.map.viewer.scene.screenSpaceCameraController.enableRotate = true;
 			this.handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 			this.selectedEntity.position = new Cesium.ConstantPositionProperty(this.updatePosition());
@@ -163,18 +162,17 @@ export class DraggableCollection extends Dispatcher {
 			this.mousePosition = movement.endPosition;
 		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 		//@ts-ignore
-		this.selectedEntity.position = new Cesium.CallbackProperty(() => { return this.updatePosition() }, false);
-
+		this.selectedEntity.position = new Cesium.CallbackProperty(() => {
+			return this.updatePosition();
+		}, false);
 	}
 
 	private updatePosition(): Cesium.Cartesian3 | undefined {
 		if (this.mousePosition) {
 			let ray = this.map.viewer.camera.getPickRay(this.mousePosition);
-			if (ray)
-				return this.map.viewer.scene.globe.pick(ray, this.map.viewer.scene);
+			if (ray) return this.map.viewer.scene.globe.pick(ray, this.map.viewer.scene);
 		}
 	}
-
 
 	public onUpdate(): void {
 		const numberOfEntities = this.droppedItems.entities.values.length;

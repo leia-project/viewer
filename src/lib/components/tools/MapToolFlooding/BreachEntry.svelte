@@ -8,7 +8,7 @@
 	export let breach: Breach;
 	export let active: Writable<Breach | undefined>;
 	export let hovered: Writable<Breach | undefined>;
-		
+
 	export let showInfo: boolean = true;
 
 	const name = breach.properties.name;
@@ -21,13 +21,15 @@
 		if (breach !== $active) active.set(breach);
 		showInfo = true;
 	}
-
 </script>
 
-
-
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-<div class="container" class:active={activeBoolean} on:mouseenter={() => hovered.set(breach)} on:mouseleave={() => hovered.set(undefined)}>
+<div
+	class="container"
+	class:active={activeBoolean}
+	on:mouseenter={() => hovered.set(breach)}
+	on:mouseleave={() => hovered.set(undefined)}
+>
 	<div class="entry" on:click={entryClick} class:entry-hovered={hoveredBoolean}>
 		<div class="entry-prefix">
 			<span class="encircled-text">
@@ -50,17 +52,16 @@
 	<slot name="info" />
 </div>
 
-
 <style>
-	
 	.container {
 		border: 1px solid transparent;
 		border-radius: 5px;
 		cursor: pointer;
 		transition: background-color 0.3s;
 	}
-	.active.container, .container:hover {
-		background-color: #e1f1fa; 
+	.active.container,
+	.container:hover {
+		background-color: #e1f1fa;
 	}
 	.active.container {
 		cursor: default;
@@ -93,6 +94,4 @@
 		white-space: nowrap;
 		overflow: hidden;
 	}
-	
-
 </style>

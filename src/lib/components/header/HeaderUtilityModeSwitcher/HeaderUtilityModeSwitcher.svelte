@@ -28,20 +28,21 @@
 			unsubscribe();
 		};
 	});
-	
+
 	function initializeIn2D(): void {
 		if (map) {
 			// Disable tilt controls
 			map.viewer.scene.screenSpaceCameraController.enableTilt = false;
 
 			// Disable terrain
-			const terrainProviderOff = get(map.options.terrainProviders).find(provider => provider.title === 'Uit');
+			const terrainProviderOff = get(map.options.terrainProviders).find(
+				(provider) => provider.title === "Uit"
+			);
 			if (terrainProviderOff && get(map.options.selectedTerrainProvider) !== terrainProviderOff) {
 				map.options.selectedTerrainProvider.set(terrainProviderOff);
 			}
 		}
 	}
-
 
 	// Note: we dont use the built-in scene switcher because it sucks
 	function to2D(): void {
@@ -72,11 +73,11 @@
 			});
 			// Disable tilt controls
 			map.viewer.scene.screenSpaceCameraController.enableTilt = false;
-		} else if  (map.startPosition) {
+		} else if (map.startPosition) {
 			console.warn("No position on globe found. Flying to home position instead.");
 			const home = Cesium.Cartesian3.fromDegrees(
-				map.startPosition.x, 
-				map.startPosition.y, 
+				map.startPosition.x,
+				map.startPosition.y,
 				map.startPosition.z
 			);
 
@@ -90,7 +91,9 @@
 			});
 		}
 		// Turn off terrain
-		const terrainProviderOff = get(map.options.terrainProviders).find(provider => provider.title === 'Uit');
+		const terrainProviderOff = get(map.options.terrainProviders).find(
+			(provider) => provider.title === "Uit"
+		);
 		if (terrainProviderOff && get(map.options.selectedTerrainProvider) !== terrainProviderOff) {
 			map.options.selectedTerrainProvider.set(terrainProviderOff);
 		}
@@ -110,19 +113,12 @@
 	}
 </script>
 
-
 <div class="mode-switcher" class:search-active={$searchActive}>
-	<Toggle
-		id="toggle-3d-mode"
-		size="sm"
-		bind:toggled={$use3Dmode}
-		disabled={$disableModeSwitcher}
-	>
+	<Toggle id="toggle-3d-mode" size="sm" bind:toggled={$use3Dmode} disabled={$disableModeSwitcher}>
 		<span slot="labelA" style="color: white">2D</span>
 		<span slot="labelB" style="color: white">3D</span>
 	</Toggle>
 </div>
-
 
 <style>
 	.mode-switcher {

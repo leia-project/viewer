@@ -9,7 +9,7 @@
 
 	const { map } = getContext<any>("mapTools");
 
-	type PointCloudClass = {id: string, name: string, selected: boolean}
+	type PointCloudClass = { id: string; name: string; selected: boolean };
 
 	let pointCloudClasses = Object.entries(classMapping).map((cls) => {
 		return {
@@ -21,26 +21,31 @@
 
 	function handleClassChange(cls: PointCloudClass) {
 		const updatedClasses = pointCloudClasses.map((item) => {
-            if (item.id === cls.id) {
-                return { ...item, selected: !item.selected };
-            }
-            return item;
-        });
-        pointCloudClasses = updatedClasses;
-		let selectedIds = pointCloudClasses.filter((cls) => cls.selected).map((cls) => cls.id)
+			if (item.id === cls.id) {
+				return { ...item, selected: !item.selected };
+			}
+			return item;
+		});
+		pointCloudClasses = updatedClasses;
+		let selectedIds = pointCloudClasses.filter((cls) => cls.selected).map((cls) => cls.id);
 		layer.filterPointCloudClasses(selectedIds);
-		map.refresh()
+		map.refresh();
 	}
-
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 {#if layer}
 	<div class="wrapper">
-		<div class="heading label-01">{$_('tools.layerManager.filterPointCloudClasses')}</div>
+		<div class="heading label-01">{$_("tools.layerManager.filterPointCloudClasses")}</div>
 		{#if classMapping}
 			{#each pointCloudClasses as cls}
-				<Tag type={cls.selected ? 'high-contrast' : 'warm-gray'} style="cursor: pointer" on:click={() => {handleClassChange(cls)}}>
+				<Tag
+					type={cls.selected ? "high-contrast" : "warm-gray"}
+					style="cursor: pointer"
+					on:click={() => {
+						handleClassChange(cls);
+					}}
+				>
 					{cls.name}
 				</Tag>
 			{/each}

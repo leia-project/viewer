@@ -174,7 +174,9 @@ export abstract class ProjectCollectionBase<
 			Cesium.ScreenSpaceEventType.LEFT_DOWN
 		);
 		this.inputHandler?.setInputAction((m: any) => {
-			const picked = this.map.viewer.scene.pick(new Cesium.Cartesian2(m.endPosition.x, m.endPosition.y));
+			const picked = this.map.viewer.scene.pick(
+				new Cesium.Cartesian2(m.endPosition.x, m.endPosition.y)
+			);
 			this.onHover(picked);
 		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 	}
@@ -190,4 +192,3 @@ export class ProjectCollection extends ProjectCollectionBase<IProjectConfig, Ces
 		return new CesiumProject(this.map, projectConfig);
 	}
 }
-

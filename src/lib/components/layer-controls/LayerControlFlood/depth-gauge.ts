@@ -3,9 +3,7 @@ import * as Cesium from "cesium";
 import type { Map } from "$lib/map-cesium/map";
 import { MapMeasurementFloodDepth } from "./map-measurement-flood-depth";
 
-
 export class DepthGauge {
-
 	private map: Map;
 	private measurements: Array<MapMeasurementFloodDepth> = [];
 	private measurementId: number;
@@ -17,7 +15,7 @@ export class DepthGauge {
 	private leftClickHandle = (m: any) => {
 		if (get(this.isDisabled)) return;
 		this.createFloodMeasurement(this.getCartesian2(m));
-	}
+	};
 
 	private moveHandle = (m: any) => {
 		const picked = this.map.viewer.scene.pick(m);
@@ -26,7 +24,7 @@ export class DepthGauge {
 		} else if (this.movingPoint != undefined) {
 			this.removeMovingPoint();
 		}
-	}
+	};
 
 	constructor(map: Map) {
 		this.map = map;
@@ -42,8 +40,11 @@ export class DepthGauge {
 	// Adapted from hannah at https://community.cesium.com/t/get-users-current-zoom-level/3946
 	private getCameraDistanceToGround(): number {
 		let cameraPositionWC = this.map.viewer.scene.camera.positionWC;
-		let ellipsoidPosition = this.map.viewer.scene.globe.ellipsoid.scaleToGeodeticSurface(cameraPositionWC);
-		let cameraDistanceToGround = Cesium.Cartesian3.magnitude(Cesium.Cartesian3.subtract(cameraPositionWC, ellipsoidPosition, new Cesium.Cartesian3()));
+		let ellipsoidPosition =
+			this.map.viewer.scene.globe.ellipsoid.scaleToGeodeticSurface(cameraPositionWC);
+		let cameraDistanceToGround = Cesium.Cartesian3.magnitude(
+			Cesium.Cartesian3.subtract(cameraPositionWC, ellipsoidPosition, new Cesium.Cartesian3())
+		);
 		return cameraDistanceToGround;
 	}
 
@@ -83,9 +84,11 @@ export class DepthGauge {
 
 		// Add point on terrain
 		let pickedCartographic = Cesium.Cartographic.fromCartesian(picked);
-		Cesium.sampleTerrainMostDetailed(this.map.viewer.terrainProvider, [pickedCartographic]).then((result) => {
-			measurement.addPoint(Cesium.Cartographic.toCartesian(result[0]));
-		});
+		Cesium.sampleTerrainMostDetailed(this.map.viewer.terrainProvider, [pickedCartographic]).then(
+			(result) => {
+				measurement.addPoint(Cesium.Cartographic.toCartesian(result[0]));
+			}
+		);
 	}
 
 	private addMeasurement(): MapMeasurementFloodDepth {
@@ -115,5 +118,4 @@ export class DepthGauge {
 
 		this.map.refresh();
 	}
-	
 }

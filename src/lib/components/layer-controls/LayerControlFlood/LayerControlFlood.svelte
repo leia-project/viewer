@@ -9,11 +9,10 @@
 	import { FloodLayerController } from "$lib/components/tools/MapToolFlooding/layer-controller";
 	import { DepthGauge } from "./depth-gauge";
 
-	
 	export let floodLayerController: FloodLayerController;
 	export let map: Map;
 	export let showGlobeOpacitySlider: boolean = true;
-	
+
 	const globeOpacity = map.options.globeOpacity;
 	const { time, minTime, maxTime, stepInterval } = floodLayerController;
 	const error = floodLayerController.floodLayer.error;
@@ -37,7 +36,7 @@
 		} else {
 			stopPlaying();
 		}
-  	}
+	}
 
 	function stopPlaying(): void {
 		playing = false;
@@ -54,14 +53,12 @@
 	$: depthGaugeButtonDisabled = depthGauge.isDisabled;
 
 	$: depthGaugeEnabled ? depthGauge.activate() : depthGauge.deactivate();
-	
+
 	onDestroy(() => {
 		stopPlaying();
 		depthGauge.deactivate();
 	});
-
 </script>
-
 
 {#if !$floodLayerLoaded}
 	<div class="loading-wrapper">
@@ -86,23 +83,23 @@
 			{/if}
 		</div>
 		<div class="wrapper">
-			<Slider 
+			<Slider
 				bind:value={$floodOpacity}
-				labelText={$_('tools.flooding.waterTransparency') + ' ' + $floodOpacity + '%'} 
-				fullWidth={true} 
-				hideTextInput={true} 
-				min={0} 
-				max={100} 
-				step={1} 
-				minLabel={"0"} 
+				labelText={$_("tools.flooding.waterTransparency") + " " + $floodOpacity + "%"}
+				fullWidth={true}
+				hideTextInput={true}
+				min={0}
+				max={100}
+				step={1}
+				minLabel={"0"}
 				maxLabel={"100"}
 			/>
 		</div>
-		<div class="label-01">{$_('tools.flooding.timeSlider')}</div>
+		<div class="label-01">{$_("tools.flooding.timeSlider")}</div>
 		<div class="wrapper">
-			<Slider 
+			<Slider
 				bind:value={$time}
-				labelText={`${Math.round($time)}` + ' ' + $_('tools.flooding.hourSinceBreach')}
+				labelText={`${Math.round($time)}` + " " + $_("tools.flooding.hourSinceBreach")}
 				fullWidth={true}
 				hideTextInput={true}
 				min={$minTime}
@@ -115,33 +112,33 @@
 		</div>
 		<div class="wrapper" style="display: flex; justify-content: center; gap: 4px;">
 			<!-- Decrease time slider value by step -->
-			<Button 
-				kind="secondary" 
-				size="small" 
-				icon="{ArrowLeft}"
-				iconDescription={$_('tools.animation.previous')}
+			<Button
+				kind="secondary"
+				size="small"
+				icon={ArrowLeft}
+				iconDescription={$_("tools.animation.previous")}
 				on:click={() => {
 					time.update((value) => Math.max(0, Math.round(value - 1)));
 					stopPlaying();
 				}}
 			/>
-			<Button 
+			<Button
 				kind="secondary"
-				size="small" 
+				size="small"
 				icon={playing ? Pause : Play}
-				iconDescription={playing ? $_('tools.animation.pause') : $_('tools.animation.play')}
+				iconDescription={playing ? $_("tools.animation.pause") : $_("tools.animation.play")}
 				on:click={() => {
 					togglePlay();
 				}}
 			/>
-			<Button 
+			<Button
 				kind="secondary"
-				size="small" 
-				icon="{ArrowRight}"
-				iconDescription={$_('tools.animation.next')}
+				size="small"
+				icon={ArrowRight}
+				iconDescription={$_("tools.animation.next")}
 				on:click={() => {
 					// After switching scenario or breach, the Slider no longer listens to layer.timeSliderValue, so #timeSliderValue must be updated manually
-					time.update((value) => Math.min($maxTime, Math.round(value +1)));
+					time.update((value) => Math.min($maxTime, Math.round(value + 1)));
 					stopPlaying();
 				}}
 			/>
@@ -163,9 +160,7 @@
 	{/if}
 {/if}
 
-
 <style>
-
 	.loading-wrapper {
 		display: flex;
 		justify-content: center;
@@ -196,5 +191,4 @@
 	.label-02 {
 		padding: 15px 0;
 	}
-
 </style>

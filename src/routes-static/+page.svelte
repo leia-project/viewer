@@ -5,7 +5,8 @@
 </script>
 
 <svelte:head>
-	<base href="{base}"> <!-- This is the base path for the app -->
+	<base href={base} />
+	<!-- This is the base path for the app -->
 </svelte:head>
 
 <Page />

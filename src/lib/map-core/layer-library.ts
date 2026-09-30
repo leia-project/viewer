@@ -6,195 +6,204 @@ import { Dispatcher } from "./event/dispatcher";
 import type { Writable } from "svelte/store";
 
 export class LayerLibrary extends Dispatcher {
-    private groupNoCategory: LayerConfigGroup;
-    private groupBackgroundLayers: LayerConfigGroup;
-    private unsubscribers: Record<string, Unsubscriber>;
-    private parentNotFoundGroup: Array<LayerConfigGroup>;
-    
-    public groups: Writable<Array<LayerConfigGroup>>;
-    public selectedLayerConfig: Writable<LayerConfig>;
-    public tags: Writable<Array<string>>;
-    public loadingConnectors: Writable<Array<{ label: string; url: string }>>;
+	private groupNoCategory: LayerConfigGroup;
+	private groupBackgroundLayers: LayerConfigGroup;
+	private unsubscribers: Record<string, Unsubscriber>;
+	private parentNotFoundGroup: Array<LayerConfigGroup>;
 
-    constructor() {
-        super();
-        this.unsubscribers = {};
-        this.parentNotFoundGroup = new Array<LayerConfigGroup>();
-        this.selectedLayerConfig = writable<LayerConfig>(undefined);
-        this.groupNoCategory = new LayerConfigGroup("group_uncategorised", "No Category");
-        this.groupBackgroundLayers = new LayerConfigGroup("group_background", "Background");
-        this.groups = writable<Array<LayerConfigGroup>>(new Array<LayerConfigGroup>());
-        this.tags = writable<Array<string>>([]);
-        this.loadingConnectors = writable<Array<{ label: string; url: string }>>([]);
+	public groups: Writable<Array<LayerConfigGroup>>;
+	public selectedLayerConfig: Writable<LayerConfig>;
+	public tags: Writable<Array<string>>;
+	public loadingConnectors: Writable<Array<{ label: string; url: string }>>;
 
-        this.addLayerConfigGroup(this.groupBackgroundLayers);
-        this.addLayerConfigGroup(this.groupNoCategory);
-    }
+	constructor() {
+		super();
+		this.unsubscribers = {};
+		this.parentNotFoundGroup = new Array<LayerConfigGroup>();
+		this.selectedLayerConfig = writable<LayerConfig>(undefined);
+		this.groupNoCategory = new LayerConfigGroup("group_uncategorised", "No Category");
+		this.groupBackgroundLayers = new LayerConfigGroup("group_background", "Background");
+		this.groups = writable<Array<LayerConfigGroup>>(new Array<LayerConfigGroup>());
+		this.tags = writable<Array<string>>([]);
+		this.loadingConnectors = writable<Array<{ label: string; url: string }>>([]);
 
-    public addLoadingConnector(connector: { label: string; url: string }): void {
-        this.loadingConnectors.update((current) =>
-            current.some((c) => c.url === connector.url) ? current : [...current, connector]
-        );
-    }
+		this.addLayerConfigGroup(this.groupBackgroundLayers);
+		this.addLayerConfigGroup(this.groupNoCategory);
+	}
 
-    public removeLoadingConnector(connector: { label: string; url: string }): void {
-        this.loadingConnectors.update((current) => current.filter((c) => c.url !== connector.url));
-    }
+	public addLoadingConnector(connector: { label: string; url: string }): void {
+		this.loadingConnectors.update((current) =>
+			current.some((c) => c.url === connector.url) ? current : [...current, connector]
+		);
+	}
 
-    public findLayer(layerId: string): LayerConfig | undefined {
-        return this.findLayerRecursive(layerId, get(this.groups));
-    }
+	public removeLoadingConnector(connector: { label: string; url: string }): void {
+		this.loadingConnectors.update((current) => current.filter((c) => c.url !== connector.url));
+	}
 
-    private findLayerRecursive(layerId: string, groups: Array<LayerConfigGroup>): LayerConfig | undefined {
-        for(let i = 0; i < groups.length; i++) {
-            const layerConfigs = get(groups[i].layerConfigs);
-            if(layerConfigs.length > 0) {
-                for(let j = 0; j < layerConfigs.length; j++) {
-                    if(layerConfigs[j].id === layerId) {
-                        return layerConfigs[j];
-                    }
-                }
-            }
+	public findLayer(layerId: string): LayerConfig | undefined {
+		return this.findLayerRecursive(layerId, get(this.groups));
+	}
 
-            const childGroups = get(groups[i].childGroups);
-            if(childGroups.length > 0) {
-                const rec = this.findLayerRecursive(layerId, get(groups[i].childGroups));
-                if(rec) {
-                    return rec;
-                }
-            }
-        }
+	private findLayerRecursive(
+		layerId: string,
+		groups: Array<LayerConfigGroup>
+	): LayerConfig | undefined {
+		for (let i = 0; i < groups.length; i++) {
+			const layerConfigs = get(groups[i].layerConfigs);
+			if (layerConfigs.length > 0) {
+				for (let j = 0; j < layerConfigs.length; j++) {
+					if (layerConfigs[j].id === layerId) {
+						return layerConfigs[j];
+					}
+				}
+			}
 
-        return undefined;
-    }
+			const childGroups = get(groups[i].childGroups);
+			if (childGroups.length > 0) {
+				const rec = this.findLayerRecursive(layerId, get(groups[i].childGroups));
+				if (rec) {
+					return rec;
+				}
+			}
+		}
 
-    public findGroup(groupId: string | undefined): LayerConfigGroup | undefined {
-        if(!groupId) {
-            return undefined;
-        }
+		return undefined;
+	}
 
-        return this.findGroupRecursive(get(this.groups), groupId);
-    }
+	public findGroup(groupId: string | undefined): LayerConfigGroup | undefined {
+		if (!groupId) {
+			return undefined;
+		}
 
-    private findGroupRecursive(groups: Array<LayerConfigGroup>, groupId: string | undefined): LayerConfigGroup | undefined {
-        const result = groups.find(g => g.id === groupId);
+		return this.findGroupRecursive(get(this.groups), groupId);
+	}
 
-        if(result) {
-            return result;
-        }
+	private findGroupRecursive(
+		groups: Array<LayerConfigGroup>,
+		groupId: string | undefined
+	): LayerConfigGroup | undefined {
+		const result = groups.find((g) => g.id === groupId);
 
-        for(let i = 0; i < groups.length; i++) {
-            const childGroups = get(groups[i].childGroups);
-            if(childGroups.length > 0) {
-                const rec = this.findGroupRecursive(get(groups[i].childGroups), groupId);
-                if(rec) {
-                    return rec;
-                }
-            }
-        }
+		if (result) {
+			return result;
+		}
 
-        return undefined
-    }
+		for (let i = 0; i < groups.length; i++) {
+			const childGroups = get(groups[i].childGroups);
+			if (childGroups.length > 0) {
+				const rec = this.findGroupRecursive(get(groups[i].childGroups), groupId);
+				if (rec) {
+					return rec;
+				}
+			}
+		}
 
-    public addLayerConfigGroup(group: LayerConfigGroup): void {
-        const layerConfigs = get(group.layerConfigs);
+		return undefined;
+	}
 
-        if(layerConfigs && layerConfigs.length > 0) {
-            for(let i = 0; i < layerConfigs.length; i++) {
-                this.subscribeLayerConfig(layerConfigs[i]);
-            }
-        }                
+	public addLayerConfigGroup(group: LayerConfigGroup): void {
+		const layerConfigs = get(group.layerConfigs);
 
-        if(group.parentId) {
-            const children = this.parentNotFoundGroup.filter((p) => { return p.parentId === group.parentId });
-            
-            if(children) {
-                for(let i = 0; i < children.length; i++) {
-                    group.addGroup(children[i]);
-                }
+		if (layerConfigs && layerConfigs.length > 0) {
+			for (let i = 0; i < layerConfigs.length; i++) {
+				this.subscribeLayerConfig(layerConfigs[i]);
+			}
+		}
 
-                this.parentNotFoundGroup = this.parentNotFoundGroup.filter((p) => { return p.parentId !== group.parentId });;
-            }
+		if (group.parentId) {
+			const children = this.parentNotFoundGroup.filter((p) => {
+				return p.parentId === group.parentId;
+			});
 
-            const parent = this.findGroup(group.parentId);
-            if(parent) {
-                parent.addGroup(group);
-            } else {
-                this.parentNotFoundGroup.push(group);
-            }
-        } else {
-            this.groups.set([...get(this.groups), group]);
-        }
-    }
+			if (children) {
+				for (let i = 0; i < children.length; i++) {
+					group.addGroup(children[i]);
+				}
 
-    public addLayerConfigGroups(groups: Array<LayerConfigGroup>): void {
-        for(let i = 0; i < groups.length; i++) {
-            this.addLayerConfigGroup(groups[i]);
-        }
-    }
+				this.parentNotFoundGroup = this.parentNotFoundGroup.filter((p) => {
+					return p.parentId !== group.parentId;
+				});
+			}
 
-    public addLayerConfigs(configs: Array<LayerConfig>): void {
-        for(let i = 0; i < configs.length; i++) {
-            const config = configs[i];
-            this.addLayerConfig(config);
-        }
-    }
+			const parent = this.findGroup(group.parentId);
+			if (parent) {
+				parent.addGroup(group);
+			} else {
+				this.parentNotFoundGroup.push(group);
+			}
+		} else {
+			this.groups.set([...get(this.groups), group]);
+		}
+	}
 
-    public addLayerConfig(config: LayerConfig): void {
-        let group = this.findGroup(config.groupId);
+	public addLayerConfigGroups(groups: Array<LayerConfigGroup>): void {
+		for (let i = 0; i < groups.length; i++) {
+			this.addLayerConfigGroup(groups[i]);
+		}
+	}
 
-        if(!group && config.isBackground) {
-            group = this.groupBackgroundLayers;
-        }
-        
-        if(!group) {
-            group = this.groupNoCategory;
-        }
+	public addLayerConfigs(configs: Array<LayerConfig>): void {
+		for (let i = 0; i < configs.length; i++) {
+			const config = configs[i];
+			this.addLayerConfig(config);
+		}
+	}
 
-        group.addLayerConfig(config);
-        this.subscribeLayerConfig(config);
+	public addLayerConfig(config: LayerConfig): void {
+		let group = this.findGroup(config.groupId);
 
-        
-        let layerTags: string[] = config.tags;
-        if (layerTags) {
-            for (let x=0; x<layerTags.length; x++) {
-                let layerTag: string = layerTags[x];
-                let currenTags: string[] = get(this.tags);
-                if (currenTags.includes(layerTag) === false) {
-                    this.tags.set([...currenTags, layerTag]);
-                }
-            }
-        }
-    }
+		if (!group && config.isBackground) {
+			group = this.groupBackgroundLayers;
+		}
 
-    public removeLayerConfig(config: LayerConfig): void {
-        this.dispatch("layerRemoved", config);
-        const group = this.findGroup(config.groupId);
-        if (group) group.removeLayerConfig(config);
-        if (config.id) {
-            this.unsubscribers[config.id]();
-            delete this.unsubscribers[config.id];
-        }
-    }
+		if (!group) {
+			group = this.groupNoCategory;
+		}
 
-    private subscribeLayerConfig(config: LayerConfig): void {
-        const unsubscribe = config.added.subscribe((added) => {
-            if(!config.ready) {
-                return;
-            }
+		group.addLayerConfig(config);
+		this.subscribeLayerConfig(config);
 
-            if(added) {
-                this.dispatch("layerAdded", config);
-            } else {
-                this.dispatch("layerRemoved", config);
-            }
-        })
+		let layerTags: string[] = config.tags;
+		if (layerTags) {
+			for (let x = 0; x < layerTags.length; x++) {
+				let layerTag: string = layerTags[x];
+				let currenTags: string[] = get(this.tags);
+				if (currenTags.includes(layerTag) === false) {
+					this.tags.set([...currenTags, layerTag]);
+				}
+			}
+		}
+	}
 
-        this.unsubscribers[config.id] = unsubscribe;
-        config.ready = true;
+	public removeLayerConfig(config: LayerConfig): void {
+		this.dispatch("layerRemoved", config);
+		const group = this.findGroup(config.groupId);
+		if (group) group.removeLayerConfig(config);
+		if (config.id) {
+			this.unsubscribers[config.id]();
+			delete this.unsubscribers[config.id];
+		}
+	}
 
-        if(config.defaultAddToManager === true) {
-            config.added.set(true);
-        }
-    }
+	private subscribeLayerConfig(config: LayerConfig): void {
+		const unsubscribe = config.added.subscribe((added) => {
+			if (!config.ready) {
+				return;
+			}
+
+			if (added) {
+				this.dispatch("layerAdded", config);
+			} else {
+				this.dispatch("layerRemoved", config);
+			}
+		});
+
+		this.unsubscribers[config.id] = unsubscribe;
+		config.ready = true;
+
+		if (config.defaultAddToManager === true) {
+			config.added.set(true);
+		}
+	}
 }

@@ -8,7 +8,7 @@ export class FeatureInfoResults {
 
 	constructor() {
 		this.loading = writable<boolean>(false);
-        this.results = writable<Array<FeatureInfo>>();
+		this.results = writable<Array<FeatureInfo>>();
 		this.selectedFeatureColor = writable<string>("#ffa31b");
 	}
 

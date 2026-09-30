@@ -2,9 +2,7 @@ import { get, writable, type Unsubscriber, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
 import type { GeographicLocation } from "$lib/map-core/geographic-location";
 
-
 export class CesiumIcon<F> {
-
 	public location: GeographicLocation;
 	public feature: F;
 	public billboard!: Cesium.Entity;
@@ -46,7 +44,8 @@ export class CesiumIcon<F> {
 
 		this.hoveredUnsubscriber = this.hovered.subscribe((hovered) => {
 			if (this.billboard.billboard) {
-				this.billboard.billboard.color = hovered || get(this.active) ? this.activeColor : this.color;
+				this.billboard.billboard.color =
+					hovered || get(this.active) ? this.activeColor : this.color;
 			}
 		});
 
@@ -81,7 +80,7 @@ export class CesiumIcon<F> {
 			cartesian3,
 			(magnitude + this.iconHeight) / magnitude,
 			cartesian3
-		); 
+		);
 		this.billboard = new Cesium.Entity({
 			position: cartesian3,
 			billboard: {
@@ -90,9 +89,8 @@ export class CesiumIcon<F> {
 				pixelOffset: new Cesium.Cartesian2(0, -22),
 				pixelOffsetScaleByDistance: nearFarScalar,
 				scaleByDistance: nearFarScalar,
-				heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+				heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND
 			}
 		});
 	}
-
 }

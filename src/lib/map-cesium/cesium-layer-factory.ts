@@ -1,5 +1,5 @@
 import type { Cesium3DTileset, ImageryLayer } from "cesium";
-import type { LayerConfig } from "$lib/map-core/layer-config"; 
+import type { LayerConfig } from "$lib/map-core/layer-config";
 import type { CesiumLayer } from "./layers/cesium-layer";
 import type { Map } from "./map";
 
@@ -61,15 +61,15 @@ export class CesiumLayerFactory {
 		}
 	}
 
-	private createCustom(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> | undefined{;
-		const wells = layerConfig.settings["wells"] ?? "false"
-		const i3s = layerConfig.settings["i3s"] ?? "false"
-	
-		if(wells === "true") {
+	private createCustom(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> | undefined {
+		const wells = layerConfig.settings["wells"] ?? "false";
+		const i3s = layerConfig.settings["i3s"] ?? "false";
+
+		if (wells === "true") {
 			return this.createWellsLayer(map, layerConfig);
 		}
 
-		if(i3s === "true") {
+		if (i3s === "true") {
 			return this.createI3sLayer(map, layerConfig);
 		}
 

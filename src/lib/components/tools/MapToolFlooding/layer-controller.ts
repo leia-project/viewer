@@ -7,8 +7,6 @@ import type { OgcFeaturesLayer } from "../../../map-cesium/layers/ogc-features-l
 import { LayerConfigGroup } from "$lib/map-core/layer-config-group";
 import type { OgcStyleCondition } from "../../../map-cesium/providers/ogc-features-provider";
 
-
-
 export interface FloodToolSettings {
 	scenariosBaseUrl: string;
 	breachUrl: string;
@@ -30,25 +28,32 @@ export interface Breach {
 	};
 }
 
-
 export class FloodLayerController {
-
 	private map: Map;
 	public activeBreach: Writable<Breach | undefined>;
 	public selectedScenario: Writable<string | undefined> = writable(undefined);
-	
+
 	public time: Writable<number> = writable(0);
 	public minTime: Writable<number> = writable(0);
 	public maxTime: Writable<number> = writable(1);
 	public stepInterval: Writable<number> = writable(0.05);
 
-	public layerConfigGroup: LayerConfigGroup = new LayerConfigGroup("overstromingen", "Overstromingen");
+	public layerConfigGroup: LayerConfigGroup = new LayerConfigGroup(
+		"overstromingen",
+		"Overstromingen"
+	);
 	public iconLayer: IconLayer<Breach>;
 	public floodLayer: FloodLayer;
 	//public roadsLayer?: OgcFeaturesLayer;
 	public floodedRoadsLayer: OgcFeaturesLayer;
 
-	constructor(map: Map, settings: FloodToolSettings, activeBreach: Writable<Breach | undefined>, selectedScenario: Writable<string | undefined>, label: string = "tools.flooding.label") {
+	constructor(
+		map: Map,
+		settings: FloodToolSettings,
+		activeBreach: Writable<Breach | undefined>,
+		selectedScenario: Writable<string | undefined>,
+		label: string = "tools.flooding.label"
+	) {
 		this.map = map;
 		this.activeBreach = activeBreach;
 		this.selectedScenario = selectedScenario;
@@ -56,9 +61,12 @@ export class FloodLayerController {
 		this.map.layerLibrary.addLayerConfigGroup(this.layerConfigGroup);
 		this.iconLayer = this.addIconLayer();
 		this.floodLayer = this.addFloodLayer(settings.scenariosBaseUrl);
-		this.floodedRoadsLayer = this.addFloodedRoadsLayer(settings.floodedRoadsUrl, settings.floodedRoadsStyle);
+		this.floodedRoadsLayer = this.addFloodedRoadsLayer(
+			settings.floodedRoadsUrl,
+			settings.floodedRoadsStyle
+		);
 		this.floodedRoadsLayer.ensureLoaded();
-		
+
 		this.activeBreach.subscribe(() => {
 			this.selectedScenario.set(undefined);
 			this.floodLayer.clear();
@@ -72,17 +80,17 @@ export class FloodLayerController {
 		});
 		this.time.subscribe((time) => {
 			const breach = get(this.activeBreach);
-			const scenario = get(this.selectedScenario) || 'geen_scenario';
+			const scenario = get(this.selectedScenario) || "geen_scenario";
 			if (breach && scenario) {
 				const scenarioId = `${breach?.properties.dijkring}_${breach?.properties.name}_${scenario}`;
-				const timestring = (Math.round(time) * 6).toString().padStart(5, "0")
+				const timestring = (Math.round(time) * 6).toString().padStart(5, "0");
 				const parameters = {
-					scenario: scenarioId, 
-					timestep: timestring, 
+					scenario: scenarioId,
+					timestep: timestring,
 					limit: "666"
-				}
+				};
 				this.floodedRoadsLayer.source.switchUrl(settings.floodedRoadsUrl, parameters);
-			};
+			}
 		});
 	}
 
@@ -92,7 +100,6 @@ export class FloodLayerController {
 		this.floodedRoadsLayer?.visible.set(true);
 	}
 
-	
 	public addBreaches(breaches: Array<Breach>): void {
 		this.iconLayer?.loadFeatures(breaches);
 	}
@@ -110,7 +117,7 @@ export class FloodLayerController {
 			scenario: scenarioId, //breach.properties.scenarios[0],
 			timestep: (Math.round(get(this.time)) * 6).toString().padStart(5, "0"),
 			limit: "500"
-		}
+		};
 		this.floodedRoadsLayer?.source.switchUrl(endpoint, parameters);
 	}
 
@@ -123,7 +130,7 @@ export class FloodLayerController {
 			groupId: this.layerConfigGroup.id,
 			isBackground: false,
 			defaultOn: false,
-			defaultAddToManager: true,
+			defaultAddToManager: true
 		});
 		this.map.layerLibrary.addLayerConfig(layerConfig);
 		layerConfig.added.set(true);
@@ -194,7 +201,7 @@ export class FloodLayerController {
 					tileWidth: 40640,
 					style: style
 				},
-				parameters: { 
+				parameters: {
 					scenario: get(this.selectedScenario)?.toString(), //"26_NzSch-dp_160_300",
 					// "scenario": layerId, // scenario not yet formatted correctly in data
 					timestep: (Math.round(get(this.time)) * 6).toString().padStart(5, "0"),
@@ -209,7 +216,9 @@ export class FloodLayerController {
 		});
 		this.map.layerLibrary.addLayerConfig(layerConfig);
 		layerConfig.added.set(true);
-		const floodedRoadsLayer = get(this.map.layers).find((l) => l.id === layerConfig.id) as OgcFeaturesLayer;
+		const floodedRoadsLayer = get(this.map.layers).find(
+			(l) => l.id === layerConfig.id
+		) as OgcFeaturesLayer;
 		return floodedRoadsLayer;
 	}
 }

@@ -12,10 +12,16 @@
 	import MeasureEntry from "./MeasureEntry.svelte";
 	import Divider from "$lib/components/theme/Divider/Divider.svelte";
 
-	const { registerTool, selectedTool, map, disableInteractionFromOtherTools, enableInteractionsFromOtherTools } = getContext<any>("mapTools");
+	const {
+		registerTool,
+		selectedTool,
+		map,
+		disableInteractionFromOtherTools,
+		enableInteractionsFromOtherTools
+	} = getContext<any>("mapTools");
 	const cesiumMap: Map = map;
 	let loaded: boolean = false;
-	
+
 	export let id: string;
 	export let label: string;
 	export let icon: any = Ruler;
@@ -49,7 +55,7 @@
 	$: textMeasurementPoints = $_("tools.measure.points");
 
 	const tool = new MapToolMenuOption(id, icon, label, showOnBottom);
-	
+
 	let measurementId: number = 0;
 	let edittingId = writable<number | undefined>(undefined);
 	let activeMeasurement = writable<MapMeasurement | undefined>(undefined);
@@ -220,13 +226,13 @@
 				measurementId++;
 				const newMeasurement = new MapMeasurement(measurementId, cesiumMap);
 				newMeasurement.fromStorage(objects[i]);
-				$measurements.push(newMeasurement);				
+				$measurements.push(newMeasurement);
 			}
 		}
 	}
 </script>
 
-{#if $selectedTool === tool }
+{#if $selectedTool === tool}
 	<div class="wrapper">
 		<div class="measurements">
 			{#if $measurements.length == 0}

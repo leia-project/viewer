@@ -3,7 +3,6 @@ import * as Cesium from "cesium";
 import * as turf from "@turf/turf";
 import type { Map } from "../map";
 
-
 interface OgcFeaturesTile {
 	x: number;
 	y: number;
@@ -21,8 +20,8 @@ interface Collection {
 	extent: {
 		spatial: {
 			bbox: Array<[number, number, number, number]>;
-		}
-	}
+		};
+	};
 }
 
 export interface OgcStyleCondition {
@@ -41,7 +40,6 @@ interface OgcFeaturesConstructorOptions {
 	allowPicking: boolean;
 	style: Array<OgcStyleCondition>;
 }
-
 
 class RateLimiter {
 	private currentTask: Promise<void> | null = null;
@@ -82,14 +80,13 @@ class RateLimiter {
 	}
 }
 
-
 /**
  * Represents a provider that draws Cesium primitives from geometrical features
  * retrieved from a OGC API - Features server.
- * 
+ *
  * This class is initialized with the URL of the Features service and optional parameters
  * for controlling the loading and display of the Features features.
- * 
+ *
  * @class OgcFeaturesProviderCesium
  * @param {string} url - The URL of the Features service.
  * @param {number} heightStartLoading - The height at which to start loading the tiles.
@@ -98,7 +95,6 @@ class RateLimiter {
  */
 
 export class OgcFeaturesProviderCesium {
-
 	public map: Map;
 	private url: string;
 	public options: Partial<OgcFeaturesConstructorOptions>;
@@ -115,18 +111,20 @@ export class OgcFeaturesProviderCesium {
 	public dynamicLoading: boolean = false;
 	private OgcFeaturesLoaderCesium!: OgcFeaturesLoaderCesium;
 	public allowPicking: boolean;
-	
+
 	public setupPromise: Promise<void> | undefined;
 	public showing: boolean = false;
 
 	private switchRateLimiter: RateLimiter = new RateLimiter(500);
 	private switchAbortController: AbortController | undefined;
 
-	constructor(map: Map, url: string, options: Partial<OgcFeaturesConstructorOptions>, parameters?: Record<string, string>) {
-		const {
-			collectionId = "",
-			allowPicking = true
-        } = options;
+	constructor(
+		map: Map,
+		url: string,
+		options: Partial<OgcFeaturesConstructorOptions>,
+		parameters?: Record<string, string>
+	) {
+		const { collectionId = "", allowPicking = true } = options;
 
 		// todo: parse URL to recognize if it already contains the collection name (e.g. /collections/{collection}/items)
 		this.map = map;
@@ -137,7 +135,6 @@ export class OgcFeaturesProviderCesium {
 
 		this.collectionId = collectionId;
 		this.allowPicking = allowPicking;
-
 	}
 
 	public async init(layerShown: boolean = true): Promise<void> {
@@ -146,11 +143,12 @@ export class OgcFeaturesProviderCesium {
 		this.setupPromise = undefined;
 		this.clear();
 		await this.setup();
-		if (this.showing && layerShown) { // If hide() may have been called before setup was done
+		if (this.showing && layerShown) {
+			// If hide() may have been called before setup was done
 			this.show();
 		}
 	}
-	
+
 	public switchUrl(url: string, parameters?: Record<string, string>): void {
 		this.switchRateLimiter.addTask(() => this.switchUrlTask(url, parameters), parameters);
 	}
@@ -222,7 +220,9 @@ export class OgcFeaturesProviderCesium {
 				await this.getMetadata();
 				this.dynamicLoading = await this.dynamicLoadingNeeded();
 				// console.log('Dynamic loading needed:', this.dynamicLoading);
-				this.OgcFeaturesLoaderCesium = this.dynamicLoading ? new OgcFeaturesLoaderCesiumDynamic(this) : new OgcFeaturesLoaderCesiumStatic(this);
+				this.OgcFeaturesLoaderCesium = this.dynamicLoading
+					? new OgcFeaturesLoaderCesiumDynamic(this)
+					: new OgcFeaturesLoaderCesiumStatic(this);
 			})();
 		}
 		return this.setupPromise;
@@ -235,10 +235,10 @@ export class OgcFeaturesProviderCesium {
 			const json = await req.json();
 			const collections = json.collections as Array<Collection>;
 
-			this.availableCollections = collections.filter(col => col.id !== "");
+			this.availableCollections = collections.filter((col) => col.id !== "");
 
 			if (this.collectionId) {
-				this.collection = this.availableCollections.find(col => col.id === this.collectionId);
+				this.collection = this.availableCollections.find((col) => col.id === this.collectionId);
 			}
 
 			if (!this.collection) {
@@ -275,21 +275,22 @@ export class OgcFeaturesProviderCesium {
 		// 	return false;
 		// }
 	}
-	
-	
-	public async getFeature(bbox?: string, parameters?: Record<string, string>): Promise<Array<GeoJSONFeature> | undefined> {
+
+	public async getFeature(
+		bbox?: string,
+		parameters?: Record<string, string>
+	): Promise<Array<GeoJSONFeature> | undefined> {
 		let params = new URLSearchParams({
-			f: this.outputFormat || 'json',
+			f: this.outputFormat || "json",
 			limit: this.maxFeatures.toString()
 		});
-		if (bbox) params.append('bbox', bbox);
+		if (bbox) params.append("bbox", bbox);
 		if (parameters) {
-			Object.keys(parameters).forEach(key => {
+			Object.keys(parameters).forEach((key) => {
 				// overwrite existing params with new ones or append
 				if (key in params.keys()) {
 					params.set(key, parameters[key]);
-				}
-				else {
+				} else {
 					params.append(key, parameters[key]);
 				}
 			});
@@ -301,7 +302,7 @@ export class OgcFeaturesProviderCesium {
 				signal: this.switchAbortController?.signal
 			});
 			if (!response.ok) {
-				throw new Error('Network response was not ok');
+				throw new Error("Network response was not ok");
 			}
 			const features = await response.json();
 			return features.features;
@@ -310,47 +311,47 @@ export class OgcFeaturesProviderCesium {
 		}
 	}
 
-
-	public async featuresInPolygon(polygon: Array<[lon: number, lat: number]>): Promise<Array<GeoJSONFeature> | undefined> {
+	public async featuresInPolygon(
+		polygon: Array<[lon: number, lat: number]>
+	): Promise<Array<GeoJSONFeature> | undefined> {
 		await this.setup();
 		if (this.OgcFeaturesLoaderCesium instanceof OgcFeaturesLoaderCesiumStatic) {
 			return this.OgcFeaturesLoaderCesium.getFeaturesInPolygon(polygon);
-		}
-		else {
+		} else {
 			console.log("Dynamic loading not yet supported for featuresInPolygon");
 		}
 	}
 
-	public async getPolygonIntersect(polygon: Array<[lon: number, lat: number]>): Promise<string | undefined> {
+	public async getPolygonIntersect(
+		polygon: Array<[lon: number, lat: number]>
+	): Promise<string | undefined> {
 		try {
-			const response = await fetch(`${this.url}`, { //?${params.toString()}
-				method: 'POST',
+			const response = await fetch(`${this.url}`, {
+				//?${params.toString()}
+				method: "POST",
 				headers: {
-					'Content-Type': 'application/json'
+					"Content-Type": "application/json"
 				},
 				body: JSON.stringify({
 					polgyon: polygon
 				})
 			});
 			if (!response.ok) {
-				throw new Error('Network response was not ok');
+				throw new Error("Network response was not ok");
 			}
 			const features = await response.text();
 			return features;
 		} catch (error) {
-			console.error('Error fetching features:', error);
+			console.error("Error fetching features:", error);
 		}
 	}
-
 }
 
-
-
-
 abstract class OgcFeaturesLoaderCesium {
-
 	public OgcFeatures: OgcFeaturesProviderCesium;
-	public primitives: Array<Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive> = [];
+	public primitives: Array<
+		Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive
+	> = [];
 	public loadedFeatures: Array<string> = [];
 	private terrainUnsubscriber: Unsubscriber | undefined;
 	private cachedTerrainProvider: Cesium.TerrainProvider | undefined;
@@ -361,7 +362,7 @@ abstract class OgcFeaturesLoaderCesium {
 
 	public activate(): void {
 		this.addPrimitives(this.primitives);
-		this.primitives.forEach(p => p.show = true);
+		this.primitives.forEach((p) => (p.show = true));
 		this.terrainUnsubscriber?.();
 		this.terrainUnsubscriber = this.OgcFeatures.map.options.terrainSwitchReady.subscribe((b) => {
 			const provider = this.OgcFeatures.map.viewer.terrainProvider;
@@ -373,18 +374,23 @@ abstract class OgcFeaturesLoaderCesium {
 	}
 
 	public deactivate(): void {
-		this.primitives.forEach(p => p.show = false);
+		this.primitives.forEach((p) => (p.show = false));
 		this.terrainUnsubscriber?.();
 	}
 
 	protected abstract onTerrainSwitch(): void;
 
-	protected addPrimitives(primitives: Array<Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive>): void {
+	protected addPrimitives(
+		primitives: Array<Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive>
+	): void {
 		const mapPrimitives = this.OgcFeatures.map.viewer.scene.primitives;
 		const mapGroundPrimitives = this.OgcFeatures.map.viewer.scene.groundPrimitives;
 		for (const primitive of primitives) {
 			if (!primitive || primitive.isDestroyed()) continue;
-			if (primitive instanceof Cesium.GroundPrimitive || primitive instanceof Cesium.GroundPolylinePrimitive) {
+			if (
+				primitive instanceof Cesium.GroundPrimitive ||
+				primitive instanceof Cesium.GroundPolylinePrimitive
+			) {
 				if (!mapGroundPrimitives.contains(primitive)) {
 					mapGroundPrimitives.add(primitive);
 					if (!this.primitives.includes(primitive)) this.primitives.push(primitive);
@@ -399,76 +405,96 @@ abstract class OgcFeaturesLoaderCesium {
 		this.OgcFeatures.map.refresh();
 	}
 
-	public clearPrimitives(primitives?: Array<Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive>): void {
-		if (!primitives) primitives = this.primitives
+	public clearPrimitives(
+		primitives?: Array<Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive>
+	): void {
+		if (!primitives) primitives = this.primitives;
 		const mapPrimitives = this.OgcFeatures.map.viewer.scene.primitives;
 		const mapGroundPrimitives = this.OgcFeatures.map.viewer.scene.groundPrimitives;
 		//instead of destroying all primitives instantly, only destroy the old primitives later
 		for (const primitive of primitives) {
 			if (!primitive || primitive.isDestroyed()) continue;
-			if (primitive instanceof Cesium.GroundPrimitive || primitive instanceof Cesium.GroundPolylinePrimitive) {
+			if (
+				primitive instanceof Cesium.GroundPrimitive ||
+				primitive instanceof Cesium.GroundPolylinePrimitive
+			) {
 				if (mapGroundPrimitives.contains(primitive)) mapGroundPrimitives.remove(primitive);
 			} else {
 				if (mapPrimitives.contains(primitive)) mapPrimitives.remove(primitive);
 			}
-			this.primitives = this.primitives.filter(p => p !== primitive);
+			this.primitives = this.primitives.filter((p) => p !== primitive);
 		}
 		this.OgcFeatures.map.refresh();
 	}
-
 
 	public destroy(): void {
 		this.deactivate();
 		this.loadedFeatures = [];
 		this.clearPrimitives();
 	}
-	
+
 	public abstract sourceSwitch(): Promise<void>;
 
-	protected createPrimitives(features: Array<GeoJSONFeature>, tileHeight: number, perInstanceTerrainSample: boolean = false): Array<Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive | Cesium.Primitive> {
+	protected createPrimitives(
+		features: Array<GeoJSONFeature>,
+		tileHeight: number,
+		perInstanceTerrainSample: boolean = false
+	): Array<Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive | Cesium.Primitive> {
 		const polygonInstances: Array<Cesium.GeometryInstance> = [];
 		const polylineInstances: Array<Cesium.GeometryInstance> = [];
 		features.forEach((feature) => {
-			if (this.loadedFeatures.includes(feature.id)) return
+			if (this.loadedFeatures.includes(feature.id)) return;
 			this.loadedFeatures.push(feature.id);
 			const colorAttribute = this.getColorGeometryInstanceAttribute(feature.properties);
 			let instance;
 			switch (feature.geometry.type) {
-				case 'Point':
+				case "Point":
 					const geometryInstance = new Cesium.GeometryInstance({
 						geometry: new Cesium.CircleGeometry({
 							center: Cesium.Cartesian3.fromDegrees(...feature.geometry.coordinates),
-							radius: 100,
+							radius: 100
 						}),
 						attributes: {
-							color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.ORANGE),
-						},
+							color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.ORANGE)
+						}
 					});
 					break;
-                case 'LineString':
-                    instance = this.getGroundLineGeometryInstance(feature.geometry.coordinates, feature.properties, colorAttribute);
+				case "LineString":
+					instance = this.getGroundLineGeometryInstance(
+						feature.geometry.coordinates,
+						feature.properties,
+						colorAttribute
+					);
 					polylineInstances.push(instance);
-                    break;
-				case 'MultiLineString':
-					for (let i=0; i < feature.geometry.coordinates.length; i++) {
+					break;
+				case "MultiLineString":
+					for (let i = 0; i < feature.geometry.coordinates.length; i++) {
 						const uniqueProperties = { ...feature.properties, hidden: i };
-						const instance = this.getGroundLineGeometryInstance(feature.geometry.coordinates[i], uniqueProperties, colorAttribute);
+						const instance = this.getGroundLineGeometryInstance(
+							feature.geometry.coordinates[i],
+							uniqueProperties,
+							colorAttribute
+						);
 						polylineInstances.push(instance);
 					}
 					break;
-				case 'Polygon':
+				case "Polygon":
 					/*if (perInstanceTerrainSample && this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
 						let terrainHeight = await Cesium.sampleTerrainMostDetailed(this.OgcFeatures.map.viewer.terrainProvider, [Cesium.Cartographic.fromDegrees(feature.geometry.coordinates[0][0][0], feature.geometry.coordinates[0][0][1])]);
 						if (terrainHeight[0]) height = terrainHeight[0].height;
 					}*/
-					instance = this.getGroundPolygonGeometryInstance(feature.geometry.coordinates, feature.properties, colorAttribute);
+					instance = this.getGroundPolygonGeometryInstance(
+						feature.geometry.coordinates,
+						feature.properties,
+						colorAttribute
+					);
 					break;
-				case 'MultiPolygon':
+				case "MultiPolygon":
 					/*if (perInstanceTerrainSample && this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
 						let terrainHeight = await Cesium.sampleTerrainMostDetailed(this.OgcFeatures.map.viewer.terrainProvider, [Cesium.Cartographic.fromDegrees(feature.geometry.coordinates[0][0][0][0], feature.geometry.coordinates[0][0][0][1])]);
 						if (terrainHeight[0]) height = terrainHeight[0].height;
 					}*/
-					for (let i=0; i < feature.geometry.coordinates.length; i++) {
+					for (let i = 0; i < feature.geometry.coordinates.length; i++) {
 						const uniqueProperties = { ...feature.properties, hidden: i };
 						//addPolygon(feature.geometry.coordinates[i], height, uniqueProperties, colorAttribute);
 					}
@@ -476,8 +502,10 @@ abstract class OgcFeaturesLoaderCesium {
 			}
 		});
 
-		const primitives: Array<Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive | Cesium.Primitive> = [];
-		polylineInstances.filter(instance => instance !== undefined);
+		const primitives: Array<
+			Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive | Cesium.Primitive
+		> = [];
+		polylineInstances.filter((instance) => instance !== undefined);
 		if (polylineInstances.length > 0) {
 			primitives.push(
 				new Cesium.GroundPolylinePrimitive({
@@ -487,9 +515,9 @@ abstract class OgcFeaturesLoaderCesium {
 					allowPicking: false,
 					show: true
 				})
-			)
+			);
 		}
-		polygonInstances.filter(instance => instance !== undefined);
+		polygonInstances.filter((instance) => instance !== undefined);
 		if (polygonInstances.length > 0) {
 			const polygonAppearance = new Cesium.PerInstanceColorAppearance({
 				translucent: false
@@ -502,12 +530,14 @@ abstract class OgcFeaturesLoaderCesium {
 					releaseGeometryInstances: true,
 					allowPicking: this.OgcFeatures.allowPicking
 				})
-			)
+			);
 		}
 		return primitives;
 	}
 
-	private getColorGeometryInstanceAttribute(properties: any): Cesium.ColorGeometryInstanceAttribute {
+	private getColorGeometryInstanceAttribute(
+		properties: any
+	): Cesium.ColorGeometryInstanceAttribute {
 		let color = Cesium.Color.BLACK;
 		if (this.OgcFeatures.style) {
 			for (const styleCondition of this.OgcFeatures.style) {
@@ -518,7 +548,7 @@ abstract class OgcFeaturesLoaderCesium {
 					// Find the two stops between which the property value falls
 					let lowerStop = stops[0];
 					let upperStop = stops[stops.length - 1];
-	
+
 					for (let i = 0; i < stops.length - 1; i++) {
 						if (propertyValue >= stops[i].value && propertyValue <= stops[i + 1].value) {
 							lowerStop = stops[i];
@@ -539,8 +569,12 @@ abstract class OgcFeaturesLoaderCesium {
 		return Cesium.ColorGeometryInstanceAttribute.fromColor(color);
 	}
 
-	private getGroundLineGeometryInstance(coordinates: Array<[lon: number, number: number]>, properties: any, color: Cesium.ColorGeometryInstanceAttribute): Cesium.GeometryInstance {
-		const positions = coordinates.map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1]));
+	private getGroundLineGeometryInstance(
+		coordinates: Array<[lon: number, number: number]>,
+		properties: any,
+		color: Cesium.ColorGeometryInstanceAttribute
+	): Cesium.GeometryInstance {
+		const positions = coordinates.map((coord) => Cesium.Cartesian3.fromDegrees(coord[0], coord[1]));
 		const props = this.OgcFeatures.allowPicking ? properties : undefined;
 		const polylineInstance = new Cesium.GeometryInstance({
 			geometry: new Cesium.GroundPolylineGeometry({
@@ -555,14 +589,20 @@ abstract class OgcFeaturesLoaderCesium {
 		return polylineInstance;
 	}
 
-	private getGroundPolygonGeometryInstance(coordinates: Array<Array<[lon: number, lat: number]>>, properties: any, color: Cesium.ColorGeometryInstanceAttribute): Cesium.GeometryInstance {
-		const positions = coordinates[0].map(coord => Cesium.Cartesian3.fromDegrees(coord[0], coord[1]));
+	private getGroundPolygonGeometryInstance(
+		coordinates: Array<Array<[lon: number, lat: number]>>,
+		properties: any,
+		color: Cesium.ColorGeometryInstanceAttribute
+	): Cesium.GeometryInstance {
+		const positions = coordinates[0].map((coord) =>
+			Cesium.Cartesian3.fromDegrees(coord[0], coord[1])
+		);
 		const props = this.OgcFeatures.allowPicking ? properties : undefined;
 		const polygonIstance = new Cesium.GeometryInstance({
 			geometry: Cesium.PolygonGeometry.fromPositions({
 				positions: positions,
-				vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
-				perPositionHeight: true,
+				vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
+				perPositionHeight: true
 			}),
 			attributes: {
 				color: color,
@@ -652,19 +692,16 @@ abstract class OgcFeaturesLoaderCesium {
 		return primitives;
 	}
 	*/
-
 }
 
-
 export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
-
 	private features: Array<GeoJSONFeature> | undefined;
 	//private primitives: Array<Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive> | undefined;
 
 	constructor(OgcFeatures: OgcFeaturesProviderCesium) {
 		super(OgcFeatures);
 	}
-	
+
 	public async activate(): Promise<void> {
 		await this.loadFeatures();
 		super.activate();
@@ -679,7 +716,7 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 		this.loadedFeatures = [];
 		if (this.features) {
 			const oldPrimitives = [...this.primitives];
-			const delay = Math.min(50 + ( Math.floor(this.features.length * 0.25)), 250);
+			const delay = Math.min(50 + Math.floor(this.features.length * 0.25), 250);
 			if (oldPrimitives.length > 0) {
 				setTimeout(() => {
 					this.clearPrimitives(oldPrimitives);
@@ -699,23 +736,27 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 		this.refreshPrimitives();
 	}
 
-	public async getFeaturesInPolygon(polygon: Array<[lon: number, lat: number]>): Promise<Array<GeoJSONFeature>> {
+	public async getFeaturesInPolygon(
+		polygon: Array<[lon: number, lat: number]>
+	): Promise<Array<GeoJSONFeature>> {
 		await this.loadFeatures();
 		if (!this.features) return [];
 		const excavationPolygon = turf.polygon([polygon]);
-		return this.features.filter(feature => {
+		return this.features.filter((feature) => {
 			const geometry = feature.geometry;
 			if (geometry.type === "Point") {
 				const point = turf.point(geometry.coordinates);
 				return turf.booleanPointInPolygon(point, excavationPolygon);
 			} else if (geometry.type === "Polygon") {
-				const turfCoords = geometry.coordinates[0].map(coord => [coord[0], coord[1]]);
+				const turfCoords = geometry.coordinates[0].map((coord) => [coord[0], coord[1]]);
 				const featurePolygon = turf.polygon([turfCoords]);
 				const contains = turf.booleanContains(featurePolygon, excavationPolygon);
 				const overlaps = turf.booleanOverlap(featurePolygon, excavationPolygon);
 				return contains || overlaps;
 			} else if (geometry.type === "MultiPolygon") {
-				const turfCoords = geometry.coordinates.map(coords => coords[0].map(coord => [coord[0], coord[1]]));
+				const turfCoords = geometry.coordinates.map((coords) =>
+					coords[0].map((coord) => [coord[0], coord[1]])
+				);
 				const featurePolygon = turf.multiPolygon([turfCoords]);
 				const contains = turf.booleanContains(featurePolygon, excavationPolygon);
 				const overlaps = turf.booleanOverlap(featurePolygon, excavationPolygon);
@@ -726,10 +767,7 @@ export class OgcFeaturesLoaderCesiumStatic extends OgcFeaturesLoaderCesium {
 	}
 }
 
-
-
 export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
-
 	private heightStartLoading: number;
 	private viewDistance: number;
 	private tileSizeRad: number;
@@ -741,11 +779,7 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 
 	constructor(OgcFeatures: OgcFeaturesProviderCesium) {
 		super(OgcFeatures);
-		const {
-            heightStartLoading = 1100,
-            tileWidth = 512,
-            cacheBuster = 5000,
-        } = OgcFeatures.options;
+		const { heightStartLoading = 1100, tileWidth = 512, cacheBuster = 5000 } = OgcFeatures.options;
 		this.heightStartLoading = heightStartLoading;
 		this.viewDistance = heightStartLoading * 2;
 		this.tileSizeRad = tileWidth / 6378137.0; // to radians
@@ -779,29 +813,38 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 	private async onCameraChanged(): Promise<void> {
 		if (this.blocking || !this.OgcFeatures.showing) return;
 		this.blocking = true;
-		setTimeout(() => this.blocking = false, 3500);
+		setTimeout(() => (this.blocking = false), 3500);
 		await this.bustCache();
 		const cameraHeight = this.OgcFeatures.map.viewer.camera.positionCartographic.height;
 		if (cameraHeight > this.heightStartLoading) {
 			//this.primitiveCollection.show = false;
-			console.log("camera too high")
+			console.log("camera too high");
 			return;
 		}
 		const targetArea = this.getTargetRectangle();
-		const tileIndicesInView = this.getTileIndices(targetArea, this.OgcFeatures.map.viewer.camera.positionCartographic);
-		const needLoading = tileIndicesInView.filter(tile => !this.loadedTiles.some(loadedTile => loadedTile.x === tile[0] && loadedTile.y === tile[1]));
-		needLoading.forEach(tile => {
+		const tileIndicesInView = this.getTileIndices(
+			targetArea,
+			this.OgcFeatures.map.viewer.camera.positionCartographic
+		);
+		const needLoading = tileIndicesInView.filter(
+			(tile) =>
+				!this.loadedTiles.some((loadedTile) => loadedTile.x === tile[0] && loadedTile.y === tile[1])
+		);
+		needLoading.forEach((tile) => {
 			const newTile = {
 				x: tile[0],
 				y: tile[1],
-				center: Cesium.Cartesian3.fromRadians(tile[0] * this.tileSizeRad + this.tileSizeRad/2, tile[1] * this.tileSizeRad + this.tileSizeRad/2),
+				center: Cesium.Cartesian3.fromRadians(
+					tile[0] * this.tileSizeRad + this.tileSizeRad / 2,
+					tile[1] * this.tileSizeRad + this.tileSizeRad / 2
+				),
 				primitives: [],
 				ids: [],
 				size: 0,
 				destroyed: false
-			}
+			};
 			this.loadedTiles.push(newTile);
-			this.loadTile(newTile)
+			this.loadTile(newTile);
 		});
 	}
 
@@ -816,12 +859,19 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 			const cornerCartesian = Cesium.Cartographic.toCartesian(cornerCartographic);
 			const distance = Cesium.Cartesian3.distance(cornerCartesian, cameraPosition);
 			if (distance > thresholdDistance) {
-				const direction = Cesium.Cartesian3.normalize(Cesium.Cartesian3.subtract(cornerCartesian, cameraPosition, new Cesium.Cartesian3()), new Cesium.Cartesian3());
-				const closerCartesian = Cesium.Cartesian3.add(cameraPosition, Cesium.Cartesian3.multiplyByScalar(direction, thresholdDistance, new Cesium.Cartesian3()), new Cesium.Cartesian3());
+				const direction = Cesium.Cartesian3.normalize(
+					Cesium.Cartesian3.subtract(cornerCartesian, cameraPosition, new Cesium.Cartesian3()),
+					new Cesium.Cartesian3()
+				);
+				const closerCartesian = Cesium.Cartesian3.add(
+					cameraPosition,
+					Cesium.Cartesian3.multiplyByScalar(direction, thresholdDistance, new Cesium.Cartesian3()),
+					new Cesium.Cartesian3()
+				);
 				return Cesium.Cartographic.fromCartesian(closerCartesian);
 			}
 			return cornerCartographic;
-		}
+		};
 
 		const nw = adjustCorner(new Cesium.Cartographic(viewRectangle.west, viewRectangle.north));
 		const ne = adjustCorner(new Cesium.Cartographic(viewRectangle.east, viewRectangle.north));
@@ -831,7 +881,10 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 		return Cesium.Rectangle.fromCartographicArray([nw, ne, se, sw]);
 	}
 
-	private getTileIndices(rectangle: Cesium.Rectangle, cameraPosition: Cesium.Cartographic): Array<[x: number, y: number]> {
+	private getTileIndices(
+		rectangle: Cesium.Rectangle,
+		cameraPosition: Cesium.Cartographic
+	): Array<[x: number, y: number]> {
 		const tileIndices: Array<[number, number]> = [];
 		const startX = Math.floor(rectangle.west / this.tileSizeRad);
 		const startY = Math.floor(rectangle.south / this.tileSizeRad);
@@ -839,16 +892,28 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 		const endY = Math.ceil(rectangle.north / this.tileSizeRad);
 		for (let x = startX; x < endX; x++) {
 			for (let y = startY; y < endY; y++) {
-				const rectangle = Cesium.Rectangle.fromRadians(x * this.tileSizeRad, y * this.tileSizeRad, (x + 1) * this.tileSizeRad, (y + 1) * this.tileSizeRad);
-				if (Cesium.Rectangle.intersection(this.OgcFeatures.boundingRect, rectangle)){
+				const rectangle = Cesium.Rectangle.fromRadians(
+					x * this.tileSizeRad,
+					y * this.tileSizeRad,
+					(x + 1) * this.tileSizeRad,
+					(y + 1) * this.tileSizeRad
+				);
+				if (Cesium.Rectangle.intersection(this.OgcFeatures.boundingRect, rectangle)) {
 					tileIndices.push([x, y]);
 				}
 			}
 		}
-		const cameraIndex = [Math.floor(cameraPosition.longitude / this.tileSizeRad), Math.floor(cameraPosition.latitude / this.tileSizeRad)];
+		const cameraIndex = [
+			Math.floor(cameraPosition.longitude / this.tileSizeRad),
+			Math.floor(cameraPosition.latitude / this.tileSizeRad)
+		];
 		tileIndices.sort((a, b) => {
-			const distA = Math.sqrt(Math.pow(a[0] - cameraIndex[0], 2) + Math.pow(a[1] - cameraIndex[1], 2));
-			const distB = Math.sqrt(Math.pow(b[0] - cameraIndex[0], 2) + Math.pow(b[1] - cameraIndex[1], 2));
+			const distA = Math.sqrt(
+				Math.pow(a[0] - cameraIndex[0], 2) + Math.pow(a[1] - cameraIndex[1], 2)
+			);
+			const distB = Math.sqrt(
+				Math.pow(b[0] - cameraIndex[0], 2) + Math.pow(b[1] - cameraIndex[1], 2)
+			);
 			return distA - distB;
 		});
 		return tileIndices;
@@ -858,40 +923,69 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 		const degrees = Cesium.Math.toDegrees(this.tileSizeRad);
 		const lon = [tile.x * degrees, (tile.x + 1) * degrees];
 		const lat = [tile.y * degrees, (tile.y + 1) * degrees];
-		const center = Cesium.Rectangle.center(Cesium.Rectangle.fromDegrees(lon[0], lat[0], lon[1], lat[1]));
+		const center = Cesium.Rectangle.center(
+			Cesium.Rectangle.fromDegrees(lon[0], lat[0], lon[1], lat[1])
+		);
 		let tileHeight = 0.1;
 		if (this.OgcFeatures.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
-			const terrainHeight = await Cesium.sampleTerrainMostDetailed(this.OgcFeatures.map.viewer.terrainProvider, [center]);
+			const terrainHeight = await Cesium.sampleTerrainMostDetailed(
+				this.OgcFeatures.map.viewer.terrainProvider,
+				[center]
+			);
 			tileHeight = terrainHeight[0].height + 1;
 		}
 		await this.fetchFeaturesForTile(tile, [...lon, ...lat], tileHeight);
 	}
 
-	private async fetchFeaturesForTile(tile: OgcFeaturesTile, coords: Array<number>, tileHeight: number): Promise<void> {
+	private async fetchFeaturesForTile(
+		tile: OgcFeaturesTile,
+		coords: Array<number>,
+		tileHeight: number
+	): Promise<void> {
 		if (tile.destroyed) return;
 		const bbox = `${coords[0]},${coords[2]},${coords[1]},${coords[3]}`;
 		const features = await this.OgcFeatures.getFeature(bbox, this.OgcFeatures.parameters);
 		if (!features) return;
 		if (features.length >= this.OgcFeatures.maxFeatures) {
 			const subTiles = [
-				[coords[0], coords[1], coords[2] - (coords[2] - coords[0]) / 2, coords[3] - (coords[3] - coords[1]) / 2],
-				[coords[0] + (coords[2] - coords[0]) / 2, coords[1], coords[2], coords[3] - (coords[3] - coords[1]) / 2],
-				[coords[0], coords[1] + (coords[3] - coords[1]) / 2, coords[2] - (coords[2] - coords[0]) / 2, coords[3]],
-				[coords[0] + (coords[2] - coords[0]) / 2, coords[1] + (coords[3] - coords[1]) / 2, coords[2], coords[3]]
-			]
-			subTiles.forEach(coordinates => this.fetchFeaturesForTile(tile, coordinates, tileHeight));
+				[
+					coords[0],
+					coords[1],
+					coords[2] - (coords[2] - coords[0]) / 2,
+					coords[3] - (coords[3] - coords[1]) / 2
+				],
+				[
+					coords[0] + (coords[2] - coords[0]) / 2,
+					coords[1],
+					coords[2],
+					coords[3] - (coords[3] - coords[1]) / 2
+				],
+				[
+					coords[0],
+					coords[1] + (coords[3] - coords[1]) / 2,
+					coords[2] - (coords[2] - coords[0]) / 2,
+					coords[3]
+				],
+				[
+					coords[0] + (coords[2] - coords[0]) / 2,
+					coords[1] + (coords[3] - coords[1]) / 2,
+					coords[2],
+					coords[3]
+				]
+			];
+			subTiles.forEach((coordinates) => this.fetchFeaturesForTile(tile, coordinates, tileHeight));
 			return;
 		}
-		tile.ids = features.map(feature => feature.id);
+		tile.ids = features.map((feature) => feature.id);
 		tile.size += features.length;
 		const primitives = this.createPrimitives(features, tileHeight);
 		if (primitives.length > 0 && !tile.destroyed) {
-			primitives.forEach(primitive => {
+			primitives.forEach((primitive) => {
 				tile.primitives.push(primitive);
 			});
 		}
 	}
-	
+
 	private bustCacheOldest(): void {
 		const totalFeaturesLoaded = this.loadedFeatures.length;
 		if (totalFeaturesLoaded > this.cacheBuster) {
@@ -908,13 +1002,21 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 			let tileToBust: OgcFeaturesTile | undefined;
 			let maxDistance = 0;
 			this.loadedTiles.forEach((tile, i) => {
-				const distance = Cesium.Cartesian3.distance(tile.center, this.OgcFeatures.map.viewer.camera.position);
+				const distance = Cesium.Cartesian3.distance(
+					tile.center,
+					this.OgcFeatures.map.viewer.camera.position
+				);
 				if (distance > maxDistance) {
 					maxDistance = distance;
 					tileToBust = tile;
 				}
 			});
-			if (!tileToBust || Cesium.Cartesian3.distance(tileToBust.center, this.OgcFeatures.map.viewer.camera.position) < this.heightStartLoading) break;
+			if (
+				!tileToBust ||
+				Cesium.Cartesian3.distance(tileToBust.center, this.OgcFeatures.map.viewer.camera.position) <
+					this.heightStartLoading
+			)
+				break;
 			this.destroyTile(tileToBust);
 			numberOfFeatures -= tileToBust.size;
 		}
@@ -923,20 +1025,20 @@ export class OgcFeaturesLoaderCesiumDynamic extends OgcFeaturesLoaderCesium {
 	private destroyTile(tile: OgcFeaturesTile): void {
 		tile.destroyed = true;
 		this.clearPrimitives(tile.primitives);
-		this.loadedTiles = this.loadedTiles.filter(t => t !== tile);
-		this.loadedFeatures = this.loadedFeatures.filter(id => !tile.ids.includes(id));
+		this.loadedTiles = this.loadedTiles.filter((t) => t !== tile);
+		this.loadedFeatures = this.loadedFeatures.filter((id) => !tile.ids.includes(id));
 	}
-
 }
-
-
-
-
 
 export interface GeoJSONFeature {
 	type: "Feature";
 	id: string;
-	geometry: GeoJSONPoint | GeoJSONLineString | GeoJSONMultiLineString | GeoJSONPolygon | GeoJSONMultiPolygon;
+	geometry:
+		| GeoJSONPoint
+		| GeoJSONLineString
+		| GeoJSONMultiLineString
+		| GeoJSONPolygon
+		| GeoJSONMultiPolygon;
 	properties: any;
 }
 

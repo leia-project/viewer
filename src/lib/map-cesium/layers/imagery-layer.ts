@@ -44,7 +44,10 @@ export abstract class CesiumImageryLayer extends CesiumLayer<ImageryLayer> {
 
 	private updateCameraPosition(use3DMode: boolean): void {
 		if (!this.boundingSphere) return;
-		this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, use3DMode);
+		this.config.cameraPosition = getCameraPositionFromBoundingSphere(
+			this.boundingSphere,
+			use3DMode
+		);
 	}
 
 	protected startLoading(): void {

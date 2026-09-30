@@ -4,128 +4,137 @@ import type { Writable } from "svelte/store";
 import type { Layer } from "./layer";
 
 export class LayerManagerGroup {
-    public id: string;
-    public title: string;
-    public parentId: string | undefined;
-    public childGroups: Writable<Array<LayerManagerGroup>>;
-    public layers: Writable<Array<Layer>>;
-    public open: Writable<boolean>;
-    public totalLayerCount: Writable<number>;
-    public visibleLayerCount: Writable<number>;
-    public connector: Record<string, string>;
-    public toolGroup: { label: string } | undefined;
+	public id: string;
+	public title: string;
+	public parentId: string | undefined;
+	public childGroups: Writable<Array<LayerManagerGroup>>;
+	public layers: Writable<Array<Layer>>;
+	public open: Writable<boolean>;
+	public totalLayerCount: Writable<number>;
+	public visibleLayerCount: Writable<number>;
+	public connector: Record<string, string>;
+	public toolGroup: { label: string } | undefined;
 
-    private groupTotalLayerCountUnsubscribers: Record<string, Unsubscriber>;
-    private groupEnabledLayerCountUnsubscribers: Record<string, Unsubscriber>;
-    private layerUnsubscribers: Record<string, Unsubscriber>;    
+	private groupTotalLayerCountUnsubscribers: Record<string, Unsubscriber>;
+	private groupEnabledLayerCountUnsubscribers: Record<string, Unsubscriber>;
+	private layerUnsubscribers: Record<string, Unsubscriber>;
 
-    constructor(id: string, title: string, parentId: string | undefined = undefined, childGroups: Array<LayerManagerGroup> = new Array<LayerManagerGroup>()) {
-        this.id = id;
-        this.title = title;
-        this.parentId = parentId;
-        this.groupTotalLayerCountUnsubscribers = {};
-        this.groupEnabledLayerCountUnsubscribers = {};
-        this.layerUnsubscribers = {};
-        this.connector = {};
-        this.toolGroup = undefined;
-        this.childGroups = writable<Array<LayerManagerGroup>>(new Array<LayerManagerGroup>());
-        this.layers = writable<Array<Layer>>(new Array<Layer>());
-        this.open = writable<boolean>(false);
-        this.totalLayerCount = writable<number>(0);
-        this.visibleLayerCount = writable<number>(0);
+	constructor(
+		id: string,
+		title: string,
+		parentId: string | undefined = undefined,
+		childGroups: Array<LayerManagerGroup> = new Array<LayerManagerGroup>()
+	) {
+		this.id = id;
+		this.title = title;
+		this.parentId = parentId;
+		this.groupTotalLayerCountUnsubscribers = {};
+		this.groupEnabledLayerCountUnsubscribers = {};
+		this.layerUnsubscribers = {};
+		this.connector = {};
+		this.toolGroup = undefined;
+		this.childGroups = writable<Array<LayerManagerGroup>>(new Array<LayerManagerGroup>());
+		this.layers = writable<Array<Layer>>(new Array<Layer>());
+		this.open = writable<boolean>(false);
+		this.totalLayerCount = writable<number>(0);
+		this.visibleLayerCount = writable<number>(0);
 
-        for(let i = 0; i < childGroups.length; i++) {
-            this.addGroup(childGroups[i]);
-        }
-    }
+		for (let i = 0; i < childGroups.length; i++) {
+			this.addGroup(childGroups[i]);
+		}
+	}
 
-    public addGroup(group: LayerManagerGroup): void {
-        const unsubscribeTotal = group.totalLayerCount.subscribe((a) => {
-            this.calculateTotalAndEnabledLayers();
-        });
+	public addGroup(group: LayerManagerGroup): void {
+		const unsubscribeTotal = group.totalLayerCount.subscribe((a) => {
+			this.calculateTotalAndEnabledLayers();
+		});
 
-        const unsubscribeEnabled = group.visibleLayerCount.subscribe((a) => {
-            this.calculateTotalAndEnabledLayers();
-        });
+		const unsubscribeEnabled = group.visibleLayerCount.subscribe((a) => {
+			this.calculateTotalAndEnabledLayers();
+		});
 
-        this.groupTotalLayerCountUnsubscribers[group.id] = unsubscribeTotal;
-        this.groupEnabledLayerCountUnsubscribers[group.id] = unsubscribeEnabled;
-        this.childGroups.set([...get(this.childGroups), group]);
+		this.groupTotalLayerCountUnsubscribers[group.id] = unsubscribeTotal;
+		this.groupEnabledLayerCountUnsubscribers[group.id] = unsubscribeEnabled;
+		this.childGroups.set([...get(this.childGroups), group]);
 
-        this.calculateTotalAndEnabledLayers();
-    }
+		this.calculateTotalAndEnabledLayers();
+	}
 
-    public addLayer(layer: Layer): void {
-        const layers = get(this.layers);
-        const filtered = layers.filter((l) => { return l.id === layer.config.id});
-    
-        // layer already added to group
-        if(filtered && filtered.length > 0) {
-            return;
-        }
+	public addLayer(layer: Layer): void {
+		const layers = get(this.layers);
+		const filtered = layers.filter((l) => {
+			return l.id === layer.config.id;
+		});
 
-        const unsubscribe = layer.visible.subscribe((a) => {
-            this.calculateTotalAndEnabledLayers();
-        });
+		// layer already added to group
+		if (filtered && filtered.length > 0) {
+			return;
+		}
 
-        this.layerUnsubscribers[layer.config.id] = unsubscribe;
-        this.layers.set([...get(this.layers), layer]);
+		const unsubscribe = layer.visible.subscribe((a) => {
+			this.calculateTotalAndEnabledLayers();
+		});
 
-        this.calculateTotalAndEnabledLayers();
-    }
+		this.layerUnsubscribers[layer.config.id] = unsubscribe;
+		this.layers.set([...get(this.layers), layer]);
 
-    public removeLayer(layer: Layer): void {
-        const layers = get(this.layers);
-        const index = layers.indexOf(layer);
-        if (index < 0) return;
+		this.calculateTotalAndEnabledLayers();
+	}
 
-        this.layerUnsubscribers[layer.config.id]();
-        delete this.layerUnsubscribers[layer.config.id];
+	public removeLayer(layer: Layer): void {
+		const layers = get(this.layers);
+		const index = layers.indexOf(layer);
+		if (index < 0) return;
 
-        layers.splice(index, 1);
-        this.layers.set(layers);
+		this.layerUnsubscribers[layer.config.id]();
+		delete this.layerUnsubscribers[layer.config.id];
 
-        this.calculateTotalAndEnabledLayers();
-    }
+		layers.splice(index, 1);
+		this.layers.set(layers);
 
-    public showAllLayers(): void {
-        const layers = get(this.layers);
-        const childGroups = get(this.childGroups);
+		this.calculateTotalAndEnabledLayers();
+	}
 
-        for(let i = 0; i < layers.length; i++) {
-            layers[i].visible.set(true);
-        }
+	public showAllLayers(): void {
+		const layers = get(this.layers);
+		const childGroups = get(this.childGroups);
 
-        if(childGroups && childGroups.length > 0) {
-            for(let i = 0; i < childGroups.length; i++) {
-                childGroups[i].showAllLayers();
-            }
-        }
-    }
+		for (let i = 0; i < layers.length; i++) {
+			layers[i].visible.set(true);
+		}
 
-    public hideAllLayers(): void {
-        const layers = get(this.layers);
-        const childGroups = get(this.childGroups);
+		if (childGroups && childGroups.length > 0) {
+			for (let i = 0; i < childGroups.length; i++) {
+				childGroups[i].showAllLayers();
+			}
+		}
+	}
 
-        for(let i = 0; i < layers.length; i++) {
-            layers[i].visible.set(false);
-        }
+	public hideAllLayers(): void {
+		const layers = get(this.layers);
+		const childGroups = get(this.childGroups);
 
-        if(childGroups && childGroups.length > 0) {
-            for(let i = 0; i < childGroups.length; i++) {
-                childGroups[i].hideAllLayers();
-            }
-        }
-    }
+		for (let i = 0; i < layers.length; i++) {
+			layers[i].visible.set(false);
+		}
 
-    private calculateTotalAndEnabledLayers(): void {
-        const groups = get(this.childGroups);
-        const layers = get(this.layers);
+		if (childGroups && childGroups.length > 0) {
+			for (let i = 0; i < childGroups.length; i++) {
+				childGroups[i].hideAllLayers();
+			}
+		}
+	}
 
-        const totalFromGroups = groups.map((g) => get(g.totalLayerCount)).reduce((a, b) => a + b, 0);
-        const visibleFromGroups = groups.map((g) => get(g.visibleLayerCount)).reduce((a, b) => a + b, 0);
-    
-        this.totalLayerCount.set(totalFromGroups + layers.length);
-        this.visibleLayerCount.set(visibleFromGroups + layers.filter((l) => get(l.visible)).length);
-    }
+	private calculateTotalAndEnabledLayers(): void {
+		const groups = get(this.childGroups);
+		const layers = get(this.layers);
+
+		const totalFromGroups = groups.map((g) => get(g.totalLayerCount)).reduce((a, b) => a + b, 0);
+		const visibleFromGroups = groups
+			.map((g) => get(g.visibleLayerCount))
+			.reduce((a, b) => a + b, 0);
+
+		this.totalLayerCount.set(totalFromGroups + layers.length);
+		this.visibleLayerCount.set(visibleFromGroups + layers.filter((l) => get(l.visible)).length);
+	}
 }

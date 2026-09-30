@@ -27,8 +27,12 @@ export class MapOptions {
 	public globeOpacity: Writable<number> = writable<number>(100);
 	public inspector: Writable<boolean> = writable<boolean>(false);
 	public proMode: Writable<boolean> = writable<boolean>(false);
-	public terrainProviders: Writable<Array<{ title: string, url: string, vertexNormals: boolean }>> = writable<Array<{ title: string, url: string, vertexNormals: boolean }>>(new Array<{ title: string, url: string, vertexNormals: boolean}>());
-	public selectedTerrainProvider: Writable<{ title: string, url: string, vertexNormals: boolean }> = writable<{ title: string, url: string, vertexNormals: boolean }>(undefined);
+	public terrainProviders: Writable<Array<{ title: string; url: string; vertexNormals: boolean }>> =
+		writable<Array<{ title: string; url: string; vertexNormals: boolean }>>(
+			new Array<{ title: string; url: string; vertexNormals: boolean }>()
+		);
+	public selectedTerrainProvider: Writable<{ title: string; url: string; vertexNormals: boolean }> =
+		writable<{ title: string; url: string; vertexNormals: boolean }>(undefined);
 	public terrainSwitchReady: Writable<boolean> = writable(false);
 	public selectedProject: Writable<string | undefined> = writable(undefined);
 	public use3DMode: Writable<boolean> = writable(true);
@@ -116,10 +120,13 @@ export class MapOptions {
 		this.subscribe<boolean>(this.enableCollisionDetection, (v) => {
 			this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = v;
 		});
-		this.subscribe<{ title: string, url: string, vertexNormals: boolean }>(this.selectedTerrainProvider, (v) => {
-			this.terrainSwitchReady.set(false);
-			this.switchTerrainProvider(v);
-		});
+		this.subscribe<{ title: string; url: string; vertexNormals: boolean }>(
+			this.selectedTerrainProvider,
+			(v) => {
+				this.terrainSwitchReady.set(false);
+				this.switchTerrainProvider(v);
+			}
+		);
 	}
 
 	public loadFromConfig(config: any): void {
@@ -144,7 +151,10 @@ export class MapOptions {
 		this.trySet(this.pointCloudAttenuation, config.pointCloudAttenuation);
 		this.trySet(this.pointCloudAttenuationMaximum, config.pointCloudAttenuationMaximum);
 		this.trySet(this.pointCloudAttenuationErrorScale, config.pointCloudAttenuationErrorScale);
-		this.trySet(this.pointCloudAttenuationBaseResolution, config.pointCloudAttenuationBaseResolution);
+		this.trySet(
+			this.pointCloudAttenuationBaseResolution,
+			config.pointCloudAttenuationBaseResolution
+		);
 		this.trySet(this.pointCloudEDL, config.pointCloudEDL);
 		this.trySet(this.pointCloudEDLStrength, config.pointCloudEDLStrength);
 		this.trySet(this.pointCloudEDLRadius, config.pointCloudEDLRadius);
@@ -176,21 +186,35 @@ export class MapOptions {
 	}
 
 	private loadTerrainProvider(terrainProviderConfig: any): void {
-		if(terrainProviderConfig && terrainProviderConfig.length > 0) {
-			terrainProviderConfig.forEach((provider: { title: string; url: string;  vertexNormals: boolean }) => {
-				this.addTerrainProvider({ title: provider.title, url: provider.url, vertexNormals: provider.vertexNormals ?? true });
-			});
+		if (terrainProviderConfig && terrainProviderConfig.length > 0) {
+			terrainProviderConfig.forEach(
+				(provider: { title: string; url: string; vertexNormals: boolean }) => {
+					this.addTerrainProvider({
+						title: provider.title,
+						url: provider.url,
+						vertexNormals: provider.vertexNormals ?? true
+					});
+				}
+			);
 		}
 	}
 
-	public addTerrainProvider(terrainProvider: { title: string, url: string, vertexNormals: boolean }): void {
+	public addTerrainProvider(terrainProvider: {
+		title: string;
+		url: string;
+		vertexNormals: boolean;
+	}): void {
 		const defaultName = "Default";
 		const currentProviders = get(this.terrainProviders);
-		for(let i = 0; i < currentProviders.length; i++) {
-
+		for (let i = 0; i < currentProviders.length; i++) {
 			// If same url is found remove and add, try using title of newly added provider
-			if(currentProviders[i].url === terrainProvider.url) {
-				currentProviders[i].title = terrainProvider.title.length !== 0 ? terrainProvider.title : currentProviders[i].title.length !== 0 ? currentProviders[i].title : defaultName;
+			if (currentProviders[i].url === terrainProvider.url) {
+				currentProviders[i].title =
+					terrainProvider.title.length !== 0
+						? terrainProvider.title
+						: currentProviders[i].title.length !== 0
+							? currentProviders[i].title
+							: defaultName;
 				//currentProviders.splice(i, 1);
 				//currentProviders.push(terrainProvider);
 				this.terrainProviders.set(currentProviders);
@@ -198,7 +222,8 @@ export class MapOptions {
 			}
 		}
 
-		terrainProvider.title = terrainProvider.title.length === 0 ? defaultName : terrainProvider.title;
+		terrainProvider.title =
+			terrainProvider.title.length === 0 ? defaultName : terrainProvider.title;
 		currentProviders.push(terrainProvider);
 		this.terrainProviders.set(currentProviders);
 	}
@@ -207,14 +232,18 @@ export class MapOptions {
 		const currentProviders = get(this.terrainProviders);
 		if (currentProviders.length > 0) {
 			// If use3DMode is false, start with the terrain turned off
-			const provider = !get(this.use3DMode) 
-				? currentProviders.find(p => p.title.toLowerCase() === 'uit') || currentProviders[0]
+			const provider = !get(this.use3DMode)
+				? currentProviders.find((p) => p.title.toLowerCase() === "uit") || currentProviders[0]
 				: currentProviders[0];
 			this.selectedTerrainProvider.set(provider);
 		}
 	}
 
-	private async switchTerrainProvider(terrainProvider: { title: string, url: string, vertexNormals: boolean }): Promise<void> {
+	private async switchTerrainProvider(terrainProvider: {
+		title: string;
+		url: string;
+		vertexNormals: boolean;
+	}): Promise<void> {
 		if (terrainProvider && terrainProvider.url) {
 			const provider = await Cesium.CesiumTerrainProvider.fromUrl(terrainProvider.url, {
 				requestVertexNormals: true
@@ -239,7 +268,9 @@ export class MapOptions {
 	}
 
 	public initCameraMode(config: any): void {
-		const startCameraMode3D = config.viewer.startCameraMode3D ? config.viewer.startCameraMode3D : false;
+		const startCameraMode3D = config.viewer.startCameraMode3D
+			? config.viewer.startCameraMode3D
+			: false;
 		if (!startCameraMode3D) {
 			this.use3DMode.set(false);
 		}
@@ -277,7 +308,6 @@ export class MapOptions {
 				default:
 					break;
 			}
-
 		}
 	}
 

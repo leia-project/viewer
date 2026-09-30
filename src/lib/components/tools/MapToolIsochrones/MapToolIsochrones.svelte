@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
 	import { getContext, onMount } from "svelte";
-    import Home from "carbon-icons-svelte/lib/Home.svelte";
+	import Home from "carbon-icons-svelte/lib/Home.svelte";
 	import { MapToolMenuOption } from "../MapToolMenuOption";
 	import DrawIsochrones from "./DrawIsochrones.svelte";
 	import ControlIsochroneStyles from "./ControlIsochroneStyles.svelte";
@@ -10,7 +10,6 @@
 	import ControlIsochroneValueRange from "./ControlIsochroneValueRange.svelte";
 	import IsochronesDisclaimer from "./IsochronesDisclaimer.svelte";
 	import { Button } from "carbon-components-svelte";
-
 
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
@@ -30,7 +29,8 @@
 				if (loaded && map.ready) {
 					const isochronesTool = map.config.tools.find((t: any) => t.id === "isochrones");
 					const apiUrl = isochronesTool.settings.apiUrl;
-					const accountedPopulationGrowthLayerId: string = isochronesTool.settings.accountedPopulationGrowthLayerId;
+					const accountedPopulationGrowthLayerId: string =
+						isochronesTool.settings.accountedPopulationGrowthLayerId;
 					const dataAttribute: string = isochronesTool.settings.accountedPopulationGrowthAttribute;
 					const dataLayer = map.getLayerById(accountedPopulationGrowthLayerId);
 					// if (!(dataLayer && dataLayer.type === "GeoJsonLayer")) {
@@ -42,9 +42,7 @@
 			});
 		}
 	});
-
 </script>
-
 
 {#if $selectedTool === tool}
 	{#if isochronesLayer}
@@ -56,36 +54,33 @@
 			<ControlIsochroneStyles {isochronesLayer} />
 
 			<div class="component">
-				<IsochronesLegend {isochronesLayer}/>
+				<IsochronesLegend {isochronesLayer} />
 			</div>
-			
+
 			<div class="component">
 				<IsochronesDisclaimer />
 			</div>
 
-			<div class="component ">
+			<div class="component">
 				<Button
 					kind="danger"
 					on:click={() => {
 						isochronesLayer.resetLayer();
 					}}
 				>
-					{$_('tools.isochrones.reset')}
+					{$_("tools.isochrones.reset")}
 				</Button>
 			</div>
 		</div>
 	{/if}
 {/if}
 
-
-  
 <style>
-.container {
-	margin: 10px;
-}
+	.container {
+		margin: 10px;
+	}
 
-.component {
-    margin-bottom: 10px;
-}
-
+	.component {
+		margin-bottom: 10px;
+	}
 </style>

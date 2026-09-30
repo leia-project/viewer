@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
-	import { get } from 'svelte/store';
-	import { _ } from 'svelte-i18n';
-	import { app } from '$lib/app/app';
+	import { onMount, onDestroy } from "svelte";
+	import { get } from "svelte/store";
+	import { _ } from "svelte-i18n";
+	import { app } from "$lib/app/app";
 	import { notifications } from "$lib/map-core/notifications/notifications";
 	import { Notification } from "$lib/map-core/notifications/notification";
 	import { NotificationType } from "$lib/map-core/notifications/notification-type";
@@ -15,7 +15,7 @@
 	import MapWidgetAnimation from "./widgets/MapWidgetAnimation/MapWidgetAnimation.svelte";
 	import MapWidgetProject from "./tools/MapToolProjects/components/MapWidgetProject.svelte";
 	import { dragDropEvents } from "$lib/map-cesium/drag-n-drop";
-	import { projectHandler } from './tools/MapToolProjects/project-handler';
+	import { projectHandler } from "./tools/MapToolProjects/project-handler";
 
 	export let map: Map;
 
@@ -25,14 +25,21 @@
 	let showCameraPosition = false;
 	let showAnimationWidget = false;
 	let showProjectWidget = false;
-	
+
 	const unsubscribe = map.ready.subscribe((ready) => {
-		const configSettings = get(app.configSettings)
+		const configSettings = get(app.configSettings);
 		if (ready && configSettings && map.configured !== true) {
 			if (configSettings.configUrl !== "") {
 				map.setConfig(configSettings.configUrl);
 			} else {
-				const notification = new Notification(NotificationType.ERROR, "Error", $_("general.notifications.noConfigText"), 15000, true, true);
+				const notification = new Notification(
+					NotificationType.ERROR,
+					"Error",
+					$_("general.notifications.noConfigText"),
+					15000,
+					true,
+					true
+				);
 				notifications.send(notification);
 			}
 		}
@@ -68,12 +75,14 @@
 		});
 	});
 
-	onDestroy(() => unsubscribe())
-
+	onDestroy(() => unsubscribe());
 </script>
 
-
-<div bind:this={viewer} class="cesiumContainer" use:dragDropEvents={{map: map, enabled: map.options.enableDragDropFiles}} >
+<div
+	bind:this={viewer}
+	class="cesiumContainer"
+	use:dragDropEvents={{ map: map, enabled: map.options.enableDragDropFiles }}
+>
 	<div class="map-widgets-top">
 		{#if showProjectWidget}
 			<MapWidgetProject />
@@ -98,7 +107,6 @@
 		<MapWidgetLoading {map} />
 	{/if}
 </div>
-
 
 <style>
 	.cesiumContainer {

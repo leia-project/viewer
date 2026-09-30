@@ -5,7 +5,7 @@
 
 import { writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
-import { v4 as uuid } from '@lukeed/uuid';
+import { v4 as uuid } from "@lukeed/uuid";
 
 import { LayerConfig } from "$lib/map-core/layer-config";
 import { LayerConfigGroup } from "$lib/map-core/layer-config-group";
@@ -13,16 +13,16 @@ import { LayerConfigGroup } from "$lib/map-core/layer-config-group";
 import { Map } from "./map";
 import { DraggableCollection } from "./layers/dropped-glb-layer";
 
-
 interface DragDropParams {
-	map: Map,
-	enabled: Writable<boolean> | undefined
+	map: Map;
+	enabled: Writable<boolean> | undefined;
 }
-
 
 export function dragDropEvents(node: HTMLElement, params: DragDropParams): any {
 	if (!params.map || !(params.map instanceof Map)) {
-		console.log(`Dragging and dropping of file not enabled on ${node.nodeName} ${node.classList ? `Element classes: ${node.classList}` : ""} ${node.id ? `Element id: ${node.id}` : ""} \nError: No valid map provided`);
+		console.log(
+			`Dragging and dropping of file not enabled on ${node.nodeName} ${node.classList ? `Element classes: ${node.classList}` : ""} ${node.id ? `Element id: ${node.id}` : ""} \nError: No valid map provided`
+		);
 		return;
 	}
 	const enabler = params.enabled ?? writable(true); // If no store is provided, simply set to true
@@ -35,25 +35,23 @@ export function dragDropEvents(node: HTMLElement, params: DragDropParams): any {
 		destroy() {
 			removeListeners(node, params.map);
 		}
-	}
+	};
 }
 
 function addListeners(node: HTMLElement, map: Map): void {
-	node.addEventListener('dragover', onDragOver);
-	node.addEventListener('drop', (e) => onFileDropped(e, map));
+	node.addEventListener("dragover", onDragOver);
+	node.addEventListener("drop", (e) => onFileDropped(e, map));
 }
 
 function removeListeners(node: HTMLElement, map: Map): void {
-	node.removeEventListener('dragover', onDragOver);
-	node.removeEventListener('drop', (e) => onFileDropped(e, map));
+	node.removeEventListener("dragover", onDragOver);
+	node.removeEventListener("drop", (e) => onFileDropped(e, map));
 }
-
 
 function onDragOver(e: DragEvent): void {
 	//const fileType = e.dataTransfer.items[0].type; if (fileType !== "application/json") //DoSomething: Type checking only works for common file types like JSON, JPG, SVG, CSV;
 	e.preventDefault();
 }
-
 
 function onFileDropped(e: DragEvent, map: Map): void {
 	e.preventDefault();
@@ -66,13 +64,11 @@ function onFileDropped(e: DragEvent, map: Map): void {
 		} catch (e) {
 			console.error(e);
 		}
-	}
-	else if (fileName.endsWith(".glb")) {
+	} else if (fileName.endsWith(".glb")) {
 		const dropLocation = map.viewer.scene.pickPosition(new Cesium.Cartesian2(e.offsetX, e.offsetY));
 		parseDroppedGLB(file, map, dropLocation);
 	}
 }
-
 
 async function parseDroppedGeoJSON(file: File, map: Map): Promise<void> {
 	const geojsonURL = URL.createObjectURL(file);
@@ -98,8 +94,6 @@ async function parseDroppedGeoJSON(file: File, map: Map): Promise<void> {
 	config.added.set(true);
 }
 
-
-
 let glbCollection!: DraggableCollection;
 function parseDroppedGLB(file: File, map: Map, location: Cesium.Cartesian3): void {
 	const objectUrl = URL.createObjectURL(file);
@@ -123,11 +117,9 @@ function parseDroppedGLB(file: File, map: Map, location: Cesium.Cartesian3): voi
 		});
 		map.layerLibrary.addLayerConfig(glbConfig);
 		glbConfig.added.set(true);
-
 	}
 	glbCollection.add(location, objectUrl);
 }
-
 
 function createGroupIfNotExists(map: Map, groupId: string, groupName: string): void {
 	if (!map.layerLibrary.findGroup(groupId)) {

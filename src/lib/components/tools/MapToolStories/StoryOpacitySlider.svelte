@@ -9,13 +9,6 @@
 	const opacity: Writable<number> = layer.opacity;
 
 	$: labelText = layer.title + ` ${$_("tools.layerManager.opacity")}: ` + $opacity + "%";
-
 </script>
 
-<Slider
-	hideTextInput
-	{labelText}
-	min={0}
-	max={100}
-	bind:value={$opacity}
-/>
+<Slider hideTextInput {labelText} min={0} max={100} bind:value={$opacity} />

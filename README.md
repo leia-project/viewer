@@ -1,5 +1,6 @@
 # Leia Open Source 3D Viewer
-Generic 3D viewer for Digital Twin purposes. 
+
+Generic 3D viewer for Digital Twin purposes.
 
 _An initiative by Geodan and Provincie Zeeland._
 
@@ -42,7 +43,7 @@ npm run build
 
 ### Static build
 
-The default build will create a build which can be served with node and cannot be served statically because the build proccess automatically picks up server side scripts such as ./routes/+layour.server.ts. 
+The default build will create a build which can be served with node and cannot be served statically because the build proccess automatically picks up server side scripts such as ./routes/+layour.server.ts.
 
 Before building, it is important to configure the environment variable `APP_URL` in `.env`. Make sure this variable points to the base path of your application, for example `https://site.com/some/path/`.
 
@@ -62,8 +63,8 @@ Output of the static build can be found in the ./build directory.
 
 With the static build there are 2 ways to load a configuration.
 
-1) Start the viewer with `?url=http://host.com/some_config.json`, the viewer will try to load the configuration from URL
-2) Place a file named config.json in the root directory of the build. When ?url is supplied the local file will not be used.
+1. Start the viewer with `?url=http://host.com/some_config.json`, the viewer will try to load the configuration from URL
+2. Place a file named config.json in the root directory of the build. When ?url is supplied the local file will not be used.
 
 An example config is stored in `./static/example.config.json`.
 
@@ -71,18 +72,18 @@ An example config is stored in `./static/example.config.json`.
 
 Base configuration for the viewer such as start position, UI colors.
 
-|value|description|type|
-|-|-|-|
-|startPosition|Startposition of the camera|[startPosition](#startposition)|
-|startCameraMode3D|Choose to start the camera in 2D or 3D mode|boolean|
-|startToolOpen|Choose the id of the map tool you want the viewer to start with already opened. Current support: `layermanager`, `stories`|string|
-|accessibility|Accessibility options for the viewer|[accessibility](#accessibility)|
-|colors|Colors to use in de app, for more info check Carbon Design|[colors](#colors)|
-|title|The title shown in the top bar of the viewer|string|
-|subTitle|Subtitle shown in the top bar after the title|string|
-|logo|URL for the image to show in the top left corner of the header|string|
-|logoMarginLeft|Margin string for left margin of header logo|string|
-|logoMarginRight|Margin string for right margin of header logo|string|
+| value             | description                                                                                                                | type                            |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| startPosition     | Startposition of the camera                                                                                                | [startPosition](#startposition) |
+| startCameraMode3D | Choose to start the camera in 2D or 3D mode                                                                                | boolean                         |
+| startToolOpen     | Choose the id of the map tool you want the viewer to start with already opened. Current support: `layermanager`, `stories` | string                          |
+| accessibility     | Accessibility options for the viewer                                                                                       | [accessibility](#accessibility) |
+| colors            | Colors to use in de app, for more info check Carbon Design                                                                 | [colors](#colors)               |
+| title             | The title shown in the top bar of the viewer                                                                               | string                          |
+| subTitle          | Subtitle shown in the top bar after the title                                                                              | string                          |
+| logo              | URL for the image to show in the top left corner of the header                                                             | string                          |
+| logoMarginLeft    | Margin string for left margin of header logo                                                                               | string                          |
+| logoMarginRight   | Margin string for right margin of header logo                                                                              | string                          |
 
 ```json
 "viewer": {
@@ -90,21 +91,22 @@ Base configuration for the viewer such as start position, UI colors.
     "colors": ...,
     "title": "Digital Twin",
     "subTitle": "Example",
-    "logo": "http://host.nl/my_image.png"	
+    "logo": "http://host.nl/my_image.png"
 }
 ```
 
 #### startPosition
-The start position of the camera. Since we are using a 3D viewer we need more than just an x, y and z position. An easy way to interactively get all the parameters for your preferred startPosition is by using the dt-generic-viewer. Open the settings from the left menu bar and enable the option ```Camera position```. When moving the view you will see the camera settings appear in a box. You can copy these settings to the startPosition configuration. Note: pitch is always overwritten with -90 degrees if startCameraMode3D is set to false.
 
-|value|description|type|
-|-|-|-|
-|x|Longitude position of the camera|number|
-|y|Latitude position of the camera|number|
-|z|Height of the camera in meters|number|
-|heading|Heading of the camera (Rotation)|number|
-|pitch|Pitch of the camera (up/down) where -90 is looking down, 0 is forward, 90 is up|number|
-|duration|Time to fly to the location in seconds|number|
+The start position of the camera. Since we are using a 3D viewer we need more than just an x, y and z position. An easy way to interactively get all the parameters for your preferred startPosition is by using the dt-generic-viewer. Open the settings from the left menu bar and enable the option `Camera position`. When moving the view you will see the camera settings appear in a box. You can copy these settings to the startPosition configuration. Note: pitch is always overwritten with -90 degrees if startCameraMode3D is set to false.
+
+| value    | description                                                                     | type   |
+| -------- | ------------------------------------------------------------------------------- | ------ |
+| x        | Longitude position of the camera                                                | number |
+| y        | Latitude position of the camera                                                 | number |
+| z        | Height of the camera in meters                                                  | number |
+| heading  | Heading of the camera (Rotation)                                                | number |
+| pitch    | Pitch of the camera (up/down) where -90 is looking down, 0 is forward, 90 is up | number |
+| duration | Time to fly to the location in seconds                                          | number |
 
 ```json
 "startPosition": {
@@ -118,13 +120,14 @@ The start position of the camera. Since we are using a 3D viewer we need more th
 ```
 
 #### accessibility
+
 Accessibility options. Currently used to enable trackpad mode: an extra button next to the zoom/home buttons that expands a set of camera controls (height up/down, tilt up/down, rotate left/right).
 
-|value|description|type|
-|-|-|-|
-|trackpadMode|Show the trackpad camera controls button on the map|boolean|
-|trackpadStepAngle|Degrees the camera tilts/rotates per button click (default 5)|number|
-|trackpadStepHeightFactor|Fraction of the current camera height the camera moves up/down per button click (default 0.1)|number|
+| value                    | description                                                                                   | type    |
+| ------------------------ | --------------------------------------------------------------------------------------------- | ------- |
+| trackpadMode             | Show the trackpad camera controls button on the map                                           | boolean |
+| trackpadStepAngle        | Degrees the camera tilts/rotates per button click (default 5)                                 | number  |
+| trackpadStepHeightFactor | Fraction of the current camera height the camera moves up/down per button click (default 0.1) | number  |
 
 ```json
 "accessibility": {
@@ -135,66 +138,67 @@ Accessibility options. Currently used to enable trackpad mode: an extra button n
 ```
 
 #### Colors
+
 Colors for the GUI.
 
-|value|description|type|
-|-|-|-|
-|header-color|Background color of the header bar|string|
-|title-color|Color of the title text in the header|string|
-|sub-title-color|Color of the subtitle text in the header|string|
-|ui-background|Default page background|string|
-|interactive-01|Primary interactive color. Primary buttons|string|
-|interactive-02|Secondary interactive color. Secondary button|string|
-|interactive-03|Tertiary button|string|
-|interactive-04|Selected elements. Active elements. Accent icons|string|
-|ui-01|Primary container background, Secondary page background|string|
-|ui-02|Primary page background, Secondary container background|string|
-|ui-03|Subtle border, Tertiary background color|string|
-|ui-04|3:1 AA element contrast, Medium contrast border|string|
-|ui-05|4.5:1 AA element contrast, High contrast border, Emphasis elements|string|
-|text-01|Primary text, Body copy, Headers, Hover text color for text-02|string|
-|text-02|Secondary text, Input labels, Help text|string|
-|text-03|Placeholder text|string|
-|text-04|Text on interactive colors|string|
-|link-01|Primary links, Ghost button|string|
-|icon-01|Primary icons|string|
-|icon-02|Secondary icons|string|
-|icon-03|Tertiary icons, Icons on interactive colors, Icons on non-ui colors|string|
-|field-01|Default input fields, Field color on $ui-backgrounds|string|
-|field-02|Input field color on $ui-02 backgrounds|string|
-|inverse-01|Inverse text color, Inverse icon color|string|
-|inverse-02|High contrast backgrounds, High contrast elements|string|
-|support-01|Error|string|
-|support-02|Success|string|
-|support-03|Warning|string|
-|support-04|Information|string|
-|inverse-support-01|Danger in high contrast moments|string|
-|inverse-support-02|Success in high contrast moments|string|
-|inverse-support-03|Warning in high contrast moments|string|
-|inverse-support-04|Information in high contrast moments|string|
-|overlay-01|Background overlay|string|
-|interaction-tokens|Focus border, Focus underline|string|
-|hover-primary|interactive-01 hover|string|
-|hover-primary-text|interactive-01 text hover|string|
-|hover-secondary|interactive-02 hover|string|
-|hover-tertiary|interactive-03 hover, $inverse-01 hover|string|
-|hover-ui|ui-01 hover, $ui-02 hover, Transparent background hover|string|
-|hover-selected-ui|Selected row hover|string|
-|hover-danger|Danger hover, $support-01 hover|string|
-|hover-row|Row hover|string|
-|active-primary|interactive-01 active|string|
-|active-secondary|$interactive-02 active, $inverse-01 active|string|
-|active-tertiary|interactive-03 active|string|
-|active-ui|$ui-01 active, $ui-02 active|string|
-|active-danger|Danger active, $support-01 active|string|
-|selected-ui|Selected UI elements|string|
-|highlight|interactive-01 highlight|string|
-|skeleton-01|Skeleton state of graphics|string|
-|skeleton-02|Skeleton state of texts|string|
-|visited-link|Visited links|string|
-|disabled-01|Disabled fields, Disabled backgrounds, Disabled border|string|
-|disabled-02|Disabled elements on $disabled-01, Disabled text on $disabled-01, Disabled icons, Disabled border|string|
-|disabled-03|Disabled text on $disabled-02, Disabled icons on $disabled-02|string|
+| value              | description                                                                                       | type   |
+| ------------------ | ------------------------------------------------------------------------------------------------- | ------ |
+| header-color       | Background color of the header bar                                                                | string |
+| title-color        | Color of the title text in the header                                                             | string |
+| sub-title-color    | Color of the subtitle text in the header                                                          | string |
+| ui-background      | Default page background                                                                           | string |
+| interactive-01     | Primary interactive color. Primary buttons                                                        | string |
+| interactive-02     | Secondary interactive color. Secondary button                                                     | string |
+| interactive-03     | Tertiary button                                                                                   | string |
+| interactive-04     | Selected elements. Active elements. Accent icons                                                  | string |
+| ui-01              | Primary container background, Secondary page background                                           | string |
+| ui-02              | Primary page background, Secondary container background                                           | string |
+| ui-03              | Subtle border, Tertiary background color                                                          | string |
+| ui-04              | 3:1 AA element contrast, Medium contrast border                                                   | string |
+| ui-05              | 4.5:1 AA element contrast, High contrast border, Emphasis elements                                | string |
+| text-01            | Primary text, Body copy, Headers, Hover text color for text-02                                    | string |
+| text-02            | Secondary text, Input labels, Help text                                                           | string |
+| text-03            | Placeholder text                                                                                  | string |
+| text-04            | Text on interactive colors                                                                        | string |
+| link-01            | Primary links, Ghost button                                                                       | string |
+| icon-01            | Primary icons                                                                                     | string |
+| icon-02            | Secondary icons                                                                                   | string |
+| icon-03            | Tertiary icons, Icons on interactive colors, Icons on non-ui colors                               | string |
+| field-01           | Default input fields, Field color on $ui-backgrounds                                              | string |
+| field-02           | Input field color on $ui-02 backgrounds                                                           | string |
+| inverse-01         | Inverse text color, Inverse icon color                                                            | string |
+| inverse-02         | High contrast backgrounds, High contrast elements                                                 | string |
+| support-01         | Error                                                                                             | string |
+| support-02         | Success                                                                                           | string |
+| support-03         | Warning                                                                                           | string |
+| support-04         | Information                                                                                       | string |
+| inverse-support-01 | Danger in high contrast moments                                                                   | string |
+| inverse-support-02 | Success in high contrast moments                                                                  | string |
+| inverse-support-03 | Warning in high contrast moments                                                                  | string |
+| inverse-support-04 | Information in high contrast moments                                                              | string |
+| overlay-01         | Background overlay                                                                                | string |
+| interaction-tokens | Focus border, Focus underline                                                                     | string |
+| hover-primary      | interactive-01 hover                                                                              | string |
+| hover-primary-text | interactive-01 text hover                                                                         | string |
+| hover-secondary    | interactive-02 hover                                                                              | string |
+| hover-tertiary     | interactive-03 hover, $inverse-01 hover                                                           | string |
+| hover-ui           | ui-01 hover, $ui-02 hover, Transparent background hover                                           | string |
+| hover-selected-ui  | Selected row hover                                                                                | string |
+| hover-danger       | Danger hover, $support-01 hover                                                                   | string |
+| hover-row          | Row hover                                                                                         | string |
+| active-primary     | interactive-01 active                                                                             | string |
+| active-secondary   | $interactive-02 active, $inverse-01 active                                                        | string |
+| active-tertiary    | interactive-03 active                                                                             | string |
+| active-ui          | $ui-01 active, $ui-02 active                                                                      | string |
+| active-danger      | Danger active, $support-01 active                                                                 | string |
+| selected-ui        | Selected UI elements                                                                              | string |
+| highlight          | interactive-01 highlight                                                                          | string |
+| skeleton-01        | Skeleton state of graphics                                                                        | string |
+| skeleton-02        | Skeleton state of texts                                                                           | string |
+| visited-link       | Visited links                                                                                     | string |
+| disabled-01        | Disabled fields, Disabled backgrounds, Disabled border                                            | string |
+| disabled-02        | Disabled elements on $disabled-01, Disabled text on $disabled-01, Disabled icons, Disabled border | string |
+| disabled-03        | Disabled text on $disabled-02, Disabled icons on $disabled-02                                     | string |
 
 ```json
 "colors": {
@@ -258,11 +262,11 @@ Colors for the GUI.
 
 List of groups, these groups are used for grouping layers in the layer library, there is no limit on how many child groups there can be. The root parent should be on top.
 
-|value|description|type|
-|-|-|-|
-|id|Unique identifier for the group|string|
-|title|Display title in the UI|string|
-|parentId|If this is a child group, set the parentId with the id of the parent group|string|
+| value    | description                                                                | type   |
+| -------- | -------------------------------------------------------------------------- | ------ |
+| id       | Unique identifier for the group                                            | string |
+| title    | Display title in the UI                                                    | string |
+| parentId | If this is a child group, set the parentId with the id of the parent group | string |
 
 ```json
 "groups": [
@@ -286,39 +290,40 @@ List of groups, these groups are used for grouping layers in the layer library, 
 
 ### Layers configuration ("layers: {}")
 
-An array of layer definitions.   
+An array of layer definitions.
 
 Layer definition
-|value|description|type|
-|-|-|-|
-|id|Unique layer id|string|
-|type|Layer type, supported layer types:<br /> ```basiskaart```, ```wms```, ```wmts```, ```tms```, ```vectortiles```, ```3dtiles```, ```geojson```, ```modelanimation```, ```custom```|string|
-|title|Layer title|string|
-|groupId|Id of the group where this layer belongs to or empty string, will be placed under uncategorized in library|string|
-|description|Simple text field in which a layer description can be provided|string|
-|imageUrl|URL of an example image of layer, will be shown in layer library|string|
-|legendEnabled|Choose whether legend image is shown or not (default false)|boolean|
-|legendUrl|URL of legend image or empty string. Use an empty string if you intend to get dynamic legends for ```wms``` layers using the style switcher tool|string|
-|isBackground|Set to true to use this as a background layer, background layers are separated from the thematic layers in the layer manager and only 1 background layer can be active at a time|boolean|
-|defaultAddToManager|True if layer should be inmediately available in the layer manager tool on startup|boolean|
-|defaultOn|True if this layer should be visible at start up, use this together with defaultAddToManager|boolean|
-|attribution|Attribution for the layer data, to be displayed at at layer information page|string|
-|metadata|An array of {"key":"somekey","value":"somevalue"} pairs, to store custom metadata which is shown in the layer library|array[KeyValue]|
-|metadataUrl|URL of a metadata document for the layer. The layer library parses it and shows its contents, and falls back to a link to the document when no `metadata` entries are set; the layer manager and the zonal statistics panel show an information icon that opens the URL in a new tab|string|
-|transparent|True if layer can be transparent|boolean|
-|disablePopup|True if the feature info popup should be turned off|boolean|
-|opacity|Number between 0 (opaque) and 100 (transparent)|number|
-|cameraPosition|Default camera position, when set a zoom to icon is displayed for the layer in the layer manager|cameraPosition, same as parameters for [startPosition](###startPosition)|
-|settings|Technical settings for the layer, this can differ between layer types, see LayerSettings below|LayerSettings|
+
+| value               | description                                                                                                                                                                                                                                                                          | type                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| id                  | Unique layer id                                                                                                                                                                                                                                                                      | string                                                                   |
+| type                | Layer type, supported layer types:<br /> `basiskaart`, `wms`, `wmts`, `tms`, `vectortiles`, `3dtiles`, `geojson`, `modelanimation`, `custom`                                                                                                                                         | string                                                                   |
+| title               | Layer title                                                                                                                                                                                                                                                                          | string                                                                   |
+| groupId             | Id of the group where this layer belongs to or empty string, will be placed under uncategorized in library                                                                                                                                                                           | string                                                                   |
+| description         | Simple text field in which a layer description can be provided                                                                                                                                                                                                                       | string                                                                   |
+| imageUrl            | URL of an example image of layer, will be shown in layer library                                                                                                                                                                                                                     | string                                                                   |
+| legendEnabled       | Choose whether legend image is shown or not (default false)                                                                                                                                                                                                                          | boolean                                                                  |
+| legendUrl           | URL of legend image or empty string. Use an empty string if you intend to get dynamic legends for `wms` layers using the style switcher tool                                                                                                                                         | string                                                                   |
+| isBackground        | Set to true to use this as a background layer, background layers are separated from the thematic layers in the layer manager and only 1 background layer can be active at a time                                                                                                     | boolean                                                                  |
+| defaultAddToManager | True if layer should be inmediately available in the layer manager tool on startup                                                                                                                                                                                                   | boolean                                                                  |
+| defaultOn           | True if this layer should be visible at start up, use this together with defaultAddToManager                                                                                                                                                                                         | boolean                                                                  |
+| attribution         | Attribution for the layer data, to be displayed at at layer information page                                                                                                                                                                                                         | string                                                                   |
+| metadata            | An array of {"key":"somekey","value":"somevalue"} pairs, to store custom metadata which is shown in the layer library                                                                                                                                                                | array[KeyValue]                                                          |
+| metadataUrl         | URL of a metadata document for the layer. The layer library parses it and shows its contents, and falls back to a link to the document when no `metadata` entries are set; the layer manager and the zonal statistics panel show an information icon that opens the URL in a new tab | string                                                                   |
+| transparent         | True if layer can be transparent                                                                                                                                                                                                                                                     | boolean                                                                  |
+| disablePopup        | True if the feature info popup should be turned off                                                                                                                                                                                                                                  | boolean                                                                  |
+| opacity             | Number between 0 (opaque) and 100 (transparent)                                                                                                                                                                                                                                      | number                                                                   |
+| cameraPosition      | Default camera position, when set a zoom to icon is displayed for the layer in the layer manager                                                                                                                                                                                     | cameraPosition, same as parameters for [startPosition](###startPosition) |
+| settings            | Technical settings for the layer, this can differ between layer types, see LayerSettings below                                                                                                                                                                                       | LayerSettings                                                            |
 
 #### LayerSettings for type wms
 
-|value|description|default|type|
-|-|-|-|-|
-|url|base URL for the layer service||string|
-|featureName|Name of feature or wms layer, can be found in WMS GetCapabilities||string|
-|contenttype|The http content type for the map data to be retrieved|image/png|string|
-|webMercator|Use the Web Mercator tiling scheme for EPSG:3857 WMS services. If omitted or false, Cesium's geographic tiling scheme is used.|false|boolean|
+| value       | description                                                                                                                    | default   | type    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------ | --------- | ------- |
+| url         | base URL for the layer service                                                                                                 |           | string  |
+| featureName | Name of feature or wms layer, can be found in WMS GetCapabilities                                                              |           | string  |
+| contenttype | The http content type for the map data to be retrieved                                                                         | image/png | string  |
+| webMercator | Use the Web Mercator tiling scheme for EPSG:3857 WMS services. If omitted or false, Cesium's geographic tiling scheme is used. | false     | boolean |
 
 ```json
 {
@@ -333,14 +338,14 @@ Layer definition
 	"defaultOn": false,
 	"transparent": true,
 	"opacity": 0,
-    "cameraPosition": {
-        "x": 4.55017,
-        "y": 51.94717,
-        "z": 10.1657,
-        "heading": 336.80053,
-        "pitch": -20.82619,
-        "duration": 1.5
-    },
+	"cameraPosition": {
+		"x": 4.55017,
+		"y": 51.94717,
+		"z": 10.1657,
+		"heading": 336.80053,
+		"pitch": -20.82619,
+		"duration": 1.5
+	},
 	"settings": {
 		"url": "https://geo.rijkswaterstaat.nl/services/ogc/gdr/beheerkaart_nat/ows?service=WMS&&version=1.3.0",
 		"featureName": "beheer_vlakken",
@@ -355,25 +360,27 @@ Layer definition
 ```
 
 ##### WMS tools
+
 - <b>styleSwitcher:</b> Automatically retrieve a list of available styles from the GetCapabilities that you can switch between. Also dynamically updates the legend
 
-|value|description|default|type|
-|-|-|-|-|
-|enabled|Enable the tool|false|boolean|
-
+| value   | description     | default | type    |
+| ------- | --------------- | ------- | ------- |
+| enabled | Enable the tool | false   | boolean |
 
 #### LayerSettings for type wmts
+
 LayerSettings
-|value|description|default|type|
-|-|-|-|-|
-|url|Base URL for the layer service||string|
-|featureName|Name of feature of wmts layer, can be found in WMTS GetCapabilities||string|
-|contentType|The http content type for the map data to be retrieved|image/png|string|
-|matrixids|List matrix ids to be used by this wmts layer|EPSG:3857:0...EPSG:3857:19|array of string|
-|tileMatrixSetID|Name of the matrixset|EPSG:3857|string|
-|tileWidth|Pixel width of tile|256|number|
-|tileHeigth|Pixel height of tile|256|number|
-|maximumLevel|Maximum zoom levers of layer|amount items in matrixids - 1|number|
+
+| value           | description                                                         | default                       | type            |
+| --------------- | ------------------------------------------------------------------- | ----------------------------- | --------------- |
+| url             | Base URL for the layer service                                      |                               | string          |
+| featureName     | Name of feature of wmts layer, can be found in WMTS GetCapabilities |                               | string          |
+| contentType     | The http content type for the map data to be retrieved              | image/png                     | string          |
+| matrixids       | List matrix ids to be used by this wmts layer                       | EPSG:3857:0...EPSG:3857:19    | array of string |
+| tileMatrixSetID | Name of the matrixset                                               | EPSG:3857                     | string          |
+| tileWidth       | Pixel width of tile                                                 | 256                           | number          |
+| tileHeigth      | Pixel height of tile                                                | 256                           | number          |
+| maximumLevel    | Maximum zoom levers of layer                                        | amount items in matrixids - 1 | number          |
 
 ```json
 "layers":[
@@ -401,16 +408,16 @@ LayerSettings
 
 #### LayerSettings for type 3dtiles
 
-|value|description|default|type|
-|-|-|-|-|
-|url|URL to tileset.json for the 3D Tiles layer||string|
-|shadows|If shadows casting & receiving is enabled or disabled|true|boolean|
-|tilesetHeight|3D tiles layer height (z position) can be changed, supply the change in meters here|0|number|
-|enableHeightControl|Allows the user to set the tilesetHeight using an input element. The tileset height is taken as the input element's initial value.|false|boolean|
-|defaultTheme|If a layer has themes, you can set the default theme to use here|First in the list if not set|string|
-|style|A cesium 3D Tiles style object as defined in [the documentation](https://cesium.com/learn/cesiumjs/ref-doc/Cesium3DTileStyle.html). For pointclouds, this is where you set the `pointSize` attribute. ||Object|
-|themes|List of type theme, themes can be used to style features in 3D Tiles||Array<[Theme](#themes-for-3d-tiles)>|
-|filter|Filter to apply to the 3D Tiles layer.||[3D Tiles Filter](#filtering-3d-tiles)|
+| value               | description                                                                                                                                                                                           | default                      | type                                   |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- | -------------------------------------- |
+| url                 | URL to tileset.json for the 3D Tiles layer                                                                                                                                                            |                              | string                                 |
+| shadows             | If shadows casting & receiving is enabled or disabled                                                                                                                                                 | true                         | boolean                                |
+| tilesetHeight       | 3D tiles layer height (z position) can be changed, supply the change in meters here                                                                                                                   | 0                            | number                                 |
+| enableHeightControl | Allows the user to set the tilesetHeight using an input element. The tileset height is taken as the input element's initial value.                                                                    | false                        | boolean                                |
+| defaultTheme        | If a layer has themes, you can set the default theme to use here                                                                                                                                      | First in the list if not set | string                                 |
+| style               | A cesium 3D Tiles style object as defined in [the documentation](https://cesium.com/learn/cesiumjs/ref-doc/Cesium3DTileStyle.html). For pointclouds, this is where you set the `pointSize` attribute. |                              | Object                                 |
+| themes              | List of type theme, themes can be used to style features in 3D Tiles                                                                                                                                  |                              | Array<[Theme](#themes-for-3d-tiles)>   |
+| filter              | Filter to apply to the 3D Tiles layer.                                                                                                                                                                |                              | [3D Tiles Filter](#filtering-3d-tiles) |
 
 ```json
 {
@@ -434,17 +441,17 @@ LayerSettings
 }
 ```
 
-
 ##### Themes for 3D Tiles
+
 It is possible to style 3D tiles based on properties of a feature, we call this a theme. It's possible to add multiple themes for a 3D Tiles layer, the themes will be displayed when a 3D tiles layer is expanded from the layer manager. See the Cesium documentation on Conditions [here](https://github.com/CesiumGS/3d-tiles/tree/main/specification/Styling#conditions) on how to use a condition. There is currently only support for color conditions.
 
-|value|description|type|
-|-|-|-|
-|title|Display title of the Theme, be sure to make this one unique within the list of themes for a layer|string|
-|conditions|An array defining a series of conditions, see [here](https://github.com/CesiumGS/3d-tiles/tree/main/specification/Styling#conditions) for more info|Array<[string, string]>|
-|legend|The legend that is displayed for the selected theme in the layer manager, user can hover and select entries from the legend to show/hide features|Array<{ color: string, label: string }|
+| value      | description                                                                                                                                         | type                                   |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| title      | Display title of the Theme, be sure to make this one unique within the list of themes for a layer                                                   | string                                 |
+| conditions | An array defining a series of conditions, see [here](https://github.com/CesiumGS/3d-tiles/tree/main/specification/Styling#conditions) for more info | Array<[string, string]>                |
+| legend     | The legend that is displayed for the selected theme in the layer manager, user can hover and select entries from the legend to show/hide features   | Array<{ color: string, label: string } |
 
-In the next example we have a layer with building features containing a ```label``` property with values ranging from A++++ to G. The following config colors the buildings according to their energy label.
+In the next example we have a layer with building features containing a `label` property with values ranging from A++++ to G. The following config colors the buildings according to their energy label.
 
 ```json
 "themes": [
@@ -491,12 +498,13 @@ In the next example we have a layer with building features containing a ```label
 ```
 
 ##### Filtering 3D Tiles
-It is possible to filter 3D tiles based on properties of a feature. The value of the "filter" in the settings of a 3D Tiles layer should have the following structure: 
 
-|value|description|default|type|
-|-|-|-|-|
-|filterAttribute|The attribute in the 3D Tiles to filter on||string|
-|classMapping|The class mapping, mapping the attribute values to the corresponding class labels. See the example below.||Object|
+It is possible to filter 3D tiles based on properties of a feature. The value of the "filter" in the settings of a 3D Tiles layer should have the following structure:
+
+| value           | description                                                                                               | default | type   |
+| --------------- | --------------------------------------------------------------------------------------------------------- | ------- | ------ |
+| filterAttribute | The attribute in the 3D Tiles to filter on                                                                |         | string |
+| classMapping    | The class mapping, mapping the attribute values to the corresponding class labels. See the example below. |         | Object |
 
 ```json
 "filter": {
@@ -511,27 +519,27 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 
 #### LayerSettings for type GeoJSON
 
-|value|description|default|type|
-|-|-|-|-|
-|url|URL to the GeoJSON file||string|
-|clampToGround|Choose to clamp the layer to the terrain|true|boolean|
-|style|If it is a string, it points to the property of the GeoJSON to base the styling on. If it is an object, it can contain a `stroke` (HEX-string), `strokeWidth` (number) and `fill` (HEX-string).||string or object|
-|classMapping|Optional value-to-color map for class-based styling of the `style` attribute. Keys are attribute values, values are HEX colors. The layer manager's color randomizer overrides these with random colors on demand.||object|
-|tools|Selection of GeoJSON tools available in the layer manager||tool|
+| value         | description                                                                                                                                                                                                        | default | type             |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | ---------------- |
+| url           | URL to the GeoJSON file                                                                                                                                                                                            |         | string           |
+| clampToGround | Choose to clamp the layer to the terrain                                                                                                                                                                           | true    | boolean          |
+| style         | If it is a string, it points to the property of the GeoJSON to base the styling on. If it is an object, it can contain a `stroke` (HEX-string), `strokeWidth` (number) and `fill` (HEX-string).                    |         | string or object |
+| classMapping  | Optional value-to-color map for class-based styling of the `style` attribute. Keys are attribute values, values are HEX colors. The layer manager's color randomizer overrides these with random colors on demand. |         | object           |
+| tools         | Selection of GeoJSON tools available in the layer manager                                                                                                                                                          |         | tool             |
 
 ##### GeoJSON tools
+
 - <b>extrude:</b> Makes the layer polygons 3D, controlled by a height slider.
+
 > Note: the geojson should have Z-coordinates for the polygons to be extruded. The extrusion will be relative to the mean Z-value per entity in the GeoJSON.
 
-|value|description|default|type|
-|-|-|-|-|
-|slider_min|Height slider minimum|0|number|
-|slider_max|Height slider maximum|10|number|
-|slider_step|Height slider interval|1|number|
-|slider_default|Height slider default value|0|number|
-|slider_label|Label for the slider|" meter (NAP)"|string|
-
-
+| value          | description                 | default        | type   |
+| -------------- | --------------------------- | -------------- | ------ |
+| slider_min     | Height slider minimum       | 0              | number |
+| slider_max     | Height slider maximum       | 10             | number |
+| slider_step    | Height slider interval      | 1              | number |
+| slider_default | Height slider default value | 0              | number |
+| slider_label   | Label for the slider        | " meter (NAP)" | string |
 
 ```json
 {
@@ -588,16 +596,15 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 }
 ```
 
-
 #### LayerSettings for type modelanimation
 
-|value|description|default|type|
-|-|-|-|-|
-|url|URL to data file for the animation in GeoJSON format. Should be a FeatureCollection of Points with the time specified in the properties||string|
-|modelUrl|URL to the .glb or .gltf file of the 3D model to be used for the animation||string|
-|timeKey|Key of the parameter in the GeoJSON properties that holds the time value (e.g.: '2022-08-01T12:25:11Z')||string|
-|orientationKey|Optional: Key of the parameter in the GeoJSON properties that specifies the orientation of the model in degrees relative to north||string|
-|clampToTerrain|True if the model should be clamped to the terrain. If false, the model will move over the ellipsoid|true|boolean|
+| value          | description                                                                                                                             | default | type    |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------- |
+| url            | URL to data file for the animation in GeoJSON format. Should be a FeatureCollection of Points with the time specified in the properties |         | string  |
+| modelUrl       | URL to the .glb or .gltf file of the 3D model to be used for the animation                                                              |         | string  |
+| timeKey        | Key of the parameter in the GeoJSON properties that holds the time value (e.g.: '2022-08-01T12:25:11Z')                                 |         | string  |
+| orientationKey | Optional: Key of the parameter in the GeoJSON properties that specifies the orientation of the model in degrees relative to north       |         | string  |
+| clampToTerrain | True if the model should be clamped to the terrain. If false, the model will move over the ellipsoid                                    | true    | boolean |
 
 ```json
 {
@@ -617,15 +624,13 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 }
 ```
 
-
 ### Tools configuration ("tools: {}")
-
 
 Multiple tools can be enabled and configured for the viewer trough the config file.
 
-|value|description|type|
-|-|-|-|
-|tools|Array of tools to show/configure for the viewer|Array<Tool>|
+| value | description                                     | type        |
+| ----- | ----------------------------------------------- | ----------- |
+| tools | Array of tools to show/configure for the viewer | Array<Tool> |
 
 ```json
 "tools": [
@@ -635,12 +640,11 @@ Multiple tools can be enabled and configured for the viewer trough the config fi
 
 #### Tool
 
-|value|description|type|
-|-|-|-|
-|id|Id of the tool to configure|string|
-|enabled|Boolean to enable/disable the tool|boolean|
-|settings|Tool specific settings, see below|ToolSettings|
-
+| value    | description                        | type         |
+| -------- | ---------------------------------- | ------------ |
+| id       | Id of the tool to configure        | string       |
+| enabled  | Boolean to enable/disable the tool | boolean      |
+| settings | Tool specific settings, see below  | ToolSettings |
 
 ```json
 {
@@ -656,20 +660,19 @@ Multiple tools can be enabled and configured for the viewer trough the config fi
 
 Library with layers from the config with an option to add connectors to other systems, there is currently only a connector for CKAN available. From the layer library, a user can view additional information about a layer and add or remove layers to the map.
 
-|value||description|type|
-|-|-|-|-|
-|alias||**Optional**: Different name for the tool showing in the viewer|string|
-|position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
-|connectors|type|Type of connector, currently supported ```ckan```|string|
-||url|URL to the service/file|string|
-||organizations|**Optional**: Array of strings defining which CKAN organizations (```organization names```) to retrieve the layers from|Array<string>|
-||groups|**Optional**: Array of strings defining which CKAN groups (```group names```) to retrieve the layers from|Array<string>|
-||packages|**Optional**: Array of strings defining which CKAN packages (```package names```) to retrieve|Array<string>|
-||backgroundLayers|**Optional**: Resources (```resource names``` or ```resource ids```) that should be treated as background layers|Array<string>|
-||layersAddedOn|**Optional**: Resources (```resource names``` or ```resource ids```) that should be added to the layer manager upon opening the viewer and turned on|Array<string>|
-||layersAddedOff|**Optional**: Resources (```resource names``` or ```resource ids```) that should be added to the layer manager upon opening the viewer and turned off|Array<string>|
-|useTags||**Optional**: If set to ```true```, it is possible to filter datasets in the Library based on their tags. Default: ```false```|boolean|
-
+| value      |                  | description                                                                                                                                   | type          |
+| ---------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| alias      |                  | **Optional**: Different name for the tool showing in the viewer                                                                               | string        |
+| position   |                  | **Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools         | integer       |
+| connectors | type             | Type of connector, currently supported `ckan`                                                                                                 | string        |
+|            | url              | URL to the service/file                                                                                                                       | string        |
+|            | organizations    | **Optional**: Array of strings defining which CKAN organizations (`organization names`) to retrieve the layers from                           | Array<string> |
+|            | groups           | **Optional**: Array of strings defining which CKAN groups (`group names`) to retrieve the layers from                                         | Array<string> |
+|            | packages         | **Optional**: Array of strings defining which CKAN packages (`package names`) to retrieve                                                     | Array<string> |
+|            | backgroundLayers | **Optional**: Resources (`resource names` or `resource ids`) that should be treated as background layers                                      | Array<string> |
+|            | layersAddedOn    | **Optional**: Resources (`resource names` or `resource ids`) that should be added to the layer manager upon opening the viewer and turned on  | Array<string> |
+|            | layersAddedOff   | **Optional**: Resources (`resource names` or `resource ids`) that should be added to the layer manager upon opening the viewer and turned off | Array<string> |
+| useTags    |                  | **Optional**: If set to `true`, it is possible to filter datasets in the Library based on their tags. Default: `false`                        | boolean       |
 
 ```json
 {
@@ -699,11 +702,10 @@ Library with layers from the config with an option to add connectors to other sy
 
 Layer manager to show the layers that are added to the map. From this tool a user can switch background layers, enable/disable layers and use more layer-specific functions such as switching themes, zooming to a pre-set camera location, changing opacity and more. There are currently no extra settings to be configured for the layerManager.
 
-|value|description|type|
-|-|-|-|
-|alias|**Optional**: Different name for the tool showing in the viewer|string|
-|position|**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
-
+| value    | description                                                                                                                           | type    |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| alias    | **Optional**: Different name for the tool showing in the viewer                                                                       | string  |
+| position | **Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools | integer |
 
 ```json
 {
@@ -718,20 +720,21 @@ Layer manager to show the layers that are added to the map. From this tool a use
 
 #### featureInfo
 
-Tool to show a feature info popup when a user clicks on the map. In the fields part of the settings it is possible to define a handler for a field returned from a layer. In the below JSON example the Feature Info box will make the value of a field/attribute with the name 'image', 'document' and 'plot' clickable. When the value is clicked the value is handled by a handler. In this case, when a user clicks the value of the image field a zoomable image will pop up in the viewer, when the value of a document field is clicked, a pdf will open, and when the value of a plot field is clicked, a timeseries chart will open. 
+Tool to show a feature info popup when a user clicks on the map. In the fields part of the settings it is possible to define a handler for a field returned from a layer. In the below JSON example the Feature Info box will make the value of a field/attribute with the name 'image', 'document' and 'plot' clickable. When the value is clicked the value is handled by a handler. In this case, when a user clicks the value of the image field a zoomable image will pop up in the viewer, when the value of a document field is clicked, a pdf will open, and when the value of a plot field is clicked, a timeseries chart will open.
 <br />
-Currently supported handlers: ```image```, ```pdf``` and ```chart```. 
+Currently supported handlers: `image`, `pdf` and `chart`.
 <br />
-For ```image``` and ```pdf```, the handler expects the value to be an URL. 
+For `image` and `pdf`, the handler expects the value to be an URL.
 <br />
-For ```chart```, the handler expects an array of objects (data points) in the format ```[{x: datestring, y: value}, {x: datestring, y: value}, ...]``` where the ```y``` key can be a custom name.
+For `chart`, the handler expects an array of objects (data points) in the format `[{x: datestring, y: value}, {x: datestring, y: value}, ...]` where the `y` key can be a custom name.
 
 ```json
 {
 	"id": "featureinfo",
 	"enabled": true,
 	"settings": {
-		"fields": [{
+		"fields": [
+			{
 				"field": "image",
 				"handler": "image"
 			},
@@ -752,11 +755,10 @@ For ```chart```, the handler expects an array of objects (data points) in the fo
 
 The info tool will display attribution from used libraries in the viewer and some additional viewer title and description if configured.
 
-|value|description|type|
-|-|-|-|
-|title|Title of the viewer|string|
-|description|Some information about the viewer|string (HTML supported)|
-
+| value       | description                       | type                    |
+| ----------- | --------------------------------- | ----------------------- |
+| title       | Title of the viewer               | string                  |
+| description | Some information about the viewer | string (HTML supported) |
 
 ```json
 {
@@ -773,10 +775,9 @@ The info tool will display attribution from used libraries in the viewer and som
 
 Geocoder tool, located at the right corner of the header instead of the toolbar. The user can search for locations using and zoom to locations using this tool. By default the Dutch Locatieserver geocoder is used: https://geodata.nationaalgeoregister.nl/locatieserver/v3. For international geocoding, OSM's Nominatim can be used: https://nominatim.openstreetmap.org.
 
-|value|description|type|
-|-|-|-|
-|name|Geocoder name. Currently supporting locatieserver (Dutch), geolocation (Belgian) and nominatim (worldwide)|string|
-
+| value | description                                                                                                | type   |
+| ----- | ---------------------------------------------------------------------------------------------------------- | ------ |
+| name  | Geocoder name. Currently supporting locatieserver (Dutch), geolocation (Belgian) and nominatim (worldwide) | string |
 
 ```json
 {
@@ -800,39 +801,36 @@ Mode switcher tool, located at the right corner of the header instead of the too
 }
 ```
 
-
-
 #### cesium
 
 Tool where the user can change settings of the Cesium viewer. Settings can be used to change the viewer default values.
 
-|value|description|default|type|
-|-|-|-|-|
-|dateTime|Date and time, determines the sun position|1657450800 (10-07-2022 11:00:00)|unix timestamp|
-|shadows|Shadows enabled/disabled|false|boolean|
-|showMouseCoordinates|Debug window in viewer to show coordinates for mouse position|false|boolean|
-|showCameraPosition|Debug window to show the current camera position, updates on move|false|boolean|
-|showLoadingWidget|Show a small bar on the bottom of the viewer showing the loading progress of layers|false|boolean|
-|fxaa|FXAA enabled|true|Boolean|
-|msaa|MSAA samples|1|number|
-|lighting|Enable lighting the globe with the scene's light source|true|boolean|
-|animate|Enable when displaying animated models else animations only update when the viewer refreshes it's view such as when panning/zooming|false|boolean|
-|resolutionScale|Gets or sets a scaling factor for rendering resolution. Values less than 1.0 can improve performance on less powerful devices while values greater than 1.0 will render at a higher resolution and then scale down, resulting in improved visual fidelity|window.devicePixelRatio|number|
-|maximumScreenSpaceError|The maximum screen space error used to drive level of detail refinement. for 3D tile layers|1.2|number|
-|groundAtmosphere|Ground atmosphere enabled|true|boolean|
-|fog|Fog enabled|true|boolean|
-|highDynamicRange|HDR enabled|false|boolean|
-|pointCloudAttenuation|3D Tile Point Cloud Attenuation enabled, Perform point attenuation based on geometric error|true|boolean|
-|pointCloudAttenuationMaximum|3D Tile Point Cloud Maximum point attenuation in pixels. If undefined, the Cesium3DTileset's maximumScreenSpaceError will be used|0|number|
-|pointCloudAttenuationErrorScale|Scale to be applied to the geometric error before computing attenuation|1|number|
-|pointCloudAttenuationBaseResolution|Average base resolution for the dataset in meters. Used in place of geometric error when the geometric error is 0. If undefined, an approximation will be computed for each tile that has a geometric error of 0|0|number|
-|pointCloudEDL|Eye Dome Lighting enabled, Use eye dome lighting when drawing with point attenuation Requires support for EXT_frag_depth, OES_texture_float, and WEBGL_draw_buffers extensions in WebGL 1.0, otherwise eye dome lighting is ignored|true|boolean|
-|pointCloudEDLStrength|Eye dome lighting strength (apparent contrast)|1|number|
-|pointCloudEDLRadius|Thickness of contours from eye dome lighting|1|number|
-|globeOpacity|Opacity percentage of the globe|100|number|
-|enableCollisionDetection|Prevent the camera from moving below the terrain/surface. Set to `true` to prevent going subsurface|false|boolean|
-|terrainProviders|Array of terrain providers, first in list is activated by default, leave out URL to create empty provider (see example below)|-|Terrain Provider|
-
+| value                               | description                                                                                                                                                                                                                                               | default                          | type             |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ---------------- |
+| dateTime                            | Date and time, determines the sun position                                                                                                                                                                                                                | 1657450800 (10-07-2022 11:00:00) | unix timestamp   |
+| shadows                             | Shadows enabled/disabled                                                                                                                                                                                                                                  | false                            | boolean          |
+| showMouseCoordinates                | Debug window in viewer to show coordinates for mouse position                                                                                                                                                                                             | false                            | boolean          |
+| showCameraPosition                  | Debug window to show the current camera position, updates on move                                                                                                                                                                                         | false                            | boolean          |
+| showLoadingWidget                   | Show a small bar on the bottom of the viewer showing the loading progress of layers                                                                                                                                                                       | false                            | boolean          |
+| fxaa                                | FXAA enabled                                                                                                                                                                                                                                              | true                             | Boolean          |
+| msaa                                | MSAA samples                                                                                                                                                                                                                                              | 1                                | number           |
+| lighting                            | Enable lighting the globe with the scene's light source                                                                                                                                                                                                   | true                             | boolean          |
+| animate                             | Enable when displaying animated models else animations only update when the viewer refreshes it's view such as when panning/zooming                                                                                                                       | false                            | boolean          |
+| resolutionScale                     | Gets or sets a scaling factor for rendering resolution. Values less than 1.0 can improve performance on less powerful devices while values greater than 1.0 will render at a higher resolution and then scale down, resulting in improved visual fidelity | window.devicePixelRatio          | number           |
+| maximumScreenSpaceError             | The maximum screen space error used to drive level of detail refinement. for 3D tile layers                                                                                                                                                               | 1.2                              | number           |
+| groundAtmosphere                    | Ground atmosphere enabled                                                                                                                                                                                                                                 | true                             | boolean          |
+| fog                                 | Fog enabled                                                                                                                                                                                                                                               | true                             | boolean          |
+| highDynamicRange                    | HDR enabled                                                                                                                                                                                                                                               | false                            | boolean          |
+| pointCloudAttenuation               | 3D Tile Point Cloud Attenuation enabled, Perform point attenuation based on geometric error                                                                                                                                                               | true                             | boolean          |
+| pointCloudAttenuationMaximum        | 3D Tile Point Cloud Maximum point attenuation in pixels. If undefined, the Cesium3DTileset's maximumScreenSpaceError will be used                                                                                                                         | 0                                | number           |
+| pointCloudAttenuationErrorScale     | Scale to be applied to the geometric error before computing attenuation                                                                                                                                                                                   | 1                                | number           |
+| pointCloudAttenuationBaseResolution | Average base resolution for the dataset in meters. Used in place of geometric error when the geometric error is 0. If undefined, an approximation will be computed for each tile that has a geometric error of 0                                          | 0                                | number           |
+| pointCloudEDL                       | Eye Dome Lighting enabled, Use eye dome lighting when drawing with point attenuation Requires support for EXT_frag_depth, OES_texture_float, and WEBGL_draw_buffers extensions in WebGL 1.0, otherwise eye dome lighting is ignored                       | true                             | boolean          |
+| pointCloudEDLStrength               | Eye dome lighting strength (apparent contrast)                                                                                                                                                                                                            | 1                                | number           |
+| pointCloudEDLRadius                 | Thickness of contours from eye dome lighting                                                                                                                                                                                                              | 1                                | number           |
+| globeOpacity                        | Opacity percentage of the globe                                                                                                                                                                                                                           | 100                              | number           |
+| enableCollisionDetection            | Prevent the camera from moving below the terrain/surface. Set to `true` to prevent going subsurface                                                                                                                                                       | false                            | boolean          |
+| terrainProviders                    | Array of terrain providers, first in list is activated by default, leave out URL to create empty provider (see example below)                                                                                                                             | -                                | Terrain Provider |
 
 ```json
 {
@@ -852,15 +850,15 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 		"enableCollisionDetection": false,
 		"pointCloudAttenuationMaximum": 2,
 		"terrainProviders": [
-          {
-            "title": "25gn1",
-            "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
-            "vertexNormals": true
-          },
-          {
-            "title": "Uit"
-          }
-        ]
+			{
+				"title": "25gn1",
+				"url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
+				"vertexNormals": true
+			},
+			{
+				"title": "Uit"
+			}
+		]
 	}
 }
 ```
@@ -871,10 +869,10 @@ The help tool can be opend from the toolbar or configured to open on startup of 
 
 Next to the always visible tabs (introduction, movement and library), tabs are shown for the `flooding`, `stories`, `isochrones` and `zonalStatistics` tools when those tools are enabled.
 
-|value|description|type|
-|-|-|-|
-|showOnStart|Show the popup on opening the viewer, can be disabled by the user after the first time|boolean|
-|introSettings|**Optional**: Custom settings for the intro tab. Includes a custom description and download button.|object|
+| value         | description                                                                                         | type    |
+| ------------- | --------------------------------------------------------------------------------------------------- | ------- |
+| showOnStart   | Show the popup on opening the viewer, can be disabled by the user after the first time              | boolean |
+| introSettings | **Optional**: Custom settings for the intro tab. Includes a custom description and download button. | object  |
 
 ```json
 {
@@ -882,7 +880,7 @@ Next to the always visible tabs (introduction, movement and library), tabs are s
 	"enabled": true,
 	"settings": {
 		"showOnStart": true,
-		"introSettings": { 
+		"introSettings": {
 			"customDescription": "<div>This is a custom HTML description.</div>",
 			"downloadButton": {
 				"enabled": true,
@@ -895,15 +893,16 @@ Next to the always visible tabs (introduction, movement and library), tabs are s
 ```
 
 #### config switcher
+
 The config switcher tool can be used to switch between different configurations for the viewer. The user can select a different configuration from a pop-up after clicking the icon in the tool menu. The configuration files should be served by the [config server](https://github.com/ProvincieZeeland/viewer-config-server), a simple Node/ExpressJS server. The viewer will automatically load the configuration file when selected.
 
 In order for the config switcher to work, you must configure the environment variable `CONFIG_SERVER_URL`. This URL should point to the base URL of the config server, including environment specification (e.g. `'http://localhost:3000/acc'`).
 
-> Note: in order to always be able to switch back and forth between configurations, all configuration files on the server should have the config switcher tool enabled. 
+> Note: in order to always be able to switch back and forth between configurations, all configuration files on the server should have the config switcher tool enabled.
 
-|value|description|default|type|
-|-|-|-|-|
-|fullReload|Whether to reload the entire page on switching configs, which will change the URL of the page. If false, only some components will be reloaded.|false|boolean|
+| value      | description                                                                                                                                     | default | type    |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------- |
+| fullReload | Whether to reload the entire page on switching configs, which will change the URL of the page. If false, only some components will be reloaded. | false   | boolean |
 
 ```json
 {
@@ -919,27 +918,27 @@ In order for the config switcher to work, you must configure the environment var
 
 This tool can be used to add bookmarks to the viewer, the bookmarks set trough the config are not removable by the user. Users are able to add their own bookmarks which are stored in local-storage.
 
-|value||description|type|
-|-|-|-|-|
-|alias||**Optional**: Different name for the tool showing in the viewer|string|
-|position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
-|bookmarks|title|The title of the bookmark|string|
-||description|The description of the bookmark|string|
-||x|Longitude position of the camera|number|
-||y|Latitude position of the camera|number|
-||z|Height of the camera in meters|number|
-||heading|Heading of the camera (Rotation)|number|
-||pitch|Pitch of the camera (up/down) where -90 is looking down, 0 is forward, 90 is up|number|
-||duration|Time to fly to the locaton in seconds|number|
+| value     |             | description                                                                                                                           | type    |
+| --------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| alias     |             | **Optional**: Different name for the tool showing in the viewer                                                                       | string  |
+| position  |             | **Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools | integer |
+| bookmarks | title       | The title of the bookmark                                                                                                             | string  |
+|           | description | The description of the bookmark                                                                                                       | string  |
+|           | x           | Longitude position of the camera                                                                                                      | number  |
+|           | y           | Latitude position of the camera                                                                                                       | number  |
+|           | z           | Height of the camera in meters                                                                                                        | number  |
+|           | heading     | Heading of the camera (Rotation)                                                                                                      | number  |
+|           | pitch       | Pitch of the camera (up/down) where -90 is looking down, 0 is forward, 90 is up                                                       | number  |
+|           | duration    | Time to fly to the locaton in seconds                                                                                                 | number  |
 
 ```json
 {
 	"id": "bookmarks",
 	"enabled": true,
 	"settings": {
-		"alias": "My bookmarks", 
+		"alias": "My bookmarks",
 		"position": 3,
-		"bookmarks": [	
+		"bookmarks": [
 			{
 				"title": "3DNL Urmond",
 				"description": "Cyclomedia",
@@ -966,18 +965,19 @@ This tool can be used to add bookmarks to the viewer, the bookmarks set trough t
 ```
 
 #### projects
-This tool can be used to add projects with project-specific layers. The project will be cut-out from the viewer according to the input polygon. The ```openProject``` option can be set to directly open a project when loading the viewer.
 
-|value||description|type
-|-|-|-|-|
-|alias||**Optional**: Different name for the tool showing in the viewer|string|
-|position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
-|openProject||The name of the project you want to open when loading the viewer. Leave this empty if you don't want to open a project by default.|string
-|projects|name|The name of the project|string|
-||description|A description for the project|string|
-||polygon|An array of coordinates describing the project delimitation|array of [lon: number, lat: number]|
-||layers|An array of layer objects to be shown for the project|array of { id: string, on: boolean, tileset?: string }|
-||cameraPosition|The default camera position|cameraLocation|
+This tool can be used to add projects with project-specific layers. The project will be cut-out from the viewer according to the input polygon. The `openProject` option can be set to directly open a project when loading the viewer.
+
+| value       |                | description                                                                                                                           | type                                                   |
+| ----------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| alias       |                | **Optional**: Different name for the tool showing in the viewer                                                                       | string                                                 |
+| position    |                | **Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools | integer                                                |
+| openProject |                | The name of the project you want to open when loading the viewer. Leave this empty if you don't want to open a project by default.    | string                                                 |
+| projects    | name           | The name of the project                                                                                                               | string                                                 |
+|             | description    | A description for the project                                                                                                         | string                                                 |
+|             | polygon        | An array of coordinates describing the project delimitation                                                                           | array of [lon: number, lat: number]                    |
+|             | layers         | An array of layer objects to be shown for the project                                                                                 | array of { id: string, on: boolean, tileset?: string } |
+|             | cameraPosition | The default camera position                                                                                                           | cameraLocation                                         |
 
 ```json
 {
@@ -997,7 +997,7 @@ This tool can be used to add projects with project-specific layers. The project 
 						52.39961
 					],
 					[
-						4.91807, 
+						4.91807,
 						52.39961
 					],
 					[
@@ -1035,17 +1035,17 @@ This tool can be used to add projects with project-specific layers. The project 
 			}
 		]
 	}
-},		
+},
 ```
 
 #### measure
 
 Measuring tool accessible through the toolbar, with this tool the user can add 3d measurements to the viewer. No additional settings are needed. Measurements are stored in local storage.
 
-|value|description|type|
-|-|-|-|
-|alias|**Optional**: Different name for the tool showing in the viewer|string|
-|position|**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
+| value    | description                                                                                                                           | type    |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| alias    | **Optional**: Different name for the tool showing in the viewer                                                                       | string  |
+| position | **Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools | integer |
 
 ```json
 {
@@ -1062,29 +1062,29 @@ Measuring tool accessible through the toolbar, with this tool the user can add 3
 
 Tool for storymapping. Create and show multiple stories in the viewer. Each story can contain multiple chapters with steps which the user can click through. Each chapter has an id, title, button text (shorthand for longer titles) and steps. Each step has a title and description (HTML), a fly-to location, and a set of layers with their settings (id, style, opacity, showOpacitySlider). A story can be opened directly in the viewer through the 'story' search parameter, for example: "https://some-site.nl/?story=mystoryname".
 
-|value||description|type|
-|-|-|-|-|
-|alias||**Optional**: Different name for the tool showing in the viewer|string|
-|position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
-|showOnMap||**Optional**: Show story markers on the map initially. The visibility can also be changed with the Stories tool toggle, which is available both in the story overview and at the bottom of an opened story. Defaults to `true`|boolean|
-|stories|name|The name of the story|string|
-||description|A short description to describe the story|string|
-||width|The width of the story menu|string|
-||forceCameraMode|Forces the camera into a fixed mode while the story is open and prevents users from switching camera mode. Accepts `"2D"` or `"3D"`. On opening the story the camera switches to the given mode if needed; on closing it reverts to the previous mode if it was changed|string|
-||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
-||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
-||baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
-||chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
-||chapterGroups|Groups the chapter ids refer to|object|
+| value     |                    | description                                                                                                                                                                                                                                                             | type    |
+| --------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| alias     |                    | **Optional**: Different name for the tool showing in the viewer                                                                                                                                                                                                         | string  |
+| position  |                    | **Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools                                                                                                                                   | integer |
+| showOnMap |                    | **Optional**: Show story markers on the map initially. The visibility can also be changed with the Stories tool toggle, which is available both in the story overview and at the bottom of an opened story. Defaults to `true`                                          | boolean |
+| stories   | name               | The name of the story                                                                                                                                                                                                                                                   | string  |
+|           | description        | A short description to describe the story                                                                                                                                                                                                                               | string  |
+|           | width              | The width of the story menu                                                                                                                                                                                                                                             | string  |
+|           | forceCameraMode    | Forces the camera into a fixed mode while the story is open and prevents users from switching camera mode. Accepts `"2D"` or `"3D"`. On opening the story the camera switches to the given mode if needed; on closing it reverts to the previous mode if it was changed | string  |
+|           | staticCamera       | Keeps camera location the same after drawing and between steps                                                                                                                                                                                                          | boolean |
+|           | requestPolygonArea | Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)                                                            | object  |
+|           | baseLayerId        | ID of a base layer that can be toggled on or off and can be seen in each story step                                                                                                                                                                                     | string  |
+|           | chapters           | Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below                                                                                                                                                       | object  |
+|           | chapterGroups      | Groups the chapter ids refer to                                                                                                                                                                                                                                         | object  |
 
 Each layer within a step's `layers` array supports these settings:
 
-|value|description|default|type|
-|-|-|-|-|
-|id|ID of the layer to add in this step|-|string|
-|opacity|Initial opacity percentage of the layer|100|number|
-|style|Style/theme to apply to the layer|-|string|
-|showOpacitySlider|Whether the transparency slider is shown for this layer in the story step|true|boolean|
+| value             | description                                                               | default | type    |
+| ----------------- | ------------------------------------------------------------------------- | ------- | ------- |
+| id                | ID of the layer to add in this step                                       | -       | string  |
+| opacity           | Initial opacity percentage of the layer                                   | 100     | number  |
+| style             | Style/theme to apply to the layer                                         | -       | string  |
+| showOpacitySlider | Whether the transparency slider is shown for this layer in the story step | true    | boolean |
 
 Each story step can also define `markerCoordinates`. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story. Each marker has a `type`, defaulting to `chapter` when omitted:
 
@@ -1092,22 +1092,21 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 - **`text`**: shows the given `text` in a speech bubble on the map instead of an icon. `text` is mandatory for this type.
 - **`image`**: shows a camera icon; clicking it opens the image(s) from `url` in gallery mode. `url` is mandatory for this type and can be a single string or an array of strings — with multiple images the gallery shows arrow controls to navigate between them. Only `http(s)` and relative urls are used.
 
-|value|description|type|
-|-|-|-|
-|markerCoordinates|**Optional**: Location or locations of markers for this story step|object or array[object]|
-|type|**Optional**: `chapter` (default), `text`, or `image`|string|
-|x|Longitude of the story marker|number|
-|y|Latitude of the story marker|number|
-|text|**Mandatory when type is `text`**: text shown in the speech bubble. **Optional for type `image`**: tooltip shown when hovering the marker|string|
-|url|**Mandatory when type is `image`**: image url, or array of image urls for gallery mode|string or array[string]|
+| value             | description                                                                                                                               | type                    |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| markerCoordinates | **Optional**: Location or locations of markers for this story step                                                                        | object or array[object] |
+| type              | **Optional**: `chapter` (default), `text`, or `image`                                                                                     | string                  |
+| x                 | Longitude of the story marker                                                                                                             | number                  |
+| y                 | Latitude of the story marker                                                                                                              | number                  |
+| text              | **Mandatory when type is `text`**: text shown in the speech bubble. **Optional for type `image`**: tooltip shown when hovering the marker | string                  |
+| url               | **Mandatory when type is `image`**: image url, or array of image urls for gallery mode                                                    | string or array[string] |
 
 ```json
-
 {
 	"id": "stories",
 	"enabled": true,
 	"settings": {
-		"alias":"My Stories",
+		"alias": "My Stories",
 		"position": 6,
 		"showOnMap": true,
 		"stories": [
@@ -1131,23 +1130,25 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 								"html": "<div>Content of the step.</div>",
 								"globeOpacity": 100,
 								"terrain": "PDOK Terrain",
-								"markerCoordinates": [{
-									"type": "chapter",
-									"x": 5.23907,
-									"y": 52.20004
-								},
-								{
-									"type": "text",
-									"text": "This is example text",
-									"x": 5.23950,
-									"y": 52.20050
-								},
-								{
-									"type": "image",
-									"url": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
-									"x": 5.23860,
-									"y": 52.19960
-								}],
+								"markerCoordinates": [
+									{
+										"type": "chapter",
+										"x": 5.23907,
+										"y": 52.20004
+									},
+									{
+										"type": "text",
+										"text": "This is example text",
+										"x": 5.2395,
+										"y": 52.2005
+									},
+									{
+										"type": "image",
+										"url": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
+										"x": 5.2386,
+										"y": 52.1996
+									}
+								],
 								"camera": {
 									"x": 5.23907,
 									"y": 52.20004,
@@ -1167,10 +1168,11 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 										"showOpacitySlider": false
 									}
 									//etc. You can add as many layers as you want per step
-								]							},
+								]
+							}
 							//etc. You can add as many steps as you want per chapter
 						]
-					},
+					}
 					//etc. You can add as many chapters as you want per story
 				],
 				"chapterGroups": [
@@ -1178,26 +1180,25 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 						"id": "1",
 						"title": "Bebouwing",
 						"buttonText": "Ch.1"
-					},
+					}
 					//etc. These are the groups your chapter ids refer to
 				]
-			},
+			}
 			//etc. You can add as many stories as you want
 		]
 	}
 }
 ```
 
-
 #### isochrones
 
 Tool to calculate and visualize car isochrones (travel-time areas) around an economic development location and use accounted population growth data to calculate the net migration surplus in the affected area.
 
-|value|description|type|
-|-|-|-|
-|apiUrl|OpenRouteService isochrones endpoint URL|string|
-|accountedPopulationGrowthLayerId|Layer id used to retrieve accounted population growth data|string|
-|accountedPopulationGrowthAttribute|Attribute name in the configured layer that contains the accounted population growth value|string|
+| value                              | description                                                                                | type   |
+| ---------------------------------- | ------------------------------------------------------------------------------------------ | ------ |
+| apiUrl                             | OpenRouteService isochrones endpoint URL                                                   | string |
+| accountedPopulationGrowthLayerId   | Layer id used to retrieve accounted population growth data                                 | string |
+| accountedPopulationGrowthAttribute | Attribute name in the configured layer that contains the accounted population growth value | string |
 
 ```json
 {
@@ -1211,23 +1212,21 @@ Tool to calculate and visualize car isochrones (travel-time areas) around an eco
 }
 ```
 
-
-
 #### zonalStatistics
 
 Generic tool to inspect statistics per zone (e.g. per postcode area). The user clicks one or more zone geometries on the map and a floating table appears with one row per data layer added to the table and one or more configurable columns per selected zone. What the map shows and what the table shows are independent: in the tool panel each configured data layer gets a card with a **radio button** that makes it the layer whose values are painted on the zones (so it is always clear which layer you are looking at), while its data is added to the table with the **+** button on the same card (which turns into a red trash-can button to remove the row again). Removing and re-adding a layer immediately updates the rows for the already selected zones; a newly added row briefly flashes blue so it is easy to spot. All layers in the tool are drawn with **one shared colour scheme**: the `classMapping` on the `zoneLayerId` layer (keyed on that layer's `style` attribute) is applied to every configured data layer, so the same value always gets the same colour instead of each GeoJSON layer picking random colours. Because the data layers are attribute joins on the zone code, they all share the zone layer's geometry: the zones are drawn once and only recoloured when another layer is selected, and the data layers themselves are never drawn as map layers at all — only their attributes and colours are read — so adding more layers to the tool does not slow the map down or grow its memory use. The opacity slider on a layer's card sets the fill transparency while that layer is selected. The tool opens with the first configured data layer shown on the map and as the table's first row; when the table has no layers it shows a hint instead of rows and exports are disabled. Data layers are only downloaded when they are actually used: on viewer start just the zone layer is loaded, and each other layer is fetched (one at a time) the first time it is selected on the map or added to the table, with a spinner on its panel card while that happens. The zone boundaries are outlined in black for as long as the tool is open, whichever layer is selected; the zones in the table get a thicker yellow outline and the zone currently focused in the table a thicker blue one. Closing the tool empties the table and restores the zone layer to the visibility it had before the tool was opened. Each column reads an attribute from the row-layer's feature, so the tool can show categorical labels (colour-styled), numeric statistics, or any mix. Hovering a zone highlights it on the map; selected zones are tinted (the zone currently focused in the table gets the strongest tint), a live count of the selected zones is shown, and export progress is indicated while a PNG, JPEG, PDF or CSV is generated. Each selected zone's table column header has a zoom button that flies the camera to frame that zone. The table can be exported as PNG, JPEG, PDF or CSV; the `tooltipAttribute` description text is included in every export (a description column in the PDF and CSV, and rendered inline in the PNG/JPEG). The PNG/JPEG exports use a dedicated A4-portrait-width sheet where each selected zone is a separate table stacked vertically (rather than the wide side-by-side on-screen table), so the image fits on A4 pages. In the tool panel (left menu) each configured data layer gets a compact card with the radio button and the add/remove-from-table button, plus an opacity slider behind a chevron. The tool ships no built-in colours or branding — everything is config-driven.
 
-|value|description|type|
-|-|-|-|
-|zoneLayerId|Id of the layer holding the clickable zone geometries. This is the only layer of the tool that is actually drawn: it is switched on while the tool is open and every data layer's values are painted onto it. Its `settings.classMapping` (keyed on its `settings.style` attribute) is applied to every data layer, so all layers in the tool share one colour scheme|string|
-|zoneCodeAttribute|Attribute on a zone feature that holds its code (e.g. a postcode). Defaults to `postcode`. Because the data layers are separate datasets joined on this code, codes are matched ignoring case and whitespace (`"4331 ab"` and `"4331AB"` are the same zone); values from `classMapping` are matched ignoring case too|string|
-|layers|Data layers selectable in the panel; each can be added to the table as a row. Each entry is `{ id, title?, columns? }`; `title` defaults to the layer's config title, and `columns` overrides the source attribute names this layer reads for one or more columns (see below). The first entry is shown on the map and added to the table when the tool opens. Data layers are attribute joins on `zoneCodeAttribute` and are drawn on the `zoneLayerId` geometry, so a zone the layer has no feature for is left blank. They are never added to the map as layers themselves: only the `zoneLayerId` layer is loaded on viewer start, and each data layer's GeoJSON is downloaded one at a time — the first time it is selected or added to the table — to read its attributes and colours|array|
-|columns|Columns rendered per selected zone. Each entry is `{ key?, attribute, label?, hideInTable?, hideInImageExport?, decimals?, tooltipAttribute?, styled? }`. `attribute` is the *default* source attribute name and `key` is the stable id a layer's `columns` override refers to (defaults to `attribute`); `label` defaults to `attribute`; `hideInTable` hides the column in the interactive table; `hideInImageExport` hides the column in the image export; `decimals` (integer 0-20) rounds numeric values of that column to a fixed number of decimals in the table and in every export (omit it to show the raw value); `tooltipAttribute` adds a hover description (and a description column in the PDF and CSV exports, rendered inline in image exports); `styled: true` colours the cell using `valueStyles`|array|
-|valueStyles|Optional value-to-colour map for styled columns. Each entry is `{ value, color, label? }`. Drives styled cell backgrounds, the legend and PDF cell fills (PDF fills require HEX colours; other CSS colours render plain in the PDF). The text colour is derived automatically (black or white, whichever contrasts best with `color`)|array|
-|exportTitle|Optional title used for exports. Defaults to the tool title/alias|string|
-|exportFileName|Optional file-name prefix for exports. Defaults to the tool title/alias|string|
-|pdfFooterText|Optional footer text drawn on exported PDFs|string|
-|pdfLogo|Optional left logo image path for exported PDFs|string|
+| value             | description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | type   |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| zoneLayerId       | Id of the layer holding the clickable zone geometries. This is the only layer of the tool that is actually drawn: it is switched on while the tool is open and every data layer's values are painted onto it. Its `settings.classMapping` (keyed on its `settings.style` attribute) is applied to every data layer, so all layers in the tool share one colour scheme                                                                                                                                                                                                                                                                                                                                                                                                                                                 | string |
+| zoneCodeAttribute | Attribute on a zone feature that holds its code (e.g. a postcode). Defaults to `postcode`. Because the data layers are separate datasets joined on this code, codes are matched ignoring case and whitespace (`"4331 ab"` and `"4331AB"` are the same zone); values from `classMapping` are matched ignoring case too                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | string |
+| layers            | Data layers selectable in the panel; each can be added to the table as a row. Each entry is `{ id, title?, columns? }`; `title` defaults to the layer's config title, and `columns` overrides the source attribute names this layer reads for one or more columns (see below). The first entry is shown on the map and added to the table when the tool opens. Data layers are attribute joins on `zoneCodeAttribute` and are drawn on the `zoneLayerId` geometry, so a zone the layer has no feature for is left blank. They are never added to the map as layers themselves: only the `zoneLayerId` layer is loaded on viewer start, and each data layer's GeoJSON is downloaded one at a time — the first time it is selected or added to the table — to read its attributes and colours                           | array  |
+| columns           | Columns rendered per selected zone. Each entry is `{ key?, attribute, label?, hideInTable?, hideInImageExport?, decimals?, tooltipAttribute?, styled? }`. `attribute` is the _default_ source attribute name and `key` is the stable id a layer's `columns` override refers to (defaults to `attribute`); `label` defaults to `attribute`; `hideInTable` hides the column in the interactive table; `hideInImageExport` hides the column in the image export; `decimals` (integer 0-20) rounds numeric values of that column to a fixed number of decimals in the table and in every export (omit it to show the raw value); `tooltipAttribute` adds a hover description (and a description column in the PDF and CSV exports, rendered inline in image exports); `styled: true` colours the cell using `valueStyles` | array  |
+| valueStyles       | Optional value-to-colour map for styled columns. Each entry is `{ value, color, label? }`. Drives styled cell backgrounds, the legend and PDF cell fills (PDF fills require HEX colours; other CSS colours render plain in the PDF). The text colour is derived automatically (black or white, whichever contrasts best with `color`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | array  |
+| exportTitle       | Optional title used for exports. Defaults to the tool title/alias                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | string |
+| exportFileName    | Optional file-name prefix for exports. Defaults to the tool title/alias                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | string |
+| pdfFooterText     | Optional footer text drawn on exported PDFs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | string |
+| pdfLogo           | Optional left logo image path for exported PDFs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | string |
 
 ```json
 {
@@ -1242,9 +1241,28 @@ Generic tool to inspect statistics per zone (e.g. per postcode area). The user c
 		"pdfFooterText": "Provincie Zeeland - Klimaatlabels",
 		"pdfLogo": "/images/Zeeland_logo.png",
 		"columns": [
-			{ "key": "huidig", "attribute": "label", "label": "Huidig", "tooltipAttribute": "category", "styled": true },
-			{ "key": "ambitie", "attribute": "ambitie_label", "label": "Ambitie", "tooltipAttribute": "ambitie_category", "styled": true, "hideInTable": true},
-			{ "attribute": "Shape_area", "label": "Oppervlakte (m²)", "hideInTable": true, "hideInImageExport": true, "decimals": 0 }
+			{
+				"key": "huidig",
+				"attribute": "label",
+				"label": "Huidig",
+				"tooltipAttribute": "category",
+				"styled": true
+			},
+			{
+				"key": "ambitie",
+				"attribute": "ambitie_label",
+				"label": "Ambitie",
+				"tooltipAttribute": "ambitie_category",
+				"styled": true,
+				"hideInTable": true
+			},
+			{
+				"attribute": "Shape_area",
+				"label": "Oppervlakte (m²)",
+				"hideInTable": true,
+				"hideInImageExport": true,
+				"decimals": 0
+			}
 		],
 		"valueStyles": [
 			{ "value": "A", "color": "#44ce1b" },
@@ -1255,7 +1273,10 @@ Generic tool to inspect statistics per zone (e.g. per postcode area). The user c
 		],
 		"layers": [
 			{ "id": "999a" },
-			{ "id": "999b", "columns": { "ambitie": { "attribute": "label_ca", "tooltipAttribute": "category_ca" } } }
+			{
+				"id": "999b",
+				"columns": { "ambitie": { "attribute": "label_ca", "tooltipAttribute": "category_ca" } }
+			}
 		]
 	}
 }
@@ -1283,19 +1304,17 @@ Both layers then fill the same **Ambitie** column. Notes:
 - Layers without a `columns` override keep using the column's `attribute`, so existing configs need no change.
 - `attribute` and `tooltipAttribute` are overridden independently; omitting one keeps the column's default.
 - `{ "ambitie": "label_ca" }` is accepted as shorthand for overriding only the value attribute.
-- The override also applies to the shared colour scheme: the zone layer's `classMapping` is looked up on each layer's *own* name for the class column, so a layer that names it differently still gets coloured instead of rendering as bare outlines.
+- The override also applies to the shared colour scheme: the zone layer's `classMapping` is looked up on each layer's _own_ name for the class column, so a layer that names it differently still gets coloured instead of rendering as bare outlines.
 
 The panel lists the configured data layers as a flat set of cards, in config order. Above them a header row shows how many layers are in the table (`N / M`) and two icon buttons add every configured layer to the table at once or empty the table again.
-
-
 
 #### language
 
 Header tool to enable switching between different languages. If this tool is not included or disabled, Dutch is used.
 
-|value|description|type|
-|-|-|-|
-|startLanguage|Defines which language the viewer should open with. If not defined, the selected language will be remembered between sessions. Currently supports `en`, `nl`, and `fr`.|string
+| value         | description                                                                                                                                                             | type   |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| startLanguage | Defines which language the viewer should open with. If not defined, the selected language will be remembered between sessions. Currently supports `en`, `nl`, and `fr`. | string |
 
 ```json
 {
@@ -1317,7 +1336,6 @@ Header tool to enable a link to the GitHub project page.
 	"enabled": true
 }
 ```
-
 
 #### flycamera
 

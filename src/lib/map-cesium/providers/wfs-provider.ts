@@ -786,8 +786,7 @@ abstract class WFSLoaderCesium {
 export class WFSLoaderCesiumStatic extends WFSLoaderCesium {
 	private features: Array<GeoJSONFeature> | undefined;
 	private primitives:
-		| Array<Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive>
-		| undefined;
+		Array<Cesium.Primitive | Cesium.GroundPrimitive | Cesium.GroundPolylinePrimitive> | undefined;
 
 	constructor(WFS: WFSProviderCesium) {
 		super(WFS);

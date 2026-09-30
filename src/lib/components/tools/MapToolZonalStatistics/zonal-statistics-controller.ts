@@ -578,8 +578,7 @@ export class ZonalStatisticsController {
 			const code = this.entityCodeIndex.get(entity);
 			if (code === undefined) continue;
 			const hierarchy = entity.polygon?.hierarchy?.getValue(time) as
-				| Cesium.PolygonHierarchy
-				| undefined;
+				Cesium.PolygonHierarchy | undefined;
 			if (!hierarchy || hierarchy.positions.length < 3) continue;
 			let color = baseColor.get(code);
 			if (!color) {
@@ -713,8 +712,7 @@ export class ZonalStatisticsController {
 		for (const entity of source.entities.values) {
 			if (this.entityCodeIndex.get(entity) === undefined) continue;
 			const hierarchy = entity.polygon?.hierarchy?.getValue(time) as
-				| Cesium.PolygonHierarchy
-				| undefined;
+				Cesium.PolygonHierarchy | undefined;
 			if (!hierarchy || hierarchy.positions.length < 3) continue;
 			const id = {};
 			this.zoneOutlineIds.push(id);
@@ -865,8 +863,7 @@ export class ZonalStatisticsController {
 		};
 		for (const entity of this.zoneEntityIndex.get(code) ?? []) {
 			const hierarchy = entity.polygon?.hierarchy?.getValue(time) as
-				| Cesium.PolygonHierarchy
-				| undefined;
+				Cesium.PolygonHierarchy | undefined;
 			if (hierarchy) collect(hierarchy);
 		}
 		return rings;
@@ -936,8 +933,7 @@ export class ZonalStatisticsController {
 	/** Read a single entity property by name without materialising the whole property bag. */
 	private readProperty(entity: Cesium.Entity, attribute: string, time: Cesium.JulianDate): any {
 		const bag = entity.properties as unknown as
-			| Record<string, { getValue(t: Cesium.JulianDate): any } | undefined>
-			| undefined;
+			Record<string, { getValue(t: Cesium.JulianDate): any } | undefined> | undefined;
 		return bag?.[attribute]?.getValue(time);
 	}
 
@@ -1128,8 +1124,7 @@ export class ZonalStatisticsController {
 		const positions: Array<Cesium.Cartesian3> = [];
 		for (const entity of this.zoneEntityIndex.get(code) ?? []) {
 			const hierarchy = entity.polygon?.hierarchy?.getValue(time) as
-				| Cesium.PolygonHierarchy
-				| undefined;
+				Cesium.PolygonHierarchy | undefined;
 			if (hierarchy?.positions) positions.push(...hierarchy.positions);
 		}
 		if (positions.length === 0) return;

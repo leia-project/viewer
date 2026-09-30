@@ -2,9 +2,7 @@ import * as Cesium from "cesium";
 import type { Map } from "$lib/map-cesium/map";
 import { MapMeasurement } from "$lib/map-cesium/map-measurement";
 
-
 export class MapMeasurementFloodDepth extends MapMeasurement {
-
 	constructor(id: number, map: Map) {
 		super(id, map);
 
@@ -24,7 +22,6 @@ export class MapMeasurementFloodDepth extends MapMeasurement {
 				outlineWidth: 1
 			}
 		});
-		this.pointEntities.push(entity);    
+		this.pointEntities.push(entity);
 	}
-
 }

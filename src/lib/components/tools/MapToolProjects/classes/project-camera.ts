@@ -67,10 +67,7 @@ export class ProjectCamera {
 			this.validateCameraPosition(this.map, this.cameraLimits, this.center);
 	}
 
-	public bound(
-		animationTime: number = 1000,
-		showBoundingVolume: boolean = false
-	): void {
+	public bound(animationTime: number = 1000, showBoundingVolume: boolean = false): void {
 		if (showBoundingVolume) {
 			setTimeout(() => this.addBoundingDome(), animationTime - 100);
 		}
@@ -145,7 +142,7 @@ export class ProjectCamera {
 
 		let newLon, newLat, newHeight;
 		if (lon < cameraLimits.minLon) newLon = cameraLimits.minLon;
-		else if (lon > cameraLimits.maxLon) (newLon = cameraLimits.maxLon), lat, position.height;
+		else if (lon > cameraLimits.maxLon) ((newLon = cameraLimits.maxLon), lat, position.height);
 		if (lat < cameraLimits.minLat) newLat = cameraLimits.minLat;
 		else if (lat > cameraLimits.maxLat) newLat = cameraLimits.maxLat;
 		if (position.height < cameraLimits.minZ) newHeight = cameraLimits.minZ;

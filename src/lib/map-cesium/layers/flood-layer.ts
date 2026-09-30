@@ -10,22 +10,21 @@ import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
 import type { Breach } from "$lib/components/tools/MapToolFlooding/layer-controller";
 import LayerControlFlood from "$lib/components/layer-controls/LayerControlFlood/LayerControlFlood.svelte";
 
-
 interface FloodLayerContents {
-	name: string,
-	sw: [number, number],
-	ne: [number, number],
+	name: string;
+	sw: [number, number];
+	ne: [number, number];
 	terrain: {
 		scaling: {
-			min: number,
-			max: number,
-		}
-		path: string
-	},
+			min: number;
+			max: number;
+		};
+		path: string;
+	};
 	flood_planes: {
-		class_mapping: object,
-		paths: Array<string>
-	}
+		class_mapping: object;
+		paths: Array<string>;
+	};
 }
 
 interface DynamicWaterLevelOptions {
@@ -41,7 +40,6 @@ interface WaterLevel {
 }
 
 class DynamicWaterLevel {
-
 	private map: Map;
 	private gridSpacingInMeters: number;
 	private baseUrl: URL;
@@ -78,7 +76,7 @@ class DynamicWaterLevel {
 		}
 	};
 
-	private floodTextureMapping: Array<{ slot: number, time?: number, image: any}> = [
+	private floodTextureMapping: Array<{ slot: number; time?: number; image: any }> = [
 		{ slot: 1, time: undefined, image: undefined },
 		{ slot: 2, time: undefined, image: undefined },
 		{ slot: 3, time: undefined, image: undefined },
@@ -127,13 +125,15 @@ class DynamicWaterLevel {
 			throw new Error("Failed to load terrain image");
 		}
 		this.uniformMap.uTerrain.value = terrainImage;
-		const loadWaterLevelPromises = contents.flood_planes.paths.map(async (path: string, i: number) => {
-			const image = await this.loadImage(`${scenarioUrl.href}/${path}`);
-			if (!image) {
-				throw new Error("Failed to load terrain image");
+		const loadWaterLevelPromises = contents.flood_planes.paths.map(
+			async (path: string, i: number) => {
+				const image = await this.loadImage(`${scenarioUrl.href}/${path}`);
+				if (!image) {
+					throw new Error("Failed to load terrain image");
+				}
+				if (image) return { time: i, image: image };
 			}
-			if (image) return { time: i, image: image };
-		});
+		);
 		const loadedWaterLevels = await Promise.all(loadWaterLevelPromises);
 		this.waterLevels = [];
 		for (const waterLevel of loadedWaterLevels) {
@@ -150,97 +150,103 @@ class DynamicWaterLevel {
 	}
 
 	private async setUniforms(reset: boolean = false): Promise<void> {
-	    if (reset) {
-	      this.floodTextureMapping = [
-	        { slot: 1, time: undefined, image: undefined },
-	        { slot: 2, time: undefined, image: undefined },
-	        { slot: 3, time: undefined, image: undefined },
-	        { slot: 4, time: undefined, image: undefined }
-	      ];
-	    }
-	    const setTextureSlot = (slot: number, image: any) => {
-	      if (!this.material) return;
-	      if (slot === 1) this.material.uniforms.u_flood_slot_1 = image;
-	      if (slot === 2) this.material.uniforms.u_flood_slot_2 = image;
-	      if (slot === 3) this.material.uniforms.u_flood_slot_3 = image;
-	      if (slot === 4) this.material.uniforms.u_flood_slot_4 = image;
-	    }
-	
-	    // Remove any duplicates in the flood texture mapping
-	    const uniqueTimes = new Set<number | undefined>();
-	    for (const mapping of this.floodTextureMapping) {
-	      if (uniqueTimes.has(mapping.time)) {
-	        mapping.time = undefined;
-	        mapping.image = undefined;
-	      } else {
-	        uniqueTimes.add(mapping.time);
-	      }
-	    }
-	
-	    const [lowerLowerBound, lowerBound, upperBound, upperUpperBound] = this.findClosestWaterLevels();
-	    if (lowerBound === undefined || !upperBound === undefined) return;
-	
-	    let slotTextureT1: number;
-	    const textureT1 = this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time);
-	    if (!textureT1) {
-	      for (const mapping of this.floodTextureMapping) {
-	        if (mapping.time !== lowerBound.time && mapping.time !== upperBound.time) {
-	          mapping.time = lowerBound.time;
-	          mapping.image = lowerBound.image;
-	          break;
-	        }
-	      }
-	      slotTextureT1 = this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time)?.slot || 1;
-	      setTextureSlot(slotTextureT1, lowerBound.image);
-	      setTimeout(() => this.map.refresh(), 100); // Because of small delay in setting the texture
-	    } else {
-	      slotTextureT1 = textureT1.slot;
-	    }
-	
-	    let slotTextureT2: number;
-	    const textureT2 = this.floodTextureMapping.find((mapping) => mapping.time === upperBound.time);
-	    if (!textureT2) {
-	      for (const mapping of this.floodTextureMapping) {
-	        if (mapping.time !== lowerBound.time && mapping.time !== upperBound.time) {
-	          mapping.time = upperBound.time;
-	          mapping.image = upperBound.image;
-	          break;
-	        }
-	      }
-	      slotTextureT2 = this.floodTextureMapping.find((mapping) => mapping.time === upperBound.time)?.slot || 2;
-	      setTextureSlot(slotTextureT2, upperBound.image);
-	      setTimeout(() => this.map.refresh(), 100); // Because of small delay in setting the texture
-	    } else {
-	      slotTextureT2 = textureT2.slot;
-	    }
-	
-	    const availableSlots = this.floodTextureMapping.filter((mapping) => mapping.time !== lowerBound.time && mapping.time !== upperBound.time);
-	    availableSlots[0].time = lowerLowerBound.time; availableSlots[0].image = lowerLowerBound.image;
-	    availableSlots[1].time = upperUpperBound.time; availableSlots[1].image = upperUpperBound.image;
-	
-	    setTextureSlot(availableSlots[0].slot, availableSlots[0].image);
-	    setTextureSlot(availableSlots[1].slot, availableSlots[1].image);
-	
-	    this.uniformMap.uFloodSlot1.value = this.floodTextureMapping[0].image;
-	    this.uniformMap.uFloodSlot2.value = this.floodTextureMapping[1].image;
-	    this.uniformMap.uFloodSlot3.value = this.floodTextureMapping[2].image;
-	    this.uniformMap.uFloodSlot4.value = this.floodTextureMapping[3].image;
-	
-	    let progress: number = 1;
-	    if (upperBound.time !== lowerBound.time) {
-	      progress = (get(this.time) - lowerBound.time) / (upperBound.time - lowerBound.time);
-	      progress = Math.max(0, Math.min(1, progress));
-	    }
-	
-	    if (this.material) {
-	      this.material.uniforms.u_terrain = this.uniformMap.uTerrain.value;
-	      this.material.uniforms.u_progress = progress;
-	      this.material.uniforms.u_flood_t1 = slotTextureT1;
-	      this.material.uniforms.u_flood_t2 = slotTextureT2;
-	      this.material.uniforms.u_alpha = get(this.alpha);
-	    }
-	    this.map.refresh();
-	  }
+		if (reset) {
+			this.floodTextureMapping = [
+				{ slot: 1, time: undefined, image: undefined },
+				{ slot: 2, time: undefined, image: undefined },
+				{ slot: 3, time: undefined, image: undefined },
+				{ slot: 4, time: undefined, image: undefined }
+			];
+		}
+		const setTextureSlot = (slot: number, image: any) => {
+			if (!this.material) return;
+			if (slot === 1) this.material.uniforms.u_flood_slot_1 = image;
+			if (slot === 2) this.material.uniforms.u_flood_slot_2 = image;
+			if (slot === 3) this.material.uniforms.u_flood_slot_3 = image;
+			if (slot === 4) this.material.uniforms.u_flood_slot_4 = image;
+		}; // Remove any duplicates in the flood texture mapping
+
+		const uniqueTimes = new Set<number | undefined>();
+		for (const mapping of this.floodTextureMapping) {
+			if (uniqueTimes.has(mapping.time)) {
+				mapping.time = undefined;
+				mapping.image = undefined;
+			} else {
+				uniqueTimes.add(mapping.time);
+			}
+		}
+
+		const [lowerLowerBound, lowerBound, upperBound, upperUpperBound] =
+			this.findClosestWaterLevels();
+		if (lowerBound === undefined || !upperBound === undefined) return;
+
+		let slotTextureT1: number;
+		const textureT1 = this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time);
+		if (!textureT1) {
+			for (const mapping of this.floodTextureMapping) {
+				if (mapping.time !== lowerBound.time && mapping.time !== upperBound.time) {
+					mapping.time = lowerBound.time;
+					mapping.image = lowerBound.image;
+					break;
+				}
+			}
+			slotTextureT1 =
+				this.floodTextureMapping.find((mapping) => mapping.time === lowerBound.time)?.slot || 1;
+			setTextureSlot(slotTextureT1, lowerBound.image);
+			setTimeout(() => this.map.refresh(), 100); // Because of small delay in setting the texture
+		} else {
+			slotTextureT1 = textureT1.slot;
+		}
+
+		let slotTextureT2: number;
+		const textureT2 = this.floodTextureMapping.find((mapping) => mapping.time === upperBound.time);
+		if (!textureT2) {
+			for (const mapping of this.floodTextureMapping) {
+				if (mapping.time !== lowerBound.time && mapping.time !== upperBound.time) {
+					mapping.time = upperBound.time;
+					mapping.image = upperBound.image;
+					break;
+				}
+			}
+			slotTextureT2 =
+				this.floodTextureMapping.find((mapping) => mapping.time === upperBound.time)?.slot || 2;
+			setTextureSlot(slotTextureT2, upperBound.image);
+			setTimeout(() => this.map.refresh(), 100); // Because of small delay in setting the texture
+		} else {
+			slotTextureT2 = textureT2.slot;
+		}
+
+		const availableSlots = this.floodTextureMapping.filter(
+			(mapping) => mapping.time !== lowerBound.time && mapping.time !== upperBound.time
+		);
+		availableSlots[0].time = lowerLowerBound.time;
+		availableSlots[0].image = lowerLowerBound.image;
+		availableSlots[1].time = upperUpperBound.time;
+		availableSlots[1].image = upperUpperBound.image;
+
+		setTextureSlot(availableSlots[0].slot, availableSlots[0].image);
+		setTextureSlot(availableSlots[1].slot, availableSlots[1].image);
+
+		this.uniformMap.uFloodSlot1.value = this.floodTextureMapping[0].image;
+		this.uniformMap.uFloodSlot2.value = this.floodTextureMapping[1].image;
+		this.uniformMap.uFloodSlot3.value = this.floodTextureMapping[2].image;
+		this.uniformMap.uFloodSlot4.value = this.floodTextureMapping[3].image;
+
+		let progress: number = 1;
+		if (upperBound.time !== lowerBound.time) {
+			progress = (get(this.time) - lowerBound.time) / (upperBound.time - lowerBound.time);
+			progress = Math.max(0, Math.min(1, progress));
+		}
+
+		if (this.material) {
+			this.material.uniforms.u_terrain = this.uniformMap.uTerrain.value;
+			this.material.uniforms.u_progress = progress;
+			this.material.uniforms.u_flood_t1 = slotTextureT1;
+			this.material.uniforms.u_flood_t2 = slotTextureT2;
+			this.material.uniforms.u_alpha = get(this.alpha);
+		}
+		this.map.refresh();
+	}
 
 	private findClosestWaterLevels(): [WaterLevel, WaterLevel, WaterLevel, WaterLevel] {
 		let lowerBound = this.waterLevels[0];
@@ -254,22 +260,25 @@ class DynamicWaterLevel {
 			}
 		}
 		const lowerLowerBound = this.waterLevels[Math.max(0, this.waterLevels.indexOf(lowerBound) - 1)];
-		const upperUpperBound = this.waterLevels[Math.min(this.waterLevels.length - 1, this.waterLevels.indexOf(upperBound) + 1)];
+		const upperUpperBound =
+			this.waterLevels[
+				Math.min(this.waterLevels.length - 1, this.waterLevels.indexOf(upperBound) + 1)
+			];
 		return [lowerLowerBound, lowerBound, upperBound, upperUpperBound];
 	}
 
 	private metersToDegrees(lat: number, meters: number) {
 		const latMetersPerDegree = 111320;
-		const lonMetersPerDegree = 111320 * Math.cos(lat * Math.PI / 180);
+		const lonMetersPerDegree = 111320 * Math.cos((lat * Math.PI) / 180);
 		const latDegrees = meters / latMetersPerDegree;
 		const lonDegrees = meters / lonMetersPerDegree;
 		return { latDegrees, lonDegrees };
 	}
-	
+
 	private async createMesh(contents: FloodLayerContents): Promise<void> {
 		const terrainScalingMin = contents.terrain.scaling.min;
 		const terrainScalingMax = contents.terrain.scaling.max;
-		const floodPlaneClassMapping = Object.values(contents.flood_planes.class_mapping).map(num => {
+		const floodPlaneClassMapping = Object.values(contents.flood_planes.class_mapping).map((num) => {
 			return Number.isInteger(num) ? num.toFixed(1) : num.toString();
 		});
 		const lonStart = contents.sw[0];
@@ -277,10 +286,17 @@ class DynamicWaterLevel {
 		const lonEnd = contents.ne[0];
 		const latEnd = contents.ne[1];
 
-		const modelOrigin = Cesium.Cartesian3.fromDegrees((lonStart + lonEnd) / 2, (latStart + latEnd) / 2, 0);
+		const modelOrigin = Cesium.Cartesian3.fromDegrees(
+			(lonStart + lonEnd) / 2,
+			(latStart + latEnd) / 2,
+			0
+		);
 		const modelNormal = Cesium.Cartesian3.normalize(modelOrigin, new Cesium.Cartesian3());
 
-		const { latDegrees, lonDegrees } = this.metersToDegrees((latStart + latEnd) / 2, this.gridSpacingInMeters);
+		const { latDegrees, lonDegrees } = this.metersToDegrees(
+			(latStart + latEnd) / 2,
+			this.gridSpacingInMeters
+		);
 
 		const lonSteps = Math.ceil((lonEnd - lonStart) / lonDegrees);
 		const latSteps = Math.ceil((latEnd - latStart) / latDegrees);
@@ -305,10 +321,22 @@ class DynamicWaterLevel {
 			const vertexIndex1 = triangles[i];
 			const vertexIndex2 = triangles[i + 1];
 			const vertexIndex3 = triangles[i + 2];
-			
-			const vertex1 = Cesium.Cartesian3.fromDegrees(coordinates2D[vertexIndex1][0], coordinates2D[vertexIndex1][1], 0);
-			const vertex2 = Cesium.Cartesian3.fromDegrees(coordinates2D[vertexIndex2][0], coordinates2D[vertexIndex2][1], 0);
-			const vertex3 = Cesium.Cartesian3.fromDegrees(coordinates2D[vertexIndex3][0], coordinates2D[vertexIndex3][1], 0);
+
+			const vertex1 = Cesium.Cartesian3.fromDegrees(
+				coordinates2D[vertexIndex1][0],
+				coordinates2D[vertexIndex1][1],
+				0
+			);
+			const vertex2 = Cesium.Cartesian3.fromDegrees(
+				coordinates2D[vertexIndex2][0],
+				coordinates2D[vertexIndex2][1],
+				0
+			);
+			const vertex3 = Cesium.Cartesian3.fromDegrees(
+				coordinates2D[vertexIndex3][0],
+				coordinates2D[vertexIndex3][1],
+				0
+			);
 
 			const vertices = [vertex1, vertex2, vertex3];
 			for (let j = 0; j < 3; j++) {
@@ -335,7 +363,7 @@ class DynamicWaterLevel {
 				st[(i + j) * 2 + 1] = uvs[j][1];
 			}
 		}
-		
+
 		const geometry = new Cesium.Geometry({
 			vertexFormat: Cesium.VertexFormat.POSITION_AND_ST,
 			//@ts-ignore
@@ -354,7 +382,7 @@ class DynamicWaterLevel {
 			primitiveType: Cesium.PrimitiveType.TRIANGLES,
 			boundingSphere: Cesium.BoundingSphere.fromVertices(Array.from(pos))
 			//indices: indices,
-			//modelMatrix: Cesium.Matrix4.IDENTITY		
+			//modelMatrix: Cesium.Matrix4.IDENTITY
 		});
 		Cesium.GeometryPipeline.compressVertices(geometry);
 
@@ -456,7 +484,7 @@ class DynamicWaterLevel {
 				gl_Position = czm_modelViewProjectionRelativeToEye * p;
 			}
 		`;
-		
+
 		const fragmentShader = `
 			in vec3 v_positionEC;
 			in vec3 v_normalEC;
@@ -521,37 +549,39 @@ class DynamicWaterLevel {
 			}
 		`;
 
-		this.material = this.material ?? new Cesium.Material({
-			fabric: {
-				type : 'CustomDynamicPlaneMaterial',
-				uniforms: {
-					u_progress: 0,
-					u_terrain: this.uniformMap.uTerrain.value,
-					u_flood_slot_1: this.uniformMap.uFloodSlot1.value,
-					u_flood_slot_2: this.uniformMap.uFloodSlot2.value,
-					u_flood_slot_3: this.uniformMap.uFloodSlot3.value,
-					u_flood_slot_4: this.uniformMap.uFloodSlot4.value,
-					u_flood_t1: 0,
-					u_flood_t2: 1,
-					u_model_normal: modelNormal,
-					u_texel_size_s: 1 / lonSteps,
-					u_texel_size_t: 1 / latSteps,
-					u_vertical_exaggeration: get(this.verticalExaggeration),
-					u_alpha: get(this.alpha),
-					u_terrain_scaling_min: terrainScalingMin,
-					u_terrain_scaling_max: terrainScalingMax,
-					u_depth_value_max: 255.0
-				}
-			},
-			translucent: true,
-			minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
-			magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
-		});
+		this.material =
+			this.material ??
+			new Cesium.Material({
+				fabric: {
+					type: "CustomDynamicPlaneMaterial",
+					uniforms: {
+						u_progress: 0,
+						u_terrain: this.uniformMap.uTerrain.value,
+						u_flood_slot_1: this.uniformMap.uFloodSlot1.value,
+						u_flood_slot_2: this.uniformMap.uFloodSlot2.value,
+						u_flood_slot_3: this.uniformMap.uFloodSlot3.value,
+						u_flood_slot_4: this.uniformMap.uFloodSlot4.value,
+						u_flood_t1: 0,
+						u_flood_t2: 1,
+						u_model_normal: modelNormal,
+						u_texel_size_s: 1 / lonSteps,
+						u_texel_size_t: 1 / latSteps,
+						u_vertical_exaggeration: get(this.verticalExaggeration),
+						u_alpha: get(this.alpha),
+						u_terrain_scaling_min: terrainScalingMin,
+						u_terrain_scaling_max: terrainScalingMax,
+						u_depth_value_max: 255.0
+					}
+				},
+				translucent: true,
+				minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
+				magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST
+			});
 
 		// @ts-ignore
 		const renderState = Cesium.RenderState.fromCache({
 			depthTest: {
-				enabled: true,
+				enabled: true
 			},
 			blending: Cesium.BlendingState.ALPHA_BLEND,
 			//frontFace: Cesium.WindingOrder.CLOCKWISE,
@@ -581,12 +611,9 @@ class DynamicWaterLevel {
 		//@ts-ignore
 		this.primitive.type = "flood";
 	}
-
 }
 
-
 export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
-
 	private layerControl!: CustomLayerControl;
 	public _time: Writable<number> = writable(0);
 
@@ -624,7 +651,7 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 			this.source?.time.set(value);
 		});
 	}
-	
+
 	/**
 	 * Use an external time store for the layer
 	 */
@@ -632,7 +659,6 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 		this._time = timeStore;
 		this.setTimeListener();
 	}
-
 
 	public async loadScenario(breach: Breach, scenario: string): Promise<void> {
 		this.loaded.set(false);
@@ -645,13 +671,16 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 				const { ne, sw } = this.source.contents;
 				const rectangle = Cesium.Rectangle.fromDegrees(sw[0], sw[1], ne[0], ne[1]);
 				this.boundingSphere = Cesium.BoundingSphere.fromRectangle3D(rectangle);
-				this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere, get(this.map.options.use3DMode));
+				this.config.cameraPosition = getCameraPositionFromBoundingSphere(
+					this.boundingSphere,
+					get(this.map.options.use3DMode)
+				);
 			}
 			this.loaded.set(true);
 			this.addToMap();
-		} catch(e) {
+		} catch (e) {
 			this.error.set(true);
-		} 
+		}
 		this.map.refresh();
 	}
 
@@ -663,7 +692,10 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 	}
 
 	public async addToMap(): Promise<void> {
-		if (this.source.primitive && !this.map.viewer.scene.primitives.contains(this.source.primitive)) {
+		if (
+			this.source.primitive &&
+			!this.map.viewer.scene.primitives.contains(this.source.primitive)
+		) {
 			this.map.viewer.scene.primitives.add(this.source.primitive);
 		}
 		if (get(this.visible) === true) {
@@ -700,7 +732,7 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 		this.layerControl.component = LayerControlFlood;
 		this.layerControl.props = {
 			layer: this,
-			map: this.map,
+			map: this.map
 		};
 		// I disabled this for now, is it necessary?
 		//this.addCustomControl(this.layerControl);
@@ -716,4 +748,3 @@ export class FloodLayer extends CesiumLayer<DynamicWaterLevel> {
 		}
 	}
 }
-

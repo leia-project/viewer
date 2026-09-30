@@ -15,7 +15,7 @@ export abstract class CesiumLayer<T> extends Layer {
 		super(config, config.defaultOn);
 		this.map = map;
 		this._source = writable<T>(undefined);
-		this._source.subscribe((source) => {			
+		this._source.subscribe((source) => {
 			if (source !== undefined) {
 				this.addToMap();
 			}

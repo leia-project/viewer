@@ -2,11 +2,9 @@ import { get, writable, type Unsubscriber, type Writable } from "svelte/store";
 import { LayerConfig } from "$lib/map-core/layer-config";
 import { Dispatcher } from "$lib/map-core/event/dispatcher";
 import { buildGetCapabilitiesUrl } from "./capabilities";
-import { v4 as uuid } from '@lukeed/uuid';
-
+import { v4 as uuid } from "@lukeed/uuid";
 
 export class CustomLayerConfigTracker extends Dispatcher {
-	
 	public layerConfig: LayerConfig;
 	public isValid: Writable<boolean> = writable(false);
 
@@ -22,7 +20,15 @@ export class CustomLayerConfigTracker extends Dispatcher {
 
 	constructor(layerConfig?: LayerConfig) {
 		super();
-		this.layerConfig = layerConfig ?? new LayerConfig({id: uuid(), groupId: "myData", title: "New layer", settings: {}, defaultOn: true});
+		this.layerConfig =
+			layerConfig ??
+			new LayerConfig({
+				id: uuid(),
+				groupId: "myData",
+				title: "New layer",
+				settings: {},
+				defaultOn: true
+			});
 		this.titleInput = writable(this.layerConfig.title);
 		this.layerTypeInput = writable(this.layerConfig.type);
 		this.settingsInput = writable(this.layerConfig.settings);
@@ -48,7 +54,7 @@ export class CustomLayerConfigTracker extends Dispatcher {
 			this.onInputChange();
 		});
 
-		this.unsubscribers[3] = this.added.subscribe(async(value) => {
+		this.unsubscribers[3] = this.added.subscribe(async (value) => {
 			if (value) {
 				const exists = await this.checkIfUrlExists();
 				if (!exists) {
@@ -66,7 +72,6 @@ export class CustomLayerConfigTracker extends Dispatcher {
 			}
 		});
 	}
-
 
 	private onInputChange(): void {
 		this.validateLayerConfig();
@@ -98,8 +103,16 @@ export class CustomLayerConfigTracker extends Dispatcher {
 
 	private validateSettings(settings: any = this.layerConfig.settings): boolean {
 		if (["wms", "wmts"].includes(this.layerConfig.type) && !settings["featureName"]) return false;
-		if (["wms", "wmts"].includes(this.layerConfig.type) && !String(settings["contenttype"] ?? "").trim()) return false;
-		if (this.layerConfig.type === "modelanimation" && (!settings["modelUrl"] || !settings["timeKey"])) return false;
+		if (
+			["wms", "wmts"].includes(this.layerConfig.type) &&
+			!String(settings["contenttype"] ?? "").trim()
+		)
+			return false;
+		if (
+			this.layerConfig.type === "modelanimation" &&
+			(!settings["modelUrl"] || !settings["timeKey"])
+		)
+			return false;
 		else return true;
 	}
 
@@ -112,30 +125,30 @@ export class CustomLayerConfigTracker extends Dispatcher {
 			const href = url.href.toLowerCase();
 			const pathname = url.pathname.toLowerCase();
 			const search = url.search.toLowerCase();
-			if (this.layerConfig.type === "wms" && !pathname.includes("/wms") && !pathname.includes("/ows") && !search.includes("service=wms")) return false;
+			if (
+				this.layerConfig.type === "wms" &&
+				!pathname.includes("/wms") &&
+				!pathname.includes("/ows") &&
+				!search.includes("service=wms")
+			)
+				return false;
 			//if (this.layerConfig.type === "wmts" && !href.includes("wmts")) return false;
 			if (this.layerConfig.type === "geojson" && !pathname.endsWith(".geojson")) return false;
-			if (this.layerConfig.type === "modelanimation" && !pathname.endsWith(".geojson")) return false;
-			return true; 
+			if (this.layerConfig.type === "modelanimation" && !pathname.endsWith(".geojson"))
+				return false;
+			return true;
 		} catch {
 			return false;
 		}
 	}
 
 	public validateLayerConfig(): void {
-		this.validType.set(
-			this.validateType(get(this.layerTypeInput))
-		);
-		this.validUrl.set(
-			this.validateUrl(get(this.settingsInput))
-		);
+		this.validType.set(this.validateType(get(this.layerTypeInput)));
+		this.validUrl.set(this.validateUrl(get(this.settingsInput)));
 		const validSettings = this.validateSettings();
-        this.isValid.set(
-			get(this.validType) && get(this.validUrl) && validSettings
-		);
+		this.isValid.set(get(this.validType) && get(this.validUrl) && validSettings);
 		if (get(this.isValid) === false) this.added.set(false);
-    }
-
+	}
 
 	public async checkIfUrlExists(): Promise<boolean> {
 		let url = this.layerConfig.settings.url;
@@ -146,15 +159,16 @@ export class CustomLayerConfigTracker extends Dispatcher {
 		const controller = new AbortController();
 		const timeout = setTimeout(() => controller.abort(), 1000); // if no response after 1000ms, then consider the request as failed
 
-		return fetch(url, { signal: controller.signal }).then((response) => {
-			clearTimeout(timeout)
-			return (response.status === 200)
-		}).catch(() => {
-			clearTimeout(timeout)
-			return false;
-		});
+		return fetch(url, { signal: controller.signal })
+			.then((response) => {
+				clearTimeout(timeout);
+				return response.status === 200;
+			})
+			.catch(() => {
+				clearTimeout(timeout);
+				return false;
+			});
 	}
-
 
 	public destroy() {
 		for (let i = 0; i < this.unsubscribers.length; i++) {

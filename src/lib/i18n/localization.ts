@@ -9,42 +9,45 @@ import fr from "./json/fr.json";
 
 let selectedLanguage = writable<string>("en");
 const languages: Array<Language> = [
-    new Language("English", "en", en),
-    new Language("Nederlands", "nl", nl),
-    new Language("Français", "fr", fr)
+	new Language("English", "en", en),
+	new Language("Nederlands", "nl", nl),
+	new Language("Français", "fr", fr)
 ];
 
-function setupLocalization(defaultLocale: string = "en", translations: Array<{ locale: string, translations: {} }> | undefined = undefined): void {
-    if (translations) {
-        for (let i = 0; i < translations.length; i++) {
-            addTranslation(translations[i].locale, translations[i].translations);
-        }
-    }
+function setupLocalization(
+	defaultLocale: string = "en",
+	translations: Array<{ locale: string; translations: {} }> | undefined = undefined
+): void {
+	if (translations) {
+		for (let i = 0; i < translations.length; i++) {
+			addTranslation(translations[i].locale, translations[i].translations);
+		}
+	}
 
-    for (let i = 0; i < languages.length; i++) {
-        const language = languages[i];
-        addMessages(language.shortName, language.translations);
-    }
+	for (let i = 0; i < languages.length; i++) {
+		const language = languages[i];
+		addMessages(language.shortName, language.translations);
+	}
 
-    const initLanguage = appStorage.getValue("locale", defaultLocale);
-    appStorage.register<string>(locale, "locale", initLanguage);
+	const initLanguage = appStorage.getValue("locale", defaultLocale);
+	appStorage.register<string>(locale, "locale", initLanguage);
 
-    init({
-        fallbackLocale: defaultLocale
-    });
+	init({
+		fallbackLocale: defaultLocale
+	});
 
-    selectedLanguage.set(initLanguage);
-    selectedLanguage.subscribe((l) => {
-        locale.set(l);
-        if (typeof document !== "undefined") {
-            document.documentElement.lang = l;
-        }
-    });
+	selectedLanguage.set(initLanguage);
+	selectedLanguage.subscribe((l) => {
+		locale.set(l);
+		if (typeof document !== "undefined") {
+			document.documentElement.lang = l;
+		}
+	});
 }
 
 function addTranslation(languageShortName: string, translations: {}): void {
-    const lang = languages.find((l) => l.shortName === languageShortName);
-    lang?.addTranslation(translations);
+	const lang = languages.find((l) => l.shortName === languageShortName);
+	lang?.addTranslation(translations);
 }
 
 export { setupLocalization, selectedLanguage, languages };

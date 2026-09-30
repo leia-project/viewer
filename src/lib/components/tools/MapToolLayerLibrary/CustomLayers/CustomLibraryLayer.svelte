@@ -4,12 +4,10 @@
 	import { _ } from "svelte-i18n";
 	import { Checkbox } from "carbon-components-svelte";
 
-    import type { CustomLayerConfigTracker } from "./custom-layer-config";
-
+	import type { CustomLayerConfigTracker } from "./custom-layer-config";
 
 	export let customConfig: CustomLayerConfigTracker;
 	export let selectedCustomLayer: Writable<CustomLayerConfigTracker | undefined>;
-
 
 	$: title = customConfig.titleInput;
 	$: type = customConfig.layerTypeInput;
@@ -36,7 +34,6 @@
 		}
 	}
 
-
 	function selectLayerConfig(): void {
 		if (selectedCustomLayer) selectedCustomLayer.set(customConfig);
 	}
@@ -44,7 +41,6 @@
 	onMount(() => {
 		selectLayerConfig();
 	});
-
 
 	let showUrlError = false;
 	function showUrlErrorMessage(): void {
@@ -55,27 +51,18 @@
 	}
 	customConfig.on("urlError", () => showUrlErrorMessage());
 
-
 	const dispatch = createEventDispatcher();
 	customConfig.on("updated", () => dispatch("updateLocalStorage"));
-
-
 </script>
 
-
-
-<div class="layer" class:layer--selected={$selectedCustomLayer === customConfig} >
+<div class="layer" class:layer--selected={$selectedCustomLayer === customConfig}>
 	<div
 		class="layer-cb"
 		title={$added
 			? $_("tools.layerLibrary.removeLayerTooltip")
 			: $_("tools.layerLibrary.addLayerTooltip")}
 	>
-		<Checkbox 
-			hideLabel 
-			bind:checked={$added} 
-			disabled={!$isValid}
-		/>
+		<Checkbox hideLabel bind:checked={$added} disabled={!$isValid} />
 	</div>
 
 	<!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -84,18 +71,15 @@
 	</div>
 
 	{#if $type}
-	<div class="layer-validator" class:isValid={$isValid}>
-		<span>{typeString}</span>
-	</div>
+		<div class="layer-validator" class:isValid={$isValid}>
+			<span>{typeString}</span>
+		</div>
 	{/if}
 
 	<div class="url-error-message" class:show={showUrlError}>
 		<span>{$_("tools.layerLibrary.urlNotFoundText")}</span>
 	</div>
-
 </div>
-
-
 
 <style>
 	.layer {
@@ -112,9 +96,9 @@
 		background-color: var(--cds-ui-03);
 	}
 
-    .layer--selected {
-        background-color: var(--cds-ui-03);
-    }
+	.layer--selected {
+		background-color: var(--cds-ui-03);
+	}
 
 	.layer-cb {
 		margin-left: var(--cds-spacing-01);
@@ -132,23 +116,22 @@
 		text-overflow: ellipsis;
 	}
 
-
-    .layer-validator {
-        flex-shrink: 0;
-        margin-left: var(--cds-spacing-03);
-        margin-right: 15px;
-        border-radius: 10px;
-        overflow: hidden;
-        min-width: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2px 10px;
-        color: #fff;
-        font-size: 0.8rem;
-        pointer-events: none;
+	.layer-validator {
+		flex-shrink: 0;
+		margin-left: var(--cds-spacing-03);
+		margin-right: 15px;
+		border-radius: 10px;
+		overflow: hidden;
+		min-width: 30px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 2px 10px;
+		color: #fff;
+		font-size: 0.8rem;
+		pointer-events: none;
 		background-color: red;
-    }
+	}
 	.layer-validator.isValid {
 		background-color: green;
 	}
@@ -176,6 +159,4 @@
 		color: #fff;
 		font-size: 0.8rem;
 	}
-	
-	
 </style>

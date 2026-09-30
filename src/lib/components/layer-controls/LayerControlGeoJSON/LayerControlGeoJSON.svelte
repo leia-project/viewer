@@ -13,12 +13,14 @@
 
 	let { extrusionSliderHeight, extrusionSliderLabel } = layer;
 
-	function getDropdownList(): Array<{id: number; text: string}> {
-		const items = [{
-			id: 0,
-			text: defaultStyle
-		}];
-		for (let i=0; i<properties.length; i++) {
+	function getDropdownList(): Array<{ id: number; text: string }> {
+		const items = [
+			{
+				id: 0,
+				text: defaultStyle
+			}
+		];
+		for (let i = 0; i < properties.length; i++) {
 			items.push({
 				id: i + 1,
 				text: properties[i].propertyName
@@ -31,8 +33,11 @@
 
 	$: legend = layer.legend;
 	$: styleType = layer.styleType;
-	$: extrusionSliderLabelFull = ($extrusionSliderHeight >= 0 ? '+' : '') + $extrusionSliderHeight 
-		+ ' ' + (extrusionSliderLabel ? extrusionSliderLabel : $_('tools.layerManager.metersNAP') )
+	$: extrusionSliderLabelFull =
+		($extrusionSliderHeight >= 0 ? "+" : "") +
+		$extrusionSliderHeight +
+		" " +
+		(extrusionSliderLabel ? extrusionSliderLabel : $_("tools.layerManager.metersNAP"));
 
 	let colorGradientStart = layer.colorGradientStart.toCssHexString();
 	let colorGradientEnd = layer.colorGradientEnd.toCssHexString();
@@ -46,12 +51,11 @@
 	}
 </script>
 
-
 {#if dropdownItems}
 	<div class="geojson-styling-options">
 		<div class="control-section">
 			<Dropdown
-				titleText={ $_('tools.layerManager.styling') }
+				titleText={$_("tools.layerManager.styling")}
 				bind:selectedId={activeStyle}
 				items={dropdownItems}
 				size="sm"
@@ -61,29 +65,29 @@
 
 		{#if layer.tools.includes("extrude")}
 			<div class="control-section">
-				<div class="control-header">{ $_('tools.layerManager.extrusion') }</div>
+				<div class="control-header">{$_("tools.layerManager.extrusion")}</div>
 				<div class="wrapper">
-					<Slider 
+					<Slider
 						value={$extrusionSliderHeight}
-						labelText={extrusionSliderLabelFull} 
-						fullWidth={true} 
+						labelText={extrusionSliderLabelFull}
+						fullWidth={true}
 						on:change={(e) => {
 							layer.extrusionSliderHeight.set(e.detail);
 						}}
-						hideTextInput={true} 
-						min={layer.extrusionSliderMin} 
-						max={layer.extrusionSliderMax} 
-						step={layer.extrusionSliderStep} 
-						minLabel={String(layer.extrusionSliderMin)} 
+						hideTextInput={true}
+						min={layer.extrusionSliderMin}
+						max={layer.extrusionSliderMax}
+						step={layer.extrusionSliderStep}
+						minLabel={String(layer.extrusionSliderMin)}
 						maxLabel={String(layer.extrusionSliderMax)}
 					/>
 				</div>
 			</div>
 		{/if}
-		
+
 		{#if $legend && $legend.length > 0}
 			<div class="control-section">
-				<div class="control-header">{ $_('tools.layerManager.legend') }</div>
+				<div class="control-header">{$_("tools.layerManager.legend")}</div>
 				<div>
 					{#each $legend as item}
 						<div class="legend-item">
@@ -94,14 +98,14 @@
 					{#if $legend.length >= layer.maxLengthLegend}
 						<div class="legend-item">
 							<div class="legend-color" style="background-color: #c6c6c6"></div>
-							<div class="legend-text">{ $_('tools.layerManager.allOther') }</div>
+							<div class="legend-text">{$_("tools.layerManager.allOther")}</div>
 						</div>
 					{/if}
 				</div>
 				{#if $styleType === "string"}
 					<div class="color-randomizer">
 						<Button
-							iconDescription={ $_('tools.layerManager.colorRandomizer') }
+							iconDescription={$_("tools.layerManager.colorRandomizer")}
 							icon={ColorPalette}
 							tooltipPosition="left"
 							size="small"
@@ -110,7 +114,7 @@
 					</div>
 				{/if}
 				{#if $styleType === "number"}
-					<div class="color-gradient-header">{ $_('tools.layerManager.gradient') }</div>
+					<div class="color-gradient-header">{$_("tools.layerManager.gradient")}</div>
 					<div class="color-gradient-setter">
 						<div class="color-gradient-input">
 							<div class="color-gradient-input-fields">
@@ -118,20 +122,23 @@
 									size="sm"
 									bind:value={colorGradientStart}
 									invalid={invalidStartColor}
-									on:input={(e) => invalidStartColor = checkIfValidColor(e.detail)}
+									on:input={(e) => (invalidStartColor = checkIfValidColor(e.detail))}
 								/>
 								<TextInput
 									size="sm"
 									bind:value={colorGradientEnd}
 									invalid={invalidEndColor}
-									on:input={(e) => invalidEndColor = checkIfValidColor(e.detail)}
+									on:input={(e) => (invalidEndColor = checkIfValidColor(e.detail))}
 								/>
 							</div>
-							<div class="color-bar" style="background: linear-gradient(to right, {colorGradientStart}, {colorGradientEnd})"></div>
+							<div
+								class="color-bar"
+								style="background: linear-gradient(to right, {colorGradientStart}, {colorGradientEnd})"
+							></div>
 						</div>
 						<div class="color-gradient-apply-button">
 							<Button
-								iconDescription="{ $_('tools.layerManager.applyGradient') }"
+								iconDescription={$_("tools.layerManager.applyGradient")}
 								icon={ColorPalette}
 								tooltipPosition="left"
 								size="small"
@@ -139,7 +146,7 @@
 									if (invalidStartColor || invalidEndColor) return;
 									layer.colorGradientStart = Cesium.Color.fromCssColorString(colorGradientStart);
 									layer.colorGradientEnd = Cesium.Color.fromCssColorString(colorGradientEnd);
-									layer.setStyle(dropdownItems[activeStyle].text)
+									layer.setStyle(dropdownItems[activeStyle].text);
 								}}
 							/>
 						</div>
@@ -151,7 +158,6 @@
 {/if}
 
 <style>
-
 	.geojson-styling-options {
 		margin: 15px 0;
 	}
@@ -196,5 +202,4 @@
 	.color-bar {
 		height: 15px;
 	}
-
 </style>

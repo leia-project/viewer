@@ -1,3 +1,3 @@
 export type GeoNetworkConnectorSettings = {
-    url: string;
-}
+	url: string;
+};

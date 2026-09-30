@@ -10,7 +10,6 @@
 	import { getFeatureBounds } from "$lib/map-cesium/utils/map-utils";
 	import { searchActive } from "../search-active";
 
-
 	const map = app.map;
 	const value = writable<string>();
 	let geocoderName: string;
@@ -20,11 +19,9 @@
 	let results = new Array<any>();
 	let debounceTimer: ReturnType<typeof setTimeout>;
 
-
 	onDestroy(() => {
 		clearTimeout(debounceTimer);
 	});
-
 
 	map.subscribe((map) => {
 		if (map) {
@@ -34,7 +31,9 @@
 
 					if (geocoderConfig.enabled) {
 						if (geocoderConfig.settings) {
-							geocoderName = geocoderConfig.settings.name ? geocoderConfig.settings.name.trim().toLowerCase() : "locatieserver";
+							geocoderName = geocoderConfig.settings.name
+								? geocoderConfig.settings.name.trim().toLowerCase()
+								: "locatieserver";
 
 							switch (geocoderName) {
 								case "nominatim":
@@ -49,11 +48,11 @@
 								default:
 									console.warn("Unknown geocoder");
 									break;
-							};
+							}
 							// TODO: Add option for custom geocoder
 							if (geocoderConfig.settings.url) {
 								geocoderUrl = geocoderConfig.settings.url;
-								console.warn('Custom geocoder URL is not yet supported');
+								console.warn("Custom geocoder URL is not yet supported");
 							}
 						}
 						// Default geocoder
@@ -76,8 +75,7 @@
 				debounceTimer = setTimeout(() => {
 					geosearch(v, geocoderName);
 				}, 1500);
-			} 
-			else {
+			} else {
 				// For other geocoders, perform search immediately
 				geosearch(v, geocoderName);
 			}
@@ -103,7 +101,7 @@
 				//TODO: Only fire request when no new character is typed within 2000ms
 				const result = await fetch(`${geocoderUrl}/search?format=json&q=${query}`);
 				searchResults = await result.json();
-				
+
 				searchResults.forEach((searchResult: any) => {
 					entries.push({
 						text: searchResult.display_name,
@@ -113,18 +111,18 @@
 			} else if (geocoder === "locatieserver") {
 				const result = await fetch(`${geocoderUrl}/suggest?wt=json&q=${query}`);
 				searchResults = await result.json();
-				
+
 				searchResults.response.docs.forEach((searchResult: any) => {
 					entries.push({
 						text: searchResult.weergavenaam,
 						locationId: searchResult.id
 					});
 				});
-			// Try Pijkestraat 140
+				// Try Pijkestraat 140
 			} else if (geocoder === "geolocation") {
 				const result = await fetch(`${geocoderUrl}v4/Location?q=${query}&c=5`);
 				searchResults = await result.json();
-				
+
 				searchResults.LocationResult.forEach((searchResult: any) => {
 					// geolocation ID cannot be used to return adressess, we need the whole object
 					entries.push({
@@ -137,7 +135,7 @@
 		} catch (e) {
 			console.log(`${geocoder} geocoder`, `Error getting suggest (${e})`);
 		}
-	};
+	}
 
 	async function zoomTo(locationId: string | object, geocoder: string): Promise<void> {
 		try {
@@ -148,12 +146,18 @@
 
 				if (firstLookupResult) {
 					const bbox = firstLookupResult.boundingbox;
-					const box = [parseFloat(bbox[2]), parseFloat(bbox[0]), parseFloat(bbox[3]), parseFloat(bbox[1])];
+					const box = [
+						parseFloat(bbox[2]),
+						parseFloat(bbox[0]),
+						parseFloat(bbox[3]),
+						parseFloat(bbox[1])
+					];
 					setCameraView(box);
 				}
-			}
-			else if (geocoder === "locatieserver") {
-				const result = await fetch(`${geocoderUrl}/lookup?wt=json&id=${locationId}&fl=geometrie_ll`);
+			} else if (geocoder === "locatieserver") {
+				const result = await fetch(
+					`${geocoderUrl}/lookup?wt=json&id=${locationId}&fl=geometrie_ll`
+				);
 				const lookupResult = await result.json();
 
 				if (lookupResult?.response?.docs?.length > 0) {
@@ -161,11 +165,10 @@
 					const box = wktToBox(geomLL);
 					setCameraView(box);
 				}
-			}
-			else if (geocoder === "geolocation") {
+			} else if (geocoder === "geolocation") {
 				if (locationId) {
 					//check if type of locationId is object, since this already contains the geometry
-					if (typeof locationId === 'object') {
+					if (typeof locationId === "object") {
 						// @ts-ignore
 						const geomLL = locationId.BoundingBox;
 
@@ -178,9 +181,11 @@
 						const wktString = `POLYGON((${lowerLeftLon} ${lowerLeftLat}, ${lowerLeftLon} ${upperRightLat}, ${upperRightLon} ${upperRightLat}, ${upperRightLon} ${lowerLeftLat}, ${lowerLeftLon} ${lowerLeftLat}))`;
 						const box = wktToBox(wktString);
 						setCameraView(box);
-					} 
-					else {
-						console.log("Expected locationId to be of object type. Type retrieved:", typeof locationId);
+					} else {
+						console.log(
+							"Expected locationId to be of object type. Type retrieved:",
+							typeof locationId
+						);
 					}
 				}
 			}

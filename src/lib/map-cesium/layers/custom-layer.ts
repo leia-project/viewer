@@ -4,9 +4,8 @@ import type { LayerConfig } from "$lib/map-core/layer-config";
 import type { Map } from "../map";
 import { CesiumLayer } from "./cesium-layer";
 
-
 export abstract class CustomLayer extends CesiumLayer<CustomDataSource> {
-    constructor(map: Map, config: LayerConfig) {
+	constructor(map: Map, config: LayerConfig) {
 		config.transparent = false;
 		super(map, config);
 	}

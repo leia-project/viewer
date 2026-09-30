@@ -6,7 +6,7 @@
 	import { Button, Tag, SliderSkeleton } from "carbon-components-svelte";
 	import { Return, ChevronDown, ChevronUp, ChoroplethMap } from "carbon-icons-svelte";
 	import "@carbon/charts-svelte/styles.css";
-	import { jsPDF } from 'jspdf';
+	import { jsPDF } from "jspdf";
 
 	import type { Story } from "./Story";
 	import type { StoryStep } from "./StoryStep";
@@ -21,22 +21,21 @@
 	import type { Map } from "$lib/map-cesium/map";
 	import { CesiumLayer } from "$lib/map-cesium/layers/cesium-layer";
 	import { getCameraPositionFromBoundingSphere } from "$lib/map-cesium/utils/layer-utils";
-	
+
 	import CustomPaginationNav from "./CustomPaginationNav.svelte";
 	import DrawPolygon from "./DrawPolygon.svelte";
-	import { polygonStore } from './PolygonEntityStore';
+	import { polygonStore } from "./PolygonEntityStore";
 	import StoryChart from "./StoryChart/StoryChart.svelte";
 	import StoryOpacitySlider from "./StoryOpacitySlider.svelte";
 	import StoryChartDownloadButton from "./StoryChart/StoryChartDownloadButton.svelte";
 	import { showStoryMarkers } from "./story-handler";
 	import ToggleView from "../MapToolProjects/components/ToggleView.svelte";
 
-
 	export let map: Map;
 	export let story: Story;
 	export let savedStepNumber: number;
 	export let textBack: string;
-	export let layerLegends: Array<LegendOptions>; 
+	export let layerLegends: Array<LegendOptions>;
 	export let baseLayerId: string | undefined;
 
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
@@ -63,7 +62,7 @@
 	let startAutocheckBackground: boolean;
 	let startVisibleLayers = new Array<string>();
 	let startGlobeOpacity: number;
-	let startTerrain: {title: string, url: string, vertexNormals: boolean};
+	let startTerrain: { title: string; url: string; vertexNormals: boolean };
 	let startUse3DMode: boolean = get(map.options.use3DMode);
 
 	let polygonArea: number = 0;
@@ -77,17 +76,14 @@
 	$: shown = Math.floor(width / 70);
 	$: baseLayer?.visible.set($baseMapVisible);
 
-
 	// Update layer visibility based on the polygon drawn state
-	const unsubscribeHasDrawnPolygon = hasDrawnPolygon.subscribe(polygonDrawn => {
+	const unsubscribeHasDrawnPolygon = hasDrawnPolygon.subscribe((polygonDrawn) => {
 		if (story.requestPolygonArea && polygonDrawn) {
 			changeActiveLayersVisibility(activeStep, true);
-		}
-		else if (story.requestPolygonArea && !polygonDrawn) {
+		} else if (story.requestPolygonArea && !polygonDrawn) {
 			changeActiveLayersVisibility(activeStep, false);
 		}
 	});
-
 
 	// Change visibility of all active layers in the active step
 	function changeActiveLayersVisibility(activeStep: StoryStep | undefined, visible: boolean): void {
@@ -102,32 +98,38 @@
 			}
 		}
 	}
-	
 
 	// Fly to polygon entity when its drawn
-	const unsubscribePolygonEntity = polygonStore.subscribe(polygon => {
+	const unsubscribePolygonEntity = polygonStore.subscribe((polygon) => {
 		if (polygon?.polygonEntity) {
 			const use3DMode = get(map.options.use3DMode);
 			const vertices: Array<number> = [];
 			const entity = polygon.polygonEntity;
 
-			const positions = entity.polygon?.hierarchy?.getValue(map.viewer.clock.currentTime)?.positions
-				|| entity.polyline?.positions?.getValue(map.viewer.clock.currentTime);
+			const positions =
+				entity.polygon?.hierarchy?.getValue(map.viewer.clock.currentTime)?.positions ||
+				entity.polyline?.positions?.getValue(map.viewer.clock.currentTime);
 
 			if (positions && positions.length > 0) {
 				for (let j = 0; j < positions.length; j++) {
 					vertices.push(positions[j].x, positions[j].y, positions[j].z);
 				}
 
-				const boundingSphere = Cesium.BoundingSphere.fromVertices(vertices, Cesium.Cartesian3.ZERO, 3);
-				const polygonCameraLocation = getCameraPositionFromBoundingSphere(boundingSphere, use3DMode);
+				const boundingSphere = Cesium.BoundingSphere.fromVertices(
+					vertices,
+					Cesium.Cartesian3.ZERO,
+					3
+				);
+				const polygonCameraLocation = getCameraPositionFromBoundingSphere(
+					boundingSphere,
+					use3DMode
+				);
 				if (!story.staticCamera) {
 					cesiumMap.flyTo(polygonCameraLocation);
 				}
 			}
 		}
 	});
-
 
 	// Flatten the steps across all chapters so we can access the correct step based on the index
 	let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
@@ -136,7 +138,6 @@
 			flattenedSteps.push({ step, chapter });
 		});
 	});
-
 
 	onMount(() => {
 		if (story.forceCameraMode) {
@@ -152,7 +153,9 @@
 
 		const contentContainer = getToolContentContainer();
 		viewportHeight = contentContainer.clientHeight;
-		resizeObserver = new ResizeObserver(() => { viewportHeight = contentContainer.clientHeight; });
+		resizeObserver = new ResizeObserver(() => {
+			viewportHeight = contentContainer.clientHeight;
+		});
 		resizeObserver.observe(contentContainer);
 		container = scrollContainer;
 		container.addEventListener("scroll", onScroll);
@@ -167,13 +170,14 @@
 
 		// Return to step where user left
 		currentPage.set(savedStepNumber);
-		setTimeout(() => { scrollToStep(savedStepNumber-1) }, 150); // Timeout when height of images is not explicitly set
+		setTimeout(() => {
+			scrollToStep(savedStepNumber - 1);
+		}, 150); // Timeout when height of images is not explicitly set
 		if (baseLayerId) {
 			baseLayer = copyLayerById(baseLayerId);
 			if (!baseLayer) baseLayerId = undefined;
 		}
 	});
-
 
 	onDestroy(() => {
 		if (story.forceCameraMode) {
@@ -187,12 +191,11 @@
 		container.removeEventListener("scroll", onScroll);
 		container.removeEventListener("wheel", onWheel);
 		resetToStart();
-		dispatch("closeModule", {n: $currentPage});
-		
+		dispatch("closeModule", { n: $currentPage });
+
 		baseLayer?.visible.set(false);
 		baseLayer = undefined;
 	});
-
 
 	function copyLayerById(id: string): Layer | undefined {
 		const originalLayer = getLayerById(id);
@@ -207,19 +210,17 @@
 			isBackground: libraryLayer.isBackground,
 			defaultOn: true,
 			defaultAddToManager: true,
-			opacity: libraryLayer.opacity ?? 100,
+			opacity: libraryLayer.opacity ?? 100
 		});
 
 		const newLayer = map.addLayer(config);
 		return newLayer;
 	}
 
-
 	function getLayerById(id: string): Layer | undefined {
 		const layers = get(map.layers);
-		return layers.find(layer => layer.id === id);
+		return layers.find((layer) => layer.id === id);
 	}
-
 
 	function onScroll() {
 		if (lastInputType === "scroll") {
@@ -227,11 +228,9 @@
 		}
 	}
 
-
 	function onWheel() {
 		lastInputType = "scroll";
 	}
-
 
 	currentPage.subscribe((page) => {
 		if (story.forceCameraMode) {
@@ -256,9 +255,8 @@
 			}
 			if (activeStep.layers) {
 				if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
-					storyLayers.forEach(layer => layer.visible.set(false));
-				}
-				else {
+					storyLayers.forEach((layer) => layer.visible.set(false));
+				} else {
 					hideInactiveLayers(activeStep.layers);
 				}
 				for (let i = 0; i < activeStep.layers?.length; i++) {
@@ -273,7 +271,7 @@
 							// Layer already added, no polygon required or already drawn
 							added.visible.set(true);
 						}
-						continue
+						continue;
 					}
 
 					// If the layer is not added yet, add it
@@ -285,8 +283,7 @@
 						if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
 							// No polyon drawn but is required
 							layer.visible.set(false);
-						}
-						else {
+						} else {
 							// No polygon required or already drawn
 							layer.visible.set(true);
 						}
@@ -302,16 +299,16 @@
 			}
 
 			const activeTerrain = get(map.options.selectedTerrainProvider);
-			if (startTerrain === undefined) startTerrain = activeTerrain; // necessary when loading a story directly via a search param	
-			
+			if (startTerrain === undefined) startTerrain = activeTerrain; // necessary when loading a story directly via a search param
+
 			// Set the terrain provider based on the step. Use no terrain in 2D mode
-			const stepTerrain = get(map.options.terrainProviders).find((t) => { 
+			const stepTerrain = get(map.options.terrainProviders).find((t) => {
 				return t.title === (get(map.options.use3DMode) ? activeStep?.terrain : "Uit");
 			});
 
-			if (stepTerrain) {	
+			if (stepTerrain) {
 				map.options.selectedTerrainProvider.set(stepTerrain);
-			} else if (activeTerrain !== startTerrain ) {
+			} else if (activeTerrain !== startTerrain) {
 				map.options.selectedTerrainProvider.set(startTerrain);
 			}
 		}
@@ -327,9 +324,7 @@
 		const stepElement = getStepElementByIndex(index);
 		if (stepElement) {
 			container.scrollTo({
-				top:
-					stepElement.getBoundingClientRect().top -
-					content.getBoundingClientRect().top
+				top: stepElement.getBoundingClientRect().top - content.getBoundingClientRect().top
 			});
 		}
 	}
@@ -342,16 +337,15 @@
 			settings: layerConfig.settings,
 			isBackground: layerConfig.isBackground,
 			defaultOn: true,
-			defaultAddToManager: true,
-		
+			defaultAddToManager: true
 		});
 
 		//const lc = new LayerConfig("st_" + layerConfig.id, layerConfig.title, true, true);
 		//lc.source = layerConfig.source;
 
 		// Set default style/theme
-		if(storyLayer.style) {
-			lc.settings.defaultTheme = storyLayer.style;	
+		if (storyLayer.style) {
+			lc.settings.defaultTheme = storyLayer.style;
 		}
 
 		lc.opacity = storyLayer.opacity ?? layerConfig.opacity;
@@ -373,7 +367,7 @@
 
 	function getLibraryLayer(id: string): LayerConfig | undefined {
 		const layerConfig = map.layerLibrary.findLayer(id);
-		return layerConfig;		
+		return layerConfig;
 	}
 
 	function resetToStart(): void {
@@ -429,7 +423,7 @@
 			}
 		}
 	}
-	
+
 	function getStepElementByIndex(index: number): HTMLElement | undefined {
 		try {
 			const steps = content.getElementsByClassName("step");
@@ -459,13 +453,16 @@
 		dispatch("closeStory");
 	}
 
-	function shouldShowLegend(legendEntry: LegendItem, distribution: Array<{ group: string; value: number }>) {
-		return Array.from(legendEntry.labels).some(label =>
-			distribution.some(d => d.group === label && d.value > 0)
+	function shouldShowLegend(
+		legendEntry: LegendItem,
+		distribution: Array<{ group: string; value: number }>
+	) {
+		return Array.from(legendEntry.labels).some((label) =>
+			distribution.some((d) => d.group === label && d.value > 0)
 		);
 	}
 
-	type Label = 'A' | 'B' | 'C' | 'D' | 'E';
+	type Label = "A" | "B" | "C" | "D" | "E";
 
 	const labelToColor: Record<string, string> = {
 		A: "#339966",
@@ -476,100 +473,105 @@
 	};
 
 	function isLabel(label: string): label is Label {
-		return ['A', 'B', 'C', 'D', 'E'].includes(label);
+		return ["A", "B", "C", "D", "E"].includes(label);
 	}
 
+	async function downloadPDF() {
+		const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+		const pageWidth = doc.internal.pageSize.getWidth();
+		const margin = 20;
+		const contentWidth = pageWidth - margin * 2;
+		let y = margin;
 
-async function downloadPDF() {
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const margin = 20;
-    const contentWidth = pageWidth - margin * 2;
-    let y = margin;
+		const logoImg = new Image();
+		logoImg.src = "/images/Zeeland_logo.png";
+		await new Promise<void>((resolve) => {
+			logoImg.onload = () => resolve();
+		});
+		doc.addImage(logoImg, "PNG", pageWidth - margin - 30, y, 30, 15);
 
-    const logoImg = new Image();
-    logoImg.src = '/images/Zeeland_logo.png';
-    await new Promise<void>((resolve) => { logoImg.onload = () => resolve(); });
-    doc.addImage(logoImg, 'PNG', pageWidth - margin - 30, y, 30, 15);
+		doc.setFontSize(18);
+		doc.setFont("helvetica", "bold");
+		doc.text(story.name, margin, y + 10);
+		y += 25;
 
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text(story.name, margin, y + 10);
-    y += 25;
+		doc.setDrawColor(200);
+		doc.line(margin, y, pageWidth - margin, y);
+		y += 10;
+		for (let i = 0; i < flattenedSteps.length; i++) {
+			const { step, chapter } = flattenedSteps[i];
 
-    doc.setDrawColor(200);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 10;
-    for (let i = 0; i < flattenedSteps.length; i++) {
-        const { step, chapter } = flattenedSteps[i];
+			if (y > 250) {
+				doc.addPage();
+				y = margin;
+			}
 
-        if (y > 250) {
-            doc.addPage();
-            y = margin;
-        }
+			doc.setFontSize(14);
+			doc.setFont("helvetica", "bold");
+			doc.text(chapter.title, margin, y);
+			y += 7;
 
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text(chapter.title, margin, y);
-        y += 7;
+			doc.setFontSize(12);
+			doc.setFont("helvetica", "bold");
+			doc.text(step.title, margin, y);
+			y += 7;
 
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text(step.title, margin, y);
-        y += 7;
+			doc.setFontSize(10);
+			doc.setFont("helvetica", "normal");
+			const plainText = step.html.replace(/<[^>]*>/g, "");
+			const lines = doc.splitTextToSize(plainText, contentWidth);
+			doc.text(lines, margin, y);
+			y += lines.length * 5 + 5;
 
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        const plainText = step.html.replace(/<[^>]*>/g, '');
-        const lines = doc.splitTextToSize(plainText, contentWidth);
-        doc.text(lines, margin, y);
-        y += lines.length * 5 + 5;
+			if (distributions && distributions[i]) {
+				const dist = distributions[i];
+				const colors: Record<string, [number, number, number]> = {
+					A: [51, 153, 102],
+					B: [153, 255, 204],
+					C: [255, 255, 153],
+					D: [255, 204, 102],
+					E: [156, 65, 16]
+				};
 
-        if (distributions && distributions[i]) {
-            const dist = distributions[i];
-            const colors: Record<string, [number, number, number]> = {
-                A: [51, 153, 102], B: [153, 255, 204],
-                C: [255, 255, 153], D: [255, 204, 102], E: [156, 65, 16]
-            };
+				for (const d of dist) {
+					if (d.value > 0) {
+						const total = dist.reduce((sum, item) => sum + item.value, 0);
+						const pct = ((d.value / total) * 100).toFixed(1);
+						const color = colors[d.group] ?? [128, 128, 128];
 
-            for (const d of dist) {
-                if (d.value > 0) {
-                    const total = dist.reduce((sum, item) => sum + item.value, 0);
-                    const pct = ((d.value / total) * 100).toFixed(1);
-                    const color = colors[d.group] ?? [128, 128, 128];
+						doc.setFillColor(color[0], color[1], color[2]);
+						doc.circle(margin + 3, y - 1.5, 3, "F");
 
-                    doc.setFillColor(color[0], color[1], color[2]);
-                    doc.circle(margin + 3, y - 1.5, 3, 'F');
+						doc.setFontSize(10);
+						doc.text(`${d.group}: ${pct}%`, margin + 10, y);
+						y += 6;
+					}
+				}
+				y += 5;
+			}
 
-                    doc.setFontSize(10);
-                    doc.text(`${d.group}: ${pct}%`, margin + 10, y);
-                    y += 6;
-                }
-            }
-            y += 5;
-        }
+			doc.setDrawColor(220);
+			doc.line(margin, y, pageWidth - margin, y);
+			y += 8;
+		}
+		const pageHeight = doc.internal.pageSize.getHeight();
+		doc.setFontSize(8);
+		doc.setTextColor(150);
+		doc.text("Provincie Zeeland - Signaalkaarten", margin, pageHeight - 10);
 
-        doc.setDrawColor(220);
-        doc.line(margin, y, pageWidth - margin, y);
-        y += 8;
-    }
-    const pageHeight = doc.internal.pageSize.getHeight();
-    doc.setFontSize(8);
-    doc.setTextColor(150);
-    doc.text('Provincie Zeeland - Signaalkaarten', margin, pageHeight - 10);
-
-    doc.save('Signaalkaarten_Zeeland.pdf');
-}
-
-
+		doc.save("Signaalkaarten_Zeeland.pdf");
+	}
 
 	function getColorFromLabel(label: string) {
 		return labelToColor[label];
 	}
-
 </script>
 
-<div class="story story-viewer" bind:clientWidth={width} style={viewportHeight ? `height:${viewportHeight}px` : undefined}>
+<div
+	class="story story-viewer"
+	bind:clientWidth={width}
+	style={viewportHeight ? `height:${viewportHeight}px` : undefined}
+>
 	<div
 		class="nav"
 		bind:clientHeight={navHeight}
@@ -577,57 +579,72 @@ async function downloadPDF() {
 			e.preventDefault();
 			e.stopPropagation();
 		}}
-	>	
+	>
 		<div class="nav-header">
-		<div class="heading-03 nav-title" title={story.name} style="font-weight: bold; text-align: left;">
-			{story.name}
+			<div
+				class="heading-03 nav-title"
+				title={story.name}
+				style="font-weight: bold; text-align: left;"
+			>
+				{story.name}
+			</div>
+			<div class="nav-controls">
+				{#if story.requestPolygonArea}
+					<!-- {#if distributions.length > 0} -->
+					<StoryChartDownloadButton bind:data={distributions} {story} {layerLegends} {map} />
+					<!-- {/if} -->
+				{/if}
+				{#if baseLayerId}
+					<div class="toggle-basemap">
+						<Button
+							kind="tertiary"
+							iconDescription={$baseMapVisible
+								? `${$_("general.close")} ${$_("tools.stories.basemap")}`
+								: `${$_("general.open")} ${$_("tools.stories.basemap")}`}
+							tooltipPosition="bottom"
+							icon={ChoroplethMap}
+							on:click={() => ($baseMapVisible = !$baseMapVisible)}
+						/>
+					</div>
+				{/if}
+				{#if story.requestPolygonArea}
+					<div class="draw-polygon">
+						<Button
+							kind={"primary"}
+							iconDescription={showPolygonMenu
+								? `${$_("general.open")} ${$_("tools.stories.projectAreaTool")}`
+								: `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
+							tooltipPosition="bottom"
+							icon={$showPolygonMenu ? ChevronUp : ChevronDown}
+							on:click={() => ($showPolygonMenu = !$showPolygonMenu)}
+						/>
+					</div>
+				{/if}
+			</div>
+			<div class="nav-close">
+				<Button
+					kind="tertiary"
+					iconDescription={textBack}
+					tooltipPosition="bottom"
+					tooltipAlignment="end"
+					icon={Return}
+					on:click={backToOverview}
+				/>
+			</div>
 		</div>
-		<div class="nav-controls">
-			{#if story.requestPolygonArea}
-				<!-- {#if distributions.length > 0} -->
-					<StoryChartDownloadButton bind:data={distributions} {story} {layerLegends} {map}/>
-				<!-- {/if} -->
-			{/if}
-			{#if baseLayerId}
-				<div class="toggle-basemap">
-					<Button
-						kind="tertiary"
-						iconDescription={$baseMapVisible ? `${$_("general.close")} ${$_("tools.stories.basemap")}` : `${$_("general.open")} ${$_("tools.stories.basemap")}`}
-						tooltipPosition="bottom"
-						icon={ChoroplethMap}
-						on:click={() => $baseMapVisible = !$baseMapVisible}
-					/>
-				</div>
-			{/if}
-			{#if story.requestPolygonArea}
-				<div class="draw-polygon">
-					<Button
-						kind={"primary"}
-						iconDescription={showPolygonMenu ? `${$_("general.open")} ${$_("tools.stories.projectAreaTool")}` : `${$_("general.close")} ${$_("tools.stories.projectAreaTool")}`}
-						tooltipPosition="bottom"
-						icon={$showPolygonMenu ? ChevronUp : ChevronDown}
-						on:click={() => $showPolygonMenu = !$showPolygonMenu} 
-					/>
-				</div>
-			{/if}
-		</div>
-		<div class="nav-close">
-			<Button
-				kind="tertiary"
-				iconDescription={textBack}
-				tooltipPosition="bottom"
-				tooltipAlignment="end"
-				icon={Return}
-				on:click={backToOverview} 
-			/>
-		</div>
-		</div>
-		
+
 		{#if story.requestPolygonArea}
-			<DrawPolygon {map} {story} bind:distributions={distributions} bind:polygonArea={polygonArea} bind:hasDrawnPolygon={$hasDrawnPolygon} showPolygonMenu={showPolygonMenu}/>
+			<DrawPolygon
+				{map}
+				{story}
+				bind:distributions
+				bind:polygonArea
+				bind:hasDrawnPolygon={$hasDrawnPolygon}
+				{showPolygonMenu}
+			/>
 		{/if}
 		<div class="chapter-buttons">
-				{#each story.storyChapters as chapter, index}
+			{#each story.storyChapters as chapter, index}
 				<Button
 					kind={activeChapter === chapter ? "primary" : "ghost"}
 					size="small"
@@ -640,63 +657,66 @@ async function downloadPDF() {
 						}
 					}}
 				>
-				{chapter.buttonText}
+					{chapter.buttonText}
 				</Button>
 			{/each}
 		</div>
-		<hr style="width: 100%;"/>
+		<hr style="width: 100%;" />
 		<div style="width: 100%;">
-			<CustomPaginationNav
-				bind:page={$currentPage}
-				bind:lastInputType ={lastInputType}
-				{flattenedSteps}
-			/>
+			<CustomPaginationNav bind:page={$currentPage} bind:lastInputType {flattenedSteps} />
 		</div>
 	</div>
 
 	<div class="scroll" bind:this={scrollContainer}>
-	<div class="content" bind:this={content}>
-		{#each flattenedSteps as { step, chapter }, index}
-			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
-				<div class="step-heading heading-01">
-					{chapter.title}
-				</div>
-				<div class="step-heading heading-04">
-					{step.title}
-				</div>
-				<div>
-					{@html step.html}
-				</div>
-				<!-- {#each step.layers ?? [] as layer}
+		<div class="content" bind:this={content}>
+			{#each flattenedSteps as { step, chapter }, index}
+				<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
+					<div class="step-heading heading-01">
+						{chapter.title}
+					</div>
+					<div class="step-heading heading-04">
+						{step.title}
+					</div>
+					<div>
+						{@html step.html}
+					</div>
+					<!-- {#each step.layers ?? [] as layer}
 					Layer {layer.id}: {layer.featureName}
 				{/each} -->
-				
-				<!-- <div class="step-heading-sub heading-03">
+
+					<!-- <div class="step-heading-sub heading-03">
 					{$_("tools.stories.statistics")}
 				</div> -->
-				<br>
-				<div class="step-stats">
-					{#if story.requestPolygonArea}
-						{#if distributions && distributions[index]}
-							<StoryChart data={distributions[index]} { index } />
-							<br><br><br>
-							{#if layerLegends[index].generalLegendText}
-								<div class="legendary-text mb">
-									{@html layerLegends[index].generalLegendText}
-								</div>
-							{/if}
-							<ul>
-								{#if layerLegends[index].legendOptions}
-									{#each layerLegends[index].legendOptions as legendEntry}
-										<!--{#if shouldShowLegend(legendEntry, distributions[index])}-->
+					<br />
+					<div class="step-stats">
+						{#if story.requestPolygonArea}
+							{#if distributions && distributions[index]}
+								<StoryChart data={distributions[index]} {index} />
+								<br /><br /><br />
+								{#if layerLegends[index].generalLegendText}
+									<div class="legendary-text mb">
+										{@html layerLegends[index].generalLegendText}
+									</div>
+								{/if}
+								<ul>
+									{#if layerLegends[index].legendOptions}
+										{#each layerLegends[index].legendOptions as legendEntry}
+											<!--{#if shouldShowLegend(legendEntry, distributions[index])}-->
 											<li style="margin-bottom: 2rem;">
 												<div style=" display: grid; grid-template-columns: 5rem 1fr;">
 													{#if legendEntry.labels}
 														<!-- Label images inline -->
-														<div style="margin-left: 0.5rem; display: flex; justify-content: center; align-items: center;">
+														<div
+															style="margin-left: 0.5rem; display: flex; justify-content: center; align-items: center;"
+														>
 															{#each Array.from(legendEntry.labels) as char, i}
 																{#if isLabel(char)}
-																	<div class="legend-letter legend-letter-m" style="background-color: {getColorFromLabel(char)}; transform: translateX(-{42.5 * i}%; z-index: {10 - i};">
+																	<div
+																		class="legend-letter legend-letter-m"
+																		style="background-color: {getColorFromLabel(
+																			char
+																		)}; transform: translateX(-{42.5 * i}%; z-index: {10 - i};"
+																	>
 																		{char}
 																	</div>
 																{/if}
@@ -712,58 +732,61 @@ async function downloadPDF() {
 														{#each Array.from(legendEntry.labels) as label}
 															{#if isLabel(label) && legendEntry.subLabels[label]}
 																<!--{#if distributions[index].find(d => d.group === label && d.value > 0)}-->
-																	<li class="legend-letter-with-text legendary-text">
-																		<!-- Image before text per sublabel -->
-																		<div class="legend-letter legend-letter-s" style="background-color: {getColorFromLabel(label)};">
-																			{label}
-																		</div>
-																		<div>
-																			{legendEntry.subLabels[label].text}
-																		</div>
-																	</li>
+																<li class="legend-letter-with-text legendary-text">
+																	<!-- Image before text per sublabel -->
+																	<div
+																		class="legend-letter legend-letter-s"
+																		style="background-color: {getColorFromLabel(label)};"
+																	>
+																		{label}
+																	</div>
+																	<div>
+																		{legendEntry.subLabels[label].text}
+																	</div>
+																</li>
 																<!--{/if}-->
 															{/if}
 														{/each}
 													</ul>
 												{/if}
 											</li>
-										<!--{/if}-->
-									{/each}
-								{/if}
-							</ul>
-						{:else if $hasDrawnPolygon}
-							<StoryChart data={undefined} { index } loading={true} />
-						{:else}
-							<StoryChart data={undefined} { index } />
+											<!--{/if}-->
+										{/each}
+									{/if}
+								</ul>
+							{:else if $hasDrawnPolygon}
+								<StoryChart data={undefined} {index} loading={true} />
+							{:else}
+								<StoryChart data={undefined} {index} />
+							{/if}
 						{/if}
-					{/if}
+					</div>
+					<div class="opacity-controls">
+						{#each step.layers ?? [] as layer}
+							{#if layer.showOpacitySlider}
+								{#await (async () => {
+									while (!getAdded(layer.id.toString())) {
+										await new Promise((r) => setTimeout(r, 100));
+									}
+									return getAdded(layer.id.toString());
+								})() then addedLayer}
+									{#if addedLayer}
+										<StoryOpacitySlider layer={addedLayer} />
+									{/if}
+								{:catch}
+									<SliderSkeleton hideLabel />
+								{/await}
+							{/if}
+						{/each}
+					</div>
+					<div class="tag">
+						<Tag>{chapter.title}</Tag>
+						<Tag>{index + 1}</Tag>
+					</div>
 				</div>
-				<div class="opacity-controls">
-					{#each step.layers ?? [] as layer}
-						{#if layer.showOpacitySlider}
-							{#await (async () => {
-								while (!getAdded(layer.id.toString())) {
-									await new Promise(r => setTimeout(r, 100));
-								}
-								return getAdded(layer.id.toString());
-							})() then addedLayer}
-								{#if addedLayer}
-									<StoryOpacitySlider layer={addedLayer} />
-								{/if}
-							{:catch}
-								<SliderSkeleton hideLabel />
-							{/await}
-						{/if}
-					{/each}
-				</div>
-				<div class="tag">
-					<Tag>{chapter.title}</Tag>
-					<Tag>{index + 1}</Tag>
-				</div>
-			</div>
-		{/each}
-		<!-- <div style="height:{height}px" /> -->
-	</div>
+			{/each}
+			<!-- <div style="height:{height}px" /> -->
+		</div>
 	</div>
 
 	{#if story.hasMarkers}
@@ -856,7 +879,6 @@ async function downloadPDF() {
 		z-index: 10;
 	}
 
-
 	.nav div {
 		z-index: 20;
 	}
@@ -864,7 +886,7 @@ async function downloadPDF() {
 	.content {
 		z-index: 1;
 		display: flex;
-		flex-direction: column;	
+		flex-direction: column;
 	}
 
 	.step {

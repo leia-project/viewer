@@ -7,9 +7,7 @@
 
 	const clip = projectHandler.clip;
 	const selectedProject = projectHandler.selectedProject;
-
 </script>
-
 
 <div class="project-buttons">
 	<div class="cutout-button">
@@ -31,9 +29,7 @@
 	</div>
 </div>
 
-
 <style>
-	
 	.project-buttons {
 		order: -1;
 		height: 100%;
@@ -43,5 +39,4 @@
 	:global(.home-button .bx--btn::before, .home-button .bx--assistive-text) {
 		display: none !important;
 	}
-
 </style>

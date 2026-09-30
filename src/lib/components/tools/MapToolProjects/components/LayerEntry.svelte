@@ -16,11 +16,12 @@
 
 	$: opacity = $mapLayer?.opacity;
 	$: customControls = $mapLayer?.customControls;
-	$: hasPanel = $mapLayer?.config.legendSupported || $mapLayer?.config.opacitySupported || ($customControls && $customControls?.length > 0);
+	$: hasPanel =
+		$mapLayer?.config.legendSupported ||
+		$mapLayer?.config.opacitySupported ||
+		($customControls && $customControls?.length > 0);
 	let open: boolean = false;
-
 </script>
-
 
 {#if $isProcessing || hasData}
 	<Divider />
@@ -28,9 +29,7 @@
 		{#if $isProcessing || !hasData}
 			<Checkbox skeleton />
 		{:else}
-			<Checkbox
-				bind:checked={projectLayer.on}
-			/>
+			<Checkbox bind:checked={projectLayer.on} />
 			{$mapLayer?.config.title ?? projectLayer.id}
 			<Button
 				kind="ghost"
@@ -40,8 +39,18 @@
 				on:click={() => projectLayer.flyTo()}
 			/>
 			{#if hasPanel && $mapLayer}
-				<button class="panel-toggle" class:open on:click={() => open = !open}>
-					<svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" preserveAspectRatio="xMidYMid meet" width="16" height="16" role="img" aria-label="Expand/Collapse">
+				<button class="panel-toggle" class:open on:click={() => (open = !open)}>
+					<svg
+						class="toggle-icon"
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 32 32"
+						fill="currentColor"
+						preserveAspectRatio="xMidYMid meet"
+						width="16"
+						height="16"
+						role="img"
+						aria-label="Expand/Collapse"
+					>
 						<path d="M22 16L12 26 10.6 24.6 19.2 16 10.6 7.4 12 6z"></path>
 					</svg>
 				</button>
@@ -52,7 +61,13 @@
 						{/each}
 					{/if}
 					{#if $mapLayer.config.opacitySupported}
-						<Slider hideTextInput labelText={$_("tools.projects.opacity") + ": " + $opacity + "%"} min={0} max={100} bind:value={$opacity} />
+						<Slider
+							hideTextInput
+							labelText={$_("tools.projects.opacity") + ": " + $opacity + "%"}
+							min={0}
+							max={100}
+							bind:value={$opacity}
+						/>
 					{/if}
 					{#if $mapLayer.config.legendSupported}
 						<div class="label-01">{$_("tools.projects.legend")}</div>
@@ -64,15 +79,13 @@
 	</li>
 {/if}
 
-
 <style>
-
 	.project-layer {
 		display: grid;
 		grid-template-columns: 32px 1fr 32px 32px;
 		align-items: center;
 	}
-	
+
 	.panel {
 		padding: 10px;
 		display: none;
@@ -102,6 +115,4 @@
 	.panel.open {
 		display: block;
 	}
-	
-
 </style>

@@ -13,9 +13,7 @@
 	const sliderZ = clipSlider.angleZ;
 
 	// const sliceMode = clipSlider.sliceMode;
-
 </script>
-
 
 {#if $layerVisible}
 	<div class="clipper">
@@ -25,12 +23,12 @@
 				toggled={$clipActive}
 				hideLabel={true}
 				on:toggle={() => {
-					if ($layerVisible) clipActive.set(!$clipActive)
+					if ($layerVisible) clipActive.set(!$clipActive);
 				}}
 				labelA=""
 				labelB=""
 			/>
-			
+
 			<div class="top-buttons">
 				{#if $clipActive}
 					<span class="reset-button" class:hidden={$sliderXY === 180 && $sliderZ === 0}>
@@ -43,20 +41,20 @@
 							on:click={() => clipSlider.reset()}
 						/>
 					</span>
-				<Button
-					kind="ghost"
-					iconDescription={$showSlider ? $_("general.buttons.hide") :  $_("general.buttons.show")}
-					icon={$showSlider ? ViewOffFilled : ViewFilled}
-					tooltipPosition="bottom"
-					tooltipAlignment="end"
-					size="field"
-					on:click={() => clipSlider.showSlider.set(!$showSlider)}
-				/>
+					<Button
+						kind="ghost"
+						iconDescription={$showSlider ? $_("general.buttons.hide") : $_("general.buttons.show")}
+						icon={$showSlider ? ViewOffFilled : ViewFilled}
+						tooltipPosition="bottom"
+						tooltipAlignment="end"
+						size="field"
+						on:click={() => clipSlider.showSlider.set(!$showSlider)}
+					/>
 				{/if}
 			</div>
 		</div>
 
-		{#if $clipActive }
+		{#if $clipActive}
 			<div class="clip-angle-sliders">
 				<div class="slider-label">{$_("tools.layerTools.clipper.rotationVerticalAxis")}</div>
 				<Slider
@@ -68,13 +66,7 @@
 					id="slider-1"
 				/>
 				<div class="slider-label">{$_("tools.layerTools.clipper.rotationHorizontalAxis")}</div>
-				<Slider
-					bind:value={$sliderZ}
-					min={-90}
-					max={90}
-					step={1}
-					hideTextInput={true}
-				/>
+				<Slider bind:value={$sliderZ} min={-90} max={90} step={1} hideTextInput={true} />
 				<!-- <div class="slice-mode-label">{$_("tools.layerTools.clipper.sliceModeLabel")}</div>
 				<Toggle
 				toggled={$sliceMode}
@@ -91,9 +83,7 @@
 	</div>
 {/if}
 
-
 <style>
-
 	.clipper {
 		margin: 10px 0 15px;
 		background-color: var(--cds-ui-01);
@@ -137,5 +127,4 @@
 	.clip-angle-sliders :global(.bx--slider) {
 		min-width: 100px !important;
 	}
-
 </style>
