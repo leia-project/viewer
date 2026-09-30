@@ -69,6 +69,8 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 
 	public colorGradientStart: Cesium.Color = Cesium.Color.BLUE;
 	public colorGradientEnd: Cesium.Color = Cesium.Color.RED;
+	private readonly classMapping: Record<string, Cesium.Color> | undefined;
+	private forceRandomColors: boolean = false;
 	public style: Writable<string> = writable("default");
 	public styleType: Writable<string> = writable();
 	public legend: Writable<GeoJSONlegend> = writable();
@@ -96,6 +98,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.url = this.config.settings.url ?? undefined;
 		this.fileType = this.config.type ?? "geojson";
 		this.source = new Cesium.GeoJsonDataSource(this.config.id);
+		this.classMapping = this.buildClassMapping(this.config.settings.classMapping);
 		if (this.config.settings["style"] && typeof this.config.settings["style"] === "string") {
 			this.style.set(this.config.settings["style"]);
 		} else if (typeof this.config.settings["style"] === "object") {
@@ -140,13 +143,20 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	}
 
 	public async addToMap(): Promise<void> {
+		// Lazy loading: only fetch/parse data once the layer has been activated
+		if (!this.loadInitiated || !this.source) return;
 		if (!this.loaded && this.url) this.loaded = this.loadData();
 		await this.loaded;
 		await this.map.viewer.dataSources.add(this.source);
 		this.addListeners();
 		this.setAvailableProperties();
+		this.setStyle(get(this.style));
 		get(this.visible) ? this.show() : this.hide();
 		if (this.config.settings["dragDropped"]) this.zoomTo();
+	}
+
+	protected startLoading(): Promise<void> {
+		return this.addToMap();
 	}
 
 	public removeFromMap(): void {
@@ -241,8 +251,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				}
 			}
 		}
-
-		this.availableProperties.map((p) => p.propertyValues?.sort());
+		this.availableProperties.forEach((p) => p.propertyValues?.sort());
 		if (allowed) {
 			// Preserve the curated config order.
 			this.availableProperties.sort(
@@ -316,6 +325,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		}
 		const prop = this.availableProperties.find((p) => p.propertyName === property);
 		if (!prop) return;
+		if (prop.propertyType !== "string") this.forceRandomColors = false;
 		if (prop.propertyType === "number") {
 			const min = prop.range?.min;
 			const max = prop.range?.max;
@@ -329,6 +339,13 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		}
 	}
 
+	// Re-applies a string style with fresh random colors, ignoring any configured classMapping.
+	public randomizeStyle(property: string): void {
+		this.forceRandomColors = true;
+		this.setStyle(property);
+		this.forceRandomColors = false;
+	}
+
 	private setDefaultStyle(): void {
 		const entities = this.source.entities.values;
 		for (let i = 0; i < entities.length; i++) {
@@ -338,6 +355,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 					this.defaultColorPoint.withAlpha(this.alpha)
 				);
 			} else if (entity.polyline) {
+				entity.polyline.material = this.defaultColorLine;
 			} else if (entity.polygon) {
 				const colorProp = entity.properties?.fill
 					? new Cesium.ColorMaterialProperty(
@@ -363,9 +381,11 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			else if (entity.polyline) {
 				entity.polyline.material = this.defaultColorLine;
 			} else if (entity.polygon) {
-				const colorProp = new Cesium.ColorMaterialProperty(
-					Cesium.Color.fromCssColorString(this.config.settings.style.fill).withAlpha(this.alpha)
-				);
+				const colorProp = this.config.settings.style?.fill
+					? new Cesium.ColorMaterialProperty(
+							Cesium.Color.fromCssColorString(this.config.settings.style.fill).withAlpha(this.alpha)
+						)
+					: this.defaultColorPolygon;
 				this.setPolygonMaterial(entity, colorProp);
 			}
 		}
@@ -397,7 +417,10 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			});
 		}
 		polygonEntity.polygon.material = material;
-		polygonEntity.polygon.perPositionHeight = new Cesium.ConstantProperty(true);
+		polygonEntity.polygon.perPositionHeight = new Cesium.ConstantProperty(!this.clampToGround);
+		polygonEntity.polygon.classificationType = new Cesium.ConstantProperty(
+			Cesium.ClassificationType.BOTH
+		);
 	}
 
 	private setNumberStyle(property: GeoJSONpropertySummary, min: number, max: number): void {
@@ -460,23 +483,13 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		const legend: GeoJSONlegend = [];
 		for (let i = 0; i < property.propertyValues.length; i++) {
 			const value = property.propertyValues[i];
-			let cssColor: string;
-			if (colorMap?.[value]) {
-				cssColor = colorMap[value];
-			} else {
-				const color = Cesium.Color.fromRandom({ alpha: 1.0 });
-				// Make sure color is not too bright:
-				if (color.red + color.green + color.blue > 2.0) {
-					color.red = color.red / 2;
-					color.green = color.green / 2;
-					color.blue = color.blue / 2;
-				}
-				cssColor = color.toCssColorString();
-			}
+			const cssColor = colorMap?.[value]
+				? colorMap[value]
+				: this.getStringStyleColor(property.propertyName, value).toCssColorString();
 			legend.push({ color: cssColor, label: value });
 			if (i > this.maxLengthLegend - 2) break;
 		}
-		// Color entities accoring to legend
+		// Color entities according to legend
 		const entities = this.source.entities.values;
 		for (let i = 0; i < entities.length; i++) {
 			const entity = entities[i];
@@ -488,7 +501,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				const idx = property.propertyValues?.indexOf(value);
 				if (idx > -1 && legend[idx]) {
 					styledColor = new Cesium.ColorMaterialProperty(
-						Cesium.Color.fromCssColorString(legend[idx].color)
+						Cesium.Color.fromCssColorString(legend[idx].color).withAlpha(this.alpha)
 					);
 				}
 			}
@@ -500,6 +513,44 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		// Update
 		this.legend.set(legend);
 		this.map.refresh();
+	}
+
+	private getStringStyleColor(propertyName: string, value: string): Cesium.Color {
+		const configuredStyle = this.config.settings.style;
+		const hasClassMapping = !!this.classMapping;
+		const shouldUseClassMapping =
+			!this.forceRandomColors &&
+			hasClassMapping &&
+			typeof configuredStyle === "string" &&
+			configuredStyle === get(this.style) &&
+			configuredStyle === propertyName;
+		const classMappedColor = shouldUseClassMapping ? this.classMapping?.[value] : undefined;
+		if (classMappedColor) {
+			return classMappedColor;
+		}
+
+		const color = Cesium.Color.fromRandom({ alpha: 1.0 });
+		// Make sure color is not too bright.
+		if (color.red + color.green + color.blue > 2.0) {
+			color.red = color.red / 2;
+			color.green = color.green / 2;
+			color.blue = color.blue / 2;
+		}
+
+		return color;
+	}
+
+	private buildClassMapping(raw: unknown): Record<string, Cesium.Color> | undefined {
+		if (!raw || typeof raw !== "object") return undefined;
+		const classMapping: Record<string, Cesium.Color> = {};
+
+		for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+			if (typeof value !== "string") continue;
+			const parsedColor = Cesium.Color.fromCssColorString(value);
+			if (parsedColor) classMapping[key] = parsedColor;
+		}
+
+		return Object.keys(classMapping).length > 0 ? classMapping : undefined;
 	}
 
 	private addOutlines(): void {

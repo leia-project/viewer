@@ -36,6 +36,9 @@ function setupLocalization(defaultLocale: string = "en", translations: Array<{ l
     selectedLanguage.set(initLanguage);
     selectedLanguage.subscribe((l) => {
         locale.set(l);
+        if (typeof document !== "undefined") {
+            document.documentElement.lang = l;
+        }
     });
 }
 

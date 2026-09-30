@@ -68,7 +68,6 @@ export class IconLayer<F> extends CustomLayer {
 		});
 		this.addMapEntities(mapIcons);
 		this.setCameraPosition();
-		this.zoomToLayer();
 	}
 
 

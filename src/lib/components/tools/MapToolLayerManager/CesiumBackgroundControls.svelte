@@ -35,6 +35,7 @@
 	{/if}
 
 	<Slider
+		fullWidth
 		hideTextInput
 		labelText={$_("tools.backgroundControls.opacity") + " " + $globeOpacity + "%"}
 		min={0}
@@ -63,10 +64,16 @@
 <style>
 	.custom {
 		width: 100%;
-		padding-top: var(--cds-spacing-05);
 	}
 
 	.spacer {
 		margin-top: var(--cds-spacing-05);
+	}
+
+	.custom :global(.bx--slider) {
+		min-width: 10rem;
+	}
+	.custom :global(.bx--slider-container) {
+		width: 100%;
 	}
 </style>

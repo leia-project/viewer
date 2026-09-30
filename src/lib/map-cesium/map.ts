@@ -16,12 +16,15 @@ import { CesiumLayerFactory } from "./cesium-layer-factory";
 import { MapOptions } from "./map-options";
 
 import type { CesiumLayer } from "./layers/cesium-layer";
+import { ClipHandler } from "./clip";
 
+const MIN_CAMERA_HEIGHT = 2;
 
 export class Map extends MapCore {
 	public viewer!: Cesium.Viewer;
 	public camera!: Cesium.Camera;
 	public options: MapOptions;
+	public clipHandler: ClipHandler;
 	public featureInfoHandler!: FeatureInfoHandler;
 
 	public flyCamera: FlyCamera | undefined; // Do not remove
@@ -32,6 +35,7 @@ export class Map extends MapCore {
 
 		this.options = new MapOptions(this);
 		this.layerFactory = new CesiumLayerFactory();
+		this.clipHandler = new ClipHandler(this);
 		this.configLoaded.subscribe((loaded) => {
 			this.handleConfig(loaded);
 		});
@@ -119,12 +123,63 @@ export class Map extends MapCore {
 		this.refresh();
 	}
 
+	/** Moves the camera straight up or down along the ellipsoid normal, by a fraction of its current height. */
+	public adjustHeight(factor: number): void {
+		const cartographic = Cesium.Cartographic.fromCartesian(this.camera.positionWC);
+		if (!cartographic) return;
+
+		let distance = Math.max(Math.abs(cartographic.height), MIN_CAMERA_HEIGHT) * factor;
+		if (cartographic.height + distance < MIN_CAMERA_HEIGHT) {
+			distance = MIN_CAMERA_HEIGHT - cartographic.height;
+		}
+		if (distance === 0) return;
+
+		const normal = this.viewer.scene.globe.ellipsoid.geodeticSurfaceNormal(
+			this.camera.positionWC,
+			new Cesium.Cartesian3()
+		);
+		if (!normal) return;
+
+		this.camera.move(normal, distance);
+		this.refresh();
+	}
+
+	public adjustHeading(degrees: number): void {
+		this.setOrientation(
+			Cesium.Math.toDegrees(this.camera.heading) + degrees,
+			Cesium.Math.toDegrees(this.camera.pitch)
+		);
+	}
+
+	public adjustPitch(degrees: number): void {
+		// In 2D mode the camera must stay top-down
+		if (!get(this.options.use3DMode)) return;
+
+		this.setOrientation(
+			Cesium.Math.toDegrees(this.camera.heading),
+			Cesium.Math.clamp(Cesium.Math.toDegrees(this.camera.pitch) + degrees, -89.9, 89.9)
+		);
+	}
+
+	private setOrientation(heading: number, pitch: number): void {
+		this.camera.setView({
+			orientation: {
+				heading: Cesium.Math.toRadians(heading),
+				pitch: Cesium.Math.toRadians(pitch),
+				roll: 0.0
+			}
+		});
+		this.refresh();
+	}
+
 	public flyTo(position: CameraLocation): void {
+		// In 2D mode the camera must stay top-down, so ignore any tilt from the target position
+		const pitch = get(this.options.use3DMode) ? position.pitch : -89.9;
 		this.camera?.flyTo({
 			destination: Cesium.Cartesian3.fromDegrees(position.x, position.y, position.z),
 			orientation: {
 				heading: Cesium.Math.toRadians(position.heading),
-				pitch: Cesium.Math.toRadians(position.pitch),
+				pitch: Cesium.Math.toRadians(pitch),
 				roll: 0.0
 			},
 			duration: position.duration
@@ -256,9 +311,10 @@ export class Map extends MapCore {
 
 		viewer.scene.highDynamicRange = get(this.options.highDynamicRange);
 		viewer.scene.postProcessStages.fxaa.enabled = get(this.options.fxaa);
+		viewer.scene.msaaSamples = get(this.options.msaa);
 
 		// Enable going subsurface
-		viewer.scene.screenSpaceCameraController.enableCollisionDetection = false;
+		viewer.scene.screenSpaceCameraController.enableCollisionDetection = get(this.options.enableCollisionDetection);
 
 		// Set sun position
 		const date = new Date();

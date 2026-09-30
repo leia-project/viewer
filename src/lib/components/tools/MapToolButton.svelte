@@ -56,7 +56,7 @@
             </Tooltip>
         {/if}
 
-        {#if showLabel && !active}
+        {#if showLabel}
             <div
                 class="tool-label"
                 class:tool-label--active={active}
@@ -125,6 +125,6 @@
     }
 
     .tool-label--active {
-        color: var(--cds-interactive-01);
+        color: var(--cds-text-01);
     }
 </style>

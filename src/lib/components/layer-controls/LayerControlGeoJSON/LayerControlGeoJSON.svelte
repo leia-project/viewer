@@ -61,8 +61,8 @@
 {#if dropdownItems}
 	<div class="geojson-styling-options">
 		<div class="control-section">
-			<div class="control-header">{ $_('tools.layerManager.styling') }</div>
 			<Dropdown
+				titleText={ $_('tools.layerManager.styling') }
 				bind:selectedId={activeStyle}
 				items={dropdownItems}
 				size="sm"
@@ -105,18 +105,18 @@
 					{#if $legend.length >= layer.maxLengthLegend}
 						<div class="legend-item">
 							<div class="legend-color" style="background-color: #c6c6c6"></div>
-							<div class="legend-text">All other</div>
+							<div class="legend-text">{ $_('tools.layerManager.allOther') }</div>
 						</div>
 					{/if}
 				</div>
 				{#if $styleType === "string"}
 					<div class="color-randomizer">
 						<Button
-							iconDescription="Color randomizer"
+							iconDescription={ $_('tools.layerManager.colorRandomizer') }
 							icon={ColorPalette}
 							tooltipPosition="left"
 							size="small"
-							on:click={() => layer.setStyle(dropdownItems[activeStyle].text)}
+							on:click={() => layer.randomizeStyle(dropdownItems[activeStyle].text)}
 						/>
 					</div>
 				{/if}
