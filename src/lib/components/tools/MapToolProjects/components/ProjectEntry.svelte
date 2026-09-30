@@ -16,9 +16,7 @@
 	const clip = projectHandler.clip;
 
 	$: projectLayers = project.layers;
-	
 </script>
-
 
 <div class="project" class:active={selected}>
 	<div class="project-header">
@@ -74,22 +72,21 @@
 </div>
 <div class="divider" />
 
-
 <style>
-
 	.project {
 		margin-left: var(--cds-spacing-05);
 		padding: 5px 10px;
 	}
-	.project.active, .project:hover {
+	.project.active,
+	.project:hover {
 		background-color: var(--cds-ui-01);
 	}
 	.project-header {
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        align-content: center;
+		cursor: pointer;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-content: center;
 	}
 
 	.project-description {
@@ -97,9 +94,8 @@
 	}
 
 	.divider {
-        background-color: var(--cds-ui-03);
-        width: 100%;
-        height: 1px;
-    }
-
+		background-color: var(--cds-ui-03);
+		width: 100%;
+		height: 1px;
+	}
 </style>

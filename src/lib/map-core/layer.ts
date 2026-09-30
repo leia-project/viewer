@@ -6,70 +6,67 @@ import type { Writable } from "svelte/store";
 import { CameraLocation } from "./camera-location";
 
 export abstract class Layer {
-  public config: LayerConfig;
-  public visible: Writable<boolean>;
-  public opacity: Writable<number>;
-  public customControls: Writable<Array<CustomLayerControl>>;
-  public parentGroup: string|number;
+	public config: LayerConfig;
+	public visible: Writable<boolean>;
+	public opacity: Writable<number>;
+	public customControls: Writable<Array<CustomLayerControl>>;
+	public parentGroup: string | number;
 
-  constructor(
-    config: LayerConfig,
-    visible: boolean = true,
-  ) {
-    if(!config.id) {
-      throw new Error("Layer must have an ID");
-    }
-    
-    this.config = config;
-    this.visible = writable(visible);
-    this.opacity = writable(!config.opacity || config.opacity === 0 ? 100 : config.opacity);
-    this.customControls = writable<Array<CustomLayerControl>>(new Array<CustomLayerControl>());
+	constructor(config: LayerConfig, visible: boolean = true) {
+		if (!config.id) {
+			throw new Error("Layer must have an ID");
+		}
 
-    this.visible.subscribe((visible) => {
-      if (visible) {
-        this.show();
-      } else {
-        this.hide();
-      }
-    });
-    this.opacity.subscribe((value) => this.opacityChanged(value));
-    this.parentGroup = config.groupId;
-  }
+		this.config = config;
+		this.visible = writable(visible);
+		this.opacity = writable(!config.opacity || config.opacity === 0 ? 100 : config.opacity);
+		this.customControls = writable<Array<CustomLayerControl>>(new Array<CustomLayerControl>());
 
-  public addCustomControl(control: CustomLayerControl) {
-    const controls = get(this.customControls);
-    this.customControls.set([...controls, control]);
-  }
+		this.visible.subscribe((visible) => {
+			if (visible) {
+				this.show();
+			} else {
+				this.hide();
+			}
+		});
+		this.opacity.subscribe((value) => this.opacityChanged(value));
+		this.parentGroup = config.groupId;
+	}
 
-  public removeCustomControl(control: CustomLayerControl) {
-    const controls = get(this.customControls);
-    for(let i = 0; i < controls.length; i++) {
-      if(controls[i].component === control.component) {
-        controls.splice(i, 1);
-        break;
-      }
-    }
+	public addCustomControl(control: CustomLayerControl) {
+		const controls = get(this.customControls);
+		this.customControls.set([...controls, control]);
+	}
 
-    this.customControls.set(controls);
-  }
+	public removeCustomControl(control: CustomLayerControl) {
+		const controls = get(this.customControls);
+		for (let i = 0; i < controls.length; i++) {
+			if (controls[i].component === control.component) {
+				controls.splice(i, 1);
+				break;
+			}
+		}
 
-  public get id(): string {
-      return this.config.id.toString();
-  }
+		this.customControls.set(controls);
+	}
 
-  public get title(): string {
-      return this.config.title;
-  }
+	public get id(): string {
+		return this.config.id.toString();
+	}
 
-  public remove(): void {
-    this.config.added.set(false);
-  }
+	public get title(): string {
+		return this.config.title;
+	}
 
-  public getLayerPosition(): CameraLocation | undefined {
-      return this.config.cameraPosition ?? undefined;
-  }
+	public remove(): void {
+		this.config.added.set(false);
+	}
 
-  protected abstract show(): void;
-  protected abstract hide(): void;
-  protected abstract opacityChanged(opacity: number): void;
+	public getLayerPosition(): CameraLocation | undefined {
+		return this.config.cameraPosition ?? undefined;
+	}
+
+	protected abstract show(): void;
+	protected abstract hide(): void;
+	protected abstract opacityChanged(opacity: number): void;
 }

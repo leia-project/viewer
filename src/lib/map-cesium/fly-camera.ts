@@ -143,7 +143,6 @@ export default class FlyCamera {
 			this.lockPointer();
 		} else {
 			this.unlockPointer();
-			
 		}
 	}
 
@@ -163,7 +162,7 @@ export default class FlyCamera {
 		this.scene.canvas.requestPointerLock();
 		this.POVActive = true;
 		this.enabled = true;
-		
+
 		document.getElementById("navfooter").style.visibility = "hidden";
 		this.createGuide();
 	}
@@ -175,15 +174,12 @@ export default class FlyCamera {
 
 		this.scene.screenSpaceCameraController.enableCollisionDetection = false;
 		this.POVActive = false;
-		  
+
 		//wait out the pointerlock restriction without errors
 		setTimeout(() => {
 			document.getElementById("navfooter").style.visibility = "visible";
 			document.getElementById("povGuide")?.remove();
 		}, 1000);
-
-    
-
 	}
 
 	private addClockTickEvent() {
@@ -215,29 +211,27 @@ export default class FlyCamera {
 		walkModeButton.style.borderTop = "1px solid white";
 		walkModeButton.style.borderBottom = "1px solid white";
 
-
-
-
-
 		if (this.requestingRender) {
 			this.viewer.scene.requestRenderMode = false;
 		}
 	}
 
 	public toggleGuide() {
-		if(document.getElementById("povGuide") && document.getElementById("povGuide")?.style.visibility == "visible") {
+		if (
+			document.getElementById("povGuide") &&
+			document.getElementById("povGuide")?.style.visibility == "visible"
+		) {
 			document.getElementById("povGuide").style.visibility = "hidden";
 		} else {
 			document.getElementById("povGuide").style.visibility = "visible";
 		}
-		
 	}
 
 	public createGuide() {
-     	let guide = document.createElement("row");
+		let guide = document.createElement("row");
 		guide.id = "povGuide";
 		guide.style.backgroundColor = "#343434ff";
-		guide.style.color = "#ffffffff"
+		guide.style.color = "#ffffffff";
 		guide.style.border = "3px solid white";
 		guide.style.padding = "5px";
 		guide.style.display = "flex";
@@ -250,7 +244,6 @@ export default class FlyCamera {
 		let hideDiv = document.createElement("div");
 		let verticalMovementDiv = document.createElement("div");
 
-
 		escDiv.textContent = "Press ESC to exit";
 		movementDiv.textContent = "Use WASD or arrow keys to move";
 		verticalMovementDiv.textContent = "Use Q/E to go up/down";
@@ -258,18 +251,16 @@ export default class FlyCamera {
 		hideDiv.textContent = "Press H to hide this menu";
 
 		guide.appendChild(escDiv);
-        guide.appendChild(movementDiv);
-		if(!this.groundPOV) {
-		guide.appendChild(verticalMovementDiv);
+		guide.appendChild(movementDiv);
+		if (!this.groundPOV) {
+			guide.appendChild(verticalMovementDiv);
 		}
 		guide.appendChild(modifierDiv);
 
-		
 		guide.appendChild(hideDiv);
 
 		document.getElementById("navfooter")?.appendChild(guide);
 		guide.style.visibility = "visible";
-		
 	}
 
 	public handleMovement(movingEntity: Cesium.Entity) {
@@ -342,10 +333,10 @@ export default class FlyCamera {
 		this.viewer.entities.removeById("CursorBoard");
 		this.viewer.scene.requestRenderMode = this.requestingRender;
 		this.viewer.scene.requestRender();
-		document.getElementById("walkModeButton").style.backgroundColor = document.getElementById("navfooter")?.style.backgroundColor;
-		document.getElementById("walkModeButton").style.border = document.getElementById("navfooter")?.style.border;
-
-
+		document.getElementById("walkModeButton").style.backgroundColor =
+			document.getElementById("navfooter")?.style.backgroundColor;
+		document.getElementById("walkModeButton").style.border =
+			document.getElementById("navfooter")?.style.border;
 
 		this.POVActive = false;
 		document.body.style.cursor = "auto";
@@ -364,8 +355,7 @@ export default class FlyCamera {
 			position: Cesium.Cartesian3.ZERO,
 			id: "CursorBoard",
 			billboard: {
-				image:
-				this.base + "/images/pov_man.png",
+				image: this.base + "/images/pov_man.png",
 				width: 35,
 				height: 35,
 				verticalOrigin: Cesium.VerticalOrigin.BOTTOM
@@ -407,7 +397,7 @@ export default class FlyCamera {
 	}
 
 	private getMoveSpeed() {
-		return this.deltaTime * (this.moveSpeed * this.speedModifier * this.getHeightSpeedModifier()) ;
+		return this.deltaTime * (this.moveSpeed * this.speedModifier * this.getHeightSpeedModifier());
 	}
 
 	private getMouseSpeed() {
@@ -455,9 +445,9 @@ export default class FlyCamera {
 	private applyGravity() {
 		if (this.groundPOV) {
 			const groundHeight = this.scene.globe.getHeight(this.camera.positionCartographic);
-		   
+
 			if (groundHeight) {
-		  		this.camera.moveDown((this.camera.positionCartographic.height - 1.60) - groundHeight)
+				this.camera.moveDown(this.camera.positionCartographic.height - 1.6 - groundHeight);
 			}
 		}
 	}
@@ -502,22 +492,26 @@ export default class FlyCamera {
 		}
 	}
 
-
 	private viewerUpdate() {
 		let now = performance.now();
 		this.deltaTime = now - this.lastTime;
 		this.lastTime = now;
- 
+
 		this.mouseLook();
 		for (const property in this.keys) {
 			const key = this.keys[property];
 
-                if (!this.enabled) {
-					key.state = "up";
-					key.updated = false;
-				}
+			if (!this.enabled) {
+				key.state = "up";
+				key.updated = false;
+			}
 
-			if (key.downAction && key.state == "down" && (key.continuesly || key.updated) && this.enabled) {
+			if (
+				key.downAction &&
+				key.state == "down" &&
+				(key.continuesly || key.updated) &&
+				this.enabled
+			) {
 				key.downAction();
 				key.updated = false;
 			}

@@ -4,7 +4,6 @@ import type { Map } from "../map";
 import { CesiumImageryLayer } from "./imagery-layer";
 
 export class BasiskaartLayer extends CesiumImageryLayer {
-
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
 	}
@@ -15,7 +14,7 @@ export class BasiskaartLayer extends CesiumImageryLayer {
 			layer: "",
 			style: "",
 			format: "image/png",
-			tileMatrixSetID: "",
+			tileMatrixSetID: ""
 			//rectangle: rect,
 		});
 

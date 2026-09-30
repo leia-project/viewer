@@ -13,12 +13,15 @@
 	function changeTerrainProvider(provider: { title: string; url: string; vertexNormals: boolean }) {
 		$map?.options.selectedTerrainProvider.set(provider);
 	}
-
 </script>
 
 <div class="custom">
 	{#if $terrainProviders && $terrainProviders.length > 1}
-		<RadioButtonGroup legendText={$_("tools.backgroundControls.terrain")} selected="standard" orientation="vertical">
+		<RadioButtonGroup
+			legendText={$_("tools.backgroundControls.terrain")}
+			selected="standard"
+			orientation="vertical"
+		>
 			{#each $terrainProviders as tp}
 				<RadioButton
 					labelText={tp.title}

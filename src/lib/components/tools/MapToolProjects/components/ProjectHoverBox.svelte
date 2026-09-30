@@ -15,37 +15,43 @@
 
 	onMount(() => {
 		project.map.viewer.clock.onTick.addEventListener(updatePosition);
-		if (project.marker?.billboard) project.marker.billboard.color = new Cesium.ConstantProperty(Cesium.Color.fromCssColorString("#68b6f7"));
+		if (project.marker?.billboard)
+			project.marker.billboard.color = new Cesium.ConstantProperty(
+				Cesium.Color.fromCssColorString("#68b6f7")
+			);
 		collection.map.refresh();
 	});
 	onDestroy(() => {
 		project.map.viewer.clock.onTick.removeEventListener(updatePosition);
 		if (hoveredMapItemUnsubscriber) hoveredMapItemUnsubscriber();
-		if (project.marker?.billboard) project.marker.billboard.color = new Cesium.ConstantProperty(Cesium.Color.WHITE);
+		if (project.marker?.billboard)
+			project.marker.billboard.color = new Cesium.ConstantProperty(Cesium.Color.WHITE);
 		collection.map.refresh();
 	});
 
-	
 	let left: number = 0;
 	let top: number = 0;
 	let bottom: number = 0;
 	let display: string = "none";
 	let windowPosition = new Cesium.Cartesian2();
 	function updatePosition() {
-		if (cartesianPosition) Cesium.SceneTransforms.worldToWindowCoordinates(project.map.viewer.scene, cartesianPosition, windowPosition);
+		if (cartesianPosition)
+			Cesium.SceneTransforms.worldToWindowCoordinates(
+				project.map.viewer.scene,
+				cartesianPosition,
+				windowPosition
+			);
 		if (windowPosition) {
 			left = windowPosition.x;
 			top = windowPosition.y - 3;
 			bottom = window.innerHeight - windowPosition.y - 6;
-			if (display === 'none') display = 'block';
-			
-		}
-		else if (display === 'block') display = 'none';
+			if (display === "none") display = "block";
+		} else if (display === "block") display = "none";
 	}
-	$: verticalPosition =  `top:${top}px`;
+	$: verticalPosition = `top:${top}px`;
 	//$: verticalPosition = object instanceof Depot ? `bottom:${bottom}px` : `top:${top}px`;
 
-	let xOffset: number =  24;
+	let xOffset: number = 24;
 
 	let opacity: number = 100;
 
@@ -61,19 +67,19 @@
 	});
 
 	let expanded: boolean = false;
-
 </script>
 
-
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="hoverbox" style="left:{left}px; {verticalPosition}; display:{display}; transform: translate({xOffset}px, -100%); opacity: {opacity}%; transition: opacity 0.5s;"
+<div
+	class="hoverbox"
+	style="left:{left}px; {verticalPosition}; display:{display}; transform: translate({xOffset}px, -100%); opacity: {opacity}%; transition: opacity 0.5s;"
 	on:mouseenter={(e) => onMouseEnter(e)}
-	on:mouseleave={() => opacity = get(collection.hoveredProject) === project ? 100 : 0}
+	on:mouseleave={() => (opacity = get(collection.hoveredProject) === project ? 100 : 0)}
 >
 	<div class="hoverbox-header">
 		<div class="hoverbox-title">{project.projectConfig.name}</div>
 		<div class="hoverbox-buttons">
-			<Button 
+			<Button
 				kind="primary"
 				iconDescription={$_("tools.projects.open")}
 				icon={Launch}
@@ -93,20 +99,18 @@
 			-->
 		</div>
 	</div>
-	<div class="hoverbox-content" class:expanded={expanded}>
+	<div class="hoverbox-content" class:expanded>
 		<div class="info-circle">i</div>
 		<div>{$_("tools.projects.viewDetails")}</div>
 	</div>
 </div>
 
-
 <style>
-
 	.hoverbox {
 		position: absolute;
 		backdrop-filter: blur(8px);
 		-webkit-backdrop-filter: blur(10px);
-		background-color: #0A1337;
+		background-color: #0a1337;
 		min-width: 250px;
 		color: #b3d9ff;
 		cursor: default;
@@ -138,7 +142,7 @@
 		top: 100%;
 		left: 0;
 		width: 100%;
-		background-color: #0A1337;
+		background-color: #0a1337;
 	}
 
 	.hoverbox-content.expanded {
@@ -147,7 +151,7 @@
 		column-gap: 0.5rem;
 	}
 
-	.info-circle  {
+	.info-circle {
 		width: 1rem;
 		height: 1rem;
 		border: 1px solid #68b6f7;
@@ -157,5 +161,4 @@
 		justify-content: center;
 		align-items: center;
 	}
-
 </style>

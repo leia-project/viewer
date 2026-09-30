@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { _ } from "svelte-i18n";
 	import { Checkbox } from "carbon-components-svelte";
-	import type { LayerConfig} from "$lib/map-core/layer-config";
+	import type { LayerConfig } from "$lib/map-core/layer-config";
 	import type { LayerLibrary } from "$lib/map-core/layer-library";
 
 	export let library: LayerLibrary;
 	export let config: LayerConfig;
 
 	$: addToManager = config.added;
-    $: selectedLayerConfig = library.selectedLayerConfig;
+	$: selectedLayerConfig = library.selectedLayerConfig;
 
 	function toggleLayer(checked: boolean): void {
 		if (checked) {
@@ -22,7 +22,6 @@
 	function selectLayerConfig(): void {
 		selectedLayerConfig.set(config);
 	}
-	
 </script>
 
 <div class="layer" class:layer--selected={$selectedLayerConfig === config}>
@@ -61,9 +60,9 @@
 		background-color: var(--cds-ui-03);
 	}
 
-    .layer--selected {
-        background-color: var(--cds-ui-03);
-    }
+	.layer--selected {
+		background-color: var(--cds-ui-03);
+	}
 
 	.layer-cb {
 		margin-left: var(--cds-spacing-01);

@@ -14,12 +14,20 @@ export class MapToolMenuOption {
 	public openMenuOnClick: boolean;
 	public onToolButtonClick!: (e: CustomEvent<any>) => void;
 
-	constructor(id: string, icon: SvelteComponent, label: string, bottom: boolean = false, width: string | undefined = undefined, showInToolbar: boolean = true, openMenuOnClick: boolean = true) {
+	constructor(
+		id: string,
+		icon: SvelteComponent,
+		label: string,
+		bottom: boolean = false,
+		width: string | undefined = undefined,
+		showInToolbar: boolean = true,
+		openMenuOnClick: boolean = true
+	) {
 		this.id = id;
 		this.icon = icon;
 		this.label = label;
 		this.settings = writable<any>(undefined);
-		this.bottom = bottom;	
+		this.bottom = bottom;
 		this.width = writable<string>(width);
 		this.showInToolbar = showInToolbar;
 		this.blockInteractionsFromOthers = false;

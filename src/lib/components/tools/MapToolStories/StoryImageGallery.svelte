@@ -34,11 +34,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="gallery-backdrop" on:click={onClose}>
 	<div class="gallery-content" on:click|stopPropagation>
-		<button
-			class="gallery-close"
-			aria-label={$_("general.close")}
-			on:click={onClose}
-		>
+		<button class="gallery-close" aria-label={$_("general.close")} on:click={onClose}>
 			<Close size={24} />
 		</button>
 		{#if images.length > 1}

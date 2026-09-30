@@ -1,4 +1,1 @@
-
-export class ToolConfig {
-    
-}
+export class ToolConfig {}

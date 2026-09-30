@@ -1,62 +1,62 @@
-<script lang="ts">    
-    export let _: any;
-    export let base: string; 
-    export let toolTitle: string;
+<script lang="ts">
+	export let _: any;
+	export let base: string;
+	export let toolTitle: string;
 </script>
 
 <div class="heading-04">{toolTitle}</div>
 
-
-
 <div class="body-02">
-    {$_("tools.help.flood.description", { values: { title: toolTitle } })}
+	{$_("tools.help.flood.description", { values: { title: toolTitle } })}
 </div>
 
-<div class="heading-02">{$_("tools.help.flood.headingFloodOpen", { values: { title: toolTitle } })}</div>
+<div class="heading-02">
+	{$_("tools.help.flood.headingFloodOpen", { values: { title: toolTitle } })}
+</div>
 <div class="body-02">
-    {$_("tools.help.flood.openFlood", { values: { title: toolTitle } })}
+	{$_("tools.help.flood.openFlood", { values: { title: toolTitle } })}
 </div>
 
 <div class="img-left">
-    <img src="{base}/images/help_flood_open.png" alt="flood icon" />
+	<img src="{base}/images/help_flood_open.png" alt="flood icon" />
 </div>
 
-<div class="heading-02">{$_("tools.help.flood.headingUsingFlood", { values: { title: toolTitle } })}</div>
+<div class="heading-02">
+	{$_("tools.help.flood.headingUsingFlood", { values: { title: toolTitle } })}
+</div>
 <div class="body-02">
-    {$_("tools.help.flood.floodBreachDescription")}
+	{$_("tools.help.flood.floodBreachDescription")}
 </div>
 
 <div class="img">
-    <img src="{base}/images/help_flood_breach.png" style="width:100%" alt="breach selection" />
+	<img src="{base}/images/help_flood_breach.png" style="width:100%" alt="breach selection" />
 </div>
 
 <div class="img-left">
-    <img src="{base}/images/help_flood_menu.png" style="height:500px" alt="flood view" />
+	<img src="{base}/images/help_flood_menu.png" style="height:500px" alt="flood view" />
 </div>
 
 <div class="body-02">
-    {$_("tools.help.flood.floodMenuDescription")}
+	{$_("tools.help.flood.floodMenuDescription")}
 </div>
 
 <div class="heading-02">{$_("tools.help.flood.headingMeasureDepth")}</div>
 <div class="body-02">
-    {$_("tools.help.flood.measureDepthDescription")}
+	{$_("tools.help.flood.measureDepthDescription")}
 </div>
 
-
 <style>
-    [class*="img"] {
-        border: 1px solid var(--cds-ui-03);
-        margin-bottom: var(--cds-spacing-03);
-        margin-top: var(--cds-spacing-03);
-    }
+	[class*="img"] {
+		border: 1px solid var(--cds-ui-03);
+		margin-bottom: var(--cds-spacing-03);
+		margin-top: var(--cds-spacing-03);
+	}
 
-    .img-left {
-        width: fit-content;
-    }
+	.img-left {
+		width: fit-content;
+	}
 
-    .body-02 {
-        margin-bottom: var(--cds-spacing-05);
-    }
-
+	.body-02 {
+		margin-bottom: var(--cds-spacing-05);
+	}
 </style>

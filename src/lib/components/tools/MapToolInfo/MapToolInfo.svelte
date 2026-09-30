@@ -1,63 +1,62 @@
 <script lang="ts">
-    import { getContext, SvelteComponent } from "svelte";
-    import { _ } from "svelte-i18n";
+	import { getContext, SvelteComponent } from "svelte";
+	import { _ } from "svelte-i18n";
 	import { Information } from "carbon-icons-svelte";
-    import { MapToolMenuOption } from "../MapToolMenuOption";
-    import MapToolInfoView from "./MapToolInfoView.svelte";
-    import type { Attribution } from "./attribution";
-    
-    const { registerTool, getMapContainer } = getContext<any>("mapTools");
+	import { MapToolMenuOption } from "../MapToolMenuOption";
+	import MapToolInfoView from "./MapToolInfoView.svelte";
+	import type { Attribution } from "./attribution";
 
-    export let id: string;
-    export let label: string;
-    export let icon: SvelteComponent = Information;
+	const { registerTool, getMapContainer } = getContext<any>("mapTools");
 
-    export let txtViewerTitle: string | undefined = undefined;
-    export let txtViewerDescription: string | undefined = undefined;
-    export let attribution: Array<Attribution> = new Array<Attribution>();
-    
-    const tool = new MapToolMenuOption(id, icon, label, true, undefined, true, false);
-    registerTool(tool);
+	export let id: string;
+	export let label: string;
+	export let icon: SvelteComponent = Information;
 
-    tool.onToolButtonClick = (e: CustomEvent<any>) => {
-        showInfo();
-    };
+	export let txtViewerTitle: string | undefined = undefined;
+	export let txtViewerDescription: string | undefined = undefined;
+	export let attribution: Array<Attribution> = new Array<Attribution>();
 
-    tool.settings.subscribe((settings) => {
-        if (settings) {
-            if(settings.title) {
-                txtViewerTitle = settings.title;
-            }
+	const tool = new MapToolMenuOption(id, icon, label, true, undefined, true, false);
+	registerTool(tool);
 
-            if (settings.description) {
-                txtViewerDescription = settings.description;
-            }            
-        }
-    });
+	tool.onToolButtonClick = (e: CustomEvent<any>) => {
+		showInfo();
+	};
 
-    let infoView: MapToolInfoView | undefined = undefined;
+	tool.settings.subscribe((settings) => {
+		if (settings) {
+			if (settings.title) {
+				txtViewerTitle = settings.title;
+			}
 
-    function showInfo(): void {
-        const container = getMapContainer();
+			if (settings.description) {
+				txtViewerDescription = settings.description;
+			}
+		}
+	});
 
-        if (infoView) {
-            infoView.$destroy();
-        }
+	let infoView: MapToolInfoView | undefined = undefined;
 
-        infoView = new MapToolInfoView({
-            target: container,
-            props: {
-               txtViewerTitle: txtViewerTitle,
-               txtViewerDescription: txtViewerDescription,
-               attribution: attribution
-            }
-        });
+	function showInfo(): void {
+		const container = getMapContainer();
 
-        infoView.$on("remove", () => {
-            // @ts-ignore
-            infoView.$destroy();
-            infoView = undefined;
-        });
-    }
+		if (infoView) {
+			infoView.$destroy();
+		}
 
+		infoView = new MapToolInfoView({
+			target: container,
+			props: {
+				txtViewerTitle: txtViewerTitle,
+				txtViewerDescription: txtViewerDescription,
+				attribution: attribution
+			}
+		});
+
+		infoView.$on("remove", () => {
+			// @ts-ignore
+			infoView.$destroy();
+			infoView = undefined;
+		});
+	}
 </script>

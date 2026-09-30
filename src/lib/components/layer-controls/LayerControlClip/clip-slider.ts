@@ -3,9 +3,7 @@ import * as Cesium from "cesium";
 import type { Map } from "$lib/map-cesium/map";
 import type { ThreedeeLayer } from "$lib/map-cesium/layers/threedee-layer";
 
-
 export class ClipSlider {
-	
 	public layer: ThreedeeLayer;
 	private tileset: Cesium.Cesium3DTileset;
 	private map: Map;
@@ -27,7 +25,6 @@ export class ClipSlider {
 	public minSliceHeight: Writable<number> = writable(-2);
 	public maxSliceHeight: Writable<number> = writable(2);
 	public heightSliceHeight: Writable<number> = writable(0);
-	
 
 	constructor(layer: ThreedeeLayer, map: Map) {
 		this.layer = layer;
@@ -40,16 +37,15 @@ export class ClipSlider {
 
 	private setSubscribers(): void {
 		this.unsubscribers.push(
-
 			this.active.subscribe((b) => {
 				this.toggleClippingPlanes(b);
 			}),
 
 			this.showSlider.subscribe((b) => {
-				this.slider.show = b
+				this.slider.show = b;
 			}),
 
-			this.angleXY.subscribe(() => { 
+			this.angleXY.subscribe(() => {
 				this.updatePlaneDistanceXY();
 				this.updatePlaneOrientation();
 			}),
@@ -64,25 +60,26 @@ export class ClipSlider {
 				if (!b) this.destroy();
 			}),
 
-			this.layer.tilesetHeight.subscribe(() => { 
+			this.layer.tilesetHeight.subscribe(() => {
 				if (get(this.active)) {
 					this.map.viewer.entities.remove(this.slider);
 					this.makePlaneEntity();
 				}
 			})
-		)
+		);
 	}
 
 	public toggleClippingPlanes(active: boolean): void {
-		if (!this.tileset.clippingPlanes) this.tileset.clippingPlanes = new Cesium.ClippingPlaneCollection();
+		if (!this.tileset.clippingPlanes)
+			this.tileset.clippingPlanes = new Cesium.ClippingPlaneCollection();
 		active ? this.activate() : this.deactivate();
 	}
 
 	private activate(): void {
 		this.tileset.clippingPlanes.removeAll();
 		this.tileset.clippingPlanes.add(this.plane);
-		this.tileset.clippingPlanes.enabled = true
-		
+		this.tileset.clippingPlanes.enabled = true;
+
 		this.setModelMatrix();
 		this.makePlaneEntity();
 		this.addInputActions();
@@ -106,22 +103,30 @@ export class ClipSlider {
 		this.plane.distance = 0;
 	}
 
-	private setModelMatrix(): void {		
+	private setModelMatrix(): void {
 		if (!Cesium.Matrix4.equals(this.tileset.root.transform, Cesium.Matrix4.IDENTITY)) {
 			// We use the center of the bounding sphere as the origin of the clipping planes, so we:
 			// 1. Get the transform of the tileset's bounding sphere center in a earthNorthUp frame
 			// 2. Get the inverse transform of the tileset's clippingPlane reference frame
 			// 3. Multiplication of 1 and 2 allows use to transfer the clipping planes from the default clipping plane origin to the northEastUp frame of the bounding sphere center
-			const transformMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(this.tileset.boundingSphere.center);
-			const tilesetRootTransform = Cesium.Matrix4.inverse(this.tileset.root.transform, new Cesium.Matrix4()); // Should satisfy conditions of the more efficient inverseTransformation but this does not work
-			const centerInverseTransform = Cesium.Matrix4.multiplyTransformation(tilesetRootTransform, transformMatrix, new Cesium.Matrix4());
+			const transformMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
+				this.tileset.boundingSphere.center
+			);
+			const tilesetRootTransform = Cesium.Matrix4.inverse(
+				this.tileset.root.transform,
+				new Cesium.Matrix4()
+			); // Should satisfy conditions of the more efficient inverseTransformation but this does not work
+			const centerInverseTransform = Cesium.Matrix4.multiplyTransformation(
+				tilesetRootTransform,
+				transformMatrix,
+				new Cesium.Matrix4()
+			);
 			this.tileset.clippingPlanes.modelMatrix = centerInverseTransform;
-		}
-		else if (this.tileset.clippingPlanes.modelMatrix !== Cesium.Matrix4.IDENTITY) {
+		} else if (this.tileset.clippingPlanes.modelMatrix !== Cesium.Matrix4.IDENTITY) {
 			this.tileset.clippingPlanes.modelMatrix = Cesium.Matrix4.IDENTITY;
 			// TO DO:
 			// The modelMatrix of the 3D tileset may have been shifted when the globe clipping planes are set on the tileset (e.g. in project-clip.ts)
-			// In this case, we need to shift the clipping planes as well 
+			// In this case, we need to shift the clipping planes as well
 		}
 	}
 
@@ -133,24 +138,32 @@ export class ClipSlider {
 			position: boundingSphere.center,
 			plane: {
 				dimensions: new Cesium.Cartesian2(radius * 2, radius * 2),
-				material: new Cesium.GridMaterialProperty({color: Cesium.Color.fromCssColorString("#757575"), cellAlpha: 0.1, lineCount: new Cesium.Cartesian2(20, 20), lineThickness: new Cesium.Cartesian2(0.5, 0.5)}),
+				material: new Cesium.GridMaterialProperty({
+					color: Cesium.Color.fromCssColorString("#757575"),
+					cellAlpha: 0.1,
+					lineCount: new Cesium.Cartesian2(20, 20),
+					lineThickness: new Cesium.Cartesian2(0.5, 0.5)
+				}),
 				plane: new Cesium.CallbackProperty(() => {
-					          this.map.viewer.scene.requestRender();
-					          return this.plane 
-					        }, false), // Smooth but requires a lot of computation
+					this.map.viewer.scene.requestRender();
+					return this.plane;
+				}, false), // Smooth but requires a lot of computation
 				outline: true,
-				outlineColor: Cesium.Color.BLACK,
-			},
+				outlineColor: Cesium.Color.BLACK
+			}
 		});
 		this.map.viewer.entities.add(this.slider);
 		this.map.refresh();
 	}
-	
 
 	private addInputActions(): void {
 		this.inputHandler.setInputAction((m: any) => {
 			const pickedObject = this.map.viewer.scene.pick(m.position);
-			if (Cesium.defined(pickedObject) && Cesium.defined(pickedObject.id) && Cesium.defined(pickedObject.id.plane)) {
+			if (
+				Cesium.defined(pickedObject) &&
+				Cesium.defined(pickedObject.id) &&
+				Cesium.defined(pickedObject.id.plane)
+			) {
 				const pickedEntity = pickedObject.id;
 				if (pickedEntity === this.slider && this.slider.plane) {
 					//@ts-ignore
@@ -167,25 +180,56 @@ export class ClipSlider {
 					5. We apply some corrections to control the speed
 					*/
 					const cameraFrame = this.map.viewer.scene.camera.inverseViewMatrix;
-					const eastNorthUp = Cesium.Transforms.eastNorthUpToFixedFrame(this.tileset.boundingSphere.center);
-					const eastNorthUpInverse = Cesium.Matrix4.inverseTransformation(eastNorthUp, new Cesium.Matrix4());
+					const eastNorthUp = Cesium.Transforms.eastNorthUpToFixedFrame(
+						this.tileset.boundingSphere.center
+					);
+					const eastNorthUpInverse = Cesium.Matrix4.inverseTransformation(
+						eastNorthUp,
+						new Cesium.Matrix4()
+					);
 
-					const cameraMatrixRelativeToNormal = Cesium.Matrix4.multiplyTransformation(eastNorthUpInverse, cameraFrame, new Cesium.Matrix4());
-					const cameraPositionRelativeToNormal = Cesium.Matrix4.getTranslation(cameraMatrixRelativeToNormal, new Cesium.Cartesian3());
-					const translationMatrix = Cesium.Matrix4.fromTranslation(cameraPositionRelativeToNormal, new Cesium.Matrix4());
-					const cameraAtOrigin = Cesium.Matrix4.multiplyTransformation(Cesium.Matrix4.inverseTransformation(translationMatrix, new Cesium.Matrix4()), cameraMatrixRelativeToNormal, new Cesium.Matrix4());
-					
-					const components = Cesium.Matrix4.multiplyByPointAsVector(Cesium.Matrix4.inverseTransformation(cameraAtOrigin, new Cesium.Matrix4()), this.plane.normal, new Cesium.Cartesian3());
-					
-					let scaleCorrection = 1 / Math.sqrt(components.x * components.x + components.y * components.y); // Correction because the z-component is never considered
-					const distanceCameraPlaneOrigin = Cesium.Cartesian3.distance(cameraPositionRelativeToNormal, Cesium.Cartesian3.multiplyByScalar(this.plane.normal, -this.plane.distance, new Cesium.Cartesian3()));
+					const cameraMatrixRelativeToNormal = Cesium.Matrix4.multiplyTransformation(
+						eastNorthUpInverse,
+						cameraFrame,
+						new Cesium.Matrix4()
+					);
+					const cameraPositionRelativeToNormal = Cesium.Matrix4.getTranslation(
+						cameraMatrixRelativeToNormal,
+						new Cesium.Cartesian3()
+					);
+					const translationMatrix = Cesium.Matrix4.fromTranslation(
+						cameraPositionRelativeToNormal,
+						new Cesium.Matrix4()
+					);
+					const cameraAtOrigin = Cesium.Matrix4.multiplyTransformation(
+						Cesium.Matrix4.inverseTransformation(translationMatrix, new Cesium.Matrix4()),
+						cameraMatrixRelativeToNormal,
+						new Cesium.Matrix4()
+					);
+
+					const components = Cesium.Matrix4.multiplyByPointAsVector(
+						Cesium.Matrix4.inverseTransformation(cameraAtOrigin, new Cesium.Matrix4()),
+						this.plane.normal,
+						new Cesium.Cartesian3()
+					);
+
+					let scaleCorrection =
+						1 / Math.sqrt(components.x * components.x + components.y * components.y); // Correction because the z-component is never considered
+					const distanceCameraPlaneOrigin = Cesium.Cartesian3.distance(
+						cameraPositionRelativeToNormal,
+						Cesium.Cartesian3.multiplyByScalar(
+							this.plane.normal,
+							-this.plane.distance,
+							new Cesium.Cartesian3()
+						)
+					);
 					scaleCorrection *= distanceCameraPlaneOrigin / 8000; // The further away, the faster the sliding
 
-				//Only for debugging. Check plane normal and check the orientation of the camera frame and the eastNorthUp frame relative to which the plane normal is defined
+					//Only for debugging. Check plane normal and check the orientation of the camera frame and the eastNorthUp frame relative to which the plane normal is defined
 					//this.debugMatrix(cameraFrame, this.map);
 					//this.debugMatrix(eastNorthUp, this.map);
-					//this.debugNormal(this.plane.normal, eastNorthUp, this.map);		
-				/*
+					//this.debugNormal(this.plane.normal, eastNorthUp, this.map);
+					/*
 					const cameraFrameX = new Cesium.Cartesian3(cameraAtOrigin[0], cameraAtOrigin[4], cameraAtOrigin[8]); // y component of screenspace
 					const cameraFrameY = new Cesium.Cartesian3(cameraAtOrigin[1], cameraAtOrigin[5], cameraAtOrigin[9]); 
 					const cameraFrameZ = new Cesium.Cartesian3(cameraAtOrigin[2], cameraAtOrigin[6], cameraAtOrigin[10]); // x component of screenspace
@@ -215,36 +259,36 @@ export class ClipSlider {
 		}, Cesium.ScreenSpaceEventType.LEFT_UP);
 	}
 
-
 	private removeInputActions(): void {
 		this.inputHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOWN);
 		this.inputHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_UP);
 		this.inputHandler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 	}
 
-
-	private updatePlanePosition(deltaX: number, deltaY: number, conversionVector: Cesium.Cartesian3, scaleCorrection: number): void {
+	private updatePlanePosition(
+		deltaX: number,
+		deltaY: number,
+		conversionVector: Cesium.Cartesian3,
+		scaleCorrection: number
+	): void {
 		const shift = deltaX * conversionVector.x - deltaY * conversionVector.y;
 		this.plane.distance += shift * scaleCorrection;
 		this.tempDistance = this.plane.distance;
 		this.tempAngleXY = get(this.angleXY);
 	}
 
-
 	public updatePlaneOrientation(): void {
-		const angleXY = get(this.angleXY) * Math.PI / 180;
-		const angleZ = (get(this.angleZ) - 0.01) * Math.PI / 180; // 0.01 subtraction to avoid x or y to be 0
+		const angleXY = (get(this.angleXY) * Math.PI) / 180;
+		const angleZ = ((get(this.angleZ) - 0.01) * Math.PI) / 180; // 0.01 subtraction to avoid x or y to be 0
 		this.plane.normal.x = Math.cos(angleXY) * Math.cos(angleZ);
 		this.plane.normal.y = Math.sin(angleXY) * Math.cos(angleZ);
 		this.plane.normal.z = Math.sin(angleZ);
 	}
 
-
 	public updatePlaneDistanceXY(): void {
-		const delta = this.tempAngleXY - get(this.angleXY) ;
-		this.plane.distance = this.tempDistance *  Math.cos(delta * Math.PI / 180);
+		const delta = this.tempAngleXY - get(this.angleXY);
+		this.plane.distance = this.tempDistance * Math.cos((delta * Math.PI) / 180);
 	}
-
 
 	// Debugging functions:
 	/*

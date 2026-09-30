@@ -21,7 +21,7 @@
 	export let id: string;
 	export let label: string;
 	export let icon: any = Book;
-	
+
 	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
 	let cesiumMap = map as Map;
@@ -49,15 +49,15 @@
 
 	tool.settings.subscribe((settings) => {
 		if (settings) {
-			cesiumMap.ready.subscribe((ready)=> {
-				if(ready) {
+			cesiumMap.ready.subscribe((ready) => {
+				if (ready) {
 					loadStoriesFromSettings(settings);
 				}
-			})
+			});
 
 			// Directly activate story from searchParams
 			const queriedStory = $page.data.story ?? $page.url.searchParams.get("story");
-			if(!queriedStory) return;
+			if (!queriedStory) return;
 			for (let i = 0; i < stories.length; i++) {
 				if (stories[i].name.toLowerCase() === queriedStory.toLowerCase()) {
 					$selectedTool = tool;
@@ -68,12 +68,15 @@
 		}
 	});
 
-	function getUrlAndFeatureNameForLayer(id: string): { url: string | undefined; featureName: string | undefined } {
+	function getUrlAndFeatureNameForLayer(id: string): {
+		url: string | undefined;
+		featureName: string | undefined;
+	} {
 		for (let i = 0; i < $layers.length; i++) {
 			if ($layers[i].config.id === id) {
 				let originalUrl = $layers[i].config.settings.url;
-				let updatedUrl = originalUrl?.replace(/wms/i, 'wcs');
-				return { 
+				let updatedUrl = originalUrl?.replace(/wms/i, "wcs");
+				return {
 					url: updatedUrl,
 					featureName: $layers[i].config.settings.featureName
 				};
@@ -82,7 +85,7 @@
 		return {
 			url: undefined,
 			featureName: undefined
-		}
+		};
 	}
 
 	function isNonEmptyString(value: unknown): value is string {
@@ -125,10 +128,19 @@
 					.map((url: string) => url.trim())
 					.filter(isSafeImageUrl);
 				if (urls.length === 0) {
-					console.warn("Story marker skipped: type 'image' requires at least one valid http(s) or relative url", entry);
+					console.warn(
+						"Story marker skipped: type 'image' requires at least one valid http(s) or relative url",
+						entry
+					);
 					continue;
 				}
-				markers.push({ x, y, type, url: urls, text: isNonEmptyString(entry.text) ? entry.text : undefined });
+				markers.push({
+					x,
+					y,
+					type,
+					url: urls,
+					text: isNonEmptyString(entry.text) ? entry.text : undefined
+				});
 			} else {
 				console.warn("Story marker skipped: unknown type", entry);
 			}
@@ -152,12 +164,14 @@
 				const storyForceCameraMode: "2D" | "3D" | undefined = story.forceCameraMode ?? undefined;
 				const storyStaticCamera: boolean = story.staticCamera ?? false;
 				const storyRequestPolygonAreaConfig = story.requestPolygonArea ?? false;
-				const storyRequestPolygonArea: boolean = typeof storyRequestPolygonAreaConfig === "object"
-					? storyRequestPolygonAreaConfig.enabled ?? false
-					: storyRequestPolygonAreaConfig;
-				const storyStatisticsApi: string | undefined = typeof storyRequestPolygonAreaConfig === "object"
-					? storyRequestPolygonAreaConfig.statisticsApi ?? undefined
-					: undefined;
+				const storyRequestPolygonArea: boolean =
+					typeof storyRequestPolygonAreaConfig === "object"
+						? (storyRequestPolygonAreaConfig.enabled ?? false)
+						: storyRequestPolygonAreaConfig;
+				const storyStatisticsApi: string | undefined =
+					typeof storyRequestPolygonAreaConfig === "object"
+						? (storyRequestPolygonAreaConfig.statisticsApi ?? undefined)
+						: undefined;
 				const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
 				let storyHasMarkers = false;
 				baseLayerId = story.baseLayerId ?? undefined;
@@ -168,11 +182,13 @@
 				// Load all chapters
 				for (let j = 0; j < story.chapters.length; j++) {
 					const chapter = story.chapters[j];
-					const chapterGroup = chapterGroups.find((chapterGroup: any) => chapter.id === chapterGroup.id);
+					const chapterGroup = chapterGroups.find(
+						(chapterGroup: any) => chapter.id === chapterGroup.id
+					);
 					const chapterTitle: string = chapterGroup.title;
 					const chapterButtonText: string = chapterGroup.buttonText;
 					const storySteps = new Array<StoryStep>();
-					
+
 					// Load all chapter steps
 					for (let k = 0; k < chapter.steps.length; k++) {
 						const step = chapter.steps[k];
@@ -194,22 +210,54 @@
 						for (let l = 0; l < step.layers.length; l++) {
 							const opacity = step.layers[l].opacity ?? 100;
 							const showOpacitySlider = step.layers[l].showOpacitySlider ?? true;
-							const {url, featureName} = getUrlAndFeatureNameForLayer(step.layers[l].id);
+							const { url, featureName } = getUrlAndFeatureNameForLayer(step.layers[l].id);
 							storyLayers.push(
-								new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName, showOpacitySlider)
+								new StoryLayer(
+									step.layers[l].id,
+									opacity,
+									step.layers[l].style,
+									url,
+									featureName,
+									showOpacitySlider
+								)
 							);
 							const layerLegendInfo = {
 								generalLegendText: step.layers[l].generalLegendText,
 								legendOptions: step.layers[l].legendOptions
-							}
+							};
 							layerLegends.push(layerLegendInfo);
 						}
 						const globeOpacity = step.globeOpacity ?? 100;
-						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent, markerCoordinates));
+						storySteps.push(
+							new StoryStep(
+								step.title,
+								step.html,
+								cl,
+								storyLayers,
+								globeOpacity,
+								step.terrain,
+								step.customComponent,
+								markerCoordinates
+							)
+						);
 					}
-					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
+					storyChapters.push(
+						new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps)
+					);
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers));
+				loadedStories.push(
+					new Story(
+						storyName,
+						storyDescription,
+						storyChapters,
+						storyWidth,
+						storyForceCameraMode,
+						storyStaticCamera,
+						storyRequestPolygonArea,
+						storyStatisticsApi,
+						storyHasMarkers
+					)
+				);
 			}
 		}
 		stories = loadedStories;
@@ -240,7 +288,14 @@
 	markerCollection.on("story-selected", (value: unknown) => {
 		if (value instanceof Story) {
 			activateStory(value);
-		} else if (value && typeof value === "object" && "story" in value && "stepNumber" in value && value.story instanceof Story && typeof value.stepNumber === "number") {
+		} else if (
+			value &&
+			typeof value === "object" &&
+			"story" in value &&
+			"stepNumber" in value &&
+			value.story instanceof Story &&
+			typeof value.stepNumber === "number"
+		) {
 			activateStoryStep(value.story, value.stepNumber as number);
 		}
 	});
@@ -248,7 +303,6 @@
 	onDestroy(() => {
 		markerCollection.destroy();
 	});
-
 </script>
 
 {#if $selectedTool === tool}
@@ -288,7 +342,7 @@
 						</div>
 					{/if}
 				</div>
-				<div class="divider"> </div>
+				<div class="divider"></div>
 			{/each}
 		{/if}
 	</div>
@@ -334,8 +388,8 @@
 	}
 
 	.divider {
-        background-color: var(--cds-ui-03);
-        width: 100%;
-        height: 1px;
-    }
+		background-color: var(--cds-ui-03);
+		width: 100%;
+		height: 1px;
+	}
 </style>

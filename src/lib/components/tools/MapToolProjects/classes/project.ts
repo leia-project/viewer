@@ -8,10 +8,7 @@ import { getTerrainHeight } from "$lib/map-cesium/terrain-util";
 import { projectHandler, type IProjectConfig } from "../project-handler";
 import { FocusArea } from "./focus-area";
 import { ProjectLayer } from "./project-layer";
-import {
-	getPolygonCenter,
-	polygonToCartesians
-} from "$lib/map-cesium/helpers";
+import { getPolygonCenter, polygonToCartesians } from "$lib/map-cesium/helpers";
 
 import defaultMarker from "../icons/icon-asset.svg";
 
@@ -167,8 +164,7 @@ export abstract class CesiumProjectBase<
 
 		let terrainHeight: number = 0;
 		if (this.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
-			terrainHeight =
-				(await getTerrainHeight(this.map, this.center[0], this.center[1])) || 0;
+			terrainHeight = (await getTerrainHeight(this.map, this.center[0], this.center[1])) || 0;
 		}
 		terrainHeight += 1;
 		this.marker.position = new Cesium.ConstantPositionProperty(

@@ -34,7 +34,7 @@ export abstract class MapCore extends Dispatcher {
 
 	constructor() {
 		super();
-		
+
 		this.configLoaded = writable<boolean>(false);
 		this.config = new Config();
 		this.layerLibrary = new LayerLibrary();
@@ -50,31 +50,31 @@ export abstract class MapCore extends Dispatcher {
 			this.removeLayerInternal(l);
 		});
 
-		this.ready.subscribe(r => {
-			if(r) {
+		this.ready.subscribe((r) => {
+			if (r) {
 				this.subscribeToEvents();
 			}
-		})
+		});
 	}
 
-	public setLayerConfig(layers: Array<LayerConfig>, groups: Array<LayerConfigGroup>): void {		
+	public setLayerConfig(layers: Array<LayerConfig>, groups: Array<LayerConfigGroup>): void {
 		this.layerLibrary.addLayerConfigGroups(groups);
 		this.layerLibrary.addLayerConfigs(layers);
 	}
 
 	public async setConfig(url: string): Promise<void> {
 		this.configured = true;
-		await this.config.loadFromUrl(url).then(()=> {
+		await this.config.loadFromUrl(url).then(() => {
 			if (!this.viewerSettings) {
 				this.setLayerConfig(this.config.layerConfigs, this.config.layerConfigGroups);
-	
+
 				this.toolSettings = this.config.tools;
 				this.viewerSettings = this.config.viewer;
 				if (this.config.viewer && this.config.viewer.startPosition) {
 					const p = this.config.viewer.startPosition;
 					this.config.viewer.startCameraMode3D = this.config.viewer.startCameraMode3D ?? true;
 					if (!this.config.viewer.startCameraMode3D) p.pitch = -89.9;
-					
+
 					this.startPosition = new CameraLocation(p.x, p.y, p.z, p.heading, p.pitch, p.duration);
 				}
 				this.configLoaded.set(true);
@@ -99,11 +99,18 @@ export abstract class MapCore extends Dispatcher {
 			const layer = this.addLayer(layerConfig);
 			this.layers.set([...get(this.layers), layer]);
 		} catch (error) {
-			const notification = new Notification(NotificationType.ERROR, "Error", `Unable to add layer ${layerConfig.title}, see log for more information`, 5000, true, true);
+			const notification = new Notification(
+				NotificationType.ERROR,
+				"Error",
+				`Unable to add layer ${layerConfig.title}, see log for more information`,
+				5000,
+				true,
+				true
+			);
 			notification.error = error;
 			notifications.send(notification);
 			layerConfig.added.set(false);
-		}		
+		}
 	}
 
 	/**
@@ -148,9 +155,15 @@ export abstract class MapCore extends Dispatcher {
 	}
 
 	public subscribeToEvents() {
-		this.subscribeMouseMove((m: MouseLocation) => {this.dispatch("mouseMove", m)});
-		this.subscribeMouseLeftClick((m: MouseLocation) => {this.dispatch("mouseLeftClick", m)});
-		this.subscribeMouseRightClick((m: MouseLocation) => {this.dispatch("mouseRightClick", m)});
+		this.subscribeMouseMove((m: MouseLocation) => {
+			this.dispatch("mouseMove", m);
+		});
+		this.subscribeMouseLeftClick((m: MouseLocation) => {
+			this.dispatch("mouseLeftClick", m);
+		});
+		this.subscribeMouseRightClick((m: MouseLocation) => {
+			this.dispatch("mouseRightClick", m);
+		});
 	}
 
 	/**
@@ -243,7 +256,7 @@ export abstract class MapCore extends Dispatcher {
 	 * When fully loaded and ready to use the map set the map ready using
 	 * this.ready.set(true);
 	 */
-	 protected setReady(): void {
+	protected setReady(): void {
 		this.ready.set(true);
 	}
 
@@ -304,7 +317,6 @@ export abstract class MapCore extends Dispatcher {
 	protected abstract queryFeatureInfo(
 		options: FeatureInfoRequestOptions
 	): Promise<Array<FeatureInfo>>;
-
 
 	protected abstract subscribeMouseMove(trigger: (m: MouseLocation) => void): void;
 	protected abstract subscribeMouseLeftClick(trigger: (m: MouseLocation) => void): void;

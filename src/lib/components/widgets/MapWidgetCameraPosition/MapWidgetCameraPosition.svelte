@@ -27,35 +27,31 @@
 			} catch (e) {}
 		});
 	}
-
 </script>
 
 <div class="wrapper">
 	{#if layers}
-        <div class="layers">
-            {#each layers as layer}
+		<div class="layers">
+			{#each layers as layer}
 				<div>
 					{layer.title} - {layer.id}
 				</div>
-            {/each}
-        </div>
+			{/each}
+		</div>
 	{/if}
 
-    {#if position}
-    <div class="position">
-        {@html
-            `{<br>
+	{#if position}
+		<div class="position">
+			{@html `{<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;"x": ${position.x.toFixed(5)},<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;"y": ${position.y.toFixed(5)},<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;"z": ${position.z.toFixed(5)},<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;"heading": ${position.heading.toFixed(5)},<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;"pitch": ${position.pitch.toFixed(5)},<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;"duration": ${position.duration.toFixed(2)}<br>
-            }`
-        }
-	   
-    </div>
-    {/if}
+            }`}
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -66,16 +62,16 @@
 		color: var(--cds-ui-01);
 		background-color: var(--cds-ui-05);
 		z-index: 10;
-		padding: var(--cds-spacing-02);     
-        text-align: left;   
+		padding: var(--cds-spacing-02);
+		text-align: left;
 	}
 
-    .layers {
-        display: flex;
-        flex-direction: column;
-    }
+	.layers {
+		display: flex;
+		flex-direction: column;
+	}
 
-    .position {
-        padding-top: var(--cds-spacing-05);
-    }
+	.position {
+		padding-top: var(--cds-spacing-05);
+	}
 </style>

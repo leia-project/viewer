@@ -1,17 +1,17 @@
 export type SubLabel = {
-    text: string;
-    hoverText: string;
+	text: string;
+	hoverText: string;
 };
 
 export type LegendItem = {
-    labels: string;
-    text: string;
-    subLabels?: {
-        [key: string]: SubLabel;
-    };
+	labels: string;
+	text: string;
+	subLabels?: {
+		[key: string]: SubLabel;
+	};
 };
 
 export type LegendOptions = {
-    generalLegendText: string;
-    legendOptions: LegendItem[];
+	generalLegendText: string;
+	legendOptions: LegendItem[];
 };

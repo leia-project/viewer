@@ -18,7 +18,10 @@ export class StoryMarkerCollection extends Dispatcher {
 	private stories: Story[] = [];
 	private readonly markerStoryMap = new Map<Cesium.Entity, Story>();
 	private readonly markerStepMap = new Map<Cesium.Entity, number>();
-	private readonly markerLabelMap = new Map<Cesium.Entity, { chapterTitle: string; stepTitle: string }>();
+	private readonly markerLabelMap = new Map<
+		Cesium.Entity,
+		{ chapterTitle: string; stepTitle: string }
+	>();
 	private readonly markerCoordinates = new Map<Cesium.Entity, StoryMarkerCoordinates>();
 	private textBubbles: StoryMarkerTextBubble[] = [];
 	private imageGallery: StoryImageGallery | undefined;
@@ -124,7 +127,10 @@ export class StoryMarkerCollection extends Dispatcher {
 		}
 	}
 
-	private async updateMarkerHeight(marker: Cesium.Entity, coordinates: StoryMarkerCoordinates): Promise<void> {
+	private async updateMarkerHeight(
+		marker: Cesium.Entity,
+		coordinates: StoryMarkerCoordinates
+	): Promise<void> {
 		let height = 2;
 		if (this.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
 			height = ((await getTerrainHeight(this.map, coordinates.x, coordinates.y)) ?? 0) + 2;
@@ -236,7 +242,15 @@ export class StoryMarkerCollection extends Dispatcher {
 			this.hoverBox?.$destroy();
 			this.hoverBox = new StoryHoverBox({
 				target: this.map.getContainer(),
-				props: { story, marker, stepNumber, chapterTitle: label.chapterTitle, stepTitle: label.stepTitle, collection: this, text: imageText }
+				props: {
+					story,
+					marker,
+					stepNumber,
+					chapterTitle: label.chapterTitle,
+					stepTitle: label.stepTitle,
+					collection: this,
+					text: imageText
+				}
 			});
 			this.hoveredStory.set(story);
 		} else {

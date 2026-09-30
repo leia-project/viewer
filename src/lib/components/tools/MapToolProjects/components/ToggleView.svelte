@@ -6,28 +6,17 @@
 	export let show: boolean;
 	export let text: string;
 	export let inline: boolean = false;
-
 </script>
 
-
-<div class="toggle-container" class:inline >
+<div class="toggle-container" class:inline>
 	<div class="toggle-text">{text}</div>
 	<div class="view-toggle">
 		<svelte:component this={show ? ViewFilled : ViewOffFilled} />
-		<Toggle
-			bind:toggled={show}
-			size="sm"
-			labelText={text}
-			hideLabel
-			labelA=""
-			labelB=""
-		/>
+		<Toggle bind:toggled={show} size="sm" labelText={text} hideLabel labelA="" labelB="" />
 	</div>
 </div>
 
-
 <style>
-
 	.toggle-container {
 		display: flex;
 		justify-content: space-between;
@@ -50,5 +39,4 @@
 	.view-toggle :global(.bx--form-item) {
 		flex: 0 0 auto;
 	}
-
 </style>

@@ -13,7 +13,6 @@ import { ClipSlider } from "../../components/layer-controls/LayerControlClip/cli
 import { PrimitiveLayer } from "./primitive-layer";
 import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
 
-
 export class ThreedeeLayer extends PrimitiveLayer {
 	public tilesetHeight: Writable<number>;
 	public isPointCloud: boolean = false;
@@ -52,12 +51,15 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 	private addListeners(): void {
 		this.unsubscribers.push(
-			this.tilesetHeight.subscribe(h => {
+			this.tilesetHeight.subscribe((h) => {
 				this.setHeight(h);
 			}),
 			this.map.options.use3DMode.subscribe((b) => {
 				if (!this.source) return;
-				this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.source.boundingSphere, b);
+				this.config.cameraPosition = getCameraPositionFromBoundingSphere(
+					this.source.boundingSphere,
+					b
+				);
 			})
 		);
 	}
@@ -67,12 +69,11 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		this.addListeners();
 	}
 	public removeFromMap(): void {
-		this.unsubscribers.forEach(unsub => unsub());
+		this.unsubscribers.forEach((unsub) => unsub());
 		super.removeFromMap();
 	}
-	
-	private async createLayer(): Promise<void> {
 
+	private async createLayer(): Promise<void> {
 		const tileset = await Cesium.Cesium3DTileset.fromUrl(this.config.settings["url"], {
 			shadows:
 				this.config.settings["shadows"] === false
@@ -86,7 +87,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 		this.source = tileset;
 
-		if(!this.source) {
+		if (!this.source) {
 			return;
 		}
 
@@ -107,7 +108,11 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 			this.themeControl = new CustomLayerControl();
 			this.themeControl.component = LayerControlTheme;
-			this.themeControl.props = { layer: this, themes: themes, defaultTheme: this.config.settings["defaultTheme"] };
+			this.themeControl.props = {
+				layer: this,
+				themes: themes,
+				defaultTheme: this.config.settings["defaultTheme"]
+			};
 			this.addCustomControl(this.themeControl);
 		}
 
@@ -125,8 +130,12 @@ export class ThreedeeLayer extends PrimitiveLayer {
 
 		this.setPointCloudAttenuation(get(this.map.options.pointCloudAttenuation));
 		this.setPointCloudAttenuationMaximum(get(this.map.options.pointCloudAttenuationMaximum));
-		this.setPointCloudAttenuationGeometricErrorScale(get(this.map.options.pointCloudAttenuationErrorScale));
-		this.setPointCloudAttenuationBaseResolution(get(this.map.options.pointCloudAttenuationBaseResolution));
+		this.setPointCloudAttenuationGeometricErrorScale(
+			get(this.map.options.pointCloudAttenuationErrorScale)
+		);
+		this.setPointCloudAttenuationBaseResolution(
+			get(this.map.options.pointCloudAttenuationBaseResolution)
+		);
 
 		// this.setPointCloudEdl(get(this.map.options.pointCloudEDL));
 		// this.setPointCloudEdlStrength(get(this.map.options.pointCloudEDLStrength));
@@ -180,12 +189,9 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	public getEmptyTheme(): Cesium.Cesium3DTileStyle {
 		const style = {
 			color: {
-				conditions: [
-					this.getThemeConditionSelected(),
-					["'true'", `color("white", ${this.alpha})`]
-				]
+				conditions: [this.getThemeConditionSelected(), ["'true'", `color("white", ${this.alpha})`]]
 			}
-		}
+		};
 		return new Cesium.Cesium3DTileStyle(style);
 	}
 
@@ -231,9 +237,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			return;
 		}
 
-		const cartographic = Cesium.Cartographic.fromCartesian(
-			this.source.boundingSphere.center
-		);
+		const cartographic = Cesium.Cartographic.fromCartesian(this.source.boundingSphere.center);
 
 		const offset = Cesium.Cartesian3.fromRadians(
 			cartographic.longitude,
@@ -247,84 +251,82 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			0.0
 		);
 
-		const translation = Cesium.Cartesian3.subtract(
-			offset,
-			surface,
-			new Cesium.Cartesian3()
-		);
+		const translation = Cesium.Cartesian3.subtract(offset, surface, new Cesium.Cartesian3());
 
 		this.source.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
 		this.map.refresh();
 	}
 
 	public setPointCloudStyle(): void {
-		if(!this.source) return;
+		if (!this.source) return;
 		this.source.style = new Cesium.Cesium3DTileStyle({
 			pointSize: this.config.settings.style?.pointSize ?? this.POINT_SIZE,
 			show: true,
-			color: "${COLOR} * rgba(255, 255, 255, " + this.alpha + ")", // Adds opacity but keeps color
+			color: "${COLOR} * rgba(255, 255, 255, " + this.alpha + ")" // Adds opacity but keeps color
 		});
 	}
 
 	public updatePointCloudStyle(): void {
-		if(!this.source) return;
+		if (!this.source) return;
 		if (this.source.style) {
 			this.source.style = new Cesium.Cesium3DTileStyle({
 				//@ts-ignore
 				pointSize: this.source.style.pointSize._expression,
 				//@ts-ignore
 				show: this.source.style.show._expression,
-				color: "${COLOR} * rgba(255, 255, 255, " + this.alpha + ")", // Adds opacity but keeps color
+				color: "${COLOR} * rgba(255, 255, 255, " + this.alpha + ")" // Adds opacity but keeps color
 			});
 		}
 	}
 
 	public filterPointCloudClasses(ids: Array<string>): void {
-		if(!this.source) return;
+		if (!this.source) return;
 
-		var showConditions = ids.map(id => {return `\${feature['${this.config.settings.filter.filterAttribute}']} === ` + id})
+		var showConditions = ids.map((id) => {
+			return `\${feature['${this.config.settings.filter.filterAttribute}']} === ` + id;
+		});
 		let style = {
-			show: ids.length > 0 ? showConditions.join(' || ') : 'false',
+			show: ids.length > 0 ? showConditions.join(" || ") : "false",
 			pointSize: this.config.settings.style?.pointSize ?? this.POINT_SIZE,
 			color: "${COLOR} * rgba(255, 255, 255, " + this.alpha + ")"
-		}
+		};
 		this.source.style = new Cesium.Cesium3DTileStyle(style);
 	}
 
 	public setPointCloudAttenuation(value: boolean): void {
-		if(!this.source) return;
+		if (!this.source) return;
 		this.source.pointCloudShading.attenuation = value;
 	}
 
 	public setPointCloudAttenuationMaximum(value: number): void {
-		if(!this.source) return;
+		if (!this.source) return;
 		// @ts-ignore
 		this.source.pointCloudShading.maximumAttenuation = this.checkZero(value);
 	}
 
 	public setPointCloudAttenuationGeometricErrorScale(value: number): void {
-		if(!this.source) return;
+		if (!this.source) return;
 		this.source.pointCloudShading.geometricErrorScale = value;
 	}
 
 	public setPointCloudAttenuationBaseResolution(value: number): void {
-		if(!this.source) return;
+		if (!this.source) return;
 		// @ts-ignore
 		this.source.pointCloudShading.baseResolution = this.checkZero(value);
 	}
 
 	public setPointCloudEdl(value: boolean): void {
-		if(!this.source) return;
+		if (!this.source) return;
 		this.source.pointCloudShading.eyeDomeLighting = value;
 	}
 
 	public setPointCloudEdlStrength(value: number): void {
-		if(!this.source) return;
+		if (!this.source) return;
 		this.source.pointCloudShading.eyeDomeLightingStrength = value;
 	}
 
 	public setPointCloudEdlRadius(value: number): void {
-		if(!this.source) return;
+		if (!this.source) return;
 		this.source.pointCloudShading.eyeDomeLightingRadius = value;
 	}
 
@@ -333,7 +335,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 	}
 
 	async addShader(tileset: Cesium.Cesium3DTileset): Promise<void> {
-        const customShader = new Cesium.CustomShader({
+		const customShader = new Cesium.CustomShader({
 			mode: Cesium.CustomShaderMode.MODIFY_MATERIAL,
 			lightingModel: Cesium.LightingModel.PBR,
 			uniforms: {
@@ -344,7 +346,7 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			},
 			varyings: {
 				v_selectedColor: Cesium.VaryingType.VEC3,
-				v_normal: Cesium.VaryingType.VEC3,
+				v_normal: Cesium.VaryingType.VEC3
 			},
 			vertexShaderText: `
 			vec3 vectorProjection(vec3 A, vec3 B) {
@@ -376,6 +378,6 @@ export class ThreedeeLayer extends PrimitiveLayer {
 			`
 		});
 
-        tileset.customShader = customShader;
-    }
+		tileset.customShader = customShader;
+	}
 }

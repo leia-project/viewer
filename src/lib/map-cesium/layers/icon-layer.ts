@@ -2,7 +2,7 @@ import { get, type Writable, type Unsubscriber, writable } from "svelte/store";
 import * as Cesium from "cesium";
 
 import type { Map } from "$lib/map-cesium/map";
-import { CesiumIcon } from '$lib/map-cesium/cesium-icon';
+import { CesiumIcon } from "$lib/map-cesium/cesium-icon";
 import { CustomLayer } from "./custom-layer";
 
 import breachIcon from "$lib/components/tools/MapToolFlooding/icon-breach.svg";
@@ -11,9 +11,7 @@ import { GeographicLocation } from "$lib/map-core/geographic-location";
 import { getCartesian2 } from "$lib/map-cesium/utils/geo-utils";
 import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
 
-
 export class IconLayer<F> extends CustomLayer {
-
 	public hoveredFeature: Writable<F | undefined> = writable(undefined);
 	public activeFeature: Writable<F | undefined> = writable(undefined);
 	public mapIcons: Array<CesiumIcon<F>> = [];
@@ -22,8 +20,8 @@ export class IconLayer<F> extends CustomLayer {
 
 	public colorProperties = {
 		custom: new Cesium.ConstantProperty(Cesium.Color.LIGHTGRAY),
-		active: new Cesium.ConstantProperty(Cesium.Color.LIGHTSKYBLUE),
-	}
+		active: new Cesium.ConstantProperty(Cesium.Color.LIGHTSKYBLUE)
+	};
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
@@ -61,15 +59,24 @@ export class IconLayer<F> extends CustomLayer {
 		// extract locations from GeoJSON features and create CesiumIcon objects
 		const mapIcons: Array<CesiumIcon<F>> = [];
 		items.map((feature: any) => {
-			const location = new GeographicLocation(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
-			const icon = new CesiumIcon(location, feature, breachIcon, this.colorProperties.custom, this.colorProperties.active, false);
+			const location = new GeographicLocation(
+				feature.geometry.coordinates[0],
+				feature.geometry.coordinates[1]
+			);
+			const icon = new CesiumIcon(
+				location,
+				feature,
+				breachIcon,
+				this.colorProperties.custom,
+				this.colorProperties.active,
+				false
+			);
 			mapIcons.push(icon);
 			return location;
 		});
 		this.addMapEntities(mapIcons);
 		this.setCameraPosition();
 	}
-
 
 	public destroy() {
 		this.unsubscribers.forEach((unsubscriber) => unsubscriber());
@@ -109,11 +116,11 @@ export class IconLayer<F> extends CustomLayer {
 		const obj = this.getObjectFromMouseLocation(m);
 		if (obj !== get(this.hoveredFeature)) this.hoveredFeature.set(obj);
 		this.map.container.style.cursor = obj ? "pointer" : "default";
-	}
+	};
 	private leftClickHandle = (m: any) => {
 		const obj = this.getObjectFromMouseLocation(m);
 		if (obj !== get(this.activeFeature) && obj !== undefined) this.activeFeature.set(obj);
-	}
+	};
 
 	private addMouseEvents(): void {
 		this.map.on("mouseLeftClick", this.leftClickHandle);
@@ -125,7 +132,9 @@ export class IconLayer<F> extends CustomLayer {
 	}
 
 	public setCameraPosition(): void {
-		const cartesians = this.mapIcons.map(i => i.billboard.position?.getValue()).filter(c => c !== undefined);
+		const cartesians = this.mapIcons
+			.map((i) => i.billboard.position?.getValue())
+			.filter((c) => c !== undefined);
 		this.boundingSphere = Cesium.BoundingSphere.fromPoints(cartesians);
 		this.config.cameraPosition = getCameraPositionFromBoundingSphere(this.boundingSphere);
 	}

@@ -9,7 +9,7 @@
 	const selectedProject = projectHandler.selectedProject;
 	const clip = projectHandler.clip;
 	$: processing = $selectedProject?.processing;
-	
+
 	let homeButton: HTMLButtonElement;
 	let projectButtons: MapControlsProject;
 
@@ -29,9 +29,7 @@
 		homeButton.style.display = "block";
 		projectButtons?.$destroy();
 	});
-
 </script>
-
 
 {#if $selectedProject && projectHandler.showDefaultWidget}
 	<div class="widget-projects">
@@ -48,7 +46,8 @@
 				icon={Exit}
 				disabled={$processing}
 				on:click={() => projectHandler.selectedProject.set(undefined)}
-			>{$_("tools.projects.leaveProject")}</Button>
+				>{$_("tools.projects.leaveProject")}</Button
+			>
 			{#if projectHandler.showClipToggleInWidget}
 				<Button
 					icon={$clip ? ViewOffFilled : ViewFilled}
@@ -63,9 +62,7 @@
 	</div>
 {/if}
 
-
 <style>
-
 	.widget-projects {
 		position: absolute;
 		top: 0;
@@ -94,5 +91,4 @@
 	:global(.widget-item button) {
 		pointer-events: all;
 	}
-
 </style>

@@ -8,51 +8,54 @@ import { CesiumLayer } from "./cesium-layer";
 
 import LayerControlOgcFeaturesLayer from "$lib/components/layer-controls/LayerControls/LayerControlOGCFeaturesLayer.svelte";
 
-
 export class OgcFeaturesLayer extends CesiumLayer<OgcFeaturesProviderCesium> {
-
 	constructor(map: Map, config: LayerConfig) {
-        super(map, config);
-        this.addControl();
-    }
+		super(map, config);
+		this.addControl();
+	}
 
-    // Lazy loading: the source is created the first time the layer is activated
-    protected startLoading(): void {
-        this.source = new OgcFeaturesProviderCesium(this.map, this.config.settings.url, this.config.settings.options, this.config.settings.parameters);
-    }
+	// Lazy loading: the source is created the first time the layer is activated
+	protected startLoading(): void {
+		this.source = new OgcFeaturesProviderCesium(
+			this.map,
+			this.config.settings.url,
+			this.config.settings.options,
+			this.config.settings.parameters
+		);
+	}
 
-    public addToMap(): void {
-        this.source.init(get(this.visible));
-    }
+	public addToMap(): void {
+		this.source.init(get(this.visible));
+	}
 
-    public removeFromMap(): void {
-        this.source?.hide();
-    }   
+	public removeFromMap(): void {
+		this.source?.hide();
+	}
 
-    public show(): void {
-        if (this.source) {
-            this.source.show();
-        }
-    }
+	public show(): void {
+		if (this.source) {
+			this.source.show();
+		}
+	}
 
-    public hide(): void {
-        if (this.source) {
-            this.source.hide();
-        }
-    }
+	public hide(): void {
+		if (this.source) {
+			this.source.hide();
+		}
+	}
 
-    public opacityChanged(opacity: number): void {
-        if (this.source) {
-            this.source.setOpacity(opacity);
-        }
-    }
+	public opacityChanged(opacity: number): void {
+		if (this.source) {
+			this.source.setOpacity(opacity);
+		}
+	}
 
-    private addControl(): void {
-        const layerControl = new CustomLayerControl();
-        layerControl.component = LayerControlOgcFeaturesLayer;
-        layerControl.props = {
-            style: this.config.settings.options.style,
-        };
-        this.addCustomControl(layerControl);
-    }
+	private addControl(): void {
+		const layerControl = new CustomLayerControl();
+		layerControl.component = LayerControlOgcFeaturesLayer;
+		layerControl.props = {
+			style: this.config.settings.options.style
+		};
+		this.addCustomControl(layerControl);
+	}
 }

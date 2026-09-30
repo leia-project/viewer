@@ -1,176 +1,175 @@
-@use './reset';
-@use './grid';
-@use '@carbon/layout';
+@use "./reset";
+@use "./grid";
+@use "@carbon/layout";
 
 html {
-    --tosti-font-weight-light: 300;
-    --tosti-font-weight-normal: 400;
-    --tosti-font-weight-semibold: 600;
-    --tosti-font-weight-bold: 700;
+	--tosti-font-weight-light: 300;
+	--tosti-font-weight-normal: 400;
+	--tosti-font-weight-semibold: 600;
+	--tosti-font-weight-bold: 700;
 
-    --tosti-font-size-normal: 0.875rem;
-    --tosti-font-size-xs: 0.65rem;
-    --tosti-font-size-small: 0.75rem;
-    --tosti-font-size-large: 1rem;
-    --tosti-font-size-xl: 1.5rem;
-    --tosti-font-size-xxl: 2rem;
+	--tosti-font-size-normal: 0.875rem;
+	--tosti-font-size-xs: 0.65rem;
+	--tosti-font-size-small: 0.75rem;
+	--tosti-font-size-large: 1rem;
+	--tosti-font-size-xl: 1.5rem;
+	--tosti-font-size-xxl: 2rem;
 
-    .code-01 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-small);
-        line-height: 16px;
-        letter-spacing: 0.32px;
-    }
+	.code-01 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-small);
+		line-height: 16px;
+		letter-spacing: 0.32px;
+	}
 
-    .code-02 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-normal);
-        line-height: 20px;
-        letter-spacing: 0.32px;
-    }
+	.code-02 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-normal);
+		line-height: 20px;
+		letter-spacing: 0.32px;
+	}
 
-    .label-01 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-small);
-        line-height: 16px;
-        letter-spacing: 0.32px;
-    }
+	.label-01 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-small);
+		line-height: 16px;
+		letter-spacing: 0.32px;
+	}
 
-    .label-02 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-normal);
-        line-height: 18px;
-        letter-spacing: 0.16px;
-    }
+	.label-02 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-normal);
+		line-height: 18px;
+		letter-spacing: 0.16px;
+	}
 
-    .helper-text-01 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-small);
-        line-height: 16px;
-        letter-spacing: 0.32px;
-    }
+	.helper-text-01 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-small);
+		line-height: 16px;
+		letter-spacing: 0.32px;
+	}
 
-    .helper-text-02 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-normal);
-        line-height: 18px;
-        letter-spacing: 0.16px;
-    }
+	.helper-text-02 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-normal);
+		line-height: 18px;
+		letter-spacing: 0.16px;
+	}
 
-    .legal-01 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-small);
-        line-height: 16px;
-        letter-spacing: 0.32px;
-    }
+	.legal-01 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-small);
+		line-height: 16px;
+		letter-spacing: 0.32px;
+	}
 
-    .legal-02 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-normal);
-        line-height: 18px;
-        letter-spacing: 0.16px;
-    }
+	.legal-02 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-normal);
+		line-height: 18px;
+		letter-spacing: 0.16px;
+	}
 
-    .body-compact-01 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-normal);
-        line-height: 18px;
-        letter-spacing: 0.16px;
-    }
+	.body-compact-01 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-normal);
+		line-height: 18px;
+		letter-spacing: 0.16px;
+	}
 
-    .body-compact-02 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-large);
-        line-height: 22px;
-        letter-spacing: 0;
-    }
+	.body-compact-02 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-large);
+		line-height: 22px;
+		letter-spacing: 0;
+	}
 
-    .body-01 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-normal);
-        line-height: 20px;
-        letter-spacing: 0.16px;
-    }
+	.body-01 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-normal);
+		line-height: 20px;
+		letter-spacing: 0.16px;
+	}
 
-    .body-02 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-large);
-        line-height: 24px;
-        letter-spacing: 0;
-    }
+	.body-02 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-large);
+		line-height: 24px;
+		letter-spacing: 0;
+	}
 
-    .heading-compact-01 {
-        font-weight: var(--tosti-font-weight-semibold);
-        font-size: var(--tosti-font-size-normal);
-        line-height: 18px;
-        letter-spacing: 0.16px;
-    }
+	.heading-compact-01 {
+		font-weight: var(--tosti-font-weight-semibold);
+		font-size: var(--tosti-font-size-normal);
+		line-height: 18px;
+		letter-spacing: 0.16px;
+	}
 
-    .heading-compact-02 {
-        font-weight: var(--tosti-font-weight-semibold);
-        font-size: var(--tosti-font-size-large);
-        line-height: 22px;
-        letter-spacing: 0;
-    }
+	.heading-compact-02 {
+		font-weight: var(--tosti-font-weight-semibold);
+		font-size: var(--tosti-font-size-large);
+		line-height: 22px;
+		letter-spacing: 0;
+	}
 
-    .heading-01 {
-        font-weight: var(--tosti-font-weight-semibold);
-        font-size: var(--tosti-font-size-normal);
-        line-height: 20px;
-        letter-spacing: 0.16px;
-        margin-bottom: var(--cds-spacing-04);
-    }
+	.heading-01 {
+		font-weight: var(--tosti-font-weight-semibold);
+		font-size: var(--tosti-font-size-normal);
+		line-height: 20px;
+		letter-spacing: 0.16px;
+		margin-bottom: var(--cds-spacing-04);
+	}
 
-    .heading-02 {
-        font-weight: var(--tosti-font-weight-semibold);
-        font-size: var(--tosti-font-size-large);
-        line-height: 24px;
-        letter-spacing: 0;
-        margin-bottom: var(--cds-spacing-04);
-    }
+	.heading-02 {
+		font-weight: var(--tosti-font-weight-semibold);
+		font-size: var(--tosti-font-size-large);
+		line-height: 24px;
+		letter-spacing: 0;
+		margin-bottom: var(--cds-spacing-04);
+	}
 
-    .heading-03 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: 1.25rem;
-        line-height: 28px;
-        letter-spacing: 0;
-        margin-bottom: var(--cds-spacing-04);
-    }
+	.heading-03 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: 1.25rem;
+		line-height: 28px;
+		letter-spacing: 0;
+		margin-bottom: var(--cds-spacing-04);
+	}
 
-    .heading-04 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: var(--tosti-font-size-xxl);
-        line-height: 36px;
-        letter-spacing: 0;
-        margin-bottom: var(--cds-spacing-04);
-    }
+	.heading-04 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: var(--tosti-font-size-xxl);
+		line-height: 36px;
+		letter-spacing: 0;
+		margin-bottom: var(--cds-spacing-04);
+	}
 
-    .heading-05 {
-        font-weight: var(--tosti-font-weight-normal);
-        font-size: 32px;
-        line-height: 40px;
-        letter-spacing: 0;
-        margin-bottom: var(--cds-spacing-04);
-    }
+	.heading-05 {
+		font-weight: var(--tosti-font-weight-normal);
+		font-size: 32px;
+		line-height: 40px;
+		letter-spacing: 0;
+		margin-bottom: var(--cds-spacing-04);
+	}
 
-    .heading-06 {
-        font-weight: var(--tosti-font-weight-light);
-        font-size: 42px;
-        line-height: 50px;
-        letter-spacing: 0;
-        margin-bottom: var(--cds-spacing-04);
-    }
+	.heading-06 {
+		font-weight: var(--tosti-font-weight-light);
+		font-size: 42px;
+		line-height: 50px;
+		letter-spacing: 0;
+		margin-bottom: var(--cds-spacing-04);
+	}
 
-    .heading-07 {
-        font-weight: var(--tosti-font-weight-light);
-        font-size: 54px;
-        line-height: 64px;
-        letter-spacing: 0;
-        margin-bottom: var(--cds-spacing-04);
-    }
+	.heading-07 {
+		font-weight: var(--tosti-font-weight-light);
+		font-size: 54px;
+		line-height: 64px;
+		letter-spacing: 0;
+		margin-bottom: var(--cds-spacing-04);
+	}
 
-
-    /*
+	/*
     --cds-caption-01-font-size: 0.75rem;
     --cds-caption-01-font-weight: 400;
     --cds-caption-01-line-height: 1.33333;
@@ -483,130 +482,132 @@ html {
 }
 
 Header nav {
-    display: flex;
+	display: flex;
 }
 
 .tooltip {
-    z-index: 999 !important;
+	z-index: 999 !important;
 }
 
 .bx--btn {
-    border-radius: 0rem;
+	border-radius: 0rem;
 }
 
 .tool-icon {
-    background-color: transparent;
-    color: var(--cds-text-03);
-    border-radius: 0px;
+	background-color: transparent;
+	color: var(--cds-text-03);
+	border-radius: 0px;
 }
 
 .tool-icon.hover {
-    background-color: transparent;
-    color: var(--cds-text-01);
+	background-color: transparent;
+	color: var(--cds-text-01);
 }
 
 .tool-icon.active {
-    color: var(--cds-interactive-01) !important;
-    background-color: transparent !important;
+	color: var(--cds-interactive-01) !important;
+	background-color: transparent !important;
 }
 
 .tool-icon:active {
-    color: var(--cds-interactive-01);
-    background-color: transparent;
+	color: var(--cds-interactive-01);
+	background-color: transparent;
 }
 
 .label {
-    font-size: var(--tosti-font-size-large);
-    font-weight: var(--tosti-font-weight-semibold);
-    color: var(--cds-text-02);
+	font-size: var(--tosti-font-size-large);
+	font-weight: var(--tosti-font-weight-semibold);
+	color: var(--cds-text-02);
 }
 
 .fi-content .bx--accordion__content {
-    width: 100%;
-    padding-right: 1rem !important;
+	width: 100%;
+	padding-right: 1rem !important;
 }
 
-.fi .bx--accordion__content {    
-    padding: 0;
+.fi .bx--accordion__content {
+	padding: 0;
 }
 
 .fi .bx--data-table-container--static {
-    width: 100%;
+	width: 100%;
 }
 
 .fi .bx--data-table--static {
-    width: 100%;
+	width: 100%;
 }
 
-.layer-group-accordion .bx--accordion__content, .project-accordion .bx--accordion__content {
-    padding-right: 0rem !important;
+.layer-group-accordion .bx--accordion__content,
+.project-accordion .bx--accordion__content {
+	padding-right: 0rem !important;
 }
 
-.layer-group-accordion .bx--checkbox-label, .project-accordion .bx--accordion__content {
-    width: 100% !important;
+.layer-group-accordion .bx--checkbox-label,
+.project-accordion .bx--accordion__content {
+	width: 100% !important;
 }
 
-.layer-group-accordion .bx--checkbox-label-text, .project-accordion .bx--accordion__content {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+.layer-group-accordion .bx--checkbox-label-text,
+.project-accordion .bx--accordion__content {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 .layer-group-accordion .bx--accordion__title {
-    margin: 0px 0px 0px var(--cds-spacing-02);
+	margin: 0px 0px 0px var(--cds-spacing-02);
 }
 
 .project-accordion .bx--accordion__heading {
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .project-accordion .bx--accordion__arrow {
-    margin: 0 1rem 0 0;
+	margin: 0 1rem 0 0;
 }
 
 .project-accordion .bx--accordion__arrow:hover {
-    fill: var(--cds-link-primary, #0f62fe);
+	fill: var(--cds-link-primary, #0f62fe);
 }
 
 .bx--header__action {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 *:focus {
-    box-shadow: none !important;
-    border: 0px solid transparent !important;
+	box-shadow: none !important;
+	border: 0px solid transparent !important;
 }
 
 // Firefox + Chromium 121+ use the standard properties. These are applied to every
 // element (not just html) because scrollbar-width is not inherited, while scrollbar-color is
 * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--cds-text-placeholder) transparent;
+	scrollbar-width: thin;
+	scrollbar-color: var(--cds-text-placeholder) transparent;
 }
 
 // Fallback for older Chromium versions
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+	width: 8px;
+	height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: transparent;
+	background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    border-radius: 7px;
-    background-color: var(--cds-text-placeholder);
+	border-radius: 7px;
+	background-color: var(--cds-text-placeholder);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--cds-text-secondary);
+	background-color: var(--cds-text-secondary);
 }
 
 ::-webkit-scrollbar-corner {
-    background: transparent;
+	background: transparent;
 }
-

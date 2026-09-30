@@ -1,10 +1,4 @@
-import {
-	Color,
-	defined,
-	Event,
-	Ellipsoid,
-	WebMercatorTilingScheme
-} from 'cesium';
+import { Color, defined, Event, Ellipsoid, WebMercatorTilingScheme } from "cesium";
 
 import * as tilekiln from "tile-kiln";
 /**
@@ -142,17 +136,17 @@ VectorImageryProvider.prototype.setupTileMaker = async function (url: string) {
 			this.tileMaker = tilekiln.init({
 				size: 512,
 				style: url,
-				callback: (err: unknown, api: unknown) => { 
+				callback: (err: unknown, api: unknown) => {
 					if (err) {
 						reject();
 					}
 
 					this._ready = true;
 					resolve();
-				},
+				}
 			});
-		})
-	}
+		});
+	};
 
 	return await setup(url);
 };
@@ -161,7 +155,12 @@ VectorImageryProvider.prototype.getTileCredits = function (x: number, y: number,
 	return undefined;
 };
 
-VectorImageryProvider.prototype.requestImage = async function (x: number, y: number, level: number, request: unknown) {
+VectorImageryProvider.prototype.requestImage = async function (
+	x: number,
+	y: number,
+	level: number,
+	request: unknown
+) {
 	let vectorTile: any;
 
 	const getImage = (x: number, y: number, level: number) => {
@@ -170,15 +169,21 @@ VectorImageryProvider.prototype.requestImage = async function (x: number, y: num
 				vectorTile = tile;
 				resolve();
 			});
-		})
-	}
+		});
+	};
 
 	await getImage(x, y, level);
 
 	return Promise.resolve(vectorTile.img);
 };
 
-VectorImageryProvider.prototype.pickFeatures = function (x: number, y: number, level: number, longitude: number, latitude: number) {
+VectorImageryProvider.prototype.pickFeatures = function (
+	x: number,
+	y: number,
+	level: number,
+	longitude: number,
+	latitude: number
+) {
 	return undefined;
 };
 

@@ -24,37 +24,36 @@
 
 	function addLoadListener() {
 		map.viewer.scene.globe.tileLoadProgressEvent.addEventListener((queuedTileCount) => {
-			if(!queuedTileCount) {
+			if (!queuedTileCount) {
 				progress.set(1);
-				hideDelay = setTimeout(()=>{ show = false }, 600);
+				hideDelay = setTimeout(() => {
+					show = false;
+				}, 600);
 				return;
 			}
 
-			if(hideDelay) {
+			if (hideDelay) {
 				clearTimeout(hideDelay);
 			}
 
 			show = true;
-			const tempLoadingTilesTotal = queuedTileCount > loadingTilesTotal ? queuedTileCount : loadingTilesTotal;
+			const tempLoadingTilesTotal =
+				queuedTileCount > loadingTilesTotal ? queuedTileCount : loadingTilesTotal;
 			const perc = (100 * (tempLoadingTilesTotal - queuedTileCount)) / tempLoadingTilesTotal / 100;
 
 			try {
-				progress.set(isNaN(perc) ? 1 : perc <= 0 ? 0 : perc >= 1 ? 1 : perc);	
+				progress.set(isNaN(perc) ? 1 : perc <= 0 ? 0 : perc >= 1 ? 1 : perc);
 			} catch (error) {
 				console.error("Error setting progress bar");
 			}
-			
+
 			loadingTilesTotal = tempLoadingTilesTotal;
 		});
 	}
 </script>
 
 {#if show}
-	<div
-		class="wrapper"
-		in:fade={{ delay: 0, duration: 150 }}
-		out:fade={{ delay: 0, duration: 600 }}
-	>
+	<div class="wrapper" in:fade={{ delay: 0, duration: 150 }} out:fade={{ delay: 0, duration: 600 }}>
 		<progress class="progress" value={$progress} />
 	</div>
 {/if}
@@ -76,7 +75,7 @@
 		height: 100%;
 		display: inline;
 		border: none; /* Needed for Firefox */
-		background:  transparent;
+		background: transparent;
 		-webkit-appearance: none;
 	}
 	.progress::-webkit-progress-bar {

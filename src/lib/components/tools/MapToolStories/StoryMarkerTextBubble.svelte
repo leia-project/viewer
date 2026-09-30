@@ -28,7 +28,10 @@
 			return;
 		}
 
-		const cartesianPosition = marker.position?.getValue(map.viewer.clock.currentTime, new Cesium.Cartesian3());
+		const cartesianPosition = marker.position?.getValue(
+			map.viewer.clock.currentTime,
+			new Cesium.Cartesian3()
+		);
 		if (!cartesianPosition) {
 			display = "none";
 			return;

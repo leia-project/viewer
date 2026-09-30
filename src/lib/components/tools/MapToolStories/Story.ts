@@ -4,66 +4,67 @@ import { StoryLayer } from "./StoryLayer";
 import type * as Cesium from "cesium";
 
 export interface StoryMarkerCoordinates {
-    x: number;
-    y: number;
-    /** Defaults to "chapter" when omitted. */
-    type?: "chapter" | "text" | "image";
-    /** Mandatory when type is "text": the speech bubble text. Optional for "image": hover tooltip. */
-    text?: string;
-    /** Mandatory when type is "image": one or more image urls shown in gallery mode (normalized to an array on load). */
-    url?: Array<string>;
+	x: number;
+	y: number;
+	/** Defaults to "chapter" when omitted. */
+	type?: "chapter" | "text" | "image";
+	/** Mandatory when type is "text": the speech bubble text. Optional for "image": hover tooltip. */
+	text?: string;
+	/** Mandatory when type is "image": one or more image urls shown in gallery mode (normalized to an array on load). */
+	url?: Array<string>;
 }
 
 export class Story {
-    public name: string;
-    public description: string;
-    public storyChapters: Array<StoryChapter>;
-    public width: string | undefined;
-    public forceCameraMode: "2D" | "3D" | undefined;
-    public staticCamera: boolean | undefined;
-    public requestPolygonArea: boolean | undefined;
-    public statisticsApi: string | undefined;
-    public markers: Array<Cesium.Entity> = [];
-    public hasMarkers: boolean;
-    
-    constructor(name: string, 
-                description: string, 
-                storyChapters: Array<StoryChapter>, 
-                width: string | undefined = undefined, 
-                forceCameraMode: "2D" | "3D" | undefined, 
-                staticCamera: boolean | undefined,
-                requestPolygonArea: boolean | undefined,
-                statisticsApi: string | undefined,
-                hasMarkers: boolean = false) {
-        this.name = name;
-        this.description = description;
-        this.storyChapters = storyChapters;
-        this.width = width;
-        this.forceCameraMode = forceCameraMode;
-        this.staticCamera = staticCamera;
-        this.requestPolygonArea = requestPolygonArea;
-        this.statisticsApi = statisticsApi;
-        this.hasMarkers = hasMarkers;
-    }
+	public name: string;
+	public description: string;
+	public storyChapters: Array<StoryChapter>;
+	public width: string | undefined;
+	public forceCameraMode: "2D" | "3D" | undefined;
+	public staticCamera: boolean | undefined;
+	public requestPolygonArea: boolean | undefined;
+	public statisticsApi: string | undefined;
+	public markers: Array<Cesium.Entity> = [];
+	public hasMarkers: boolean;
 
-    getStoryLayers(): Array<StoryLayer> {
-        let storyLayers: Array<StoryLayer> = [];
+	constructor(
+		name: string,
+		description: string,
+		storyChapters: Array<StoryChapter>,
+		width: string | undefined = undefined,
+		forceCameraMode: "2D" | "3D" | undefined,
+		staticCamera: boolean | undefined,
+		requestPolygonArea: boolean | undefined,
+		statisticsApi: string | undefined,
+		hasMarkers: boolean = false
+	) {
+		this.name = name;
+		this.description = description;
+		this.storyChapters = storyChapters;
+		this.width = width;
+		this.forceCameraMode = forceCameraMode;
+		this.staticCamera = staticCamera;
+		this.requestPolygonArea = requestPolygonArea;
+		this.statisticsApi = statisticsApi;
+		this.hasMarkers = hasMarkers;
+	}
 
-        for (let i = 0; i < this.storyChapters.length; i++) {
-            let storyChapter: StoryChapter = this.storyChapters[i];
+	getStoryLayers(): Array<StoryLayer> {
+		let storyLayers: Array<StoryLayer> = [];
 
-            for (let j = 0; j < storyChapter.steps.length; j++) {
-                let step: StoryStep = storyChapter.steps[j];
-                
-                if (step.layers) {
-                    for (let k = 0; k < step.layers?.length; k++) {
-                        let storyLayer: StoryLayer = step.layers[k];
-                        storyLayers.push(storyLayer);
-                    }
-                }
-                
-            }
-        }
-        return storyLayers;
-    }
+		for (let i = 0; i < this.storyChapters.length; i++) {
+			let storyChapter: StoryChapter = this.storyChapters[i];
+
+			for (let j = 0; j < storyChapter.steps.length; j++) {
+				let step: StoryStep = storyChapter.steps[j];
+
+				if (step.layers) {
+					for (let k = 0; k < step.layers?.length; k++) {
+						let storyLayer: StoryLayer = step.layers[k];
+						storyLayers.push(storyLayer);
+					}
+				}
+			}
+		}
+		return storyLayers;
+	}
 }

@@ -17,23 +17,20 @@
 	import type { Map } from "$lib/map-cesium/map";
 	import { MapToolMenuOption } from "../MapToolMenuOption";
 
-
 	export let map: Map;
 	export let id: string;
 	export let label: string;
 	export let icon: any = Settings;
-
 
 	const { registerTool, selectedTool } = getContext<any>("mapTools");
 
 	const tool = new MapToolMenuOption(id, icon, label, true);
 	registerTool(tool);
 
-
 	let updatingSettings: boolean = false;
 	let selectedPerformance: Writable<string> = writable<string>("custom");
-	let showMouseCoordinates: Writable<boolean> = writable<boolean>(false);	
-	let showCameraPosition: Writable<boolean> = writable<boolean>(false);	
+	let showMouseCoordinates: Writable<boolean> = writable<boolean>(false);
+	let showCameraPosition: Writable<boolean> = writable<boolean>(false);
 
 	$: dateTime = map.options.dateTime;
 	$: fxaa = map.options.fxaa;
@@ -152,13 +149,12 @@
 	}
 
 	function changeDate(dateString: string): void {
-		const [day, month, year] = dateString.split('/');
+		const [day, month, year] = dateString.split("/");
 		const dateObject = new Date(Date.UTC(+year, parseInt(month) - 1, +day));
 		dateObject.setUTCHours(hour);
 
 		map.options.dateTime.set(dateObject.getTime());
 	}
-
 </script>
 
 {#if $selectedTool === tool}
@@ -184,9 +180,11 @@
 			datePickerType="single"
 			on:change={(e) => {
 				changeDate(
-					typeof e.detail === "string" ? e.detail : 
-					typeof e.detail.dateStr === "string" ? e.detail.dateStr : 
-					e.detail.dateStr.from
+					typeof e.detail === "string"
+						? e.detail
+						: typeof e.detail.dateStr === "string"
+							? e.detail.dateStr
+							: e.detail.dateStr.from
 				);
 			}}
 			dateFormat="d/m/Y"
@@ -206,10 +204,10 @@
 			<RadioButton labelText={$_("tools.cesium.custom")} value="custom" />
 		</RadioButtonGroup>
 	</div>
-	
+
 	<Accordion>
 		<AccordionItem title={$_("tools.cesium.rendering")}>
-		<Checkbox labelText={$_("tools.cesium.fxaa")} bind:checked={$fxaa} />
+			<Checkbox labelText={$_("tools.cesium.fxaa")} bind:checked={$fxaa} />
 
 			<Slider
 				hideTextInput
@@ -255,71 +253,77 @@
 			<Checkbox labelText={$_("tools.cesium.inspector")} bind:checked={$inspector} />
 			<Checkbox labelText={$_("tools.cesium.coordinates")} bind:checked={$showMouseCoordinates} />
 			<Checkbox labelText={$_("tools.cesium.cameraPosition")} bind:checked={$showCameraPosition} />
-			<Checkbox labelText={$_("tools.cesium.dragAndDropFiles")} bind:checked={$enableDragDropFiles} />
+			<Checkbox
+				labelText={$_("tools.cesium.dragAndDropFiles")}
+				bind:checked={$enableDragDropFiles}
+			/>
 		</AccordionItem>
 
 		<AccordionItem title={$_("tools.cesium.pointCloud")}>
-			<Checkbox labelText={$_("tools.cesium.pointCloudAttenuation")} bind:checked={$pointCloudAttenuation} />
+			<Checkbox
+				labelText={$_("tools.cesium.pointCloudAttenuation")}
+				bind:checked={$pointCloudAttenuation}
+			/>
 			<Checkbox labelText={$_("tools.cesium.pointCloudEDL")} bind:checked={$pointCloudEdl} />
 
-				{#if $pointCloudAttenuation}
-					<Slider
-						hideTextInput
-						fullWidth
-						min={0}
-						max={2}
-						step={0.1}
-						labelText={`${$_("tools.cesium.pointCloudAttenuationErrorScale")}: ${$pointCloudAttenuationErrorScale.toFixed(
-							1
-						)}`}
-						bind:value={$pointCloudAttenuationErrorScale}
-					/>
+			{#if $pointCloudAttenuation}
+				<Slider
+					hideTextInput
+					fullWidth
+					min={0}
+					max={2}
+					step={0.1}
+					labelText={`${$_("tools.cesium.pointCloudAttenuationErrorScale")}: ${$pointCloudAttenuationErrorScale.toFixed(
+						1
+					)}`}
+					bind:value={$pointCloudAttenuationErrorScale}
+				/>
 
-					<Slider
-						hideTextInput
-						fullWidth
-						min={0}
-						max={30}
-						step={1}
-						labelText={`${$_("tools.cesium.pointCloudAttenuationMaximum")}: ${$pointCloudAttenuationMaximum.toFixed(
-							1
-						)}`}
-						bind:value={$pointCloudAttenuationMaximum}
-					/>
+				<Slider
+					hideTextInput
+					fullWidth
+					min={0}
+					max={30}
+					step={1}
+					labelText={`${$_("tools.cesium.pointCloudAttenuationMaximum")}: ${$pointCloudAttenuationMaximum.toFixed(
+						1
+					)}`}
+					bind:value={$pointCloudAttenuationMaximum}
+				/>
 
-					<Slider
-						hideTextInput
-						fullWidth
-						min={0}
-						max={10}
-						step={0.2}
-						labelText={`${$_("tools.cesium.pointCloudAttenuationBaseResolution")}: ${$pointCloudAttenuationBaseResolution.toFixed(
-							1
-						)}`}
-						bind:value={$pointCloudAttenuationBaseResolution}
-					/>
-				{/if}
+				<Slider
+					hideTextInput
+					fullWidth
+					min={0}
+					max={10}
+					step={0.2}
+					labelText={`${$_("tools.cesium.pointCloudAttenuationBaseResolution")}: ${$pointCloudAttenuationBaseResolution.toFixed(
+						1
+					)}`}
+					bind:value={$pointCloudAttenuationBaseResolution}
+				/>
+			{/if}
 
-				{#if $pointCloudEdl}
-					<Slider
-						hideTextInput
-						fullWidth
-						min={0}
-						max={10}
-						step={0.1}
-						labelText={`${$_("tools.cesium.pointCloudEDLStrength")}: ${$pointCloudEDLStrength.toFixed(1)}`}
-						bind:value={$pointCloudEDLStrength}
-					/>
-					<Slider
-						hideTextInput
-						fullWidth
-						min={0}
-						max={10}
-						step={0.1}
-						labelText={`${$_("tools.cesium.pointCloudEDLRadius")}: ${$pointCloudEDLRadius.toFixed(1)}`}
-						bind:value={$pointCloudEDLRadius}
-					/>
-				{/if}
+			{#if $pointCloudEdl}
+				<Slider
+					hideTextInput
+					fullWidth
+					min={0}
+					max={10}
+					step={0.1}
+					labelText={`${$_("tools.cesium.pointCloudEDLStrength")}: ${$pointCloudEDLStrength.toFixed(1)}`}
+					bind:value={$pointCloudEDLStrength}
+				/>
+				<Slider
+					hideTextInput
+					fullWidth
+					min={0}
+					max={10}
+					step={0.1}
+					labelText={`${$_("tools.cesium.pointCloudEDLRadius")}: ${$pointCloudEDLRadius.toFixed(1)}`}
+					bind:value={$pointCloudEDLRadius}
+				/>
+			{/if}
 		</AccordionItem>
 	</Accordion>
 {/if}

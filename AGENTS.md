@@ -50,33 +50,25 @@ Top-level config shape:
 
 ```jsonc
 {
-	"viewer": {
-		/* base viewer settings (below) */
-	},
-	"groups": [
-		/* layer-library grouping tree */
-	],
-	"layers": [
-		/* layer definitions */
-	],
-	"tools": [
-		/* tool enablement + settings */
-	]
+	"viewer": {/* base viewer settings (below) */},
+	"groups": [/* layer-library grouping tree */],
+	"layers": [/* layer definitions */],
+	"tools": [/* tool enablement + settings */]
 }
 ```
 
 ### `viewer`
 
-| key | description | type |
-|-|-|-|
-| `startPosition` | Start camera position (below) | object |
-| `startCameraMode3D` | Start in 3D (true) or 2D (false; pitch forced to -90) | boolean |
-| `startToolOpen` | Tool id to open on start (e.g. `layermanager`, `stories`) | string |
-| `accessibility` | `{ trackpadMode, trackpadStepAngle, trackpadStepHeightFactor }` — enables the trackpad camera controls on the map | object |
-| `colors` | Carbon Design color tokens plus header colors `header-color` (bar background), `title-color` / `sub-title-color` (any CSS color); see `static/example.config.json` | object |
-| `title` / `subTitle` | Header title / subtitle | string |
-| `logo` | Header logo image URL | string |
-| `logoMarginLeft` / `logoMarginRight` | Header logo margins | string |
+| key                                  | description                                                                                                                                                        | type    |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| `startPosition`                      | Start camera position (below)                                                                                                                                      | object  |
+| `startCameraMode3D`                  | Start in 3D (true) or 2D (false; pitch forced to -90)                                                                                                              | boolean |
+| `startToolOpen`                      | Tool id to open on start (e.g. `layermanager`, `stories`)                                                                                                          | string  |
+| `accessibility`                      | `{ trackpadMode, trackpadStepAngle, trackpadStepHeightFactor }` — enables the trackpad camera controls on the map                                                  | object  |
+| `colors`                             | Carbon Design color tokens plus header colors `header-color` (bar background), `title-color` / `sub-title-color` (any CSS color); see `static/example.config.json` | object  |
+| `title` / `subTitle`                 | Header title / subtitle                                                                                                                                            | string  |
+| `logo`                               | Header logo image URL                                                                                                                                              | string  |
+| `logoMarginLeft` / `logoMarginRight` | Header logo margins                                                                                                                                                | string  |
 
 `startPosition` / `cameraPosition` fields: `x` (lon), `y` (lat), `z` (height m), `heading`, `pitch` (-90 down, 0 forward, 90 up), `duration` (fly seconds).
 

@@ -11,7 +11,11 @@
 </div>
 
 <div class="img">
-	<img src="{base}/images/help_zonalstatistics_overview.png" style="width:100%" alt="{toolTitle} overview" />
+	<img
+		src="{base}/images/help_zonalstatistics_overview.png"
+		style="width:100%"
+		alt="{toolTitle} overview"
+	/>
 </div>
 
 <div class="heading-02">{$_("tools.help.zonalStatistics.headingOpen")}</div>

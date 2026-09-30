@@ -75,29 +75,29 @@
 	class="hoverbox"
 	style="left:{left}px; top:{top}px; display:{display}; transform: translate(32px, -100%); opacity: {opacity}%; transition: opacity 0.5s;"
 	on:mouseenter={onMouseEnter}
-	 on:mouseleave={() => opacity = get(collection.hoveredStory) === story ? 100 : 0}
+	on:mouseleave={() => (opacity = get(collection.hoveredStory) === story ? 100 : 0)}
 >
 	{#if text}
-	<div class="hoverbox-header hoverbox-text">
-		<div class="hoverbox-title">{text}</div>
-	</div>
+		<div class="hoverbox-header hoverbox-text">
+			<div class="hoverbox-title">{text}</div>
+		</div>
 	{:else}
-	<div class="hoverbox-header">
-		<div>
-			<div class="hoverbox-title">{story.name}</div>
-			<div class="hoverbox-step">{chapterTitle}: {stepTitle}</div>
+		<div class="hoverbox-header">
+			<div>
+				<div class="hoverbox-title">{story.name}</div>
+				<div class="hoverbox-step">{chapterTitle}: {stepTitle}</div>
+			</div>
+			<div class="hoverbox-buttons">
+				<Button
+					kind="primary"
+					iconDescription={$_("tools.stories.open")}
+					icon={Launch}
+					tooltipPosition="top"
+					size="small"
+					on:click={() => collection.dispatch("story-selected", { story, stepNumber })}
+				/>
+			</div>
 		</div>
-		<div class="hoverbox-buttons">
-			<Button
-				kind="primary"
-				iconDescription={$_("tools.stories.open")}
-				icon={Launch}
-				tooltipPosition="top"
-				size="small"
-				on:click={() => collection.dispatch("story-selected", { story, stepNumber })}
-			/>
-		</div>
-	</div>
 	{/if}
 </div>
 

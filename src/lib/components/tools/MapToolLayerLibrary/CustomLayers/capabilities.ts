@@ -18,11 +18,9 @@ const capabilitiesCache = new Map<string, Array<CapabilitiesLayer>>();
 const inFlightCapabilitiesRequests = new Map<string, Promise<Array<CapabilitiesLayer>>>();
 const documentCache = new Map<string, Promise<any>>();
 
-
 function getCacheKey(baseUrl: string, type: "wms" | "wmts"): string {
 	return `${type}|${baseUrl.trim()}`;
 }
-
 
 function cloneLayers(layers: Array<CapabilitiesLayer>): Array<CapabilitiesLayer> {
 	return layers.map((layer) => ({
@@ -31,7 +29,6 @@ function cloneLayers(layers: Array<CapabilitiesLayer>): Array<CapabilitiesLayer>
 		boundingBox: layer.boundingBox ? { ...layer.boundingBox } : undefined
 	}));
 }
-
 
 /**
  * Builds a GetCapabilities URL for a WMS/WMTS service. Strips any query params
@@ -48,9 +45,25 @@ export function buildGetCapabilitiesUrl(
 	const params = new URLSearchParams(query);
 	// Remove request-defining and GetMap/GetTile-specific params (case-insensitive).
 	const dropKeys = new Set([
-		"service", "request", "version", "format", "styles", "style", "transparent",
-		"layers", "layer", "bbox", "width", "height", "srs", "crs", "tilematrix",
-		"tilematrixset", "tilerow", "tilecol", "namespace"
+		"service",
+		"request",
+		"version",
+		"format",
+		"styles",
+		"style",
+		"transparent",
+		"layers",
+		"layer",
+		"bbox",
+		"width",
+		"height",
+		"srs",
+		"crs",
+		"tilematrix",
+		"tilematrixset",
+		"tilerow",
+		"tilecol",
+		"namespace"
 	]);
 	for (const key of [...params.keys()]) {
 		if (dropKeys.has(key.toLowerCase())) params.delete(key);
@@ -61,18 +74,15 @@ export function buildGetCapabilitiesUrl(
 	return `${path}?${params.toString()}`;
 }
 
-
 function toArray<T>(value: T | Array<T> | undefined): Array<T> {
 	if (value === undefined || value === null) return [];
 	return Array.isArray(value) ? value : [value];
 }
 
-
 function toNumber(value: unknown): number | undefined {
 	const num = typeof value === "number" ? value : Number(value);
 	return Number.isFinite(num) ? num : undefined;
 }
-
 
 /** Reads a lon/lat bbox from a WMS layer node: EX_GeographicBoundingBox (1.3.0), else LatLonBoundingBox (1.1.1). */
 function boundingBoxFromLayerNode(layer: any): GeographicBoundingBox | undefined {
@@ -101,13 +111,16 @@ function boundingBoxFromLayerNode(layer: any): GeographicBoundingBox | undefined
 	return undefined;
 }
 
-
 /** Reads a lon/lat bbox from a WMTS/OWS layer node's WGS84BoundingBox (LowerCorner/UpperCorner, "lon lat"). */
 function boundingBoxFromWgs84BoundingBox(layer: any): GeographicBoundingBox | undefined {
 	const wgs84 = toArray(layer.WGS84BoundingBox)[0] as any;
 	if (!wgs84) return undefined;
-	const lower = String(wgs84.LowerCorner ?? "").trim().split(/\s+/);
-	const upper = String(wgs84.UpperCorner ?? "").trim().split(/\s+/);
+	const lower = String(wgs84.LowerCorner ?? "")
+		.trim()
+		.split(/\s+/);
+	const upper = String(wgs84.UpperCorner ?? "")
+		.trim()
+		.split(/\s+/);
 	if (lower.length !== 2 || upper.length !== 2) return undefined;
 	const west = toNumber(lower[0]);
 	const south = toNumber(lower[1]);
@@ -118,7 +131,6 @@ function boundingBoxFromWgs84BoundingBox(layer: any): GeographicBoundingBox | un
 	}
 	return undefined;
 }
-
 
 function createParser(): XMLParser {
 	return new XMLParser({
@@ -131,7 +143,6 @@ function createParser(): XMLParser {
 		removeNSPrefix: true
 	});
 }
-
 
 /**
  * Fetches and parses a GetCapabilities document to raw XML, cached per URL and
@@ -156,7 +167,6 @@ export function fetchCapabilitiesDocument(url: string): Promise<any> {
 	}
 	return cached;
 }
-
 
 /**
  * Returns the selectable layers (id, title, formats, bbox) from a WMS/WMTS
@@ -197,7 +207,6 @@ export async function fetchCapabilitiesLayers(
 	return request;
 }
 
-
 function parseWmsLayers(parsedXml: any): Array<CapabilitiesLayer> {
 	// WMS 1.3.0 uses WMS_Capabilities, WMS 1.1.1 uses WMT_MS_Capabilities
 	const capabilities = parsedXml.WMS_Capabilities ?? parsedXml.WMT_MS_Capabilities;
@@ -226,7 +235,6 @@ function parseWmsLayers(parsedXml: any): Array<CapabilitiesLayer> {
 	return disambiguateLayers(layers);
 }
 
-
 function parseWmtsLayers(parsedXml: any): Array<CapabilitiesLayer> {
 	const capabilities = parsedXml.Capabilities;
 	if (!capabilities?.Contents) return [];
@@ -242,7 +250,6 @@ function parseWmtsLayers(parsedXml: any): Array<CapabilitiesLayer> {
 	return disambiguateLayers(layers);
 }
 
-
 /** Appends the unique Name in parentheses to any layer whose Title is shared by another, for a distinguishable dropdown. */
 function disambiguateLayers(layers: Array<CapabilitiesLayer>): Array<CapabilitiesLayer> {
 	const titleCounts = new Map<string, number>();
@@ -255,7 +262,6 @@ function disambiguateLayers(layers: Array<CapabilitiesLayer>): Array<Capabilitie
 			: layer
 	);
 }
-
 
 /** Picks the best output format from a GetCapabilities list, preferring PNG, then JPEG, then any image type. */
 export function pickPreferredFormat(formats: Array<string>): string | undefined {
@@ -272,7 +278,6 @@ export function pickPreferredFormat(formats: Array<string>): string | undefined 
 		undefined
 	);
 }
-
 
 /**
  * Returns a WMS/WMTS layer's bbox (by featureName/identifier) from GetCapabilities,

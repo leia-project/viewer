@@ -160,10 +160,23 @@
 			{#if dtRowsPoints.length > 0}
 				<div class="heading label-01">{textMeasurementPoints}</div>
 
-				<DataTable size="compact" headers={dtHeadersPoints} rows={dtRowsPoints} on:click:row={(evt) => lookAt(evt.detail.row.id)}>
+				<DataTable
+					size="compact"
+					headers={dtHeadersPoints}
+					rows={dtRowsPoints}
+					on:click:row={(evt) => lookAt(evt.detail.row.id)}
+				>
 					<svelte:fragment slot="cell" let:row let:cell>
 						{#if cell.key === "remove"}
-							<Button size="small" kind="ghost" iconDescription={$_("tools.measure.removePoint")} icon={TrashCan} on:click={()=> {measurement.removePoint(cell.value)}} />
+							<Button
+								size="small"
+								kind="ghost"
+								iconDescription={$_("tools.measure.removePoint")}
+								icon={TrashCan}
+								on:click={() => {
+									measurement.removePoint(cell.value);
+								}}
+							/>
 						{:else}
 							{cell.value}
 						{/if}
@@ -173,7 +186,7 @@
 
 			<div class="heading label-01">{textCameraPosition}</div>
 			<div class="label-02">
-				<DataTable size="compact" headers={dtHeadersCamera} rows={dtRowsCamera}  />
+				<DataTable size="compact" headers={dtHeadersCamera} rows={dtRowsCamera} />
 			</div>
 
 			<div class="measurement-content-buttons">
@@ -232,7 +245,7 @@
 				role="button"
 				tabindex="0"
 			>
-				<div class="label-02 ">
+				<div class="label-02">
 					{measurement.title}
 				</div>
 				<div class="label-01">

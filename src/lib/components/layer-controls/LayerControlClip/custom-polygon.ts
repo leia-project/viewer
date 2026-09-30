@@ -12,13 +12,12 @@ import { getCartesian2, c3ArrayToPolygon } from "./cartesian-helpers";
 import arrowDownIcon from "$lib/files/icon-arrow-down.svg";
 // import type { ExcavationFeature, RecursivePartial } from "../../models/datahub-models-copy";
 
-
 export class CustomPolygon {
 	// Handles
 	private moveHandle = (m: any) => {
 		this.drawPointMove(m);
-	}
-	private leftClickHandle = async(m: any) => {
+	};
+	private leftClickHandle = async (m: any) => {
 		this.drawPoint(m);
 		/*
 		if (event === false) {
@@ -27,12 +26,11 @@ export class CustomPolygon {
 			this.warningInvalid.set(false);
 		}
 		*/
-	}
-	private rightClickHandle = (m: any): void  => {
+	};
+	private rightClickHandle = (m: any): void => {
 		this.drawPoint(m);
 		this.editing.set(false);
-	}
-
+	};
 
 	private map: Map;
 	private repository: BatchRepository;
@@ -54,13 +52,13 @@ export class CustomPolygon {
 		this.active = active;
 		this.pointEntities = new Array();
 		this.cartesianPoints = writable(new Array());
-		this.editing = writable(false)
+		this.editing = writable(false);
 
 		this.setup();
 	}
 
 	private setup() {
-		this.editingUnsubscriber = this.editing.subscribe((b) => b ? this.start() : this.terminate());
+		this.editingUnsubscriber = this.editing.subscribe((b) => (b ? this.start() : this.terminate()));
 	}
 
 	onDestroy(): void {
@@ -68,12 +66,10 @@ export class CustomPolygon {
 		this.editing.set(false);
 	}
 
-
 	private start(): void {
 		this.addStartEntities();
 		this.addHandlers();
 	}
-
 
 	public terminate(): void {
 		const newPoints = get(this.cartesianPoints);
@@ -89,7 +85,7 @@ export class CustomPolygon {
 						}
 					}
 				}
-			}
+			};
 			const newExcavation = new Excavation(excavationFeature as ExcavationFeature, true);
 			this.active.set(newExcavation);
 			this.repository.excavationRepository.add(newExcavation);
@@ -98,8 +94,6 @@ export class CustomPolygon {
 		this.removePointEntities();
 		this.removeHandlers();
 	}
-
-
 
 	private addHandlers(): void {
 		this.map.on("mouseMove", this.moveHandle);
@@ -113,14 +107,12 @@ export class CustomPolygon {
 		this.map.off("mouseRightClick", this.rightClickHandle);
 	}
 
-
-
 	private addStartEntities(): void {
 		this.movingPoint = this.map.viewer.entities.add({
 			position: new Cesium.Cartesian3(),
 			billboard: {
 				image: arrowDownIcon,
-				pixelOffset: new Cesium.Cartesian2(0, -26),
+				pixelOffset: new Cesium.Cartesian2(0, -26)
 			}
 		});
 		/*this.movingPoint = this.map.viewer.entities.add({
@@ -138,7 +130,7 @@ export class CustomPolygon {
 			}
 		});
 	}
-	
+
 	private drawPointMove(m: any): void {
 		const location = getCartesian2(m);
 		const picked = this.map.viewer.scene.pickPosition(location);
@@ -178,7 +170,10 @@ export class CustomPolygon {
 
 		this.addCornerEntity(pickedPosition);
 		if (this.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
-			let locationClampedToTerrain = await Cesium.sampleTerrainMostDetailed(this.map.viewer.terrainProvider, [Cesium.Cartographic.fromCartesian(pickedPosition)]);
+			let locationClampedToTerrain = await Cesium.sampleTerrainMostDetailed(
+				this.map.viewer.terrainProvider,
+				[Cesium.Cartographic.fromCartesian(pickedPosition)]
+			);
 			pickedPosition = Cesium.Cartographic.toCartesian(locationClampedToTerrain[0]);
 		}
 	}
@@ -191,7 +186,7 @@ export class CustomPolygon {
 				pixelSize: 5,
 				outlineColor: Cesium.Color.BLACK,
 				outlineWidth: 1,
-				disableDepthTestDistance: new Cesium.ConstantProperty(Number.POSITIVE_INFINITY),
+				disableDepthTestDistance: new Cesium.ConstantProperty(Number.POSITIVE_INFINITY)
 				//distanceDisplayCondition: new Cesium.DistanceDisplayCondition(1050, Number.MAX_VALUE)
 			}
 		});
@@ -216,19 +211,18 @@ export class CustomPolygon {
 		const positionMovingPoint = this.movingPoint.position?._value;
 		if (positionMovingPoint && this.dynamicPolygon.polygon) {
 			return [...positions, positionMovingPoint];
-		}
-		else return []
+		} else return [];
 		//else return this.dynamicPolygon.polygon?.hierarchy?.getValue(this.map.viewer.clock.currentTime).positions;
 	}
 
-	
 	private updatePolygon(pt: Cesium.Cartesian3): void {
 		const positions = get(this.cartesianPoints);
 		const newPositions = [...positions, pt];
 		if (newPositions.length < 2 || !this.dynamicPolygon.polygon) return;
-		this.dynamicPolygon.polygon.hierarchy = new Cesium.ConstantProperty(new Cesium.PolygonHierarchy(newPositions, []));
+		this.dynamicPolygon.polygon.hierarchy = new Cesium.ConstantProperty(
+			new Cesium.PolygonHierarchy(newPositions, [])
+		);
 	}
-	
 
 	private removePointEntities(): void {
 		if (this.movingPoint) this.map.viewer.entities.remove(this.movingPoint);

@@ -1,10 +1,9 @@
 import { Map } from "$lib/map-cesium/map";
-import { writable, type Writable } from 'svelte/store';
-import type { ConfigSettings } from './config-settings';
-
+import { writable, type Writable } from "svelte/store";
+import type { ConfigSettings } from "./config-settings";
 
 class App {
-    public map: Writable<Map | undefined>;
+	public map: Writable<Map | undefined>;
 	public configSettings: Writable<ConfigSettings | undefined>;
 
 	constructor() {
@@ -17,7 +16,7 @@ class App {
 	}
 
 	public loadMap(reload: boolean = false): void {
-        this.map.set(new Map(reload));
+		this.map.set(new Map(reload));
 	}
 }
 

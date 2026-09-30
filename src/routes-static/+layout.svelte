@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { app } from '$lib/app/app';
-	import { page } from '$app/stores';
-	import { ConfigSettings } from '$lib/app/config-settings';
-	import { setupLocalization } from '$lib/i18n/localization';
-	import '../routes/app.css';	
+	import { onMount } from "svelte";
+	import { app } from "$lib/app/app";
+	import { page } from "$app/stores";
+	import { ConfigSettings } from "$lib/app/config-settings";
+	import { setupLocalization } from "$lib/i18n/localization";
+	import "../routes/app.css";
 
 	export let params: Record<string, string> = {};
 
@@ -16,16 +16,17 @@
 		// Look for name in URL that corresponds to a config name
 		if (!configUrl) {
 			if ($page.params.config) {
-				const response = await fetch(process.env.CONFIG_SERVER_URL + `/overview?mode=dt&q=${$page.params.config}`);
+				const response = await fetch(
+					process.env.CONFIG_SERVER_URL + `/overview?mode=dt&q=${$page.params.config}`
+				);
 				if (response.ok) {
 					const responseJson = await response.json();
 					configUrl = responseJson[0].url;
 				}
 			}
 		}
-		app.configSettings.set(new ConfigSettings(configUrl ?? (process.env.CONFIG_URL ?? "")));
-	})
-	
+		app.configSettings.set(new ConfigSettings(configUrl ?? process.env.CONFIG_URL ?? ""));
+	});
 </script>
 
 <main>

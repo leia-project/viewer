@@ -5,11 +5,9 @@ import { CesiumLayer } from "$lib/map-cesium/layers/cesium-layer";
 import { ThreedeeLayer } from "$lib/map-cesium/layers/threedee-layer";
 import type { Map } from "$lib/map-cesium/map";
 import * as Cesium from "cesium";
-import { v4 as uuidv4 } from '@lukeed/uuid';
-
+import { v4 as uuidv4 } from "@lukeed/uuid";
 
 export class ProjectLayer {
-
 	private map: Map;
 	public id: string;
 	private groupId?: string;
@@ -48,8 +46,8 @@ export class ProjectLayer {
 		this.abortController = new AbortController();
 		const { signal } = this.abortController;
 
-		new Promise<void>(async(resolve, reject) => {
-			signal.addEventListener('abort', () => {
+		new Promise<void>(async (resolve, reject) => {
+			signal.addEventListener("abort", () => {
 				reject();
 			});
 			let layerConfig: LayerConfig | undefined;
@@ -67,7 +65,7 @@ export class ProjectLayer {
 				this.map.layerLibrary.addLayerConfig(layerConfig);
 				this.tempLayerConfig = layerConfig;
 			} else {
-				layerConfig = this.map.layerLibrary.findLayer(this.id)
+				layerConfig = this.map.layerLibrary.findLayer(this.id);
 			}
 			if (layerConfig) {
 				layerConfig.added.set(true);
@@ -84,11 +82,13 @@ export class ProjectLayer {
 				}
 			}
 			resolve();
-		}).then(() => {
-			this.abortController = undefined;
-		}).catch((error) => {
-			console.error(error);
-		});
+		})
+			.then(() => {
+				this.abortController = undefined;
+			})
+			.catch((error) => {
+				console.error(error);
+			});
 	}
 
 	public removeFromMap(): void {
@@ -109,22 +109,23 @@ export class ProjectLayer {
 	}
 
 	private toggleVisibility(): void {
-		const layer = get(this.layer), tileset = get(this.tileset);
+		const layer = get(this.layer),
+			tileset = get(this.tileset);
 		if (layer) {
 			layer.visible.set(this._on);
 		}
 		if (tileset) {
-			tileset.then((tileset) => tileset.show = this._on);
+			tileset.then((tileset) => (tileset.show = this._on));
 		}
 	}
 
 	public flyTo(): void {
-		const layer = get(this.layer), tileset = get(this.tileset);
+		const layer = get(this.layer),
+			tileset = get(this.tileset);
 		const pos = layer?.getLayerPosition();
 		if (pos) this.map.flyTo(pos);
 		else if (tileset) {
 			tileset.then((t) => this.map.viewer.flyTo(t));
 		}
 	}
-
 }

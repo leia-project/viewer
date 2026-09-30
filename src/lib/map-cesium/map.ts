@@ -40,7 +40,9 @@ export class Map extends MapCore {
 			this.handleConfig(loaded);
 		});
 		if (reload) {
-			setTimeout(() => {this.dispatch('reload', reload)}, 0) ;
+			setTimeout(() => {
+				this.dispatch("reload", reload);
+			}, 0);
 		}
 	}
 
@@ -48,7 +50,7 @@ export class Map extends MapCore {
 		if (!loaded) {
 			return;
 		}
-		
+
 		const cesiumSettings = this.toolSettings.find((t) => t.id === "cesium");
 		if (cesiumSettings) {
 			this.options.loadFromConfig(cesiumSettings.settings);
@@ -70,7 +72,7 @@ export class Map extends MapCore {
 
 	public addLayer(config: LayerConfig): Layer {
 		const layer = this.layerFactory.convert(this, config);
-		if(!layer) {
+		if (!layer) {
 			throw Error(`Error: Unable to add layer ${config.title}`);
 		}
 
@@ -217,43 +219,33 @@ export class Map extends MapCore {
 		this.camera.direction = direction;
 
 		// get an "approximate" up vector, which in this case we want to be something like the geodetic surface normal.
-		var approxUp = Cesium.Cartesian3.normalize(
-			cameraPosition,
-			new Cesium.Cartesian3()
-		);
+		var approxUp = Cesium.Cartesian3.normalize(cameraPosition, new Cesium.Cartesian3());
 
 		// cross viewdir with approxUp to get a right normal
-		var right = Cesium.Cartesian3.cross(
-			direction,
-			approxUp,
-			new Cesium.Cartesian3()
-		);
+		var right = Cesium.Cartesian3.cross(direction, approxUp, new Cesium.Cartesian3());
 		right = Cesium.Cartesian3.normalize(right, right);
 		this.camera.right = right;
 
 		// cross right with view dir to get an orthonormal up
-		var up = Cesium.Cartesian3.cross(
-			right,
-			direction,
-			new Cesium.Cartesian3()
-		);
+		var up = Cesium.Cartesian3.cross(right, direction, new Cesium.Cartesian3());
 		up = Cesium.Cartesian3.normalize(up, up);
 		this.camera.up = up;
 	}
 
 	/*
-	* When loading an old config the terrain provider is set to map config and not cesium
-	* support old config by passing terrain provider to options.
-	*/
+	 * When loading an old config the terrain provider is set to map config and not cesium
+	 * support old config by passing terrain provider to options.
+	 */
 	private async addTerrainProvider(settings: any): Promise<void> {
 		if (!settings["url"]) {
 			return;
 		}
 
 		const url = settings["url"];
-		const requestVertexNormals = settings["requestVertexNormals"] !== undefined ? settings["requestVertexNormals"] : true;
+		const requestVertexNormals =
+			settings["requestVertexNormals"] !== undefined ? settings["requestVertexNormals"] : true;
 
-		this.options.addTerrainProvider({ title: "", url: url, vertexNormals: requestVertexNormals })
+		this.options.addTerrainProvider({ title: "", url: url, vertexNormals: requestVertexNormals });
 	}
 
 	private createViewer(container: HTMLElement, addDefaultBaselayer: boolean): Cesium.Viewer {
@@ -276,9 +268,8 @@ export class Map extends MapCore {
 			infoBox: false,
 			msaaSamples: 1,
 			contextOptions: {
-				webgl: {preserveDrawingBuffer: true}
+				webgl: { preserveDrawingBuffer: true }
 			}
-			
 		});
 
 		if (addDefaultBaselayer) {
@@ -314,7 +305,9 @@ export class Map extends MapCore {
 		viewer.scene.msaaSamples = get(this.options.msaa);
 
 		// Enable going subsurface
-		viewer.scene.screenSpaceCameraController.enableCollisionDetection = get(this.options.enableCollisionDetection);
+		viewer.scene.screenSpaceCameraController.enableCollisionDetection = get(
+			this.options.enableCollisionDetection
+		);
 
 		// Set sun position
 		const date = new Date();
@@ -342,7 +335,12 @@ export class Map extends MapCore {
 	}
 
 	private getDefaultLayerConfig(): LayerConfig {
-		const config = new LayerConfig({id: "default_layer", title: "Luchtfoto 2021", defaultOn: true, defaultAddToManager: true});
+		const config = new LayerConfig({
+			id: "default_layer",
+			title: "Luchtfoto 2021",
+			defaultOn: true,
+			defaultAddToManager: true
+		});
 		config.isBackground = true;
 		config.settings = {
 			url: "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0?request=GetCapabilities&service=wmts",
@@ -360,7 +358,7 @@ export class Map extends MapCore {
 	}
 
 	public refresh(): void {
-		if (this.viewer) this.viewer.scene.requestRender()
+		if (this.viewer) this.viewer.scene.requestRender();
 	}
 
 	private getCameraZoomChange() {
@@ -382,7 +380,11 @@ export class Map extends MapCore {
 		var position = this.viewer.scene.globe.pick(ray, this.viewer.scene);
 		if (position) {
 			var cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(position);
-			return new Location(Cesium.Math.toDegrees(cartographic.longitude), Cesium.Math.toDegrees(cartographic.latitude), cartographic.height);
+			return new Location(
+				Cesium.Math.toDegrees(cartographic.longitude),
+				Cesium.Math.toDegrees(cartographic.latitude),
+				cartographic.height
+			);
 		}
 
 		throw new Error("Unable to get location from map");

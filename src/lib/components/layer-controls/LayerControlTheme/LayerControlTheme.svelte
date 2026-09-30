@@ -38,20 +38,20 @@
 	}
 
 	function resetTheme() {
-		if(!layer.source) return;
-		
+		if (!layer.source) return;
+
 		selectedTheme = undefined;
-		layer.source.style =  defaultStyle;
+		layer.source.style = defaultStyle;
 		legend = undefined;
 
 		map.refresh();
 	}
 
 	function highlight() {
-		if(!selectedTheme) {
+		if (!selectedTheme) {
 			return;
 		}
-		
+
 		const newConditions = [];
 
 		for (let i = 0; i < selectedTheme.conditions.length; i++) {

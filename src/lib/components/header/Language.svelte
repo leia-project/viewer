@@ -1,16 +1,17 @@
 <script lang="ts">
-	import { _ } from 'svelte-i18n';
-	import { HeaderAction, RadioButtonGroup, RadioButton } from 'carbon-components-svelte';
-	import { Translate } from 'carbon-icons-svelte';
-	import { selectedLanguage, languages } from '$lib/i18n/localization';
-
+	import { _ } from "svelte-i18n";
+	import { HeaderAction, RadioButtonGroup, RadioButton } from "carbon-components-svelte";
+	import { Translate } from "carbon-icons-svelte";
+	import { selectedLanguage, languages } from "$lib/i18n/localization";
 </script>
 
-<HeaderAction icon={Translate} closeIcon={Translate} title="{$_('tools.language.setLanguage')}">
+<HeaderAction icon={Translate} closeIcon={Translate} title={$_("tools.language.setLanguage")}>
 	<div class="content">
 		<div class="wrapper shell">
-			<div class="heading-03" title="{$_('tools.language.setLanguage')}">{$_('tools.language.setLanguage')}</div>
-			<RadioButtonGroup orientation="vertical" bind:selected={$selectedLanguage} >
+			<div class="heading-03" title={$_("tools.language.setLanguage")}>
+				{$_("tools.language.setLanguage")}
+			</div>
+			<RadioButtonGroup orientation="vertical" bind:selected={$selectedLanguage}>
 				{#each languages as language}
 					<RadioButton labelText={language.title} value={language.shortName} class="language" />
 				{/each}
@@ -31,14 +32,14 @@
 		box-sizing: border-box;
 	}
 
-    :global(.shell .bx--radio-button__appearance) {
-        border: 1px solid var(--cds-ui-01) !important;
-        border-color: var(--cds-ui-01) !important;
-    }
+	:global(.shell .bx--radio-button__appearance) {
+		border: 1px solid var(--cds-ui-01) !important;
+		border-color: var(--cds-ui-01) !important;
+	}
 
-    :global(.shell .bx--radio-button__appearance::before) {
-        background-color: var(--cds-ui-01) !important;
-    }
+	:global(.shell .bx--radio-button__appearance::before) {
+		background-color: var(--cds-ui-01) !important;
+	}
 
 	.content {
 		display: flex;

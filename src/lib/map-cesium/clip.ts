@@ -1,12 +1,15 @@
 import { get, type Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
 import * as turf from "@turf/turf";
-import type { LayerConfig} from "$lib/map-core/layer-config";
+import type { LayerConfig } from "$lib/map-core/layer-config";
 
-import type { Map } from "$lib/map-cesium/map"
-import { getPolygonCenter, getPolygonOnTerrain, polygonToCartesians } from "$lib/map-cesium/helpers";
+import type { Map } from "$lib/map-cesium/map";
+import {
+	getPolygonCenter,
+	getPolygonOnTerrain,
+	polygonToCartesians
+} from "$lib/map-cesium/helpers";
 import { ThreedeeLayer } from "./layers/threedee-layer";
-
 
 export interface IClipOptions {
 	clipId: string;
@@ -16,7 +19,7 @@ export interface IClipOptions {
 	inside?: boolean;
 	outside?: boolean;
 	clipTilesets?: boolean;
-	unclippedTilesets?: Array<string>
+	unclippedTilesets?: Array<string>;
 	box?: boolean;
 	useGeoTOP?: boolean;
 }
@@ -33,30 +36,35 @@ interface IClip {
 	priority: number;
 }
 
-
 export class ClipHandler {
-
 	private map: Map;
 	private clips: Array<IClip> = [];
 	private box: Cesium.Primitive | undefined;
-	private bottomEntities: Cesium.CustomDataSource = new Cesium.CustomDataSource("clip-bottom-plane");
+	private bottomEntities: Cesium.CustomDataSource = new Cesium.CustomDataSource(
+		"clip-bottom-plane"
+	);
 	private wallDepth: number = 40;
 	private globeOpacityUnsubscriber: Unsubscriber | undefined;
 
 	constructor(map: Map) {
 		this.map = map;
 		this.map.options.terrainSwitchReady.subscribe(() => {
-			if (this.clips[0] && this.clips[0].box && this.clips[0].polygons) this.addBox(this.clips[0].polygons);
+			if (this.clips[0] && this.clips[0].box && this.clips[0].polygons)
+				this.addBox(this.clips[0].polygons);
 		});
 	}
 
 	public hasClip(): boolean {
-		return !!((this.map.viewer.scene.globe.clippingPlanes && this.map.viewer.scene.globe.clippingPlanes.length > 0) || this.map.viewer.scene.globe.clippingPolygons?.length)
+		return !!(
+			(this.map.viewer.scene.globe.clippingPlanes &&
+				this.map.viewer.scene.globe.clippingPlanes.length > 0) ||
+			this.map.viewer.scene.globe.clippingPolygons?.length
+		);
 	}
 
 	/**
 	 * Clips the map based on the provided options.
-	 * 
+	 *
 	 * @param options - The clipping options.
 	 * @param options.clipId - String to identify the clip.
 	 * @param options.clip - An optional clipping object: Cesium.ClippingPlaneCollection | Array<Cesium.ClippingPolygon>.
@@ -82,8 +90,7 @@ export class ClipHandler {
 		} else if (polygons) {
 			clip = this.getClip(polygons, outside);
 			if (!clip) return;
-		}
-		else return;
+		} else return;
 
 		const clipObj: IClip = {
 			clipId: options.clipId,
@@ -103,7 +110,7 @@ export class ClipHandler {
 
 	/**
 	 * Removes the clip with the provided clipId and updates the clipping.
-	 * 
+	 *
 	 * @param clipId - The id of the clip to remove. Corresponds to the clipId provided when invoking clip().
 	 */
 	public removeClipById(clipId?: string): void {
@@ -115,13 +122,12 @@ export class ClipHandler {
 
 	/**
 	 * Removes any clipping from the map.
-	 * 
+	 *
 	 */
 	public removeAll(): void {
 		this.clips = [];
 		this.reset();
 	}
-
 
 	private reset(): void {
 		//@ts-ignore
@@ -139,7 +145,7 @@ export class ClipHandler {
 		this.reset();
 		const prio = this.clips[0];
 		if (!prio) return;
-		
+
 		this.clipGlobe(prio.clip, prio.outside);
 		if (prio.clipTilesets) {
 			this.set3DTilesetClippingPlanes(prio.clip, prio.outside, prio.unclippedTilesets);
@@ -150,7 +156,10 @@ export class ClipHandler {
 		}
 	}
 
-	public getClip(polygons: Array<Array<[lon: number, lat: number]>>, outside: boolean = false): Cesium.ClippingPlaneCollection | Array<Cesium.ClippingPolygon> | undefined {
+	public getClip(
+		polygons: Array<Array<[lon: number, lat: number]>>,
+		outside: boolean = false
+	): Cesium.ClippingPlaneCollection | Array<Cesium.ClippingPolygon> | undefined {
 		let clip: Cesium.ClippingPlaneCollection | Array<Cesium.ClippingPolygon> | undefined;
 		let useClippingPlanes: boolean = false;
 		if (polygons.length === 1) {
@@ -166,7 +175,10 @@ export class ClipHandler {
 		return clip;
 	}
 
-	private getClippingPlaneCollection(polygon: Array<[lon: number, lat: number]>, clipOutside: boolean): Cesium.ClippingPlaneCollection | undefined {
+	private getClippingPlaneCollection(
+		polygon: Array<[lon: number, lat: number]>,
+		clipOutside: boolean
+	): Cesium.ClippingPlaneCollection | undefined {
 		const polygonC3 = polygonToCartesians(polygon);
 		const center = getPolygonCenter(polygon);
 		const centerC3 = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
@@ -175,13 +187,24 @@ export class ClipHandler {
 			// 1) get the local coordinate system of our convex center (transform the convexCenter to (0,0,0))
 			// 2) get the inverse transformation matrix (this can be used to transform points relative to convexCenter)
 			const transformMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(centerC3);
-			const centerInverseTransform = Cesium.Matrix4.inverseTransformation(transformMatrix, new Cesium.Matrix4());
+			const centerInverseTransform = Cesium.Matrix4.inverseTransformation(
+				transformMatrix,
+				new Cesium.Matrix4()
+			);
 
 			const clippingPlanes = [];
 			for (let i = 0; i < polygonC3.length - 1; i++) {
 				// Transform the end points of the polygon edge and move to the local coordinate system
-				const p1 = Cesium.Matrix4.multiplyByPoint(centerInverseTransform, polygonC3[i], new Cesium.Cartesian3());
-				const p2 = Cesium.Matrix4.multiplyByPoint(centerInverseTransform, polygonC3[i + 1], new Cesium.Cartesian3());
+				const p1 = Cesium.Matrix4.multiplyByPoint(
+					centerInverseTransform,
+					polygonC3[i],
+					new Cesium.Cartesian3()
+				);
+				const p2 = Cesium.Matrix4.multiplyByPoint(
+					centerInverseTransform,
+					polygonC3[i + 1],
+					new Cesium.Cartesian3()
+				);
 
 				// Caclulate 1) right: horizontal vector, 2) up: vertical vector, and then 3) the normal on the plane described by 1 and 2
 				const right = Cesium.Cartesian3.subtract(p1, p2, new Cesium.Cartesian3());
@@ -212,12 +235,12 @@ export class ClipHandler {
 			}
 
 			const clippingPlaneCollection = new Cesium.ClippingPlaneCollection({
-				planes: clippingPlanes,	
+				planes: clippingPlanes,
 				enabled: true,
 				modelMatrix: transformMatrix,
 				unionClippingRegions: clipOutside
 			});
-			
+
 			return clippingPlaneCollection;
 		}
 	}
@@ -234,9 +257,13 @@ export class ClipHandler {
 		return this.clips[0];
 	}
 
-	private clipGlobe(clip: Cesium.ClippingPlaneCollection | Array<Cesium.ClippingPolygon>, outside: boolean): void {
+	private clipGlobe(
+		clip: Cesium.ClippingPlaneCollection | Array<Cesium.ClippingPolygon>,
+		outside: boolean
+	): void {
 		const globe = this.map.viewer.scene.globe;
-		if (clip instanceof Cesium.ClippingPlaneCollection) {			//@ts-ignore
+		if (clip instanceof Cesium.ClippingPlaneCollection) {
+			//@ts-ignore
 			globe.clippingPolygons = undefined;
 			globe.clippingPlanes?.removeAll();
 			globe.clippingPlanes = globe.clippingPlanes || new Cesium.ClippingPlaneCollection();
@@ -257,7 +284,11 @@ export class ClipHandler {
 		}
 	}
 
-	public clip3DTileset(tileset: Cesium.Cesium3DTileset, clip?: Cesium.ClippingPlaneCollection | Array<Cesium.ClippingPolygon>, outside?: boolean): void {
+	public clip3DTileset(
+		tileset: Cesium.Cesium3DTileset,
+		clip?: Cesium.ClippingPlaneCollection | Array<Cesium.ClippingPolygon>,
+		outside?: boolean
+	): void {
 		if (!clip || !outside) {
 			const prio = this.getPriorityClip();
 			if (!prio) return;
@@ -278,21 +309,31 @@ export class ClipHandler {
 			// 2. Bring the modelMatrix of the global clipping planes to the reference point of the 3D tileset from 1.
 			// 3. Apply to the clipping planes of the 3D tileset
 			//@ts-ignore
-			const centerInverseTransform = Cesium.Matrix4.inverseTransformation(tileset.clippingPlanesOriginMatrix, new Cesium.Matrix4());
-			const modMat = Cesium.Matrix4.multiplyTransformation(centerInverseTransform, clip.modelMatrix, new Cesium.Matrix4());
+			const centerInverseTransform = Cesium.Matrix4.inverseTransformation(
+				tileset.clippingPlanesOriginMatrix,
+				new Cesium.Matrix4()
+			);
+			const modMat = Cesium.Matrix4.multiplyTransformation(
+				centerInverseTransform,
+				clip.modelMatrix,
+				new Cesium.Matrix4()
+			);
 			tileset.clippingPlanes.modelMatrix = modMat;
 			tileset.clippingPlanes.unionClippingRegions = clip.unionClippingRegions;
 			this.map.refresh();
-		}
-		else {
-			tileset.clippingPolygons = new Cesium.ClippingPolygonCollection({ 
+		} else {
+			tileset.clippingPolygons = new Cesium.ClippingPolygonCollection({
 				polygons: clip,
-				inverse: outside 
+				inverse: outside
 			});
 		}
 	}
 
-	private set3DTilesetClippingPlanes(clip: Cesium.ClippingPlaneCollection | Array<Cesium.ClippingPolygon>, outside: boolean, unclippedTilesets: Array<string> = []): void {
+	private set3DTilesetClippingPlanes(
+		clip: Cesium.ClippingPlaneCollection | Array<Cesium.ClippingPolygon>,
+		outside: boolean,
+		unclippedTilesets: Array<string> = []
+	): void {
 		const primitives = this.map.viewer.scene.primitives;
 		for (let i = 0; i < primitives.length; i++) {
 			const primitive = primitives.get(i);
@@ -320,7 +361,7 @@ export class ClipHandler {
 				this.map.clipHandler.clip3DTileset(layer.source);
 			});
 		}
-	}
+	};
 
 	private clip3DTilesetByTitles(titles: Array<string>): void {
 		const primitives = this.map.viewer.scene.primitives;
@@ -353,12 +394,16 @@ export class ClipHandler {
 
 	private async addStandardBox(polygons: Array<Array<[lon: number, lat: number]>>): Promise<void> {
 		const geometryInstances: Array<Cesium.GeometryInstance> = [];
-		const promises = polygons.map(async(polygon) => {
+		const promises = polygons.map(async (polygon) => {
 			const surfaceArea = turf.area(turf.polygon([polygon]));
 			let wallDepth = Math.max(Math.sqrt(surfaceArea) * -0.15, -1 * this.wallDepth);
 			let polygonC3 = polygonToCartesians(polygon);
 			if (this.map.viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider) {
-				const { positions, averageHeight } = await getPolygonOnTerrain(this.map.viewer.terrainProvider, polygonC3, 1000);
+				const { positions, averageHeight } = await getPolygonOnTerrain(
+					this.map.viewer.terrainProvider,
+					polygonC3,
+					1000
+				);
 				polygonC3 = positions;
 				wallDepth += averageHeight;
 			}
@@ -379,20 +424,23 @@ export class ClipHandler {
 		await Promise.all(promises);
 
 		const soilAppearance = new Cesium.MaterialAppearance({
-			material: Cesium.Material.fromType('Color', {
+			material: Cesium.Material.fromType("Color", {
 				color: new Cesium.Color(1.0, 1.0, 1.0, 1.0)
-				}),
-			translucent: false,
+			}),
+			translucent: false
 			/*material: Cesium.Material.fromType("Color", {
 				color: Cesium.Color.LIGHTGREY
 			})*/
 		});
 
-		const box = geometryInstances.length === 0  ? undefined : new Cesium.Primitive({
-			geometryInstances: geometryInstances,
-			appearance: soilAppearance,
-			allowPicking: false
-		});
+		const box =
+			geometryInstances.length === 0
+				? undefined
+				: new Cesium.Primitive({
+						geometryInstances: geometryInstances,
+						appearance: soilAppearance,
+						allowPicking: false
+					});
 		if (box) {
 			this.map.viewer.scene.primitives.add(box);
 			this.globeOpacityUnsubscriber?.();
@@ -403,15 +451,12 @@ export class ClipHandler {
 		if (this.box) this.map.viewer.scene.primitives.remove(this.box);
 		this.box = box;
 	}
-
-
 }
-
 
 /** Pass batchId to fragment shader
  * batchId 0 = wall
  * batchId 1 = bottom
-**/
+ **/
 const boxVS = `
 	in vec3 position3DHigh;
 	in vec3 position3DLow;

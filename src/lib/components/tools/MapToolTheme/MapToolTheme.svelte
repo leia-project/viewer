@@ -1,26 +1,25 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	import { writable, get, type Writable } from 'svelte/store';
-	import { _ } from 'svelte-i18n';
+	import { getContext } from "svelte";
+	import { writable, get, type Writable } from "svelte/store";
+	import { _ } from "svelte-i18n";
 	import { RadioButtonGroup, RadioButton } from "carbon-components-svelte";
-	import { Legend } from 'carbon-icons-svelte';
-	import * as Cesium from 'cesium';
+	import { Legend } from "carbon-icons-svelte";
+	import * as Cesium from "cesium";
 
 	import type { CameraLocation } from "$lib/map-core/camera-location";
-	import { MapToolMenuOption } from '$lib/components/tools/MapToolMenuOption';
-
+	import { MapToolMenuOption } from "$lib/components/tools/MapToolMenuOption";
 
 	export let id: string;
 	export let label: string;
 	export let icon: any = Legend;
-	
-	const { registerTool, selectedTool, map } = getContext<any>('mapTools');
+
+	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
 
 	const tool = new MapToolMenuOption(id, icon, label, true);
 	registerTool(tool);
 
-	let selected: Writable<string> = writable('');
-	let legend: Array<{[k: string]: any}>;
+	let selected: Writable<string> = writable("");
+	let legend: Array<{ [k: string]: any }>;
 	let settings: Writable<any> = writable(undefined);
 	let tileset: any = undefined;
 	let themes: any = [];
@@ -128,7 +127,7 @@
 				alpha = 1;
 			}
 
-			const newColor = conditionColor.replace('color(', '').replace(')', '');
+			const newColor = conditionColor.replace("color(", "").replace(")", "");
 			newConditions.push([condition[0], `color(${newColor}, ${alpha})`]);
 		}
 
@@ -151,16 +150,15 @@
 	}
 </script>
 
-
 {#if $selectedTool === tool}
-	<div class="wrapper">			
+	<div class="wrapper">
 		<div class="heading-01">{$_(label)}</div>
 		{#if themes}
-		<RadioButtonGroup orientation="vertical" bind:selected={$selected}>
-			{#each themes as theme}
-				<RadioButton labelText={theme.title} value={theme.title} />
-			{/each}
-		</RadioButtonGroup>
+			<RadioButtonGroup orientation="vertical" bind:selected={$selected}>
+				{#each themes as theme}
+					<RadioButton labelText={theme.title} value={theme.title} />
+				{/each}
+			</RadioButtonGroup>
 		{/if}
 
 		<div class="legend">
@@ -186,7 +184,6 @@
 		</div>
 	</div>
 {/if}
-
 
 <style>
 	.wrapper {

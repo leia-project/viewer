@@ -1,5 +1,4 @@
-
 export class CustomLayerControl {
-    public component: any;
-    public props: {};
+	public component: any;
+	public props: {};
 }

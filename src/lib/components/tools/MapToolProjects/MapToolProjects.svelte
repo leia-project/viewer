@@ -87,10 +87,7 @@
 			</div>
 			<div class="bottom-container">
 				{#if !$selectedProject}
-					<ToggleView
-						bind:show={$showLabels}
-						text={$_("tools.projects.showOnMap")}
-					/>
+					<ToggleView bind:show={$showLabels} text={$_("tools.projects.showOnMap")} />
 				{/if}
 			</div>
 		{/if}
@@ -127,10 +124,7 @@
 	{#if !parentTool}
 		<div class="bottom-container">
 			{#if !$selectedProject}
-				<ToggleView
-					bind:show={$showLabels}
-					text={$_("tools.projects.showOnMap")}
-				/>
+				<ToggleView bind:show={$showLabels} text={$_("tools.projects.showOnMap")} />
 			{/if}
 		</div>
 	{/if}

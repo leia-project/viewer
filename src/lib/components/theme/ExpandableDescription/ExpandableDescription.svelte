@@ -28,7 +28,8 @@
 			class="description-toggle label-01"
 			on:click|stopPropagation={() => (expanded = !expanded)}
 		>
-			<span>{expanded ? $_("tools.layerManager.showLess") : $_("tools.layerManager.showMore")}</span>
+			<span>{expanded ? $_("tools.layerManager.showLess") : $_("tools.layerManager.showMore")}</span
+			>
 			<svelte:component this={expanded ? ChevronUp : ChevronDown} size={16} />
 		</button>
 	{/if}

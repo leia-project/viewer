@@ -4,7 +4,6 @@ import type { Map } from "../map";
 import { CesiumImageryLayer } from "./imagery-layer";
 
 export class WmtsLayer extends CesiumImageryLayer {
-
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
 		this.setBoundingBoxCameraPosition("wmts");
@@ -32,13 +31,15 @@ export class WmtsLayer extends CesiumImageryLayer {
 			"EPSG:3857:17",
 			"EPSG:3857:18",
 			"EPSG:3857:19"
-		]
+		];
 
 		const provider = new Cesium.WebMapTileServiceImageryProvider({
 			url: this.config.settings.url.split("?")[0],
 			layer: this.config.settings["featureName"],
 			style: this.config.settings["style"] ?? "default",
-			format: this.config.settings["contentType"] ? this.config.settings["contentType"] : "image/png",
+			format: this.config.settings["contentType"]
+				? this.config.settings["contentType"]
+				: "image/png",
 			tilingScheme: new Cesium.WebMercatorTilingScheme({
 				ellipsoid: Cesium.Ellipsoid.WGS84
 			}),
@@ -46,7 +47,10 @@ export class WmtsLayer extends CesiumImageryLayer {
 			tileHeight: this.config.settings["tileHeigth"] ?? 256,
 			tileMatrixSetID: this.config.settings["tileMatrixSetID"] ?? "EPSG:3857",
 			tileMatrixLabels: tileMatrixLabels.length === 0 ? undefined : tileMatrixLabels,
-			maximumLevel: this.config.settings["maximumLevel"] ?? tileMatrixLabels.length === 0 ? undefined : tileMatrixLabels.length - 1
+			maximumLevel:
+				(this.config.settings["maximumLevel"] ?? tileMatrixLabels.length === 0)
+					? undefined
+					: tileMatrixLabels.length - 1
 		});
 		this.source = new Cesium.ImageryLayer(provider, {});
 	}

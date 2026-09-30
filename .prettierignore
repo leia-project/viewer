@@ -1,0 +1,11 @@
+# Package managers
+package-lock.json
+
+# Build output / generated
+.svelte-kit
+build
+package
+.output
+node_modules
+
+static/

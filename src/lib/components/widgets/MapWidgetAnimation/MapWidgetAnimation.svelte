@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy, onMount } from "svelte";
 	import { get, type Unsubscriber } from "svelte/store";
 	import { _ } from "svelte-i18n";
-	import * as Cesium from 'cesium';
+	import * as Cesium from "cesium";
 	import { Slider, NumberInput, Button } from "carbon-components-svelte";
 	import { Timer, CaretLeft, PauseFilled, PlayFilledAlt } from "carbon-icons-svelte";
 
@@ -30,7 +30,7 @@
 		map.viewer.clock.onTick.addEventListener(getCurrentTimes);
 		layersUnsuscriber = mapLayers.subscribe(() => {
 			animatedLayers = $mapLayers.filter((layer) => layer.config.type === "modelanimation");
-			animatedLayersUnsubscribers.forEach(unsub => unsub()); //remove all previous subscriptions
+			animatedLayersUnsubscribers.forEach((unsub) => unsub()); //remove all previous subscriptions
 			animatedLayersUnsubscribers = [];
 			animatedLayers?.forEach((layer) => {
 				const unsubscriber = layer.visible.subscribe(setClockTimes);
@@ -46,7 +46,9 @@
 	});
 
 	function setClockTimes(): void {
-		const visibleAnimatedLayers = animatedLayers.filter((layer) => get(layer.visible) && layer instanceof ModelAnimation && layer.loaded);
+		const visibleAnimatedLayers = animatedLayers.filter(
+			(layer) => get(layer.visible) && layer instanceof ModelAnimation && layer.loaded
+		);
 		if (visibleAnimatedLayers.length === 0) return;
 		map.viewer.clock.startTime = Cesium.JulianDate.fromDate(new Date());
 		map.viewer.clock.stopTime = Cesium.JulianDate.fromDate(new Date(0));
@@ -64,85 +66,84 @@
 	$: sliderMin = startTime.getTime() ?? 0;
 	$: sliderMax = endTime.getTime() ?? 10;
 
-
 	let sliderValue: number;
 	let timeString = "No time";
 	function getCurrentTimes(): void {
 		sliderValue = Cesium.JulianDate.toDate(map.viewer.clock.currentTime).getTime();
 		timeString = Cesium.JulianDate.toDate(map.viewer.clock.currentTime).toLocaleString("nl-NL");
 	}
-
-
 </script>
 
-{#if animatedLayers.length }
+{#if animatedLayers.length}
 	<div class="animation-widget-container">
 		<div class="hide-button">
 			<Button
-				iconDescription={widgetOpen ? $_('buttons.hide') : $_('animation.animationControls')}
+				iconDescription={widgetOpen ? $_("buttons.hide") : $_("animation.animationControls")}
 				icon={widgetOpen ? CaretLeft : Timer}
 				kind={widgetOpen ? "tertiary" : "primary"}
 				size="small"
 				tooltipPosition="right"
-				on:click={() => widgetOpen = !widgetOpen}
+				on:click={() => (widgetOpen = !widgetOpen)}
 			/>
 		</div>
 		{#if widgetOpen}
-		<div class="animation-widget">
-			<div class="current-time">
-				<div>{$_('animation.currentTime')}</div>
-				<div>{timeString}</div>
-			</div>
-			<div class="slider-container" class:forward={forward && $animating} class:backward={backward && $animating}>
-				<Slider
-					value={sliderValue}
-					min={sliderMin}
-					max={sliderMax}
-					minLabel={startTime.toLocaleDateString("nl-NL")}
-					maxLabel={endTime.toLocaleDateString("nl-NL")}
-					step={1}
-					hideTextInput={true}
-					disabled={$animating}
-					on:change={(e) => {
-						if (!e.detail) return;
-						const date = new Date(e.detail);
-						map.viewer.clock.currentTime = Cesium.JulianDate.fromDate(date);
-					}}
-				/>
-			</div>
-			<!--<div class="startend"><div>{startTime.toLocaleDateString("nl-NL")}</div><div>{endTime.toLocaleDateString("nl-NL")}</div></div>-->
-			<div class="animation-controls">
-				<Button
-					iconDescription={$animating ? $_('animation.pause') : $_('animation.play')}
-					icon={$animating ? PauseFilled : PlayFilledAlt}
-					kind={$animating ? "tertiary" : "primary"}
-					size="small"
-					tooltipPosition="right"
-					on:click={() => {
-						if ($animating) map.viewer.trackedEntity = undefined;
-						map.options.animate.set(!$animating);
-					}}
-				/>
-				<div class="speed-input-container">
-					<div class="speed-input-label">{$_('animation.speed')}</div>
-					<NumberInput
-						size="sm"
-						bind:value={speed}
-						on:input={(e) => {
-							if (e.detail === null) return;
-							map.viewer.clock.multiplier = e.detail;
+			<div class="animation-widget">
+				<div class="current-time">
+					<div>{$_("animation.currentTime")}</div>
+					<div>{timeString}</div>
+				</div>
+				<div
+					class="slider-container"
+					class:forward={forward && $animating}
+					class:backward={backward && $animating}
+				>
+					<Slider
+						value={sliderValue}
+						min={sliderMin}
+						max={sliderMax}
+						minLabel={startTime.toLocaleDateString("nl-NL")}
+						maxLabel={endTime.toLocaleDateString("nl-NL")}
+						step={1}
+						hideTextInput={true}
+						disabled={$animating}
+						on:change={(e) => {
+							if (!e.detail) return;
+							const date = new Date(e.detail);
+							map.viewer.clock.currentTime = Cesium.JulianDate.fromDate(date);
 						}}
 					/>
 				</div>
+				<!--<div class="startend"><div>{startTime.toLocaleDateString("nl-NL")}</div><div>{endTime.toLocaleDateString("nl-NL")}</div></div>-->
+				<div class="animation-controls">
+					<Button
+						iconDescription={$animating ? $_("animation.pause") : $_("animation.play")}
+						icon={$animating ? PauseFilled : PlayFilledAlt}
+						kind={$animating ? "tertiary" : "primary"}
+						size="small"
+						tooltipPosition="right"
+						on:click={() => {
+							if ($animating) map.viewer.trackedEntity = undefined;
+							map.options.animate.set(!$animating);
+						}}
+					/>
+					<div class="speed-input-container">
+						<div class="speed-input-label">{$_("animation.speed")}</div>
+						<NumberInput
+							size="sm"
+							bind:value={speed}
+							on:input={(e) => {
+								if (e.detail === null) return;
+								map.viewer.clock.multiplier = e.detail;
+							}}
+						/>
+					</div>
+				</div>
 			</div>
-		</div>
 		{/if}
 	</div>
 {/if}
 
-
 <style>
-
 	.animation-widget-container {
 		font-size: var(--tosti-font-size-small);
 		vertical-align: middle;
@@ -182,7 +183,7 @@
 	.slider-container :global(.bx--slider__thumb) {
 		background: var(--cds-interactive-03);
 		border-radius: 0;
-		border-top: solid 0.44rem transparent; 
+		border-top: solid 0.44rem transparent;
 		border-bottom: solid 0.44rem transparent;
 	}
 	.slider-container.forward :global(.bx--slider__thumb) {
@@ -191,7 +192,7 @@
 	}
 	.slider-container.backward :global(.bx--slider__thumb) {
 		background: transparent;
-		border-right: solid 0.8rem var(--cds-interactive-03); 
+		border-right: solid 0.8rem var(--cds-interactive-03);
 	}
 	.slider-container :global(.bx--slider__track) {
 		background: var(--cds-interactive-03);
@@ -212,8 +213,7 @@
 		grid-template-columns: 32px 160px;
 		column-gap: 10px;
 	}
-	.animation-controls :global(.bx--number--sm.bx--number input[type=number]) {
+	.animation-controls :global(.bx--number--sm.bx--number input[type="number"]) {
 		padding-right: 4rem;
 	}
-
 </style>
