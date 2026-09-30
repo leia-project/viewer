@@ -48,14 +48,16 @@ export class FloodLayerController {
 	//public roadsLayer?: OgcFeaturesLayer;
 	public floodedRoadsLayer: OgcFeaturesLayer;
 
-	constructor(map: Map, settings: FloodToolSettings, activeBreach: Writable<Breach | undefined>, selectedScenario: Writable<string | undefined>) {
+	constructor(map: Map, settings: FloodToolSettings, activeBreach: Writable<Breach | undefined>, selectedScenario: Writable<string | undefined>, label: string = "tools.flooding.label") {
 		this.map = map;
 		this.activeBreach = activeBreach;
 		this.selectedScenario = selectedScenario;
+		this.layerConfigGroup.toolGroup = { label };
 		this.map.layerLibrary.addLayerConfigGroup(this.layerConfigGroup);
 		this.iconLayer = this.addIconLayer();
 		this.floodLayer = this.addFloodLayer(settings.scenariosBaseUrl);
 		this.floodedRoadsLayer = this.addFloodedRoadsLayer(settings.floodedRoadsUrl, settings.floodedRoadsStyle);
+		this.floodedRoadsLayer.ensureLoaded();
 		
 		this.activeBreach.subscribe(() => {
 			this.selectedScenario.set(undefined);

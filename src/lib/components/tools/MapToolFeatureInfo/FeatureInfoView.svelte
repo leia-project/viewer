@@ -201,12 +201,12 @@
                                                     openHandler(row.attribute.toLowerCase(), cell.value);
                                                 }}
                                             >
-                                                Open
+                                                {$_("tools.featureInfo.open")}
                                             </div>
                                         </div>
                                     {:else if cell.value?.toString().startsWith("href") && cell.value.length > 8}
                                         <div class="row">
-                                            <a href="{cell.value.substring(5)}" class="open-handler" on:click={(e) => (e.target instanceof HTMLAnchorElement) ? window.open(e.target.href, '_blank') : ""} role="button" tabindex="0">Link</a>
+                                            <a href="{cell.value.substring(5)}" class="open-handler" on:click={(e) => (e.target instanceof HTMLAnchorElement) ? window.open(e.target.href, '_blank') : ""} role="button" tabindex="0">{$_("tools.featureInfo.link")}</a>
                                         </div>
                                     {:else}
                                         <div class="row">
@@ -265,8 +265,8 @@
                         <a href={handlerData} target="_blank">{handlerData}</a>
                     </div>
 
-                    <object title="" width="100%" height="1000" data={handlerData} type="application/pdf">
-                        <div>No online PDF viewer installed</div>
+                    <object title={handlerModalTitle} width="100%" height="1000" data={handlerData} type="application/pdf">
+                        <div>{$_("tools.featureInfo.noPdfViewer")}</div>
                     </object>
                 </div>
             {/if}

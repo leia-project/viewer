@@ -1,9 +1,11 @@
 <script lang="ts">
     import { _ } from "svelte-i18n";
+	import { get } from "svelte/store";
 	import { Home, Add, Subtract, Compass } from "carbon-icons-svelte";
 	import type { Map } from "$lib/map-cesium/map"
     import Button from "$lib/components/theme/Button/Button.svelte";
     import Divider from "$lib/components/theme/Divider/Divider.svelte";
+    import TrackpadControls from "$lib/components/controls/TrackpadControls.svelte";
 
     export let map: Map;
     export let place: string = "bottom-right";
@@ -17,7 +19,10 @@
     }
 
     function mapCenter() {
-        map.options.use3DMode.set(map.config.viewer.startCameraMode3D);
+        // Don't change the camera mode when mode switching is disabled
+        if (!get(map.options.disableModeSwitcher)) {
+            map.options.use3DMode.set(map.config.viewer.startCameraMode3D);
+        }
         map.home();
     }
 
@@ -73,6 +78,7 @@
         tooltipPosition="top"
         iconDescription={$_("tools.help.movement.buttonsZoomIn")}
     />
+    <TrackpadControls {map} />
 </div>
 
 <style>

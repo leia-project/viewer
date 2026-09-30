@@ -70,12 +70,21 @@
         return groupIds
     }
 
+    // A group is relevant when it (or any descendant group) contains a present layer,
+    // so intermediate groups on the path to a nested layer are not pruned.
+    function groupSubtreeHasLayers(group: LayerConfigGroup): boolean {
+        if (groupsWithLayers.includes(group.id)) return true;
+        return get(group.childGroups).some(groupSubtreeHasLayers);
+    }
+
     function buildGroupsRecursive(layerConfigGroups: Array<LayerConfigGroup>) {
         let groups = Array<LayerManagerGroup>();
         // copy library groups to layer groups
         for (let i = 0; i < layerConfigGroups.length; i++) {
             const group = layerConfigGroups[i];
             const layerManagerGroup = new LayerManagerGroup(group.id, group.title);
+            layerManagerGroup.connector = group.connector;
+            layerManagerGroup.toolGroup = group.toolGroup;
             // add layers belonging to this group to the layer manager group
             const layersFiltered = $layers.filter(l => l.parentGroup == group.id)
             for (let i = 0; i < layersFiltered.length; i++) {
@@ -83,7 +92,7 @@
                 layerManagerGroup.addLayer(layer)
             }
             // add childgroups
-            const childConfigGroups = get(group.childGroups).filter(g => groupsWithLayers.includes(g.id))
+            const childConfigGroups = get(group.childGroups).filter(groupSubtreeHasLayers)
             const childLayerGroups = buildGroupsRecursive(childConfigGroups)
             for (let i = 0; i < childLayerGroups.length; i++) {
                 const childLayerGroup = childLayerGroups[i];
@@ -106,24 +115,28 @@
     $: customLayersAdded = $layers.map((layer) => layer.config.groupId).includes("myData");
     $: layersWithoutGroup = $layers.filter((layer) => layer.config.groupId === undefined || layer.config.groupId === "");
     $: dragDroppedFiles = $layers.filter((layer) => layer.config.settings?.dragDropped ?? false);
+    $: backgroundLayers = $layers.filter((layer) => layer.config.isBackground);
 
 </script>
 
 {#if $selectedTool === tool}
     <div class="wrapper">
 
-        <RadioButtonGroup legendText={$_("tools.layerManager.baseLayers")} selected="standard" orientation="vertical">
-            {#each $layers as layer (layer.id)}
-                {#if layer.config.isBackground}
-                    <RadioButton
-                        labelText={layer.title}
-                        value={layer.id}
-                        checked={$selectedBackgroundLayer === layer.id}                      
-                        on:change={() => { selectedBackgroundLayer.set(layer.id)}}
-                    />
-                {/if}
-            {/each}
-        </RadioButtonGroup>
+        {#if backgroundLayers.length > 1}
+            <RadioButtonGroup legendText={$_("tools.layerManager.baseLayers")} selected="standard" orientation="vertical">
+                {#each $layers as layer (layer.id)}
+                    {#if layer.config.isBackground}
+                        <RadioButton
+                            labelText={layer.title}
+                            value={layer.id}
+                            checked={$selectedBackgroundLayer === layer.id}                      
+                            on:change={() => { selectedBackgroundLayer.set(layer.id)}}
+                        />
+                    {/if}
+                {/each}
+            </RadioButtonGroup>
+            <div class="spacer" />
+        {/if}
 
         <CesiumBackgroundControls />
 
@@ -173,8 +186,11 @@
 <style>
     .wrapper {
         margin: var(--cds-spacing-05);
-        margin-bottom: 0;
 		box-sizing: border-box;
+    }
+
+    .spacer {
+        padding-top: var(--cds-spacing-05);
     }
 
 	.thematic-label {

@@ -5,6 +5,7 @@
 
 import { writable, type Writable } from "svelte/store";
 import * as Cesium from "cesium";
+import { v4 as uuid } from '@lukeed/uuid';
 
 import { LayerConfig } from "$lib/map-core/layer-config";
 import { LayerConfigGroup } from "$lib/map-core/layer-config-group";
@@ -63,7 +64,7 @@ function onFileDropped(e: DragEvent, map: Map): void {
 		try {
 			parseDroppedGeoJSON(file, map);
 		} catch (e) {
-			console.log(e);
+			console.error(e);
 		}
 	}
 	else if (fileName.endsWith(".glb")) {
@@ -85,7 +86,7 @@ async function parseDroppedGeoJSON(file: File, map: Map): Promise<void> {
 	const config = new LayerConfig({
 		title: file.name,
 		type: "geojson",
-		id: (Math.random()*100000000 + 1).toString(),
+		id: uuid(),
 		groupId: "dragDropped",
 		defaultOn: true,
 		settings: {
@@ -104,7 +105,7 @@ function parseDroppedGLB(file: File, map: Map, location: Cesium.Cartesian3): voi
 	const objectUrl = URL.createObjectURL(file);
 	if (!glbCollection) {
 		createGroupIfNotExists(map, "dragDropped", "Drag-and-dropped layers");
-		const layerId = (Math.random()*100000000 + 1).toString();
+		const layerId = uuid();
 		const datasource = new Cesium.CustomDataSource(layerId);
 		const handler = new Cesium.ScreenSpaceEventHandler(map.viewer.canvas);
 		glbCollection = new DraggableCollection(map, datasource, handler);

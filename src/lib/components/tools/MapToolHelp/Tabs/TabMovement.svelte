@@ -49,7 +49,6 @@
 <style>
     .video {
         margin-top: var(--cds-spacing-05);
-        margin-left: var(--cds-spacing-05);
         width: 100%;
         text-align: center;
     }

@@ -12,7 +12,7 @@
 	const sliderXY = clipSlider.angleXY;
 	const sliderZ = clipSlider.angleZ;
 
-	const sliceMode = clipSlider.sliceMode;
+	// const sliceMode = clipSlider.sliceMode;
 
 </script>
 
@@ -27,23 +27,24 @@
 				on:toggle={() => {
 					if ($layerVisible) clipActive.set(!$clipActive)
 				}}
-				labelA={$_("general.off")}
-				labelB={$_("general.on")}
+				labelA=""
+				labelB=""
 			/>
 			
 			<div class="top-buttons">
 				{#if $clipActive}
-					{#if ($sliderXY !== 180 || $sliderZ !== 0)}
-					<Button
-						iconDescription={$_("general.buttons.reset")}
-						icon={Reset}
-						tooltipPosition="bottom"
-						tooltipAlignment="center"
-						size="field"
-						on:click={() => clipSlider.reset()}
-					/>
-					{/if}
+					<span class="reset-button" class:hidden={$sliderXY === 180 && $sliderZ === 0}>
+						<Button
+							iconDescription={$_("general.buttons.reset")}
+							icon={Reset}
+							tooltipPosition="bottom"
+							tooltipAlignment="center"
+							size="field"
+							on:click={() => clipSlider.reset()}
+						/>
+					</span>
 				<Button
+					kind="ghost"
 					iconDescription={$showSlider ? $_("general.buttons.hide") :  $_("general.buttons.show")}
 					icon={$showSlider ? ViewOffFilled : ViewFilled}
 					tooltipPosition="bottom"
@@ -74,8 +75,7 @@
 					step={1}
 					hideTextInput={true}
 				/>
-				<!-- TODO: Implement sliceMode functionality -->
-				<div class="slice-mode-label">{$_("tools.layerTools.clipper.sliceModeLabel")}</div>
+				<!-- <div class="slice-mode-label">{$_("tools.layerTools.clipper.sliceModeLabel")}</div>
 				<Toggle
 				toggled={$sliceMode}
 				disabled={true}
@@ -85,7 +85,7 @@
 				}}
 				labelA={$_("general.off")}
 				labelB={$_("general.on")}
-				/>
+				/> -->
 			</div>
 		{/if}
 	</div>
@@ -105,6 +105,14 @@
 		column-gap: 20px;
 		margin-bottom: 10px;
 		padding-left: 10px;
+	}
+	.top-buttons {
+		display: flex;
+		align-items: center;
+		column-gap: 5px;
+	}
+	.reset-button.hidden {
+		visibility: hidden;
 	}
 	.label-02 {
 		padding: 15px 0;
@@ -130,13 +138,4 @@
 		min-width: 100px !important;
 	}
 
-	.slice-mode-label {
-		width: 100%;
-		text-align: left;
-		display: block;
-		color: #565656;
-		font-size: 14px;
-		margin-top: 10px;
-		margin-bottom: 10px;
-	}
 </style>
