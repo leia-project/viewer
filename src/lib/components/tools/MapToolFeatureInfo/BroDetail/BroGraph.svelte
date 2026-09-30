@@ -62,5 +62,6 @@
         display: block;
         width: 100%;
         height: auto;
+        max-height: 80svh;
     }
 </style>

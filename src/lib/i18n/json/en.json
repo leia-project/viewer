@@ -219,6 +219,8 @@
             "noData": "No data, press an object for more information",
             "attribute": "Attribute",
             "value": "Value",
+            "yes": "Yes",
+            "no": "No",
             "bro": {
                 "graphTab": "Graph",
                 "dataTab": "Data",

@@ -226,6 +226,8 @@
             "noData": "Geen data, Klik op een object voor meer informatie",
             "attribute": "Attribuut",
             "value": "Waarde",
+            "yes": "Ja",
+            "no": "Nee",
             "bro": {
                 "graphTab": "Grafiek",
                 "dataTab": "Gegevens",

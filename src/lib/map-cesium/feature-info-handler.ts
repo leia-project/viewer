@@ -120,8 +120,10 @@ export class FeatureInfoHandler {
         if (entity.properties) {
             const props = entity.properties;
             const propNames = props.propertyNames;
+
+            const values = props.getValue(this.map.viewer.clock.currentTime);
             for (let x = 0; x < propNames.length; x++) {
-                records.push(new FeatureInfoRecord(propNames[x], props[propNames[x]]));
+                records.push(new FeatureInfoRecord(propNames[x], values[propNames[x]]));
             }
             return new FeatureInfo(entity.name ?? "", records); // TODO: Figure out if config ID can be retrieved
         } else {

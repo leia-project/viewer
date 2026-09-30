@@ -208,7 +208,9 @@
             "label": "Informations sur les Objets",
             "noData": "Pas de données, appuyez sur un objet pour plus d'informations",
             "attribute": "Attribut",
-            "value": "Valeur"
+            "value": "Valeur",
+            "yes": "Oui",
+            "no": "Non"
         },
         "measure": {
             "label": "Mesurer",

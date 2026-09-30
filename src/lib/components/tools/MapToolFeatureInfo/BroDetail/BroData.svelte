@@ -2,8 +2,12 @@
 	import { _ } from "svelte-i18n";
 	import { DataTable } from "carbon-components-svelte";
 
+	import type { Location } from "@bedrock-engineer/bro-xml-parser";
+
 	import type { BroObject } from "$lib/bro/bro-api";
 	import { BHRGT_LAYER_COLUMNS } from "$lib/bro/bro-schemas";
+	import { decode } from "$lib/bro/bro-decoders";
+	import { fieldLabel, layerFieldLabel } from "$lib/bro/bro-labels";
 
 	export let object: BroObject;
 
@@ -12,27 +16,49 @@
 		{ key: "value", value: $_("tools.featureInfo.value"), empty: false }
 	];
 
-	function formatValue(value: unknown): string | undefined {
-		if (value === null || value === undefined || value === "") {
-			return undefined;
+	function formatDate(date: Date): string {
+		return date.toISOString().slice(0, 10);
+	}
+
+	function isLocation(value: object): value is Location {
+		return "x" in value && "y" in value && "epsg" in value;
+	}
+
+	function formatLocation(location: Location): string {
+		return `${location.x}, ${location.y} (${location.epsg})`;
+	}
+
+	/** Render a parsed BRO value for display */
+	function formatValue(value: unknown, yesNo: { yes: string; no: string }): string {
+		if (value === null || value === undefined) {
+			return "";
 		}
+
+		if (typeof value === "boolean") {
+			return value ? yesNo.yes : yesNo.no;
+		}
+
 		if (value instanceof Date) {
-			return value.toISOString().slice(0, 10);
+			return formatDate(value);
 		}
+
 		if (typeof value === "object") {
-			const location = value as { x?: number; y?: number; epsg?: string };
-			if (location.x !== undefined && location.y !== undefined) {
-				return `${location.x}, ${location.y} (EPSG:${location.epsg})`;
-			}
-			return undefined;
+			return isLocation(value) ? formatLocation(value) : "";
 		}
+
 		return String(value);
 	}
 
+	$: yesNo = { yes: $_("tools.featureInfo.yes"), no: $_("tools.featureInfo.no") };
+
 	$: attributeRows = Object.entries(object.parsed)
 		.filter(([key]) => key !== "meta" && key !== "layers")
-		.map(([key, value]) => ({ id: key, attribute: key, value: formatValue(value) }))
-		.filter((row) => row.value !== undefined);
+		.map(([key, value]) => ({
+			id: key,
+			attribute: fieldLabel(object.type, key),
+			value: formatValue(decode(key, value), yesNo)
+		}))
+		.filter((row) => row.value !== "");
 
 	$: layerRows =
 		object.type === "bhrgt"
@@ -40,13 +66,16 @@
 					type Row = { id: string } & Record<string, string>;
 					const row: Row = { id: String(i) };
 					for (const column of BHRGT_LAYER_COLUMNS) {
-						row[column] = formatValue(layer[column]) ?? "";
+						row[column] = formatValue(decode(column, layer[column]), yesNo);
 					}
 					return row;
 				})
 			: [];
 
-	const layerHeaders = BHRGT_LAYER_COLUMNS.map((column) => ({ key: column, value: column }));
+	const layerHeaders = BHRGT_LAYER_COLUMNS.map((column) => ({
+		key: column,
+		value: layerFieldLabel(column)
+	}));
 </script>
 
 <div class="bro-data">
@@ -54,6 +83,7 @@
 
 	{#if object.type === "bhrgt" && layerRows.length > 0}
 		<div class="layers heading-compact-01">{$_("tools.featureInfo.bro.layers")}</div>
+		
 		<DataTable size="compact" headers={layerHeaders} rows={layerRows} />
 	{/if}
 </div>

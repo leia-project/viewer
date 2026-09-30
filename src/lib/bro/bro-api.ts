@@ -10,7 +10,6 @@ import {
 const BASE_URL = "https://publiek.broservices.nl/sr";
 
 export const DEFAULT_CPT_GRAPH_TYPE = "cptCombinedDepth";
-export const BROLOKET_URL = "https://www.broloket.nl/ondergrondgegevens";
 
 export type BroObjectType = "cpt" | "bhrgt";
 
@@ -25,18 +24,20 @@ export interface BroGraphType {
 }
 
 export function broTypeFromId(broId: string): BroObjectType | undefined {
-	if (/^CPT\d{12}$/.test(broId)) {
+	if (broId.startsWith("CPT")) {
 		return "cpt";
 	}
-	if (/^BHR\d{12}$/.test(broId)) {
+	if (broId.startsWith("BHR")) {
 		return "bhrgt";
 	}
 	return undefined;
 }
 
+const parser = new BROParser(new XMLAdapter());
+
 const objectCache = new QuickLRU<string, BroObject>({ maxSize: 20 });
 const svgUrlCache = new QuickLRU<string, string>({
-	maxSize: 30,
+	maxSize: 20,
 	onEviction: (_key, url) => URL.revokeObjectURL(url)
 });
 
@@ -54,7 +55,7 @@ export async function getBroObject(broId: string): Promise<BroObject> {
 
 	const type = broTypeFromId(broId);
 	if (!type) {
-		throw new Error(`Not a BRO CPT/BHR-GT id: ${broId}`);
+		throw new Error(`Not a BRO CPT or BHR-GT id: ${broId}`);
 	}
 
 	const response = await fetch(objectUrl(type, broId));
@@ -62,8 +63,6 @@ export async function getBroObject(broId: string): Promise<BroObject> {
 		throw new Error(`BRO request failed (${response.status})`);
 	}
 	const xml = await response.text();
-
-	const parser = new BROParser(new XMLAdapter());
 
 	const object: BroObject =
 		type === "cpt"
@@ -99,7 +98,8 @@ export async function getGraphSvgUrl(broId: string, graphType?: string): Promise
 		throw new Error(`BRO graph request failed (${response.status})`);
 	}
 
-	// The service responds with the non-standard "application/svg+xml" should be "image/svg+xml"
+	// The service returns the non-standard "application/svg+xml", so re-type the
+	// blob as "image/svg+xml" which <img> requires to render it
 	const svgBlob = new Blob([await response.arrayBuffer()], { type: "image/svg+xml" });
 	const svgUrl = URL.createObjectURL(svgBlob);
 	svgUrlCache.set(cacheKey, svgUrl);
@@ -114,6 +114,7 @@ export function getCptGraphTypes(): Promise<Array<BroGraphType>> {
 		graphTypesPromise = undefined; // let a later call retry
 		throw error;
 	});
+
 	return graphTypesPromise;
 }
 
