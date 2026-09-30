@@ -1,9 +1,12 @@
 <script lang="ts">
-    import { _ } from "svelte-i18n";
+    export let _: any;
+    export let toolTitle: string;
 
 </script>
 
 
+<div class="heading-04">{toolTitle}</div>
+
 <div class="body-02">
-    {$_("tools.help.isochrones.description")}
+    {$_("tools.help.isochrones.description", { values: { title: toolTitle } })}
 </div>

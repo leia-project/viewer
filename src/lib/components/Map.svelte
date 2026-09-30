@@ -13,8 +13,9 @@
 	import MapWidgetLoading from "./widgets/MapWidgetLoading/MapWidgetLoading.svelte";
 	import MapWidgetCameraPosition from "./widgets/MapWidgetCameraPosition/MapWidgetCameraPosition.svelte";
 	import MapWidgetAnimation from "./widgets/MapWidgetAnimation/MapWidgetAnimation.svelte";
-	import MapWidgetProject from "./tools/MapToolProjects/MapWidgetProject.svelte";
+	import MapWidgetProject from "./tools/MapToolProjects/components/MapWidgetProject.svelte";
 	import { dragDropEvents } from "$lib/map-cesium/drag-n-drop";
+	import { projectHandler } from './tools/MapToolProjects/project-handler';
 
 	export let map: Map;
 
@@ -60,7 +61,7 @@
 					showAnimationWidget = s;
 				});
 
-				map.options.selectedProject.subscribe((project) => {
+				projectHandler.selectedProject.subscribe((project) => {
 					showProjectWidget = !!project;
 				});
 			}
@@ -75,7 +76,7 @@
 <div bind:this={viewer} class="cesiumContainer" use:dragDropEvents={{map: map, enabled: map.options.enableDragDropFiles}} >
 	<div class="map-widgets-top">
 		{#if showProjectWidget}
-			<MapWidgetProject {map} />
+			<MapWidgetProject />
 		{/if}
 	</div>
 
@@ -114,14 +115,14 @@
 		position: absolute;
 		top: var(--cds-spacing-05);
 		left: var(--cds-spacing-05);
-		z-index: 10;
+		z-index: 9;
 	}
 
 	.map-widgets-bottom {
 		position: absolute;
 		bottom: var(--cds-spacing-05);
 		left: var(--cds-spacing-05);
-		z-index: 10;
+		z-index: 9;
 	}
 
 	:global(.cesium-widget-credits) {

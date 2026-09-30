@@ -5,6 +5,7 @@
 	import { Toggle } from "carbon-components-svelte";
 	import * as Cesium from "cesium";
 	import type { Map } from "$lib/map-cesium/map";
+	import { searchActive } from "../search-active";
 
 	export let map: Map;
 
@@ -110,7 +111,7 @@
 </script>
 
 
-<div class="mode-switcher">
+<div class="mode-switcher" class:search-active={$searchActive}>
 	<Toggle
 		id="toggle-3d-mode"
 		size="sm"
@@ -118,7 +119,7 @@
 		disabled={$disableModeSwitcher}
 	>
 		<span slot="labelA" style="color: white">2D</span>
-		<span slot="labelB" style="color: green">3D</span>
+		<span slot="labelB" style="color: white">3D</span>
 	</Toggle>
 </div>
 
@@ -128,5 +129,16 @@
 		justify-content: right;
 		margin-left: 10px;
 		margin-right: 32px;
+	}
+
+	@media (max-width: 42rem) {
+		.mode-switcher {
+			margin-left: 4px;
+			margin-right: 30px;
+		}
+
+		.mode-switcher.search-active {
+			display: none;
+		}
 	}
 </style>

@@ -1,0 +1,1141 @@
+<script lang="ts">
+	import { createEventDispatcher, onDestroy, onMount, tick } from "svelte";
+	import { get } from "svelte/store";
+	import { fade } from "svelte/transition";
+	import { _ } from "svelte-i18n";
+	import { Close, Download, Layers, Location, Reset, ZoomIn } from "carbon-icons-svelte";
+	import { toJpeg, toPng } from "html-to-image";
+
+	import { Button, InlineLoading, OverflowMenu, OverflowMenuItem } from "carbon-components-svelte";
+	import { app } from "$lib/app/app";
+	import type {
+		ZoneTable,
+		ZonalStatisticsController,
+		ZonalStatisticsExportRow
+	} from "./zonal-statistics-controller";
+	import { columnHasTooltip } from "./zonal-config";
+	import { createZonalStyler } from "./zonal-style";
+	import { exportZonalPdf } from "./zonal-pdf-export";
+
+	export let controller: ZonalStatisticsController;
+	export let title: string;
+
+	const dispatch = createEventDispatcher();
+
+	const settings = controller.settings;
+	const selectedLayerId = controller.selectedLayerId;
+	const columns = settings.columns;
+	const tableColumns = columns
+		.map((column, index) => ({ column, index }))
+		.filter(({ column }) => column.hideInTable !== true);
+	const imageColumns = columns
+		.map((column, index) => ({ column, index }))
+		.filter(({ column }) => column.hideInImageExport !== true);
+
+	function columnLabel(index: number): string {
+		const column = columns[index];
+		return column?.label ?? column?.attribute ?? "";
+	}
+
+	// Rows are stable (one per data layer added to the table); zone columns are added/removed incrementally.
+	let table: ZoneTable = {
+		zones: [],
+		rows: controller.getTableLayers().map((dl) => ({
+			layerId: dl.layerId,
+			title: dl.title,
+			values: {},
+			tooltips: {}
+		}))
+	};
+	let activeCode: string | undefined;
+	let show = true;
+	let exportingImage = false;
+	let exportingPdf = false;
+	let exportingFormat = "";
+	let exportError = false;
+	let errorTimer: ReturnType<typeof setTimeout> | undefined;
+	// Off-screen A4-width sheet captured for PNG/JPEG exports (zones stacked vertically).
+	let exportElement: HTMLDivElement | undefined;
+	let contentEl: HTMLDivElement | undefined;
+	let tableHeadEl: HTMLTableSectionElement | undefined;
+	let stickyColWidth = 0;
+	let stickyHeaderHeight = 0;
+	let scroll = { top: false, bottom: false, left: false, right: false };
+	let scrollbarW = 0;
+	let scrollbarH = 0;
+
+	$: exportInProgress = exportingImage || exportingPdf;
+	// Recompute the scroll-shadow cues whenever the table content changes.
+	$: if (table) tick().then(updateScrollShadows);
+
+	// Toggle the edge shadows that hint at content scrolled out of view.
+	function updateScrollShadows(): void {
+		const el = contentEl;
+		stickyHeaderHeight = tableHeadEl?.offsetHeight ?? 0;
+		if (!el) {
+			scroll = { top: false, bottom: false, left: false, right: false };
+			return;
+		}
+		// Compare against the offset size (which includes the scrollbar) so a
+		// vertical scrollbar can't fake horizontal overflow, and vice versa.
+		const hasHorizontalOverflow = el.scrollWidth - el.offsetWidth > 1;
+		const hasVerticalOverflow = el.scrollHeight - el.offsetHeight > 1;
+		// Overlay scrollbars report 0 here, in which case the shadows keep their full extent.
+		scrollbarW = el.offsetWidth - el.clientWidth;
+		scrollbarH = el.offsetHeight - el.clientHeight;
+		scroll = {
+			top: hasVerticalOverflow && el.scrollTop > 0,
+			bottom: hasVerticalOverflow && el.scrollTop + el.clientHeight < el.scrollHeight - 1,
+			left: hasHorizontalOverflow && el.scrollLeft > 0,
+			right: hasHorizontalOverflow && el.scrollLeft + el.clientWidth < el.scrollWidth - 1
+		};
+	}
+
+	// Surface an export failure briefly, then clear it automatically.
+	function flagExportError(): void {
+		exportError = true;
+		if (errorTimer) clearTimeout(errorTimer);
+		errorTimer = setTimeout(() => (exportError = false), 5000);
+	}
+
+	const unsubscribe = controller.selectedZones.subscribe((zones) => {
+		updateTable(zones.map((z) => z.code));
+	});
+
+	// Duration of the blue highlight on a freshly added row; must match the CSS animation.
+	const FLASH_MS = 1500;
+	let flashing = new Set<string>();
+	const flashTimers = new Map<string, ReturnType<typeof setTimeout>>();
+	let knownLayerIds = new Set(controller.getTableLayers().map((dl) => dl.layerId));
+
+	function flashRow(layerId: string): void {
+		const running = flashTimers.get(layerId);
+		if (running) clearTimeout(running);
+		flashing.add(layerId);
+		flashing = flashing;
+		flashTimers.set(
+			layerId,
+			setTimeout(() => {
+				flashTimers.delete(layerId);
+				flashing.delete(layerId);
+				flashing = flashing;
+			}, FLASH_MS)
+		);
+	}
+
+	// The tool can open before the configured layers finish loading, and the user can add/remove a
+	// data layer from the panel; rebuild the rows and refill the already-selected zones.
+	const unsubscribeLayers = controller.tableLayers.subscribe(() => {
+		const codes = table.zones;
+		table.rows = controller.getTableLayers().map((dl) => ({
+			layerId: dl.layerId,
+			title: dl.title,
+			values: {},
+			tooltips: {}
+		}));
+		for (const code of codes) fillZoneColumn(code);
+		table = table;
+
+		const currentIds = new Set(table.rows.map((row) => row.layerId));
+		for (const layerId of currentIds) {
+			if (!knownLayerIds.has(layerId)) flashRow(layerId);
+		}
+		knownLayerIds = currentIds;
+	});
+
+	// Fill one zone column across the current rows, matching each row by layer id.
+	function fillZoneColumn(code: string): void {
+		const slices = new Map(controller.buildZoneSlice(code).map((s) => [s.layerId, s]));
+		for (const row of table.rows) {
+			const slice = slices.get(row.layerId);
+			if (!slice) continue;
+			row.values[code] = slice.values;
+			row.tooltips[code] = slice.tooltips;
+		}
+	}
+
+	// Data layers load on first use, so a row's cells can still be empty when it appears.
+	const unsubscribeData = controller.dataVersion.subscribe(() => {
+		for (const code of table.zones) fillZoneColumn(code);
+		table = table;
+	});
+
+	// Add/remove only the changed zone columns instead of rebuilding the whole table.
+	function updateTable(codes: Array<string>): void {
+		const next = new Set(codes);
+		const current = new Set(table.zones);
+
+		for (const code of table.zones) {
+			if (next.has(code)) continue;
+			for (const row of table.rows) {
+				delete row.values[code];
+				delete row.tooltips[code];
+			}
+		}
+		for (const code of codes) {
+			if (current.has(code)) continue;
+			fillZoneColumn(code);
+		}
+
+		table.zones = codes;
+		table = table;
+
+		// Drop the active zone if it is no longer selected.
+		if (activeCode && !next.has(activeCode)) {
+			activeCode = undefined;
+		}
+	}
+
+	$: controller.setActiveZone(activeCode);
+
+	const loadingLayerIds = controller.loadingLayerIds;
+	// A row appears as soon as its layer is added, but its cells stay empty until the layer is indexed.
+	$: tableLoading = table.rows.some((row) => $loadingLayerIds.has(row.layerId));
+
+	const styler = createZonalStyler(settings.valueStyles);
+
+	function cellStyle(value: string | undefined, columnIndex: number): string {
+		return styler.cellStyle(value, columns[columnIndex]?.styled === true);
+	}
+
+	function exportTitle(): string {
+		return settings.exportTitle ?? title;
+	}
+
+	function fileNamePrefix(): string {
+		return (settings.exportFileName ?? title ?? "zonal-statistics").replace(/[^\w.-]+/g, "_");
+	}
+
+	function toggleActive(code: string) {
+		activeCode = activeCode === code ? undefined : code;
+	}
+
+	function clear() {
+		controller.clearSelection();
+	}
+
+	function formatTimestamp(date: Date): string {
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, "0");
+		const day = String(date.getDate()).padStart(2, "0");
+		const hour = String(date.getHours()).padStart(2, "0");
+		const minute = String(date.getMinutes()).padStart(2, "0");
+		return `${year}${month}${day}-${hour}${minute}`;
+	}
+
+	function getVisibleLayerTitle(): string | undefined {
+		if (!$selectedLayerId) return undefined;
+
+		const selectedLayer = get(controller.resolvedDataLayers).find(
+			(layer) => layer.layerId === $selectedLayerId
+		);
+		return selectedLayer?.title;
+	}
+
+	async function exportPdf() {
+		if (exportInProgress) return;
+
+		const rows = controller.buildExportRows();
+		if (rows.length === 0) return;
+
+		try {
+			exportError = false;
+			exportingFormat = "PDF";
+			exportingPdf = true;
+			await exportZonalPdf({
+				rows,
+				settings,
+				title: exportTitle(),
+				fileNamePrefix: fileNamePrefix(),
+				timestamp: formatTimestamp(new Date()),
+				currentLocale: document.documentElement.lang || undefined,
+				mapCanvas: get(app.map)?.viewer?.canvas,
+				visibleLayerTitle: getVisibleLayerTitle(),
+				columnLabel,
+				pdfColor: (value) => styler.pdfColor(value),
+				labels: {
+					exportCreatedAt: $_("tools.zonalStatistics.exportCreatedAt"),
+					exportLayer: $_("tools.zonalStatistics.exportLayer"),
+					exportDescription: $_("tools.zonalStatistics.exportDescription"),
+					exportZone: $_("tools.zonalStatistics.exportZone"),
+					exportVisibleLayerLabel: $_("tools.zonalStatistics.exportVisibleLayerLabel"),
+					exportPage: $_("tools.zonalStatistics.exportPage")
+				}
+			});
+		} catch (error) {
+			console.error("zonalStatistics: failed to export table as PDF", error);
+			flagExportError();
+		} finally {
+			exportingPdf = false;
+			exportingFormat = "";
+		}
+	}
+
+	// Logical export columns (zone + layer, then each configured column and its
+	// optional description) shared by the CSV export. Mirrors pdfColumns().
+	function csvColumns(): Array<{ header: string; get: (r: ZonalStatisticsExportRow) => string }> {
+		const cols: Array<{ header: string; get: (r: ZonalStatisticsExportRow) => string }> = [
+			{ header: $_("tools.zonalStatistics.exportZone"), get: (r) => r.zoneCode },
+			{ header: $_("tools.zonalStatistics.exportLayer"), get: (r) => r.layerTitle }
+		];
+		columns.forEach((column, i) => {
+			cols.push({ header: columnLabel(i), get: (r) => r.values[i] ?? "" });
+			if (columnHasTooltip(settings, column)) {
+				cols.push({
+					header: `${columnLabel(i)} – ${$_("tools.zonalStatistics.exportDescription")}`,
+					get: (r) => r.tooltips[i] ?? ""
+				});
+			}
+		});
+		return cols;
+	}
+
+	function csvCell(value: string): string {
+		const v = value ?? "";
+		return /[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+	}
+
+	function exportCsv() {
+		if (exportInProgress) return;
+
+		const rows = controller.buildExportRows();
+		if (rows.length === 0) return;
+
+		try {
+			exportError = false;
+			const cols = csvColumns();
+			const lines = [cols.map((c) => csvCell(c.header)).join(",")];
+			for (const row of rows) {
+				lines.push(cols.map((c) => csvCell(c.get(row))).join(","));
+			}
+			// Prepend a UTF-8 BOM so Excel opens accented characters correctly.
+			const blob = new Blob(["\uFEFF" + lines.join("\r\n")], {
+				type: "text/csv;charset=utf-8;"
+			});
+			const link = document.createElement("a");
+			link.href = URL.createObjectURL(blob);
+			link.download = `${fileNamePrefix()}_${formatTimestamp(new Date())}.csv`;
+			link.click();
+			URL.revokeObjectURL(link.href);
+		} catch (error) {
+			console.error("zonalStatistics: failed to export table as CSV", error);
+			flagExportError();
+		}
+	}
+
+	async function exportImage(format: "png" | "jpeg") {
+		if (exportInProgress) return;
+		if (table.zones.length === 0) return;
+
+		try {
+			exportError = false;
+			exportingFormat = format.toUpperCase();
+			exportingImage = true;
+			// Wait for the off-screen export sheet (zones stacked vertically) to render.
+			await tick();
+
+			const node = exportElement;
+			if (!node) return;
+
+			const width = node.scrollWidth;
+			const height = node.scrollHeight;
+			const options = {
+				cacheBust: true,
+				pixelRatio: 2,
+				backgroundColor: "#ffffff",
+				width,
+				height,
+				style: {
+					width: `${width}px`,
+					height: `${height}px`
+				}
+			};
+			const dataUrl =
+				format === "jpeg"
+					? await toJpeg(node, { ...options, quality: 0.95 })
+					: await toPng(node, options);
+
+			const link = document.createElement("a");
+			link.href = dataUrl;
+			link.download = `${fileNamePrefix()}_${formatTimestamp(new Date())}.${format}`;
+			link.click();
+		} catch (error) {
+			console.error(`zonalStatistics: failed to export table as ${format.toUpperCase()}`, error);
+			flagExportError();
+		} finally {
+			exportingImage = false;
+			exportingFormat = "";
+			await tick();
+		}
+	}
+
+	async function exportPng() {
+		await exportImage("png");
+	}
+
+	async function exportJpeg() {
+		await exportImage("jpeg");
+	}
+
+	function removeFromView() {
+		show = false;
+		setTimeout(() => dispatch("remove"), 200);
+	}
+
+	onMount(() => {
+		updateScrollShadows();
+		window.addEventListener("resize", updateScrollShadows);
+	});
+
+	onDestroy(() => {
+		unsubscribe();
+		unsubscribeLayers();
+		unsubscribeData();
+		window.removeEventListener("resize", updateScrollShadows);
+		if (errorTimer) clearTimeout(errorTimer);
+		for (const timer of flashTimers.values()) clearTimeout(timer);
+		flashTimers.clear();
+	});
+</script>
+
+{#if show}
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<div
+		class="zonal-panel"
+		in:fade={{ delay: 0, duration: 150 }}
+		out:fade={{ delay: 0, duration: 150 }}
+		on:click={(e) => {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+		}}
+		role="presentation"
+	>
+		<div class="header">
+			<div class="heading-01 title">
+				<span class="title-text">{title}</span>
+				{#if table.zones.length > 0}
+					<span class="count-badge">
+						{$_("tools.zonalStatistics.zonesSelected", {
+							values: { count: table.zones.length }
+						})}
+					</span>
+				{/if}
+			</div>
+			<div class="actions">
+				{#if tableLoading}
+					<InlineLoading
+						class="export-status"
+						aria-label={$_("tools.zonalStatistics.loadingLayers")}
+						title={$_("tools.zonalStatistics.loadingLayers")}
+					/>
+				{/if}
+				{#if exportError}
+					<InlineLoading
+						class="export-status"
+						status="error"
+						description={$_("tools.zonalStatistics.exportFailed")}
+					/>
+				{/if}
+				{#if table.zones.length > 0}
+					<OverflowMenu
+						icon={Download}
+						flipped
+						size="sm"
+						iconDescription={$_("tools.zonalStatistics.exportMenu")}
+						disabled={exportInProgress || table.rows.length === 0}
+					>
+						<OverflowMenuItem text="PNG" on:click={exportPng} />
+						<OverflowMenuItem text="JPEG" on:click={exportJpeg} />
+						<OverflowMenuItem text="PDF" on:click={exportPdf} />
+						<OverflowMenuItem text="CSV" on:click={exportCsv} />
+					</OverflowMenu>
+					<Button
+						kind="ghost"
+						icon={Reset}
+						size="small"
+						iconDescription={$_("tools.zonalStatistics.clearSelection")}
+						tooltipPosition="bottom"
+						on:click={clear}
+					/>
+				{/if}
+				<Button
+					kind="ghost"
+					icon={Close}
+					size="small"
+					iconDescription={$_("tools.zonalStatistics.close")}
+					tooltipPosition="bottom"
+					on:click={removeFromView}
+				/>
+			</div>
+		</div>
+
+		<div class="content-wrap">
+			<div class="content" bind:this={contentEl} on:scroll={updateScrollShadows}>
+				{#if table.rows.length === 0}
+					<div class="no-selection body-compact-01">
+						<Layers size={32} />
+						<span>{$_("tools.zonalStatistics.noTableLayers")}</span>
+					</div>
+				{:else if table.zones.length === 0}
+					<div class="no-selection body-compact-01">
+						<Location size={32} />
+						<span>{$_("tools.zonalStatistics.noSelection")}</span>
+					</div>
+				{:else}
+					<table class="zonal-table">
+						<caption class="bx--visually-hidden">{$_("tools.zonalStatistics.tableCaption")}</caption
+						>
+						<thead bind:this={tableHeadEl}>
+							<tr>
+								<th
+									class="row-head"
+									rowspan="2"
+									bind:offsetWidth={stickyColWidth}
+									id="sticky-cell"
+								/>
+								{#each table.zones as code (code)}
+									<th
+										class="zone-head"
+										class:active={code === activeCode}
+										colspan={tableColumns.length}
+									>
+										<div class="zone-head-inner">
+											<button
+												type="button"
+												class="zone-code"
+												aria-pressed={code === activeCode}
+												aria-label={$_("tools.zonalStatistics.activateZone", {
+													values: { code }
+												})}
+												title={$_("tools.zonalStatistics.activateZoneHint")}
+												on:click={() => toggleActive(code)}
+											>
+												{code}
+											</button>
+											<button
+												type="button"
+												class="zone-zoom"
+												aria-label={$_("tools.zonalStatistics.zoomToZoneAria", {
+													values: { code }
+												})}
+												title={$_("tools.zonalStatistics.zoomToZone")}
+												on:click={() => controller.zoomToZone(code)}
+											>
+												<ZoomIn size={16} />
+											</button>
+											<button
+												type="button"
+												class="zone-remove"
+												aria-label={$_("tools.zonalStatistics.removeZoneAria", {
+													values: { code }
+												})}
+												title={$_("tools.zonalStatistics.removeZone")}
+												on:click={() => controller.toggleZone(code)}
+											>
+												<Close size={16} />
+											</button>
+										</div>
+									</th>
+								{/each}
+							</tr>
+							<tr>
+								{#each table.zones as code (code)}
+									{#each tableColumns as item, visibleIndex (item.index)}
+										<th
+											class="sub-head"
+											class:last-col={visibleIndex === tableColumns.length - 1}
+											class:active={code === activeCode}
+										>
+											{columnLabel(item.index)}
+										</th>
+									{/each}
+								{/each}
+							</tr>
+						</thead>
+						<tbody>
+							{#each table.rows as row (row.layerId)}
+								<tr class:flash={flashing.has(row.layerId)}>
+									<th
+										class="row-head"
+										class:selected={row.layerId === $selectedLayerId}
+										scope="row"
+										title={row.title}>{row.title}</th
+									>
+									{#each table.zones as code (code)}
+										{#each tableColumns as item, visibleIndex (item.index)}
+											<td
+												class="value"
+												class:last-col={visibleIndex === tableColumns.length - 1}
+												class:active={code === activeCode}
+												style={cellStyle(row.values[code]?.[item.index], item.index)}
+											>
+												{#if row.tooltips[code]?.[item.index]}
+													<!-- Native title tooltip: no abspos layout, so it can't add phantom horizontal scroll. -->
+													<span class="cell-tooltip" title={row.tooltips[code][item.index]}>
+														{row.values[code]?.[item.index] ?? "–"}
+													</span>
+												{:else}
+													{row.values[code]?.[item.index] ?? "–"}
+												{/if}
+											</td>
+										{/each}
+									{/each}
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				{/if}
+			</div>
+			<div
+				class="edge edge-top"
+				class:visible={scroll.top}
+				style="right: {scrollbarW}px; top: {stickyHeaderHeight - 1}px"
+			></div>
+			<div
+				class="edge edge-bottom"
+				class:visible={scroll.bottom}
+				style="right: {scrollbarW}px; bottom: {scrollbarH}px"
+			></div>
+			<div
+				class="edge edge-left"
+				class:visible={scroll.left}
+				style="left: {stickyColWidth}px; bottom: {scrollbarH}px"
+			></div>
+			<div
+				class="edge edge-right"
+				class:visible={scroll.right}
+				style="right: {scrollbarW}px; bottom: {scrollbarH}px"
+			></div>
+			{#if exportInProgress}
+				<div class="busy-overlay" in:fade={{ duration: 100 }} out:fade={{ duration: 100 }}>
+					<InlineLoading
+						description={$_("tools.zonalStatistics.exporting", {
+							values: { format: exportingFormat }
+						})}
+					/>
+				</div>
+			{/if}
+		</div>
+
+		{#if settings.valueStyles.length > 0}
+			<div class="legend">
+				<span class="legend-title body-compact-01">{$_("tools.zonalStatistics.legendTitle")}</span>
+				{#each settings.valueStyles as style (style.value)}
+					<span class="legend-chip" style={styler.swatchStyle(style.color)}>
+						{style.label ?? style.value}
+					</span>
+				{/each}
+			</div>
+		{/if}
+
+		{#if exportingImage}
+			<!-- Off-screen A4-portrait-width sheet: zones stacked vertically so the image fits on A4 pages. -->
+			<div class="export-offscreen" aria-hidden="true">
+				<div class="export-sheet" bind:this={exportElement}>
+					<div class="export-heading">{exportTitle()}</div>
+					{#each table.zones as code (code)}
+						<section class="export-zone">
+							<div class="export-zone-title">{code}</div>
+							<table class="export-table">
+								<thead>
+									<tr>
+										<th class="export-corner">{$_("tools.zonalStatistics.exportLayer")}</th>
+										{#each imageColumns as item (item.index)}
+											<th>{columnLabel(item.index)}</th>
+										{/each}
+									</tr>
+								</thead>
+								<tbody>
+									{#each table.rows as row (row.layerId)}
+										<tr>
+											<th class="export-row-head" scope="row">{row.title}</th>
+											{#each imageColumns as item (item.index)}
+												<td style={cellStyle(row.values[code]?.[item.index], item.index)}>
+													{row.values[code]?.[item.index] ?? "–"}
+													{#if row.tooltips[code]?.[item.index]}
+														<span class="cell-tooltip-text">{row.tooltips[code][item.index]}</span>
+													{/if}
+												</td>
+											{/each}
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</section>
+					{/each}
+					{#if settings.valueStyles.length > 0}
+						<div class="export-legend">
+							<span class="export-legend-title">{$_("tools.zonalStatistics.legendTitle")}</span>
+							{#each settings.valueStyles as style (style.value)}
+								<span class="legend-chip" style={styler.swatchStyle(style.color)}>
+									{style.label ?? style.value}
+								</span>
+							{/each}
+						</div>
+					{/if}
+				</div>
+			</div>
+		{/if}
+	</div>
+{/if}
+
+<style>
+	.zonal-panel {
+		position: absolute;
+		top: var(--cds-spacing-05);
+		right: var(--cds-spacing-05);
+		max-width: calc(50% - (2 * var(--cds-spacing-05)));
+		max-height: 60%;
+		display: flex;
+		flex-direction: column;
+		background-color: var(--cds-ui-02);
+		border: 1px solid var(--cds-ui-03);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+		z-index: 5;
+	}
+
+	.header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--cds-spacing-03);
+		padding: var(--cds-spacing-03) var(--cds-spacing-05);
+		border-bottom: 1px solid var(--cds-ui-03);
+	}
+
+	.title {
+		display: flex;
+		align-items: center;
+		gap: var(--cds-spacing-03);
+		min-width: 0;
+		margin-bottom: 0;
+	}
+
+	.title-text {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.count-badge {
+		flex: 0 0 auto;
+		font-size: 0.75rem;
+		font-weight: 400;
+		color: var(--cds-text-secondary);
+		background-color: var(--cds-ui-01);
+		border: 1px solid var(--cds-ui-03);
+		border-radius: 999px;
+		padding: 0 var(--cds-spacing-03);
+		white-space: nowrap;
+	}
+
+	.actions {
+		display: flex;
+		align-items: center;
+		gap: var(--cds-spacing-02);
+	}
+
+	/* Carbon defaults InlineLoading to `width:100%`, which squeezes the action buttons. */
+	.actions :global(.export-status) {
+		flex: 0 1 auto;
+		width: auto;
+		margin-right: var(--cds-spacing-02);
+	}
+
+	.actions :global(.bx--btn),
+	.actions :global(.bx--overflow-menu) {
+		flex-shrink: 0;
+	}
+
+	.content-wrap {
+		position: relative;
+		display: flex;
+		flex: 1 1 auto;
+		min-height: 0;
+		min-width: 0;
+	}
+
+	.content {
+		overflow: auto;
+		flex: 1 1 auto;
+		min-height: 0;
+		min-width: 0;
+	}
+
+	.edge {
+		position: absolute;
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity 120ms ease;
+		z-index: 4;
+	}
+
+	.edge.visible {
+		opacity: 1;
+	}
+
+	.edge-top,
+	.edge-bottom {
+		left: 0;
+		right: 0;
+		height: 0.75rem;
+	}
+
+	.edge-left,
+	.edge-right {
+		top: 0;
+		bottom: 0;
+		width: 0.75rem;
+	}
+
+	.edge-top {
+		top: 0;
+		background: linear-gradient(to bottom, rgba(0, 0, 0, 0.18), transparent);
+	}
+
+	.edge-bottom {
+		bottom: 0;
+		background: linear-gradient(to top, rgba(0, 0, 0, 0.18), transparent);
+	}
+
+	.edge-left {
+		background: linear-gradient(to right, rgba(0, 0, 0, 0.18), transparent);
+	}
+
+	.edge-right {
+		right: 0;
+		background: linear-gradient(to left, rgba(0, 0, 0, 0.18), transparent);
+	}
+
+	.busy-overlay {
+		position: absolute;
+		inset: 0;
+		z-index: 6;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: color-mix(in srgb, var(--cds-ui-02) 78%, transparent);
+		backdrop-filter: blur(2px);
+	}
+
+	.busy-overlay :global(.bx--inline-loading) {
+		width: auto;
+	}
+
+	.legend {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: var(--cds-spacing-02);
+		padding: var(--cds-spacing-03) var(--cds-spacing-05);
+		border-top: 1px solid var(--cds-ui-03);
+	}
+
+	.legend-title {
+		color: var(--cds-text-secondary);
+		margin-right: var(--cds-spacing-02);
+	}
+
+	.legend-chip {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 1.25rem;
+		height: 1.25rem;
+		padding: 0 var(--cds-spacing-02);
+		border-radius: 2px;
+		font-size: 0.75rem;
+		font-weight: 600;
+	}
+
+	.no-selection {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--cds-spacing-03);
+		text-align: center;
+		color: var(--cds-text-secondary);
+		max-width: 20rem;
+		padding: var(--cds-spacing-07) var(--cds-spacing-05);
+	}
+
+	.zonal-table {
+		border-collapse: separate;
+		border-spacing: 0;
+		width: max-content;
+		font-size: 0.875rem;
+	}
+
+	.zonal-table th,
+	.zonal-table td {
+		padding: var(--cds-spacing-03) var(--cds-spacing-05);
+		border-bottom: 1px solid var(--cds-ui-03);
+		text-align: center;
+		white-space: nowrap;
+		transition: background-color 120ms ease;
+	}
+
+	#sticky-cell {
+		top: 0;
+		left: 0;
+		z-index: 5;
+	}
+
+	.zonal-table thead th {
+		position: sticky;
+		background: var(--cds-ui-02);
+	}
+
+	.zonal-table thead tr:first-child th {
+		top: 0;
+		z-index: 4;
+	}
+
+	.zonal-table thead tr:nth-child(2) th {
+		top: var(--cds-spacing-07);
+		z-index: 3;
+	}
+
+	.zonal-table .row-head {
+		text-align: left;
+		font-weight: 400;
+		position: sticky;
+		left: 0;
+		background: var(--cds-ui-02);
+		z-index: 1;
+		max-width: 12rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	/* Only the layer painted on the map (radio selection in the panel) is emphasised. */
+	.zonal-table .row-head.selected {
+		font-weight: 600;
+	}
+
+	.zonal-table tbody tr:hover td:not(.active),
+	.zonal-table tbody tr:hover th.row-head {
+		background-color: var(--cds-hover-ui, rgba(141, 141, 141, 0.16));
+	}
+
+	/* Tint via an inset shadow so it also shows over cells with an inline background colour. */
+	@keyframes zonal-row-flash {
+		0%,
+		15% {
+			box-shadow: inset 0 0 0 9999px rgba(15, 98, 254, 0.4);
+		}
+		100% {
+			box-shadow: inset 0 0 0 9999px rgba(15, 98, 254, 0);
+		}
+	}
+
+	.zonal-table tbody tr.flash td,
+	.zonal-table tbody tr.flash th.row-head {
+		animation: zonal-row-flash 1200ms ease-out 1;
+	}
+
+	.zone-head {
+		font-weight: 600;
+		border-left: 1px solid var(--cds-ui-03);
+	}
+
+	.zone-head-inner {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--cds-spacing-02);
+	}
+
+	.zone-code {
+		background: none;
+		border: 0;
+		color: inherit;
+		cursor: pointer;
+		font: inherit;
+		font-weight: 600;
+		padding: 0;
+	}
+
+	.zone-code:hover {
+		text-decoration: underline;
+	}
+
+	.zone-code[aria-pressed="true"] {
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.zone-code:focus-visible {
+		outline: 2px solid var(--cds-focus, #0f62fe);
+		outline-offset: 2px;
+		border-radius: 2px;
+	}
+
+	.zone-remove {
+		background: none;
+		border: 0;
+		color: var(--cds-text-secondary);
+		cursor: pointer;
+		display: inline-flex;
+		padding: 0;
+		transition: color 120ms ease;
+	}
+
+	.zone-remove:hover {
+		color: var(--cds-text-primary);
+	}
+
+	.zone-remove:focus-visible {
+		outline: 2px solid var(--cds-focus, #0f62fe);
+		outline-offset: 1px;
+		border-radius: 2px;
+	}
+
+	.zone-zoom {
+		background: none;
+		border: 0;
+		color: var(--cds-text-secondary);
+		cursor: pointer;
+		display: inline-flex;
+		padding: 0;
+		transition: color 120ms ease;
+	}
+
+	.zone-zoom:hover {
+		color: var(--cds-text-primary);
+	}
+
+	.zone-zoom:focus-visible {
+		outline: 2px solid var(--cds-focus, #0f62fe);
+		outline-offset: 1px;
+		border-radius: 2px;
+	}
+
+	.cell-tooltip {
+		cursor: help;
+		text-decoration: underline dotted;
+		text-underline-offset: 3px;
+	}
+
+	/* Inline description shown only while rendering an image export (see template). */
+	.cell-tooltip-text {
+		display: block;
+		margin-top: 2px;
+		font-size: 0.6875rem;
+		opacity: 0.8;
+	}
+
+	/* Off-screen sheet captured for PNG/JPEG exports: A4-portrait width, zones stacked vertically. */
+	.export-offscreen {
+		position: absolute;
+		left: -100000px;
+		top: 0;
+	}
+
+	/* The captured node stays statically positioned so html-to-image renders it at 0,0 (not off-screen). */
+	.export-sheet {
+		width: 760px;
+		box-sizing: border-box;
+		padding: 24px;
+		background: #ffffff;
+		color: var(--cds-text-primary, #161616);
+	}
+
+	.export-heading {
+		font-size: 1.25rem;
+		font-weight: 600;
+		margin-bottom: 16px;
+	}
+
+	.export-zone {
+		margin-bottom: 20px;
+	}
+
+	.export-zone-title {
+		font-size: 1rem;
+		font-weight: 600;
+		margin-bottom: 6px;
+		padding-bottom: 4px;
+		border-bottom: 2px solid var(--cds-border-strong, #8d8d8d);
+	}
+
+	.export-table {
+		width: 100%;
+		border-collapse: collapse;
+		table-layout: fixed;
+		font-size: 0.8125rem;
+	}
+
+	.export-table th,
+	.export-table td {
+		border: 1px solid var(--cds-border-subtle, #c6c6c6);
+		padding: 6px 8px;
+		text-align: left;
+		vertical-align: top;
+		word-break: break-word;
+	}
+
+	.export-table thead th {
+		background: var(--cds-layer-accent, #e0e0e0);
+		font-weight: 600;
+	}
+
+	.export-row-head {
+		background: var(--cds-layer, #f4f4f4);
+		font-weight: 600;
+		width: 34%;
+	}
+
+	.export-legend {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+		margin-top: 8px;
+	}
+
+	.export-legend-title {
+		font-weight: 600;
+	}
+
+	.sub-head {
+		font-weight: 400;
+		color: var(--cds-text-secondary);
+	}
+
+	.sub-head.last-col,
+	.value.last-col {
+		border-right: 1px solid var(--cds-ui-03);
+	}
+
+	.zone-head.active,
+	.sub-head.active,
+	.value.active {
+		background-color: var(--cds-highlight, #d0e2ff);
+	}
+
+	.value.active {
+		outline: 2px solid var(--cds-focus, #0f62fe);
+		outline-offset: -2px;
+		font-weight: 600;
+		transition:
+			background-color 120ms ease,
+			outline-color 120ms ease;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.edge,
+		.zonal-table th,
+		.zonal-table td,
+		.zone-remove,
+		.zone-zoom,
+		.value.active {
+			transition: none;
+		}
+
+		.zonal-table tbody tr.flash td,
+		.zonal-table tbody tr.flash th.row-head {
+			animation: none;
+		}
+	}
+</style>

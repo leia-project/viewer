@@ -22,7 +22,7 @@ export abstract class Layer {
     
     this.config = config;
     this.visible = writable(visible);
-    this.opacity = writable(!config.opacity || config.opacity === 0 ? 100 : 100 - config.opacity);
+    this.opacity = writable(!config.opacity || config.opacity === 0 ? 100 : config.opacity);
     this.customControls = writable<Array<CustomLayerControl>>(new Array<CustomLayerControl>());
 
     this.visible.subscribe((visible) => {

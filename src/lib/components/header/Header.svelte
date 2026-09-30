@@ -12,12 +12,15 @@
     export let logo: any | undefined = undefined;
     export let logoMarginLeft = "0rem";
     export let logoMarginRight = "0rem";
+    export let headerColor: string = "#161616";
+    export let titleColor: string = "#ffffff";
+    export let subTitleColor: string = "#ffffff";
     export let persistantHamburgerMenu: boolean = false;
     export let isSideNavOpen: boolean = true;
 
 </script>
 
-<CarbonHeader {logo} {logoMarginLeft} {logoMarginRight} {company} {platformName} bind:isSideNavOpen persistentHamburgerMenu={persistantHamburgerMenu}>
+<CarbonHeader {logo} {logoMarginLeft} {logoMarginRight} {company} {platformName} {headerColor} {titleColor} {subTitleColor} bind:isSideNavOpen persistentHamburgerMenu={persistantHamburgerMenu}>
     
     {#if $$slots.headerNav}
         <HeaderNav>

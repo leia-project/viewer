@@ -17,9 +17,9 @@
     const tool = new MapToolMenuOption(id, icon, label);
     registerTool(tool);
 
-    let editting: number = -1;
-    let edittingTitle: string;
-    let edittingDescription: string;
+    let editing: number = -1;
+    let editingTitle: string;
+    let editingDescription: string;
     const storageLocation = "tosti.bookmark.bookmarks";
 
     tool.settings.subscribe((settings) => {
@@ -52,18 +52,18 @@
     }
 
     function startEdit(index: number) {
-        if (index === editting) {
+        if (index === editing) {
             cancelEdit();
             return;
         }
 
-        editting = index;
-        edittingTitle = bookmarks[editting].title ?? "";
-        edittingDescription = bookmarks[editting].description ?? "";
+        editing = index;
+        editingTitle = bookmarks[editing].title ?? "";
+        editingDescription = bookmarks[editing].description ?? "";
     }
 
     function cancelEdit() {
-        editting = -1;
+        editing = -1;
     }
 
     function saveBookmark() {
@@ -73,16 +73,16 @@
             position = map.getPosition();
         } catch {}
 
-        position.title = edittingTitle ?? "Bookmark";
-        position.description = edittingDescription;
-        bookmarks[editting] = position;
+        position.title = editingTitle ?? "Bookmark";
+        position.description = editingDescription;
+        bookmarks[editing] = position;
         cancelEdit();
         bookmarks = [...bookmarks];
         saveLocal();
     }
 
     function deleteBookmark() {
-        bookmarks.splice(editting, 1);
+        bookmarks.splice(editing, 1);
         bookmarks = [...bookmarks];
         cancelEdit();
         saveLocal();
@@ -155,16 +155,16 @@
         {:else}
             {#each bookmarks as bookmark, i}
                 <div class="bookmark">
-                    {#if i === editting}
+                    {#if i === editing}
                         <div class="bookmark-content">
-                            <TextInput labelText={$_('tools.bookmarks.title')} placeholder={$_('tools.bookmarks.title')} bind:value={edittingTitle} />
-                            <TextArea labelText={$_('tools.bookmarks.description')} placeholder={$_('tools.bookmarks.description')} bind:value={edittingDescription} />
+                            <TextInput labelText={$_('tools.bookmarks.title')} placeholder={$_('tools.bookmarks.title')} bind:value={editingTitle} />
+                            <TextArea labelText={$_('tools.bookmarks.description')} placeholder={$_('tools.bookmarks.description')} bind:value={editingDescription} />
                             <InlineNotification
                                 lowContrast
                                 hideCloseButton
                                 kind="info"
-                                title={$_('tools.bookmarks.infoCameraPosition')}
-                                subtitle={$_('tools.bookmarks.infoCameraPositionSubtitle')}
+                                title={$_('tools.bookmarks.cameraPosition')}
+                                subtitle={$_('tools.bookmarks.cameraPositionSubtitle')}
                             />
                             <div class="bookmark-content-buttons">
                                 <div class="left">
@@ -221,14 +221,17 @@
                             </div>
 
                             <div class="bookmark-edit">
-                                <Button
-                                    iconDescription={$_('tools.bookmarks.edit')}
-                                    icon={Edit}
-                                    kind="ghost"
-                                    on:click={() => {
-                                        startEdit(i);
-                                    }}
-                                />
+                                {#if bookmark.editable !== false}
+                                    <Button
+                                        iconDescription={$_('tools.bookmarks.edit')}
+                                        icon={Edit}
+                                        kind="ghost"
+                                        tooltipPosition="left"
+                                        on:click={() => {
+                                            startEdit(i);
+                                        }}
+                                    />
+                                {/if}
                             </div>
                         </div>
                     {/if}

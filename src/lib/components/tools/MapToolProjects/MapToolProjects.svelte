@@ -1,154 +1,169 @@
 <script lang="ts">
 	import { getContext } from "svelte";
-	import { writable, type Writable } from "svelte/store";
 	import { _ } from "svelte-i18n";
-	import { Map as MapIcon, ViewOffFilled, ViewFilled } from "carbon-icons-svelte";
-	import { Accordion, Button } from "carbon-components-svelte";
-
+	import { Dropdown } from "carbon-components-svelte";
+	import { WatsonHealth3DMprToggle } from "carbon-icons-svelte";
+	import Divider from "$lib/components/theme/Divider/Divider.svelte";
 	import { MapToolMenuOption } from "../MapToolMenuOption";
-	import { CesiumProject } from "./project";
-	import { ProjectLabels } from "./project-labels";
-	import ProjectEntry from "./ProjectEntry.svelte";
 
-	export let id: string;
-	export let label: string;
-	export let icon: any = MapIcon;
+	import { CesiumProject } from "./classes/project";
+	import ProjectEntry from "./components/ProjectEntry.svelte";
+	import { ProjectCollection } from "./classes/project-collection";
+	import { projectHandler } from "./project-handler";
+	import ToggleView from "./components/ToggleView.svelte";
 
-	const { registerTool, selectedTool, map } = getContext<any>("mapTools");
+	import type { Map } from "$lib/map-cesium/map";
 
-	const projects: Writable<Array<CesiumProject>> = writable(new Array());
-	const selectedProject: Writable<CesiumProject | undefined> = writable(undefined);
-	const animationTime: number = 1500;
+	const { map, registerTool, selectedTool } = getContext<{
+		map: Map;
+		registerTool: any;
+		selectedTool: any;
+	}>("mapTools");
 
-	const projectLabels: ProjectLabels = new ProjectLabels(projects, selectedProject, animationTime);
-	$: showLabels = projectLabels.show;
+	export let id: string = "projects";
+	const icon: any = WatsonHealth3DMprToggle;
+	export let label: string = "Projects";
 
-	const tool = new MapToolMenuOption(id, icon, label, false);
-	registerTool(tool);
+	let tool: any;
+	let parentTool: any;
+	let showFullList: boolean = false;
 
-	tool.settings.subscribe((settings) => {
-        if (settings) {
-            loadProjectsFromSettings(settings);
-        }
-    });
-	
+	const projectCollection = new ProjectCollection(map, 2500);
+	const showLabels = projectCollection.show;
+	const projects = projectCollection.projects;
+	const selectedProject = projectHandler.selectedProject;
 
-	map.configLoaded.subscribe((loaded: boolean) => {
-		if (loaded) {
-			let settings = map.config.tools.find((t: any) => t.id === "projects")?.settings;
-			if (settings && settings.projects.length > 0) {
-				setSubscribers();
-				projectLabels.init(map);
-				if (settings.openProject) {
-					const openProject = $projects.find((p: CesiumProject) => p.projectSettings.name === settings.openProject);
-					if (openProject) {
-						activateProject(openProject);
-					}
-				}
-			}
-			map.on("Connector fetched", () => $selectedProject?.showProjectLayers()); // Otherwise CKAN layers are not shown when the project is activated on viewer load
-		}
+	projectCollection.on("project-selected", (project) => {
+		if (project instanceof CesiumProject) projectHandler.selectedProject.set(project);
 	});
 
-    function loadProjectsFromSettings(settings: any): void {
-		const configProjects = settings.projects;
-		const loadedProjects = new Array<CesiumProject>;
-		let projectActivated = false;
-		for (let i = 0; i < configProjects.length; i++) {
-			const project = new CesiumProject(map, configProjects[i], selectedProject, animationTime);
-			loadedProjects.push(project);
-			projectLabels.addProject(project);
-			if (configProjects[i].enabled && !projectActivated) selectedProject.set(project);
+	$: isProcessing = $selectedProject?.processing;
+	$: dropdownItems = $projects.map((p: CesiumProject, idx: number) => ({
+		id: idx,
+		text: p.projectConfig.name
+	}));
+	$: selectedProjectId = $projects.findIndex((p: CesiumProject) => p === $selectedProject);
+
+	//tool.settings.subscribe((settings: any) => {
+	map.configLoaded.subscribe((loaded: boolean) => {
+		if (loaded) {
+			const settings = map.toolSettings.find((t: any) => t.id === id)?.settings;
+
+			if (settings) {
+				const appearance = settings.appearance;
+
+				if (
+					appearance?.parentTool &&
+					map.toolSettings.find((t: any) => t.id === appearance?.parentTool)
+				) {
+					parentTool = appearance.parentTool;
+				} else {
+					tool = new MapToolMenuOption(id, icon, label, false);
+					registerTool(tool);
+				}
+
+				projectHandler.clip.set(appearance?.clip ?? true);
+
+				showFullList = appearance?.listAll ?? false;
+				map.ready.subscribe((b: boolean) => {
+					if (b) {
+						const preloadedProjects = settings.projects;
+						if (preloadedProjects) {
+							projectCollection.load(settings);
+						}
+					}
+				});
+			}
 		}
-		projects.set([...$projects, ...loadedProjects]);
-    }
-
-	function setSubscribers(): void {
-		selectedProject.subscribe((project) => {
-			if (project) {
-				map.options.selectedProject.set(project.projectSettings.name);
-				projectLabels.show.set(false);
-				projectLabels.flashPolygons();
-			} else if ($selectedTool === tool) {
-				projectLabels.show.set(true);
-			}
-		})
-
-		selectedTool.subscribe((tool: MapToolMenuOption) => {
-			if (tool) {
-				projectLabels.show.set(tool.id === id);
-			}
-		});
-
-		map.options.selectedProject.subscribe((project: string | undefined) => {
-			if (project === undefined) {
-				selectedProject.set(undefined);
-			}
-		});
-	}
-
-	function activateProject(project: CesiumProject): void {
-		if ($selectedProject?.processing) return;
-		if ($selectedProject === project) {
-			project.projectCamera.zoomToProject();
-			return;
-		}
-		$selectedProject?.deactivate();
-		selectedProject.set(project)
-}
-
+	});
 </script>
 
-{#if $selectedTool === tool }
-	<div class="wrapper">
-		<div>
-			<div class="sub-header" class:disabled={!$selectedProject}>
-				<div class="bx--label thematic-label no-margin">
-					{ $_('tools.projects.showOnMap') }
-				</div>
-				<Button
-					icon={$showLabels ? ViewOffFilled : ViewFilled}
-					iconDescription={`${$showLabels ? $_('general.buttons.hide') :  $_('general.buttons.show')}`}
-					tooltipPosition="left"
-					size="small"
-					kind="ghost"
-					on:click={() => projectLabels.show.set(!$showLabels)}
-				/>
+{#if (tool && $selectedTool === tool) || (parentTool && $selectedTool?.id === parentTool)}
+	<div id="tool-projects">
+		{#if parentTool}
+			<Divider />
+			<div class="project-tool-header">
+				<div class="heading-03">{$_("tools.projects.projects")}</div>
 			</div>
-			<div class="project-accordion">
-				<Accordion class="project-accordion">
-					{#each $projects as project}
-						<ProjectEntry {map} {project} on:activate={() => activateProject(project)} />
-					{/each}
-				</Accordion>
+			<div class="bottom-container">
+				{#if !$selectedProject}
+					<ToggleView
+						bind:show={$showLabels}
+						text={$_("tools.projects.showOnMap")}
+					/>
+				{/if}
 			</div>
+		{/if}
+
+		{#if !showFullList}
+			<div class="projects-dropdown">
+				<Dropdown
+					titleText={$_("tools.projects.selectProject")}
+					label="..."
+					invalidText={$_("tools.projects.validValueRequired")}
+					selectedId={selectedProjectId}
+					items={dropdownItems}
+					let:index
+					let:item
+					disabled={$isProcessing}
+					on:select={(e) => projectCollection.activateProjectByIndex(e.detail.selectedId)}
+				>
+					<!--{index}-{item.text}-->
+				</Dropdown>
+			</div>
+		{/if}
+
+		<div class="projects">
+			{#if showFullList}
+				{#each $projects as project}
+					<ProjectEntry {project} />
+				{/each}
+			{:else if $selectedProject}
+				<ProjectEntry project={$selectedProject} />
+			{/if}
 		</div>
 	</div>
+
+	{#if !parentTool}
+		<div class="bottom-container">
+			{#if !$selectedProject}
+				<ToggleView
+					bind:show={$showLabels}
+					text={$_("tools.projects.showOnMap")}
+				/>
+			{/if}
+		</div>
+	{/if}
 {/if}
 
 <style>
-	.wrapper {
-        margin-top: var(--cds-spacing-05);
-		margin-left: var(--cds-spacing-05);
-		box-sizing: border-box;
-    }
+	#tool-projects {
+		min-height: 600px;
+	}
 
-	.sub-header {
+	.project-tool-header {
+		margin-top: 40px;
+		padding: 10px var(--cds-spacing-05) 20px;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 	}
-
-	.sub-header.disabled {
-		color: gray
+	.project-tool-header .heading-03 {
+		margin-bottom: 0;
 	}
 
-	.no-margin {
-		margin: 0;
+	.projects-dropdown {
+		padding: 25px 20px 40px;
 	}
 
-	.project-accordion {
-		margin-top: var(--cds-spacing-05);
+	.bottom-container {
+		margin-top: 50px;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		padding: 15px 10px 25px;
+		height: auto;
+		overflow: hidden;
 	}
-
 </style>
