@@ -28,7 +28,7 @@
 		<div class="label-01 label">{$_("tools.voxel.property")}</div>
 
 		<RadioButtonGroup orientation="vertical" bind:selected={$selected}>
-			{#each $properties as prop}
+			{#each $properties as prop (prop.name)}
 				<RadioButton labelText={prop.label} value={prop.name} />
 			{/each}
 		</RadioButtonGroup>
@@ -37,18 +37,19 @@
 			<div class="legend">
 				<div class="label-01 label">{$_("tools.voxel.legend")}</div>
 
-				{#each activeProp.categories as cat}
-					{@const hidden = hiddenForProp.has(cat.value)}
+				{#each activeProp.categories as category (category.value)}
+					{@const hidden = hiddenForProp.has(category.value)}
 					<div class="legend-entry" data-hidden={hidden}>
 						<button
 							type="button"
 							class="legend-rect"
-							style="background-color: rgb({cat.color[0]}, {cat.color[1]}, {cat.color[2]});"
+							style="background-color: rgb({category.color[0]}, {category.color[1]}, {category
+								.color[2]});"
 							aria-pressed={hidden}
-							on:click={() => layer.toggleHidden($selected, cat.value)}
+							on:click={() => layer.toggleHidden($selected, category.value)}
 						/>
 
-						<div class="legend-label">{cat.label}</div>
+						<div class="legend-label">{category.label}</div>
 					</div>
 				{/each}
 			</div>
