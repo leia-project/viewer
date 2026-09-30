@@ -1089,13 +1089,20 @@ Each layer within a step's `layers` array supports these settings:
 
 On each step the map shows exactly that step's layers; other layers are hidden and restored when the story is closed. Layers that are already shown with the right settings are left untouched, so they are not reloaded between steps. A step layer without `style` reuses the layer with the same `id` that is already in the layer manager instead of loading a copy. A step with an empty `layers` array shows the map layers as they were before the story was opened, so a story without layers leaves the map unchanged. When the story has a `baseLayerId`, that base layer replaces the user's own background layers for the whole story.
 
-Each story step can also define `markerCoordinates`. The marker label shows the story, chapter, and step name. Clicking a marker opens the story directly on its step. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story.
+Each story step can also define `markerCoordinates`. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story. Each marker has a `type`, defaulting to `chapter` when omitted:
+
+- **`chapter`** (default): shows the book icon. The marker label shows the story, chapter, and step name; clicking it opens the story directly on its step.
+- **`text`**: shows the given `text` in a speech bubble on the map instead of an icon. `text` is mandatory for this type.
+- **`image`**: shows a camera icon; clicking it opens the image(s) from `url` in gallery mode. `url` is mandatory for this type and can be a single string or an array of strings — with multiple images the gallery shows arrow controls to navigate between them. Only `http(s)` and relative urls are used.
 
 |value|description|type|
 |-|-|-|
 |markerCoordinates|**Optional**: Location or locations of markers for this story step|object or array[object]|
+|type|**Optional**: `chapter` (default), `text`, or `image`|string|
 |x|Longitude of the story marker|number|
 |y|Latitude of the story marker|number|
+|text|**Mandatory when type is `text`**: text shown in the speech bubble. **Optional for type `image`**: tooltip shown when hovering the marker|string|
+|url|**Mandatory when type is `image`**: image url, or array of image urls for gallery mode|string or array[string]|
 
 ```json
 
@@ -1128,8 +1135,21 @@ Each story step can also define `markerCoordinates`. The marker label shows the 
 								"globeOpacity": 100,
 								"terrain": "PDOK Terrain",
 								"markerCoordinates": [{
+									"type": "chapter",
 									"x": 5.23907,
 									"y": 52.20004
+								},
+								{
+									"type": "text",
+									"text": "This is example text",
+									"x": 5.23950,
+									"y": 52.20050
+								},
+								{
+									"type": "image",
+									"url": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
+									"x": 5.23860,
+									"y": 52.19960
 								}],
 								"camera": {
 									"x": 5.23907,
