@@ -18,6 +18,8 @@ import { FloodLayer } from "./layers/flood-layer";
 import { IconLayer } from "./layers/icon-layer";
 import { WfsLayer } from "./layers/wfs-layer";
 import { OgcFeaturesLayer } from "./layers/ogc-features-layer";
+import { BoreholeTilesLayer } from "./layers/borehole-tiles-layer";
+import { BoreholePointsLayer } from "./layers/borehole-points-layer";
 
 export class CesiumLayerFactory {
 	public convert(map: Map, config: LayerConfig): CesiumLayer<unknown> | undefined {
@@ -64,7 +66,7 @@ export class CesiumLayerFactory {
 	private createCustom(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> | undefined{;
 		const wells = layerConfig.settings["wells"] ?? "false"
 		const i3s = layerConfig.settings["i3s"] ?? "false"
-	
+
 		if(wells === "true") {
 			return this.createWellsLayer(map, layerConfig);
 		}
@@ -77,6 +79,9 @@ export class CesiumLayerFactory {
 	}
 
 	private create3DTiles(map: Map, layerConfig: LayerConfig): CesiumLayer<Cesium3DTileset> {
+		if ((layerConfig.settings["boreholes"] ?? "false") === "true") {
+			return new BoreholeTilesLayer(map, layerConfig);
+		}
 		return new ThreedeeLayer(map, layerConfig);
 	}
 
@@ -113,7 +118,10 @@ export class CesiumLayerFactory {
 		return new BasiskaartLayer(map, layerConfig);
 	}
 
-	private createGeoJsonLayer(map: Map, layerConfig: LayerConfig): GeoJsonLayer {
+	private createGeoJsonLayer(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> {
+		if ((layerConfig.settings["boreholes"] ?? "false") === "true") {
+			return new BoreholePointsLayer(map, layerConfig);
+		}
 		return new GeoJsonLayer(map, layerConfig);
 	}
 
