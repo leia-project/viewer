@@ -57,13 +57,13 @@ export class DepthScale {
 			})
 		});
 
-		const topNap = this.topM - NAP_OFFSET_M;
-		const bottomNap = this.bottomM - NAP_OFFSET_M;
+		const topNap = this.topM - this.pivotZ;
+		const bottomNap = this.bottomM - this.pivotZ;
 		const step = tickIntervalForVe(get(this.map.options.subsurfaceExaggeration));
 		const firstTickNap = Math.floor(topNap / step) * step;
 
 		for (let nap = firstTickNap; nap >= bottomNap; nap -= step) {
-			const ellipsoidal = nap + NAP_OFFSET_M;
+			const ellipsoidal = nap + this.pivotZ;
 
 			this.labels.add({
 				position: Cesium.Cartesian3.fromRadians(
