@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { RadioButtonGroup, RadioButton, Button } from "carbon-components-svelte";
+	import { RadioButtonGroup, RadioButton, Button, InlineNotification } from "carbon-components-svelte";
 	import { _ } from "svelte-i18n";
 	import RangeSlider from "./RangeSlider.svelte";
 	import type { VoxelLayer } from "$lib/map-cesium/layers/voxel-layer";
@@ -10,6 +10,10 @@
 	$: properties = layer.resolvedProperties;
 	$: hiddenValues = layer.hiddenValues;
 	$: clipping = layer.clipping;
+	$: terrainProvider = layer.map.options.selectedTerrainProvider;
+	// Without terrain the globe surface sits on the ellipsoid, ~44 m below NAP,
+	// so the voxels appear to float above it.
+	$: noTerrain = !$terrainProvider?.url;
 	$: activeProp = $properties.find((p) => p.name === $selected);
 	$: hiddenForProp = $hiddenValues.get($selected) ?? new Set();
 	$: isClipped =
@@ -25,6 +29,15 @@
 
 {#if layer && $properties.length}
 	<div class="wrapper">
+		{#if noTerrain}
+			<InlineNotification
+				kind="warning"
+				lowContrast
+				hideCloseButton
+				subtitle={$_("tools.voxel.terrainHint")}
+			/>
+		{/if}
+
 		<div class="label-01 label">{$_("tools.voxel.property")}</div>
 
 		<RadioButtonGroup orientation="vertical" bind:selected={$selected}>

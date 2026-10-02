@@ -255,9 +255,10 @@
             "slicing": "Découpage",
             "westEast": "Ouest–Est",
             "southNorth": "Sud–Nord",
-            "vertical": "Vertical",
+            "bottomTop": "Bas-Haut",
             "resetSlicing": "Réinitialiser le découpage",
-            "slicePLane": "Plan de coupe"
+            "slicePLane": "Plan de coupe",
+            "terrainHint": "Activez le terrain pour voir les voxels à la bonne hauteur par rapport au sol"
         },
         "bookmarks": {
             "label": "Signets",

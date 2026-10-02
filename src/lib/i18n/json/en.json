@@ -257,9 +257,10 @@
             "slicing": "Slicing",
             "westEast": "West–East",
             "southNorth": "South–North",
-            "vertical": "Vertical",
+            "bottomTop": "Bottom-Top",
             "resetSlicing": "Reset slicing",
-            "slicePlane": "Drag slice plane"
+            "slicePlane": "Drag slice plane",
+            "terrainHint": "Turn on terrain to see the voxels at the correct height relative to the ground"
         },
         "bookmarks": {
             "label": "Bookmarks",

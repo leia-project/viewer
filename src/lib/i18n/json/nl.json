@@ -264,9 +264,10 @@
             "slicing": "Doorsneden",
             "westEast": "West–Oost",
             "southNorth": "Zuid–Noord",
-            "vertical": "Verticaal",
+            "bottomTop": "Onder–boven",
             "resetSlicing": "Doorsneden resetten",
-            "slicePlane": "Sleep snijvlak"
+            "slicePlane": "Sleep snijvlak",
+            "terrainHint": "Zet terrein aan om de voxels op de juiste hoogte te zien t.o.v. maaiveld"
         },
         "bookmarks": {
             "label": "Bladwijzers",
