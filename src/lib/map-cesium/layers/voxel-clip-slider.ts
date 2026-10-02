@@ -12,22 +12,20 @@ function clamp({ value, min = 0, max = 1 }: { value: number; min?: number; max?:
 /**
  * Draggable horizontal slice plane for a {@link VoxelLayer}.
  *
- * Cesium's VoxelPrimitive only supports axis-aligned box clipping
- * (min/maxClippingBounds), not the tilted ClippingPlaneCollection used by the
- * 3D tileset {@link ClipSlider}. So this renders a horizontal grid plane that
- * the user drags up/down, and maps its height onto the voxel layer's existing
- * normalised vertical clip window via {@link VoxelLayer.setClip}("z", …). The
- * plane and the sidebar's vertical range slider stay in sync because they read
- * & write the same `clipping` store.
+ * VoxelPrimitive supports ClippingPlaneCollection but we clip through
+ * min/maxClippingBounds instead. The range sliders in the layer controls
+ * already use a normalised clip window. The drag writes into the same 
+ * `clipping` store via {@link VoxelLayer.setClip}("z", …), so plane and
+ * sliders stay in sync.
  *
- * Heights are mapped through the layer's subsurface exaggeration when
- * positioning the plane
- * Clip window stays in normalized units.
+ * The clip window stays in normalised units which survive exaggeration
+ * changes. Heights are only mapped through the subsurface exaggeration when
+ * positioning the plane entity and reading the drag
  */
 export class VoxelClipSlider {
 	public layer: VoxelLayer;
 	private map: Map;
-	
+
 	private bounds: { min: Cesium.Cartesian3; max: Cesium.Cartesian3 };
 	private centerLon: number;
 	private centerLat: number;
@@ -37,6 +35,7 @@ export class VoxelClipSlider {
 	private entity: Cesium.Entity | null = null;
 	private inputHandler: Cesium.ScreenSpaceEventHandler;
 	private dragging = false;
+	private dragAnchor: Cesium.Cartesian3 | null = null;
 	private unsubscribers: Array<Unsubscriber> = [];
 	public active: Writable<boolean> = writable(false);
 	public showPlane: Writable<boolean> = writable(true);
@@ -173,6 +172,17 @@ export class VoxelClipSlider {
 			const picked = this.map.viewer.scene.pick(event.position);
 
 			if (picked?.id === this.entity) {
+				const ray = this.map.viewer.scene.camera.getPickRay(event.position);
+				const slicePlane = Cesium.Plane.fromPointNormal(
+					Cesium.Cartesian3.fromRadians(this.centerLon, this.centerLat, this.displayHeight()),
+					this.up
+				);
+				this.dragAnchor = (ray && Cesium.IntersectionTests.rayPlane(ray, slicePlane)) ?? null;
+
+				if (!this.dragAnchor) {
+					return;
+				}
+
 				this.dragging = true;
 				this.map.viewer.scene.screenSpaceCameraController.enableInputs = false;
 				this.highlight(true);
@@ -209,6 +219,7 @@ export class VoxelClipSlider {
 		this.inputHandler.setInputAction(() => {
 			if (this.dragging) {
 				this.dragging = false;
+				this.dragAnchor = null;
 				this.map.viewer.scene.screenSpaceCameraController.enableInputs = true;
 				this.highlight(false);
 			}
@@ -216,12 +227,16 @@ export class VoxelClipSlider {
 	}
 
 	/**
-	 * Intersect the mouse ray with the vertical plane through the voxel volume's center
-	 * axis that faces the camera, and return the ECEF height of the hit. Dragging
-	 * the mouse up/down then reads as moving the slice plane up/down regardless of
-	 * the viewing angle.
+	 * Intersect the mouse ray with the camera-facing vertical plane through the
+	 * grabbed point, and return the ECEF height of the hit. Dragging the mouse
+	 * up/down then reads as moving the slice plane up/down regardless of the
+	 * viewing angle, with the grabbed point staying under the cursor.
 	 */
 	private heightFromRay(ray: Cesium.Ray): number | null {
+		if (!this.dragAnchor) {
+			return null;
+		}
+
 		const cameraDirection = this.map.viewer.scene.camera.directionWC;
 		const dotUp = Cesium.Cartesian3.dot(cameraDirection, this.up);
 		
@@ -240,7 +255,7 @@ export class VoxelClipSlider {
 		// normalize in place
 		Cesium.Cartesian3.normalize(normal, normal);
 
-		const plane = Cesium.Plane.fromPointNormal(this.centerPosition, normal);
+		const plane = Cesium.Plane.fromPointNormal(this.dragAnchor, normal);
 		const point = Cesium.IntersectionTests.rayPlane(ray, plane);
 
 		if (!point) {

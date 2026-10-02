@@ -3,6 +3,9 @@ import * as Cesium from "cesium";
 import { CesiumLayer } from "./cesium-layer";
 import { CustomLayerControl } from "$lib/map-core/custom-layer-control";
 import type { LayerConfig } from "$lib/map-core/layer-config";
+import { notifications } from "$lib/map-core/notifications/notifications";
+import { Notification } from "$lib/map-core/notifications/notification";
+import { NotificationType } from "$lib/map-core/notifications/notification-type";
 import type { Map as CesiumMap } from "../map";
 import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
 import {
@@ -199,7 +202,6 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		// Drop FXAA suppression so removing this layer restores user setting.
 		this.map.options.setFxaaSuppressed(this.config.id.toString(), false);
 
-		this.source?.destroy();
 	}
 
 	public show(): void {
@@ -234,10 +236,17 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 
 	private async createLayer(): Promise<void> {
 		try {
-			const legend = await fetchLegend(this.settings.legendDataUrl);
+			const [legend, provider] = await Promise.all([
+				fetchLegend(this.settings.legendDataUrl),
+				Cesium.Cesium3DTilesVoxelProvider.fromUrl(this.settings.url)
+			]);
+
+			if (!get(this.config.added)) {
+				return; // layer was removed while loading
+			}
+
 			this.resolvedProperties.set(resolveProperties(this.settings.properties, legend));
 
-			const provider = await Cesium.Cesium3DTilesVoxelProvider.fromUrl(this.settings.url);
 			const primitive = new Cesium.VoxelPrimitive({ provider });
 
 			primitive.nearestSampling = true;
@@ -302,7 +311,17 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 
 			this.map.refresh();
 		} catch (error) {
-			console.error(`VoxelLayer "${this.config.title}" failed to load:`, error);
+			const notification = new Notification(
+				NotificationType.ERROR,
+				"Error",
+				`Unable to add layer ${this.config.title}, see log for more information`,
+				5000,
+				true,
+				true
+			);
+			notification.error = error instanceof Error ? error : new Error(String(error));
+			notifications.send(notification);
+			this.config.added.set(false);
 		}
 	}
 
@@ -357,7 +376,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 					${noDataGuard}
 					// (1 << v) is the mask with only bit v on;
 					// & tests whether that bit is set ie category v is hidden.
-					if ((u_hiddenMask & (1 << v)) != 0) {
+					if (v < 31 && (u_hiddenMask & (1 << v)) != 0) {
 						material.alpha = 0.0; return;
 					}
 					${branches}

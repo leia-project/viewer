@@ -55,7 +55,7 @@
 		minLabel=" "
 		maxLabel=" "
 		bind:value={position}
-		on:change={() => {
+		on:input={() => {
 			value = toValue(position);
 		}}
 		step={1}
