@@ -1,366 +1,341 @@
 <script lang="ts">
-    import { _ } from "svelte-i18n";
-    import { get } from "svelte/store";
-    import { Button } from "carbon-components-svelte";
+	import { _ } from "svelte-i18n";
+	import { get } from "svelte/store";
+	import { Button } from "carbon-components-svelte";
 	import { GeneratePdf } from "carbon-icons-svelte";
-    import { jsPDF } from "jspdf";
+	import { jsPDF } from "jspdf";
+	import {
+		A4_PORTRAIT_LAYOUT,
+		DEFAULT_PDF_BRANDING,
+		addPdfPageWithHeader,
+		addPdfSeparatorLine,
+		addPdfTextAtY,
+		addPdfTextSafe,
+		drawPdfFooters,
+		drawPdfPageHeader,
+		ensurePdfSpace,
+		getImageDimensions,
+		getPdfLayoutMetrics,
+		loadPdfBrandingAssets
+	} from "$lib/components/tools/pdf/pdf-layout";
 
-    import type { Map } from "$lib/map-cesium/map";
-    import type { Story } from "../Story";
-    import type { StoryStep } from "../StoryStep";
-    import type { StoryChapter } from "../StoryChapter";
-    import type { LegendItem, LegendOptions } from "../LegendOptions";
-    import { exportDataPages } from "./StoryChartExportDataPages";
+	import type { Map } from "$lib/map-cesium/map";
+	import type { Story } from "../Story";
+	import type { StoryStep } from "../StoryStep";
+	import type { StoryChapter } from "../StoryChapter";
+	import type { LegendItem, LegendOptions } from "../LegendOptions";
+	import { exportDataPages } from "./StoryChartExportDataPages";
 
-    export let data: Array<{ group: string; value: number }[]>;
-    export let story: Story;
-    export let layerLegends: Array<LegendOptions>;
-    export let map: Map;
+	export let data: Array<{ group: string; value: number }[]>;
+	export let story: Story;
+	export let layerLegends: Array<LegendOptions>;
+	export let map: Map;
 
-    let doc: jsPDF;
+	let doc: jsPDF;
 
-    let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
-    story.storyChapters.forEach((chapter) => {
-        chapter.steps.forEach((step) => {
-            flattenedSteps.push({ step, chapter });
-        });
-    });
-    const storyLength = flattenedSteps.length;
+	let flattenedSteps: Array<{ step: StoryStep; chapter: StoryChapter }> = [];
+	story.storyChapters.forEach((chapter) => {
+		chapter.steps.forEach((step) => {
+			flattenedSteps.push({ step, chapter });
+		});
+	});
+	const storyLength = flattenedSteps.length;
 
-    $: disableDownloadButton = $exportDataPages.pages.length < storyLength || $exportDataPages.pages.some(page => page.image === undefined);
+	$: disableDownloadButton =
+		$exportDataPages.pages.length < storyLength ||
+		$exportDataPages.pages.some((page) => page.image === undefined);
 
-    const PAGE_WIDTH = 210;
-    const PAGE_HEIGHT = 297;
-    const MARGIN = 20;
-    const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
-    const HEADER_HEIGHT = 18; // space reserved for logos at top
-    const FOOTER_HEIGHT = 20;
-    const BOTTOM_LIMIT = PAGE_HEIGHT - FOOTER_HEIGHT - 10;
-    const CONTENT_TOP = MARGIN + HEADER_HEIGHT; // where content starts below logos
-    const CHART_SIZE = 55; // square so donut isn't squeezed
+	const layout = A4_PORTRAIT_LAYOUT;
+	const metrics = getPdfLayoutMetrics(layout);
+	const branding = {
+		...DEFAULT_PDF_BRANDING,
+		footerText: "Provincie Zeeland - Signaalkaarten"
+	};
 
-    // Preloaded logo elements
-    let zeelandLogo: HTMLImageElement | null = null;
-    let sogelinkLogo: HTMLImageElement | null = null;
+	async function formatContent(data: Array<{ group: string; value: number }[]>) {
+		if (!data) return undefined;
 
-    function preloadImage(src: string): Promise<HTMLImageElement | null> {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => resolve(img);
-            img.onerror = () => resolve(null);
-            img.src = src;
-        });
-    }
+		const brandingAssets = await loadPdfBrandingAssets(branding);
 
-    function getLineHeight(): number {
-        return doc.getLineHeightFactor() * doc.getFontSize() / doc.internal.scaleFactor;
-    }
+		doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
-    function getTextHeight(text: string, maxWidth: number): number {
-        const lines = doc.splitTextToSize(text, maxWidth);
-        return lines.length * getLineHeight();
-    }
+		// === FRONT PAGE ===
+		drawPdfPageHeader(doc, layout, brandingAssets);
+		let y = metrics.contentTop + 5;
 
-    /** Write text at y, returning the new y. Does NOT handle page breaks — use addTextSafe for long text. */
-    function addTextAtY(text: string, x: number, y: number, maxWidth: number): number {
-        const lines = doc.splitTextToSize(text, maxWidth);
-        doc.text(lines, x, y);
-        return y + lines.length * getLineHeight();
-    }
+		// Title
+		doc.setFontSize(22);
+		doc.setFont("helvetica", "bold");
+		y = addPdfTextAtY(doc, story.name, layout.margin, y, metrics.contentWidth);
+		y += 2;
 
-    /** Write text that may span multiple pages. Splits line-by-line and breaks when needed. */
-    function addTextSafe(text: string, x: number, y: number, maxWidth: number): number {
-        const lines: string[] = doc.splitTextToSize(text, maxWidth);
-        const lh = getLineHeight();
-        for (const line of lines) {
-            if (y + lh > BOTTOM_LIMIT) {
-                doc.addPage();
-                addPageHeader();
-                y = CONTENT_TOP;
-            }
-            doc.text(line, x, y);
-            y += lh;
-        }
-        return y;
-    }
+		// Subtitle
+		doc.setFontSize(12);
+		doc.setFont("helvetica", "normal");
+		doc.setTextColor(100, 100, 100);
+		y = addPdfTextAtY(doc, story.description, layout.margin, y, metrics.contentWidth);
+		doc.setTextColor(0, 0, 0);
+		y += 3;
 
-    function ensureSpace(needed: number, y: number): number {
-        if (y + needed > BOTTOM_LIMIT) {
-            doc.addPage();
-            addPageHeader();
-            return CONTENT_TOP;
-        }
-        return y;
-    }
+		// Date
+		doc.setFontSize(9);
+		doc.setTextColor(130, 130, 130);
+		const now = new Date();
+		y = addPdfTextAtY(
+			doc,
+			`gecreëerd op ${now.toLocaleDateString("nl-NL")} om ${now.toLocaleTimeString("nl-NL")}`,
+			layout.margin,
+			y,
+			metrics.contentWidth
+		);
+		doc.setTextColor(0, 0, 0);
+		y += 3;
 
-    function addPageHeader() {
-        // Zeeland logo top-left
-        if (zeelandLogo) {
-            try { doc.addImage(zeelandLogo, 'PNG', MARGIN, MARGIN - 2, 30, 14); } catch {}
-        }
-        // Sogelink logo top-right
-        if (sogelinkLogo) {
-            try { doc.addImage(sogelinkLogo, 'PNG', PAGE_WIDTH - MARGIN - 18, MARGIN, 18, 13); } catch {}
-        }
-        // Thin line below header
-        doc.setDrawColor(200, 200, 200);
-        doc.line(MARGIN, MARGIN + 14, PAGE_WIDTH - MARGIN, MARGIN + 14);
-    }
+		y = addPdfSeparatorLine(doc, y, layout);
+		y += 3;
 
-    function addAllPageFooters() {
-        const totalPages = doc.getNumberOfPages();
-        for (let i = 1; i <= totalPages; i++) {
-            doc.setPage(i);
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(150, 150, 150);
-            doc.text('Provincie Zeeland — Signaalkaarten', MARGIN, PAGE_HEIGHT - 12);
-            doc.text(`Pagina ${i} / ${totalPages}`, PAGE_WIDTH - MARGIN - 25, PAGE_HEIGHT - 12);
-            doc.setDrawColor(200, 200, 200);
-            doc.line(MARGIN, PAGE_HEIGHT - 16, PAGE_WIDTH - MARGIN, PAGE_HEIGHT - 16);
-            doc.setTextColor(0, 0, 0);
-        }
-    }
+		// Map screenshot
+		try {
+			const canvas = map.viewer.canvas;
+			const mapImage = canvas.toDataURL("image/jpeg", 0.9);
+			const aspectRatio = canvas.width / canvas.height;
+			const imgWidth = metrics.contentWidth;
+			const imgHeight = Math.min(imgWidth / aspectRatio, 120);
+			doc.addImage(mapImage, "JPEG", layout.margin, y, imgWidth, imgHeight);
+		} catch {}
 
-    function addSeparatorLine(y: number): number {
-        doc.setDrawColor(200, 200, 200);
-        doc.line(MARGIN, y, PAGE_WIDTH - MARGIN, y);
-        return y + 5;
-    }
+		// === STEP PAGES ===
+		for (let index = 0; index < flattenedSteps.length; index++) {
+			const { step, chapter } = flattenedSteps[index];
+			addPdfPageWithHeader(doc, layout, brandingAssets);
+			y = metrics.contentTop;
 
-    async function formatContent(data: Array<{ group: string; value: number }[]>) {
-        if (!data) return undefined;
+			// Step header with accent bar
+			doc.setFillColor(33, 65, 112);
+			doc.rect(layout.margin, y, 3, 12, "F");
 
-        // Preload logos
-        [zeelandLogo, sogelinkLogo] = await Promise.all([
-            preloadImage('/images/Zeeland_logo.png'),
-            preloadImage('/images/SOGELINK_Logo_Monogramme_Bleu.png')
-        ]);
+			doc.setFontSize(16);
+			doc.setFont("helvetica", "bold");
+			y = addPdfTextAtY(doc, chapter.title, layout.margin + 7, y + 4, metrics.contentWidth - 10);
 
-        doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+			doc.setFontSize(13);
+			doc.setFont("helvetica", "normal");
+			y = addPdfTextAtY(doc, step.title, layout.margin + 7, y + 1, metrics.contentWidth - 10);
+			y += 5;
 
-        // === FRONT PAGE ===
-        addPageHeader();
-        let y = CONTENT_TOP + 5;
+			y = addPdfSeparatorLine(doc, y, layout);
+			y += 2;
 
-        // Title
-        doc.setFontSize(22);
-        doc.setFont('helvetica', 'bold');
-        y = addTextAtY(story.name, MARGIN, y, CONTENT_WIDTH);
-        y += 2;
+			// Description
+			const stepDescription = step.html || "";
+			if (stepDescription) {
+				const cleaned = stepDescription.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]*>/g, "");
+				doc.setFontSize(10);
+				doc.setFont("helvetica", "normal");
+				y = addPdfTextSafe(
+					doc,
+					cleaned,
+					layout.margin,
+					y,
+					metrics.contentWidth,
+					layout,
+					brandingAssets
+				);
+				y += 4;
+			}
 
-        // Subtitle
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(100, 100, 100);
-        y = addTextAtY(story.description, MARGIN, y, CONTENT_WIDTH);
-        doc.setTextColor(0, 0, 0);
-        y += 3;
+			// General legend text
+			const generalLegendText = (layerLegends[index]?.generalLegendText || "").replace(
+				/<[^>]*>/g,
+				""
+			);
+			if (generalLegendText) {
+				doc.setFontSize(10);
+				doc.setFont("helvetica", "italic");
+				y = addPdfTextSafe(
+					doc,
+					generalLegendText,
+					layout.margin,
+					y,
+					metrics.contentWidth,
+					layout,
+					brandingAssets
+				);
+				y += 4;
+				doc.setFont("helvetica", "normal");
+			}
 
-        // Date
-        doc.setFontSize(9);
-        doc.setTextColor(130, 130, 130);
-        const now = new Date();
-        y = addTextAtY(`gecreëerd op ${now.toLocaleDateString('nl-NL')} om ${now.toLocaleTimeString('nl-NL')}`, MARGIN, y, CONTENT_WIDTH);
-        doc.setTextColor(0, 0, 0);
-        y += 3;
+			// Legend items + general legend text grouped under heading
+			const legendItems = layerLegends[index]?.legendOptions;
+			const generalLegendText2 = (layerLegends[index]?.generalLegendText || "").replace(
+				/<[^>]*>/g,
+				""
+			);
 
-        y = addSeparatorLine(y);
-        y += 3;
+			if (legendItems || generalLegendText2) {
+				doc.setFontSize(11);
+				doc.setFont("helvetica", "bold");
+				y = ensurePdfSpace(doc, y, 8, layout, brandingAssets);
+				y = addPdfTextAtY(doc, "Handelingsperspectief", layout.margin, y, metrics.contentWidth);
+				y += 2;
 
-        // Map screenshot
-        try {
-            const canvas = map.viewer.canvas;
-            const mapImage = canvas.toDataURL('image/jpeg', 0.9);
-            const aspectRatio = canvas.width / canvas.height;
-            const imgWidth = CONTENT_WIDTH;
-            const imgHeight = Math.min(imgWidth / aspectRatio, 120);
-            doc.addImage(mapImage, 'JPEG', MARGIN, y, imgWidth, imgHeight);
-        } catch {}
+				// General legend text directly under the heading
+				if (generalLegendText2) {
+					doc.setFontSize(10);
+					doc.setFont("helvetica", "italic");
+					y = addPdfTextSafe(
+						doc,
+						generalLegendText2,
+						layout.margin,
+						y,
+						metrics.contentWidth,
+						layout,
+						brandingAssets
+					);
+					y += 4;
+					doc.setFont("helvetica", "normal");
+				}
 
-        // === STEP PAGES ===
-        for (let index = 0; index < flattenedSteps.length; index++) {
-            const { step, chapter } = flattenedSteps[index];
-            doc.addPage();
-            addPageHeader();
-            y = CONTENT_TOP;
+				if (legendItems) {
+					legendItems.forEach((item: LegendItem) => {
+						doc.setFontSize(10);
+						doc.setFont("helvetica", "bold");
+						const labels = item.labels || "";
+						const formattedLabels = labels.length > 1 ? labels.split("").join(", ") : labels;
+						y = ensurePdfSpace(doc, y, 12, layout, brandingAssets);
+						y = addPdfTextSafe(
+							doc,
+							`Label${labels.length > 1 ? "s" : ""}: ${formattedLabels}`,
+							layout.margin + 3,
+							y,
+							metrics.contentWidth - 5,
+							layout,
+							brandingAssets
+						);
 
-            // Step header with accent bar
-            doc.setFillColor(33, 65, 112);
-            doc.rect(MARGIN, y, 3, 12, 'F');
+						doc.setFont("helvetica", "normal");
+						y = addPdfTextSafe(
+							doc,
+							item.text || "",
+							layout.margin + 3,
+							y,
+							metrics.contentWidth - 5,
+							layout,
+							brandingAssets
+						);
+						y += 2;
 
-            doc.setFontSize(16);
-            doc.setFont('helvetica', 'bold');
-            y = addTextAtY(chapter.title, MARGIN + 7, y + 4, CONTENT_WIDTH - 10);
+						if (item.subLabels && typeof item.subLabels === "object") {
+							Object.entries(item.subLabels).forEach(([key, value]) => {
+								y = ensurePdfSpace(doc, y, 8, layout, brandingAssets);
+								y = addPdfTextSafe(
+									doc,
+									`  ${key}: ${value.text}`,
+									layout.margin + 8,
+									y,
+									metrics.contentWidth - 12,
+									layout,
+									brandingAssets
+								);
+								y += 1;
+							});
+						}
+						y += 2;
+					});
+				}
+			}
 
-            doc.setFontSize(13);
-            doc.setFont('helvetica', 'normal');
-            y = addTextAtY(step.title, MARGIN + 7, y + 1, CONTENT_WIDTH - 10);
-            y += 5;
+			// === CHART + PERCENTAGES ===
+			const image = get(exportDataPages).pages.find((page) => page.index === index)?.image;
 
-            y = addSeparatorLine(y);
-            y += 2;
+			if (image) {
+				const dims = await getImageDimensions(image);
+				const aspectRatio = dims.width / dims.height;
 
-            // Description
-            const stepDescription = step.html || '';
-            if (stepDescription) {
-                const cleaned = stepDescription.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'normal');
-                y = addTextSafe(cleaned, MARGIN, y, CONTENT_WIDTH);
-                y += 4;
-            }
+				const chartW = Math.min(metrics.contentWidth * 0.55, 90);
+				const chartH = chartW / aspectRatio;
 
-            // General legend text
-            const generalLegendText = (layerLegends[index]?.generalLegendText || '').replace(/<[^>]*>/g, '');
-            if (generalLegendText) {
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'italic');
-                y = addTextSafe(generalLegendText, MARGIN, y, CONTENT_WIDTH);
-                y += 4;
-                doc.setFont('helvetica', 'normal');
-            }
+				y = ensurePdfSpace(doc, y, chartH + 10, layout, brandingAssets);
+				y += 3;
+				y = addPdfSeparatorLine(doc, y, layout);
+				y += 2;
 
-            // Legend items + general legend text grouped under heading
-            const legendItems = layerLegends[index]?.legendOptions;
-            const generalLegendText2 = (layerLegends[index]?.generalLegendText || '').replace(/<[^>]*>/g, '');
+				doc.addImage(image, "PNG", layout.margin, y, chartW, chartH);
 
-            if (legendItems || generalLegendText2) {
-                doc.setFontSize(11);
-                doc.setFont('helvetica', 'bold');
-                y = ensureSpace(8, y);
-                y = addTextAtY('Handelingsperspectief', MARGIN, y, CONTENT_WIDTH);
-                y += 2;
+				// Percentages beside the chart
+				if (data[index]) {
+					const percX = layout.margin + chartW + 10;
+					const percMaxW = metrics.contentWidth - chartW - 15;
+					let percY = y + 5;
+					doc.setFontSize(11);
+					doc.setFont("helvetica", "bold");
+					percY = addPdfTextAtY(doc, "Verdeling per klasse:", percX, percY, percMaxW);
+					percY += 2;
 
-                // General legend text directly under the heading
-                if (generalLegendText2) {
-                    doc.setFontSize(10);
-                    doc.setFont('helvetica', 'italic');
-                    y = addTextSafe(generalLegendText2, MARGIN, y, CONTENT_WIDTH);
-                    y += 4;
-                    doc.setFont('helvetica', 'normal');
-                }
+					const total = data[index].reduce((sum, item) => sum + item.value, 0);
+					const colors: Record<string, [number, number, number]> = {
+						A: [51, 153, 102],
+						B: [153, 255, 204],
+						C: [255, 255, 153],
+						D: [255, 204, 102],
+						E: [156, 65, 16]
+					};
 
-                if (legendItems) {
-                    legendItems.forEach((item: LegendItem) => {
-                        doc.setFontSize(10);
-                        doc.setFont('helvetica', 'bold');
-                        const labels = item.labels || '';
-                        const formattedLabels = labels.length > 1 ? labels.split('').join(', ') : labels;
-                        y = ensureSpace(12, y);
-                        y = addTextSafe(`Label${labels.length > 1 ? 's' : ''}: ${formattedLabels}`, MARGIN + 3, y, CONTENT_WIDTH - 5);
+					doc.setFontSize(10);
+					doc.setFont("helvetica", "normal");
+					data[index].forEach((item) => {
+						if (item.value > 0) {
+							const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : "0.0";
+							const c = colors[item.group] ?? [128, 128, 128];
+							doc.setFillColor(c[0], c[1], c[2]);
+							doc.roundedRect(percX, percY - 3, 6, 3.5, 1, 1, "F");
+							percY = addPdfTextAtY(doc, `${item.group}: ${pct}%`, percX + 8, percY, percMaxW);
+							percY += 1;
+						}
+					});
+				}
 
-                        doc.setFont('helvetica', 'normal');
-                        y = addTextSafe(item.text || '', MARGIN + 3, y, CONTENT_WIDTH - 5);
-                        y += 2;
+				y += chartH + 5;
+			}
+		}
 
-                        if (item.subLabels && typeof item.subLabels === 'object') {
-                            Object.entries(item.subLabels).forEach(([key, value]) => {
-                                y = ensureSpace(8, y);
-                                y = addTextSafe(`  ${key}: ${value.text}`, MARGIN + 8, y, CONTENT_WIDTH - 12);
-                                y += 1;
-                            });
-                        }
-                        y += 2;
-                    });
-                }
-            }
+		// Footer on all pages (last, so page count is correct)
+		drawPdfFooters(doc, layout, brandingAssets, "Pagina");
 
-            // === CHART + PERCENTAGES ===
-            const image = get(exportDataPages).pages.find(page => page.index === index)?.image;
+		return story.name + "_rapport_" + randomFilenameToken();
+	}
 
-            if (image) {
-                const dims = await getImageDimensions(image);
-                const aspectRatio = dims.width / dims.height;
+	function downloadData(fileName: string) {
+		doc.save(fileName + ".pdf");
+		cleanupMemory();
+	}
 
-                const chartW = Math.min(CONTENT_WIDTH * 0.55, 90);
-                const chartH = chartW / aspectRatio;
+	function cleanupMemory() {
+		if (doc) {
+			doc = null as any;
+		}
+		exportDataPages.update((state) => ({
+			...state,
+			pages: state.pages.map((page) => ({ ...page, image: undefined }))
+		}));
+	}
 
-                y = ensureSpace(chartH + 10, y);
-                y += 3;
-                y = addSeparatorLine(y);
-                y += 2;
-
-                doc.addImage(image, 'PNG', MARGIN, y, chartW, chartH);
-
-                // Percentages beside the chart
-                if (data[index]) {
-                    const percX = MARGIN + chartW + 10;
-                    const percMaxW = CONTENT_WIDTH - chartW - 15;
-                    let percY = y + 5;
-                    doc.setFontSize(11);
-                    doc.setFont('helvetica', 'bold');
-                    percY = addTextAtY('Verdeling per klasse:', percX, percY, percMaxW);
-                    percY += 2;
-
-                    const total = data[index].reduce((sum, item) => sum + item.value, 0);
-                    const colors: Record<string, [number, number, number]> = {
-                        A: [51, 153, 102], B: [153, 255, 204],
-                        C: [255, 255, 153], D: [255, 204, 102], E: [156, 65, 16]
-                    };
-
-                    doc.setFontSize(10);
-                    doc.setFont('helvetica', 'normal');
-                    data[index].forEach(item => {
-                        if (item.value > 0) {
-                            const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0';
-                            const c = colors[item.group] ?? [128, 128, 128];
-                            doc.setFillColor(c[0], c[1], c[2]);
-                            doc.roundedRect(percX, percY - 3, 6, 3.5, 1, 1, 'F');
-                            percY = addTextAtY(`${item.group}: ${pct}%`, percX + 8, percY, percMaxW);
-                            percY += 1;
-                        }
-                    });
-                }
-
-                y += chartH + 5;
-            }
-        }
-
-        // Footer on all pages (last, so page count is correct)
-        addAllPageFooters();
-
-        return story.name + '_rapport_' + randomFilenameToken();
-    }
-
-    function downloadData(fileName: string) {
-        doc.save(fileName + '.pdf');
-        cleanupMemory();
-    }
-
-    function cleanupMemory() {
-        if (doc) { doc = null as any; }
-        exportDataPages.update(state => ({
-            ...state,
-            pages: state.pages.map(page => ({ ...page, image: undefined }))
-        }));
-    }
-
-    function randomFilenameToken(length: number = 8) {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        const bytes = new Uint8Array(length);
-        crypto.getRandomValues(bytes);
-        return Array.from(bytes, b => chars[b % chars.length]).join('');
-    }
-
-    function getImageDimensions(src: string): Promise<{ width: number; height: number }> {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
-            img.onerror = () => resolve({ width: 160, height: 100 }); // safe fallback
-            img.src = src;
-        });
-    }
+	function randomFilenameToken(length: number = 8) {
+		const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		const bytes = new Uint8Array(length);
+		crypto.getRandomValues(bytes);
+		return Array.from(bytes, (b) => chars[b % chars.length]).join("");
+	}
 </script>
 
 <Button
-    kind={"tertiary"}
-    icon={GeneratePdf}
-    iconDescription={$_("tools.stories.downloadPDF")}
-    tooltipPosition="bottom"
-    disabled={disableDownloadButton}
-    on:click={async () => {
-        const fileName = await formatContent(data);
-        if (fileName) downloadData(fileName);
-    }}
+	kind={"tertiary"}
+	icon={GeneratePdf}
+	iconDescription={$_("tools.stories.downloadPDF")}
+	tooltipPosition="bottom"
+	disabled={disableDownloadButton}
+	on:click={async () => {
+		const fileName = await formatContent(data);
+		if (fileName) downloadData(fileName);
+	}}
 />

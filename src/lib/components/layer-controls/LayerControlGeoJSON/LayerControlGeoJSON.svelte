@@ -105,7 +105,7 @@
 							icon={ColorPalette}
 							tooltipPosition="left"
 							size="small"
-							on:click={() => layer.setStyle(dropdownItems[activeStyle].text)}
+							on:click={() => layer.randomizeStyle(dropdownItems[activeStyle].text)}
 						/>
 					</div>
 				{/if}

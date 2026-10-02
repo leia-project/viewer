@@ -21,7 +21,7 @@
     $: metadata = config.metadata;
     $: metadataUrl = config.metadataUrl;  //"https://nationaalgeoregister.nl/geonetwork/srv/api/records/1ad6e0e0-8684-4a63-afe0-df1089072653/formatters/xml?approved=true";
     $: metadataLink = config.metadataLink;
-    $: metadataLinkShort = metadataLink ? metadataLink.split("/").pop() : "";
+    $: metadataDocument = metadataLink || metadataUrl;
     $: attribution = config.attribution;
     $: addedToLayerManager = config.added;
     $: imageUrl = config.imageUrl;
@@ -246,7 +246,7 @@
             {/if}
 
             <div class="block ">
-                {#if metadata}
+                {#if metadata && metadata.length > 0}
                     {#each metadata as entry}
                         <div class="metadata-entry">
                             {#if entry.key.toLowerCase() === "herkomst" && isImage(entry.value)}
@@ -258,9 +258,9 @@
                             {/if}
                         </div>
                     {/each}
-                {:else if metadataLink}
+                {:else if metadataDocument}
                     <div class="label">{$_("tools.layerLibrary.metadata")}</div>
-                    <a class="body-01" href="{metadataLink}" target="_blank">{$_('tools.layerLibrary.viewRecordOn')} {getDomainFromLink(metadataLink)}</a>
+                    <a class="body-01" href="{metadataDocument}" target="_blank">{$_('tools.layerLibrary.viewRecordOn')} {getDomainFromLink(metadataDocument)}</a>
                 {:else}
                     <div class="label">{$_("tools.layerLibrary.metadata")}</div>
                     <p class="body-01">{$_("tools.layerLibrary.noMetadata")}</p>

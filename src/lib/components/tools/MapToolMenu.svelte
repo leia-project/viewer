@@ -173,16 +173,18 @@
                 {/if}
             {/each}
 
-            <ToolButton
-                on:click={(e) => {
-                    expanded = !expanded;
-                }}
-                tool={undefined}
-                overrideIcon={expanded ? ChevronLeft : ChevronRight}
-                overrideLabel={expandCollapseText}
-                overrideActive={false}
-                showLabel={expanded}
-            />
+            <div class="menu-toggle">
+                <ToolButton
+                    on:click={(e) => {
+                        expanded = !expanded;
+                    }}
+                    tool={undefined}
+                    overrideIcon={expanded ? ChevronLeft : ChevronRight}
+                    overrideLabel={expandCollapseText}
+                    overrideActive={false}
+                    showLabel={expanded}
+                />
+            </div>
         </div>
     </div>
 
@@ -215,6 +217,10 @@
         box-sizing: border-box;
         background-color: var(--cds-ui-02);
         z-index: 10;
+    }
+
+    .menu-toggle:hover :global(.tool-icon) {
+        fill: var(--cds-link-primary, #0f62fe);
     }
 
     .options-bar {
