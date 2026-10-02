@@ -42,6 +42,8 @@
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
 	const dispatch = createEventDispatcher();
 
+	const intersectOffset = 200; //TODO: make this dynamic
+
 	let currentPage = writable<number>(1);
 	let lastAppliedSavedStepNumber: number | undefined;
 	let activeStep: StoryStep | undefined;
@@ -55,15 +57,22 @@
 	let container: HTMLElement;
 	let content: HTMLElement;
 	let scrollContainer: HTMLElement;
+	let scrollHeight: number = 0;
 	let resizeObserver: ResizeObserver | undefined;
 	let lastInputType: string;
 
-	let storyLayers = new Array<Layer>();
+	// Layer shown for each story layer (keyed by id + style): a story copy, or the user's own layer.
+	const storyTargets = new globalThis.Map<string, Layer>();
+	const storyCopies = new Array<Layer>();
+	// State of the user's layers before the story first changed them, restored on close.
+	const originalLayerState = new globalThis.Map<Layer, { visible: boolean; opacity: number }>();
+	// Opacity the story last applied, so a slider change survives steps with the same configured opacity.
+	const appliedOpacity = new globalThis.Map<Layer, number>();
 	let startCameraLocation: CameraLocation;
 	let startAutocheckBackground: boolean;
-	let startVisibleLayers = new Array<string>();
-	let startGlobeOpacity: number;
-	let startTerrain: {title: string, url: string, vertexNormals: boolean};
+	// Captured here because the first step is already applied before onMount.
+	let startGlobeOpacity: number = get(map.options.globeOpacity);
+	let startTerrain: {title: string, url: string, vertexNormals: boolean} = get(map.options.selectedTerrainProvider);
 	let startUse3DMode: boolean = get(map.options.use3DMode);
 
 	let polygonArea: number = 0;
@@ -78,30 +87,12 @@
 	$: baseLayer?.visible.set($baseMapVisible);
 
 
-	// Update layer visibility based on the polygon drawn state
-	const unsubscribeHasDrawnPolygon = hasDrawnPolygon.subscribe(polygonDrawn => {
-		if (story.requestPolygonArea && polygonDrawn) {
-			changeActiveLayersVisibility(activeStep, true);
-		}
-		else if (story.requestPolygonArea && !polygonDrawn) {
-			changeActiveLayersVisibility(activeStep, false);
+	// Step layers stay hidden until the required polygon is drawn
+	const unsubscribeHasDrawnPolygon = hasDrawnPolygon.subscribe(() => {
+		if (story.requestPolygonArea && activeStep) {
+			applyStepLayers(activeStep);
 		}
 	});
-
-
-	// Change visibility of all active layers in the active step
-	function changeActiveLayersVisibility(activeStep: StoryStep | undefined, visible: boolean): void {
-		if (activeStep && activeStep.layers) {
-			for (let i = 0; i < activeStep.layers.length; i++) {
-				const layerId = activeStep.layers[i].id.toString();
-				const added = getAdded(layerId);
-				// Make the layer invisible if the polygon is not drawn but is required
-				if (added) {
-					added.visible.set(visible);
-				}
-			}
-		}
-	}
 	
 
 	// Fly to polygon entity when its drawn
@@ -159,19 +150,10 @@
 		container.addEventListener("wheel", onWheel);
 		startAutocheckBackground = map.autoCheckBackground;
 		map.autoCheckBackground = false;
-		startGlobeOpacity = get(map.options.globeOpacity);
-		startTerrain = get(map.options.selectedTerrainProvider);
-
-		setStartVisibleLayers();
-		hideAllLayers();
 
 		// Return to step where user left
 		currentPage.set(savedStepNumber);
 		setTimeout(() => { scrollToStep(savedStepNumber-1) }, 150); // Timeout when height of images is not explicitly set
-		if (baseLayerId) {
-			baseLayer = copyLayerById(baseLayerId);
-			if (!baseLayer) baseLayerId = undefined;
-		}
 	});
 
 
@@ -189,7 +171,9 @@
 		resetToStart();
 		dispatch("closeModule", {n: $currentPage});
 		
+		// Also hidden, in case a source that is still loading gets attached after removal.
 		baseLayer?.visible.set(false);
+		if (baseLayer instanceof CesiumLayer) map.removeLayer(baseLayer);
 		baseLayer = undefined;
 	});
 
@@ -233,6 +217,12 @@
 	}
 
 
+	// Created before the first step is applied, which hides the user's backgrounds when it exists.
+	if (baseLayerId) {
+		baseLayer = copyLayerById(baseLayerId);
+		if (!baseLayer) baseLayerId = undefined;
+	}
+
 	currentPage.subscribe((page) => {
 		if (story.forceCameraMode) {
 			const targetMode = story.forceCameraMode === "3D";
@@ -254,46 +244,7 @@
 			if (!story.staticCamera) {
 				cesiumMap.flyTo(polygonCameraLocation ?? activeStep.cameraLocation);
 			}
-			if (activeStep.layers) {
-				if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
-					storyLayers.forEach(layer => layer.visible.set(false));
-				}
-				else {
-					hideInactiveLayers(activeStep.layers);
-				}
-				for (let i = 0; i < activeStep.layers?.length; i++) {
-					const layerId = activeStep.layers[i].id.toString();
-					const added = getAdded(layerId);
-
-					if (added) {
-						if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
-							// Layer already added, polyon not drawn but is required
-							added.visible.set(false);
-						} else {
-							// Layer already added, no polygon required or already drawn
-							added.visible.set(true);
-						}
-						continue
-					}
-
-					// If the layer is not added yet, add it
-					const libraryLayer = getLibraryLayer(layerId);
-					if (libraryLayer) {
-						const layerConfig = storyLayerToLayerConfig(activeStep.layers[i], libraryLayer);
-						const layer = map.addLayer(layerConfig);
-
-						if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
-							// No polyon drawn but is required
-							layer.visible.set(false);
-						}
-						else {
-							// No polygon required or already drawn
-							layer.visible.set(true);
-						}
-						storyLayers.push(layer);
-					}
-				}
-			}
+			applyStepLayers(activeStep);
 
 			if (activeStep.globeOpacity) {
 				map.options.globeOpacity.set(activeStep.globeOpacity);
@@ -309,8 +260,9 @@
 				return t.title === (get(map.options.use3DMode) ? activeStep?.terrain : "Uit");
 			});
 
-			if (stepTerrain) {	
-				map.options.selectedTerrainProvider.set(stepTerrain);
+			// Stores always notify for objects, and a terrain switch reloads the whole globe.
+			if (stepTerrain) {
+				if (stepTerrain !== activeTerrain) map.options.selectedTerrainProvider.set(stepTerrain);
 			} else if (activeTerrain !== startTerrain ) {
 				map.options.selectedTerrainProvider.set(startTerrain);
 			}
@@ -323,6 +275,12 @@
 		currentPage.set(savedStepNumber);
 	}
 
+	// Spacer below the last step, so it can scroll past the intersect line like every other
+	// step. Sized so that at maximum scroll the last step ends at the intersect line: still
+	// visible, which also hints that scrolling back up is possible (there is no scrollbar).
+	// Gated on viewportHeight: until .story gets its explicit height the scroll container isn't constrained.
+	$: bottomSpacerHeight = viewportHeight ? Math.max(0, scrollHeight - intersectOffset) : 0;
+
 	function scrollToStep(index: number): void {
 		const stepElement = getStepElementByIndex(index);
 		if (stepElement) {
@@ -334,9 +292,9 @@
 		}
 	}
 
-	function storyLayerToLayerConfig(storyLayer: StoryLayer, layerConfig: LayerConfig): LayerConfig {
+	function storyLayerToLayerConfig(storyLayer: StoryLayer, layerConfig: LayerConfig, id: string): LayerConfig {
 		const lc = new LayerConfig({
-			id: "st_" + layerConfig.id,
+			id: id,
 			title: layerConfig.title,
 			type: layerConfig.type,
 			settings: layerConfig.settings,
@@ -359,71 +317,108 @@
 		return lc;
 	}
 
-	function setStartVisibleLayers() {
-		const visibleLayers = new Array<string>();
-		const layers = get(map.layers);
-		for (let i = 0; i < layers.length; i++) {
-			if (get(layers[i].visible)) {
-				visibleLayers.push(layers[i].id);
-			}
-		}
-
-		startVisibleLayers = visibleLayers;
-	}
-
 	function getLibraryLayer(id: string): LayerConfig | undefined {
 		const layerConfig = map.layerLibrary.findLayer(id);
 		return layerConfig;		
 	}
 
 	function resetToStart(): void {
-		removeAllLayers();
-		restoreStartLayerState();
+		removeStoryCopies();
+		restoreOriginalLayerState();
 		map.options.globeOpacity.set(startGlobeOpacity);
-		map.options.selectedTerrainProvider.set(startTerrain);
+		if (startTerrain && get(map.options.selectedTerrainProvider) !== startTerrain) {
+			map.options.selectedTerrainProvider.set(startTerrain);
+		}
 		//map.zoomTo(startCameraLocation);
 	}
 
-	function getAdded(storyLayerId: string): Layer | undefined {
-		const added = storyLayers.find((l) => {
-			return l.id === "st_" + storyLayerId;
-		});
-		return added;
-	}
+	// Only layers whose state differs from the step are changed, so layers that are already right don't reload.
+	function applyStepLayers(step: StoryStep): void {
+		const stepLayers = step.layers ?? [];
+		if (stepLayers.length === 0) {
+			storyCopies.forEach((layer) => setLayerVisible(layer, false));
+			restoreOriginalLayerState(isReplacedByBaseLayer);
+			get(map.layers).filter(isReplacedByBaseLayer).forEach((layer) => setLayerVisible(layer, false));
+			return;
+		}
 
-	function restoreStartLayerState() {
-		const layers = get(map.layers);
-		for (let i = 0; i < startVisibleLayers.length; i++) {
-			const layer = layers.find((l) => {
-				return l.id === startVisibleLayers[i];
-			});
-			if (layer) {
-				layer.visible.set(true);
-			}
+		const showStepLayers = !story.requestPolygonArea || get(hasDrawnPolygon);
+		const targets = new Set<Layer>();
+		for (const storyLayer of stepLayers) {
+			const layer = resolveStoryLayerTarget(storyLayer);
+			if (!layer) continue;
+			targets.add(layer);
+			setLayerOpacity(layer, storyLayer.opacity);
+		}
+
+		for (const layer of [...storyCopies, ...get(map.layers)]) {
+			setLayerVisible(layer, showStepLayers && targets.has(layer));
 		}
 	}
 
-	function hideInactiveLayers(newLayers: Array<StoryLayer>): void {
-		for (let i = 0; i < storyLayers.length; i++) {
-			const shouldShow = newLayers.find((l) => {
-				return "st_" + l.id === storyLayers[i].id;
-			});
-			if (!shouldShow) storyLayers[i].visible.set(false);
+	function storyTargetKey(storyLayer: StoryLayer): string {
+		const id = `st_${storyLayer.id}`;
+		return storyLayer.style ? `${id}_${storyLayer.style}` : id;
+	}
+
+	function getStoryLayerTarget(storyLayer: StoryLayer): Layer | undefined {
+		return storyTargets.get(storyTargetKey(storyLayer));
+	}
+
+	// Without a style of its own a step layer reuses the user's layer with that id instead of loading a copy.
+	function resolveStoryLayerTarget(storyLayer: StoryLayer): Layer | undefined {
+		const key = storyTargetKey(storyLayer);
+		const existing = storyTargets.get(key);
+		if (existing) return existing;
+
+		const id = storyLayer.id.toString();
+		let layer = storyLayer.style ? undefined : getLayerById(id);
+		if (!layer) {
+			const libraryLayer = getLibraryLayer(id);
+			if (!libraryLayer) return undefined;
+			layer = map.addLayer(storyLayerToLayerConfig(storyLayer, libraryLayer, key));
+			storyCopies.push(layer);
+			appliedOpacity.set(layer, storyLayer.opacity);
+		}
+		storyTargets.set(key, layer);
+		return layer;
+	}
+
+	function rememberOriginalState(layer: Layer): void {
+		if (storyCopies.includes(layer) || originalLayerState.has(layer)) return;
+		originalLayerState.set(layer, { visible: get(layer.visible), opacity: get(layer.opacity) });
+	}
+
+	function setLayerVisible(layer: Layer, visible: boolean): void {
+		if (get(layer.visible) === visible) return;
+		rememberOriginalState(layer);
+		layer.visible.set(visible);
+	}
+
+	function setLayerOpacity(layer: Layer, opacity: number): void {
+		if (appliedOpacity.get(layer) === opacity) return;
+		rememberOriginalState(layer);
+		appliedOpacity.set(layer, opacity);
+		layer.opacity.set(opacity);
+	}
+
+	// The base layer copy is the story's only base map, otherwise toggling it would reveal the user's background.
+	function isReplacedByBaseLayer(layer: Layer): boolean {
+		return baseLayer !== undefined && layer.config.isBackground === true;
+	}
+
+	function restoreOriginalLayerState(keepHidden: (layer: Layer) => boolean = () => false): void {
+		for (const [layer, state] of originalLayerState) {
+			if (keepHidden(layer)) continue;
+			layer.visible.set(state.visible);
+			layer.opacity.set(state.opacity);
+			appliedOpacity.delete(layer);
+			originalLayerState.delete(layer);
 		}
 	}
 
-	function hideAllLayers(): void {
-		const layers = get(map.layers);
-		for (let i = 0; i < layers.length; i++) {
-			if (get(layers[i].visible)) {
-				layers[i].visible.set(false);
-			}
-		}
-	}
-
-	function removeAllLayers(): void {
-		for (let i = 0; i < storyLayers.length; i++) {
-			const layer = storyLayers[i];
+	function removeStoryCopies(): void {
+		for (const layer of storyCopies) {
 			if (layer instanceof CesiumLayer) {
 				map.removeLayer(layer);
 			}
@@ -441,7 +436,7 @@
 
 	function checkStep() {
 		const steps = content.getElementsByClassName("step");
-		const intersectLine = container.getBoundingClientRect().top + 200;
+		const intersectLine = container.getBoundingClientRect().top + intersectOffset;
 
 		for (let i = 0; i < steps.length; i++) {
 			const rect = steps[i].getBoundingClientRect();
@@ -654,7 +649,7 @@ async function downloadPDF() {
 		</div>
 	</div>
 
-	<div class="scroll" bind:this={scrollContainer}>
+	<div class="scroll" bind:this={scrollContainer} bind:clientHeight={scrollHeight}>
 	<div class="content" bind:this={content}>
 		{#each flattenedSteps as { step, chapter }, index}
 			<div class="step" id="step_{index}" class:step--active={index + 1 === $currentPage}>
@@ -742,10 +737,10 @@ async function downloadPDF() {
 					{#each step.layers ?? [] as layer}
 						{#if layer.showOpacitySlider}
 							{#await (async () => {
-								while (!getAdded(layer.id.toString())) {
+								while (!getStoryLayerTarget(layer)) {
 									await new Promise(r => setTimeout(r, 100));
 								}
-								return getAdded(layer.id.toString());
+								return getStoryLayerTarget(layer);
 							})() then addedLayer}
 								{#if addedLayer}
 									<StoryOpacitySlider layer={addedLayer} />
@@ -762,7 +757,7 @@ async function downloadPDF() {
 				</div>
 			</div>
 		{/each}
-		<!-- <div style="height:{height}px" /> -->
+		<div style="height:{bottomSpacerHeight}px" />
 	</div>
 	</div>
 
