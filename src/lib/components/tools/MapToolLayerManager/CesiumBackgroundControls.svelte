@@ -2,10 +2,12 @@
 	import { app } from "$lib/app/app";
 	import { _ } from "svelte-i18n";
 	import { Slider, RadioButtonGroup, RadioButton } from "carbon-components-svelte";
+	import LogSlider from "$lib/components/ui/components/LogSlider/LogSlider.svelte";
 
 	const map = app.map;
 
 	$: globeOpacity = $map?.options.globeOpacity;
+	$: subsurfaceExaggeration = $map?.options.subsurfaceExaggeration;
 	$: terrainProviders = $map?.options.terrainProviders;
 	$: selectedTerrainProvider = $map?.options.selectedTerrainProvider;
 	$: selected = $selectedTerrainProvider ? $selectedTerrainProvider.title : "";
@@ -40,6 +42,14 @@
 		max={100}
 		bind:value={$globeOpacity}
 		step={1}
+	/>
+
+	<LogSlider
+		labelText={$_("tools.backgroundControls.subsurfaceExaggeration") + " " + $subsurfaceExaggeration + "×"}
+		min={1}
+		max={200}
+		unit="×"
+		bind:value={$subsurfaceExaggeration}
 	/>
 </div>
 
