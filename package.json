@@ -43,7 +43,7 @@
 		"@observablehq/plot": "^0.6.17",
 		"@turf/turf": "^7.2.0",
 		"3d-viewer": "file:",
-		"carbon-preprocess-svelte": "^0.11.11",
+		"carbon-preprocess-svelte": "^0.11.47",
 		"cesium": "^1.141.0",
 		"cookie": "^0.7.0",
 		"d3-delaunay": "^6.0.4",
