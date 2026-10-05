@@ -3,13 +3,17 @@ import * as Cesium from "cesium";
 import { Get3dLayers } from "./utils/map-utils";
 import type { Map } from "./map";
 
+/** Layer types that are affected by the subsurface exaggeration slider.
+ * The slider is hidden when the config contains none of these */
+export const SUBSURFACE_EXAGGERATION_LAYER_TYPES = new Set(["3dtiles-voxel"]);
+
 export class MapOptions {
 	private map: Map;
 	
 	public dateTime: Writable<number> = writable<number>(1720602000 * 1000); // 10-07-2024 11:00:00
 	public shadows: Writable<boolean> = writable<boolean>(false);
 	public fxaa: Writable<boolean> = writable<boolean>(true);
-	// Layers (voxels) that render poorly with FXAA register here to force it
+	// Layers (like voxels) that render poorly with FXAA register here to force it
 	// off while they're shown.
 	private fxaaSuppressors = new Set<string>();
 	public fxaaSuppressed: Writable<boolean> = writable<boolean>(false);
