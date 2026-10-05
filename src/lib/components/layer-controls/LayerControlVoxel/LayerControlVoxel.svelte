@@ -86,7 +86,7 @@
 			/>
 
 			<RangeSlider
-				label={$_("tools.voxel.vertical")}
+				label={$_("tools.voxel.bottomTop")}
 				value={$clipping.z}
 				format={asPercent}
 				on:change={(e) => layer.setClip("z", e.detail)}

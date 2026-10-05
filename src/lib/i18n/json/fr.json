@@ -255,9 +255,9 @@
             "slicing": "Découpage",
             "westEast": "Ouest–Est",
             "southNorth": "Sud–Nord",
-            "bottomTop": "Bas-Haut",
+            "bottomTop": "Bas–Haut",
             "resetSlicing": "Réinitialiser le découpage",
-            "slicePLane": "Plan de coupe",
+            "slicePlane": "Faites glisser le plan de coupe",
             "terrainHint": "Activez le terrain pour voir les voxels à la bonne hauteur par rapport au sol"
         },
         "bookmarks": {

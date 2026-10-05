@@ -257,7 +257,7 @@
             "slicing": "Slicing",
             "westEast": "West–East",
             "southNorth": "South–North",
-            "bottomTop": "Bottom-Top",
+            "bottomTop": "Bottom–Top",
             "resetSlicing": "Reset slicing",
             "slicePlane": "Drag slice plane",
             "terrainHint": "Turn on terrain to see the voxels at the correct height relative to the ground"
