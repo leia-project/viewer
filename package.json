@@ -21,7 +21,7 @@
 		"@types/d3-delaunay": "^6.0.4",
 		"@types/d3-scale": "^4.0.9",
 		"@types/jsonwebtoken": "^9.0.10",
-		"carbon-components-svelte": "^0.90.0",
+		"carbon-components-svelte": "^0.113.0",
 		"carbon-icons-svelte": "^13.5.0",
 		"eslint": "^9.36.0",
 		"eslint-config-prettier": "^10.1.8",
