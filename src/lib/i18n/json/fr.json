@@ -246,7 +246,19 @@
         },
         "backgroundControls": {
             "opacity": "Opacité du Globe",
-            "terrain": "Terrain"
+            "terrain": "Terrain",
+            "subsurfaceExaggeration": "Exagération du sous-sol"
+        },
+        "voxel": {
+            "property": "Propriété",
+            "legend": "Légende",
+            "slicing": "Découpage",
+            "westEast": "Ouest–Est",
+            "southNorth": "Sud–Nord",
+            "bottomTop": "Bas–Haut",
+            "resetSlicing": "Réinitialiser le découpage",
+            "slicePlane": "Faites glisser le plan de coupe",
+            "terrainHint": "Activez le terrain pour voir les voxels à la bonne hauteur par rapport au sol"
         },
         "bookmarks": {
             "label": "Signets",
@@ -321,6 +333,7 @@
             "custom": "Personnalisée",
             "animate": "Animer",
             "fxaa": "FXAA",
+            "fxaaDisabledByVoxel": "Désactivé tant qu'une couche de voxels est affichée",
             "fog": "Brouillard",
             "groundAtmosphere": "Atmosphère Terrestre",
             "dynamicRange": "HDR",
@@ -453,6 +466,4 @@
             "invalidPolygon": "Le polygone ne peut pas se croiser lui-même !"
         }
     }
-
-
 }

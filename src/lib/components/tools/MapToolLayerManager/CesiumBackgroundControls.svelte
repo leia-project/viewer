@@ -2,10 +2,19 @@
 	import { app } from "$lib/app/app";
 	import { _ } from "svelte-i18n";
 	import { Slider, RadioButtonGroup, RadioButton } from "carbon-components-svelte";
+	import LogSlider from "$lib/components/ui/components/LogSlider/LogSlider.svelte";
+	import { SUBSURFACE_EXAGGERATION_LAYER_TYPES } from "$lib/map-cesium/map-options";
 
 	const map = app.map;
 
 	$: globeOpacity = $map?.options.globeOpacity;
+	$: subsurfaceExaggeration = $map?.options.subsurfaceExaggeration;
+	$: configLoaded = $map?.configLoaded;
+	$: hasSubsurfaceLayers =
+		$configLoaded === true &&
+		($map?.config.layerConfigs?.some((config) =>
+			SUBSURFACE_EXAGGERATION_LAYER_TYPES.has(config.type)
+		) ?? false);
 	$: terrainProviders = $map?.options.terrainProviders;
 	$: selectedTerrainProvider = $map?.options.selectedTerrainProvider;
 	$: selected = $selectedTerrainProvider ? $selectedTerrainProvider.title : "";
@@ -41,6 +50,16 @@
 		bind:value={$globeOpacity}
 		step={1}
 	/>
+
+	{#if hasSubsurfaceLayers}
+		<LogSlider
+			labelText={$_("tools.backgroundControls.subsurfaceExaggeration") + " " + $subsurfaceExaggeration + "×"}
+			min={1}
+			max={200}
+			unit="×"
+			bind:value={$subsurfaceExaggeration}
+		/>
+	{/if}
 </div>
 
 <style>
