@@ -1100,6 +1100,8 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 |y|Latitude of the story marker|number|
 |text|**Mandatory when type is `text`**: text shown in the speech bubble. **Optional for type `image`**: tooltip shown when hovering the marker|string|
 |url|**Mandatory when type is `image`**: image url, or array of image urls for gallery mode|string or array[string]|
+|symbolUrl|**Optional for type `chapter`**: url of an image that replaces the default circle with story icon. if the image cannot be loaded the default icon is used and a warning is logged to the console|string|
+|maxImageSize|**Optional for type `chapter` with `symbolUrl`**: maximum width and height of the symbol in pixels (aspect ratio is kept, images are never scaled up), standard value is 128|number|
 
 ```json
 

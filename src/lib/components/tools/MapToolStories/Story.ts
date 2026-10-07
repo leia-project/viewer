@@ -12,6 +12,10 @@ export interface StoryMarkerCoordinates {
     text?: string;
     /** Mandatory when type is "image": one or more image urls shown in gallery mode. */
     url?: string | Array<string>;
+    /** Optional for "chapter": image url that replaces the default circle with story icon. */
+    symbolUrl?: string;
+    /** Optional for "chapter" with symbolUrl: max width/height in pixels of the symbol. Defaults to 128. */
+    maxImageSize?: number;
 }
 
 export class Story {

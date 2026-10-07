@@ -91,6 +91,10 @@ export class StoryMarkerCollection extends Dispatcher {
 						this.markers.entities.add(marker);
 						this.updateMarkerHeight(marker, coordinates);
 
+						if (type === "chapter" && coordinates.symbolUrl) {
+							this.applyCustomSymbol(marker, coordinates.symbolUrl, coordinates.maxImageSize);
+						}
+
 						if (type === "text" && coordinates.text) {
 							this.textBubbles.push(
 								new StoryMarkerTextBubble({
@@ -105,6 +109,33 @@ export class StoryMarkerCollection extends Dispatcher {
 		}
 
 		this.toggleMarkers();
+	}
+
+	// Falls back to the default icon (already set on the marker) when the image cannot be used.
+	private applyCustomSymbol(marker: Cesium.Entity, symbolUrl: string, maxImageSize?: number): void {
+		const url = symbolUrl.trim();
+		if (!url) return;
+		const configuredSize = Number(maxImageSize);
+		const maxSize = Number.isFinite(configuredSize) && configuredSize > 0 ? configuredSize : 128;
+		const image = new Image();
+		image.crossOrigin = "anonymous";
+		image.onload = () => {
+			// SVGs without intrinsic size report 0
+			const naturalWidth = image.naturalWidth || maxSize;
+			const naturalHeight = image.naturalHeight || maxSize;
+			const scale = Math.min(maxSize / naturalWidth, maxSize / naturalHeight, 1);
+			if (!marker.billboard) return;
+			marker.billboard.image = new Cesium.ConstantProperty(image);
+			marker.billboard.width = new Cesium.ConstantProperty(Math.max(1, Math.round(naturalWidth * scale)));
+			marker.billboard.height = new Cesium.ConstantProperty(Math.max(1, Math.round(naturalHeight * scale)));
+			this.map.viewer.scene.requestRender();
+		};
+		image.onerror = () => {
+			console.warn(
+				`Story marker symbolUrl could not be loaded as an image (invalid url, not an image, or blocked by CORS): ${url}`
+			);
+		};
+		image.src = url;
 	}
 
 	private createMarkerIcon(icon: any): string {
