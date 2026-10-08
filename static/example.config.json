@@ -2,6 +2,171 @@
     "name": "Leia 3D Viewer",
     "layers": [
         {
+            "id": "bro-bhr-gt-2d",
+            "type": "geojson",
+            "title": "BRO Geotechnische Boringen (locaties)",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": true,
+            "attribution": "BRO",
+            "settings": {
+                "style": {
+                    "pointSize": 8,
+                    "pointColor": "#1a73e8",
+                    "stroke": "#ffffff",
+                    "strokeWidth": 1
+                },
+                "url": "/bro_boreholes.geojson",
+                "boreholes": "true",
+                "styleableProperties": [
+                    "delivery_accountable_party",
+                    "quality_regime",
+                    "discipline"
+                ],
+                "clampToGround": true,
+                "clampToTerrain": true
+            }
+        },
+        {
+            "id": "bro-bhr-gt-3d",
+            "type": "3dtiles",
+            "title": "BRO Geotechnische Boringen (3D)",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "attribution": "BRO",
+            "cameraPosition": {
+                "x": 4.019127535,
+                "y": 51.390461644,
+                "z": 2000,
+                "heading": 360.0,
+                "pitch": -35.0,
+                "duration": 1.5
+            },
+            "settings": {
+                "url": "/bro-bhr-gt/tiles/tileset.json",
+                "boreholes": "true",
+                "defaultTheme": "Grondsoort",
+                "themes": [
+                    {
+                        "title": "Grondsoort",
+                        "legend": [
+                            { "color": "#7030a0", "label": "Niet bepaald" },
+                            { "color": "#994c3a", "label": "Veen" },
+                            { "color": "#33691e", "label": "Humus" },
+                            { "color": "#009608", "label": "Klei" },
+                            { "color": "#dbdbdb", "label": "Silt" },
+                            { "color": "#fefe08", "label": "Zand" },
+                            { "color": "#f3c027", "label": "Grind" },
+                            { "color": "#616161", "label": "Keien" }
+                        ],
+                        "conditions": [
+                            ["${lithology} === 'nietBepaald'", "color('#7030a0')"],
+                            ["${lithology} === 'veen'", "color('#994c3a')"],
+                            ["${lithology} === 'humus'", "color('#33691e')"],
+                            ["${lithology} === 'klei'", "color('#009608')"],
+                            ["${lithology} === 'silt'", "color('#dbdbdb')"],
+                            ["${lithology} === 'zand'", "color('#fefe08')"],
+                            ["${lithology} === 'grind'", "color('#f3c027')"],
+                            ["${lithology} === 'keien'", "color('#616161')"],
+                            ["true", "color('#ff00ff')"]
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "bro-cpt-2d",
+            "type": "geojson",
+            "title": "BRO Sonderingen (locaties)",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "attribution": "BRO",
+            "settings": {
+                "style": {
+                    "pointSize": 8,
+                    "pointColor": "#e8710a",
+                    "stroke": "#ffffff",
+                    "strokeWidth": 1
+                },
+                "url": "/zeeland_bro_cpts.geojson",
+                "boreholes": "true",
+                "styleableProperties": [
+                    "accountable_party",
+                    "quality_regime",
+                    "quality_class",
+                    "interpretation"
+                ],
+                "clampToGround": true,
+                "clampToTerrain": true
+            }
+        },
+        {
+            "id": "bro-cpt-3d",
+            "type": "3dtiles",
+            "title": "BRO Sonderingen (3D, geinterpreteerd)",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "attribution": "BRO",
+            "cameraPosition": {
+                "x": 4.019127535,
+                "y": 51.390461644,
+                "z": 2000,
+                "heading": 360.0,
+                "pitch": -35.0,
+                "duration": 1.5
+            },
+            "settings": {
+                "url": "/bro-cpt/tiles/tileset.json",
+                "boreholes": "true",
+                "defaultTheme": "Lengkeek 2024",
+                "themes": [
+                    {
+                        "title": "Lengkeek 2024",
+                        "legend": [
+                            { "color": "#c9b3d6", "label": "Sensitive" },
+                            { "color": "#8a6642", "label": "Veen" },
+                            { "color": "#9c8352", "label": "Organische klei" },
+                            { "color": "#78a86c", "label": "Klei" },
+                            { "color": "#b5a642", "label": "Silt-mengsel" },
+                            { "color": "#d9cb48", "label": "Zand-mengsel" },
+                            { "color": "#f4e04d", "label": "Zand" },
+                            { "color": "#d88c3c", "label": "Grindig zand" },
+                            { "color": "#c9a227", "label": "Vast zand" },
+                            { "color": "#5e8f68", "label": "Vast fijnkorrelig" }
+                        ],
+                        "conditions": [
+                            ["${lithology} === 'sensitive'", "color('#c9b3d6')"],
+                            ["${lithology} === 'peat'", "color('#8a6642')"],
+                            ["${lithology} === 'organic clay'", "color('#9c8352')"],
+                            ["${lithology} === 'clay'", "color('#78a86c')"],
+                            ["${lithology} === 'silt mix'", "color('#b5a642')"],
+                            ["${lithology} === 'sand mix'", "color('#d9cb48')"],
+                            ["${lithology} === 'sand'", "color('#f4e04d')"],
+                            ["${lithology} === 'gravelly sand'", "color('#d88c3c')"],
+                            ["${lithology} === 'stiff sand'", "color('#c9a227')"],
+                            ["${lithology} === 'stiff fine gr.'", "color('#5e8f68')"],
+                            ["true", "color('#ff00ff')"]
+                        ]
+                    }
+                ]
+            }
+        },
+        {
             "id": "1",
             "type": "wmts",
             "title": "BRT Achtergrondkaart (WMTS)",
@@ -256,7 +421,15 @@
         },
         {
             "id": "featureInfo",
-            "enabled": true
+            "enabled": true,
+            "settings": {
+                "fields": [
+                    {
+                        "field": "bro_id",
+                        "handler": "bro"
+                    }
+                ]
+            }
         },
         {
             "id": "info",
