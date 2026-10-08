@@ -1,48 +1,47 @@
+<!-- @component Carbon Slider on a logarithmic scale: `value` binds in real units while the thumb moves in log space, useful for displaying data across multiple orders of magnitude -->
 <script lang="ts">
 	import { Slider } from "carbon-components-svelte";
 	import { scaleLog } from "d3-scale";
 
-	/** Bound value in real units; the log mapping stays internal.
-	    Undefined is tolerated so a not-yet-initialized store can be bound. */
 	export let value: number | undefined;
 	export let min = 1;
 	export let max = 100;
 	export let labelText = "";
-	/** Appended to tick labels, e.g. "×" or "m". */
 	export let unit = "";
-	/** Tick values in real units; defaults to a 1-2-5 series over [min, max]. */
 	export let ticks: number[] | undefined = undefined;
 
 	$: scale = scaleLog().domain([min, max]).range([0, 100]);
 	$: tickValues = ticks ?? defaultTicks(min, max);
 
-	function defaultTicks(lo: number, hi: number): number[] {
-		const out: number[] = [];
-		for (let mag = Math.pow(10, Math.floor(Math.log10(lo))); mag <= hi; mag *= 10) {
-			for (const mantissa of [1, 2, 5]) {
-				const v = mantissa * mag;
-				if (v >= lo && v <= hi) out.push(v);
+	function defaultTicks(lo: number, hi: number) {
+		const exponent = Math.floor(Math.log10(lo));
+		const firstDecade = 10 ** exponent;
+
+		const ticks = [lo];
+		for (let decade = firstDecade; decade <= hi; decade *= 10) {
+			for (const step of [1, 2, 5]) {
+				const tick = step * decade;
+				if (tick > lo && tick < hi) {
+					ticks.push(tick);
+				}
 			}
 		}
-		if (out[0] !== lo) out.unshift(lo);
-		if (out[out.length - 1] !== hi) out.push(hi);
-		return out;
+		ticks.push(hi);
+
+		return ticks;
 	}
 
-	let pos = 0;
+	let position = 0;
 
 	function toValue(p: number): number {
 		return Number(scale.invert(p).toPrecision(2));
 	}
 
-	// Only depends on `value`: pos is read inside the function, so dragging
-	// the slider does not re-trigger this and snap the thumb back to the
-	// stale bound value.
 	$: syncFromValue(value);
 
 	function syncFromValue(v: number | undefined) {
-		if (v !== undefined && v !== toValue(pos)) {
-			pos = Math.round(scale(v));
+		if (v !== undefined && v !== toValue(position)) {
+			position = Math.round(scale(v));
 		}
 	}
 </script>
@@ -55,10 +54,13 @@
 		max={100}
 		minLabel=" "
 		maxLabel=" "
-		bind:value={pos}
-		on:change={() => (value = toValue(pos))}
+		bind:value={position}
+		on:input={() => {
+			value = toValue(position);
+		}}
 		step={1}
 	/>
+
 	<div class="ticks" aria-hidden="true">
 		{#each tickValues as tick}
 			<span class="tick" style="left: {scale(tick)}%">{tick}{unit}</span>
@@ -86,8 +88,9 @@
 	   with the track */
 	.ticks {
 		position: relative;
-		height: 1rem;
-		margin: -0.5rem 1rem 0;
+		height: var(--cds-spacing-05);
+		/* side margin must equal .bx--slider's 1rem margin (= spacing-05) */
+		margin: calc(-1 * var(--cds-spacing-03)) var(--cds-spacing-05) 0;
 	}
 
 	.tick {
@@ -101,10 +104,10 @@
 	.tick::before {
 		content: "";
 		position: absolute;
-		top: -0.25rem;
+		top: calc(-1 * var(--cds-spacing-02));
 		left: 50%;
 		width: 1px;
-		height: 0.25rem;
+		height: var(--cds-spacing-02);
 		background: currentColor;
 	}
 </style>

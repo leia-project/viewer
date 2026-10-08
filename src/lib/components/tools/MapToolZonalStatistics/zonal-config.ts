@@ -6,6 +6,11 @@
  * attribute from the row-layer's feature for that zone, so the same tool can
  * show categorical labels, numeric statistics, or any mix of attributes.
  *
+ * A data layer is an attribute join on the zone geometry, so it needs no map layer of its own:
+ * each entry describes itself (title, group, dataset url) and defaults to the zone layer's dataset.
+ * When a map layer with the same id does exist, its title/group/url/metadata/opacity are used as
+ * fallbacks so configurations that list their data layers as real layers keep working.
+ *
  * It is configured through the viewer config `tools` array, e.g.:
  *
  * {
@@ -15,8 +20,8 @@
  *     "zoneLayerId": "pc6-zones",
  *     "zoneCodeAttribute": "postcode",
  *     "layers": [
- *       { "id": "heat" },
- *       { "id": "drought", "columns": { "ambition": { "attribute": "label_ca" } } }
+ *       { "id": "heat", "title": "Heat", "groupId": "climate" },
+ *       { "id": "drought", "title": "Drought", "columns": { "ambition": { "attribute": "label_ca" } } }
  *     ],
  *     "columns": [
  *       { "key": "ambition", "attribute": "value", "label": "Value", "tooltipAttribute": "description", "styled": true }
@@ -24,6 +29,15 @@
  *   }
  * }
  */
+
+/** Opacity (0…100) a data layer's fill gets when its own config entry omits one. */
+export const DEFAULT_LAYER_OPACITY = 80;
+
+/**
+ * Config value a zone/cell without a value is looked up under, in both the zone layer's
+ * `classMapping` (map colours) and `valueStyles` (table colours), so one entry covers both.
+ */
+export const NODATA_VALUE = "null";
 
 /**
  * Per-layer override of the source attributes a column reads. Lets datasets that
@@ -39,8 +53,16 @@ export interface ZonalColumnSource {
 export interface ZonalLayer {
 	/** Unique id of the layer (used as a stable key). Provides one table row. */
 	id: string;
-	/** Optional row label (defaults to the layer's config title). */
+	/** Row/card label (defaults to a map layer with the same id, else the id itself). */
 	title?: string;
+	/** Id of a config `groups` entry, used to group the panel's cards. */
+	groupId?: string;
+	/** GeoJSON url the attributes are read from (defaults to the zone layer's dataset). */
+	url?: string;
+	/** Human-readable metadata page linked from the panel card. */
+	metadataUrl?: string;
+	/** Opacity of this layer's colours on the zone geometry (0…100, defaults to 80). */
+	opacity?: number;
 	/** Source-attribute overrides for this layer, keyed by column `key` (or its `attribute`). */
 	columns?: Record<string, ZonalColumnSource>;
 }
@@ -167,12 +189,25 @@ export function parseZonalStatisticsSettings(raw: any): ZonalStatisticsSettings 
 		return Object.keys(sources).length > 0 ? sources : undefined;
 	};
 
+	const normalizeOpacity = (value: unknown): number | undefined => {
+		if (value === undefined) return undefined;
+		if (typeof value !== "number" || !Number.isFinite(value)) {
+			console.warn(`zonalStatistics: ignoring non-numeric layer opacity '${value}'`);
+			return undefined;
+		}
+		return Math.min(100, Math.max(0, value));
+	};
+
 	const layers: Array<ZonalLayer> = Array.isArray(raw.layers)
 		? raw.layers
 				.filter((l: any) => l && typeof l.id === "string")
 				.map((l: any) => ({
 					id: l.id,
 					title: typeof l.title === "string" ? l.title : undefined,
+					groupId: typeof l.groupId === "string" ? l.groupId : undefined,
+					url: typeof l.url === "string" ? l.url : undefined,
+					metadataUrl: typeof l.metadataUrl === "string" ? l.metadataUrl : undefined,
+					opacity: normalizeOpacity(l.opacity),
 					columns: parseColumnSources(l.columns)
 				}))
 		: [];

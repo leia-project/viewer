@@ -20,6 +20,7 @@ import { WfsLayer } from "./layers/wfs-layer";
 import { OgcFeaturesLayer } from "./layers/ogc-features-layer";
 import { BoreholeTilesLayer } from "./layers/borehole-tiles-layer";
 import { BoreholePointsLayer } from "./layers/borehole-points-layer";
+import { VoxelLayer } from "./layers/voxel-layer";
 
 export class CesiumLayerFactory {
 	public convert(map: Map, config: LayerConfig): CesiumLayer<unknown> | undefined {
@@ -38,6 +39,8 @@ export class CesiumLayerFactory {
 				return this.createVectorTilesLayer(map, config);
 			case "3dtiles":
 				return this.create3DTiles(map, config);
+			case "3dtiles-voxel":
+				return this.create3DTilesVoxel(map, config);
 			case "json":
 				return this.createGeoJsonLayer(map, config);
 			case "geojson":
@@ -83,6 +86,10 @@ export class CesiumLayerFactory {
 			return new BoreholeTilesLayer(map, layerConfig);
 		}
 		return new ThreedeeLayer(map, layerConfig);
+	}
+
+	private create3DTilesVoxel(map: Map, layerConfig: LayerConfig): VoxelLayer {
+		return new VoxelLayer(map, layerConfig);
 	}
 
 	private createVectorTilesLayer(map: Map, layerConfig: LayerConfig): CesiumLayer<ImageryLayer> {

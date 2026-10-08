@@ -3,12 +3,22 @@
 	import { _ } from "svelte-i18n";
 	import { Slider, RadioButtonGroup, RadioButton } from "carbon-components-svelte";
 	import LogSlider from "$lib/components/ui/components/LogSlider/LogSlider.svelte";
+	import { SUBSURFACE_EXAGGERATION_LAYER_TYPES } from "$lib/map-cesium/map-options";
 
 	const map = app.map;
 
 	$: globeOpacity = $map?.options.globeOpacity;
 	$: verticalExaggeration = $map?.options.verticalExaggeration;
 	$: subsurfaceExaggeration = $map?.options.subsurfaceExaggeration;
+	$: configLoaded = $map?.configLoaded;
+	// Boreholes/CPTs are "3dtiles" layers flagged via settings, so check that too
+	$: hasSubsurfaceLayers =
+		$configLoaded === true &&
+		($map?.config.layerConfigs?.some(
+			(config) =>
+				SUBSURFACE_EXAGGERATION_LAYER_TYPES.has(config.type) ||
+				(config.settings["boreholes"] ?? "false") === "true"
+		) ?? false);
 	$: terrainProviders = $map?.options.terrainProviders;
 	$: selectedTerrainProvider = $map?.options.selectedTerrainProvider;
 	$: selected = $selectedTerrainProvider ? $selectedTerrainProvider.title : "";
@@ -20,7 +30,11 @@
 
 <div class="custom">
 	{#if $terrainProviders && $terrainProviders.length > 1}
-		<RadioButtonGroup legendText={$_("tools.backgroundControls.terrain")} selected="standard" orientation="vertical">
+		<RadioButtonGroup
+			legendText={$_("tools.backgroundControls.terrain")}
+			selected="standard"
+			orientation="vertical"
+		>
 			{#each $terrainProviders as tp}
 				<RadioButton
 					labelText={tp.title}
@@ -44,21 +58,28 @@
 		step={1}
 	/>
 
-	<LogSlider
-		labelText={$_("tools.backgroundControls.verticalExaggeration") + " " + $verticalExaggeration + "×"}
-		min={1}
-		max={100}
-		unit="×"
-		bind:value={$verticalExaggeration}
-	/>
-
-	<LogSlider
-		labelText={$_("tools.backgroundControls.subsurfaceExaggeration") + " " + $subsurfaceExaggeration + "×"}
-		min={1}
-		max={200}
-		unit="×"
-		bind:value={$subsurfaceExaggeration}
-	/>
+	{#if hasSubsurfaceLayers}
+		<LogSlider
+			labelText={$_("tools.backgroundControls.verticalExaggeration") +
+				" " +
+				$verticalExaggeration +
+				"×"}
+			min={1}
+			max={100}
+			unit="×"
+			bind:value={$verticalExaggeration}
+		/>
+		<LogSlider
+			labelText={$_("tools.backgroundControls.subsurfaceExaggeration") +
+				" " +
+				$subsurfaceExaggeration +
+				"×"}
+			min={1}
+			max={200}
+			unit="×"
+			bind:value={$subsurfaceExaggeration}
+		/>
+	{/if}
 </div>
 
 <style>

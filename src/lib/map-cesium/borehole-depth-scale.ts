@@ -97,13 +97,18 @@ export class BoreholeDepthScaleController {
 
 		const geoidSeparation = ellipsoidalHit - napAtHit;
 
+		// The tileset stretches from NAP_OFFSET_M (see subsurface-exaggeration.ts)
+		// and is scene-exaggerated as 3D Tiles; labels read exact NAP via the
+		// column's geoid separation.
 		this.depthScale = new DepthScale(
 			this.map,
 			cartoPosition.longitude,
 			cartoPosition.latitude,
-			nap.topNap,
-			nap.bottomNap,
-			geoidSeparation
+			nap.topNap + geoidSeparation,
+			nap.bottomNap + geoidSeparation,
+			NAP_OFFSET_M,
+			geoidSeparation,
+			true
 		);
 		this.depthScale.addToScene();
 	}
