@@ -113,9 +113,11 @@
 		return provider ? PROVIDER_LABELS[provider] ?? provider : "";
 	}
 
-	/* De backend kent alleen en/nl. Bij een andere UI-taal sturen we niets mee,
-	   dan raadt de backend de taal zelf uit de vraag. Een locale kan "nl-NL"
-	   zijn, dus alleen het deel voor het streepje telt. */
+	/* De backend raadt de taal niet zelf (dat kost tokens en ging vaak mis),
+	   maar gebruikt wat wij meesturen: de taal van de interface. Een locale kan
+	   "nl-NL" zijn, dus alleen het deel voor het streepje telt. Zonder locale
+	   "en", net als de backend. Een taal buiten en/nl krijgt daar een nette
+	   melding dat hij niet ondersteund wordt. */
 	function requestLanguage(current: string | null | undefined): string {
 		return current?.split("-")[0] ?? "en";
 	}
