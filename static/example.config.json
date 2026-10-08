@@ -1,8 +1,8 @@
 {
-    "name": "Leia 3D Viewer",
+    "name": "3D Viewer",
     "layers": [
         {
-            "id": "1",
+            "id": 1,
             "type": "wmts",
             "title": "BRT Achtergrondkaart (WMTS)",
             "groupId": "",
@@ -59,87 +59,1477 @@
             }
         },
         {
-            "id": "3",
-            "type": "3dtiles",
-            "title": "3D BAG",
-            "groupId": "",
+            "id": "25",
+            "type": "wms",
+            "title": "Natura 2000-gebieden",
+            "groupId": "5",
+            "imageUrl": "",
             "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
-            "transparent": false,
-            "opacity": 0,
             "settings": {
-                "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/gebouwen/3dtiles",
-                "defaultTheme": "Bouwjaar",
-                "enableHeightControl": true,
-                "themes": [
-                    {
-                        "title": "Bouwjaar",
-                        "conditions": [
-                            [
-                                "${oorspronkelijkBouwjaar} < 1900",
-                                "color(\"#F62D2D\")"
-                            ],
-                            [
-                                "${oorspronkelijkBouwjaar} >= 1900 && ${oorspronkelijkBouwjaar} < 1950",
-                                "color(\"#D3212D\")"
-                            ],
-                            [
-                                "${oorspronkelijkBouwjaar} >= 1950 && ${oorspronkelijkBouwjaar} < 1970",
-                                "color(\"#722B6A\")"
-                            ],
-                            [
-                                "${oorspronkelijkBouwjaar} >= 1970 && ${oorspronkelijkBouwjaar} < 1990",
-                                "color(\"#412F88\")"
-                            ],
-                            [
-                                "${oorspronkelijkBouwjaar} >= 1990",
-                                "color(\"#1034A6\")"
-                            ],
-                            [
-                                "true",
-                                "color(\"#ededed\")"
-                            ]
-                        ]
-                    }
-                ]
+                "url": "https://service.pdok.nl/rvo/natura2000/wms/v1_0?transparent=false&format=image%2Fpng&styles=&service=WMS&version=1.1.1",
+                "featureName": "Natura2000",
+                "contenttype": "image/png"
             }
         },
         {
-            "id": "4",
+            "id": "27",
             "type": "wms",
-            "title": "PDOK Wijken",
-            "groupId": "",
-            "legendEnabled": true,
+            "title": "Saneringscontouren grond",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/bodem/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geogwd_ondgrddievlk",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/bodem/wms?",
+                "featureName": "p8:geonam_bdmsnrconvlk",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "28",
+            "type": "wms",
+            "title": "Verontreinigingscontouren grond",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/bodem/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_asbsanpnt",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/bodem/wms?",
+                "featureName": "p8:geonam_bdmvrgconvlk",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "29",
+            "type": "wms",
+            "title": "Bodemfunctiekaart Zeeland",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/bodem/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geonam_asbsanvlk",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/bodem/wms?",
+                "featureName": "geonam_bdmfnckrtvlk",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "30",
+            "type": "wms",
+            "title": "Bodemtoepassingskaart Zeeland",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/bodem/ows?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=geogwd_bdmkrtzldvlk",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/bodem/wms?",
+                "featureName": "geonam_bdmtpskrtvlk",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "31",
+            "type": "wms",
+            "title": "Omgevingsverordening: Stiltegebieden A",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/dso/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=dso:ext_ovz_stlgba",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/dso/wms?",
+                "featureName": "dso:ext_ovz_stlgba",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "32",
+            "type": "wms",
+            "title": "Omgevingsverordening: Stiltegebieden B",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/dso/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=dso:ext_ovz_stlgbb",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/dso/wms?",
+                "featureName": "dso:ext_ovz_stlgbb",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "33",
+            "type": "wms",
+            "title": "Omgevingsverordening: Stiltegebieden overig",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/dso/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=dso:ext_ovz_stlgbovg",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/dso/wms?",
+                "featureName": "dso:ext_ovz_stlgbovg",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "34",
+            "type": "wms",
+            "title": "KRW Grondwaterlichamen (vlak)",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/water/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=water:geonam_krwgrdwtrlchindvlk",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/water/wms?",
+                "featureName": "water:geonam_krwgrdwtrlchindvlk",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "35",
+            "type": "wms",
+            "title": "Kaderrichtlijn water: Oppervlakte lichamen Zeeland (vlak)",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/water/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=water:geonam_krwoppvlkliczldvlk",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/water/wms?",
+                "featureName": "water:geonam_krwoppvlkliczldvlk",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "36",
+            "type": "wms",
+            "title": "Regionaal Waterprogramma: KRW Grondwaterlichamen - Grondwater in diepe zandlagen",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/dso/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=dso:ext_ovz_krw_gwl_diep_zand",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/dso/wms?",
+                "featureName": "dso:ext_ovz_krw_gwl_diep_zand",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "37",
+            "type": "wms",
+            "title": "Regionaal Waterprogramma: KRW Grondwaterlichamen - Zoet grondwater in dekzand",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/dso/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=dso:ext_ovz_krw_gwl_zoet_dek",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/dso/wms?",
+                "featureName": "dso:ext_ovz_krw_gwl_zoet_dek",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "38",
+            "type": "wms",
+            "title": "Regionaal Waterprogramma: KRW Grondwaterlichamen - Zoet grondwater in duingebieden",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/dso/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=dso:ext_ovz_krw_gwl_zoet_duin",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/dso/wms?",
+                "featureName": "dso:ext_ovz_krw_gwl_zoet_duin",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "39",
+            "type": "wms",
+            "title": "Regionaal Waterprogramma: KRW Grondwaterlichamen - Zoet grondwater in kreekgebieden",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/dso/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=dso:ext_ovz_krw_gwl_zoet_krk",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/dso/wms?",
+                "featureName": "dso:ext_ovz_krw_gwl_zoet_krk",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "40",
+            "type": "wms",
+            "title": "Regionaal Waterprogramma: KRW Grondwaterlichamen - Zout grondwater in ondiepe zandlagen",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/dso/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=dso:ext_ovz_krw_gwl_zout_onz",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/dso/wms?",
+                "featureName": "dso:ext_ovz_krw_gwl_zout_onz",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "41",
+            "type": "wms",
+            "title": "Regionaal Waterprogramma: Oppervlaktewaterlichamen - KRW Waterlichaam M3",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/dso/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=dso:ext_ovz_krw_wlc_m3",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/dso/wms?",
+                "featureName": "dso:ext_ovz_krw_wlc_m3",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "42",
+            "type": "wms",
+            "title": "Regionaal Waterprogramma: Oppervlaktewaterlichamen - KRW Waterlichaam M30",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/dso/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=dso:ext_ovz_krw_wlc_m30",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/dso/wms?",
+                "featureName": "dso:ext_ovz_krw_wlc_m30",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "43",
+            "type": "wms",
+            "title": "Regionaal Waterprogramma: Oppervlaktewaterlichamen - KRW Waterlichaam M31",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/dso/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=dso:ext_ovz_krw_wlc_m31",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/dso/wms?",
+                "featureName": "dso:ext_ovz_krw_wlc_m31",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "44",
+            "type": "wms",
+            "title": "Ontgravingskaart PFAS bg/og",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ruimte/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ruimte:geonam_bdmkwlkrtpfs025vlk",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/ruimte/wms?",
+                "featureName": "ruimte:geonam_bdmkwlkrtpfs025vlk",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "45",
+            "type": "wms",
+            "title": "Bodemkwaliteitskrt PFAS 1 tot 2 m mv Herkomst binnen regio",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ruimte/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ruimte:geonam_bdmkwlkrtpfsbinreg_12vvl",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/ruimte/wms?",
+                "featureName": "ruimte:geonam_bdmkwlkrtpfsbinreg_12vvl",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "46",
+            "type": "wms",
+            "title": "Bodemkwaliteitskrt PFAS meer 2 m mv Herkomst binnen regio",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ruimte/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ruimte:geonam_bdmkwlkrtpfsbinreg__2vvl",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/ruimte/wms?",
+                "featureName": "ruimte:geonam_bdmkwlkrtpfsbinreg__2vvl",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "47",
+            "type": "wms",
+            "title": "Bodemkwaliteitskrt PFAS 0 tot 2 en meer 2 Herkomst buiten regio",
+            "groupId": "7",
+            "imageUrl": "",
+            "legendUrl": "https://opengeodata.zeeland.nl/geoserver/ruimte/wms?service=WMS&version=1.3.0&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=ruimte:geonam_bdmkwlkrtpfsbuireg__2vvl",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "settings": {
+                "url": "https://opengeodata.zeeland.nl/geoserver/ruimte/wms?",
+                "featureName": "ruimte:geonam_bdmkwlkrtpfsbuireg__2vvl",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "26",
+            "type": "wms",
+            "title": "PMV Milieu beschermingsgebieden",
+            "groupId": "7",
+            "imageUrl": "",
             "legendUrl": "",
             "isBackground": false,
             "defaultAddToManager": true,
             "defaultOn": false,
-            "transparent": false,
             "settings": {
-                "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
-                "featureName": "wijken",
-                "contenttype": "image/png",
-                "tools": {
-                    "styleSwitcher": {
-                        "enabled": true
+                "url": "https://opengeodata.zeeland.nl/geoserver/zeeland/wms",
+                "featureName": "zeeland:georok_pmv09milbshgbdvlk",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "110",
+            "type": "3dtiles",
+            "title": "FRESHEM Borsele",
+            "groupId": "4",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_borsele/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "100": "0",
+                        "101": "150",
+                        "102": "300",
+                        "103": "500",
+                        "104": "750",
+                        "105": "1000",
+                        "106": "1250",
+                        "107": "1500",
+                        "108": "2000",
+                        "109": "3000",
+                        "110": "5000",
+                        "111": "7500",
+                        "112": "10000",
+                        "113": "15000"
                     }
                 }
+            }
+        },
+        {
+            "id": "111",
+            "type": "3dtiles",
+            "title": "FRESHEM Goes",
+            "groupId": "4",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_goes/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "100": "0",
+                        "101": "150",
+                        "102": "300",
+                        "103": "500",
+                        "104": "750",
+                        "105": "1000",
+                        "106": "1250",
+                        "107": "1500",
+                        "108": "2000",
+                        "109": "3000",
+                        "110": "5000",
+                        "111": "7500",
+                        "112": "10000",
+                        "113": "15000"
+                    }
+                }
+            }
+        },
+        {
+            "id": "112",
+            "type": "3dtiles",
+            "title": "FRESHEM Hulst",
+            "groupId": "4",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_hulst/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "100": "0",
+                        "101": "150",
+                        "102": "300",
+                        "103": "500",
+                        "104": "750",
+                        "105": "1000",
+                        "106": "1250",
+                        "107": "1500",
+                        "108": "2000",
+                        "109": "3000",
+                        "110": "5000",
+                        "111": "7500",
+                        "112": "10000",
+                        "113": "15000"
+                    }
+                }
+            }
+        },
+        {
+            "id": "113",
+            "type": "3dtiles",
+            "title": "FRESHEM Kapelle",
+            "groupId": "4",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_kapelle/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "100": "0",
+                        "101": "150",
+                        "102": "300",
+                        "103": "500",
+                        "104": "750",
+                        "105": "1000",
+                        "106": "1250",
+                        "107": "1500",
+                        "108": "2000",
+                        "109": "3000",
+                        "110": "5000",
+                        "111": "7500",
+                        "112": "10000",
+                        "113": "15000"
+                    }
+                }
+            }
+        },
+        {
+            "id": "114",
+            "type": "3dtiles",
+            "title": "FRESHEM Middelburg",
+            "groupId": "4",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_middelburg/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "100": "0",
+                        "101": "150",
+                        "102": "300",
+                        "103": "500",
+                        "104": "750",
+                        "105": "1000",
+                        "106": "1250",
+                        "107": "1500",
+                        "108": "2000",
+                        "109": "3000",
+                        "110": "5000",
+                        "111": "7500",
+                        "112": "10000",
+                        "113": "15000"
+                    }
+                }
+            }
+        },
+        {
+            "id": "115",
+            "type": "3dtiles",
+            "title": "FRESHEM Noord-Beveland",
+            "groupId": "4",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_noordbeveland/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "100": "0",
+                        "101": "150",
+                        "102": "300",
+                        "103": "500",
+                        "104": "750",
+                        "105": "1000",
+                        "106": "1250",
+                        "107": "1500",
+                        "108": "2000",
+                        "109": "3000",
+                        "110": "5000",
+                        "111": "7500",
+                        "112": "10000",
+                        "113": "15000"
+                    }
+                }
+            }
+        },
+        {
+            "id": "116",
+            "type": "3dtiles",
+            "title": "FRESHEM Reimerswaal",
+            "groupId": "4",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_reimerswaal/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "100": "0",
+                        "101": "150",
+                        "102": "300",
+                        "103": "500",
+                        "104": "750",
+                        "105": "1000",
+                        "106": "1250",
+                        "107": "1500",
+                        "108": "2000",
+                        "109": "3000",
+                        "110": "5000",
+                        "111": "7500",
+                        "112": "10000",
+                        "113": "15000"
+                    }
+                }
+            }
+        },
+        {
+            "id": "117",
+            "type": "3dtiles",
+            "title": "FRESHEM Schouwen-Duiveland",
+            "groupId": "4",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_schouwenduiveland/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "100": "0",
+                        "101": "150",
+                        "102": "300",
+                        "103": "500",
+                        "104": "750",
+                        "105": "1000",
+                        "106": "1250",
+                        "107": "1500",
+                        "108": "2000",
+                        "109": "3000",
+                        "110": "5000",
+                        "111": "7500",
+                        "112": "10000",
+                        "113": "15000"
+                    }
+                }
+            }
+        },
+        {
+            "id": "118",
+            "type": "3dtiles",
+            "title": "FRESHEM Sluis",
+            "groupId": "4",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_sluis/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "100": "0",
+                        "101": "150",
+                        "102": "300",
+                        "103": "500",
+                        "104": "750",
+                        "105": "1000",
+                        "106": "1250",
+                        "107": "1500",
+                        "108": "2000",
+                        "109": "3000",
+                        "110": "5000",
+                        "111": "7500",
+                        "112": "10000",
+                        "113": "15000"
+                    }
+                }
+            }
+        },
+        {
+            "id": "119",
+            "type": "3dtiles",
+            "title": "FRESHEM Terneuzen",
+            "groupId": "4",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_terneuzen/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "100": "0",
+                        "101": "150",
+                        "102": "300",
+                        "103": "500",
+                        "104": "750",
+                        "105": "1000",
+                        "106": "1250",
+                        "107": "1500",
+                        "108": "2000",
+                        "109": "3000",
+                        "110": "5000",
+                        "111": "7500",
+                        "112": "10000",
+                        "113": "15000"
+                    }
+                }
+            }
+        },
+        {
+            "id": "120",
+            "type": "3dtiles",
+            "title": "FRESHEM Tholen",
+            "groupId": "4",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/freshem_tholen/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "100": "0",
+                        "101": "150",
+                        "102": "300",
+                        "103": "500",
+                        "104": "750",
+                        "105": "1000",
+                        "106": "1250",
+                        "107": "1500",
+                        "108": "2000",
+                        "109": "3000",
+                        "110": "5000",
+                        "111": "7500",
+                        "112": "10000",
+                        "113": "15000"
+                    }
+                }
+            }
+        },
+        {
+            "id": "6",
+            "type": "wms",
+            "title": "Bodemhoogte",
+            "groupId": "",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "Voor de Provincie Zeeland is adequaat digitaal inzicht in de hoogte van het terrein en in de wateren van groot belang. Bestaande beschikbare geodata is hiervoor bijgewerkt tot 1 dekkende bodemhoogte kaart. De bodemhoogte kaart is te gebruiken door ketenpartners waar de Provincie Zeeland mee samenwerkt in het kader van de Digital Twin. CC - SPOTinfo.",
+            "attribution": "digitaltwin%3Azeeland_1m",
+            "settings": {
+                "url": "https://projectgeodata.zeeland.nl/geoserver/digitaltwin/wms?transparent=true&version=1.1.1",
+                "featureName": "zeeland_1m",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "10",
+            "type": "wms",
+            "title": "Bodemvlakken (BRO)",
+            "groupId": "1",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "soilarea",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-bodemkaart/wms/v1_0?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.1.1",
+                "featureName": "soilarea",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "11",
+            "type": "wms",
+            "title": "Vlakken van bodemkundig belang (BRO)",
+            "groupId": "1",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "areaofpedologicalinterest",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-bodemkaart/wms/v1_0?transparent=true&format=image%2Fpng&styles=&service=WMS&version=1.1.1",
+                "featureName": "areaofpedologicalinterest",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "12",
+            "type": "wms",
+            "title": "Dieptemetingen (BRO)",
+            "groupId": "2",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v1_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "13",
+            "type": "wms",
+            "title": "GHG - gemiddeld kleinste diepte (BRO)",
+            "groupId": "2",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen-GHG",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v1_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen-GHG",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "14",
+            "type": "wms",
+            "title": "GLG - gemiddeld grootste diepte (BRO)",
+            "groupId": "2",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen-GLG",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v1_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen-GLG",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "15",
+            "type": "wms",
+            "title": "GVG - gemiddelde diepte voorjaar (BRO)",
+            "groupId": "2",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen-GVG",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v1_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen-GVG",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "16",
+            "type": "wms",
+            "title": "GT - Grondwatertrappen (BRO)",
+            "groupId": "2",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "bro-grondwaterspiegeldieptemetingen-GT",
+            "settings": {
+                "url": "https://service.pdok.nl/bzk/bro-grondwaterspiegeldiepte/wms/v1_0?service=WMS&version=1.1.1",
+                "featureName": "bro-grondwaterspiegeldieptemetingen-GT",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "17",
+            "type": "3dtiles",
+            "title": "GeoTOP Borsele",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_borsele/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "21",
+            "type": "3dtiles",
+            "title": "GeoTOP Goes",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_goes/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "22",
+            "type": "3dtiles",
+            "title": "GeoTOP Hulst",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_hulst/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "23",
+            "type": "3dtiles",
+            "title": "GeoTOP Kapelle",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_kapelle/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "24",
+            "type": "3dtiles",
+            "title": "GeoTOP Middelburg",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_middelburg/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "25",
+            "type": "3dtiles",
+            "title": "GeoTOP Noord-Beveland",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_noordbeveland/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "26",
+            "type": "3dtiles",
+            "title": "GeoTOP Reimerswaal",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_reimerswaal/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "27",
+            "type": "3dtiles",
+            "title": "GeoTOP Schouwen-Duiveland",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_schouwenduiveland/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "28",
+            "type": "3dtiles",
+            "title": "GeoTOP Sluis",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_sluis/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "29",
+            "type": "3dtiles",
+            "title": "GeoTOP Terneuzen",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_terneuzen/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "30",
+            "type": "3dtiles",
+            "title": "GeoTOP Tholen",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_tholen/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "31",
+            "type": "3dtiles",
+            "title": "GeoTOP Vlissingen",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_vlissingen/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "32",
+            "type": "3dtiles",
+            "title": "GeoTOP Veere",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_veere/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "33",
+            "type": "3dtiles",
+            "title": "GeoTOP Zuid-Beveland",
+            "groupId": "3",
+            "legendUrl": "https://virtueel.zeeland.nl/tiles_other/legendas/geotop_legenda.png",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "BRO",
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/geotop_zuidbeveland/3dtiles/tileset.json",
+                "shadows": false,
+                "enableClipping": true,
+                "style": {
+                    "pointSize": "15"
+                },
+                "filter": {
+                    "filterAttribute": "Classification",
+                    "classMapping": {
+                        "0": "Antropogeen",
+                        "1": "Organisch materiaal (veen)",
+                        "2": "Klei",
+                        "3": "Kleiig zand, zanderige klei en leem",
+                        "5": "Fijn zand",
+                        "6": "Midden zand",
+                        "7": "Grof zand",
+                        "8": "Grind",
+                        "9": "Schelpen"
+                    }
+                }
+            }
+        },
+        {
+            "id": "19",
+            "type": "wms",
+            "title": "Luchtfoto 2024 Ortho 8cm RGB",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "PDOK",
+            "settings": {
+                "url": "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0",
+                "featureName": "2024_orthoHR",
+                "contenttype": "image/png"
+            }
+        },
+        {
+            "id": "20",
+            "type": "wms",
+            "title": "Luchtfoto 2023 Ortho 8cm RGB",
+            "groupId": "6",
+            "imageUrl": "",
+            "legendUrl": "",
+            "isBackground": false,
+            "defaultAddToManager": true,
+            "defaultOn": false,
+            "description": "",
+            "attribution": "PDOK",
+            "settings": {
+                "url": "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0",
+                "featureName": "2023_orthoHR",
+                "contenttype": "image/png"
             }
         }
     ],
     "viewer": {
-        "title": "3D viewer",
-        "subTitle": "Leia Example",
-        "logo": "images/leia_logo.png",
+        "title": "Digital twin",
+        "subTitle": "Milieu",
+        "logo": "https://virtueel.zeeland.nl/global_assets/img/logo.svg",
+        "thumbnail": "/assets/previews/preview-klimaat-bodem.png",
+        "isPrivate": true,
+        "startToolOpen": "layerManager",
         "startPosition": {
-            "x": 5.40068,
-            "y": 51.20089,
-            "z": 55885.52117,
-            "heading": 360.00000,
-            "pitch": -34.77194,
-            "duration": 1.50
+            "x": 3.930631,
+            "y": 51.07,
+            "z": 90096.9614,
+            "heading": 360.0,
+            "pitch": -64.77193,
+            "duration": 1.5
+        },
+        "terrain": {
+            "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
+            "requestVertexNormals": true
         },
         "colors": {
             "ui-background": "#ffffff",
@@ -197,7 +1587,48 @@
             "disabled-03": "#8c8c8c"
         }
     },
-    "groups": [],
+    "groups": [
+        {
+            "id": "1",
+            "title": "Bodemkaart (BRO)",
+            "parentId": ""
+        },
+        {
+            "id": "2",
+            "title": "Grondwaterspiegel (BRO)",
+            "parentId": ""
+        },
+        {
+            "id": "3",
+            "title": "GeoTOP (BRO)",
+            "parentId": ""
+        },
+        {
+            "id": "4",
+            "title": "FRESHEM",
+            "parentId": ""
+        },
+        {
+            "id": "5",
+            "title": "Natuur",
+            "parentId": ""
+        },
+        {
+            "id": "6",
+            "title": "Luchtfoto's",
+            "parentId": ""
+        },
+        {
+            "id": "7",
+            "title": "Milieu",
+            "parentId": ""
+        },
+        {
+            "id": "8",
+            "title": "Atlas Leefomgeving",
+            "parentId": ""
+        }
+    ],
     "tools": [
         {
             "id": "layerLibrary",
@@ -205,10 +1636,39 @@
             "settings": {
                 "connectors": [
                     {
+                        "type": "ckan",
+                        "url": "https://data.beta.geodan.nl",
+                        "organizations": [
+                            "pdok"
+                        ],
+                        "groups": [
+                            "group_name_1",
+                            "group_name_2",
+                            "group_name_3"
+                        ],
+                        "packages": [
+                            "package_name_1",
+                            "package_name_2"
+                        ],
+                        "specialResources": {
+                            "backgroundLayers": [
+                                "resource_name_1",
+                                "fd1126fd-c557-47e6-9d95-e60d5897eeb0"
+                            ],
+                            "layersAddedOn": [
+                                "7f7b7023-225f-4018-ae4a-3381c79c7248"
+                            ],
+                            "layersAddedOff": [
+                                "resource_name_2"
+                            ]
+                        }
+                    },
+                    {
                         "type": "geonetwork",
                         "url": "https://dataportaal.zeeland.nl/dataportaal"
                     }
-                ]
+                ],
+                "useTags": true
             }
         },
         {
@@ -224,33 +1684,25 @@
             "id": "info",
             "enabled": true,
             "settings": {
-                "title": "Viewer title",
-                "description": "Some additional information, supports <b>HTML</b>"
+                "title": "Digital twin Natuur",
+                "description": "Digital twin Natuur geeft inzicht over de bodem en de Natura 2000-gebieden."
             }
         },
         {
             "id": "help",
             "enabled": true,
             "settings": {
-                "showOnStart": true
+                "showOnStart": true,
+                "introSettings": {
+                    "customDescription": "<div>De Digital twin Milieu geeft inzicht in de verschillende bodemtypes en Natura 2000-gebieden.</div>"
+                }
             }
         },
         {
             "id": "bookmarks",
-            "enabled": true,
+            "enabled": false,
             "settings": {
-                "bookmarks": [
-                    {
-                        "title": "Heinenoordtunnel",
-                        "description": "De Heinenoordtunnel is een verkeerstunnel in de Nederlandse provincie Zuid-Holland",
-                        "x": 4.51056,
-                        "y": 51.833003,
-                        "z": 2000,
-                        "heading": 0,
-                        "pitch": -65,
-                        "duration": 2
-                    }
-                ]
+                "bookmarks": []
             }
         },
         {
@@ -261,20 +1713,14 @@
                 "shadows": false,
                 "animate": false,
                 "resolutionScale": 1,
-                "maximumScreenSpaceError": 16,
+                "maximumScreenSpaceError": 1.2,
                 "groundAtmosphere": true,
-                "globeOpacity": 100,
                 "lighting": true,
                 "skyAtmosphere": true,
                 "fog": true,
                 "highDynamicRange": false,
                 "pointCloudAttenuationMaximum": 2,
                 "terrainProviders": [
-                    {
-                        "title": "PDOK Terrain",
-                        "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
-                        "vertexNormals": true
-                    },
                     {
                         "title": "Zeeland 1m",
                         "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
@@ -287,86 +1733,15 @@
             }
         },
         {
-            "id": "config_switcher",
-            "enabled": false,
-            "settings": {
-                "fullReload": true
-            }
-        },
-        {
-            "id": "projects",
-            "enabled": false,
-            "settings": {
-                "openProject": "My project name",
-                "projects": [
-                    {
-                        "name": "My project name",
-                        "description": "Short description of my project",
-                        "polygon": [
-                            [
-                                4.9000,
-                                52.39961
-                            ],
-                            [
-                                4.91807,
-                                52.39961
-                            ],
-                            [
-                                4.9193,
-                                52.38107
-                            ],
-                            [
-                                4.9000,
-                                52.38575
-                            ]
-                        ],
-                        "layers": [
-                            "3D BAG"
-                        ],
-                        "cameraPosition": {
-                            "x": 4.94802,
-                            "y": 52.35647,
-                            "z": 2176.53646,
-                            "heading": 326.85260,
-                            "pitch": -24.10943,
-                            "duration": 1.50
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "id": "flooding",
-            "enabled": false,
-            "settings": {
-                "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
-                "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson",
-                "roadsUrl": "https://service.pdok.nl/rws/vervoersnetwerken/wegen/wms/v1_0",
-                "floodedRoadsUrl": "https://virtueel.zeeland.nl/pygeoapi",
-                "floodedRoadsStyle": [
-                    {
-                        "property": "flood_depth",
-                        "stops": [
-                            {
-                                "value": 0,
-                                "color": "#ffff00"
-                            },
-                            {
-                                "value": 3,
-                                "color": "#ff0000"
-                            }
-                        ]
-                    }
-                ]
-            }
-        },
-        {
             "id": "stories",
-            "enabled": true
+            "enabled": false,
+            "settings": {
+                "stories": []
+            }
         },
         {
             "id": "measure",
-            "enabled": true
+            "enabled": false
         },
         {
             "id": "search",
@@ -385,7 +1760,7 @@
         },
         {
             "id": "flyCamera",
-            "enabled": true
+            "enabled": false
         },
         {
             "id": "language",
@@ -396,7 +1771,7 @@
         },
         {
             "id": "github",
-            "enabled": true
+            "enabled": false
         },
         {
             "id": "chat",
