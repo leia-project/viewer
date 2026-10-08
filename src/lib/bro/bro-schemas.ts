@@ -11,10 +11,10 @@ export const CPT_ESSENTIALS = {
 	cptStandard: p.code("./dscpt:cptStandard"),
 	cptMethod: p.code(`${CPT_SURVEY}/cptcommon:cptMethod`),
 	qualityClass: p.code(`${CPT_SURVEY}/cptcommon:qualityClass`),
-	finalDepth: p.number(`${CPT_SURVEY}/cptcommon:trajectory/cptcommon:finalDepth`),
-	predrilledDepth: p.number(`${CPT_SURVEY}/cptcommon:trajectory/cptcommon:predrilledDepth`),
-	groundwaterLevel: p.number("./dscpt:additionalInvestigation/cptcommon:groundwaterLevel"),
-	deliveredVerticalPositionOffset: p.number(`${CPT_VPOS}/cptcommon:offset`),
+	finalDepth: p.measure(`${CPT_SURVEY}/cptcommon:trajectory/cptcommon:finalDepth`),
+	predrilledDepth: p.measure(`${CPT_SURVEY}/cptcommon:trajectory/cptcommon:predrilledDepth`),
+	groundwaterLevel: p.measure("./dscpt:additionalInvestigation/cptcommon:groundwaterLevel"),
+	deliveredVerticalPositionOffset: p.measure(`${CPT_VPOS}/cptcommon:offset`),
 	deliveredVerticalPositionDatum: p.code(`${CPT_VPOS}/cptcommon:verticalDatum`),
 	deliveredVerticalPositionReferencePoint: p.code(
 		`${CPT_VPOS}/cptcommon:localVerticalReferencePoint`
@@ -39,8 +39,8 @@ const BHRGT_VPOS = "./dsbhrgt:deliveredVerticalPosition";
 
 const BHRGT_LAYER = p.object({
 	fields: {
-		upperBoundary: p.number("./bhrgtcom:upperBoundary"),
-		lowerBoundary: p.number("./bhrgtcom:lowerBoundary"),
+		upperBoundary: p.measure("./bhrgtcom:upperBoundary"),
+		lowerBoundary: p.measure("./bhrgtcom:lowerBoundary"),
 		soilNameNEN5104: p.code("./bhrgtcom:soil/bhrgtcom:soilNameNEN5104"),
 		geotechnicalSoilName: p.code("./bhrgtcom:soil/bhrgtcom:geotechnicalSoilName"),
 		sandMedianClass: p.code("./bhrgtcom:soil/bhrgtcom:sandMedianClass"),
@@ -56,11 +56,11 @@ export const BHRGT_ESSENTIALS = {
 	descriptionProcedure: p.code(`${BHRGT_SAMPLE_DESC}/bhrgtcom:descriptionProcedure`),
 	describedMaterial: p.code(`${BHRGT_LOG}/bhrgtcom:describedMaterial`),
 	descriptionQuality: p.code(`${BHRGT_LOG}/bhrgtcom:descriptionQuality`),
-	finalBoreDepth: p.number(`${BHRGT_BORING}/bhrgtcom:finalDepthBoring`),
-	finalSampleDepth: p.number(`${BHRGT_BORING}/bhrgtcom:finalDepthSampling`),
-	groundwaterLevel: p.number(`${BHRGT_BORING}/bhrgtcom:groundwaterLevel`),
+	finalBoreDepth: p.measure(`${BHRGT_BORING}/bhrgtcom:finalDepthBoring`),
+	finalSampleDepth: p.measure(`${BHRGT_BORING}/bhrgtcom:finalDepthSampling`),
+	groundwaterLevel: p.measure(`${BHRGT_BORING}/bhrgtcom:groundwaterLevel`),
 	boreRockReached: p.boolean(`${BHRGT_BORING}/bhrgtcom:rockReached`),
-	deliveredVerticalPositionOffset: p.number(`${BHRGT_VPOS}/bhrgtcom:offset`),
+	deliveredVerticalPositionOffset: p.measure(`${BHRGT_VPOS}/bhrgtcom:offset`),
 	deliveredVerticalPositionDatum: p.code(`${BHRGT_VPOS}/bhrgtcom:verticalDatum`),
 	deliveredVerticalPositionReferencePoint: p.code(
 		`${BHRGT_VPOS}/bhrgtcom:localVerticalReferencePoint`

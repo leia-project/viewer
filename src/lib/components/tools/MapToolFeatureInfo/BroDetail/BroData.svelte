@@ -2,7 +2,7 @@
 	import { _ } from "svelte-i18n";
 	import { DataTable } from "carbon-components-svelte";
 
-	import type { Location } from "@bedrock-engineer/bro-xml-parser";
+	import type { Location, Measure } from "@bedrock-engineer/bro-xml-parser";
 
 	import type { BroObject } from "$lib/bro/bro-api";
 	import { BHRGT_LAYER_COLUMNS } from "$lib/bro/bro-schemas";
@@ -24,8 +24,16 @@
 		return "x" in value && "y" in value && "epsg" in value;
 	}
 
-	function formatLocation(location: Location): string {
+	function formatLocation(location: Location) {
 		return `${location.x}, ${location.y} (${location.epsg})`;
+	}
+
+	function isMeasure(value: object): value is Measure {
+		return "value" in value && "uom" in value;
+	}
+
+	function formatMeasure(measure: Measure) {
+		return `${measure.value} ${measure.uom}`;
 	}
 
 	/** Render a parsed BRO value for display */
@@ -43,6 +51,9 @@
 		}
 
 		if (typeof value === "object") {
+			if (isMeasure(value)) {
+				return formatMeasure(value);
+			}
 			return isLocation(value) ? formatLocation(value) : "";
 		}
 
