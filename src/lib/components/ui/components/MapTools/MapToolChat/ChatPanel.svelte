@@ -6,7 +6,7 @@
 	import Gears from "carbon-icons-svelte/lib/Gears.svelte";
 	import SendAltFilled from "carbon-icons-svelte/lib/SendAltFilled.svelte";
 
-	import { _ } from "svelte-i18n";
+	import { _, locale } from "svelte-i18n";
 
 	import type { Writable } from "svelte/store";
 	import type { Map } from "$lib/components/map-cesium/module/map";
@@ -113,6 +113,13 @@
 		return provider ? PROVIDER_LABELS[provider] ?? provider : "";
 	}
 
+	/* De backend kent alleen en/nl. Bij een andere UI-taal sturen we niets mee,
+	   dan raadt de backend de taal zelf uit de vraag. Een locale kan "nl-NL"
+	   zijn, dus alleen het deel voor het streepje telt. */
+	function requestLanguage(current: string | null | undefined): string {
+		return current?.split("-")[0] ?? "en";
+	}
+
 	/* Houdt buffer van chunks bij */
 	let events: any[] = [];
 	let buffer = "";
@@ -124,6 +131,12 @@
 
 		/* Aan de slag! */
 		busy = true;
+
+		/* Het invoerveld hangt via bind:value aan `question`, dus legen doe je
+		   door de variabele leeg te maken. De vraag zelf gaat eerst in een
+		   kopie, anders versturen we de inmiddels lege string. */
+		const asked = question;
+		question = "";
 
 		try {
 		if (!sessionToken) await testSession();
@@ -137,7 +150,8 @@
 				"X-Session-Token": sessionToken
 			},
 			body: JSON.stringify({
-				question,
+				question: asked,
+				language: requestLanguage($locale),
 				webservices_refs: await webserviceRefs()
 			})
 		})
