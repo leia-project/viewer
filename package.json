@@ -36,6 +36,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@ag-ui/client": "^1.0.2",
 		"@carbon/charts-svelte": "^1.22.18",
 		"@fontsource/fira-mono": "^5.2.7",
 		"@fontsource/open-sans": "^5.2.5",

@@ -6,18 +6,19 @@
  * tool-resultaten en de retry/error-boekhouding — niet alleen wat het paneel
  * toevallig op het scherm heeft staan.
  *
- * Leia stuurt geen `conversation_id` mee bij /query/stream, en dan houdt de
- * backend één draad per sessietoken aan (zie build_thread_id in
- * backend/app/src/services/agent/orchestrator.py). Daarom vragen we hier ook
- * zonder id op: dat is precies dezelfde draad.
+ * Het gesprek loopt over /agent/run met `conversationId` als thread_id; de backend
+ * maakt daar samen met het sessietoken de draad-id van (zie build_thread_id in
+ * backend/app/src/services/agent/orchestrator.py). Dezelfde id is dus nodig om
+ * precies die draad terug te lezen.
  */
 
 export async function exportConversation(
 	apiUrl: string,
 	sessionToken: string,
+	conversationId: string,
 	reason: string
 ): Promise<void> {
-	const response = await fetch(`${apiUrl}/conversation/export`, {
+	const response = await fetch(`${apiUrl}/conversation/export?conversation_id=${encodeURIComponent(conversationId)}`, {
 		headers: { "X-Session-Token": sessionToken }
 	});
 
