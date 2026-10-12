@@ -10,8 +10,12 @@ export interface StoryMarkerCoordinates {
     type?: "chapter" | "text" | "image";
     /** Mandatory when type is "text": the speech bubble text. Optional for "image": hover tooltip. */
     text?: string;
-    /** Mandatory when type is "image": one or more image urls shown in gallery mode (normalized to an array on load). */
-    url?: Array<string>;
+    /** Mandatory when type is "image": one or more image urls shown in gallery mode. */
+    url?: string | Array<string>;
+    /** Optional for "chapter": image url that replaces the default circle with story icon. */
+    symbolUrl?: string;
+    /** Optional for "chapter" with symbolUrl: max width/height in pixels of the symbol. Defaults to 128. */
+    maxImageSize?: number;
 }
 
 export class Story {
