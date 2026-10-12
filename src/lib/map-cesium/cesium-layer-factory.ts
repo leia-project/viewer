@@ -18,8 +18,8 @@ import { FloodLayer } from "./layers/flood-layer";
 import { IconLayer } from "./layers/icon-layer";
 import { WfsLayer } from "./layers/wfs-layer";
 import { OgcFeaturesLayer } from "./layers/ogc-features-layer";
-import { BoreholeTilesLayer } from "./layers/borehole-tiles-layer";
-import { BoreholePointsLayer } from "./layers/borehole-points-layer";
+import { BroTilesLayer } from "./layers/bro-tiles-layer";
+import { BroPointsLayer } from "./layers/bro-points-layer";
 import { VoxelLayer } from "./layers/voxel-layer";
 
 export class CesiumLayerFactory {
@@ -82,8 +82,8 @@ export class CesiumLayerFactory {
 	}
 
 	private create3DTiles(map: Map, layerConfig: LayerConfig): CesiumLayer<Cesium3DTileset> {
-		if ((layerConfig.settings["boreholes"] ?? "false") === "true") {
-			return new BoreholeTilesLayer(map, layerConfig);
+		if ((layerConfig.settings["bro"] ?? "false") === "true") {
+			return new BroTilesLayer(map, layerConfig);
 		}
 		return new ThreedeeLayer(map, layerConfig);
 	}
@@ -126,8 +126,8 @@ export class CesiumLayerFactory {
 	}
 
 	private createGeoJsonLayer(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> {
-		if ((layerConfig.settings["boreholes"] ?? "false") === "true") {
-			return new BoreholePointsLayer(map, layerConfig);
+		if ((layerConfig.settings["bro"] ?? "false") === "true") {
+			return new BroPointsLayer(map, layerConfig);
 		}
 		return new GeoJsonLayer(map, layerConfig);
 	}

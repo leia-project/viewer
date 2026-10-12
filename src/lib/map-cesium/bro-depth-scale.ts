@@ -9,17 +9,17 @@ interface NapExtent {
 	bottomNap: number;
 }
 
-// MAybe don't hardcore strings like "top_nap"/"bottom_nap" but make them configurable here?
 /**
- * Draws a DepthScale in NAP along the selected borehole and clears when unselected.
+ * Draws a DepthScale in NAP along the selected BRO object (borehole or CPT)
+ * and clears when unselected.
  *
- * The boreholes 3D Tiles glb contains `top_nap`/`bottom_nap` per interval
- * - the full borehole span (NAP) is the highest top / lowest base across all
+ * The BRO 3D Tiles glb contains `top_nap`/`bottom_nap` per interval
+ * - the full object span (NAP) is the highest top / lowest base across all
  *   intervals sharing the clicked feature's `bro_id`, aggregated straight
- *   from the tileset metadata (cached per borehole);
+ *   from the tileset metadata (cached per `bro_id`);
  * - lon/lat and the geoid separation come from the pick point on the cylinder.
  */
-export class BoreholeDepthScaleController {
+export class BroDepthScaleController {
 	private depthScale: DepthScale | undefined;
 	private unsub: Unsubscriber | undefined;
 	private napCache: Record<string, NapExtent> = {};
@@ -62,7 +62,7 @@ export class BoreholeDepthScaleController {
 			return;
 		}
 
-		// A boreholes intervals all live in the same tile as the clicked interval,
+		// A BRO object's intervals all live in the same tile as the clicked interval,
 		// aggregate from the clicked feature's own tile content
 		const content = (
 			feature as Cesium.Cesium3DTileFeature & { content?: Cesium.Cesium3DTileContent }

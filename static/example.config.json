@@ -19,8 +19,8 @@
                     "stroke": "#ffffff",
                     "strokeWidth": 1
                 },
-                "url": "/bro_boreholes.geojson",
-                "boreholes": "true",
+                "url": "/bro_bhrgt_zeeland_locaties.geojson",
+                "bro": "true",
                 "styleableProperties": [
                     "delivery_accountable_party",
                     "quality_regime",
@@ -50,8 +50,8 @@
                 "duration": 1.5
             },
             "settings": {
-                "url": "/bro-bhr-gt/tiles/tileset.json",
-                "boreholes": "true",
+                "url": "/bro_bhrgt_zeeland_3dtiles/tileset.json",
+                "bro": "true",
                 "defaultTheme": "Grondsoort",
                 "themes": [
                     {
@@ -99,8 +99,8 @@
                     "stroke": "#ffffff",
                     "strokeWidth": 1
                 },
-                "url": "/zeeland_bro_cpts.geojson",
-                "boreholes": "true",
+                "url": "/bro_cpt_zeeland_locaties.geojson",
+                "bro": "true",
                 "styleableProperties": [
                     "accountable_party",
                     "quality_regime",
@@ -131,8 +131,8 @@
                 "duration": 1.5
             },
             "settings": {
-                "url": "/bro-cpt/tiles/tileset.json",
-                "boreholes": "true",
+                "url": "/bro_cpt_zeeland_3dtiles/tileset.json",
+                "bro": "true",
                 "defaultTheme": "Lengkeek 2024",
                 "themes": [
                     {

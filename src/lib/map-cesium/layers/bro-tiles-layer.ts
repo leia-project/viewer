@@ -4,7 +4,7 @@ import type { Cesium3DTileset } from "cesium";
 import type { LayerConfig } from "$lib/map-core/layer-config";
 import type { Map } from "../map";
 import { ThreedeeLayer } from "./threedee-layer";
-import { BoreholeDepthScaleController } from "../borehole-depth-scale";
+import { BroDepthScaleController } from "../bro-depth-scale";
 import { applySubsurfaceExaggeration } from "../subsurface-exaggeration";
 
 /**
@@ -17,13 +17,13 @@ import { applySubsurfaceExaggeration } from "../subsurface-exaggeration";
  * - draws a NAP depth scale next to the selected borehole, built from the
  *   `top_nap`/`bottom_nap` interval metadata.
  */
-export class BoreholeTilesLayer extends ThreedeeLayer {
-	private depthScaleController: BoreholeDepthScaleController;
+export class BroTilesLayer extends ThreedeeLayer {
+	private depthScaleController: BroDepthScaleController;
 	private disposeExaggeration: (() => void) | undefined;
 
 	constructor(map: Map, config: LayerConfig) {
 		super(map, config);
-		this.depthScaleController = new BoreholeDepthScaleController(
+		this.depthScaleController = new BroDepthScaleController(
 			map,
 			() => this.source as Cesium3DTileset | undefined,
 			() => get(this.visible)

@@ -17,7 +17,7 @@
 		($map?.config.layerConfigs?.some(
 			(config) =>
 				SUBSURFACE_EXAGGERATION_LAYER_TYPES.has(config.type) ||
-				(config.settings["boreholes"] ?? "false") === "true"
+				(config.settings["bro"] ?? "false") === "true"
 		) ?? false);
 	$: terrainProviders = $map?.options.terrainProviders;
 	$: selectedTerrainProvider = $map?.options.selectedTerrainProvider;

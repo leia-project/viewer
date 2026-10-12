@@ -3,12 +3,12 @@ import * as Cesium from "cesium";
 import { GeoJsonLayer } from "./geojson-layer";
 
 /**
- * BRO borehole *locations* as a GeoJSON point layer.
+ * BRO object *locations* (BHR-GT boreholes, CPTs) as a GeoJSON point layer.
  *
- * This class adds only the borehole-specific post-load transforms via the
+ * This class adds only the BRO-specific post-load transforms via the
  * postLoad() hook, so no base behaviour is duplicated:
  */
-export class BoreholePointsLayer extends GeoJsonLayer {
+export class BroPointsLayer extends GeoJsonLayer {
 	protected postLoad(): void {
 		this.renderPointsAsCircles();
 	}
