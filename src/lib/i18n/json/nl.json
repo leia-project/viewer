@@ -256,6 +256,7 @@
         "backgroundControls": {
             "opacity": "Wereld Transparantie",
             "terrain": "Terrein",
+            "verticalExaggeration": "Verticale overdrijving",
             "subsurfaceExaggeration": "Overdrijving ondergrond"
         },
         "voxel": {
@@ -306,6 +307,18 @@
             "noData": "Geen data, Klik op een object voor meer informatie",
             "attribute": "Attribuut",
             "value": "Waarde",
+            "yes": "Ja",
+            "no": "Nee",
+            "bro": {
+                "graphTab": "Grafiek",
+                "dataTab": "Gegevens",
+                "graphType": "Grafiektype",
+                "layers": "Lagen",
+                "loading": "BRO gegevens ophalen...",
+                "loadError": "Ophalen van BRO gegevens mislukt",
+                "graphError": "Ophalen van BRO grafiek mislukt",
+                "retry": "Opnieuw proberen"
+            },
             "link": "Link",
             "open": "Openen",
             "noPdfViewer": "Geen online PDF-viewer geïnstalleerd"
@@ -378,7 +391,7 @@
             "storyChartNoData": "Geen Data",
             "storyChartNoDataInPolygon": "Geen data in het getekende projectgebied",
             "basemap": "Achtergrondkaart",
-            "polygonTitle": "Projectgebied", 
+            "polygonTitle": "Projectgebied",
             "requestDrawPolygon": "Teken een projectgebied in",
             "uploadPolygon": "Projectgebied Uploaden",
             "drawPolygon": "Projectgebied Tekenen",
@@ -476,5 +489,4 @@
             "invalidPolygon": "Ongeldig polygoon: Zorg ervoor dat het polygoon zichzelf niet snijdt."
         }
     }
-
 }

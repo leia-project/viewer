@@ -18,6 +18,8 @@ import { FloodLayer } from "./layers/flood-layer";
 import { IconLayer } from "./layers/icon-layer";
 import { WfsLayer } from "./layers/wfs-layer";
 import { OgcFeaturesLayer } from "./layers/ogc-features-layer";
+import { BroTilesLayer } from "./layers/bro-tiles-layer";
+import { BroPointsLayer } from "./layers/bro-points-layer";
 import { VoxelLayer } from "./layers/voxel-layer";
 
 export class CesiumLayerFactory {
@@ -67,7 +69,7 @@ export class CesiumLayerFactory {
 	private createCustom(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> | undefined{;
 		const wells = layerConfig.settings["wells"] ?? "false"
 		const i3s = layerConfig.settings["i3s"] ?? "false"
-	
+
 		if(wells === "true") {
 			return this.createWellsLayer(map, layerConfig);
 		}
@@ -80,6 +82,9 @@ export class CesiumLayerFactory {
 	}
 
 	private create3DTiles(map: Map, layerConfig: LayerConfig): CesiumLayer<Cesium3DTileset> {
+		if ((layerConfig.settings["bro"] ?? "false") === "true") {
+			return new BroTilesLayer(map, layerConfig);
+		}
 		return new ThreedeeLayer(map, layerConfig);
 	}
 
@@ -120,7 +125,10 @@ export class CesiumLayerFactory {
 		return new BasiskaartLayer(map, layerConfig);
 	}
 
-	private createGeoJsonLayer(map: Map, layerConfig: LayerConfig): GeoJsonLayer {
+	private createGeoJsonLayer(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> {
+		if ((layerConfig.settings["bro"] ?? "false") === "true") {
+			return new BroPointsLayer(map, layerConfig);
+		}
 		return new GeoJsonLayer(map, layerConfig);
 	}
 
