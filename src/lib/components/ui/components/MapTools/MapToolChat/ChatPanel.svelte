@@ -181,7 +181,12 @@
 			try {
 				const current = get(map);
 				if (!current) throw new Error("De kaart is niet beschikbaar.");
-				finishUi(toolCallId, "applied", await call.tool.execute(call.args, current));
+				if (!$chatApiUrl) throw new Error("De backend-URL is niet bekend.");
+				finishUi(
+					toolCallId,
+					"applied",
+					await call.tool.execute(call.args, { map: current, apiUrl: $chatApiUrl, sessionToken })
+				);
 			} catch (error) {
 				const detail = error instanceof Error ? error.message : String(error);
 				finishUi(toolCallId, "failed", detail, detail);

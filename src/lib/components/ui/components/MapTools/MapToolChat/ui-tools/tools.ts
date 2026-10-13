@@ -4,11 +4,14 @@ import { LayerConfig } from "$lib/components/map-core/layer-config";
 import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
 
 import { findLayer, isStylable, labelLayers, layerProperties, describeLegend, newId } from "./layers";
+import { categoricalFromValues, describeStyle, graduatedFromBreaks } from "./styles";
+import { fetchClasses, fetchTileAccess, fetchTileInfo } from "./tiles-api";
 
 import type { Map } from "$lib/components/map-cesium/module/map";
 import type { GeoJsonLayer } from "$lib/components/map-cesium/module/layers/geojson-layer";
+import { MvtLayer } from "$lib/components/map-cesium/module/layers/mvt-layer";
 import type { LabelledLayer } from "./layers";
-import type { UiTool } from "./types";
+import type { UiTool, UiToolContext } from "./types";
 
 /* De viewer kent een kleinere set dan de React-frontend: alleen GeoJSON-lagen kunnen
    op eigenschap gekleurd worden, en er is geen `set_layer_color`. De WFS-laag geeft
@@ -60,8 +63,8 @@ const layerRefParameters = (layers: LabelledLayer[]) => ({
 const ADDED_GROUP_ID = "assistantAdded";
 
 interface AddLayerArgs {
-	serviceType: "wfs" | "wms";
-	url: string;
+	serviceType: "wfs" | "wms" | "dataset";
+	url?: string;
 	layerName: string;
 	title?: string;
 }
@@ -69,36 +72,50 @@ interface AddLayerArgs {
 const addLayer: UiTool<AddLayerArgs> = {
 	name: "add_layer",
 	description:
-		"Add a WFS or WMS layer to the user's map. Use the service url and layer name exactly as the user " +
-		"gave them or as a dataset search returned them - never invent either. Only call this when the " +
-		"user wants to see that data on the map.",
+		"Add a layer to the user's map. service_type 'wfs' or 'wms': a web service; use its url and layer name " +
+		"exactly as the user gave them or as a dataset search returned them - never invent either. " +
+		"service_type 'dataset': one of the user's own datasets (layer_name is its table name from AVAILABLE DATASETS, " +
+		"or the table you just loaded); no url. Only call this when the user wants to see that data on the map.",
 	defaultApproval: "ask",
 	parameters: () => ({
 		type: "object",
 		properties: {
-			service_type: { type: "string", enum: ["wfs", "wms"] },
-			url: { type: "string", description: "Base URL of the service." },
-			layer_name: { type: "string", description: "WFS type name / WMS layer name on that service." },
+			service_type: { type: "string", enum: ["wfs", "wms", "dataset"] },
+			url: { type: "string", description: "Base URL of the service (wfs and wms only)." },
+			layer_name: {
+				type: "string",
+				description: "WFS type name / WMS layer name on that service; for a dataset: its table name."
+			},
 			title: { type: "string", description: "Optional name to show for the layer." }
 		},
-		required: ["service_type", "url", "layer_name"]
+		required: ["service_type", "layer_name"]
 	}),
 	parse: (raw) => {
 		const obj = asObject(raw);
 		const serviceType = requireString(obj, "service_type");
-		if (serviceType !== "wfs" && serviceType !== "wms") {
-			throw new Error('"service_type" moet "wfs" of "wms" zijn.');
+		if (serviceType !== "wfs" && serviceType !== "wms" && serviceType !== "dataset") {
+			throw new Error('"service_type" moet "wfs", "wms" of "dataset" zijn.');
 		}
+		const layerName = requireString(obj, "layer_name");
+		const title = optionalString(obj, "title");
+		if (serviceType === "dataset") return { serviceType, layerName, title };
+
 		const url = requireString(obj, "url");
 		try {
 			if (!["https:", "http:"].includes(new URL(url).protocol)) throw new Error();
 		} catch {
 			throw new Error('"url" moet een http(s)-URL zijn.');
 		}
-		return { serviceType, url, layerName: requireString(obj, "layer_name"), title: optionalString(obj, "title") };
+		return { serviceType, url, layerName, title };
 	},
-	describe: (args) => `Voeg de ${args.serviceType.toUpperCase()}-laag "${args.title ?? args.layerName}" toe aan de kaart`,
-	execute: async (args, map) => {
+	describe: (args) =>
+		args.serviceType === "dataset"
+			? `Voeg de dataset "${args.title ?? args.layerName}" toe aan de kaart`
+			: `Voeg de ${args.serviceType.toUpperCase()}-laag "${args.title ?? args.layerName}" toe aan de kaart`,
+	execute: async (args, context) => {
+		const { map } = context;
+		if (args.serviceType === "dataset") return addDatasetLayer(args, context);
+
 		/* Dezelfde dienst + laag staat er al: niet dubbel toevoegen. */
 		const existing = get(map.layers).find((layer) => {
 			const settings = layer.config.settings ?? {};
@@ -109,12 +126,7 @@ const addLayer: UiTool<AddLayerArgs> = {
 		});
 		if (existing) return `De laag "${existing.title}" staat al op de kaart.`;
 
-		const library = map.layerLibrary;
-		if (!library.findGroup(ADDED_GROUP_ID)) {
-			library.addLayerConfigGroup(new LayerConfigGroup(ADDED_GROUP_ID, "Door de assistent toegevoegd"));
-		}
-
-		const config = new LayerConfig({
+		const config = registerLayer(map, new LayerConfig({
 			id: newId(),
 			title: args.title ?? args.layerName,
 			type: args.serviceType,
@@ -124,19 +136,77 @@ const addLayer: UiTool<AddLayerArgs> = {
 				args.serviceType === "wfs"
 					? { url: args.url, featureType: args.layerName }
 					: { url: args.url, featureName: args.layerName }
-		});
-		library.addLayerConfig(config);
-		config.added.set(true);
+		}));
 
 		/* De kaart meldt een mislukte laag zelf, maar zet dan alleen `added` terug. */
 		const layer = map.getLayerById(config.id);
 		if (!layer || !get(config.added)) {
-			library.removeLayerConfig(config);
+			map.layerLibrary.removeLayerConfig(config);
 			throw new Error(`Kon de laag "${args.layerName}" niet toevoegen: de dienst reageert niet zoals verwacht of kent de laag niet.`);
 		}
 		return `${args.serviceType.toUpperCase()}-laag "${layer.title}" is aan de kaart toegevoegd.`;
 	}
 };
+
+/* Zet een laagconfig in de bibliotheek (in een eigen groep) en voegt hem aan de kaart toe. */
+function registerLayer(map: Map, config: LayerConfig): LayerConfig {
+	const library = map.layerLibrary;
+	if (!library.findGroup(ADDED_GROUP_ID)) {
+		library.addLayerConfigGroup(new LayerConfigGroup(ADDED_GROUP_ID, "Door de assistent toegevoegd"));
+	}
+	library.addLayerConfig(config);
+	config.added.set(true);
+	return config;
+}
+
+/* Een dataset van de gebruiker als vector tiles in plaats van één GeoJSON-bestand, zodat ook
+   een grote dataset bij elk zoomniveau snel is en op eigenschap te kleuren. */
+async function addDatasetLayer(args: AddLayerArgs, context: UiToolContext): Promise<string> {
+	const { map } = context;
+	const existing = get(map.layers).find((layer) => layer.config.settings?.datasetId === args.layerName);
+	if (existing) return `De dataset staat al op de kaart als "${existing.title}".`;
+
+	const info = await fetchTileInfo(context, args.layerName);
+	const config = registerLayer(map, new LayerConfig({
+		id: newId(),
+		title: args.title ?? info.name ?? args.layerName,
+		type: "mvt",
+		groupId: ADDED_GROUP_ID,
+		defaultOn: true,
+		settings: {
+			/* Cesium kan geen headers bij tile-verzoeken meesturen: het toegangstoken zit in de URL. */
+			url: context.apiUrl + info.tile_path,
+			accessExpires: info.access_expires,
+			accessIssuedAt: Math.floor(Date.now() / 1000),
+			/* Het token verloopt: de laag haalt zelf een nieuw (zie MvtLayer.renewIfNeeded). Een
+			   functie, zodat het sessietoken niet in de zichtbare laaginstellingen komt te staan. */
+			renewAccess: async () => {
+				const access = await fetchTileAccess(context, info.id);
+				return { url: context.apiUrl + access.tile_path, accessExpires: access.access_expires };
+			},
+			extent: info.extent ?? undefined,
+			datasetId: info.id,
+			geometryType: info.geometry_type,
+			properties: info.properties
+		}
+	}));
+
+	const layer = map.getLayerById(config.id);
+	if (!(layer instanceof MvtLayer)) {
+		map.layerLibrary.removeLayerConfig(config);
+		throw new Error(`Kon de dataset "${args.layerName}" niet als laag toevoegen.`);
+	}
+	try {
+		await layer.ready;
+	} catch (error) {
+		map.layerLibrary.removeLayerConfig(config);
+		throw new Error(`Kon de dataset "${args.layerName}" niet laden: ${error instanceof Error ? error.message : error}`);
+	}
+	if (config.cameraPosition) map.flyTo(config.cameraPosition);
+	return `Dataset "${layer.title}" is aan de kaart toegevoegd (${info.feature_count} objecten). Eigenschappen om op te kleuren: ${
+		info.properties.slice(0, 15).map((p) => `${p.name} (${p.kind})`).join(", ")
+	}.`;
+}
 
 /* Alleen lagen met een bekende cameralocatie kunnen we aanvliegen - dezelfde regel
    als de zoomknop in de laagbeheerder. */
@@ -148,7 +218,7 @@ const flyTo: UiTool<LayerRefArgs> = {
 	parameters: layerRefParameters,
 	parse: parseLayerRef,
 	describe: (args) => `Vlieg naar de laag "${args.layerRef}"`,
-	execute: async (args, map) => {
+	execute: async (args, { map }) => {
 		const layer = findLayer(get(map.layers), args.layerRef);
 		const position = layer.getLayerPosition();
 		if (!position) throw new Error(`Van "${layer.title}" is geen locatie bekend om naartoe te vliegen.`);
@@ -177,7 +247,7 @@ const setLayerVisibility: UiTool<SetVisibilityArgs> = {
 		return { layerRef: requireString(obj, "layer_ref"), visible: obj.visible };
 	},
 	describe: (args) => `${args.visible ? "Toon" : "Verberg"} de laag "${args.layerRef}"`,
-	execute: async (args, map) => {
+	execute: async (args, { map }) => {
 		const layer = findLayer(get(map.layers), args.layerRef);
 		layer.visible.set(args.visible);
 		return `De laag "${layer.title}" is nu ${args.visible ? "zichtbaar" : "verborgen"}.`;
@@ -192,7 +262,7 @@ const removeLayer: UiTool<LayerRefArgs> = {
 	parameters: layerRefParameters,
 	parse: parseLayerRef,
 	describe: (args) => `Verwijder de laag "${args.layerRef}" van de kaart`,
-	execute: async (args, map) => {
+	execute: async (args, { map }) => {
 		const layer = findLayer(get(map.layers), args.layerRef);
 		layer.remove();
 		return `De laag "${layer.title}" is van de kaart verwijderd.`;
@@ -225,8 +295,8 @@ const colorLayerByProperty: UiTool<ColorByPropertyArgs> = {
 		return { layerRef: requireString(obj, "layer_ref"), property: requireString(obj, "property") };
 	},
 	describe: (args) => `Kleur de laag "${args.layerRef}" op basis van "${args.property}"`,
-	execute: async (args, map) => {
-		const layer = findLayer(get(map.layers), args.layerRef);
+	execute: async (args, context) => {
+		const layer = findLayer(get(context.map.layers), args.layerRef);
 		if (!isStylable(layer)) {
 			throw new Error(`"${layer.title}" kan niet op eigenschap gekleurd worden (alleen GeoJSON-lagen).`);
 		}
@@ -238,6 +308,21 @@ const colorLayerByProperty: UiTool<ColorByPropertyArgs> = {
 					available.map((p) => `${p.name} (${p.kind})`).join(", ")
 				}.`
 			);
+		}
+		/* Een MVT-laag heeft de objecten niet in de browser (een tile bevat alleen wat in beeld
+		   is): de klassen komen van de API die de tiles levert, want die ziet de hele dataset. */
+		if (layer instanceof MvtLayer) {
+			const classes = await fetchClasses(
+				context,
+				layer.config.settings["datasetId"],
+				property.name,
+				property.kind === "number" ? "graduated" : "categorical"
+			);
+			const style = classes.kind === "categorical"
+				? categoricalFromValues(property.name, classes.values.map((v) => v.value))
+				: graduatedFromBreaks(property.name, classes.breaks);
+			layer.setDataDrivenStyle(style);
+			return `"${layer.title}" is gekleurd op "${property.name}". ${describeStyle(style)}.`;
 		}
 		(layer as GeoJsonLayer).style.set(property.name);
 		return `"${layer.title}" is gekleurd op "${property.name}". ${describeLegend(layer as GeoJsonLayer)}.`;
