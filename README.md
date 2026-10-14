@@ -1089,8 +1089,10 @@ Each layer within a step's `layers` array supports these settings:
 Each story step can also define `markerCoordinates`. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story. Each marker has a `type`, defaulting to `chapter` when omitted:
 
 - **`chapter`** (default): shows the book icon. The marker label shows the story, chapter, and step name; clicking it opens the story directly on its step.
-- **`text`**: shows the given `text` in a speech bubble on the map instead of an icon. `text` is mandatory for this type.
+- **`text`**: shows the given `text` in a speech bubble on the map instead of an icon. `text` is mandatory for this type. Set `openStoryStep: true` to make the bubble a clickable, keyboard-accessible button that opens its story step.
 - **`image`**: shows a camera icon; clicking it opens the image(s) from `url` in gallery mode. `url` is mandatory for this type and can be a single string or an array of strings — with multiple images the gallery shows arrow controls to navigate between them. Only `http(s)` and relative urls are used.
+
+For `text` and `image` markers, `openStoryStep` defaults to `false`. When set to `true`, activating the marker opens the story on the step containing that marker. For image markers this replaces the gallery action; it does not open both the gallery and the story step. Chapter markers always open their step.
 
 |value|description|type|
 |-|-|-|
@@ -1099,6 +1101,7 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 |x|Longitude of the story marker|number|
 |y|Latitude of the story marker|number|
 |text|**Mandatory when type is `text`**: text shown in the speech bubble. **Optional for type `image`**: tooltip shown when hovering the marker|string|
+|openStoryStep|**Optional for type `text` or `image`**: opens the containing story step when activated instead of leaving text passive or opening the image gallery. Defaults to `false`|boolean|
 |url|**Mandatory when type is `image`**: image url, or array of image urls for gallery mode|string or array[string]|
 |symbolUrl|**Optional for type `chapter`**: url of an image that replaces the default circle with story icon. if the image cannot be loaded the default icon is used and a warning is logged to the console|string|
 |maxImageSize|**Optional for type `chapter` with `symbolUrl`**: maximum width and height of the symbol in pixels (aspect ratio is kept, images are never scaled up), standard value is 128|number|
@@ -1141,12 +1144,14 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 								{
 									"type": "text",
 									"text": "This is example text",
+									"openStoryStep": true,
 									"x": 5.23950,
 									"y": 52.20050
 								},
 								{
 									"type": "image",
 									"url": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
+									"openStoryStep": true,
 									"x": 5.23860,
 									"y": 52.19960
 								}],

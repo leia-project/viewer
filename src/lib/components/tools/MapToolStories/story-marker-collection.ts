@@ -99,7 +99,14 @@ export class StoryMarkerCollection extends Dispatcher {
 							this.textBubbles.push(
 								new StoryMarkerTextBubble({
 									target: this.map.getContainer(),
-									props: { map: this.map, marker, text: coordinates.text }
+									props: {
+										map: this.map,
+										marker,
+										text: coordinates.text,
+										onOpenStoryStep: coordinates.openStoryStep
+											? () => this.openMarkerStoryStep(marker)
+											: undefined
+									}
 								})
 							);
 						}
@@ -197,10 +204,10 @@ export class StoryMarkerCollection extends Dispatcher {
 		this.map.viewer.scene.requestRender();
 
 		if (visible) {
-			this.inputHandler.setInputAction(this.onClick, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+			this.inputHandler.setInputAction(this.onClick, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 			this.inputHandler.setInputAction(this.onHover, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 		} else {
-			this.inputHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOWN);
+			this.inputHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
 			this.inputHandler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 			clearTimeout(this.hoverBoxTimeOut);
 			this.hoverBox?.$destroy();
@@ -215,9 +222,11 @@ export class StoryMarkerCollection extends Dispatcher {
 		return marker && this.markerStoryMap.has(marker) ? marker : undefined;
 	}
 
-	private getStory(picked: any): Story | undefined {
-		const marker = this.getMarker(picked);
-		return marker ? this.markerStoryMap.get(marker) : undefined;
+	private openMarkerStoryStep(marker: Cesium.Entity): void {
+		if (!marker.isShowing || !this.markersVisible()) return;
+		const story = this.markerStoryMap.get(marker);
+		const stepNumber = this.markerStepMap.get(marker);
+		if (story && stepNumber !== undefined) this.dispatch("story-selected", { story, stepNumber });
 	}
 
 	private onClick = (movement: any): void => {
@@ -229,14 +238,11 @@ export class StoryMarkerCollection extends Dispatcher {
 		const coordinates = this.markerCoordinates.get(marker);
 		const type = coordinates?.type ?? "chapter";
 
-		if (type === "image" && coordinates?.url) {
-			this.openGallery(coordinates.url);
-			return;
+		if (type === "chapter" || coordinates?.openStoryStep) {
+			this.openMarkerStoryStep(marker);
+		} else if (type === "image" && coordinates?.url) {
+			this.openGallery(Array.isArray(coordinates.url) ? coordinates.url : [coordinates.url]);
 		}
-
-		const story = this.getStory(picked);
-		const stepNumber = this.markerStepMap.get(marker);
-		if (story && stepNumber !== undefined) this.dispatch("story-selected", { story, stepNumber });
 	};
 
 	private openGallery(images: Array<string>): void {

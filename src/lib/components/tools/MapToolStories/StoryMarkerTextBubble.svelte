@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { onDestroy, onMount } from "svelte";
+	import { _ } from "svelte-i18n";
 	import * as Cesium from "cesium";
 	import type { Map as CesiumMap } from "$lib/map-cesium/map";
 
 	export let map: CesiumMap;
 	export let marker: Cesium.Entity;
 	export let text: string;
+	export let onOpenStoryStep: (() => void) | undefined = undefined;
 
 	let left = 0;
 	let top = 0;
@@ -51,7 +53,20 @@
 </script>
 
 <div class="text-bubble" style="left:{left}px; top:{top}px; display:{display};">
-	<div class="text-bubble-content">{text}</div>
+	{#if onOpenStoryStep}
+		<button
+			type="button"
+			class="text-bubble-content text-bubble-button"
+			aria-label={`${$_("tools.stories.open")}: ${text}`}
+			title={$_("tools.stories.open")}
+			on:pointerdown|stopPropagation
+			on:click|stopPropagation={onOpenStoryStep}
+		>
+			{text}
+		</button>
+	{:else}
+		<div class="text-bubble-content">{text}</div>
+	{/if}
 	<div class="text-bubble-pointer"></div>
 </div>
 
@@ -71,6 +86,17 @@
 		font-size: 0.8rem;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 		text-align: center;
+		overflow-wrap: anywhere;
+	}
+
+	.text-bubble-button {
+		display: block;
+		max-width: 100%;
+		border: none;
+		font-family: inherit;
+		line-height: inherit;
+		pointer-events: auto;
+		cursor: pointer;
 	}
 
 	.text-bubble-pointer {

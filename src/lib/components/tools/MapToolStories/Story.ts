@@ -10,6 +10,7 @@ export interface StoryMarkerCoordinates {
     type?: "chapter" | "text" | "image";
     /** Mandatory when type is "text": the speech bubble text. Optional for "image": hover tooltip. */
     text?: string;
+    openStoryStep?: boolean;
     /** Mandatory when type is "image": one or more image urls shown in gallery mode. */
     url?: string | Array<string>;
     /** Optional for "chapter": image url that replaces the default circle with story icon. */

@@ -111,6 +111,7 @@
 			}
 
 			const type = entry.type ?? "chapter";
+			const openStoryStep = entry.openStoryStep === true;
 			if (type === "chapter") {
 				markers.push({ x, y, type });
 			} else if (type === "text") {
@@ -118,7 +119,7 @@
 					console.warn("Story marker skipped: type 'text' requires a non-empty text", entry);
 					continue;
 				}
-				markers.push({ x, y, type, text: entry.text });
+				markers.push({ x, y, type, text: entry.text, openStoryStep });
 			} else if (type === "image") {
 				const urls = (Array.isArray(entry.url) ? entry.url : [entry.url])
 					.filter(isNonEmptyString)
@@ -128,7 +129,7 @@
 					console.warn("Story marker skipped: type 'image' requires at least one valid http(s) or relative url", entry);
 					continue;
 				}
-				markers.push({ x, y, type, url: urls, text: isNonEmptyString(entry.text) ? entry.text : undefined });
+				markers.push({ x, y, type, url: urls, text: isNonEmptyString(entry.text) ? entry.text : undefined, openStoryStep });
 			} else {
 				console.warn("Story marker skipped: unknown type", entry);
 			}

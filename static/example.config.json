@@ -379,7 +379,72 @@
         },
         {
             "id": "stories",
-            "enabled": false
+            "enabled": false,
+            "settings": {
+                "showOnMap": true,
+                "stories": [
+                    {
+                        "name": "Amsterdam",
+                        "description": "Een wandeling door Amsterdam.",
+                        "width": "400px",
+                        "chapterGroups": [
+                            {
+                                "id": "1",
+                                "title": "Centrum",
+                                "buttonText": "Centrum"
+                            }
+                        ],
+                        "chapters": [
+                            {
+                                "id": "1",
+                                "steps": [
+                                    {
+                                        "title": "Centraal Station",
+                                        "html": "<h2>Centraal Station</h2>",
+                                        "markerCoordinates": {
+                                            "type": "text",
+                                            "text": "Centraal Station",
+                                            "openStoryStep": true,
+                                            "x": 4.9003,
+                                            "y": 52.378
+                                        },
+                                        "camera": {
+                                            "x": 4.9003,
+                                            "y": 52.378,
+                                            "z": 1500,
+                                            "heading": 0,
+                                            "pitch": -60,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
+                                    },
+                                    {
+                                        "title": "Dam",
+                                        "html": "<h2>Dam</h2>",
+                                        "markerCoordinates": {
+                                            "type": "image",
+                                            "url": "images/leia_logo.png",
+                                            "text": "Dam",
+                                            "openStoryStep": true,
+                                            "x": 4.8922,
+                                            "y": 52.3731
+                                        },
+                                        "camera": {
+                                            "x": 4.8922,
+                                            "y": 52.3731,
+                                            "z": 1500,
+                                            "heading": 0,
+                                            "pitch": -60,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
         },
         {
             "id": "measure",
