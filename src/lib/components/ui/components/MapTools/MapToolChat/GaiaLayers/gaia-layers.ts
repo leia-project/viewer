@@ -53,6 +53,35 @@ export function datasetLayerConfig(
 	});
 }
 
+/* Vlakken als GeoJSON in plaats van vector tiles: Cesium's MVTDataProvider (experimenteel in
+   1.146) legt ingewikkelde vlakken stuk op het terrein - slierten, gaten, en met meerdere
+   vlaklagen tegelijk een render-crash. GeoJsonLayer legt ze met GroundPrimitive en blijft
+   aanklikbaar en herkleurbaar. Nadeel: de hele laag komt in één keer, dus pas als de
+   gebruiker hem aanvinkt. */
+export function isPolygonDataset(info: TileInfo): boolean {
+	return /polygon/i.test(info.geometry_type ?? "");
+}
+
+export function datasetGeoJsonConfig(
+	api: ApiContext,
+	info: TileInfo,
+	options: { id: string; groupId: string; title?: string; description?: string }
+): LayerConfig {
+	return new LayerConfig({
+		id: options.id,
+		title: options.title ?? info.name ?? info.id,
+		description: options.description,
+		type: "geojson",
+		groupId: options.groupId,
+		defaultOn: true,
+		settings: {
+			url: `${api.apiUrl}/get/${encodeURIComponent(info.id)}`,
+			headers: () => sessionHeaders(api),
+			datasetId: info.id
+		}
+	});
+}
+
 const GEOMETRY_NAMES: Record<string, string> = {
 	point: "punten",
 	multipoint: "punten",
@@ -103,12 +132,18 @@ export async function addGaiaLayers(library: LayerLibrary, apiUrl: string): Prom
 	for (const { dataset, info } of available) {
 		const id = `gaia-${dataset.id}`;
 		if (library.findLayer(id)) continue;
-		const config = datasetLayerConfig(api, info, {
+		const options = {
 			id,
 			groupId: GAIA_GROUP_ID,
 			title: dataset.display_name ?? dataset.original_filename,
 			description: describeDataset(info)
-		});
+		};
+		if (isPolygonDataset(info)) {
+			/* Niet toevoegen: het vinkje in GaiaLayersSection doet dat, en laadt dan pas de data. */
+			library.addLayerConfig(datasetGeoJsonConfig(api, info, options));
+			continue;
+		}
+		const config = datasetLayerConfig(api, info, options);
 		library.addLayerConfig(config);
 		config.added.set(true);
 	}
