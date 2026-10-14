@@ -32,6 +32,16 @@ export default defineConfig(({ command, mode }) => {
           ],
         }),
       ],
+      // The config points the chat at "/api" (same origin). In production nginx forwards that
+      // to the backend; in development this proxy does the same, with the same /api strip.
+      server: {
+        proxy: {
+          "/api": {
+            target: process.env.API_PROXY_TARGET ?? "http://backend:8000",
+            rewrite: (path: string) => path.replace(/^\/api/, ""),
+          },
+        },
+      },
     }
   }
 );
