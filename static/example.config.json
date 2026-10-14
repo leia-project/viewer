@@ -1777,7 +1777,7 @@
             "id": "chat",
             "enabled": true,
             "settings": {
-                "apiUrl": "http://localhost:8000"
+                "apiUrl": "/api"
             }
         }
     ]
