@@ -8,6 +8,7 @@
     import { MapToolMenuOption } from "../../MapToolMenu/MapToolMenuOption";
 
     import { toggleChat, chatApiUrl } from "./chat-store";
+    import { addGaiaLayers } from "./GaiaLayers/gaia-layers";
 	import { _ } from "svelte-i18n";
 
     export let label: string | undefined;
@@ -39,5 +40,14 @@
     tool.settings.subscribe((settings) => {
         chatApiUrl.set(settings?.apiUrl);
     });
+
+    /* The datasets of the same API as the chat, as layers of this map. */
+    let gaiaLayersFor: string | undefined;
+    $: if (map && $chatApiUrl && gaiaLayersFor !== $chatApiUrl) {
+        gaiaLayersFor = $chatApiUrl;
+        addGaiaLayers(map.layerLibrary, $chatApiUrl).catch((error) => {
+            console.error("Could not load the Gaia layers:", error);
+        });
+    }
 
 </script>

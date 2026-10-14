@@ -9,6 +9,7 @@
     import { writable, get } from "svelte/store";
 
     import LayerControl from "./MapToolLayerControl.svelte";
+    import GaiaLayersSection from "../MapToolChat/GaiaLayers/GaiaLayersSection.svelte";
 
     import type { Layer } from "$lib/components/map-core/layer";
     import { LayerManagerGroup } from "$lib/components/map-core/layer-manager-group"
@@ -149,6 +150,8 @@
 			{textThematicLayers}
 		</div>
         <LayerManagerGroups {library} {groups} />
+
+        <GaiaLayersSection {library} {layers} {textOpacity} />
 
         {#if layersWithoutGroup.length}
             <Accordion class="layer-group-accordion" >

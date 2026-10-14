@@ -50,60 +50,62 @@
 	const map = app.map;
 	$: layers = $map ? $map.layers : [];
 	$: library = $map ? $map.layerLibrary : undefined;
-	$: title = $settings.title ? $settings.title + ' - ' + $settings.subTitle : $_('general.loading')
-	
-	let orderedToolOrder:any = {};
-	
+	$: title = $settings.title ? $settings.title + " - " + $settings.subTitle : $_("general.loading");
+
+	let orderedToolOrder: any = {};
+
 	const orderedKeys = [
-		'layerLibrary',
-        'layerManager',
-        'flooding',
-		'stories',
-        'projects',
-        'bookmarks',
-        'measure',
-		'isochrones',
-    ]; // Standard order of top left tools in toolmenu
+		"layerLibrary",
+		"layerManager",
+		"flooding",
+		"stories",
+		"projects",
+		"bookmarks",
+		"measure",
+		"isochrones"
+	]; // Standard order of top left tools in toolmenu
 
 	$: toolOrder = {
-        layerLibrary: MapToolLayerLibrary,
-        layerManager: MapToolLayerManager,
-        flooding: MapToolFlooding,
-        stories: MapToolStories,
-        projects: MapToolProjects,
+		layerLibrary: MapToolLayerLibrary,
+		layerManager: MapToolLayerManager,
+		flooding: MapToolFlooding,
+		stories: MapToolStories,
+		projects: MapToolProjects,
 		bookmarks: MapToolBookmark,
-        measure: MapToolCesiumMeasure,
-		isochrones: MapToolIsochrones,
-    };
+		measure: MapToolCesiumMeasure,
+		isochrones: MapToolIsochrones
+	};
 
-	function toolProps(toolKey: string) {
-		if (toolKey === 'layerLibrary') {
-			return { };  
-		} else if (toolKey === 'layerManager') {
-			return { layers: $layers, library };
-		} else if (toolKey === 'flooding') {
-			return { };
-		} else if (toolKey === 'stories') {
-			return { };
-		} else if (toolKey === 'projects') {
-			return { };
-		} else if (toolKey === 'bookmarks') {
-			return { };
-		} else if (toolKey === 'measure') {
-			return { };
-		} else if (toolKey === 'isochrones') {
-			return { };
+	function toolProps(toolKey: string, layers: Array<any>) {
+		if (toolKey === "layerLibrary") {
+			return {};
+		} else if (toolKey === "layerManager") {
+			return { layers, library };
+		} else if (toolKey === "flooding") {
+			return {};
+		} else if (toolKey === "stories") {
+			return {};
+		} else if (toolKey === "projects") {
+			return {};
+		} else if (toolKey === "bookmarks") {
+			return {};
+		} else if (toolKey === "measure") {
+			return {};
+		} else if (toolKey === "isochrones") {
+			return {};
 		}
 		return {};
 	}
 
 	map.subscribe((map) => {
 		if (map) {
-			map.on('reload', () => {
+			map.on("reload", () => {
 				mapVisible = false;
 				interfaceVisible = false;
-				setTimeout(() => {mapVisible = true}, 0);
-			})
+				setTimeout(() => {
+					mapVisible = true;
+				}, 0);
+			});
 			map.configLoaded.subscribe((loaded) => {
 				interfaceVisible = true;
 				if (loaded) {
@@ -112,12 +114,12 @@
 					}
 
 					for (const setting of map.toolSettings) {
-    						const alias = setting.settings ? setting.settings.alias : undefined;
-    						aliasDict[setting.id] = alias;
-									
+						const alias = setting.settings ? setting.settings.alias : undefined;
+						aliasDict[setting.id] = alias;
+
 						if (setting.settings && setting.settings.position) {
-							 userToolOrder[setting.id] = setting.settings.position;
-    					}	
+							userToolOrder[setting.id] = setting.settings.position;
+						}
 					}
 
 					toolOrder = createToolOrder(map.toolSettings);
@@ -131,7 +133,7 @@
 				}
 			});
 		}
-	})
+	});
 
 	function setEnabledMapTools(toolSettings: any) {
 		const tools = new Array<string>();
@@ -156,54 +158,59 @@
 	function createToolOrder(toolSettings: any) {
 		const enabledToolIds = new Set(
 			toolSettings
-				.filter((tool: { enabled: boolean; }) => tool.enabled)
-				.map((tool: { id: string; }) => tool.id)
-		); 
-
-		const filteredOrderedKeys = orderedKeys.filter(key => enabledToolIds.has(key)); 
-		
-		const filteredToolOrder = Object.fromEntries(
-			Object.entries(toolOrder)
-			.filter(([key]) => enabledToolIds.has(key))
+				.filter((tool: { enabled: boolean }) => tool.enabled)
+				.map((tool: { id: string }) => tool.id)
 		);
-					
+
+		const filteredOrderedKeys = orderedKeys.filter((key) => enabledToolIds.has(key));
+
+		const filteredToolOrder = Object.fromEntries(
+			Object.entries(toolOrder).filter(([key]) => enabledToolIds.has(key))
+		);
+
 		const sortedUserKeys = Object.entries(userToolOrder)
-			.map(([key, position]) => ({ key, position: position - 1})) // map config tool positions (0-based index)
+			.map(([key, position]) => ({ key, position: position - 1 })) // map config tool positions (0-based index)
 			.sort((a, b) => b.position - a.position); // sort config tool positions high to low
 
 		for (const { key, position } of sortedUserKeys) {
 			const index = filteredOrderedKeys.indexOf(key);
 			if (index > -1) {
 				filteredOrderedKeys.splice(index, 1); // delete tool in array
-			}	
+			}
 			filteredOrderedKeys.splice(Math.min(position, filteredOrderedKeys.length), 0, key); // reinsert tool based on config position into array
 		}
 
-		filteredOrderedKeys.forEach(key => {
+		filteredOrderedKeys.forEach((key) => {
 			if (filteredToolOrder.hasOwnProperty(key)) {
 				orderedToolOrder[key] = filteredToolOrder[key];
 			}
 		});
-		
+
 		toolOrder = orderedToolOrder;
 
-		return toolOrder
+		return toolOrder;
 	}
 
 	setContext("page", {
 		app
-	})
-
+	});
 </script>
 
 <svelte:head>
 	<title>{title}</title>
-	<base href="{base}"> <!-- This is the base path for the app -->
+	<base href={base} />
+	<!-- This is the base path for the app -->
 </svelte:head>
 
 <TostiStyle style={light} />
 <div class="main">
-	<Header logo={$settings.logo} logoMarginLeft={$settings.logoMarginLeft} logoMarginRight={$settings.logoMarginRight} company={$settings.title} platformName={$settings.subTitle}>
+	<Header
+		logo={$settings.logo}
+		logoMarginLeft={$settings.logoMarginLeft}
+		logoMarginRight={$settings.logoMarginRight}
+		company={$settings.title}
+		platformName={$settings.subTitle}
+	>
 		<div slot="headerUtilities">
 			<div class="header-utilities">
 				{#if $enabledTools.includes("geocoder")}
@@ -216,7 +223,12 @@
 					<Language />
 				{/if}
 				{#if $enabledTools.includes("github")}
-					<HeaderActionLink title="Visit GitHub" icon={LogoGithub} href="https://github.com/leia-project" target="_blank"/>
+					<HeaderActionLink
+						title="Visit GitHub"
+						icon={LogoGithub}
+						href="https://github.com/leia-project"
+						target="_blank"
+					/>
 				{/if}
 			</div>
 		</div>
@@ -229,12 +241,12 @@
 				expandText={$_("tools.menu.expand")}
 				collapseText={$_("tools.menu.collapse")}
 			>
-				{#each Object.keys(toolOrder) as toolKey }
+				{#each Object.keys(toolOrder) as toolKey}
 					{#if $enabledTools.includes(toolKey)}
 						<svelte:component
 							this={toolOrder[toolKey]}
 							label={aliasDict[toolKey] ?? $_(`tools.${toolKey}.label`)}
-							{...toolProps(toolKey)}
+							{...toolProps(toolKey, $layers)}
 						/>
 					{/if}
 				{/each}
@@ -244,16 +256,16 @@
 				{/if}
 
 				{#if $enabledTools.includes("featureInfo")}
-					<MapToolFeatureInfo	/>
+					<MapToolFeatureInfo />
 				{/if}
 
 				{#if $enabledTools.includes("info")}
 					<MapToolInfo />
 				{/if}
 
-									{#if $enabledTools.includes("chat")}
-						<MapToolChat />
-					{/if}
+				{#if $enabledTools.includes("chat")}
+					<MapToolChat />
+				{/if}
 
 				{#if $enabledTools.includes("help")}
 					<MapToolHelp />
@@ -262,8 +274,6 @@
 				{#if $enabledTools.includes("cesium")}
 					<MapToolCesiumControls />
 				{/if}
-
-				
 
 				{#if $enabledTools.includes("config_switcher")}
 					<MapToolConfigSwitcher />
@@ -274,13 +284,13 @@
 		{#if mapVisible}
 			<div class="map-body">
 				<div class="map-wrapper">
-						<Map />
+					<Map />
 
 					{#if !$enabledTools.includes("flyCamera")}
-					<MapControls />
+						<MapControls />
 					{:else}
-					<POVMapControls />
-					   {/if}
+						<POVMapControls />
+					{/if}
 
 					{#if $enabledTools.includes("chat")}
 						<ChatPanel {map} />
@@ -293,7 +303,6 @@
 </div>
 
 <style>
-
 	.main {
 		width: 100%;
 		height: 100%;
@@ -328,5 +337,4 @@
 		justify-content: right;
 		width: 100%;
 	}
-
 </style>

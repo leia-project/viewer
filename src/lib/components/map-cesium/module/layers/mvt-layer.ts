@@ -22,6 +22,7 @@ export interface MvtProperty {
                     Cesium stuurt geen headers mee bij tile-verzoeken.
      extent         [west, zuid, oost, noord] in graden
      maxZoom        hoogste zoomniveau dat de service levert (standaard 14)
+     geometryType   type van de objecten (bijv. "MultiPolygon"); vlakken worden niet op het terrein gelegd
      color          basiskleur (css) zonder kleuring op eigenschap
      properties     [{ name, kind }] - eigenschappen waarop gekleurd kan worden
      accessExpires  unix-tijd (s) waarop het token in de URL verloopt
@@ -58,6 +59,7 @@ export class MvtLayer extends CesiumLayer<MvtProviderCesium> {
 		this.source = new MvtProviderCesium(settings["url"], {
 			extent: extent as [number, number, number, number] | undefined,
 			maxZoom: settings["maxZoom"],
+			clampToGround: !/polygon/i.test(settings["geometryType"] ?? ""),
 			color: settings["color"],
 			accessExpires: settings["accessExpires"],
 			accessIssuedAt: settings["accessIssuedAt"],

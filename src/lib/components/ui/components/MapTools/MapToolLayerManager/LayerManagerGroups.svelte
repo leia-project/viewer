@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { GAIA_GROUP_ID } from "../MapToolChat/GaiaLayers/gaia-layers";
     import LayerManagerGroupView from "./LayerManagerGroup.svelte";
     import { get } from "svelte/store";
     import { _ } from "svelte-i18n";
@@ -16,7 +17,7 @@
 
 <div class="group-wrapper">
     {#each groups as group}
-        {#if group.id !== "myData"}
+        {#if group.id !== "myData" && group.id !== GAIA_GROUP_ID}
             <LayerManagerGroupView {library} {group} {textBaselayers} {textNoCategory} />
         {/if}
     {/each}
