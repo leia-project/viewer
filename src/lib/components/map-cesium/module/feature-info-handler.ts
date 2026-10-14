@@ -98,7 +98,14 @@ export class FeatureInfoHandler {
             return undefined;
         }
 
-        if (picked instanceof Cesium.Cesium3DTileFeature) {     
+        // Vector tiles (MVT) geven in Cesium 1.146 een eigen featureklasse terug die
+        // niet van Cesium3DTileFeature erft en geen setProperty kent: dus geen
+        // markering, wel de eigenschappen.
+        if (picked instanceof Cesium.Cesium3DTileVectorFeature) {
+            return this.vectorTileFeatureToFeatureInfo(picked);
+        }
+
+        if (picked instanceof Cesium.Cesium3DTileFeature) {
             this.highlight3DTileFeature(picked);
             return this.cesium3dTileFeatureToFeatureInfo(picked);
         }
@@ -162,6 +169,19 @@ export class FeatureInfoHandler {
         } else {
             return undefined;
         }
+    }
+
+    // `_layer` is de naam van de laag binnen de tile, geen eigenschap van het object.
+    // De titel komt van de kaartlaag die deze tileset tekent (zie MvtProviderCesium.tileset).
+    private vectorTileFeatureToFeatureInfo(feature: Cesium.Cesium3DTileVectorFeature): FeatureInfo | undefined {
+        const records = feature.getPropertyIds()
+            .filter((name) => name !== "_layer")
+            .map((name) => new FeatureInfoRecord(name, String(feature.getProperty(name) ?? "")));
+
+        const layer = get(this.map.layers).find((candidate: any) => candidate.source?.tileset === feature.tileset);
+        if (layer?.config.disablePopup) return undefined;
+
+        return new FeatureInfo(layer?.title ?? "-", records);
     }
 
     private cesium3dTileFeatureToFeatureInfo(feature: Cesium.Cesium3DTileFeature): FeatureInfo | undefined {

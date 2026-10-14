@@ -177,7 +177,9 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				// geojson = await Shapefile.read(this.url);
 				console.log("Shapefile not supported yet");
 			} else {
-				const request = await fetch(this.url);
+				/* `headers` is een functie, zodat een sessietoken niet in de zichtbare
+				   laaginstellingen komt te staan (zie GaiaLayers/gaia-layers.ts). */
+				const request = await fetch(this.url, { headers: this.config.settings.headers?.() });
 				geojson = await request.json();
 			}
 		} else {
