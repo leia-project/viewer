@@ -30,7 +30,13 @@
             "setLanguage": "Taal instellen"
         },
         "geocoder": {
-            "search": "Zoek Locatie"
+            "search": "Zoek Locatie",
+            "providers": {
+                "locatieserver": "Nederland (PDOK)",
+                "geolocation": "België (Vlaanderen)",
+                "geoportail-lu": "Luxemburg (Geoportail)",
+                "nominatim": "Wereld (OSM)"
+            }
         },
         "info": {
             "label": "Informatie",

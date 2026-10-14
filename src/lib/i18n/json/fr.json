@@ -30,7 +30,13 @@
             "setLanguage": "Définir la langue"
         },
         "geocoder": {
-            "search": "Rechercher emplacement"
+            "search": "Rechercher emplacement",
+            "providers": {
+                "locatieserver": "Pays-Bas (PDOK)",
+                "geolocation": "Belgique (Flandre)",
+                "geoportail-lu": "Luxembourg (Geoportail)",
+                "nominatim": "Monde (OSM)"
+            }
         },
         "info": {
             "label": "Information",
