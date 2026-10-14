@@ -280,7 +280,7 @@
                 "maximumScreenSpaceError": 1.2,
                 "groundAtmosphere": true,
                 "globeOpacity": 100,
-                "lighting": true,
+                "lighting": false,
                 "skyAtmosphere": true,
                 "fog": true,
                 "enableCollisionDetection": false,
@@ -379,7 +379,7 @@
         },
         {
             "id": "stories",
-            "enabled": false,
+            "enabled": true,
             "settings": {
                 "showOnMap": true,
                 "stories": [
@@ -387,6 +387,7 @@
                         "name": "Amsterdam",
                         "description": "Een wandeling door Amsterdam.",
                         "width": "400px",
+                        "baseLayerId": "1",
                         "chapterGroups": [
                             {
                                 "id": "1",

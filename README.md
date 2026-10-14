@@ -1073,7 +1073,7 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 ||forceCameraMode|Forces the camera into a fixed mode while the story is open and prevents users from switching camera mode. Accepts `"2D"` or `"3D"`. On opening the story the camera switches to the given mode if needed; on closing it reverts to the previous mode if it was changed|string|
 ||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
 ||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
-||baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
+||baseLayerId|ID of a base layer copied into the story and available in each step. Set this when steps do not provide a background layer: opening a story hides the previously visible map layers|string|
 ||chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
 ||chapterGroups|Groups the chapter ids refer to|object|
 
