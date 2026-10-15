@@ -2,6 +2,11 @@ import { StoryStep } from "./StoryStep";
 import { StoryChapter } from "./StoryChapter";
 import { StoryLayer } from "./StoryLayer";
 import type * as Cesium from "cesium";
+import type { StoryMarker } from "./story-marker";
+
+export interface StoryFocusRequest {
+    marker?: Cesium.Entity;
+}
 
 export interface StoryMarkerCoordinates {
     x: number;
@@ -30,6 +35,8 @@ export class Story {
     public statisticsApi: string | undefined;
     public markers: Array<Cesium.Entity> = [];
     public hasMarkers: boolean;
+    public hasStepMarkers: boolean;
+    public markerDefinitions: Array<StoryMarker>;
     
     constructor(name: string, 
                 description: string, 
@@ -39,7 +46,8 @@ export class Story {
                 staticCamera: boolean | undefined,
                 requestPolygonArea: boolean | undefined,
                 statisticsApi: string | undefined,
-                hasMarkers: boolean = false) {
+                hasMarkers: boolean = false,
+                markerDefinitions: Array<StoryMarker> = []) {
         this.name = name;
         this.description = description;
         this.storyChapters = storyChapters;
@@ -48,7 +56,9 @@ export class Story {
         this.staticCamera = staticCamera;
         this.requestPolygonArea = requestPolygonArea;
         this.statisticsApi = statisticsApi;
-        this.hasMarkers = hasMarkers;
+        this.hasStepMarkers = hasMarkers;
+        this.markerDefinitions = markerDefinitions;
+        this.hasMarkers = hasMarkers || markerDefinitions.length > 0;
     }
 
     getStoryLayers(): Array<StoryLayer> {

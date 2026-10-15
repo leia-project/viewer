@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, onDestroy, getContext, createEventDispatcher } from "svelte";
+	import { onMount, onDestroy, getContext, createEventDispatcher, tick } from "svelte";
 	import { _ } from "svelte-i18n";
 	import * as Cesium from "cesium";
 	import { writable, get, type Writable } from "svelte/store";
@@ -8,7 +8,7 @@
 	import "@carbon/charts-svelte/styles.css";
 	import { jsPDF } from 'jspdf';
 
-	import type { Story } from "./Story";
+	import type { Story, StoryFocusRequest } from "./Story";
 	import type { StoryStep } from "./StoryStep";
 	import type { StoryLayer } from "./StoryLayer";
 	import type { StoryChapter } from "./StoryChapter";
@@ -38,12 +38,14 @@
 	export let textBack: string;
 	export let layerLegends: Array<LegendOptions>; 
 	export let baseLayerId: string | undefined;
+	export let focusRequest: StoryFocusRequest = {};
 
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
 	const dispatch = createEventDispatcher();
 
 	let currentPage = writable<number>(1);
 	let lastAppliedSavedStepNumber: number | undefined;
+	let lastSelectionRequest: StoryFocusRequest | undefined;
 	let activeStep: StoryStep | undefined;
 	let activeChapter: StoryChapter | undefined;
 	let activeChapterSteps: Array<StoryStep> | undefined;
@@ -57,6 +59,11 @@
 	let scrollContainer: HTMLElement;
 	let resizeObserver: ResizeObserver | undefined;
 	let lastInputType: string;
+	let mounted = false;
+	let destroyed = false;
+	let appliedFocusRequest: StoryFocusRequest | undefined;
+	let cameraRequest = 0;
+	let cameraFrame: number | undefined;
 
 	let storyLayers = new Array<Layer>();
 	let startCameraLocation: CameraLocation;
@@ -172,10 +179,14 @@
 			baseLayer = copyLayerById(baseLayerId);
 			if (!baseLayer) baseLayerId = undefined;
 		}
+		mounted = true;
 	});
 
 
 	onDestroy(() => {
+		destroyed = true;
+		cameraRequest++;
+		if (cameraFrame !== undefined) cancelAnimationFrame(cameraFrame);
 		if (story.forceCameraMode) {
 			map.options.disableModeSwitcher.set(false);
 			const targetMode = story.forceCameraMode === "3D";
@@ -187,7 +198,7 @@
 		container.removeEventListener("scroll", onScroll);
 		container.removeEventListener("wheel", onWheel);
 		resetToStart();
-		dispatch("closeModule", {n: $currentPage});
+		dispatch("closeModule", {n: $currentPage, story});
 		
 		baseLayer?.visible.set(false);
 		baseLayer = undefined;
@@ -251,9 +262,7 @@
 		}
 
 		if (activeStep) {
-			if (!story.staticCamera) {
-				cesiumMap.flyTo(polygonCameraLocation ?? activeStep.cameraLocation);
-			}
+			updateStepCamera(activeStep);
 			if (activeStep.layers) {
 				if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
 					storyLayers.forEach(layer => layer.visible.set(false));
@@ -317,10 +326,60 @@
 		}
 	});
 
-	$: if (savedStepNumber !== lastAppliedSavedStepNumber) {
+	$: if (savedStepNumber !== lastAppliedSavedStepNumber || focusRequest !== lastSelectionRequest) {
 		lastAppliedSavedStepNumber = savedStepNumber;
+		lastSelectionRequest = focusRequest;
 		lastInputType = "click";
 		currentPage.set(savedStepNumber);
+	}
+
+	$: if (mounted && activeStep && focusRequest !== appliedFocusRequest) {
+		updateStepCamera(activeStep);
+	}
+
+	async function updateStepCamera(step: StoryStep): Promise<void> {
+		if (!mounted || story.staticCamera) return;
+		const request = ++cameraRequest;
+		await tick();
+		if (destroyed || request !== cameraRequest) return;
+		if (cameraFrame !== undefined) cancelAnimationFrame(cameraFrame);
+		cameraFrame = requestAnimationFrame(() => {
+			cameraFrame = undefined;
+			if (destroyed || request !== cameraRequest) return;
+
+			// Panel width changes must reach Cesium before it computes a target-centred flight.
+			map.viewer.forceResize();
+			const camera = polygonCameraLocation ?? step.cameraLocation;
+			if (focusRequest !== appliedFocusRequest) {
+				appliedFocusRequest = focusRequest;
+				const markers = focusRequest.marker ? [focusRequest.marker] : story.markers;
+				const positions: Array<Cesium.Cartesian3> = [];
+				for (const marker of markers) {
+					const position = marker.position?.getValue(map.viewer.clock.currentTime);
+					if (position) positions.push(position);
+				}
+				if (positions.length > 0) {
+					const sphere = Cesium.BoundingSphere.fromPoints(positions);
+					const pitch = Cesium.Math.toRadians(get(map.options.use3DMode) ? camera.pitch : -89.9);
+					const configuredRange = Math.max(camera.z, 1) / Math.max(Math.abs(Math.sin(pitch)), 0.1);
+					const frustum = map.viewer.camera.frustum;
+					let range = 0;
+					if (frustum instanceof Cesium.PerspectiveFrustum
+						&& frustum.fovy !== undefined && frustum.fovy > 0
+						&& frustum.aspectRatio !== undefined && frustum.aspectRatio > 0) {
+						const halfFov = Math.atan(Math.tan(frustum.fovy / 2) * Math.min(frustum.aspectRatio, 1));
+						range = Math.max(configuredRange, sphere.radius / Math.sin(halfFov));
+					}
+					map.viewer.camera.flyToBoundingSphere(sphere, {
+						duration: camera.duration,
+						offset: new Cesium.HeadingPitchRange(Cesium.Math.toRadians(camera.heading), pitch, range)
+					});
+					map.refresh();
+					return;
+				}
+			}
+			cesiumMap.flyTo(camera);
+		});
 	}
 
 	function scrollToStep(index: number): void {

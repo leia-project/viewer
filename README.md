@@ -1076,6 +1076,7 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 ||baseLayerId|ID of a base layer copied into the story and available in each step. Set this when steps do not provide a background layer: opening a story hides the previously visible map layers|string|
 ||chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
 ||chapterGroups|Groups the chapter ids refer to|object|
+||markers|**Optional**: Story-level content markers, independent of chapter steps. Each has `type: "marker"` and a `beforeAfter` or `html` action; see below|array|
 
 Each layer within a step's `layers` array supports these settings:
 
@@ -1086,7 +1087,48 @@ Each layer within a step's `layers` array supports these settings:
 |style|Style/theme to apply to the layer|-|string|
 |showOpacitySlider|Whether the transparency slider is shown for this layer in the story step|true|boolean|
 
-Each story step can also define `markerCoordinates`. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story. Each marker has a `type`, defaulting to `chapter` when omitted:
+##### Story-level content markers
+
+Define these in `settings.stories[].markers`, alongside `chapters`, not inside a step. They appear as camera icons while their story is open in the Stories tool and remain available across all its steps. Activating one opens the existing centred gallery overlay without changing the active step, scrolling the story or moving the camera. The story marker toggle hides them and closes their open overlay; changing/closing the story also closes it. They do not add markers or controls to the story selection overview.
+
+|value|description|type|
+|-|-|-|
+|type|**Required**: `"marker"` identifies a story-level content marker|string|
+|id|**Required**: non-empty identifier, unique within the story|string|
+|title|**Required**: marker hover text and overlay title|string|
+|x / y|**Required**: longitude (`-180..180`) and latitude (`-90..90`)|number|
+|action|**Required**: `beforeAfter` or `html` content, described below|object|
+
+The built-in `beforeAfter` action needs no HTML or extra package. It overlays two images and starts the draggable divider at 50%; mouse, touch and the native range input's keyboard controls are supported. Both images use the same display frame; use equally sized/aligned images for an accurate comparison. A failed image displays an error placeholder instead of a broken comparison.
+
+```json
+{
+	"type": "marker",
+	"id": "road-comparison",
+	"title": "Before and after",
+	"x": 4.896,
+	"y": 52.375,
+	"action": {
+		"type": "beforeAfter",
+		"before": { "url": "images/story-comparison-before.svg", "label": "Before" },
+		"after": { "url": "images/story-comparison-after.svg", "label": "After" }
+	}
+}
+```
+
+`before.url` and `after.url` are required HTTP(S) or relative image URLs. Their optional `label` fields default to the localized Before/After labels.
+
+For custom content, use `action: { "type": "html", "html": "<!doctype html>..." }` with inline HTML/JavaScript, or `action: { "type": "html", "url": "story-content/widget.html" }` to embed a page. Specify **exactly one** of `html` and `url`. Content is displayed inside the same overlay in an iframe with `sandbox="allow-scripts"`: JavaScript can manipulate its own document, but cannot access the viewer's DOM, cookies or storage. URL content must permit iframe embedding, and its resource requests are subject to the sandbox's opaque-origin/CORS restrictions. No `eval` or script injection into the viewer is used.
+
+The overlay closes using its close button, Escape or its backdrop, and keeps keyboard focus inside while open. Keyboard events do not cross iframe boundaries: inline HTML automatically gets an Escape-to-close bridge; an external page can request closing with `parent.postMessage("story-marker:close", "*")` (for example from its own Escape handler). The viewer accepts this message **only from the currently embedded frame**; other windows cannot close the overlay through this hook.
+
+Invalid markers (including duplicate ids, unknown actions, out-of-range coordinates and unsafe URLs) are skipped with a console warning; other markers and stories remain available. The example configuration includes a working comparison with fictional demo illustrations and an interactive HTML marker; replace these with your own photos/content.
+
+Opening a story first applies the panel width and resizes Cesium, then frames that story's markers in the centre of the **remaining map area**. The configured step camera height/view angle provide a minimum viewing distance, so closely spaced markers do not cause an extreme zoom-in. Opening through a step-navigation marker focuses that marker instead. The existing step camera settings are used for subsequent navigation; stories without markers keep their configured camera destination, and `staticCamera: true` continues to suppress automatic camera movement.
+
+##### Step-navigation and legacy image markers
+
+Each story step can also define `markerCoordinates`. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story. These existing markers remain supported. Each has a `type`, defaulting to `chapter` when omitted:
 
 - **`chapter`** (default): shows the book icon. The marker label shows the story, chapter, and step name; clicking it opens the story directly on its step.
 - **`text`**: shows the given `text` in a speech bubble on the map instead of an icon. `text` is mandatory for this type. Set `openStoryStep: true` to make the bubble a clickable, keyboard-accessible button that opens its story step.
