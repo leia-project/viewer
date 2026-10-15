@@ -1066,13 +1066,14 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 |-|-|-|-|
 |alias||**Optional**: Different name for the tool showing in the viewer|string|
 |position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
-|showOnMap||**Optional**: Show story markers on the map initially. The visibility can also be changed with the Stories tool toggle, which is available both in the story overview and at the bottom of an opened story. Defaults to `true`|boolean|
+|showOnMap||**Optional**: Show story markers on the map initially. Defaults to `true`. The overview toggle remains available as before; a toggle inside an opened story requires that story's `showMarkerToggle` option|boolean|
 |stories|name|The name of the story|string|
 ||description|A short description to describe the story|string|
 ||width|The width of the story menu|string|
 ||maxWidth|**Optional**: Maximum width of the story menu, as a CSS length (for example `"50rem"` or `"800px"`). Keeps the text readable on wide screens: the menu is as wide as `width`, but never wider than `maxWidth`. Without this option the width is not limited|string|
 ||forceCameraMode|Forces the camera into a fixed mode while the story is open and prevents users from switching camera mode. Accepts `"2D"` or `"3D"`. On opening the story the camera switches to the given mode if needed; on closing it reverts to the previous mode if it was changed|string|
 ||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
+||showMarkerToggle|**Optional**: Show the marker visibility toggle in this story's footer when the story has markers. Defaults to `false`; markers no longer automatically add this button. This only controls the button, not marker visibility or the story overview footer|boolean|
 ||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
 ||baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
 ||chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
@@ -1086,10 +1087,15 @@ Each layer within a step's `layers` array supports these settings:
 |opacity|Initial opacity percentage of the layer|100|number|
 |style|Style/theme to apply to the layer|-|string|
 |showOpacitySlider|Whether the transparency slider is shown for this layer in the story step|true|boolean|
+|opacitySliderGroup|**Optional**: Layers in the same step with this group name share one slider. The trimmed group name is its label. All members must have the same initial `opacity` between 0 and 100|-|string|
 
 On each step the map shows exactly that step's layers; other layers are hidden and restored when the story is closed. Layers that are already shown with the right settings are left untouched, so they are not reloaded between steps. A step layer without `style` reuses the layer with the same `id` that is already in the layer manager instead of loading a copy. A step with an empty `layers` array shows the map layers as they were before the story was opened, so a story without layers leaves the map unchanged. When the story has a `baseLayerId`, that base layer replaces the user's own background layers for the whole story.
 
-Each story step can also define `markerCoordinates`. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story. Each marker has a `type`, defaulting to `chapter` when omitted:
+The active step's sliders appear in one fixed, collapsible block in the story footer, not in the scrolling step text. The block starts expanded and keeps its expanded/collapsed state between steps. Scrolling, navigation buttons and marker navigation all update it to the active step's layers; steps without any enabled sliders show no empty slider block. Long slider lists scroll within the footer so the story text stays accessible.
+
+Without `opacitySliderGroup`, each layer keeps its own slider and layer title. With a group, a slider change writes the same value to every member of that group in the **active step only**: setting it to 20 sets each member's `opacity` to 20. A group is shown if at least one member has `showOpacitySlider: true`; members with `showOpacitySlider: false` are still linked. When entering a step, the first member's current opacity is used for the whole group, preserving a user-adjusted value when the configured opacity has not changed. Empty/non-string group names, invalid opacity values or different initial opacities within a group are configuration errors: the affected story is not loaded and an error notification identifies the story, step and group. Other valid stories remain available.
+
+Each story step can also define `markerCoordinates`. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps. To offer a marker visibility toggle at the bottom of that story, explicitly set `showMarkerToggle: true` on the story. The marker toggle in the story selection overview is unchanged. Each marker has a `type`, defaulting to `chapter` when omitted:
 
 - **`chapter`** (default): shows the book icon. The marker label shows the story, chapter, and step name; clicking it opens the story directly on its step.
 - **`text`**: shows the given `text` in a speech bubble on the map instead of an icon. `text` is mandatory for this type.
@@ -1120,6 +1126,7 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 				"width": "600px",
 				"forceCameraMode": "2D",
 				"staticCamera": false,
+				"showMarkerToggle": true,
 				"requestPolygonArea": {
 					"enabled": false,
 					"statisticsApi": "https://virtueel.dev.zeeland.nl/ko_api/analyze"
@@ -1162,7 +1169,13 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 								"layers": [
 									{
 										"id": "002",
-										"opacity": 50
+										"opacity": 50,
+										"opacitySliderGroup": "Climate layers"
+									},
+									{
+										"id": "003",
+										"opacity": 50,
+										"opacitySliderGroup": "Climate layers"
 									},
 									{
 										"id": "19747667-ddb2-4162-99f6-a37d5aaa15ea",
