@@ -241,6 +241,18 @@
 
 	function onWheel() {
 		lastInputType = "scroll";
+		appliedFocusRequest = focusRequest;
+	}
+
+	function navigateToStep(page: number): void {
+		lastInputType = "click";
+		appliedFocusRequest = focusRequest;
+		if ($currentPage !== page) {
+			currentPage.set(page);
+		} else if (activeStep) {
+			scrollToStep(page - 1);
+			updateStepCamera(activeStep);
+		}
 	}
 
 
@@ -350,13 +362,28 @@
 			// Panel width changes must reach Cesium before it computes a target-centred flight.
 			map.viewer.forceResize();
 			const camera = polygonCameraLocation ?? step.cameraLocation;
-			if (focusRequest !== appliedFocusRequest) {
+			const newFocusRequest = focusRequest !== appliedFocusRequest;
+			const stepLocations = polygonCameraLocation ? [] : step.getMarkerCoordinatesList();
+			if (newFocusRequest || stepLocations.length > 0) {
 				appliedFocusRequest = focusRequest;
-				const markers = focusRequest.marker ? [focusRequest.marker] : story.markers;
+				const markers = newFocusRequest
+					? (focusRequest.marker ? [focusRequest.marker] : story.markers)
+					: [];
 				const positions: Array<Cesium.Cartesian3> = [];
 				for (const marker of markers) {
 					const position = marker.position?.getValue(map.viewer.clock.currentTime);
 					if (position) positions.push(position);
+				}
+				if (positions.length === 0) {
+					for (const location of stepLocations) {
+						const cartographic = Cesium.Cartographic.fromDegrees(location.x, location.y);
+						positions.push(Cesium.Cartesian3.fromRadians(
+							cartographic.longitude,
+							cartographic.latitude,
+							map.viewer.scene.globe.getHeight(cartographic) ?? 0,
+							map.viewer.scene.globe.ellipsoid
+						));
+					}
 				}
 				if (positions.length > 0) {
 					const sphere = Cesium.BoundingSphere.fromPoints(positions);
@@ -694,8 +721,7 @@ async function downloadPDF() {
 					on:click={() => {
 						const firstStepIndex = flattenedSteps.findIndex(({ chapter: c }) => c === chapter);
 						if (firstStepIndex !== -1) {
-							lastInputType = "click";
-							currentPage.set(firstStepIndex + 1);
+							navigateToStep(firstStepIndex + 1);
 						}
 					}}
 				>
@@ -706,9 +732,10 @@ async function downloadPDF() {
 		<hr style="width: 100%;"/>
 		<div style="width: 100%;">
 			<CustomPaginationNav
-				bind:page={$currentPage}
+				page={$currentPage}
 				bind:lastInputType ={lastInputType}
 				{flattenedSteps}
+				on:change={(event) => navigateToStep(event.detail.page)}
 			/>
 		</div>
 	</div>

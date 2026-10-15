@@ -32,7 +32,7 @@
     disableRightArrow = (index === activeChapterIndex + activeChapterSteps.length - 1);
   }
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<{ change: { page: number } }>();
 
   function goTo(newPage: number) {
     if (newPage - activeChapterIndex < 1) {
@@ -98,7 +98,7 @@
           : "margin: 0.1rem; padding: 0 8px; min-width: 0; max-width: 8rem; flex-shrink: 999;"}
         on:click={() => {
           lastInputType = "click";
-          page = activeChapterIndex + idx + 1;
+          goTo(activeChapterIndex + idx + 1);
         }}
       >
         <span class="step-label-text">{label}</span>
