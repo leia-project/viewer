@@ -394,6 +394,11 @@
             "open": "Verhaal openen",
             "galleryNext": "Volgende afbeelding",
             "galleryPrevious": "Vorige afbeelding",
+            "galleryTitle": "Verhaalafbeeldingen en inhoud",
+            "comparisonBefore": "Voor",
+            "comparisonAfter": "Na",
+            "comparisonSlider": "Vergelijk de afbeeldingen voor en na",
+            "comparisonPosition": "{before}: {beforeValue}%, {after}: {afterValue}%",
             "galleryImageUnavailable": "Afbeelding kon niet worden geladen"
         },
         "animation": {

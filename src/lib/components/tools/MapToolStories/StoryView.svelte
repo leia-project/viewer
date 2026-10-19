@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, onDestroy, getContext, createEventDispatcher } from "svelte";
+	import { onMount, onDestroy, getContext, createEventDispatcher, tick } from "svelte";
 	import { _ } from "svelte-i18n";
 	import * as Cesium from "cesium";
 	import { writable, get, type Writable } from "svelte/store";
@@ -8,7 +8,7 @@
 	import "@carbon/charts-svelte/styles.css";
 	import { jsPDF } from 'jspdf';
 
-	import type { Story } from "./Story";
+	import type { Story, StoryFocusRequest } from "./Story";
 	import type { StoryStep } from "./StoryStep";
 	import type { StoryLayer } from "./StoryLayer";
 	import type { StoryChapter } from "./StoryChapter";
@@ -38,6 +38,7 @@
 	export let textBack: string;
 	export let layerLegends: Array<LegendOptions>; 
 	export let baseLayerId: string | undefined;
+	export let focusRequest: StoryFocusRequest = {};
 
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
 	const dispatch = createEventDispatcher();
@@ -46,6 +47,7 @@
 
 	let currentPage = writable<number>(1);
 	let lastAppliedSavedStepNumber: number | undefined;
+	let lastSelectionRequest: StoryFocusRequest | undefined;
 	let activeStep: StoryStep | undefined;
 	let activeChapter: StoryChapter | undefined;
 	let activeChapterSteps: Array<StoryStep> | undefined;
@@ -67,6 +69,11 @@
 	let scrollHeight: number = 0;
 	let resizeObserver: ResizeObserver | undefined;
 	let lastInputType: string;
+	let mounted = false;
+	let destroyed = false;
+	let appliedFocusRequest: StoryFocusRequest | undefined;
+	let cameraRequest = 0;
+	let cameraFrame: number | undefined;
 
 	// Layer shown for each story layer (keyed by id + style): a story copy, or the user's own layer.
 	const storyTargets = new globalThis.Map<string, Layer>();
@@ -161,10 +168,18 @@
 		// Return to step where user left
 		currentPage.set(savedStepNumber);
 		setTimeout(() => { scrollToStep(savedStepNumber-1) }, 150); // Timeout when height of images is not explicitly set
+		if (baseLayerId) {
+			baseLayer = copyLayerById(baseLayerId);
+			if (!baseLayer) baseLayerId = undefined;
+		}
+		mounted = true;
 	});
 
 
 	onDestroy(() => {
+		destroyed = true;
+		cameraRequest++;
+		if (cameraFrame !== undefined) cancelAnimationFrame(cameraFrame);
 		if (story.forceCameraMode) {
 			map.options.disableModeSwitcher.set(false);
 			const targetMode = story.forceCameraMode === "3D";
@@ -176,7 +191,7 @@
 		container.removeEventListener("scroll", onScroll);
 		container.removeEventListener("wheel", onWheel);
 		resetToStart();
-		dispatch("closeModule", {n: $currentPage});
+		dispatch("closeModule", {n: $currentPage, story});
 		
 		// Also hidden, in case a source that is still loading gets attached after removal.
 		baseLayer?.visible.set(false);
@@ -221,6 +236,18 @@
 
 	function onWheel() {
 		lastInputType = "scroll";
+		appliedFocusRequest = focusRequest;
+	}
+
+	function navigateToStep(page: number): void {
+		lastInputType = "click";
+		appliedFocusRequest = focusRequest;
+		if ($currentPage !== page) {
+			currentPage.set(page);
+		} else if (activeStep) {
+			scrollToStep(page - 1);
+			updateStepCamera(activeStep);
+		}
 	}
 
 
@@ -248,10 +275,47 @@
 		}
 
 		if (activeStep) {
-			if (!story.staticCamera) {
-				cesiumMap.flyTo(polygonCameraLocation ?? activeStep.cameraLocation);
+			updateStepCamera(activeStep);
+			if (activeStep.layers) {
+				if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
+					storyLayers.forEach(layer => layer.visible.set(false));
+				}
+				else {
+					hideInactiveLayers(activeStep.layers);
+				}
+				for (let i = 0; i < activeStep.layers?.length; i++) {
+					const layerId = activeStep.layers[i].id.toString();
+					const added = getAdded(layerId);
+
+					if (added) {
+						if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
+							// Layer already added, polyon not drawn but is required
+							added.visible.set(false);
+						} else {
+							// Layer already added, no polygon required or already drawn
+							added.visible.set(true);
+						}
+						continue
+					}
+
+					// If the layer is not added yet, add it
+					const libraryLayer = getLibraryLayer(layerId);
+					if (libraryLayer) {
+						const layerConfig = storyLayerToLayerConfig(activeStep.layers[i], libraryLayer);
+						const layer = map.addLayer(layerConfig);
+
+						if (story.requestPolygonArea && !get(hasDrawnPolygon)) {
+							// No polyon drawn but is required
+							layer.visible.set(false);
+						}
+						else {
+							// No polygon required or already drawn
+							layer.visible.set(true);
+						}
+						storyLayers.push(layer);
+					}
+				}
 			}
-			applyStepLayers(activeStep);
 
 			if (activeStep.globeOpacity) {
 				map.options.globeOpacity.set(activeStep.globeOpacity);
@@ -276,17 +340,76 @@
 		}
 	});
 
-	$: if (savedStepNumber !== lastAppliedSavedStepNumber) {
+	$: if (savedStepNumber !== lastAppliedSavedStepNumber || focusRequest !== lastSelectionRequest) {
 		lastAppliedSavedStepNumber = savedStepNumber;
+		lastSelectionRequest = focusRequest;
 		lastInputType = "click";
 		currentPage.set(savedStepNumber);
 	}
 
-	// Spacer below the last step, so it can scroll past the intersect line like every other
-	// step. Sized so that at maximum scroll the last step ends at the intersect line: still
-	// visible, which also hints that scrolling back up is possible (there is no scrollbar).
-	// Gated on viewportHeight: until .story gets its explicit height the scroll container isn't constrained.
-	$: bottomSpacerHeight = viewportHeight ? Math.max(0, scrollHeight - intersectOffset) : 0;
+	$: if (mounted && activeStep && focusRequest !== appliedFocusRequest) {
+		updateStepCamera(activeStep);
+	}
+
+	async function updateStepCamera(step: StoryStep): Promise<void> {
+		if (!mounted || story.staticCamera) return;
+		const request = ++cameraRequest;
+		await tick();
+		if (destroyed || request !== cameraRequest) return;
+		if (cameraFrame !== undefined) cancelAnimationFrame(cameraFrame);
+		cameraFrame = requestAnimationFrame(() => {
+			cameraFrame = undefined;
+			if (destroyed || request !== cameraRequest) return;
+
+			// Panel width changes must reach Cesium before it computes a target-centred flight.
+			map.viewer.forceResize();
+			const camera = polygonCameraLocation ?? step.cameraLocation;
+			const newFocusRequest = focusRequest !== appliedFocusRequest;
+			const stepLocations = polygonCameraLocation ? [] : step.getMarkerCoordinatesList();
+			if (newFocusRequest || stepLocations.length > 0) {
+				appliedFocusRequest = focusRequest;
+				const markers = newFocusRequest
+					? (focusRequest.marker ? [focusRequest.marker] : story.markers)
+					: [];
+				const positions: Array<Cesium.Cartesian3> = [];
+				for (const marker of markers) {
+					const position = marker.position?.getValue(map.viewer.clock.currentTime);
+					if (position) positions.push(position);
+				}
+				if (positions.length === 0) {
+					for (const location of stepLocations) {
+						const cartographic = Cesium.Cartographic.fromDegrees(location.x, location.y);
+						positions.push(Cesium.Cartesian3.fromRadians(
+							cartographic.longitude,
+							cartographic.latitude,
+							map.viewer.scene.globe.getHeight(cartographic) ?? 0,
+							map.viewer.scene.globe.ellipsoid
+						));
+					}
+				}
+				if (positions.length > 0) {
+					const sphere = Cesium.BoundingSphere.fromPoints(positions);
+					const pitch = Cesium.Math.toRadians(get(map.options.use3DMode) ? camera.pitch : -89.9);
+					const configuredRange = Math.max(camera.z, 1) / Math.max(Math.abs(Math.sin(pitch)), 0.1);
+					const frustum = map.viewer.camera.frustum;
+					let range = 0;
+					if (frustum instanceof Cesium.PerspectiveFrustum
+						&& frustum.fovy !== undefined && frustum.fovy > 0
+						&& frustum.aspectRatio !== undefined && frustum.aspectRatio > 0) {
+						const halfFov = Math.atan(Math.tan(frustum.fovy / 2) * Math.min(frustum.aspectRatio, 1));
+						range = Math.max(configuredRange, sphere.radius / Math.sin(halfFov));
+					}
+					map.viewer.camera.flyToBoundingSphere(sphere, {
+						duration: camera.duration,
+						offset: new Cesium.HeadingPitchRange(Cesium.Math.toRadians(camera.heading), pitch, range)
+					});
+					map.refresh();
+					return;
+				}
+			}
+			cesiumMap.flyTo(camera);
+		});
+	}
 
 	function scrollToStep(index: number): void {
 		const stepElement = getStepElementByIndex(index);
@@ -662,8 +785,7 @@ async function downloadPDF() {
 					on:click={() => {
 						const firstStepIndex = flattenedSteps.findIndex(({ chapter: c }) => c === chapter);
 						if (firstStepIndex !== -1) {
-							lastInputType = "click";
-							currentPage.set(firstStepIndex + 1);
+							navigateToStep(firstStepIndex + 1);
 						}
 					}}
 				>
@@ -674,9 +796,10 @@ async function downloadPDF() {
 		<hr style="width: 100%;"/>
 		<div style="width: 100%;">
 			<CustomPaginationNav
-				bind:page={$currentPage}
+				page={$currentPage}
 				bind:lastInputType ={lastInputType}
 				{flattenedSteps}
+				on:change={(event) => navigateToStep(event.detail.page)}
 			/>
 		</div>
 	</div>

@@ -1075,9 +1075,10 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 ||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
 ||showMarkerToggle|**Optional**: Show the marker visibility toggle in this story's footer when the story has markers. Defaults to `false`; markers no longer automatically add this button. This only controls the button, not marker visibility or the story overview footer|boolean|
 ||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
-||baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
+||baseLayerId|ID of a base layer copied into the story and available in each step. Set this when steps do not provide a background layer: opening a story hides the previously visible map layers|string|
 ||chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
 ||chapterGroups|Groups the chapter ids refer to|object|
+||markers|**Optional**: Story-level content markers, independent of chapter steps. Each has `type: "marker"` and a `beforeAfter` or `html` action; see below|array|
 
 Each layer within a step's `layers` array supports these settings:
 
@@ -1089,17 +1090,54 @@ Each layer within a step's `layers` array supports these settings:
 |showOpacitySlider|Whether the transparency slider is shown for this layer in the story step|true|boolean|
 |opacitySliderGroup|**Optional**: Layers in the same step with this group name share one slider. The trimmed group name is its label. All members must have the same initial `opacity` between 0 and 100|-|string|
 
-On each step the map shows exactly that step's layers; other layers are hidden and restored when the story is closed. Layers that are already shown with the right settings are left untouched, so they are not reloaded between steps. A step layer without `style` reuses the layer with the same `id` that is already in the layer manager instead of loading a copy. A step with an empty `layers` array shows the map layers as they were before the story was opened, so a story without layers leaves the map unchanged. When the story has a `baseLayerId`, that base layer replaces the user's own background layers for the whole story.
+##### Story-level content markers
 
-The active step's sliders appear in one fixed, collapsible block in the story footer, not in the scrolling step text. The block starts expanded and keeps its expanded/collapsed state between steps. Scrolling, navigation buttons and marker navigation all update it to the active step's layers; steps without any enabled sliders show no empty slider block. Long slider lists scroll within the footer so the story text stays accessible.
+Define these in `settings.stories[].markers`, alongside `chapters`, not inside a step. They appear as camera icons while their story is open in the Stories tool and remain available across all its steps. Activating one opens the existing centred gallery overlay without changing the active step, scrolling the story or moving the camera. The story marker toggle hides them and closes their open overlay; changing/closing the story also closes it. They do not add markers or controls to the story selection overview.
 
-Without `opacitySliderGroup`, each layer keeps its own slider and layer title. With a group, a slider change writes the same value to every member of that group in the **active step only**: setting it to 20 sets each member's `opacity` to 20. A group is shown if at least one member has `showOpacitySlider: true`; members with `showOpacitySlider: false` are still linked. When entering a step, the first member's current opacity is used for the whole group, preserving a user-adjusted value when the configured opacity has not changed. Empty/non-string group names, invalid opacity values or different initial opacities within a group are configuration errors: the affected story is not loaded and an error notification identifies the story, step and group. Other valid stories remain available.
+|value|description|type|
+|-|-|-|
+|type|**Required**: `"marker"` identifies a story-level content marker|string|
+|id|**Required**: non-empty identifier, unique within the story|string|
+|title|**Required**: marker hover text and overlay title|string|
+|x / y|**Required**: longitude (`-180..180`) and latitude (`-90..90`)|number|
+|action|**Required**: `beforeAfter` or `html` content, described below|object|
 
-Each story step can also define `markerCoordinates`. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps. To offer a marker visibility toggle at the bottom of that story, explicitly set `showMarkerToggle: true` on the story. The marker toggle in the story selection overview is unchanged. Each marker has a `type`, defaulting to `chapter` when omitted:
+The built-in `beforeAfter` action needs no HTML or extra package. It overlays two images and starts the draggable divider at 50%; mouse, touch and the native range input's keyboard controls are supported. Both images use the same display frame; use equally sized/aligned images for an accurate comparison. A failed image displays an error placeholder instead of a broken comparison.
+
+```json
+{
+	"type": "marker",
+	"id": "road-comparison",
+	"title": "Before and after",
+	"x": 4.896,
+	"y": 52.375,
+	"action": {
+		"type": "beforeAfter",
+		"before": { "url": "images/story-comparison-before.svg", "label": "Before" },
+		"after": { "url": "images/story-comparison-after.svg", "label": "After" }
+	}
+}
+```
+
+`before.url` and `after.url` are required HTTP(S) or relative image URLs. Their optional `label` fields default to the localized Before/After labels.
+
+For custom content, use `action: { "type": "html", "html": "<!doctype html>..." }` with inline HTML/JavaScript, or `action: { "type": "html", "url": "story-content/widget.html" }` to embed a page. Specify **exactly one** of `html` and `url`. Content is displayed inside the same overlay in an iframe with `sandbox="allow-scripts"`: JavaScript can manipulate its own document, but cannot access the viewer's DOM, cookies or storage. URL content must permit iframe embedding, and its resource requests are subject to the sandbox's opaque-origin/CORS restrictions. No `eval` or script injection into the viewer is used.
+
+The overlay closes using its close button, Escape or its backdrop, and keeps keyboard focus inside while open. Keyboard events do not cross iframe boundaries: inline HTML automatically gets an Escape-to-close bridge; an external page can request closing with `parent.postMessage("story-marker:close", "*")` (for example from its own Escape handler). The viewer accepts this message **only from the currently embedded frame**; other windows cannot close the overlay through this hook.
+
+Invalid markers (including duplicate ids, unknown actions, out-of-range coordinates and unsafe URLs) are skipped with a console warning; other markers and stories remain available. The example configuration includes a working comparison with fictional demo illustrations and an interactive HTML marker; replace these with your own photos/content.
+
+Opening a story first applies the panel width and resizes Cesium, then frames that story's markers in the centre of the **remaining map area**. The configured step camera height/view angle provide a minimum viewing distance, so closely spaced markers do not cause an extreme zoom-in. Opening through a step-navigation marker focuses that marker instead. Step buttons, arrows, chapter navigation and scrolling also centre the active step's `markerCoordinates`, using the step's camera height/view angle and the available terrain height. Independent story-level content markers are not used as step targets. Steps without `markerCoordinates` keep their configured camera destination, and `staticCamera: true` continues to suppress automatic camera movement.
+
+##### Step-navigation and legacy image markers
+
+Each story step can also define `markerCoordinates`. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story. These existing markers remain supported. Each has a `type`, defaulting to `chapter` when omitted:
 
 - **`chapter`** (default): shows the book icon. The marker label shows the story, chapter, and step name; clicking it opens the story directly on its step.
-- **`text`**: shows the given `text` in a speech bubble on the map instead of an icon. `text` is mandatory for this type.
+- **`text`**: shows the given `text` in a speech bubble on the map instead of an icon. `text` is mandatory for this type. Set `openStoryStep: true` to make the bubble a clickable, keyboard-accessible button that opens its story step.
 - **`image`**: shows a camera icon; clicking it opens the image(s) from `url` in gallery mode. `url` is mandatory for this type and can be a single string or an array of strings — with multiple images the gallery shows arrow controls to navigate between them. Only `http(s)` and relative urls are used.
+
+For `text` and `image` markers, `openStoryStep` defaults to `false`. When set to `true`, activating the marker opens the story on the step containing that marker. For image markers this replaces the gallery action; it does not open both the gallery and the story step. Chapter markers always open their step.
 
 |value|description|type|
 |-|-|-|
@@ -1108,7 +1146,10 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 |x|Longitude of the story marker|number|
 |y|Latitude of the story marker|number|
 |text|**Mandatory when type is `text`**: text shown in the speech bubble. **Optional for type `image`**: tooltip shown when hovering the marker|string|
+|openStoryStep|**Optional for type `text` or `image`**: opens the containing story step when activated instead of leaving text passive or opening the image gallery. Defaults to `false`|boolean|
 |url|**Mandatory when type is `image`**: image url, or array of image urls for gallery mode|string or array[string]|
+|symbolUrl|**Optional for type `chapter`**: url of an image that replaces the default circle with story icon. if the image cannot be loaded the default icon is used and a warning is logged to the console|string|
+|maxImageSize|**Optional for type `chapter` with `symbolUrl`**: maximum width and height of the symbol in pixels (aspect ratio is kept, images are never scaled up), standard value is 128|number|
 
 ```json
 
@@ -1149,12 +1190,14 @@ Each story step can also define `markerCoordinates`. Use `x` for longitude and `
 								{
 									"type": "text",
 									"text": "This is example text",
+									"openStoryStep": true,
 									"x": 5.23950,
 									"y": 52.20050
 								},
 								{
 									"type": "image",
 									"url": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
+									"openStoryStep": true,
 									"x": 5.23860,
 									"y": 52.19960
 								}],

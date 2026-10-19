@@ -302,7 +302,7 @@
                 "maximumScreenSpaceError": 1.2,
                 "groundAtmosphere": true,
                 "globeOpacity": 100,
-                "lighting": true,
+                "lighting": false,
                 "skyAtmosphere": true,
                 "fog": true,
                 "enableCollisionDetection": false,
@@ -401,82 +401,97 @@
         },
         {
             "id": "stories",
-            "enabled": false,
+            "enabled": true,
             "settings": {
                 "showOnMap": true,
                 "stories": [
                     {
-                        "name": "Gekoppelde kaartlagen",
-                        "description": "Een verhaal met vaste laagbediening en een gedeelde slider.",
-                        "width": "28rem",
-                        "maxWidth": "40rem",
-                        "showMarkerToggle": true,
+                        "name": "Amsterdam",
+                        "description": "Een wandeling door Amsterdam.",
+                        "width": "400px",
+                        "baseLayerId": "1",
+                        "markers": [
+                            {
+                                "type": "marker",
+                                "id": "beeldvergelijking",
+                                "title": "Demo: voor en na",
+                                "x": 4.896,
+                                "y": 52.375,
+                                "action": {
+                                    "type": "beforeAfter",
+                                    "before": {
+                                        "url": "images/story-comparison-before.svg",
+                                        "label": "Voor"
+                                    },
+                                    "after": {
+                                        "url": "images/story-comparison-after.svg",
+                                        "label": "Na"
+                                    }
+                                }
+                            },
+                            {
+                                "type": "marker",
+                                "id": "interactieve-inhoud",
+                                "title": "HTML/JavaScript-demo",
+                                "x": 4.904,
+                                "y": 52.376,
+                                "action": {
+                                    "type": "html",
+                                    "html": "<!doctype html><html lang='nl'><head><meta charset='utf-8'><title>Interactieve marker</title><style>body{font:18px system-ui;margin:2rem}button{padding:.75rem}</style></head><body><h1>Interactieve marker</h1><p>Deze inhoud staat los van de verhaalstappen.</p><button id='counter'>Klik op mij</button><p id='result' aria-live='polite'>0</p><script>let count=0;document.getElementById('counter').addEventListener('click',()=>{document.getElementById('result').textContent=String(++count);});</script></body></html>"
+                                }
+                            }
+                        ],
                         "chapterGroups": [
                             {
-                                "id": "lagen",
-                                "title": "Kaartlagen vergelijken",
-                                "buttonText": "Lagen"
+                                "id": "1",
+                                "title": "Centrum",
+                                "buttonText": "Centrum"
                             }
                         ],
                         "chapters": [
                             {
-                                "id": "lagen",
+                                "id": "1",
                                 "steps": [
                                     {
-                                        "title": "Twee lagen, een slider",
-                                        "html": "<p>De slider Kaartlagen onderaan het verhaal past de transparantie van zowel 3D BAG als PDOK Wijken aan.</p>",
-                                        "camera": {
-                                            "x": 4.9,
-                                            "y": 52.37,
-                                            "z": 12000,
-                                            "heading": 0,
-                                            "pitch": -45,
-                                            "duration": 1
-                                        },
+                                        "title": "Centraal Station",
+                                        "html": "<h2>Centraal Station</h2><p>De cameramarkers op de kaart openen een beeldvergelijking of interactieve HTML-inhoud. Ze blijven bij elke verhaalstap beschikbaar. De vergelijkingsbeelden zijn fictieve demo-illustraties.</p>",
                                         "markerCoordinates": {
-                                            "x": 4.9,
-                                            "y": 52.37
+                                            "type": "text",
+                                            "text": "Centraal Station",
+                                            "openStoryStep": true,
+                                            "x": 4.9003,
+                                            "y": 52.378
                                         },
-                                        "layers": [
-                                            {
-                                                "id": "1",
-                                                "opacity": 100,
-                                                "showOpacitySlider": false
-                                            },
-                                            {
-                                                "id": "3",
-                                                "opacity": 50,
-                                                "opacitySliderGroup": "Kaartlagen"
-                                            },
-                                            {
-                                                "id": "4",
-                                                "opacity": 50,
-                                                "opacitySliderGroup": "Kaartlagen"
-                                            }
-                                        ]
+                                        "camera": {
+                                            "x": 4.9003,
+                                            "y": 52.378,
+                                            "z": 1500,
+                                            "heading": 0,
+                                            "pitch": -60,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
                                     },
                                     {
-                                        "title": "Alleen wijken",
-                                        "html": "<p>De footer toont nu alleen de slider voor PDOK Wijken. Het blok kan worden ingeklapt en blijft onderaan staan tijdens het scrollen.</p>",
-                                        "camera": {
-                                            "x": 4.9,
-                                            "y": 52.37,
-                                            "z": 12000,
-                                            "heading": 0,
-                                            "pitch": -90,
-                                            "duration": 1
+                                        "title": "Dam",
+                                        "html": "<h2>Dam</h2>",
+                                        "markerCoordinates": {
+                                            "type": "image",
+                                            "url": "images/leia_logo.png",
+                                            "text": "Dam",
+                                            "openStoryStep": true,
+                                            "x": 4.8922,
+                                            "y": 52.3731
                                         },
-                                        "layers": [
-                                            {
-                                                "id": "1",
-                                                "opacity": 100,
-                                                "showOpacitySlider": false
-                                            },
-                                            {
-                                                "id": "4",
-                                                "opacity": 50
-                                            }
-                                        ]
+                                        "camera": {
+                                            "x": 4.8922,
+                                            "y": 52.3731,
+                                            "z": 1500,
+                                            "heading": 0,
+                                            "pitch": -60,
+                                            "duration": 1.5
+                                        },
+                                        "layers": []
                                     }
                                 ]
                             }

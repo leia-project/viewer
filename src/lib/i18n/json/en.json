@@ -387,6 +387,11 @@
             "open": "Open story",
             "galleryNext": "Next image",
             "galleryPrevious": "Previous image",
+            "galleryTitle": "Story images and content",
+            "comparisonBefore": "Before",
+            "comparisonAfter": "After",
+            "comparisonSlider": "Compare before and after images",
+            "comparisonPosition": "{before}: {beforeValue}%, {after}: {afterValue}%",
             "galleryImageUnavailable": "Image could not be loaded"
         },
         "animation": {

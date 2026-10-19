@@ -2,6 +2,7 @@
 	import { getContext, onDestroy } from "svelte";
 	import { _ } from "svelte-i18n";
 	import { Book } from "carbon-icons-svelte";
+	import * as Cesium from "cesium";
 	import { page } from "$app/stores";
 
 	import { CameraLocation } from "$lib/map-core/camera-location";
@@ -10,8 +11,8 @@
 	import { NotificationType } from "$lib/map-core/notifications/notification-type";
 	import { notifications } from "$lib/map-core/notifications/notifications";
 	import { MapToolMenuOption } from "../MapToolMenuOption";
-	import { Story, type StoryMarkerCoordinates } from "./Story";
-	import { StoryStep, StoryOpacitySliderConfigError } from "./StoryStep";
+	import { Story, type StoryFocusRequest, type StoryMarkerCoordinates } from "./Story";
+	import { StoryStep } from "./StoryStep";
 	import { StoryLayer } from "./StoryLayer";
 	import { StoryChapter } from "./StoryChapter";
 	import type { LegendOptions } from "./LegendOptions";
@@ -19,6 +20,7 @@
 	import StoryView from "./StoryView.svelte";
 	import { selectedStory, showStoryMarkers } from "./story-handler";
 	import { StoryMarkerCollection } from "./story-marker-collection";
+	import { isNonEmptyString, isSafeStoryUrl, parseStoryMarkers } from "./story-marker";
 	import ToggleView from "../MapToolProjects/components/ToggleView.svelte";
 
 	export let id: string;
@@ -32,6 +34,7 @@
 	const selectedStoryStore = selectedStory;
 	let markerCollection: StoryMarkerCollection;
 	let stepNumber: number;
+	let focusRequest: StoryFocusRequest = {};
 	let baseLayerId: string | undefined;
 	const layerLegends: Array<LegendOptions> = [];
 	const layers = cesiumMap.layers;
@@ -54,7 +57,9 @@
 
 	selectedTool.subscribe((selected: MapToolMenuOption) => {
 		if (tool === selected && $selectedStoryStore) {
-			tool.width.set(getToolWidth($selectedStoryStore));
+			tool.width.set($selectedStoryStore.width ?? "");
+		} else if (tool !== selected) {
+			focusRequest = {};
 		}
 	});
 
@@ -96,20 +101,6 @@
 		}
 	}
 
-	function isNonEmptyString(value: unknown): value is string {
-		return typeof value === "string" && value.trim().length > 0;
-	}
-
-	// Only http(s) and relative urls; rejects javascript:, data:, etc.
-	function isSafeImageUrl(value: string): boolean {
-		try {
-			const { protocol } = new URL(value, window.location.href);
-			return protocol === "http:" || protocol === "https:";
-		} catch {
-			return false;
-		}
-	}
-
 	function parseMarkerCoordinates(raw: unknown): Array<StoryMarkerCoordinates> {
 		const entries: Array<any> = Array.isArray(raw) ? raw : raw ? [raw] : [];
 		const markers = new Array<StoryMarkerCoordinates>();
@@ -122,6 +113,7 @@
 			}
 
 			const type = entry.type ?? "chapter";
+			const openStoryStep = entry.openStoryStep === true;
 			if (type === "chapter") {
 				markers.push({ x, y, type });
 			} else if (type === "text") {
@@ -129,17 +121,17 @@
 					console.warn("Story marker skipped: type 'text' requires a non-empty text", entry);
 					continue;
 				}
-				markers.push({ x, y, type, text: entry.text });
+				markers.push({ x, y, type, text: entry.text, openStoryStep });
 			} else if (type === "image") {
 				const urls = (Array.isArray(entry.url) ? entry.url : [entry.url])
 					.filter(isNonEmptyString)
 					.map((url: string) => url.trim())
-					.filter(isSafeImageUrl);
+					.filter(isSafeStoryUrl);
 				if (urls.length === 0) {
 					console.warn("Story marker skipped: type 'image' requires at least one valid http(s) or relative url", entry);
 					continue;
 				}
-				markers.push({ x, y, type, url: urls, text: isNonEmptyString(entry.text) ? entry.text : undefined });
+				markers.push({ x, y, type, url: urls, text: isNonEmptyString(entry.text) ? entry.text : undefined, openStoryStep });
 			} else {
 				console.warn("Story marker skipped: unknown type", entry);
 			}
@@ -157,35 +149,34 @@
 			// Load all stories
 			for (let i = 0; i < configStories.length; i++) {
 				const story = configStories[i];
-				const legendStart = layerLegends.length;
-				try {
-					const storyName: string = story.name;
-					const storyDescription: string = story.description;
-					const storyWidth: string = story.width;
-					const storyMaxWidth: string | undefined = story.maxWidth;
-					const storyForceCameraMode: "2D" | "3D" | undefined = story.forceCameraMode ?? undefined;
-					const storyStaticCamera: boolean = story.staticCamera ?? false;
-					const storyShowMarkerToggle: boolean = story.showMarkerToggle === true;
-					const storyRequestPolygonAreaConfig = story.requestPolygonArea ?? false;
-					const storyRequestPolygonArea: boolean = typeof storyRequestPolygonAreaConfig === "object"
-						? storyRequestPolygonAreaConfig.enabled ?? false
-						: storyRequestPolygonAreaConfig;
-					const storyStatisticsApi: string | undefined = typeof storyRequestPolygonAreaConfig === "object"
-						? storyRequestPolygonAreaConfig.statisticsApi ?? undefined
-						: undefined;
-					const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
-					let storyHasMarkers = false;
+				const storyName: string = story.name;
+				const storyDescription: string = story.description;
+				const storyWidth: string = story.width;
+				const storyMaxWidth: string | undefined = story.maxWidth;
+				const storyForceCameraMode: "2D" | "3D" | undefined = story.forceCameraMode ?? undefined;
+				const storyStaticCamera: boolean = story.staticCamera ?? false;
+				const storyRequestPolygonAreaConfig = story.requestPolygonArea ?? false;
+				const storyRequestPolygonArea: boolean = typeof storyRequestPolygonAreaConfig === "object"
+					? storyRequestPolygonAreaConfig.enabled ?? false
+					: storyRequestPolygonAreaConfig;
+				const storyStatisticsApi: string | undefined = typeof storyRequestPolygonAreaConfig === "object"
+					? storyRequestPolygonAreaConfig.statisticsApi ?? undefined
+					: undefined;
+				const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
+				const storyMarkers = parseStoryMarkers(story.markers);
+				let storyHasMarkers = false;
+				baseLayerId = story.baseLayerId ?? undefined;
 
-					// Load all chapter groups
-					const chapterGroups = story.chapterGroups;
+				// Load all chapter groups
+				const chapterGroups = story.chapterGroups;
 
-					// Load all chapters
-					for (let j = 0; j < story.chapters.length; j++) {
-						const chapter = story.chapters[j];
-						const chapterGroup = chapterGroups.find((chapterGroup: any) => chapter.id === chapterGroup.id);
-						const chapterTitle: string = chapterGroup.title;
-						const chapterButtonText: string = chapterGroup.buttonText;
-						const storySteps = new Array<StoryStep>();
+				// Load all chapters
+				for (let j = 0; j < story.chapters.length; j++) {
+					const chapter = story.chapters[j];
+					const chapterGroup = chapterGroups.find((chapterGroup: any) => chapter.id === chapterGroup.id);
+					const chapterTitle: string = chapterGroup.title;
+					const chapterButtonText: string = chapterGroup.buttonText;
+					const storySteps = new Array<StoryStep>();
 					
 						// Load all chapter steps
 						for (let k = 0; k < chapter.steps.length; k++) {
@@ -241,6 +232,7 @@
 					notification.error = error;
 					notifications.send(notification);
 				}
+				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers, storyMarkers));
 			}
 		}
 		stories = loadedStories;
@@ -249,13 +241,15 @@
 
 	function activateStory(story: Story) {
 		stepNumber = 1;
-		selectedStoryStore.set(story);
+		focusRequest = {};
+		if ($selectedStoryStore !== story) selectedStoryStore.set(story);
 		$selectedTool = tool;
 	}
 
-	function activateStoryStep(story: Story, selectedStepNumber: number) {
+	function activateStoryStep(story: Story, selectedStepNumber: number, marker?: Cesium.Entity) {
 		stepNumber = selectedStepNumber;
-		selectedStoryStore.set(story);
+		focusRequest = { marker };
+		if ($selectedStoryStore !== story) selectedStoryStore.set(story);
 		$selectedTool = tool;
 	}
 
@@ -264,15 +258,15 @@
 		tool.width.set("");
 	}
 
-	function closeModule(e: any) {
-		stepNumber = e.detail.n;
+	function closeModule(e: CustomEvent<{ n: number; story: Story }>) {
+		if (e.detail.story === $selectedStoryStore) stepNumber = e.detail.n;
 	}
 
 	markerCollection.on("story-selected", (value: unknown) => {
 		if (value instanceof Story) {
 			activateStory(value);
 		} else if (value && typeof value === "object" && "story" in value && "stepNumber" in value && value.story instanceof Story && typeof value.stepNumber === "number") {
-			activateStoryStep(value.story, value.stepNumber as number);
+			activateStoryStep(value.story, value.stepNumber, "marker" in value && value.marker instanceof Cesium.Entity ? value.marker : undefined);
 		}
 	});
 
@@ -285,6 +279,7 @@
 {#if $selectedTool === tool}
 	<div class="wrapper story-selector">
 		{#if $selectedStoryStore}
+			{#key $selectedStoryStore}
 			<StoryView
 				map={cesiumMap}
 				story={$selectedStoryStore}
@@ -292,6 +287,7 @@
 				textBack={$_("tools.stories.back")}
 				{layerLegends}
 				{baseLayerId}
+				{focusRequest}
 				on:closeStory={() => {
 					closeStory();
 				}}
@@ -299,6 +295,7 @@
 					closeModule(e);
 				}}
 			/>
+			{/key}
 		{:else}
 			{#each stories as story}
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -323,7 +320,7 @@
 			{/each}
 		{/if}
 	</div>
-	{#if !$selectedStoryStore && stories.some((story) => story.hasMarkers)}
+	{#if !$selectedStoryStore && stories.some((story) => story.hasStepMarkers)}
 		<div class="bottom-container">
 			<ToggleView bind:show={$showStoryMarkers} text={$_("tools.stories.showOnMap")} />
 		</div>

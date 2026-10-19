@@ -384,6 +384,11 @@
             "open": "Ouvrir l'histoire",
             "galleryNext": "Image suivante",
             "galleryPrevious": "Image précédente",
+            "galleryTitle": "Images et contenu de l'histoire",
+            "comparisonBefore": "Avant",
+            "comparisonAfter": "Après",
+            "comparisonSlider": "Comparer les images avant et après",
+            "comparisonPosition": "{before}: {beforeValue}%, {after}: {afterValue}%",
             "galleryImageUnavailable": "Impossible de charger l'image"
         },
         "animation": {

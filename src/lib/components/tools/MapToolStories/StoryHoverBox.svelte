@@ -10,7 +10,7 @@
 
 	export let story: Story;
 	export let marker: Cesium.Entity;
-	export let stepNumber: number;
+	export let stepNumber: number | undefined = undefined;
 	export let chapterTitle: string;
 	export let stepTitle: string;
 	export let collection: StoryMarkerCollection;
@@ -94,7 +94,7 @@
 				icon={Launch}
 				tooltipPosition="top"
 				size="small"
-				on:click={() => collection.dispatch("story-selected", { story, stepNumber })}
+				on:click={() => collection.dispatch("story-selected", { story, stepNumber, marker })}
 			/>
 		</div>
 	</div>
