@@ -401,7 +401,89 @@
         },
         {
             "id": "stories",
-            "enabled": false
+            "enabled": false,
+            "settings": {
+                "showOnMap": true,
+                "stories": [
+                    {
+                        "name": "Gekoppelde kaartlagen",
+                        "description": "Een verhaal met vaste laagbediening en een gedeelde slider.",
+                        "width": "28rem",
+                        "maxWidth": "40rem",
+                        "showMarkerToggle": true,
+                        "chapterGroups": [
+                            {
+                                "id": "lagen",
+                                "title": "Kaartlagen vergelijken",
+                                "buttonText": "Lagen"
+                            }
+                        ],
+                        "chapters": [
+                            {
+                                "id": "lagen",
+                                "steps": [
+                                    {
+                                        "title": "Twee lagen, een slider",
+                                        "html": "<p>De slider Kaartlagen onderaan het verhaal past de transparantie van zowel 3D BAG als PDOK Wijken aan.</p>",
+                                        "camera": {
+                                            "x": 4.9,
+                                            "y": 52.37,
+                                            "z": 12000,
+                                            "heading": 0,
+                                            "pitch": -45,
+                                            "duration": 1
+                                        },
+                                        "markerCoordinates": {
+                                            "x": 4.9,
+                                            "y": 52.37
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "1",
+                                                "opacity": 100,
+                                                "showOpacitySlider": false
+                                            },
+                                            {
+                                                "id": "3",
+                                                "opacity": 50,
+                                                "opacitySliderGroup": "Kaartlagen"
+                                            },
+                                            {
+                                                "id": "4",
+                                                "opacity": 50,
+                                                "opacitySliderGroup": "Kaartlagen"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Alleen wijken",
+                                        "html": "<p>De footer toont nu alleen de slider voor PDOK Wijken. Het blok kan worden ingeklapt en blijft onderaan staan tijdens het scrollen.</p>",
+                                        "camera": {
+                                            "x": 4.9,
+                                            "y": 52.37,
+                                            "z": 12000,
+                                            "heading": 0,
+                                            "pitch": -90,
+                                            "duration": 1
+                                        },
+                                        "layers": [
+                                            {
+                                                "id": "1",
+                                                "opacity": 100,
+                                                "showOpacitySlider": false
+                                            },
+                                            {
+                                                "id": "4",
+                                                "opacity": 50
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
         },
         {
             "id": "measure",
