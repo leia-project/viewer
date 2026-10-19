@@ -255,7 +255,19 @@
         },
         "backgroundControls": {
             "opacity": "Wereld Transparantie",
-            "terrain": "Terrein"
+            "terrain": "Terrein",
+            "subsurfaceExaggeration": "Overdrijving ondergrond"
+        },
+        "voxel": {
+            "property": "Eigenschap",
+            "legend": "Legenda",
+            "slicing": "Doorsneden",
+            "westEast": "West–Oost",
+            "southNorth": "Zuid–Noord",
+            "bottomTop": "Onder–Boven",
+            "resetSlicing": "Doorsneden resetten",
+            "slicePlane": "Sleep snijvlak",
+            "terrainHint": "Zet terrein aan om de voxels op de juiste hoogte te zien t.o.v. maaiveld"
         },
         "bookmarks": {
             "label": "Bladwijzers",
@@ -330,6 +342,7 @@
             "custom": "Aangepast",
             "animate": "Animeer",
             "fxaa": "FXAA",
+            "fxaaDisabledByVoxel": "Uitgeschakeld zolang een voxellaag wordt getoond",
             "fog": "Mist",
             "groundAtmosphere": "Grond Atmosfeer",
             "dynamicRange": "HDR",

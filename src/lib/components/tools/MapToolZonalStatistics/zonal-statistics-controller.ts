@@ -4,6 +4,7 @@ import * as Cesium from "cesium";
 import type { Map as CesiumMap } from "$lib/map-cesium/map";
 import type { MouseLocation } from "$lib/map-core/mouse-location";
 import type { GeoJsonLayer } from "$lib/map-cesium/layers/geojson-layer";
+import { DEFAULT_LAYER_OPACITY, NODATA_VALUE } from "./zonal-config";
 import type { ZonalColumn, ZonalColumnSource, ZonalStatisticsSettings } from "./zonal-config";
 
 /**
@@ -50,7 +51,14 @@ export interface ZonalStatisticsExportRow {
 export interface ResolvedDataLayer {
 	layerId: string;
 	title: string;
-	layer: GeoJsonLayer;
+	/** Group the panel's cards by, if any. */
+	groupId: string | undefined;
+	/** GeoJSON url the layer's attributes are read from. */
+	url: string | undefined;
+	/** Human-readable metadata page linked from the panel card, if any. */
+	metadataUrl: string | undefined;
+	/** Opacity (0…100) of this layer's colours on the shared zone geometry. */
+	opacity: Writable<number>;
 }
 
 export interface GroupedDataLayers {
@@ -65,6 +73,11 @@ interface ZoneInstanceId {
 	code: string;
 }
 
+/** The per-instance attributes Cesium exposes for a batched geometry instance. */
+interface InstanceColorAttributes {
+	color: Uint8Array;
+}
+
 /** Bookkeeping for the single batched fill primitive shared by every configured layer. */
 interface ZoneFillRender {
 	primitive: Cesium.Primitive;
@@ -72,16 +85,28 @@ interface ZoneFillRender {
 	idsByCode: Map<string, Array<ZoneInstanceId>>;
 	/** zone code -> its current base colour, read from the colour-source layer. */
 	baseColor: Map<string, Cesium.Color>;
+	/** zone code -> the colour last written to its instances, so unchanged zones are skipped. */
+	painted: Map<string, Cesium.Color>;
+	/** Per-instance attribute accessors, resolved once instead of on every repaint. */
+	attributes: Map<ZoneInstanceId, InstanceColorAttributes | undefined>;
 }
 
 /** One configured layer the tool draws/colours the shared fill primitive from. */
 interface TrackedLayer {
 	id: string;
-	layer: GeoJsonLayer;
+	opacity: Writable<number>;
 }
 
 /** Lower-cased attribute texts that mean "no tooltip" rather than actual content. */
 const PLACEHOLDER_TEXTS = new Set(["null", "nan", "undefined"]);
+
+/** Lookup key for a `classMapping`/`valueStyles` value, matched case-insensitively across datasets. */
+function normalizeClassValue(value: unknown): string {
+	return String(value).trim().toUpperCase();
+}
+
+/** Key the colour of a zone without a value is stored under. */
+const NODATA_CLASS_KEY = normalizeClassValue(NODATA_VALUE);
 
 /**
  * Owns all non-UI logic for the Zonal Statistics tool: resolving the
@@ -163,8 +188,14 @@ export class ZonalStatisticsController {
 	private readonly trackedLayers: Array<TrackedLayer> = [];
 	/** Id of the layer the shared fill primitive currently takes its colours from. */
 	private colorLayerId: string | undefined;
-	/** Removes the postRender listener that repaints once asynchronous geometry creation finished. */
-	private paintWhenReady: (() => void) | undefined;
+	/** Work waiting for the shared fill primitive to finish its asynchronous geometry creation. */
+	private readonly fillReadyCallbacks: Array<() => void> = [];
+	/** Removes the postRender listener driving `fillReadyCallbacks`. */
+	private fillReadyListener: (() => void) | undefined;
+	/** Whether a repaint is already queued for the moment the primitive becomes ready. */
+	private paintPending = false;
+	/** Reused colour buffer, so repainting a zone allocates nothing. */
+	private readonly colorValue = new Uint8Array(4);
 	/** Single batched primitive outlining every zone boundary (added on top of the fills). */
 	private zoneOutlinePrimitive: Cesium.Primitive | undefined;
 	/** Per-instance ids of the outline primitive, used to rescale their alpha with layer opacity. */
@@ -252,7 +283,7 @@ export class ZonalStatisticsController {
 		const grouped: Array<GroupedDataLayers> = [];
 
 		for (const resolved of this.dataLayers) {
-			const groupId = resolved.layer.config.groupId?.trim() ?? "";
+			const groupId = resolved.groupId?.trim() ?? "";
 			const key = groupId || ZonalStatisticsController.UNGROUPED_GROUP_ID;
 			let group = groupsById.get(key);
 			if (!group) {
@@ -287,16 +318,22 @@ export class ZonalStatisticsController {
 		// Config-only, so the shared class mapping is available before anything is indexed.
 		this.buildClassColors();
 
+		const zoneUrl = zone.config.settings?.url;
 		for (const cfg of this.settings.layers) {
-			const layer = this.map.getLayerById(cfg.id) as GeoJsonLayer | undefined;
-			if (!layer) {
-				console.warn(`zonalStatistics: data layer '${cfg.id}' not found in map layers`);
-				continue;
-			}
+			// A data layer is an attribute join on the zone geometry, so it needs no map layer of its
+			// own; a layer with the same id only serves as a fallback for what the entry omits.
+			const layer = this.map.getLayerById(cfg.id);
 			this.dataLayers.push({
 				layerId: cfg.id,
-				title: cfg.title ?? layer.config.title,
-				layer
+				title: cfg.title ?? layer?.config.title ?? cfg.id,
+				groupId: cfg.groupId ?? layer?.config.groupId,
+				url: cfg.url ?? layer?.config.settings?.url ?? zoneUrl,
+				metadataUrl: cfg.metadataUrl ?? layer?.config.metadataLink ?? layer?.config.metadataUrl,
+				// The entry's own opacity wins; a map layer with the same id only fills the gap.
+				opacity:
+					cfg.opacity !== undefined
+						? writable(cfg.opacity)
+						: (layer?.opacity ?? writable(DEFAULT_LAYER_OPACITY))
 			});
 		}
 		this.resolvedDataLayers.set([...this.dataLayers]);
@@ -350,8 +387,12 @@ export class ZonalStatisticsController {
 			// `ensureLayerReady`, so tell the table its cells can be filled.
 			this.dataVersion.update((version) => version + 1);
 		} finally {
-			this.markLayerLoading(this.settings.zoneLayerId, false);
-			this.loading.set(false);
+			// Cesium creates the fill geometry asynchronously, so the zones only appear on screen well
+			// after their data was indexed: report "loaded" when they are actually drawn.
+			this.whenFillReady(() => {
+				this.markLayerLoading(this.settings.zoneLayerId, false);
+				this.loading.set(false);
+			});
 		}
 	}
 
@@ -376,14 +417,15 @@ export class ZonalStatisticsController {
 			try {
 				// The zone layer's index is the join target and may double as this layer's source.
 				await this.prepare();
-				await this.indexDataLayer(layerId, dl.layer);
+				await this.indexDataLayer(layerId, dl);
+				this.refreshColorSource(layerId);
+				this.dataVersion.update((version) => version + 1);
 			} finally {
-				this.markLayerLoading(layerId, false);
 				// Release the parsed documents once the whole burst ("add all") has been indexed.
 				if (--this.pendingFeatureLoads === 0) this.featureLoads.clear();
+				// Same as `runPrepare`: loaded means drawn, not indexed.
+				this.whenFillReady(() => this.markLayerLoading(layerId, false));
 			}
-			this.refreshColorSource(layerId);
-			this.dataVersion.update((version) => version + 1);
 		});
 		// Swallow the failure on the queue only, so one broken layer cannot stall the others.
 		this.loadQueue = load.catch(() => undefined);
@@ -396,10 +438,10 @@ export class ZonalStatisticsController {
 	 * entities when both point at the same dataset (nothing to download at all), otherwise its own
 	 * GeoJSON — shared with every other layer loading the same url.
 	 */
-	private async indexDataLayer(layerId: string, layer: GeoJsonLayer): Promise<void> {
-		const url = layer.config.settings?.url;
+	private async indexDataLayer(layerId: string, dl: ResolvedDataLayer): Promise<void> {
+		const url = dl.url;
 		if (typeof url !== "string" || url === "") {
-			console.warn(`zonalStatistics: data layer '${layerId}' has no settings.url to index`);
+			console.warn(`zonalStatistics: data layer '${layerId}' has no url to index`);
 			return;
 		}
 		if (url === this.zoneLayer?.config.settings?.url) {
@@ -526,11 +568,14 @@ export class ZonalStatisticsController {
 	private buildZoneFill(): void {
 		this.trackedLayers.length = 0;
 		if (this.zoneLayer) {
-			this.trackedLayers.push({ id: this.settings.zoneLayerId, layer: this.zoneLayer });
+			this.trackedLayers.push({
+				id: this.settings.zoneLayerId,
+				opacity: this.zoneLayer.opacity
+			});
 		}
 		for (const dl of this.dataLayers) {
 			if (dl.layerId === this.settings.zoneLayerId) continue;
-			this.trackedLayers.push({ id: dl.layerId, layer: dl.layer });
+			this.trackedLayers.push({ id: dl.layerId, opacity: dl.opacity });
 		}
 
 		const source = this.zoneLayer?.source;
@@ -559,7 +604,10 @@ export class ZonalStatisticsController {
 		});
 		primitive.show = this.zoneLayer ? get(this.zoneLayer.visible) : false;
 		this.map.viewer.scene.primitives.add(primitive);
-		this.zoneFill = { primitive, idsByCode, baseColor };
+		// The instances are created carrying these colours, so the first repaint can skip every zone.
+		const painted = new Map<string, Cesium.Color>();
+		for (const [code, color] of baseColor) painted.set(code, color.clone());
+		this.zoneFill = { primitive, idsByCode, baseColor, painted, attributes: new Map() };
 
 		this.setupZoneLayerSubscriptions();
 		this.setupTrackedLayerSubscriptions();
@@ -624,7 +672,7 @@ export class ZonalStatisticsController {
 	private setupTrackedLayerSubscriptions(): void {
 		for (const tracked of this.trackedLayers) {
 			this.unsubscribers.push(
-				tracked.layer.opacity.subscribe(() => this.scheduleColorRefresh(tracked.id))
+				tracked.opacity.subscribe(() => this.scheduleColorRefresh(tracked.id))
 			);
 		}
 	}
@@ -642,6 +690,8 @@ export class ZonalStatisticsController {
 		const visible = this.zoneLayer ? get(this.zoneLayer.visible) : false;
 		if (render.primitive.show !== visible) {
 			render.primitive.show = visible;
+			// Paints are skipped while hidden, so pick up whatever changed in the meantime.
+			if (visible) this.schedulePaint();
 			this.map.refresh();
 		}
 		const next = this.resolveColorLayerId();
@@ -691,7 +741,7 @@ export class ZonalStatisticsController {
 	/** Alpha of the colour-source layer, driven by its opacity slider (0…100 → 0…1). */
 	private colorLayerAlpha(): number {
 		const tracked = this.trackedLayers.find((t) => t.id === this.colorLayerId);
-		const opacity = tracked ? get(tracked.layer.opacity) : 100;
+		const opacity = tracked ? get(tracked.opacity) : 100;
 		return Math.min(1, Math.max(0, opacity / 100));
 	}
 
@@ -873,21 +923,32 @@ export class ZonalStatisticsController {
 	}
 
 	/**
-	 * Read the zone layer's configured `style` attribute + `classMapping` so every layer in the tool
-	 * renders the same value-to-colour scheme instead of each GeoJson layer's own (random) colours.
+	 * Build the value-to-colour scheme every layer in the tool renders with (instead of each GeoJson
+	 * layer's own random colours): the zone layer's `classMapping`, filled up with the table's
+	 * `valueStyles` so map and table agree without configuring the same colour twice.
 	 */
 	private buildClassColors(): void {
 		const settings = this.zoneLayer?.config.settings;
 		const mapping = settings?.classMapping;
-		if (typeof settings?.style !== "string" || !mapping || typeof mapping !== "object") return;
-		for (const [value, color] of Object.entries(mapping as Record<string, unknown>)) {
-			if (typeof color !== "string") continue;
-			this.classColors.set(
-				ZonalStatisticsController.normalizeClassValue(value),
-				Cesium.Color.fromCssColorString(color)
-			);
+		if (mapping && typeof mapping === "object") {
+			for (const [value, color] of Object.entries(mapping as Record<string, unknown>)) {
+				if (typeof color !== "string") continue;
+				this.setClassColor(value, color);
+			}
+		}
+		// The table's palette backs the map, so a value only has to be coloured once in the config.
+		for (const style of this.settings.valueStyles) {
+			if (this.classColors.has(normalizeClassValue(style.value))) continue;
+			this.setClassColor(style.value, style.color);
 		}
 		if (this.classColors.size === 0) return;
+		if (!this.classColors.has(NODATA_CLASS_KEY)) {
+			console.warn(
+				`zonalStatistics: no '${NODATA_VALUE}' colour configured in the zone layer's classMapping ` +
+					`or in valueStyles; zones without a value are left undrawn`
+			);
+		}
+		if (typeof settings?.style !== "string") return;
 		this.classAttribute = settings.style;
 		const zoneLayerId = this.settings.zoneLayerId;
 		this.classColumn = this.settings.columns.find(
@@ -895,8 +956,18 @@ export class ZonalStatisticsController {
 		);
 	}
 
+	/** Register one configured value colour, skipping colours Cesium cannot parse. */
+	private setClassColor(value: string, color: string): void {
+		const parsed = Cesium.Color.fromCssColorString(color);
+		if (!parsed) {
+			console.warn(`zonalStatistics: unparseable colour '${color}' for value '${value}'`);
+			return;
+		}
+		this.classColors.set(normalizeClassValue(value), parsed);
+	}
+
 	/**
-	 * Read a zone-layer polygon entity's fill colour. The RGB comes from the shared `classMapping`
+	 * Read a zone-layer polygon entity's fill colour. The RGB comes from the shared class colours
 	 * when configured, otherwise from the entity's own material.
 	 */
 	private readEntityColor(entity: Cesium.Entity, time: Cesium.JulianDate): Cesium.Color {
@@ -949,15 +1020,19 @@ export class ZonalStatisticsController {
 		return String(code).replace(/\s+/g, "").toUpperCase();
 	}
 
-	/** Lookup key for a `classMapping` value, matched case-insensitively across datasets. */
-	private static normalizeClassValue(value: unknown): string {
-		return String(value).trim().toUpperCase();
+	/** Whether a raw attribute value means "no data" rather than an actual class. */
+	private static isNoData(value: unknown): boolean {
+		if (value === undefined || value === null) return true;
+		const text = String(value).trim();
+		return !text || PLACEHOLDER_TEXTS.has(text.toLowerCase());
 	}
 
-	/** Shared `classMapping` colour for a raw feature/entity value, if it maps to one. */
+	/** Shared class colour for a raw feature/entity value, if it maps to one. */
 	private classColor(value: unknown): Cesium.Color | undefined {
-		if (value === undefined || value === null) return undefined;
-		return this.classColors.get(ZonalStatisticsController.normalizeClassValue(value));
+		const key = ZonalStatisticsController.isNoData(value)
+			? NODATA_CLASS_KEY
+			: normalizeClassValue(value);
+		return this.classColors.get(key);
 	}
 
 	/**
@@ -1063,15 +1138,19 @@ export class ZonalStatisticsController {
 
 	/**
 	 * Fill colour for a feature. Without Cesium entities the only colour source is the zone layer's
-	 * shared `classMapping`, read from `classAttr` (this layer's own name for that column); when it
-	 * yields nothing the zone layer's own colour for that zone is reused, so the geometry still
-	 * renders instead of turning transparent.
+	 * shared `classMapping`, read from `classAttr` (this layer's own name for that column). A zone
+	 * without a value gets the mapping's nodata colour; only a layer with no class attribute at all
+	 * falls back to the zone layer's own colour, so the geometry still renders.
 	 */
 	private featureColor(
 		code: string,
 		properties: Record<string, any>,
 		classAttr: string | undefined
 	): Cesium.Color | undefined {
+		if (classAttr && ZonalStatisticsController.isNoData(properties[classAttr])) {
+			// Without a value the zone is "no data": never inherit the zone layer's value colour.
+			return this.classColors.get(NODATA_CLASS_KEY);
+		}
 		const mapped = classAttr ? this.classColor(properties[classAttr]) : undefined;
 		return mapped ?? this.colorIndex.get(this.settings.zoneLayerId)?.get(code);
 	}
@@ -1180,16 +1259,39 @@ export class ZonalStatisticsController {
 		return result;
 	}
 
-	/** Repaint every polygon part of one zone to match its current state colour. */
-	private paintCode(render: ZoneFillRender, code: string): void {
+	/**
+	 * Repaint every polygon part of one zone to match its current state colour, and report whether
+	 * anything actually changed. Most zones keep the colour they already carry across a layer switch
+	 * or an opacity change, and re-writing an unchanged instance costs a batch-table update for
+	 * nothing.
+	 */
+	private paintCode(render: ZoneFillRender, code: string): boolean {
 		const base = render.baseColor.get(code);
-		if (!base) return;
+		if (!base) return false;
 		const color = this.stateColor(code, base);
+		const painted = render.painted.get(code);
+		if (painted && Cesium.Color.equals(painted, color)) return false;
+		const value = Cesium.ColorGeometryInstanceAttribute.toValue(color, this.colorValue);
 		for (const id of render.idsByCode.get(code) ?? []) {
-			const attributes = render.primitive.getGeometryInstanceAttributes(id);
-			if (!attributes) continue;
-			attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(color, attributes.color);
+			const attributes = this.instanceAttributes(render, id);
+			if (attributes) attributes.color = value;
 		}
+		render.painted.set(code, painted ? Cesium.Color.clone(color, painted) : color.clone());
+		return true;
+	}
+
+	/** Per-instance attribute accessor, resolved once: Cesium looks an id up by scanning them. */
+	private instanceAttributes(
+		render: ZoneFillRender,
+		id: ZoneInstanceId
+	): InstanceColorAttributes | undefined {
+		let attributes = render.attributes.get(id);
+		if (attributes !== undefined) return attributes;
+		attributes = render.primitive.getGeometryInstanceAttributes(id) as
+			| InstanceColorAttributes
+			| undefined;
+		if (attributes !== undefined) render.attributes.set(id, attributes);
+		return attributes;
 	}
 
 	/** Repaint one zone code on the shared fill primitive. */
@@ -1200,11 +1302,10 @@ export class ZonalStatisticsController {
 			this.schedulePaint();
 			return;
 		}
-		this.paintCode(render, code);
-		this.map.refresh();
+		if (this.paintCode(render, code)) this.map.refresh();
 	}
 
-	/** Repaint every zone on the shared fill primitive (after its base colours were refreshed). */
+	/** Repaint every zone whose colour changed (after its base colours were refreshed). */
 	private recolorFill(): void {
 		const render = this.zoneFill;
 		if (!render) return;
@@ -1212,30 +1313,51 @@ export class ZonalStatisticsController {
 			this.schedulePaint();
 			return;
 		}
-		for (const code of render.idsByCode.keys()) this.paintCode(render, code);
-		this.map.refresh();
+		let changed = false;
+		for (const code of render.idsByCode.keys()) {
+			if (this.paintCode(render, code)) changed = true;
+		}
+		if (changed) this.map.refresh();
 	}
 
 	/**
 	 * Geometry creation is asynchronous, so colour changes made before the primitive is ready would
-	 * be dropped by `getGeometryInstanceAttributes`. Repaint once on the first frame it is ready;
-	 * until then keep requesting frames, since the scene runs in `requestRenderMode`.
+	 * be dropped by `getGeometryInstanceAttributes`. Repaint once on the first frame it is ready.
+	 * A hidden primitive is not worth waiting for: `syncFillSource` repaints when it is shown again.
 	 */
 	private schedulePaint(): void {
-		if (this.paintWhenReady) return;
-		const scene = this.map.viewer.scene;
-		const remove = scene.postRender.addEventListener(() => {
-			if (!this.zoneFill) return;
-			if (!this.zoneFill.primitive.ready) {
-				// A hidden primitive never becomes ready, so only keep the render loop alive while shown.
-				if (this.zoneFill.primitive.show) this.map.refresh();
-				return;
-			}
-			this.paintWhenReady?.();
-			this.paintWhenReady = undefined;
+		const render = this.zoneFill;
+		if (this.paintPending || !render || !render.primitive.show) return;
+		this.paintPending = true;
+		this.whenFillReady(() => {
+			this.paintPending = false;
 			this.recolorFill();
 		});
-		this.paintWhenReady = remove;
+	}
+
+	/**
+	 * Run `callback` on the first frame the shared fill primitive has finished its asynchronous
+	 * geometry creation, or right away when there is nothing to wait for. Until then keep requesting
+	 * frames, since the scene runs in `requestRenderMode`. A hidden primitive never becomes ready, so
+	 * hiding it settles the waiters instead of leaving them (and the loading state) queued forever.
+	 */
+	private whenFillReady(callback: () => void): void {
+		if (!this.zoneFill || this.zoneFill.primitive.ready) {
+			callback();
+			return;
+		}
+		this.fillReadyCallbacks.push(callback);
+		if (this.fillReadyListener) return;
+		this.fillReadyListener = this.map.viewer.scene.postRender.addEventListener(() => {
+			const render = this.zoneFill;
+			if (render && !render.primitive.ready && render.primitive.show) {
+				this.map.refresh();
+				return;
+			}
+			this.fillReadyListener?.();
+			this.fillReadyListener = undefined;
+			for (const pending of this.fillReadyCallbacks.splice(0)) pending();
+		});
 		this.map.refresh();
 	}
 
@@ -1418,8 +1540,11 @@ export class ZonalStatisticsController {
 		this.colorRefreshFrame = undefined;
 		this.outlineOpacityFrame = undefined;
 		this.hoverLocation = undefined;
-		this.paintWhenReady?.();
-		this.paintWhenReady = undefined;
+		// Dropped rather than flushed: the queued work only makes sense while the tool exists.
+		this.fillReadyListener?.();
+		this.fillReadyListener = undefined;
+		this.fillReadyCallbacks.length = 0;
+		this.paintPending = false;
 		if (this.zoneOutlinePrimitive) {
 			this.map.viewer.scene.primitives.remove(this.zoneOutlinePrimitive);
 			this.zoneOutlinePrimitive = undefined;

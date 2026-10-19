@@ -108,7 +108,29 @@
             }
         },
         {
-           "id": "4",
+            "id": "geotop-voxel",
+            "type": "3dtiles-voxel",
+            "title": "GeoTOP Zeeland (voxels)",
+            "defaultAddToManager": true,
+            "transparent": true,
+            "settings": {
+                "url": "https://virtueel.zeeland.nl/tiles_other/bro_geotop/geotop_zeeland_ellipsoid/tileset.json",
+                "legendDataUrl": "https://virtueel.zeeland.nl/tiles_other/bro_geotop/geotop_zeeland_ellipsoid/legend.json",
+                "defaultProperty": "lithology",
+                "properties": [
+                    {
+                        "name": "lithology",
+                        "label": "Lithoklasse"
+                    },
+                    {
+                        "name": "stratigraphy",
+                        "label": "Stratigrafie"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "4",
             "type": "wms",
             "title": "PDOK Wijken",
             "groupId": "",

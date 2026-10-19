@@ -4,11 +4,7 @@
 </script>
 
 <div class="heading-02">{$_("tools.help.movement.headingZoom")}</div>
-<div class="video">
-    <video autoplay loop muted style="width:100%">
-        <source src="{base}/images/movement.mp4" type="video/mp4" />
-    </video>
-</div>
+
 <div class="body-02">
     {$_("tools.help.movement.zoomDescription")}<br />
     {$_("tools.help.movement.zoomOption1")}<br />
@@ -22,6 +18,12 @@
     {$_("tools.help.movement.rotatePitchDescription")} <br />
     {$_("tools.help.movement.rotatePitchOption1")} <br />
     {@html $_("tools.help.movement.rotatePitchOption2")}<br /><br />
+</div>
+
+<div class="video">
+    <video autoplay loop muted>
+        <source src="{base}/images/movement.mp4" type="video/mp4" />
+    </video>
 </div>
 
 <div class="heading-02">{$_("tools.help.movement.headingButtons")}</div>
@@ -48,14 +50,11 @@
 
 <style>
     .video {
-        margin-top: var(--cds-spacing-05);
-        width: 100%;
-        text-align: center;
+        width: 50%;
     }
 
     video {
     border: 1px solid var(--cds-ui-03);
-    float: right;
     }
     
     .button {
