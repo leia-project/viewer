@@ -12,7 +12,7 @@
 	import { notifications } from "$lib/map-core/notifications/notifications";
 	import { MapToolMenuOption } from "../MapToolMenuOption";
 	import { Story, type StoryFocusRequest, type StoryMarkerCoordinates } from "./Story";
-	import { StoryStep } from "./StoryStep";
+	import { StoryOpacitySliderConfigError, StoryStep } from "./StoryStep";
 	import { StoryLayer } from "./StoryLayer";
 	import { StoryChapter } from "./StoryChapter";
 	import type { LegendOptions } from "./LegendOptions";
@@ -57,7 +57,7 @@
 
 	selectedTool.subscribe((selected: MapToolMenuOption) => {
 		if (tool === selected && $selectedStoryStore) {
-			tool.width.set($selectedStoryStore.width ?? "");
+			tool.width.set(getToolWidth($selectedStoryStore));
 		} else if (tool !== selected) {
 			focusRequest = {};
 		}
@@ -149,35 +149,37 @@
 			// Load all stories
 			for (let i = 0; i < configStories.length; i++) {
 				const story = configStories[i];
-				const storyName: string = story.name;
-				const storyDescription: string = story.description;
-				const storyWidth: string = story.width;
-				const storyMaxWidth: string | undefined = story.maxWidth;
-				const storyForceCameraMode: "2D" | "3D" | undefined = story.forceCameraMode ?? undefined;
-				const storyStaticCamera: boolean = story.staticCamera ?? false;
-				const storyRequestPolygonAreaConfig = story.requestPolygonArea ?? false;
-				const storyRequestPolygonArea: boolean = typeof storyRequestPolygonAreaConfig === "object"
-					? storyRequestPolygonAreaConfig.enabled ?? false
-					: storyRequestPolygonAreaConfig;
-				const storyStatisticsApi: string | undefined = typeof storyRequestPolygonAreaConfig === "object"
-					? storyRequestPolygonAreaConfig.statisticsApi ?? undefined
-					: undefined;
-				const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
-				const storyMarkers = parseStoryMarkers(story.markers);
-				let storyHasMarkers = false;
-				baseLayerId = story.baseLayerId ?? undefined;
+				const legendStart = layerLegends.length;
+				try {
+					const storyName: string = story.name;
+					const storyDescription: string = story.description;
+					const storyWidth: string = story.width;
+					const storyMaxWidth: string | undefined = story.maxWidth;
+					const storyShowMarkerToggle = story.showMarkerToggle === true;
+					const storyForceCameraMode: "2D" | "3D" | undefined = story.forceCameraMode ?? undefined;
+					const storyStaticCamera: boolean = story.staticCamera ?? false;
+					const storyRequestPolygonAreaConfig = story.requestPolygonArea ?? false;
+					const storyRequestPolygonArea: boolean = typeof storyRequestPolygonAreaConfig === "object"
+						? storyRequestPolygonAreaConfig.enabled ?? false
+						: storyRequestPolygonAreaConfig;
+					const storyStatisticsApi: string | undefined = typeof storyRequestPolygonAreaConfig === "object"
+						? storyRequestPolygonAreaConfig.statisticsApi ?? undefined
+						: undefined;
+					const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
+					const storyMarkers = parseStoryMarkers(story.markers);
+					let storyHasMarkers = false;
 
-				// Load all chapter groups
-				const chapterGroups = story.chapterGroups;
+					// Load all chapter groups
+					const chapterGroups = story.chapterGroups;
 
-				// Load all chapters
-				for (let j = 0; j < story.chapters.length; j++) {
-					const chapter = story.chapters[j];
-					const chapterGroup = chapterGroups.find((chapterGroup: any) => chapter.id === chapterGroup.id);
-					const chapterTitle: string = chapterGroup.title;
-					const chapterButtonText: string = chapterGroup.buttonText;
-					const storySteps = new Array<StoryStep>();
-					
+					// Load all chapters
+					for (let j = 0; j < story.chapters.length; j++) {
+						const chapter = story.chapters[j];
+						const chapterGroup = chapterGroups.find((chapterGroup: any) => chapter.id === chapterGroup.id);
+						const chapterTitle: string = chapterGroup.title;
+						const chapterButtonText: string = chapterGroup.buttonText;
+						const storySteps = new Array<StoryStep>();
+
 						// Load all chapter steps
 						for (let k = 0; k < chapter.steps.length; k++) {
 							const step = chapter.steps[k];
@@ -215,7 +217,11 @@
 						storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 					}
 					baseLayerId = story.baseLayerId ?? undefined;
-					loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers, storyMaxWidth, storyShowMarkerToggle));
+					loadedStories.push(new Story(
+						storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode,
+						storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers,
+						storyMarkers, storyMaxWidth, storyShowMarkerToggle
+					));
 				} catch (error) {
 					if (!(error instanceof StoryOpacitySliderConfigError)) throw error;
 					layerLegends.splice(legendStart);
@@ -232,7 +238,6 @@
 					notification.error = error;
 					notifications.send(notification);
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers, storyMarkers));
 			}
 		}
 		stories = loadedStories;
