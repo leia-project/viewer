@@ -7,6 +7,9 @@
 
 	import { CameraLocation } from "$lib/map-core/camera-location";
 	import type { Map } from "$lib/map-cesium/map";
+	import { Notification } from "$lib/map-core/notifications/notification";
+	import { NotificationType } from "$lib/map-core/notifications/notification-type";
+	import { notifications } from "$lib/map-core/notifications/notifications";
 	import { MapToolMenuOption } from "../MapToolMenuOption";
 	import { Story, type StoryFocusRequest, type StoryMarkerCoordinates } from "./Story";
 	import { StoryStep } from "./StoryStep";
@@ -175,41 +178,59 @@
 					const chapterButtonText: string = chapterGroup.buttonText;
 					const storySteps = new Array<StoryStep>();
 					
-					// Load all chapter steps
-					for (let k = 0; k < chapter.steps.length; k++) {
-						const step = chapter.steps[k];
-						const markerCoordinates = parseMarkerCoordinates(step.markerCoordinates);
-						if (markerCoordinates.length > 0) {
-							storyHasMarkers = true;
-						}
-						const cl = new CameraLocation(
-							step.camera["x"],
-							step.camera["y"],
-							step.camera["z"],
-							step.camera["heading"],
-							step.camera["pitch"],
-							step.camera["duration"]
-						);
-
-						// Load all story layers
-						const storyLayers = new Array<StoryLayer>();
-						for (let l = 0; l < step.layers.length; l++) {
-							const opacity = step.layers[l].opacity ?? 100;
-							const showOpacitySlider = step.layers[l].showOpacitySlider ?? true;
-							const {url, featureName} = getUrlAndFeatureNameForLayer(step.layers[l].id);
-							storyLayers.push(
-								new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName, showOpacitySlider)
-							);
-							const layerLegendInfo = {
-								generalLegendText: step.layers[l].generalLegendText,
-								legendOptions: step.layers[l].legendOptions
+						// Load all chapter steps
+						for (let k = 0; k < chapter.steps.length; k++) {
+							const step = chapter.steps[k];
+							const markerCoordinates = parseMarkerCoordinates(step.markerCoordinates);
+							if (markerCoordinates.length > 0) {
+								storyHasMarkers = true;
 							}
-							layerLegends.push(layerLegendInfo);
+							const cl = new CameraLocation(
+								step.camera["x"],
+								step.camera["y"],
+								step.camera["z"],
+								step.camera["heading"],
+								step.camera["pitch"],
+								step.camera["duration"]
+							);
+
+							// Load all story layers
+							const storyLayers = new Array<StoryLayer>();
+							for (let l = 0; l < step.layers.length; l++) {
+								const opacity = step.layers[l].opacity ?? 100;
+								const showOpacitySlider = step.layers[l].showOpacitySlider ?? true;
+								const {url, featureName} = getUrlAndFeatureNameForLayer(step.layers[l].id);
+								storyLayers.push(
+									new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName, showOpacitySlider, step.layers[l].opacitySliderGroup)
+								);
+								const layerLegendInfo = {
+									generalLegendText: step.layers[l].generalLegendText,
+									legendOptions: step.layers[l].legendOptions
+								}
+								layerLegends.push(layerLegendInfo);
+							}
+							const globeOpacity = step.globeOpacity ?? 100;
+							storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent, markerCoordinates));
 						}
-						const globeOpacity = step.globeOpacity ?? 100;
-						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent, markerCoordinates));
+						storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 					}
-					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
+					baseLayerId = story.baseLayerId ?? undefined;
+					loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers, storyMaxWidth, storyShowMarkerToggle));
+				} catch (error) {
+					if (!(error instanceof StoryOpacitySliderConfigError)) throw error;
+					layerLegends.splice(legendStart);
+					const notification = new Notification(
+						NotificationType.ERROR,
+						$_("general.notifications.error"),
+						$_("tools.stories.invalidOpacitySliderGroup", {
+							values: { story: story.name, step: error.stepTitle, group: error.group }
+						}),
+						15000,
+						true,
+						true
+					);
+					notification.error = error;
+					notifications.send(notification);
 				}
 				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers, storyMarkers));
 			}

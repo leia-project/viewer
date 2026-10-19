@@ -1066,13 +1066,14 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 |-|-|-|-|
 |alias||**Optional**: Different name for the tool showing in the viewer|string|
 |position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
-|showOnMap||**Optional**: Show story markers on the map initially. The visibility can also be changed with the Stories tool toggle, which is available both in the story overview and at the bottom of an opened story. Defaults to `true`|boolean|
+|showOnMap||**Optional**: Show story markers on the map initially. Defaults to `true`. The overview toggle remains available as before; a toggle inside an opened story requires that story's `showMarkerToggle` option|boolean|
 |stories|name|The name of the story|string|
 ||description|A short description to describe the story|string|
 ||width|The width of the story menu|string|
 ||maxWidth|**Optional**: Maximum width of the story menu, as a CSS length (for example `"50rem"` or `"800px"`). Keeps the text readable on wide screens: the menu is as wide as `width`, but never wider than `maxWidth`. Without this option the width is not limited|string|
 ||forceCameraMode|Forces the camera into a fixed mode while the story is open and prevents users from switching camera mode. Accepts `"2D"` or `"3D"`. On opening the story the camera switches to the given mode if needed; on closing it reverts to the previous mode if it was changed|string|
 ||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
+||showMarkerToggle|**Optional**: Show the marker visibility toggle in this story's footer when the story has markers. Defaults to `false`; markers no longer automatically add this button. This only controls the button, not marker visibility or the story overview footer|boolean|
 ||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
 ||baseLayerId|ID of a base layer copied into the story and available in each step. Set this when steps do not provide a background layer: opening a story hides the previously visible map layers|string|
 ||chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
@@ -1087,6 +1088,7 @@ Each layer within a step's `layers` array supports these settings:
 |opacity|Initial opacity percentage of the layer|100|number|
 |style|Style/theme to apply to the layer|-|string|
 |showOpacitySlider|Whether the transparency slider is shown for this layer in the story step|true|boolean|
+|opacitySliderGroup|**Optional**: Layers in the same step with this group name share one slider. The trimmed group name is its label. All members must have the same initial `opacity` between 0 and 100|-|string|
 
 ##### Story-level content markers
 
@@ -1165,6 +1167,7 @@ For `text` and `image` markers, `openStoryStep` defaults to `false`. When set to
 				"width": "600px",
 				"forceCameraMode": "2D",
 				"staticCamera": false,
+				"showMarkerToggle": true,
 				"requestPolygonArea": {
 					"enabled": false,
 					"statisticsApi": "https://virtueel.dev.zeeland.nl/ko_api/analyze"
@@ -1209,7 +1212,13 @@ For `text` and `image` markers, `openStoryStep` defaults to `false`. When set to
 								"layers": [
 									{
 										"id": "002",
-										"opacity": 50
+										"opacity": 50,
+										"opacitySliderGroup": "Climate layers"
+									},
+									{
+										"id": "003",
+										"opacity": 50,
+										"opacitySliderGroup": "Climate layers"
 									},
 									{
 										"id": "19747667-ddb2-4162-99f6-a37d5aaa15ea",
