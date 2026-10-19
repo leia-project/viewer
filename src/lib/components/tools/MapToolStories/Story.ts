@@ -37,6 +37,7 @@ export class Story {
     public markers: Array<Cesium.Entity> = [];
     public hasMarkers: boolean;
     public hasStepMarkers: boolean;
+    public showMarkerToggle: boolean;
     public markerDefinitions: Array<StoryMarker>;
     
     constructor(name: string, 
@@ -48,7 +49,9 @@ export class Story {
                 requestPolygonArea: boolean | undefined,
                 statisticsApi: string | undefined,
                 hasMarkers: boolean = false,
-                markerDefinitions: Array<StoryMarker> = []) {
+                markerDefinitions: Array<StoryMarker> = [],
+                maxWidth: string | undefined = undefined,
+                showMarkerToggle: boolean = false) {
         this.name = name;
         this.description = description;
         this.storyChapters = storyChapters;
@@ -59,6 +62,7 @@ export class Story {
         this.requestPolygonArea = requestPolygonArea;
         this.statisticsApi = statisticsApi;
         this.hasStepMarkers = hasMarkers;
+        this.showMarkerToggle = showMarkerToggle;
         this.markerDefinitions = markerDefinitions;
         this.hasMarkers = hasMarkers || markerDefinitions.length > 0;
     }

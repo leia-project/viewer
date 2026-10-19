@@ -1151,6 +1151,24 @@ For `text` and `image` markers, `openStoryStep` defaults to `false`. When set to
 |symbolUrl|**Optional for type `chapter`**: url of an image that replaces the default circle with story icon. if the image cannot be loaded the default icon is used and a warning is logged to the console|string|
 |maxImageSize|**Optional for type `chapter` with `symbolUrl`**: maximum width and height of the symbol in pixels (aspect ratio is kept, images are never scaled up), standard value is 128|number|
 
+##### Runnable story examples
+
+[static/example.config.json](static/example.config.json) includes three stories with instructions in their steps:
+
+|Story|Examples|
+|-|-|
+|Amsterdam|Book markers, clickable and passive text bubbles, image-to-step navigation, a two-image gallery, independent before/after and inline/URL HTML markers, the marker toggle, and a panel capped with `maxWidth`|
+|Kaartlagen en schuifregelaars|Two local GeoJSON layers, separate and grouped sliders, a hidden-control group member that still follows the shared slider, slider/footer state preserved between steps, forced 2D mode, and a capped flexible panel|
+|Vast camerabeeld|`staticCamera: true`, different layer sets without an automatic camera flight, and hidden opacity controls|
+
+The [project area](static/story-examples/area.geojson), [green strips](static/story-examples/green.geojson), and comparison illustrations are **fictional demonstration data**, not real projects or proposals. The two demo layers are off by default. The layer-control stories use terrain `Uit` so their flat local geometry does not depend on a terrain service; closing a story restores the previous layer state and terrain.
+
+For the fixed-camera example, first open the slider story or position the map yourself: a static-camera story intentionally preserves the current view, even when opening it. It does not disable manual panning or zooming.
+
+The URL-based HTML marker loads [marker-widget.html](static/story-examples/marker-widget.html), a self-contained page with an interactive green-space slider. It needs no external assets, works inside the sandbox, and demonstrates the close-message hook for both its button and Escape. The inline HTML marker is a separate counter example. Keep the two HTML forms separate: an action uses either `html` or `url`, never both.
+
+The following larger configuration illustrates the individual settings for adapting these stories to your own data:
+
 ```json
 
 {
