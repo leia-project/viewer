@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Bot from "carbon-icons-svelte/lib/Bot.svelte";
 	import Close from "carbon-icons-svelte/lib/Close.svelte";
+	import Currency from "carbon-icons-svelte/lib/Currency.svelte";
 	import Download from "carbon-icons-svelte/lib/Download.svelte";
 	import ErrorFilled from "carbon-icons-svelte/lib/ErrorFilled.svelte";
 	import Gears from "carbon-icons-svelte/lib/Gears.svelte";
@@ -28,7 +29,7 @@
 	import { marked } from "marked";
 	import  DOMPurify from "dompurify";
 
-	import { get } from "svelte/store"
+	import { derived, get } from "svelte/store"
 	import { tick } from "svelte";
 
 	export let map: Writable<Map | undefined>;
@@ -98,6 +99,25 @@
 			exporting = false;
 		}
 	}
+
+	/* Create list of objects for counting input and output tokens */
+	let runUsage: { 
+		inputTokens?: number; 
+		outputTokens?: number; 
+		totalTokens?: number 
+	}[] = [];
+
+	/* Update sum of tokens when runUsage changes */
+	$: totalTokens = runUsage.reduce(
+		(sum, entry) => sum + (entry.totalTokens ?? 0),
+	0);
+
+	/* Een teller die in een paneelkop past: 17.893 wordt "17,9K". De locale
+	   bepaalt zowel het decimaalteken als de afkorting ("mln." i.p.v. "M"). */
+	const compactTokens = new Intl.NumberFormat("nl-NL", {
+		notation: "compact",
+		maximumFractionDigits: 1
+	});
 
 	// De prompt van de gebruiker //
 	let question = "";
@@ -275,6 +295,13 @@
 				}
 			}
 			events = [...events, { type: "tool", tool, content }];
+		},
+
+		/* Een run meldt zijn eigen tokens; het totaal over het gesprek telt
+		   `totalTokens` hierboven op. Geen usage betekent dat geen enkele
+		   modelaanroep iets meldde, niet dat er nul tokens heen gingen. */
+		onRunFinishedEvent: ({ event }) => {
+			if (event.usage) runUsage = [...runUsage, ...event.usage];
 		},
 
 		onRunErrorEvent: ({ event }) => {
@@ -502,6 +529,12 @@ $: if (events && bodyEl) {
 							{modelName} via {providerLabel(providerName)}
 						</span>
 					{/if}
+					{#if totalTokens > 0}
+						<span class="chat-panel__model chat-panel__tokens" title="{totalTokens.toLocaleString('nl-NL')} tokens in dit gesprek">
+							<Currency size={16} />
+							{compactTokens.format(totalTokens)}
+						</span>
+					{/if}
 				</div>
 			</div>
 
@@ -722,6 +755,13 @@ $: if (events && bodyEl) {
 		opacity: 0.7;
 		font-size: 0.75rem;
 		overflow-wrap: anywhere;
+	}
+
+	/* Icoon en getal op één regel, met het icoon op tekstgrootte uitgelijnd. */
+	.chat-panel__tokens {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
 	}
 
 	.chat-panel__actions {
