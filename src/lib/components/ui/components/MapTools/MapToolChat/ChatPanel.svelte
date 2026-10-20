@@ -655,7 +655,6 @@ $: if (events && bodyEl) {
 						use:focusOnMount
 						on:keydown={handleExportKeydown}
 						rows="3"
-						placeholder="Wat ging er mis?"
 					></textarea>
 					<div class="export-dialog__actions">
 						<button class="export-dialog__button" type="button" on:click={cancelExport}>
