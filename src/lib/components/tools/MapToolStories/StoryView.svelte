@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { onMount, onDestroy, getContext, createEventDispatcher } from "svelte";
+	import { onMount, onDestroy, getContext, createEventDispatcher, tick } from "svelte";
 	import { _ } from "svelte-i18n";
 	import * as Cesium from "cesium";
 	import { writable, get, type Writable } from "svelte/store";
-	import { Button, Tag, SliderSkeleton } from "carbon-components-svelte";
+	import { Button, Tag } from "carbon-components-svelte";
 	import { Return, ChevronDown, ChevronUp, ChoroplethMap } from "carbon-icons-svelte";
 	import "@carbon/charts-svelte/styles.css";
 	import { jsPDF } from 'jspdf';
 
-	import type { Story } from "./Story";
+	import type { Story, StoryFocusRequest } from "./Story";
 	import type { StoryStep } from "./StoryStep";
 	import type { StoryLayer } from "./StoryLayer";
 	import type { StoryChapter } from "./StoryChapter";
@@ -38,6 +38,7 @@
 	export let textBack: string;
 	export let layerLegends: Array<LegendOptions>; 
 	export let baseLayerId: string | undefined;
+	export let focusRequest: StoryFocusRequest = {};
 
 	const { getToolContainer, getToolContentContainer } = getContext<any>("mapTools");
 	const dispatch = createEventDispatcher();
@@ -46,9 +47,17 @@
 
 	let currentPage = writable<number>(1);
 	let lastAppliedSavedStepNumber: number | undefined;
+	let lastSelectionRequest: StoryFocusRequest | undefined;
 	let activeStep: StoryStep | undefined;
 	let activeChapter: StoryChapter | undefined;
 	let activeChapterSteps: Array<StoryStep> | undefined;
+	let opacityControlsOpen = true;
+	let opacityControls: Array<{
+		key: string;
+		label?: string;
+		layer: Layer;
+		linkedLayers: Array<Layer>;
+	}> = [];
 	let cesiumMap = map as MapCore;
 	let width: number;
 	let height: number;
@@ -60,6 +69,11 @@
 	let scrollHeight: number = 0;
 	let resizeObserver: ResizeObserver | undefined;
 	let lastInputType: string;
+	let mounted = false;
+	let destroyed = false;
+	let appliedFocusRequest: StoryFocusRequest | undefined;
+	let cameraRequest = 0;
+	let cameraFrame: number | undefined;
 
 	// Layer shown for each story layer (keyed by id + style): a story copy, or the user's own layer.
 	const storyTargets = new globalThis.Map<string, Layer>();
@@ -85,6 +99,7 @@
 
 	$: shown = Math.floor(width / 70);
 	$: baseLayer?.visible.set($baseMapVisible);
+	$: bottomSpacerHeight = Math.max(0, scrollHeight - intersectOffset);
 
 
 	// Step layers stay hidden until the required polygon is drawn
@@ -154,10 +169,14 @@
 		// Return to step where user left
 		currentPage.set(savedStepNumber);
 		setTimeout(() => { scrollToStep(savedStepNumber-1) }, 150); // Timeout when height of images is not explicitly set
+		mounted = true;
 	});
 
 
 	onDestroy(() => {
+		destroyed = true;
+		cameraRequest++;
+		if (cameraFrame !== undefined) cancelAnimationFrame(cameraFrame);
 		if (story.forceCameraMode) {
 			map.options.disableModeSwitcher.set(false);
 			const targetMode = story.forceCameraMode === "3D";
@@ -169,7 +188,7 @@
 		container.removeEventListener("scroll", onScroll);
 		container.removeEventListener("wheel", onWheel);
 		resetToStart();
-		dispatch("closeModule", {n: $currentPage});
+		dispatch("closeModule", {n: $currentPage, story});
 		
 		// Also hidden, in case a source that is still loading gets attached after removal.
 		baseLayer?.visible.set(false);
@@ -214,6 +233,18 @@
 
 	function onWheel() {
 		lastInputType = "scroll";
+		appliedFocusRequest = focusRequest;
+	}
+
+	function navigateToStep(page: number): void {
+		lastInputType = "click";
+		appliedFocusRequest = focusRequest;
+		if ($currentPage !== page) {
+			currentPage.set(page);
+		} else if (activeStep) {
+			scrollToStep(page - 1);
+			updateStepCamera(activeStep);
+		}
 	}
 
 
@@ -241,9 +272,7 @@
 		}
 
 		if (activeStep) {
-			if (!story.staticCamera) {
-				cesiumMap.flyTo(polygonCameraLocation ?? activeStep.cameraLocation);
-			}
+			updateStepCamera(activeStep);
 			applyStepLayers(activeStep);
 
 			if (activeStep.globeOpacity) {
@@ -269,17 +298,76 @@
 		}
 	});
 
-	$: if (savedStepNumber !== lastAppliedSavedStepNumber) {
+	$: if (savedStepNumber !== lastAppliedSavedStepNumber || focusRequest !== lastSelectionRequest) {
 		lastAppliedSavedStepNumber = savedStepNumber;
+		lastSelectionRequest = focusRequest;
 		lastInputType = "click";
 		currentPage.set(savedStepNumber);
 	}
 
-	// Spacer below the last step, so it can scroll past the intersect line like every other
-	// step. Sized so that at maximum scroll the last step ends at the intersect line: still
-	// visible, which also hints that scrolling back up is possible (there is no scrollbar).
-	// Gated on viewportHeight: until .story gets its explicit height the scroll container isn't constrained.
-	$: bottomSpacerHeight = viewportHeight ? Math.max(0, scrollHeight - intersectOffset) : 0;
+	$: if (mounted && activeStep && focusRequest !== appliedFocusRequest) {
+		updateStepCamera(activeStep);
+	}
+
+	async function updateStepCamera(step: StoryStep): Promise<void> {
+		if (!mounted || story.staticCamera) return;
+		const request = ++cameraRequest;
+		await tick();
+		if (destroyed || request !== cameraRequest) return;
+		if (cameraFrame !== undefined) cancelAnimationFrame(cameraFrame);
+		cameraFrame = requestAnimationFrame(() => {
+			cameraFrame = undefined;
+			if (destroyed || request !== cameraRequest) return;
+
+			// Panel width changes must reach Cesium before it computes a target-centred flight.
+			map.viewer.forceResize();
+			const camera = polygonCameraLocation ?? step.cameraLocation;
+			const newFocusRequest = focusRequest !== appliedFocusRequest;
+			const stepLocations = polygonCameraLocation ? [] : step.getMarkerCoordinatesList();
+			if (newFocusRequest || stepLocations.length > 0) {
+				appliedFocusRequest = focusRequest;
+				const markers = newFocusRequest
+					? (focusRequest.marker ? [focusRequest.marker] : story.markers)
+					: [];
+				const positions: Array<Cesium.Cartesian3> = [];
+				for (const marker of markers) {
+					const position = marker.position?.getValue(map.viewer.clock.currentTime);
+					if (position) positions.push(position);
+				}
+				if (positions.length === 0) {
+					for (const location of stepLocations) {
+						const cartographic = Cesium.Cartographic.fromDegrees(location.x, location.y);
+						positions.push(Cesium.Cartesian3.fromRadians(
+							cartographic.longitude,
+							cartographic.latitude,
+							map.viewer.scene.globe.getHeight(cartographic) ?? 0,
+							map.viewer.scene.globe.ellipsoid
+						));
+					}
+				}
+				if (positions.length > 0) {
+					const sphere = Cesium.BoundingSphere.fromPoints(positions);
+					const pitch = Cesium.Math.toRadians(get(map.options.use3DMode) ? camera.pitch : -89.9);
+					const configuredRange = Math.max(camera.z, 1) / Math.max(Math.abs(Math.sin(pitch)), 0.1);
+					const frustum = map.viewer.camera.frustum;
+					let range = 0;
+					if (frustum instanceof Cesium.PerspectiveFrustum
+						&& frustum.fovy !== undefined && frustum.fovy > 0
+						&& frustum.aspectRatio !== undefined && frustum.aspectRatio > 0) {
+						const halfFov = Math.atan(Math.tan(frustum.fovy / 2) * Math.min(frustum.aspectRatio, 1));
+						range = Math.max(configuredRange, sphere.radius / Math.sin(halfFov));
+					}
+					map.viewer.camera.flyToBoundingSphere(sphere, {
+						duration: camera.duration,
+						offset: new Cesium.HeadingPitchRange(Cesium.Math.toRadians(camera.heading), pitch, range)
+					});
+					map.refresh();
+					return;
+				}
+			}
+			cesiumMap.flyTo(camera);
+		});
+	}
 
 	function scrollToStep(index: number): void {
 		const stepElement = getStepElementByIndex(index);
@@ -336,6 +424,7 @@
 	function applyStepLayers(step: StoryStep): void {
 		const stepLayers = step.layers ?? [];
 		if (stepLayers.length === 0) {
+			opacityControls = [];
 			storyCopies.forEach((layer) => setLayerVisible(layer, false));
 			restoreOriginalLayerState(isReplacedByBaseLayer);
 			get(map.layers).filter(isReplacedByBaseLayer).forEach((layer) => setLayerVisible(layer, false));
@@ -354,6 +443,28 @@
 		for (const layer of [...storyCopies, ...get(map.layers)]) {
 			setLayerVisible(layer, showStepLayers && targets.has(layer));
 		}
+		updateOpacityControls(step);
+	}
+
+	function updateOpacityControls(step: StoryStep): void {
+		const controls: typeof opacityControls = [];
+		for (const group of step.opacitySliderGroups) {
+			const targets = group.layers
+				.map(getStoryLayerTarget)
+				.filter((layer): layer is Layer => layer !== undefined);
+			const [layer, ...linkedLayers] = targets;
+			if (!layer) continue;
+
+			// Preserve the first layer's current slider value when a step links previously independent layers.
+			const opacity = get(layer.opacity);
+			for (const linkedLayer of linkedLayers) {
+				if (get(linkedLayer.opacity) !== opacity) linkedLayer.opacity.set(opacity);
+			}
+			if (group.layers.some((storyLayer) => storyLayer.showOpacitySlider)) {
+				controls.push({ key: group.key, label: group.label, layer, linkedLayers });
+			}
+		}
+		opacityControls = controls;
 	}
 
 	function storyTargetKey(storyLayer: StoryLayer): string {
@@ -375,10 +486,12 @@
 		let layer = storyLayer.style ? undefined : getLayerById(id);
 		if (!layer) {
 			const libraryLayer = getLibraryLayer(id);
-			if (!libraryLayer) return undefined;
+			if (!libraryLayer) {
+				console.warn(`Story layer "${id}" could not be found in the layer library.`);
+				return undefined;
+			}
 			layer = map.addLayer(storyLayerToLayerConfig(storyLayer, libraryLayer, key));
 			storyCopies.push(layer);
-			appliedOpacity.set(layer, storyLayer.opacity);
 		}
 		storyTargets.set(key, layer);
 		return layer;
@@ -630,8 +743,7 @@ async function downloadPDF() {
 					on:click={() => {
 						const firstStepIndex = flattenedSteps.findIndex(({ chapter: c }) => c === chapter);
 						if (firstStepIndex !== -1) {
-							lastInputType = "click";
-							currentPage.set(firstStepIndex + 1);
+							navigateToStep(firstStepIndex + 1);
 						}
 					}}
 				>
@@ -642,9 +754,10 @@ async function downloadPDF() {
 		<hr style="width: 100%;"/>
 		<div style="width: 100%;">
 			<CustomPaginationNav
-				bind:page={$currentPage}
+				page={$currentPage}
 				bind:lastInputType ={lastInputType}
 				{flattenedSteps}
+				on:change={(event) => navigateToStep(event.detail.page)}
 			/>
 		</div>
 	</div>
@@ -733,24 +846,6 @@ async function downloadPDF() {
 						{/if}
 					{/if}
 				</div>
-				<div class="opacity-controls">
-					{#each step.layers ?? [] as layer}
-						{#if layer.showOpacitySlider}
-							{#await (async () => {
-								while (!getStoryLayerTarget(layer)) {
-									await new Promise(r => setTimeout(r, 100));
-								}
-								return getStoryLayerTarget(layer);
-							})() then addedLayer}
-								{#if addedLayer}
-									<StoryOpacitySlider layer={addedLayer} />
-								{/if}
-							{:catch}
-								<SliderSkeleton hideLabel />
-							{/await}
-						{/if}
-					{/each}
-				</div>
 				<div class="tag">
 					<Tag>{chapter.title}</Tag>
 					<Tag>{index + 1}</Tag>
@@ -761,10 +856,35 @@ async function downloadPDF() {
 	</div>
 	</div>
 
-	{#if story.hasMarkers}
-		<div class="marker-footer">
+	{#if opacityControls.length > 0 || (story.showMarkerToggle && story.hasMarkers)}
+		<div class="story-footer">
 			<div class="footer-gradient" />
-			<ToggleView bind:show={$showStoryMarkers} text={$_("tools.stories.showStoryOnMap")} />
+			{#if opacityControls.length > 0}
+				<div class="opacity-controls">
+					<button
+						type="button"
+						class="opacity-toggle"
+						aria-expanded={opacityControlsOpen}
+						aria-controls="story-opacity-controls"
+						on:click={() => opacityControlsOpen = !opacityControlsOpen}
+					>
+						<span>{$_("tools.stories.layerControls")}</span>
+						{#if opacityControlsOpen}<ChevronUp size={16} />{:else}<ChevronDown size={16} />{/if}
+					</button>
+					<div id="story-opacity-controls" class="opacity-sliders" hidden={!opacityControlsOpen}>
+						{#key activeStep}
+							{#each opacityControls as control (control.key)}
+								<StoryOpacitySlider layer={control.layer} linkedLayers={control.linkedLayers} label={control.label} />
+							{/each}
+						{/key}
+					</div>
+				</div>
+			{/if}
+			{#if story.showMarkerToggle && story.hasMarkers}
+				<div class="marker-footer">
+					<ToggleView bind:show={$showStoryMarkers} text={$_("tools.stories.showStoryOnMap")} />
+				</div>
+			{/if}
 		</div>
 	{/if}
 </div>
@@ -889,7 +1009,37 @@ async function downloadPDF() {
 	}
 
 	.opacity-controls {
-		margin-top: 0.5rem;
+		flex: 1 1 auto;
+		min-height: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.opacity-toggle {
+		flex: 0 0 auto;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		width: 100%;
+		min-height: 2.5rem;
+		padding: 0.5rem var(--cds-spacing-05);
+		border: 0;
+		background: transparent;
+		color: var(--cds-text-primary);
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.opacity-toggle:hover {
+		background-color: var(--cds-hover-ui);
+	}
+
+	.opacity-sliders {
+		min-height: 0;
+		overflow-y: auto;
+		padding: 0 var(--cds-spacing-05) 0.5rem;
 	}
 
 	.tag {
@@ -935,14 +1085,26 @@ async function downloadPDF() {
 		font-size: 0.75rem;
 	}
 
-	.marker-footer {
+	.story-footer {
 		flex: 0 0 auto;
+		min-height: 0;
+		max-height: 45%;
 		position: relative;
 		z-index: 2;
+		display: flex;
+		flex-direction: column;
 		width: 100%;
 		box-sizing: border-box;
-		padding: var(--cds-spacing-05);
 		background-color: var(--cds-ui-01);
+		border-top: 1px solid var(--cds-ui-03);
+	}
+
+	.marker-footer {
+		flex: 0 0 auto;
+		padding: var(--cds-spacing-05);
+	}
+
+	.opacity-controls + .marker-footer {
 		border-top: 1px solid var(--cds-ui-03);
 	}
 

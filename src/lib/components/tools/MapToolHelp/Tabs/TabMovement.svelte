@@ -54,7 +54,11 @@
     }
 
     video {
-    border: 1px solid var(--cds-ui-03);
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        height: auto;
+        border: 1px solid var(--cds-ui-03);
     }
     
     .button {

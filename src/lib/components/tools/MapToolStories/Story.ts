@@ -2,6 +2,11 @@ import { StoryStep } from "./StoryStep";
 import { StoryChapter } from "./StoryChapter";
 import { StoryLayer } from "./StoryLayer";
 import type * as Cesium from "cesium";
+import type { StoryMarker } from "./story-marker";
+
+export interface StoryFocusRequest {
+    marker?: Cesium.Entity;
+}
 
 export interface StoryMarkerCoordinates {
     x: number;
@@ -10,8 +15,13 @@ export interface StoryMarkerCoordinates {
     type?: "chapter" | "text" | "image";
     /** Mandatory when type is "text": the speech bubble text. Optional for "image": hover tooltip. */
     text?: string;
-    /** Mandatory when type is "image": one or more image urls shown in gallery mode (normalized to an array on load). */
-    url?: Array<string>;
+    openStoryStep?: boolean;
+    /** Mandatory when type is "image": one or more image urls shown in gallery mode. */
+    url?: string | Array<string>;
+    /** Optional for "chapter": image url that replaces the default circle with story icon. */
+    symbolUrl?: string;
+    /** Optional for "chapter" with symbolUrl: max width/height in pixels of the symbol. Defaults to 128. */
+    maxImageSize?: number;
 }
 
 export class Story {
@@ -26,6 +36,9 @@ export class Story {
     public statisticsApi: string | undefined;
     public markers: Array<Cesium.Entity> = [];
     public hasMarkers: boolean;
+    public hasStepMarkers: boolean;
+    public showMarkerToggle: boolean;
+    public markerDefinitions: Array<StoryMarker>;
     
     constructor(name: string, 
                 description: string, 
@@ -36,7 +49,9 @@ export class Story {
                 requestPolygonArea: boolean | undefined,
                 statisticsApi: string | undefined,
                 hasMarkers: boolean = false,
-                maxWidth: string | undefined = undefined) {
+                markerDefinitions: Array<StoryMarker> = [],
+                maxWidth: string | undefined = undefined,
+                showMarkerToggle: boolean = false) {
         this.name = name;
         this.description = description;
         this.storyChapters = storyChapters;
@@ -46,7 +61,10 @@ export class Story {
         this.staticCamera = staticCamera;
         this.requestPolygonArea = requestPolygonArea;
         this.statisticsApi = statisticsApi;
-        this.hasMarkers = hasMarkers;
+        this.hasStepMarkers = hasMarkers;
+        this.showMarkerToggle = showMarkerToggle;
+        this.markerDefinitions = markerDefinitions;
+        this.hasMarkers = hasMarkers || markerDefinitions.length > 0;
     }
 
     getStoryLayers(): Array<StoryLayer> {
