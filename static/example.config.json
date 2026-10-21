@@ -69,7 +69,6 @@
             "defaultOn": false,
             "transparent": false,
             "opacity": 0,
-            "attribution": "PDOK",
             "settings": {
                 "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/gebouwen/3dtiles",
                 "defaultTheme": "Bouwjaar",
@@ -106,50 +105,6 @@
                     }
                 ]
             }
-        },
-        {
-            "id": "geotop-voxel",
-            "type": "3dtiles-voxel",
-            "title": "GeoTOP Zeeland (voxels)",
-            "defaultAddToManager": true,
-            "transparent": true,
-            "settings": {
-                "url": "https://virtueel.zeeland.nl/tiles_other/bro_geotop/geotop_zeeland_ellipsoid/tileset.json",
-                "legendDataUrl": "https://virtueel.zeeland.nl/tiles_other/bro_geotop/geotop_zeeland_ellipsoid/legend.json",
-                "defaultProperty": "lithology",
-                "properties": [
-                    {
-                        "name": "lithology",
-                        "label": "Lithoklasse"
-                    },
-                    {
-                        "name": "stratigraphy",
-                        "label": "Stratigrafie"
-                    }
-                ]
-            }
-        },
-        {
-            "id": "4",
-            "type": "wms",
-            "title": "PDOK Wijken",
-            "groupId": "",
-            "legendEnabled": true,
-            "legendUrl": "",
-            "isBackground": false,
-            "defaultAddToManager": true,
-            "defaultOn": false,
-            "transparent": false,
-            "settings": {
-                "url": "https://service.pdok.nl/cbs/wijkenbuurten/2024/wms/v1_0",
-                "featureName": "wijken",
-                "contenttype": "image/png",
-                "tools": {
-                    "styleSwitcher": {
-                        "enabled": true
-                    }
-                }
-            }
         }
     ],
     "viewer": {
@@ -164,15 +119,7 @@
             "pitch": -34.77194,
             "duration": 1.50
         },
-        "accessibility": {
-            "trackpadMode": false,
-            "trackpadStepAngle": 5,
-            "trackpadStepHeightFactor": 0.2
-        },
         "colors": {
-            "header-color": "#161616",
-            "title-color": "#ffffff",
-            "sub-title-color": "#ffffff",
             "ui-background": "#ffffff",
             "interactive-01": "#214170",
             "interactive-02": "#171717",
@@ -238,13 +185,6 @@
                     {
                         "type": "geonetwork",
                         "url": "https://dataportaal.zeeland.nl/dataportaal"
-                    },
-                    {
-                        "type": "ckan",
-                        "url": "https://data.beta.geodan.nl",
-                        "organizations": [
-                            "pdok"
-                        ]
                     }
                 ]
             }
@@ -299,24 +239,23 @@
                 "shadows": false,
                 "animate": false,
                 "resolutionScale": 1,
-                "maximumScreenSpaceError": 1.2,
+                "maximumScreenSpaceError": 16,
                 "groundAtmosphere": true,
                 "globeOpacity": 100,
-                "lighting": false,
+                "lighting": true,
                 "skyAtmosphere": true,
                 "fog": true,
-                "enableCollisionDetection": false,
                 "highDynamicRange": false,
                 "pointCloudAttenuationMaximum": 2,
                 "terrainProviders": [
                     {
-                        "title": "PDOK Terrain",
-                        "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
+                        "title": "Zeeland 1m",
+                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
                         "vertexNormals": true
                     },
                     {
-                        "title": "Zeeland 1m",
-                        "url": "https://virtueel.zeeland.nl/tiles_other/zeeland_1m",
+                        "title": "PDOK Terrain",
+                        "url": "https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh",
                         "vertexNormals": true
                     },
                     {
@@ -376,129 +315,16 @@
         },
         {
             "id": "flooding",
-            "enabled": false,
+            "enabled": true,
             "settings": {
                 "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/overstroming/",
                 "breachUrl": "https://virtueel.zeeland.nl/tiles_other/breslocaties.geojson",
-                "roadsUrl": "https://service.pdok.nl/rws/vervoersnetwerken/wegen/wms/v1_0",
-                "floodedRoadsUrl": "https://virtueel.zeeland.nl/pygeoapi",
-                "floodedRoadsStyle": [
-                    {
-                        "property": "flood_depth",
-                        "stops": [
-                            {
-                                "value": 0,
-                                "color": "#ffff00"
-                            },
-                            {
-                                "value": 3,
-                                "color": "#ff0000"
-                            }
-                        ]
-                    }
-                ]
+                "floodedRoadsUrl": "http://localhost:5000"
             }
         },
         {
             "id": "stories",
-            "enabled": true,
-            "settings": {
-                "showOnMap": true,
-                "stories": [
-                    {
-                        "name": "Amsterdam",
-                        "description": "Een wandeling door Amsterdam.",
-                        "width": "400px",
-                        "baseLayerId": "1",
-                        "markers": [
-                            {
-                                "type": "marker",
-                                "id": "beeldvergelijking",
-                                "title": "Demo: voor en na",
-                                "x": 4.896,
-                                "y": 52.375,
-                                "action": {
-                                    "type": "beforeAfter",
-                                    "before": {
-                                        "url": "images/story-comparison-before.svg",
-                                        "label": "Voor"
-                                    },
-                                    "after": {
-                                        "url": "images/story-comparison-after.svg",
-                                        "label": "Na"
-                                    }
-                                }
-                            },
-                            {
-                                "type": "marker",
-                                "id": "interactieve-inhoud",
-                                "title": "HTML/JavaScript-demo",
-                                "x": 4.904,
-                                "y": 52.376,
-                                "action": {
-                                    "type": "html",
-                                    "html": "<!doctype html><html lang='nl'><head><meta charset='utf-8'><title>Interactieve marker</title><style>body{font:18px system-ui;margin:2rem}button{padding:.75rem}</style></head><body><h1>Interactieve marker</h1><p>Deze inhoud staat los van de verhaalstappen.</p><button id='counter'>Klik op mij</button><p id='result' aria-live='polite'>0</p><script>let count=0;document.getElementById('counter').addEventListener('click',()=>{document.getElementById('result').textContent=String(++count);});</script></body></html>"
-                                }
-                            }
-                        ],
-                        "chapterGroups": [
-                            {
-                                "id": "1",
-                                "title": "Centrum",
-                                "buttonText": "Centrum"
-                            }
-                        ],
-                        "chapters": [
-                            {
-                                "id": "1",
-                                "steps": [
-                                    {
-                                        "title": "Centraal Station",
-                                        "html": "<h2>Centraal Station</h2><p>De cameramarkers op de kaart openen een beeldvergelijking of interactieve HTML-inhoud. Ze blijven bij elke verhaalstap beschikbaar. De vergelijkingsbeelden zijn fictieve demo-illustraties.</p>",
-                                        "markerCoordinates": {
-                                            "type": "text",
-                                            "text": "Centraal Station",
-                                            "openStoryStep": true,
-                                            "x": 4.9003,
-                                            "y": 52.378
-                                        },
-                                        "camera": {
-                                            "x": 4.9003,
-                                            "y": 52.378,
-                                            "z": 1500,
-                                            "heading": 0,
-                                            "pitch": -60,
-                                            "duration": 1.5
-                                        },
-                                        "layers": []
-                                    },
-                                    {
-                                        "title": "Dam",
-                                        "html": "<h2>Dam</h2>",
-                                        "markerCoordinates": {
-                                            "type": "image",
-                                            "url": "images/leia_logo.png",
-                                            "text": "Dam",
-                                            "openStoryStep": true,
-                                            "x": 4.8922,
-                                            "y": 52.3731
-                                        },
-                                        "camera": {
-                                            "x": 4.8922,
-                                            "y": 52.3731,
-                                            "z": 1500,
-                                            "heading": 0,
-                                            "pitch": -60,
-                                            "duration": 1.5
-                                        },
-                                        "layers": []
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
+            "enabled": false
         },
         {
             "id": "measure",

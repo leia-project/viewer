@@ -297,6 +297,8 @@
             "noData": "Pas de données, appuyez sur un objet pour plus d'informations",
             "attribute": "Attribut",
             "value": "Valeur",
+            "yes": "Oui",
+            "no": "Non",
             "link": "Lien",
             "open": "Ouvrir",
             "noPdfViewer": "Aucune visionneuse PDF en ligne installée"
