@@ -5,7 +5,7 @@ import type { MvtProperty } from "$lib/components/map-cesium/module/layers/mvt-l
 
 export interface ApiContext {
 	apiUrl: string;
-	sessionToken: string;
+	userKey: string;
 }
 
 export interface TileInfo {
@@ -13,7 +13,7 @@ export interface TileInfo {
 	name: string;
 	/* URL-sjabloon (met {z}/{x}/{y}) mét een eigen toegangstoken. Cesium bouwt elk tile-adres
 	   alleen uit het sjabloon en kan geen headers meesturen, dus het token zit in de URL: een
-	   ondertekend, alleen-lezen token voor déze dataset dat verloopt - nooit het sessietoken. */
+	   ondertekend, alleen-lezen token voor déze dataset dat verloopt - nooit de sleutel van de gebruiker. */
 	tile_path: string;
 	access_expires: number; /* unix-tijd waarop het token verloopt */
 	source_layer: string;
@@ -27,10 +27,10 @@ export type ClassesResponse =
 	| { kind: "categorical"; values: { value: string; count: number }[] }
 	| { kind: "graduated"; breaks: number[]; min: number; max: number };
 
-export const sessionHeaders = ({ sessionToken }: ApiContext) => ({ "X-Session-Token": sessionToken });
+export const authHeaders = ({ userKey }: ApiContext) => ({ Authorization: `Bearer ${userKey}` });
 
 async function getJson<T>(api: ApiContext, path: string): Promise<T> {
-	const response = await fetch(`${api.apiUrl}${path}`, { headers: sessionHeaders(api) });
+	const response = await fetch(`${api.apiUrl}${path}`, { headers: authHeaders(api) });
 	if (!response.ok) {
 		/* De API legt een geweigerd verzoek uit in `detail`. */
 		const body = await response.json().catch(() => null);

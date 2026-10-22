@@ -1,5 +1,5 @@
 /**
- * Exporteert de opgeslagen gespreksstaat van de huidige sessie als JSON-bestand.
+ * Exporteert de opgeslagen gespreksstaat van de huidige gebruiker als JSON-bestand.
  *
  * De backend leest die staat terug uit de LangGraph-checkpointer, dus in het
  * bestand belandt de volledige AgentState: alle berichten, tool-aanroepen,
@@ -7,19 +7,21 @@
  * toevallig op het scherm heeft staan.
  *
  * Het gesprek loopt over /agent/run met `conversationId` als thread_id; de backend
- * maakt daar samen met het sessietoken de draad-id van (zie build_thread_id in
- * backend/app/src/services/agent/orchestrator.py). Dezelfde id is dus nodig om
+ * maakt daar samen met de sleutel van de gebruiker de draad-id van (zie build_thread_id in
+ * backend/app/src/services/agent/agent.py). Dezelfde id is dus nodig om
  * precies die draad terug te lezen.
  */
 
+import { authHeaders } from "./user-key";
+
 export async function exportConversation(
 	apiUrl: string,
-	sessionToken: string,
+	userKey: string,
 	conversationId: string,
 	reason: string
 ): Promise<void> {
 	const response = await fetch(`${apiUrl}/conversation/export?conversation_id=${encodeURIComponent(conversationId)}`, {
-		headers: { "X-Session-Token": sessionToken }
+		headers: authHeaders(userKey)
 	});
 
 	if (!response.ok) {
