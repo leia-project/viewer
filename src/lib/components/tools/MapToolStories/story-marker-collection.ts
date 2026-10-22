@@ -5,8 +5,9 @@ import { Dispatcher } from "$lib/map-core/event/dispatcher";
 import type { Map as CesiumMap } from "$lib/map-cesium/map";
 import { getTerrainHeight } from "$lib/map-cesium/terrain-util";
 import { projectHandler } from "../MapToolProjects/project-handler";
-import { selectedStory, showStoryMarkers } from "./story-handler";
+import { activeStoryStep, selectedStory, showStoryMarkers } from "./story-handler";
 import type { Story, StoryMarkerCoordinates } from "./Story";
+import type { StoryStep } from "./StoryStep";
 import type { StoryMarker, StoryMarkerAction } from "./story-marker";
 import StoryHoverBox from "./StoryHoverBox.svelte";
 import StoryMarkerTextBubble from "./StoryMarkerTextBubble.svelte";
@@ -19,6 +20,7 @@ export class StoryMarkerCollection extends Dispatcher {
 	private stories: Story[] = [];
 	private readonly markerStoryMap = new Map<Cesium.Entity, Story>();
 	private readonly markerStepMap = new Map<Cesium.Entity, number>();
+	private readonly markerOwnerStep = new Map<Cesium.Entity, StoryStep>();
 	private readonly markerLabelMap = new Map<Cesium.Entity, { chapterTitle: string; stepTitle: string }>();
 	private readonly markerCoordinates = new Map<Cesium.Entity, StoryMarkerCoordinates | StoryMarker>();
 	private textBubbles: StoryMarkerTextBubble[] = [];
@@ -46,6 +48,7 @@ export class StoryMarkerCollection extends Dispatcher {
 				this.toggleMarkers();
 			}),
 			selectedTool.subscribe(() => this.toggleMarkers()),
+			activeStoryStep.subscribe(() => this.toggleMarkers()),
 			projectHandler.selectedProject.subscribe(() => this.toggleMarkers()),
 			map.options.terrainSwitchReady.subscribe(() => this.updateAllMarkerHeights())
 		];
@@ -58,6 +61,7 @@ export class StoryMarkerCollection extends Dispatcher {
 		this.markers.entities.removeAll();
 		this.markerStoryMap.clear();
 		this.markerStepMap.clear();
+		this.markerOwnerStep.clear();
 		this.markerLabelMap.clear();
 		this.markerCoordinates.clear();
 		this.textBubbles.forEach((bubble) => bubble.$destroy());
@@ -80,6 +84,7 @@ export class StoryMarkerCollection extends Dispatcher {
 
 						const marker = this.createMarker(story, coordinates, type === "image" ? cameraMarker : bookMarker);
 						this.markerStepMap.set(marker, stepNumber);
+						this.markerOwnerStep.set(marker, step);
 						this.markerLabelMap.set(marker, { chapterTitle: chapter.title, stepTitle: step.title });
 
 						if (type === "chapter" && coordinates.symbolUrl) {
@@ -110,13 +115,14 @@ export class StoryMarkerCollection extends Dispatcher {
 	}
 
 	private createMarker(story: Story, coordinates: StoryMarkerCoordinates | StoryMarker, image: string): Cesium.Entity {
+		const size = coordinates.markerSize ?? story.markerSize;
 		const marker = new Cesium.Entity({
 			name: coordinates.type === "marker" ? coordinates.title : undefined,
 			position: Cesium.Cartesian3.fromDegrees(coordinates.x, coordinates.y),
 			billboard: coordinates.type === "text" ? undefined : {
 				image,
-				width: 52,
-				height: 52,
+				width: size,
+				height: size,
 				disableDepthTestDistance: Number.POSITIVE_INFINITY,
 				verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
 				scaleByDistance: new Cesium.NearFarScalar(5.0e4, 1, 3.0e6, 0.1)
@@ -210,11 +216,19 @@ export class StoryMarkerCollection extends Dispatcher {
 		const visible = this.markersVisible();
 		const openStory = get(selectedStory);
 		const storyToolOpen = (get(this.toolSelection) as { id?: string } | undefined)?.id === "stories";
+		const activeStep = get(activeStoryStep);
 		this.markers.show = visible;
 		for (const [marker, story] of this.markerStoryMap) {
-			marker.show = this.markerCoordinates.get(marker)?.type === "marker"
-				? storyToolOpen && story === openStory
-				: !openStory || story === openStory;
+			const coordinates = this.markerCoordinates.get(marker);
+			if (coordinates?.type === "marker") {
+				const shownInStep = !story.stepBoundMarkerIds.has(coordinates.id)
+					|| (activeStep?.showMarkers.includes(coordinates.id) ?? false);
+				marker.show = storyToolOpen && story === openStory && shownInStep;
+			} else if (coordinates?.onlyInStep) {
+				marker.show = story === openStory && this.markerOwnerStep.get(marker) === activeStep;
+			} else {
+				marker.show = !openStory || story === openStory;
+			}
 		}
 		if (!visible || (this.galleryMarker && !this.galleryMarker.show)) this.closeGallery();
 		if (!visible || (this.hoveredMarker && !this.hoveredMarker.show)) this.clearHover();

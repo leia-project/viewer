@@ -20,7 +20,7 @@
 	import StoryView from "./StoryView.svelte";
 	import { selectedStory, showStoryMarkers } from "./story-handler";
 	import { StoryMarkerCollection } from "./story-marker-collection";
-	import { isNonEmptyString, isSafeStoryUrl, parseStoryMarkers } from "./story-marker";
+	import { DEFAULT_MARKER_SIZE, isNonEmptyString, isSafeStoryUrl, parseMarkerSize, parseStoryMarkers } from "./story-marker";
 	import ToggleView from "../MapToolProjects/components/ToggleView.svelte";
 
 	export let id: string;
@@ -114,14 +114,27 @@
 
 			const type = entry.type ?? "chapter";
 			const openStoryStep = entry.openStoryStep === true;
+			const onlyInStep = entry.onlyInStep === true;
+			const markerSize = parseMarkerSize(entry.markerSize, entry);
 			if (type === "chapter") {
-				markers.push({ x, y, type });
+				if (entry.symbolUrl !== undefined && !isNonEmptyString(entry.symbolUrl)) {
+					console.warn("Story marker symbolUrl ignored: must be a non-empty string", entry);
+				}
+				markers.push({
+					x,
+					y,
+					type,
+					symbolUrl: isNonEmptyString(entry.symbolUrl) ? entry.symbolUrl.trim() : undefined,
+					maxImageSize: entry.maxImageSize,
+					markerSize,
+					onlyInStep
+				});
 			} else if (type === "text") {
 				if (!isNonEmptyString(entry.text)) {
 					console.warn("Story marker skipped: type 'text' requires a non-empty text", entry);
 					continue;
 				}
-				markers.push({ x, y, type, text: entry.text, openStoryStep });
+				markers.push({ x, y, type, text: entry.text, openStoryStep, onlyInStep });
 			} else if (type === "image") {
 				const urls = (Array.isArray(entry.url) ? entry.url : [entry.url])
 					.filter(isNonEmptyString)
@@ -131,13 +144,46 @@
 					console.warn("Story marker skipped: type 'image' requires at least one valid http(s) or relative url", entry);
 					continue;
 				}
-				markers.push({ x, y, type, url: urls, text: isNonEmptyString(entry.text) ? entry.text : undefined, openStoryStep });
+				markers.push({
+					x,
+					y,
+					type,
+					url: urls,
+					text: isNonEmptyString(entry.text) ? entry.text : undefined,
+					openStoryStep,
+					markerSize,
+					onlyInStep
+				});
 			} else {
 				console.warn("Story marker skipped: unknown type", entry);
 			}
 		}
 
 		return markers;
+	}
+
+	function parseFocusOnMarkers(value: unknown, context: unknown): boolean | undefined {
+		if (value === undefined || typeof value === "boolean") return value;
+		console.warn("Story focusOnMarkers ignored: must be true or false", context);
+		return undefined;
+	}
+
+	function parseShowMarkers(raw: unknown, markerIds: Set<string>, stepTitle: string): Array<string> {
+		if (raw === undefined) return [];
+		if (!Array.isArray(raw)) {
+			console.warn(`Story step "${stepTitle}": showMarkers must be an array of marker ids`, raw);
+			return [];
+		}
+		const ids = new Array<string>();
+		for (const value of raw) {
+			const id = isNonEmptyString(value) ? value.trim() : undefined;
+			if (!id || !markerIds.has(id)) {
+				console.warn(`Story step "${stepTitle}": showMarkers entry is not the id of a story marker`, value);
+				continue;
+			}
+			ids.push(id);
+		}
+		return ids;
 	}
 
 	function loadStoriesFromSettings(settings: any) {
@@ -167,6 +213,8 @@
 						: undefined;
 					const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
 					const storyMarkers = parseStoryMarkers(story.markers);
+					const storyMarkerIds = new Set(storyMarkers.map((marker) => marker.id));
+					const stepBoundMarkerIds = new Set<string>();
 					let storyHasMarkers = false;
 
 					// Load all chapter groups
@@ -212,16 +260,24 @@
 								layerLegends.push(layerLegendInfo);
 							}
 							const globeOpacity = step.globeOpacity ?? 100;
-							storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent, markerCoordinates));
+							const storyStep = new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent, markerCoordinates);
+							storyStep.focusOnMarkers = parseFocusOnMarkers(step.focusOnMarkers, step.title);
+							storyStep.showMarkers = parseShowMarkers(step.showMarkers, storyMarkerIds, step.title);
+							storyStep.showMarkers.forEach((id) => stepBoundMarkerIds.add(id));
+							storySteps.push(storyStep);
 						}
 						storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 					}
 					baseLayerId = story.baseLayerId ?? undefined;
-					loadedStories.push(new Story(
+					const loadedStory = new Story(
 						storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode,
 						storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers,
 						storyMarkers, storyMaxWidth, storyShowMarkerToggle
-					));
+					);
+					loadedStory.markerSize = parseMarkerSize(story.markerSize, story.name) ?? DEFAULT_MARKER_SIZE;
+					loadedStory.focusOnMarkers = parseFocusOnMarkers(story.focusOnMarkers, story.name) ?? true;
+					loadedStory.stepBoundMarkerIds = stepBoundMarkerIds;
+					loadedStories.push(loadedStory);
 				} catch (error) {
 					if (!(error instanceof StoryOpacitySliderConfigError)) throw error;
 					layerLegends.splice(legendStart);
