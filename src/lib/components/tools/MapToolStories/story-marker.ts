@@ -23,10 +23,21 @@ export interface StoryMarker {
 	x: number;
 	y: number;
 	action: StoryMarkerAction;
+	/** Optional icon width/height in pixels; overrides the story's markerSize. */
+	markerSize?: number;
 }
+
+export const DEFAULT_MARKER_SIZE = 52;
 
 export function isNonEmptyString(value: unknown): value is string {
 	return typeof value === "string" && value.trim().length > 0;
+}
+
+export function parseMarkerSize(value: unknown, context: unknown): number | undefined {
+	if (value === undefined) return undefined;
+	if (typeof value === "number" && Number.isFinite(value) && value > 0) return value;
+	console.warn("Story markerSize ignored: must be a positive number of pixels", context);
+	return undefined;
 }
 
 export function isSafeStoryUrl(value: string): boolean {
@@ -114,7 +125,15 @@ export function parseStoryMarkers(raw: unknown): Array<StoryMarker> {
 			continue;
 		}
 		ids.add(id);
-		markers.push({ type: "marker", id, title: entry.title.trim(), x: entry.x, y: entry.y, action });
+		markers.push({
+			type: "marker",
+			id,
+			title: entry.title.trim(),
+			x: entry.x,
+			y: entry.y,
+			action,
+			markerSize: parseMarkerSize(entry.markerSize, entry)
+		});
 	}
 	return markers;
 }

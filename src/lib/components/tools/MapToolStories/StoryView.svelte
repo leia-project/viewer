@@ -28,7 +28,7 @@
 	import StoryChart from "./StoryChart/StoryChart.svelte";
 	import StoryOpacitySlider from "./StoryOpacitySlider.svelte";
 	import StoryChartDownloadButton from "./StoryChart/StoryChartDownloadButton.svelte";
-	import { showStoryMarkers } from "./story-handler";
+	import { activeStoryStep, showStoryMarkers } from "./story-handler";
 	import ToggleView from "../MapToolProjects/components/ToggleView.svelte";
 
 
@@ -175,6 +175,8 @@
 
 	onDestroy(() => {
 		destroyed = true;
+		// Only clear when no newer story view has already published its own step.
+		if (get(activeStoryStep) === activeStep) activeStoryStep.set(undefined);
 		cameraRequest++;
 		if (cameraFrame !== undefined) cancelAnimationFrame(cameraFrame);
 		if (story.forceCameraMode) {
@@ -265,6 +267,7 @@
 		activeChapter = activeEntry.chapter;
 		activeChapterSteps = activeChapter.steps;
 		activeStep = activeEntry.step;
+		activeStoryStep.set(activeStep);
 
 		// if clicked on nav index, scroll to step automatically
 		if (lastInputType === "click") {
@@ -323,6 +326,12 @@
 			map.viewer.forceResize();
 			const camera = polygonCameraLocation ?? step.cameraLocation;
 			const newFocusRequest = focusRequest !== appliedFocusRequest;
+			if (!(step.focusOnMarkers ?? story.focusOnMarkers)) {
+				// The step camera has priority: fly to its configured position, also after a marker click.
+				appliedFocusRequest = focusRequest;
+				cesiumMap.flyTo(camera);
+				return;
+			}
 			const stepLocations = polygonCameraLocation ? [] : step.getMarkerCoordinatesList();
 			if (newFocusRequest || stepLocations.length > 0) {
 				appliedFocusRequest = focusRequest;

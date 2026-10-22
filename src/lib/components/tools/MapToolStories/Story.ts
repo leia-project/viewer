@@ -2,7 +2,7 @@ import { StoryStep } from "./StoryStep";
 import { StoryChapter } from "./StoryChapter";
 import { StoryLayer } from "./StoryLayer";
 import type * as Cesium from "cesium";
-import type { StoryMarker } from "./story-marker";
+import { DEFAULT_MARKER_SIZE, type StoryMarker } from "./story-marker";
 
 export interface StoryFocusRequest {
     marker?: Cesium.Entity;
@@ -22,6 +22,10 @@ export interface StoryMarkerCoordinates {
     symbolUrl?: string;
     /** Optional for "chapter" with symbolUrl: max width/height in pixels of the symbol. Defaults to 128. */
     maxImageSize?: number;
+    /** Optional icon width/height in pixels; overrides the story's markerSize. */
+    markerSize?: number;
+    /** When true the marker is only shown while its own step is active. */
+    onlyInStep?: boolean;
 }
 
 export class Story {
@@ -39,6 +43,12 @@ export class Story {
     public hasStepMarkers: boolean;
     public showMarkerToggle: boolean;
     public markerDefinitions: Array<StoryMarker>;
+    /** Default icon width/height in pixels for all markers of this story. */
+    public markerSize: number = DEFAULT_MARKER_SIZE;
+    /** Default for steps without their own focusOnMarkers: centre the camera on the step markers. */
+    public focusOnMarkers: boolean = true;
+    /** Ids of story-level markers referenced by a step's showMarkers; these only show in those steps. */
+    public stepBoundMarkerIds: Set<string> = new Set();
     
     constructor(name: string, 
                 description: string, 

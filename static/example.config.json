@@ -409,6 +409,8 @@
                         "name": "Amsterdam",
                         "description": "Een wandeling door Amsterdam.",
                         "width": "400px",
+                        "markerSize": 32,
+                        "focusOnMarkers": false,
                         "baseLayerId": "1",
                         "markers": [
                             {
@@ -417,6 +419,7 @@
                                 "title": "Demo: voor en na",
                                 "x": 4.896,
                                 "y": 52.375,
+                                "markerSize": 44,
                                 "action": {
                                     "type": "beforeAfter",
                                     "before": {
@@ -454,14 +457,26 @@
                                 "steps": [
                                     {
                                         "title": "Centraal Station",
-                                        "html": "<h2>Centraal Station</h2><p>De cameramarkers op de kaart openen een beeldvergelijking of interactieve HTML-inhoud. Ze blijven bij elke verhaalstap beschikbaar. De vergelijkingsbeelden zijn fictieve demo-illustraties.</p>",
-                                        "markerCoordinates": {
-                                            "type": "text",
-                                            "text": "Centraal Station",
-                                            "openStoryStep": true,
-                                            "x": 4.9003,
-                                            "y": 52.378
-                                        },
+                                        "html": "<h2>Centraal Station</h2><p>De voor/na-marker verschijnt alleen in deze stap. De interactieve HTML-marker verschijnt alleen in de volgende stap. Op de kaart staat ook een eigen chapter-icoon.</p><p>Deze stap centreert op de storymarkers; de volgende stap gebruikt expliciet de ingestelde camera.</p>",
+                                        "focusOnMarkers": true,
+                                        "showMarkers": ["beeldvergelijking"],
+                                        "markerCoordinates": [
+                                            {
+                                                "type": "text",
+                                                "text": "Centraal Station",
+                                                "openStoryStep": true,
+                                                "x": 4.9003,
+                                                "y": 52.378
+                                            },
+                                            {
+                                                "type": "chapter",
+                                                "x": 4.9003,
+                                                "y": 52.378,
+                                                "symbolUrl": "images/leia_logo.png",
+                                                "maxImageSize": 40,
+                                                "markerSize": 40
+                                            }
+                                        ],
                                         "camera": {
                                             "x": 4.9003,
                                             "y": 52.378,
@@ -474,12 +489,15 @@
                                     },
                                     {
                                         "title": "Dam",
-                                        "html": "<h2>Dam</h2>",
+                                        "html": "<h2>Dam</h2><p>Deze step gebruikt focusOnMarkers=false. De camera vliegt dus naar de x/y/z uit de camera-instelling, ook als u via een marker naar deze stap navigeert.</p>",
+                                        "focusOnMarkers": false,
+                                        "showMarkers": ["interactieve-inhoud"],
                                         "markerCoordinates": {
                                             "type": "image",
                                             "url": "images/leia_logo.png",
                                             "text": "Dam",
                                             "openStoryStep": true,
+                                            "onlyInStep": true,
                                             "x": 4.8922,
                                             "y": 52.3731
                                         },

@@ -28,6 +28,10 @@ export class StoryStep {
     public customComponent: any;
     public markerCoordinates: StoryMarkerCoordinates | Array<StoryMarkerCoordinates> | undefined;
     public opacitySliderGroups: Array<StoryOpacitySliderGroup>;
+    /** Overrides the story's focusOnMarkers for this step; undefined uses the story setting. */
+    public focusOnMarkers: boolean | undefined;
+    /** Ids of story-level markers shown only while this step is active. */
+    public showMarkers: Array<string> = [];
 
     constructor(title: string, html: string, cameraLocation: CameraLocation, layers: Array<StoryLayer> | undefined = undefined, globeOpacity: number = 100, terrain: string | undefined = undefined, customComponent: any, markerCoordinates: StoryMarkerCoordinates | Array<StoryMarkerCoordinates> | undefined = undefined) {
         this.title = title;
