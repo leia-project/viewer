@@ -10,6 +10,7 @@
     import workerUrl from 'gdal3.js/dist/package/gdal3.js?url'
     import dataUrl from 'gdal3.js/dist/package/gdal3WebAssembly.data?url'
     import wasmUrl from 'gdal3.js/dist/package/gdal3WebAssembly.wasm?url'
+    import proj4 from 'proj4';
 
 	import { Map } from "$lib/map-cesium/map";
 	import type { Story } from "./Story";
@@ -17,6 +18,55 @@
     import { polygonStore } from './PolygonEntityStore';
     import CustomFileUploader from "./CustomFileUploader.svelte";
     import { exportDataPages } from "./StoryChart/StoryChartExportDataPages";
+
+    // Amersfoort / RD New (the Dutch national grid), see https://epsg.io/28992
+    proj4.defs(
+        "EPSG:28992",
+        "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.4171,50.3319,465.5524,-0.398957,0.343988,-1.877655,4.0725 +units=m +no_defs"
+    );
+    const rdNewToWgs84 = proj4("EPSG:28992", "WGS84");
+
+    // Ways a GeoJSON's (legacy, RFC7946-deprecated) "crs" member may name RD New
+    const RD_NEW_CRS_NAMES = new Set([
+        "epsg:28992",
+        "urn:ogc:def:crs:epsg::28992",
+        "urn:ogc:def:crs:epsg:28992",
+        "http://www.opengis.net/def/crs/epsg/0/28992"
+    ]);
+
+    // Approximate RD New validity extent (the Netherlands + a margin), used when no crs is declared
+    const RD_NEW_EXTENT = { minX: -7000, maxX: 300000, minY: 289000, maxY: 629000 };
+
+    function isDeclaredRDNew(geojsonFile: any): boolean {
+        const name = geojsonFile?.crs?.properties?.name;
+        return typeof name === "string" && RD_NEW_CRS_NAMES.has(name.toLowerCase());
+    }
+
+    function looksLikeRDNew([x, y]: [number, number]): boolean {
+        const isValidLonLat = x >= -180 && x <= 180 && y >= -90 && y <= 90;
+        return (
+            !isValidLonLat &&
+            x >= RD_NEW_EXTENT.minX && x <= RD_NEW_EXTENT.maxX &&
+            y >= RD_NEW_EXTENT.minY && y <= RD_NEW_EXTENT.maxY
+        );
+    }
+
+    // Reprojects an uploaded Polygon feature's ring coordinates from RD New to WGS84, if needed
+    function reprojectPolygonToWgs84(feature: any, geojsonFile: any): any {
+        const rings: number[][][] = feature.geometry.coordinates;
+        const firstPoint = rings?.[0]?.[0] as [number, number] | undefined;
+        if (!firstPoint) return feature;
+
+        if (!isDeclaredRDNew(geojsonFile) && !looksLikeRDNew(firstPoint)) {
+            return feature; // already WGS84 lon/lat, nothing to do
+        }
+
+        const reprojectedCoordinates = rings.map((ring) =>
+            ring.map((point) => rdNewToWgs84.forward(point as [number, number]))
+        );
+
+        return { ...feature, geometry: { ...feature.geometry, coordinates: reprojectedCoordinates } };
+    }
 
 
     export let map: Map;
@@ -386,9 +436,10 @@
                     try {
                         let geojsonFile = JSON.parse(content);
                         if (geojsonFile.features.length === 1) {
-                            const feature = geojsonFile.features[0];
+                            let feature = geojsonFile.features[0];
                             if (feature.geometry && feature.geometry.type === "Polygon") {
                                 try {
+                                    feature = reprojectPolygonToWgs84(feature, geojsonFile);
                                     geojson = feature;
                                     const coords = geojson.geometry.coordinates[0];
                                     const positions = coords.map(([lng, lat]: [number, number]) =>
