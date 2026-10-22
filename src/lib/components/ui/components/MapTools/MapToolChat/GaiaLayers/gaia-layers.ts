@@ -3,12 +3,13 @@ import { get } from "svelte/store";
 import { LayerConfig } from "$lib/components/map-core/layer-config";
 import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
 
-import { fetchTileAccess, fetchTileInfo, sessionHeaders, type ApiContext, type TileInfo } from "../ui-tools/tiles-api";
+import { fetchTileAccess, fetchTileInfo, authHeaders, type ApiContext, type TileInfo } from "../ui-tools/tiles-api";
+import { getUserKey } from "../user-key";
 
 import type { LayerLibrary } from "$lib/components/map-core/layer-library";
 
 /* De datasets van Gaia als lagen in de laagbibliotheek: een groep met één laag per dataset
-   uit de gedeelde demosessie, elk als vector tiles (MVT), zodat ook grote datasets snel zijn
+   van de ingelogde gebruiker, elk als vector tiles (MVT), zodat ook grote datasets snel zijn
    en op eigenschap te kleuren. */
 
 export const GAIA_GROUP_ID = "gaia-datasets";
@@ -76,7 +77,7 @@ export function datasetGeoJsonConfig(
 		defaultOn: true,
 		settings: {
 			url: `${api.apiUrl}/get/${encodeURIComponent(info.id)}`,
-			headers: () => sessionHeaders(api),
+			headers: () => authHeaders(api),
 			datasetId: info.id
 		}
 	});
@@ -96,20 +97,13 @@ function describeDataset(info: TileInfo): string {
 	return `${info.feature_count.toLocaleString("nl-NL")} objecten${kind ? ` (${kind})` : ""}`;
 }
 
-/* Een sessietoken van de API; de datasets van de demosessie zijn voor iedereen hetzelfde. */
-async function fetchSessionToken(apiUrl: string): Promise<string> {
-	const response = await fetch(`${apiUrl}/session`);
-	if (!response.ok) throw new Error(`Sessie ophalen mislukt: ${response.status}`);
-	return (await response.json()).session_token;
-}
-
 /* Laadt de datasets van de API en zet ze als laag op de kaart (verborgen, de gebruiker
    zet ze aan), onder één groep in de bibliotheek. Een dataset die niet te laden is wordt
    overgeslagen en gelogd; de rest blijft werken. Roep dit één keer per API aan. */
 export async function addGaiaLayers(library: LayerLibrary, apiUrl: string): Promise<number> {
-	const api: ApiContext = { apiUrl, sessionToken: await fetchSessionToken(apiUrl) };
+	const api: ApiContext = { apiUrl, userKey: await getUserKey(apiUrl) };
 
-	const response = await fetch(`${apiUrl}/datasets`, { headers: sessionHeaders(api) });
+	const response = await fetch(`${apiUrl}/datasets`, { headers: authHeaders(api) });
 	if (!response.ok) throw new Error(`Datasets ophalen mislukt: ${response.status}`);
 	const datasets: DatasetSummary[] = (await response.json()).datasets ?? [];
 

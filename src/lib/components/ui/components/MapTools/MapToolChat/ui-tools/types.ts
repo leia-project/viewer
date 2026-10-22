@@ -14,7 +14,7 @@ export type ApprovalMode = "auto" | "ask";
 export interface UiToolContext {
 	map: Map;
 	apiUrl: string;
-	sessionToken: string;
+	userKey: string;
 }
 
 export interface UiTool<Args = unknown> {

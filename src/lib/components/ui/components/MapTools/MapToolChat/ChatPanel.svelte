@@ -18,6 +18,7 @@
 
 	import { isChatOpen, closeChat, chatApiUrl } from "./chat-store";
 	import { exportConversation } from "./conversation-export";
+	import { authHeaders, getUserKey } from "./user-key";
 	import { getWfsAttributeNames } from "$lib/components/map-cesium/module/providers/wfs-attributes";
 	import { getUiTool, toAgUiTools } from "./ui-tools/tools";
 	import { labelLayers, layerProperties, newId } from "./ui-tools/layers";
@@ -41,12 +42,11 @@
 		)
 	}
 
-	let sessionToken = ""; /* Leeg voor nu */
+	/* De sleutel van de ingelogde gebruiker; leeg tot de eerste vraag (of Gaia-laag) erom vraagt. */
+	let userKey = "";
 
-	async function testSession() {
-		const response = await fetch(`${$chatApiUrl}/session`)
-		const data = await response.json()
-		sessionToken = data.session_token
+	async function signIn() {
+		userKey = await getUserKey($chatApiUrl!)
 	}
 
 	// Checkt of de agent al aan het denken is... //
@@ -66,7 +66,7 @@
 	let exportReason = "";
 
 	function openExportDialog() {
-		if (exporting || !sessionToken) return;
+		if (exporting || !userKey) return;
 		exportReason = "";
 		exportDialogOpen = true;
 	}
@@ -87,12 +87,12 @@
 	}
 
 	async function handleExport() {
-		if (exporting || !sessionToken || !$chatApiUrl) return;
+		if (exporting || !userKey || !$chatApiUrl) return;
 
 		exporting = true;
 		exportDialogOpen = false;
 		try {
-			await exportConversation($chatApiUrl, sessionToken, conversationId, exportReason.trim());
+			await exportConversation($chatApiUrl, userKey, conversationId, exportReason.trim());
 		} catch (error) {
 			console.error("Export van gesprek mislukt:", error);
 		} finally {
@@ -205,7 +205,7 @@
 				finishUi(
 					toolCallId,
 					"applied",
-					await call.tool.execute(call.args, { map: current, apiUrl: $chatApiUrl, sessionToken })
+					await call.tool.execute(call.args, { map: current, apiUrl: $chatApiUrl, userKey })
 				);
 			} catch (error) {
 				const detail = error instanceof Error ? error.message : String(error);
@@ -329,7 +329,7 @@
 		question = "";
 
 		try {
-		if (!sessionToken) await testSession();
+		if (!userKey) await signIn();
 		console.log(`Chat API URL: `, $chatApiUrl);
 
 		const refs = await webserviceRefs();
@@ -338,7 +338,7 @@
 		if (!agent) {
 			agent = new HttpAgent({ url: `${$chatApiUrl}/agent/run`, threadId: conversationId });
 		}
-		agent.headers = { "X-Session-Token": sessionToken };
+		agent.headers = authHeaders(userKey);
 
 		/* Instructies waarop de gebruiker niet meer heeft gereageerd, vervallen; de
 		   backend vult zelf een "geen resultaat" in voor de agent. */
@@ -554,7 +554,7 @@ $: if (events && bodyEl) {
 					on:click={openExportDialog}
 					class="chat-panel__action"
 					type="button"
-					disabled={exporting || !sessionToken}
+					disabled={exporting || !userKey}
 					title="Exporteer gesprek als JSON"
 					aria-label="Exporteer gesprek als JSON"
 				>
