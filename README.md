@@ -517,6 +517,9 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 |clampToGround|Choose to clamp the layer to the terrain|true|boolean|
 |style|If it is a string, it points to the property of the GeoJSON to base the styling on. If it is an object, it can contain a `stroke` (HEX-string), `strokeWidth` (number) and `fill` (HEX-string).||string or object|
 |classMapping|Optional value-to-color map for class-based styling of the `style` attribute. Keys are attribute values, values are HEX colors. The layer manager's color randomizer overrides these with random colors on demand.||object|
+|styleColors|Fixed colors per property value, as a nested map `{ propertyName: { value: HEX } }`. Used when styling by a string property; values not listed fall back to the layer's default styling. Lets each styleable property carry its own palette (e.g. a color per `accountable_party`).||object|
+|styleableProperties|Whitelist of property names offered in the styling dropdown, in the given order. When omitted, every string/number property is listed alphabetically. Use it to hide noisy properties (ids, raw dates) that would otherwise explode into hundreds of categories.||array|
+|propertyLabels|Human-readable labels for the styling dropdown, as `{ propertyName: label }`. Falls back to the raw property name when a property is absent.||object|
 |tools|Selection of GeoJSON tools available in the layer manager||tool|
 
 ##### GeoJSON tools

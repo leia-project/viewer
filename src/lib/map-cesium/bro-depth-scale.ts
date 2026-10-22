@@ -108,7 +108,8 @@ export class BroDepthScaleController {
 			nap.bottomNap + geoidSeparation,
 			NAP_OFFSET_M,
 			geoidSeparation,
-			true
+			true,
+			false
 		);
 		this.depthScale.addToScene();
 	}

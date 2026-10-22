@@ -51,6 +51,10 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public loaded: Promise<void> | undefined = undefined;
 	private layerControl!: CustomLayerControl;
 	private availableProperties: Array<GeoJSONpropertySummary> = [];
+	/** Reactive mirror of availableProperties, published once the (async) load
+	 * finishes scanning. Control ui binds to this so the style options appear then,
+	 * rather than capturing an empty list when the control mounts. */
+	public availablePropertiesStore: Writable<Array<GeoJSONpropertySummary>> = writable([]);
 	private hatchConditions: { [key: string]: string | number | Array<string | number> };
 	private boundingSphere: Cesium.BoundingSphere | undefined;
 
@@ -163,6 +167,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.removeControl();
 		this.unsubscribers.forEach((unsub) => unsub());
 		this.availableProperties = [];
+		this.availablePropertiesStore.set([]);
 		this.source.entities.removeAll();
 		this.outlines?.entities.removeAll();
 		this.map.viewer.dataSources.remove(this.source, true);
@@ -267,6 +272,8 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				return 0;
 			});
 		}
+
+		this.availablePropertiesStore.set([...this.availableProperties]);
 	}
 
 	private addNumberProperty(property: string, propertyValue: number, idx: number): void {
@@ -346,6 +353,20 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.forceRandomColors = false;
 	}
 
+	/**
+	 * Render now and again after the next frame: clamped points pick up a restyle
+	 * a frame late, so with requestRenderMode a single render leaves stale colours
+	 * until the camera moves.
+	 */
+	private refreshAfterRestyle(): void {
+		this.map.refresh();
+		const scene = this.map.viewer.scene;
+		const unlisten = scene.postRender.addEventListener(() => {
+			unlisten();
+			this.map.refresh();
+		});
+	}
+
 	private setDefaultStyle(): void {
 		const entities = this.source.entities.values;
 		for (let i = 0; i < entities.length; i++) {
@@ -367,7 +388,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				this.setPolygonMaterial(entity, colorProp);
 			}
 		}
-		this.map.refresh();
+		this.refreshAfterRestyle();
 	}
 
 	private setCustomStyle(): void {
@@ -389,7 +410,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				this.setPolygonMaterial(entity, colorProp);
 			}
 		}
-		this.map.refresh();
+		this.refreshAfterRestyle();
 	}
 
 	private setPolygonMaterial(
@@ -450,7 +471,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				this.setPolygonMaterial(entity, newColor);
 			}
 		}
-		this.map.refresh();
+		this.refreshAfterRestyle();
 	}
 
 	private makeNumberLegend(min: number, max: number, steps: number = 10): void {
@@ -512,7 +533,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		}
 		// Update
 		this.legend.set(legend);
-		this.map.refresh();
+		this.refreshAfterRestyle();
 	}
 
 	private getStringStyleColor(propertyName: string, value: string): Cesium.Color {
@@ -591,7 +612,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.layerControl.component = LayerControlGeoJson;
 		this.layerControl.props = {
 			layer: this,
-			properties: this.availableProperties,
+			properties: this.availablePropertiesStore,
 			defaultStyle: get(this.style) === "custom" ? "custom" : "default",
 			propertyLabels: this.config.settings.propertyLabels ?? {}
 		};

@@ -30,6 +30,7 @@ export class DepthScale {
 	 *                   scene-wide vertical exaggeration. Needed next to 3D Tiles
 	 *                   layers (boreholes, CPTs), which Cesium scene-exaggerates;
 	 *                   voxel primitives are not scene-exaggerated.
+	 * @param showLine   draw the vertical line spanning the scale.
 	 */
 	constructor(
 		private map: Map,
@@ -39,7 +40,8 @@ export class DepthScale {
 		private bottomM: number,
 		private pivotZ: number = NAP_OFFSET_M,
 		private labelDatum: number = pivotZ,
-		private applyVerticalExaggeration: boolean = false
+		private applyVerticalExaggeration: boolean = false,
+		private showLine: boolean = true
 	) {
 		this.polylines = new Cesium.PolylineCollection();
 		this.labels = new Cesium.LabelCollection();
@@ -85,16 +87,18 @@ export class DepthScale {
 	}
 
 	private build(): void {
-		this.polylines.add({
-			positions: [
-				Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.displayHeight(this.topM)),
-				Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.displayHeight(this.bottomM))
-			],
-			width: 2,
-			material: Cesium.Material.fromType(Cesium.Material.ColorType, {
-				color: Cesium.Color.WHITE
-			})
-		});
+		if (this.showLine) {
+			this.polylines.add({
+				positions: [
+					Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.displayHeight(this.topM)),
+					Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.displayHeight(this.bottomM))
+				],
+				width: 2,
+				material: Cesium.Material.fromType(Cesium.Material.ColorType, {
+					color: Cesium.Color.WHITE
+				})
+			});
+		}
 
 		const topNap = this.topM - this.labelDatum;
 		const bottomNap = this.bottomM - this.labelDatum;
@@ -110,7 +114,7 @@ export class DepthScale {
 					this.lat,
 					this.displayHeight(ellipsoidal)
 				),
-				text: formatNap(nap),
+				text: `— ${formatNap(nap)}`,
 				font: "14px sans-serif",
 				fillColor: Cesium.Color.WHITE,
 				outlineColor: Cesium.Color.BLACK,
@@ -118,7 +122,7 @@ export class DepthScale {
 				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
 				horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
 				verticalOrigin: Cesium.VerticalOrigin.CENTER,
-				pixelOffset: new Cesium.Cartesian2(8, 0)
+				pixelOffset: new Cesium.Cartesian2(4, 0)
 			});
 		}
 	}

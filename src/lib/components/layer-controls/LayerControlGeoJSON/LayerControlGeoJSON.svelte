@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { get } from "svelte/store";
+	import { type Writable } from "svelte/store";
 	import { _ } from "svelte-i18n";
 	import { Button, Dropdown, Slider, TextInput } from "carbon-components-svelte";
 	import { ColorPalette } from "carbon-icons-svelte";
@@ -8,22 +8,22 @@
 	import type { GeoJSONpropertySummary, GeoJsonLayer } from "$lib/map-cesium/layers/geojson-layer";
 
 	export let layer: GeoJsonLayer;
-	export let properties: Array<GeoJSONpropertySummary>;
+	export let properties: Writable<Array<GeoJSONpropertySummary>>;
 	export let defaultStyle: string;
 	export let propertyLabels: Record<string, string> = {};
 
-	let { extrusionSliderHeight, extrusionSliderLabel } = layer;
+	let { extrusionSliderHeight, extrusionSliderLabel, style: styleStore } = layer;
 
 	// `value` is the style key passed to layer.style (property name / "default" / "custom");
 	// `text` is the human-readable label shown in the dropdown (from settings.propertyLabels).
-	function getDropdownList(): Array<{id: number; text: string; value: string}> {
+	function getDropdownList(props: Array<GeoJSONpropertySummary>): Array<{id: number; text: string; value: string}> {
 		const items = [{
 			id: 0,
 			text: propertyLabels[defaultStyle] ?? defaultStyle,
 			value: defaultStyle
 		}];
-		for (let i = 0; i < properties.length; i++) {
-			const name = properties[i].propertyName;
+		for (let i = 0; i < props.length; i++) {
+			const name = props[i].propertyName;
 			items.push({
 				id: i + 1,
 				text: propertyLabels[name] ?? name,
@@ -32,8 +32,10 @@
 		}
 		return items;
 	}
-	let dropdownItems = getDropdownList();
-	let activeStyle = dropdownItems.find((item) => item.value === get(layer.style))?.id ?? 0;
+	// Rebuilds when the layer publishes its properties after loading, so options
+	// appear even for large layers that finish loading after this control mounts.
+	$: dropdownItems = getDropdownList($properties);
+	$: activeStyle = dropdownItems.find((item) => item.value === $styleStore)?.id ?? 0;
 
 	function onStyleSelect(e: CustomEvent<{ selectedId: number }>): void {
 		const item = dropdownItems.find((d) => d.id === e.detail.selectedId);
@@ -63,7 +65,7 @@
 		<div class="control-section">
 			<Dropdown
 				titleText={ $_('tools.layerManager.styling') }
-				bind:selectedId={activeStyle}
+				selectedId={activeStyle}
 				items={dropdownItems}
 				size="sm"
 				on:select={onStyleSelect}

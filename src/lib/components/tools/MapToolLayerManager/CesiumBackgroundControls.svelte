@@ -3,7 +3,10 @@
 	import { _ } from "svelte-i18n";
 	import { Slider, RadioButtonGroup, RadioButton } from "carbon-components-svelte";
 	import LogSlider from "$lib/components/ui/components/LogSlider/LogSlider.svelte";
-	import { SUBSURFACE_EXAGGERATION_LAYER_TYPES } from "$lib/map-cesium/map-options";
+	import {
+		appliesSubsurfaceExaggeration,
+		anySubsurfaceLayerVisible
+	} from "$lib/map-cesium/subsurface-exaggeration";
 
 	const map = app.map;
 
@@ -11,14 +14,12 @@
 	$: verticalExaggeration = $map?.options.verticalExaggeration;
 	$: subsurfaceExaggeration = $map?.options.subsurfaceExaggeration;
 	$: configLoaded = $map?.configLoaded;
-	// Boreholes/CPTs are "3dtiles" layers flagged via settings, so check that too
 	$: hasSubsurfaceLayers =
 		$configLoaded === true &&
-		($map?.config.layerConfigs?.some(
-			(config) =>
-				SUBSURFACE_EXAGGERATION_LAYER_TYPES.has(config.type) ||
-				(config.settings["bro"] ?? "false") === "true"
-		) ?? false);
+		($map?.config.layerConfigs?.some(appliesSubsurfaceExaggeration) ?? false);
+	// The subsurface slider stays visible but disabled until a 3d subsurface layer
+	// is actually shown
+	$: activeSubsurfaceLayer = $map && anySubsurfaceLayerVisible($map.layers);
 	$: terrainProviders = $map?.options.terrainProviders;
 	$: selectedTerrainProvider = $map?.options.selectedTerrainProvider;
 	$: selected = $selectedTerrainProvider ? $selectedTerrainProvider.title : "";
@@ -77,6 +78,7 @@
 			min={1}
 			max={200}
 			unit="×"
+			disabled={$activeSubsurfaceLayer !== true}
 			bind:value={$subsurfaceExaggeration}
 		/>
 	{/if}

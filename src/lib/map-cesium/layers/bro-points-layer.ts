@@ -9,8 +9,28 @@ import { GeoJsonLayer } from "./geojson-layer";
  * postLoad() hook, so no base behaviour is duplicated:
  */
 export class BroPointsLayer extends GeoJsonLayer {
+	private pointOutlineColor?: Cesium.Color;
+
 	protected postLoad(): void {
-		this.renderPointsAsCircles();
+		this.convertBillboardsToPoints();
+	}
+
+	public opacityChanged(opacity: number): void {
+		super.opacityChanged(opacity);
+		this.updatePointOutlineOpacity();
+	}
+
+	private updatePointOutlineOpacity(): void {
+		if (!this.source || !this.pointOutlineColor) {
+			return;
+		}
+		const outlineColor = new Cesium.ConstantProperty(this.pointOutlineColor.withAlpha(this.alpha));
+		for (const entity of this.source.entities.values) {
+			if (entity.point) {
+				entity.point.outlineColor = outlineColor;
+			}
+		}
+		this.map.refresh();
 	}
 
 	private getPointHeightReference(): Cesium.HeightReference {
@@ -23,14 +43,14 @@ export class BroPointsLayer extends GeoJsonLayer {
 		return Cesium.HeightReference.NONE;
 	}
 
-	private renderPointsAsCircles(): void {
+	private convertBillboardsToPoints(): void {
 		const style = this.config.settings.style;
 		const pixelSize: number | undefined = style?.pointSize;
 		if (pixelSize == null) {
 			return;
 		}
 
-		const outlineColor = style?.stroke
+		this.pointOutlineColor = style?.stroke
 			? Cesium.Color.fromCssColorString(style.stroke)
 			: Cesium.Color.BLACK;
 		const outlineWidth = style?.strokeWidth ?? 0;
@@ -43,7 +63,7 @@ export class BroPointsLayer extends GeoJsonLayer {
 			entity.point = new Cesium.PointGraphics({
 				pixelSize,
 				color: this.defaultColorPoint.withAlpha(this.alpha),
-				outlineColor,
+				outlineColor: this.pointOutlineColor.withAlpha(this.alpha),
 				outlineWidth,
 				heightReference: this.getPointHeightReference(),
 				disableDepthTestDistance: Number.POSITIVE_INFINITY

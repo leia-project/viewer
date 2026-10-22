@@ -1,8 +1,36 @@
-import { get } from "svelte/store";
+import { type Readable, get, derived } from "svelte/store";
 import * as Cesium from "cesium";
 
 import type { Map } from "./map";
+import type { Layer } from "$lib/map-core/layer";
+import type { LayerConfig } from "$lib/map-core/layer-config";
 import { NAP_OFFSET_M } from "./depth-scale";
+
+/** Whether a layer should respond to the subsurface exaggeration slider, driven
+ * by an explicit `settings.subsurface` flag */
+export function appliesSubsurfaceExaggeration(config: LayerConfig): boolean {
+	return (config.settings?.subsurface ?? "false") === "true";
+}
+
+/** Derived store that is true while at least one subsurface-exaggeration layer
+ * is visible */
+export function anySubsurfaceLayerVisible(layers: Readable<Array<Layer>>): Readable<boolean> {
+	return derived(
+		layers,
+		(layers, set: (value: boolean) => void) => {
+			const subsurface = layers.filter((layer) => appliesSubsurfaceExaggeration(layer.config));
+			if (subsurface.length === 0) {
+				set(false);
+				return;
+			}
+			return derived(
+				subsurface.map((layer) => layer.visible),
+				(visibilities) => visibilities.some(Boolean)
+			).subscribe(set);
+		},
+		false
+	);
+}
 
 /**
  * Stretches a tileset vertically to exaggerate the subsurface.
