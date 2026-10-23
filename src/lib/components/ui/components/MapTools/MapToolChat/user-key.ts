@@ -36,7 +36,7 @@ async function signIn(apiUrl: string): Promise<string> {
 	if (stored && (await isAccepted(apiUrl, stored))) return stored;
 	storeKey(null);
 
-	const entered = window.prompt("Vul je sleutel in om in te loggen (bijvoorbeeld user1.priscilla):")?.trim();
+	const entered = window.prompt("Vul je sleutel in om in te loggen (bijvoorbeeld user1):")?.trim();
 	if (!entered) throw new Error("Niet ingelogd: er is geen sleutel ingevuld.");
 	if (!(await isAccepted(apiUrl, entered))) throw new Error("Deze sleutel is niet bekend.");
 
