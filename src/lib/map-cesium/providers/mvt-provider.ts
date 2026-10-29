@@ -16,6 +16,10 @@ export interface MvtProviderOptions {
 	extent?: [number, number, number, number];
 	/* Hoogste zoomniveau dat de tile-service levert (standaard 14). */
 	maxZoom?: number;
+	/* Op het terrein leggen (standaard) of op hoogte 0 laten. Vlakken laat je op hoogte 0: Cesium
+	   maakt van een vlak dat op het terrein wordt gelegd, bij ingewikkelde vormen (kustlijnen met
+	   veel gaten), een rommel van slierten en ontbrekende stukken; zonder is hetzelfde vlak gaaf. */
+	clampToGround?: boolean;
 	/* Kleur (css) zonder kleuring op eigenschap; standaard de volgende kleur uit het palet. */
 	color?: string;
 

@@ -5,7 +5,8 @@ import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
 
 import { findLayer, isStylable, labelLayers, layerProperties, describeLegend, newId } from "./layers";
 import { categoricalFromValues, describeStyle, graduatedFromBreaks } from "./styles";
-import { fetchClasses, fetchTileAccess, fetchTileInfo } from "./tiles-api";
+import { fetchClasses, fetchTileInfo } from "./tiles-api";
+import { datasetLayerConfig } from "../GaiaLayers/gaia-layers";
 
 import type { Map } from "$lib/components/map-cesium/module/map";
 import type { GeoJsonLayer } from "$lib/components/map-cesium/module/layers/geojson-layer";
@@ -167,28 +168,11 @@ async function addDatasetLayer(args: AddLayerArgs, context: UiToolContext): Prom
 	if (existing) return `De dataset staat al op de kaart als "${existing.title}".`;
 
 	const info = await fetchTileInfo(context, args.layerName);
-	const config = registerLayer(map, new LayerConfig({
+	const config = registerLayer(map, datasetLayerConfig(context, info, {
 		id: newId(),
-		title: args.title ?? info.name ?? args.layerName,
-		type: "mvt",
 		groupId: ADDED_GROUP_ID,
-		defaultOn: true,
-		settings: {
-			/* Cesium kan geen headers bij tile-verzoeken meesturen: het toegangstoken zit in de URL. */
-			url: context.apiUrl + info.tile_path,
-			accessExpires: info.access_expires,
-			accessIssuedAt: Math.floor(Date.now() / 1000),
-			/* Het token verloopt: de laag haalt zelf een nieuw (zie MvtLayer.renewIfNeeded). Een
-			   functie, zodat het sessietoken niet in de zichtbare laaginstellingen komt te staan. */
-			renewAccess: async () => {
-				const access = await fetchTileAccess(context, info.id);
-				return { url: context.apiUrl + access.tile_path, accessExpires: access.access_expires };
-			},
-			extent: info.extent ?? undefined,
-			datasetId: info.id,
-			geometryType: info.geometry_type,
-			properties: info.properties
-		}
+		title: args.title,
+		defaultOn: true
 	}));
 
 	const layer = map.getLayerById(config.id);
