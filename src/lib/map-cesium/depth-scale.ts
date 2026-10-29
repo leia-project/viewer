@@ -12,25 +12,31 @@ import type { Map } from "./map";
  */
 export const NAP_OFFSET_M = 44;
 
+export interface DepthScaleOptions {
+	/** Datum the subsurface exaggeration stretches away from. Pass the
+	 * layer's pivot so the scale stretches like the layer. Defaults to NAP ~0 m. */
+	pivotZ?: number;
+	/** Ellipsoidal height whose label reads 0m NAP. Defaults to pivotZ; pass the
+	 * column's geoid separation for exact NAP labels. */
+	labelDatum?: number;
+	/** Additionally scale rendered heights by the scene-wide vertical exaggeration. */
+	applyVerticalExaggeration?: boolean;
+	/** Draw the vertical line spanning the scale. */
+	showLine?: boolean;
+}
+
 export class DepthScale {
 	private polylines: Cesium.PolylineCollection;
 	private labels: Cesium.LabelCollection;
 	private unsubscribers: Array<Unsubscriber>;
+	private pivotZ: number;
+	private labelDatum: number;
+	private applyVerticalExaggeration: boolean;
+	private showLine: boolean;
 
 	/**
-	 * @param topM       highest interval top, true (ellipsoidal) metres
-	 * @param bottomM    lowest interval base, true (ellipsoidal) metres
-	 * @param pivotZ     datum the subsurface exaggeration stretches away from;
-	 *                   pass the companion layer's pivot so the scale stretches
-	 *                   like the layer
-	 * @param labelDatum ellipsoidal height whose label reads 0m NAP. Defaults to
-	 *                   pivotZ; pass the column's geoid separation for exact NAP
-	 *                   labels.
-	 * @param applyVerticalExaggeration additionally scale rendered heights by the
-	 *                   scene-wide vertical exaggeration. Needed next to 3D Tiles
-	 *                   layers (boreholes, CPTs), which Cesium scene-exaggerates;
-	 *                   voxel primitives are not scene-exaggerated.
-	 * @param showLine   draw the vertical line spanning the scale.
+	 * @param topM    highest interval top, true (ellipsoidal) metres
+	 * @param bottomM lowest interval base, true (ellipsoidal) metres
 	 */
 	constructor(
 		private map: Map,
@@ -38,16 +44,18 @@ export class DepthScale {
 		private lat: number,
 		private topM: number,
 		private bottomM: number,
-		private pivotZ: number = NAP_OFFSET_M,
-		private labelDatum: number = pivotZ,
-		private applyVerticalExaggeration: boolean = false,
-		private showLine: boolean = true
+		options: DepthScaleOptions = {}
 	) {
+		this.pivotZ = options.pivotZ ?? NAP_OFFSET_M;
+		this.labelDatum = options.labelDatum ?? this.pivotZ;
+		this.applyVerticalExaggeration = options.applyVerticalExaggeration ?? false;
+		this.showLine = options.showLine ?? true;
+
 		this.polylines = new Cesium.PolylineCollection();
 		this.labels = new Cesium.LabelCollection();
 		// Force initial build of depth scale and subscribe to subsurface ex. changes
 		this.unsubscribers = [map.options.subsurfaceExaggeration.subscribe(() => this.rebuild())];
-		if (applyVerticalExaggeration) {
+		if (this.applyVerticalExaggeration) {
 			this.unsubscribers.push(map.options.verticalExaggeration.subscribe(() => this.rebuild()));
 		}
 	}

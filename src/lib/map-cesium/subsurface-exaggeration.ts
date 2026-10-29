@@ -7,12 +7,16 @@ import type { LayerConfig } from "$lib/map-core/layer-config";
 import { NAP_OFFSET_M } from "./depth-scale";
 
 /** Whether a layer should respond to the subsurface exaggeration slider, driven
- * by `settings.subsurface`. Voxel layers and BRO tilesets take part by default,
- * other 3D Tiles layers opt in */
+ * by `settings.subsurface`. Voxel layers default to subsurface for now, 3D Tiles layers opt in */
 export function appliesSubsurfaceExaggeration(config: LayerConfig): boolean {
-	const settings = config.settings ?? {};
-	const fallback = config.type === "3dtiles-voxel" || settings.bro === "true" ? "true" : "false";
-	return (settings.subsurface ?? fallback) === "true";
+	return config.settings?.subsurface ?? config.type === "3dtiles-voxel";
+}
+
+/** Ellipsoidal height (m) the subsurface exaggeration stretches away from, from
+ * `settings.exaggerationPivot`; defaults to NAP ~0 m.
+ * Used by voxel and BRO layers so equal NAP depths keep rendering at equal heights */
+export function subsurfaceExaggerationPivot(config: LayerConfig): number {
+	return config.settings?.exaggerationPivot ?? NAP_OFFSET_M;
 }
 
 /** Derived store that is true while at least one subsurface-exaggeration layer
@@ -97,9 +101,9 @@ void vertexMain(VertexInput vsInput, inout czm_modelVertexOutput vsOutput) {
 
 /**
  * Makes a tileset follow map.options.subsurfaceExaggeration: an affine stretch
- * away from NAP 0 (NAP_OFFSET_M), identical to the voxel layer's, so equal NAP
- * depths render at equal heights across all subsurface layers while the
- * terrain is untouched. Columns on terrain above NAP 0 rise proportionally
+ * away from `pivot` (default NAP 0 m, see subsurfaceExaggerationPivot),
+ * identical to the voxel layer's, so equal NAP depths render at equal heights
+ * across all subsurface layers while the terrain is untouched. Columns on terrain above NAP 0 rise proportionally
  * above the surface by design.
  *
  * Also renders the tileset unlit and without shadows: subsurface datasets are
@@ -109,14 +113,18 @@ void vertexMain(VertexInput vsInput, inout czm_modelVertexOutput vsOutput) {
  *
  * Returns a dispose function that stops following the exaggeration stores.
  */
-export function applySubsurfaceExaggeration(map: Map, tileset: Cesium.Cesium3DTileset): () => void {
+export function applySubsurfaceExaggeration(
+	map: Map,
+	tileset: Cesium.Cesium3DTileset,
+	pivot: number = NAP_OFFSET_M
+): () => void {
 	tileset.shadows = Cesium.ShadowMode.DISABLED;
 
 	const shader = new Cesium.CustomShader({
 		lightingModel: Cesium.LightingModel.UNLIT,
 		uniforms: {
 			u_exaggeration: { type: Cesium.UniformType.FLOAT, value: 1 },
-			u_pivot: { type: Cesium.UniformType.FLOAT, value: NAP_OFFSET_M }
+			u_pivot: { type: Cesium.UniformType.FLOAT, value: pivot }
 		},
 		vertexShaderText: SUBSURFACE_EXAGGERATION_VS
 	});
@@ -127,7 +135,7 @@ export function applySubsurfaceExaggeration(map: Map, tileset: Cesium.Cesium3DTi
 		const vertExag = get(map.options.verticalExaggeration) || 1;
 		shader.setUniform("u_exaggeration", subExag);
 		// The scene VE stage has already scaled heights when this shader runs.
-		shader.setUniform("u_pivot", NAP_OFFSET_M * vertExag);
+		shader.setUniform("u_pivot", pivot * vertExag);
 		map.refresh();
 	};
 

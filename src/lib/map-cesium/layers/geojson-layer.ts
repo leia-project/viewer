@@ -8,6 +8,7 @@ import type { Map } from "../map";
 import { CesiumLayer } from "./cesium-layer";
 import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
 import LayerControlGeoJson from "$lib/components/layer-controls/LayerControlGeoJSON/LayerControlGeoJSON.svelte";
+import { convertBillboardsToPoints } from "./geojson-points";
 
 interface GeoJSON {
 	type: string;
@@ -58,7 +59,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	private hatchConditions: { [key: string]: string | number | Array<string | number> };
 	private boundingSphere: Cesium.BoundingSphere | undefined;
 
-	protected defaultColorPoint: Cesium.Color = Cesium.Color.BLUE;
+	private defaultColorPoint: Cesium.Color = Cesium.Color.BLUE;
 	private defaultColorLine: Cesium.ColorMaterialProperty = new Cesium.ColorMaterialProperty(
 		Cesium.Color.GREEN
 	);
@@ -69,7 +70,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		Cesium.Color.LIGHTGREY
 	);
 	private defaultLineWidth: number = 3;
-	protected alpha: number = 1.0;
+	private alpha: number = 1.0;
 
 	public colorGradientStart: Cesium.Color = Cesium.Color.BLUE;
 	public colorGradientEnd: Cesium.Color = Cesium.Color.RED;
@@ -211,26 +212,51 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			clampToGround: this.clampToGround
 		});
 
-		this.postLoad();
-
 		if (!this.config.cameraPosition) this.setDefaultCameraPosition();
 
 		// workaround for outlines, which Cesium does not render correctly
 		if (this.config.settings.style?.stroke) {
 			if (this.config.settings.style?.strokeWidth) {
-				this.outlineWidth = this.config.settings.style.stroke ?? this.defaultLineWidth;
+				this.outlineWidth = this.config.settings.style.strokeWidth ?? this.defaultLineWidth;
 			}
 			if (this.config.settings.style?.stroke) {
 				this.outlineColor = Cesium.Color.fromCssColorString(this.config.settings.style.stroke);
 			}
 			this.addOutlines();
 		}
+
+		this.convertPoints();
 	}
 
 	/**
-	 * Hook for subclasses to customize entities
+	 * With `style.pointSize`, point features become circles in the layer's point colour
+	 * and outline. `clampToTerrain` pins them to the terrain provider only, so they stay
+	 * on the ground next to 3D Tiles layers; otherwise `clampToGround` applies.
 	 */
-	protected postLoad(): void {}
+	private convertPoints(): void {
+		const style = this.config.settings.style;
+		if (typeof style !== "object" || style.pointSize == null) {
+			return;
+		}
+
+		const getHeightReference = () => {
+			if (this.config.settings.clampToTerrain) {
+				return Cesium.HeightReference.CLAMP_TO_TERRAIN;
+			}
+			if (this.clampToGround) {
+				return Cesium.HeightReference.CLAMP_TO_GROUND;
+			}
+			return Cesium.HeightReference.NONE;
+		};
+
+		convertBillboardsToPoints(this.source, {
+			pixelSize: style.pointSize,
+			color: this.defaultColorPoint.withAlpha(this.alpha),
+			outlineColor: this.outlineColor.withAlpha(this.alpha),
+			outlineWidth: style.stroke ? this.outlineWidth : 0,
+			heightReference: getHeightReference()
+		});
+	}
 
 	private setAvailableProperties(): void {
 		// When settings.styleableProperties is set, only those properties are offered
@@ -598,8 +624,16 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	}
 
 	private updateOutlineOpacity(): void {
-		if (!this.outlines) return;
-		const newColor = new Cesium.ColorMaterialProperty(this.outlineColor.withAlpha(this.alpha));
+		const outlineColor = this.outlineColor.withAlpha(this.alpha);
+		for (const entity of this.source.entities.values) {
+			if (entity.point) {
+				entity.point.outlineColor = new Cesium.ConstantProperty(outlineColor);
+			}
+		}
+		if (!this.outlines) {
+			return;
+		}
+		const newColor = new Cesium.ColorMaterialProperty(outlineColor);
 		const entities = this.outlines.entities.values;
 		for (let i = 0; i < entities.length; i++) {
 			const entity = entities[i];

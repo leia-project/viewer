@@ -5,6 +5,8 @@ import type { Map } from "./map";
 
 import { WmtsLayer } from "./layers/wmts-layer";
 import { ThreedeeLayer } from "./layers/threedee-layer";
+import { SubsurfaceThreedeeLayer } from "./layers/subsurface-threedee-layer";
+import { appliesSubsurfaceExaggeration } from "./subsurface-exaggeration";
 import { WmsLayer } from "./layers/wms-layer";
 import { BasiskaartLayer } from "./layers/basiskaart-layer";
 import { WellsLayer } from "./layers/wells/wells-layer";
@@ -18,8 +20,6 @@ import { FloodLayer } from "./layers/flood-layer";
 import { IconLayer } from "./layers/icon-layer";
 import { WfsLayer } from "./layers/wfs-layer";
 import { OgcFeaturesLayer } from "./layers/ogc-features-layer";
-import { BroTilesLayer } from "./layers/bro-tiles-layer";
-import { BroPointsLayer } from "./layers/bro-points-layer";
 import { VoxelLayer } from "./layers/voxel-layer";
 
 export class CesiumLayerFactory {
@@ -82,8 +82,8 @@ export class CesiumLayerFactory {
 	}
 
 	private create3DTiles(map: Map, layerConfig: LayerConfig): CesiumLayer<Cesium3DTileset> {
-		if ((layerConfig.settings["bro"] ?? "false") === "true") {
-			return new BroTilesLayer(map, layerConfig);
+		if (appliesSubsurfaceExaggeration(layerConfig)) {
+			return new SubsurfaceThreedeeLayer(map, layerConfig);
 		}
 		return new ThreedeeLayer(map, layerConfig);
 	}
@@ -125,10 +125,7 @@ export class CesiumLayerFactory {
 		return new BasiskaartLayer(map, layerConfig);
 	}
 
-	private createGeoJsonLayer(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> {
-		if ((layerConfig.settings["bro"] ?? "false") === "true") {
-			return new BroPointsLayer(map, layerConfig);
-		}
+	private createGeoJsonLayer(map: Map, layerConfig: LayerConfig): GeoJsonLayer {
 		return new GeoJsonLayer(map, layerConfig);
 	}
 

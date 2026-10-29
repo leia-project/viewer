@@ -15,7 +15,7 @@ import {
 	type VoxelPropertyConfig
 } from "./voxel-legend";
 import { DepthScale, NAP_OFFSET_M } from "../depth-scale";
-import { appliesSubsurfaceExaggeration } from "../subsurface-exaggeration";
+import { appliesSubsurfaceExaggeration, subsurfaceExaggerationPivot } from "../subsurface-exaggeration";
 import { VoxelClipSlider } from "./voxel-clip-slider";
 
 import LayerControlVoxel from "$lib/components/layer-controls/LayerControlVoxel/LayerControlVoxel.svelte";
@@ -58,7 +58,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			throw new Error(`VoxelLayer "${config.title}": no properties configured`);
 		}
 
-		this.pivotZ = settings.exaggerationPivot ?? NAP_OFFSET_M;
+		this.pivotZ = subsurfaceExaggerationPivot(config);
 		this.isSubsurface = appliesSubsurfaceExaggeration(config);
 		this.selectedProperty = writable(initial);
 		this.resolvedProperties = writable<Array<ResolvedVoxelProperty>>([]);
@@ -289,7 +289,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 						nsMiddle,
 						maxBounds.z,
 						minBounds.z,
-						this.pivotZ
+						{ pivotZ: this.pivotZ }
 					);
 					this.depthScale.addToScene();
 					this.depthScale.setVisible(get(this.visible));
