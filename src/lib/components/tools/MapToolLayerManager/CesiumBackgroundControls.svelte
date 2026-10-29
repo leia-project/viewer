@@ -12,6 +12,7 @@
 
 	$: globeOpacity = $map?.options.globeOpacity;
 	$: verticalExaggeration = $map?.options.verticalExaggeration;
+	$: showVerticalExaggerationSlider = $map?.options.showVerticalExaggerationSlider;
 	$: subsurfaceExaggeration = $map?.options.subsurfaceExaggeration;
 	$: configLoaded = $map?.configLoaded;
 	$: hasSubsurfaceLayers =
@@ -59,7 +60,7 @@
 		step={1}
 	/>
 
-	{#if hasSubsurfaceLayers}
+	{#if $showVerticalExaggerationSlider}
 		<LogSlider
 			labelText={$_("tools.backgroundControls.verticalExaggeration") +
 				" " +
@@ -70,6 +71,9 @@
 			unit="×"
 			bind:value={$verticalExaggeration}
 		/>
+	{/if}
+
+	{#if hasSubsurfaceLayers}
 		<LogSlider
 			labelText={$_("tools.backgroundControls.subsurfaceExaggeration") +
 				" " +
