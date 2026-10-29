@@ -317,7 +317,8 @@
                 "loading": "BRO gegevens ophalen...",
                 "loadError": "Ophalen van BRO gegevens mislukt",
                 "graphError": "Ophalen van BRO grafiek mislukt",
-                "retry": "Opnieuw proberen"
+                "retry": "Opnieuw proberen",
+                "broloket": "Bekijk in BROloket"
             },
             "link": "Link",
             "open": "Openen",

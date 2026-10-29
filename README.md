@@ -876,6 +876,7 @@ For ```image``` and ```pdf```, the handler expects the value to be an URL.
 For ```chart```, the handler expects an array of objects (data points) in the format ```[{x: datestring, y: value}, {x: datestring, y: value}, ...]``` where the ```y``` key can be a custom name.
 <br />
 For ```bro```, the handler expects a BRO object id (e.g. `BHR000000123456` or `CPT000000012345`), typically the `bro_id` field of a [BRO layer](#example-bro-boreholes-and-cpts). It fetches the object from the public BRO REST API and shows the official BRO graph and the decoded data in a popup.
+The popup also links to the object in the [BROloket](https://www.broloket.nl/ondergrondgegevens).
 
 ```json
 {

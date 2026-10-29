@@ -5,8 +5,10 @@
 		Tab,
 		TabContent,
 		InlineNotification,
+		Link,
 		SkeletonPlaceholder
 	} from "carbon-components-svelte";
+	import { Launch } from "carbon-icons-svelte";
 
 	import { getBroObject } from "$lib/bro/bro-api";
 	import Button from "$lib/components/theme/Button/Button.svelte";
@@ -26,9 +28,16 @@
 	function retry() {
 		objectPromise = getBroObject(broId);
 	}
+
+	$: broloketUrl = `https://www.broloket.nl/ondergrondgegevens?bro-id=${encodeURIComponent(broId)}`;
 </script>
 
 <div class="bro-detail">
+	<div class="broloket-link">
+		<Link href={broloketUrl} target="_blank" icon={Launch} size="sm">
+			{$_("tools.featureInfo.bro.broloket")}
+		</Link>
+	</div>
 	{#await objectPromise}
 		<SkeletonPlaceholder style="width: 100%; height: 300px;" />
 	{:then object}
@@ -63,6 +72,12 @@
 <style>
 	.bro-detail {
 		min-height: 300px;
+	}
+
+	.broloket-link {
+		display: flex;
+		justify-content: flex-end;
+		margin-bottom: var(--cds-spacing-03);
 	}
 
 	.error-actions {

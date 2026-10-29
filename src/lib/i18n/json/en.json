@@ -310,7 +310,8 @@
                 "loading": "Fetching BRO data...",
                 "loadError": "Failed to fetch BRO data",
                 "graphError": "Failed to fetch BRO graph",
-                "retry": "Retry"
+                "retry": "Retry",
+                "broloket": "View in BROloket"
             },
             "link": "Link",
             "open": "Open",

@@ -308,7 +308,8 @@
                 "loading": "Récupération des données BRO...",
                 "loadError": "Échec de la récupération des données BRO",
                 "graphError": "Échec de la récupération du graphique BRO",
-                "retry": "Réessayer"
+                "retry": "Réessayer",
+                "broloket": "Voir dans BROloket"
             },
             "link": "Lien",
             "open": "Ouvrir",
