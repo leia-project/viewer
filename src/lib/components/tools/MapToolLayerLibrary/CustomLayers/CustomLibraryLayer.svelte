@@ -23,6 +23,8 @@
 				return "3D Tiles";
 			case "wms":
 				return "WMS";
+			case "wfs":
+				return "WFS";
 			case "wmts":
 				return "WMTS";
 			case "geojson":

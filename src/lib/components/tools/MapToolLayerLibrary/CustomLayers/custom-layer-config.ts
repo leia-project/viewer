@@ -18,6 +18,12 @@ export class CustomLayerConfigTracker extends Dispatcher {
 	public validType: Writable<boolean> = writable(false);
 	public validUrl: Writable<boolean> = writable(false);
 
+	// Feature types die de ingevulde WFS zelf aanbiedt. Leeg zolang er geen
+	// geldige WFS-URL staat, of wanneer de dienst geen bruikbare catalogus geeft -
+	// het formulier valt dan terug op handmatige invoer.
+	public availableFeatureTypes: Writable<Array<WfsFeatureType>> = writable([]);
+	private lastCapabilitiesUrl: string = "";
+
 	private unsubscribers: Array<Unsubscriber> = new Array<Unsubscriber>();
 
 	constructor(layerConfig?: LayerConfig) {
@@ -70,6 +76,7 @@ export class CustomLayerConfigTracker extends Dispatcher {
 
 	private onInputChange(): void {
 		this.validateLayerConfig();
+		this.refreshFeatureTypes();
 		this.dispatch("updated", {});
 		if (this.unsubscribers[3]) this.added.set(false); // Checking this.unsubscribers[3] to see if setup is finished
 	}
@@ -93,7 +100,7 @@ export class CustomLayerConfigTracker extends Dispatcher {
 	}
 
 	private validateType(type: string): boolean {
-		return ["3dtiles", "wms", "wmts", "geojson", "modelanimation", "arcgis"].includes(type);
+		return ["3dtiles", "wms", "wfs", "wmts", "geojson", "modelanimation", "arcgis"].includes(type);
 	}
 
 	private validateSettings(settings: any = this.layerConfig.settings): boolean {

@@ -85,6 +85,7 @@ export class FeatureInfoHandler {
         }
     }
 
+    //
     private pick3D(picked: any): FeatureInfo | undefined {
         const id = picked.id ?? picked.primitive.id;
         
@@ -102,8 +103,52 @@ export class FeatureInfoHandler {
             return this.cesium3dTileFeatureToFeatureInfo(picked);
         }
 
+        // De WFS-provider hangt het kale properties-object van de feature aan de
+        // GeometryInstance als `id`. Geen Entity (die tak hierboven eindigt altijd
+        // in een return), geen tile-feature: eigen route. De null-check moet erbij,
+        // want `typeof null` is in JavaScript ook "object".
+        if (id !== null && typeof id === "object") {
+            return this.propertiesToFeatureInfo(id, picked.primitive);
+        }
+
         return undefined;
     }
+
+    /**
+     * Vertaalt een kaal properties-object naar FeatureInfo. Voor lagen die hun
+     * geometrie zelf opbouwen (WFS, OGC Features) en de properties rechtstreeks
+     * aan de instance hangen.
+     */
+    private propertiesToFeatureInfo(
+        properties: Record<string, any>,
+        primitive: any
+    ): FeatureInfo | undefined {
+        const records = new Array<FeatureInfoRecord>();
+
+        // Maak record per property
+        Object.keys(properties).forEach(key => {
+            records.push(
+                new FeatureInfoRecord(
+                    key, // Property-naam
+                    properties[key] // Property-waarde
+                )
+            )
+        });
+
+        // Niets te tonen: geef undefined terug, dan valt queryFeatureInfo door naar
+        // de imagery-route in plaats van een leeg venster te openen.
+        if (records.length === 0) return undefined;
+
+        // De titel is de laagnaam uit de config. De provider heeft `config_id` op de
+        // primitive gestempeld; zonder die stempel valt de titel terug op leeg.
+        const configId = primitive?.config_id;
+
+        const selectedLayer = this.map.getLayerById(configId);
+        if (selectedLayer?.config.disablePopup) return undefined;
+
+        return new FeatureInfo(configId ? this.getLayerName(configId) : "", records);
+    }
+
 
     private cesiumEntityGetFeatureInfo(entity: Cesium.Entity): FeatureInfo | undefined {
         const records = new Array<FeatureInfoRecord>();

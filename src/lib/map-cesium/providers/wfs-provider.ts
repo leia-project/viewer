@@ -2,6 +2,7 @@ import type { Unsubscriber } from "svelte/store";
 import * as turf from "@turf/turf";
 import * as Cesium from "cesium";
 import type { Map } from "../map";
+import { parseWfsFeatureTypes } from "./wfs-capabilities";
 
 interface WFSTile {
 	x: number;
@@ -39,6 +40,10 @@ interface WFSConstructorOptions {
 export class WFSProviderCesium {
 	private url: string;
 	public options: Partial<WFSConstructorOptions>;
+	// Id van de LayerConfig waar deze provider bij hoort. WfsLayer vult hem, de
+	// loader stempelt hem op elke primitive, en de feature-info-handler leidt er
+	// de laagnaam uit af - dezelfde route die imagery- en 3D-tiles-lagen al lopen.
+	public configId: string = "";
 
 	private featureType: string;
 	private availableTypes: Array<{ title: string; name: string }> = [];
@@ -126,14 +131,7 @@ export class WFSProviderCesium {
 			const parser = new DOMParser();
 			const xmlDoc = parser.parseFromString(xml, "application/xml");
 
-			const featureTypeList = xmlDoc.querySelectorAll("FeatureTypeList FeatureType");
-			this.availableTypes = Array.from(featureTypeList)
-				.map((ft) => {
-					const name = ft.querySelector("Name")?.textContent ?? "";
-					const title = ft.querySelector("Title")?.textContent ?? "No title";
-					return { name, title };
-				})
-				.filter((ft) => ft.name !== "");
+			this.availableTypes = parseWfsFeatureTypes(xmlDoc);
 			if (
 				!this.featureType ||
 				!this.availableTypes.some((type) => type.name === this.featureType)
@@ -626,13 +624,6 @@ abstract class WFSLoaderCesium {
 				id: props
 			});
 			polygonInstances.push(polygonIstance);
-			const polylineInstance = new Cesium.GeometryInstance({
-				geometry: new Cesium.PolylineGeometry({
-					positions: positions,
-					width: 2.0
-				})
-			});
-			polylineInstances.push(polylineInstance);
 		};
 
 		const addLineString = async (
@@ -646,11 +637,16 @@ abstract class WFSLoaderCesium {
 			);
 			const props = this.WFS.allowPicking ? properties : undefined;
 			const polylineInstance = new Cesium.GeometryInstance({
-				geometry: new Cesium.PolylineGeometry({
+				geometry: new Cesium.GroundPolylineGeometry({
 					positions: positions,
 					width: 4.0
 				}),
-				id: props
+				id: props,
+				// PolylineColorAppearance leest de kleur per instance; ontbreekt hij
+				// bij ook maar een van hen, dan weigert Cesium de hele primitive.
+				attributes: {
+					color: colorAttribute
+				}
 			});
 			polylineInstances.push(polylineInstance);
 		};
@@ -659,27 +655,29 @@ abstract class WFSLoaderCesium {
 		polygonInstances.filter((instance) => instance !== undefined);
 
 		if (polylineInstances.length > 0) {
-			primitives.push(
-				new Cesium.GroundPolylinePrimitive({
-					geometryInstances: polylineInstances,
-					appearance: new Cesium.PolylineColorAppearance(),
-					releaseGeometryInstances: true
-				})
-			);
+			const polylinePrimitive = new Cesium.GroundPolylinePrimitive({
+				geometryInstances: polylineInstances,
+				appearance: new Cesium.PolylineColorAppearance(),
+				releaseGeometryInstances: true
+			});
+			// @ts-ignore - Cesium kent config_id niet; de handler leest het hier terug.
+			polylinePrimitive.config_id = this.WFS.configId;
+			primitives.push(polylinePrimitive);
 		}
 		if (polygonInstances.length > 0) {
 			const polygonAppearance = new Cesium.PerInstanceColorAppearance({
 				translucent: false
 			});
-			primitives.push(
-				new Cesium.Primitive({
-					geometryInstances: polygonInstances,
-					appearance: polygonAppearance,
-					depthFailAppearance: polygonAppearance,
-					releaseGeometryInstances: true,
-					allowPicking: this.WFS.allowPicking
-				})
-			);
+			const polygonPrimitive = new Cesium.Primitive({
+				geometryInstances: polygonInstances,
+				appearance: polygonAppearance,
+				depthFailAppearance: polygonAppearance,
+				releaseGeometryInstances: true,
+				allowPicking: this.WFS.allowPicking
+			});
+			// @ts-ignore - zie hierboven.
+			polygonPrimitive.config_id = this.WFS.configId;
+			primitives.push(polygonPrimitive);
 		}
 		return primitives;
 	}
