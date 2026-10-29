@@ -5,8 +5,12 @@
 	import ErrorFilled from "carbon-icons-svelte/lib/ErrorFilled.svelte";
 	import Gears from "carbon-icons-svelte/lib/Gears.svelte";
 	import SendAltFilled from "carbon-icons-svelte/lib/SendAltFilled.svelte";
+	import SettingsIcon from "carbon-icons-svelte/lib/Settings.svelte";
 
 	import { _, locale } from "svelte-i18n";
+
+	import { HttpAgent } from "@ag-ui/client";
+	import type { AgentSubscriber } from "@ag-ui/client";
 
 	import type { Writable } from "svelte/store";
 	import type { Map } from "$lib/components/map-cesium/module/map";
@@ -14,6 +18,12 @@
 	import { isChatOpen, closeChat, chatApiUrl } from "./chat-store";
 	import { exportConversation } from "./conversation-export";
 	import { getWfsAttributeNames } from "$lib/components/map-cesium/module/providers/wfs-attributes";
+	import { getUiTool, toAgUiTools } from "./ui-tools/tools";
+	import { labelLayers, layerProperties, newId } from "./ui-tools/layers";
+	import { uiToolApproval, setApproval } from "./ui-tools/settings";
+	import UiToolStep from "./ui-tools/UiToolStep.svelte";
+	import UiToolSettings from "./ui-tools/UiToolSettings.svelte";
+	import type { UiTool } from "./ui-tools/types";
 
 	import { marked } from "marked";
 	import  DOMPurify from "dompurify";
@@ -44,6 +54,9 @@
 	/* Haalt de volledige agent-state van dit gesprek op als JSON-bestand.
 	   Zonder sessietoken is er nog geen draad om te exporteren. */
 	let exporting = false;
+
+	/* Het keuzemenu voor wat de assistent zonder te vragen mag doen. */
+	let settingsOpen = false;
 
 	/* De exportknop downloadt niet meteen, maar vraagt eerst waarom je exporteert.
 	   Die reden belandt in het bestand, zodat een map met exports vanzelf een
@@ -78,7 +91,7 @@
 		exporting = true;
 		exportDialogOpen = false;
 		try {
-			await exportConversation($chatApiUrl, sessionToken, exportReason.trim());
+			await exportConversation($chatApiUrl, sessionToken, conversationId, exportReason.trim());
 		} catch (error) {
 			console.error("Export van gesprek mislukt:", error);
 		} finally {
@@ -122,9 +135,152 @@
 		return current?.split("-")[0] ?? "en";
 	}
 
-	/* Houdt buffer van chunks bij */
+	/* De gespreksdraad van deze pagina. Hij sterft met de pagina: herladen begint een
+	   nieuw gesprek. De backend maakt er samen met het sessietoken de draad-id van. */
+	const conversationId = newId();
+
+	/* Wat het paneel toont: de vraag, de antwoorden, de tool-aanroepen en -resultaten,
+	   en de instructies van de assistent aan de viewer. */
 	let events: any[] = [];
-	let buffer = "";
+
+	/* De AG-UI-client houdt het gesprek bij (en stuurt het bij elke vraag opnieuw mee). */
+	let agent: HttpAgent | undefined;
+
+	/* tool_call_id -> toolnaam, om een resultaat bij zijn tool te tonen. */
+	const toolNames: Record<string, string> = {};
+
+	interface UiCall {
+		tool: UiTool<unknown>;
+		args: unknown;
+	}
+
+	/* Instructies die op de keuze van de gebruiker wachten. */
+	const awaiting: Record<string, UiCall> = {};
+
+	/* Uitkomsten van instructies die de agent nog niet heeft gehoord. Ze gaan vlak voor
+	   de volgende vraag mee, ervoor: dat is de volgorde die de backend verwacht. */
+	let pendingResults: { toolCallId: string; content: string; error?: string }[] = [];
+
+	/* Instructies worden één voor één uitgevoerd, in de volgorde van de agent. */
+	let execution: Promise<void> = Promise.resolve();
+
+	const DECLINED = "The user declined this instruction.";
+
+	function patchUi(toolCallId: string, patch: Record<string, unknown>) {
+		events = events.map((e) => (e.type === "ui" && e.toolCallId === toolCallId ? { ...e, ...patch } : e));
+	}
+
+	function finishUi(toolCallId: string, status: string, detail: string, error?: string) {
+		patchUi(toolCallId, { status, detail });
+		pendingResults.push({ toolCallId, content: detail, error });
+	}
+
+	function runUi(toolCallId: string, call: UiCall) {
+		patchUi(toolCallId, { status: "running" });
+		execution = execution.then(async () => {
+			try {
+				const current = get(map);
+				if (!current) throw new Error("De kaart is niet beschikbaar.");
+				finishUi(toolCallId, "applied", await call.tool.execute(call.args, current));
+			} catch (error) {
+				const detail = error instanceof Error ? error.message : String(error);
+				finishUi(toolCallId, "failed", detail, detail);
+			}
+			/* Laat Svelte de wijziging (bijv. de nieuwe laag) verwerken voor de volgende instructie. */
+			await tick();
+		});
+	}
+
+	function handleUiCall(toolCallId: string, toolName: string, rawArgs: unknown) {
+		const tool = getUiTool(toolName)!;
+		let args: unknown;
+		try {
+			args = tool.parse(rawArgs);
+		} catch (error) {
+			/* De agent hoort waarom en kan het bij de volgende vraag opnieuw proberen. */
+			const detail = error instanceof Error ? error.message : String(error);
+			events = [...events, { type: "ui", toolCallId, toolName, summary: toolName, status: "failed", detail }];
+			pendingResults.push({ toolCallId, content: detail, error: detail });
+			return;
+		}
+
+		const mode = $uiToolApproval[toolName] ?? tool.defaultApproval;
+		const call: UiCall = { tool, args };
+		events = [
+			...events,
+			{ type: "ui", toolCallId, toolName, summary: tool.describe(args), status: mode === "auto" ? "running" : "awaiting" }
+		];
+		if (mode === "auto") {
+			runUi(toolCallId, call);
+		} else {
+			awaiting[toolCallId] = call;
+		}
+	}
+
+	function applyUi(toolCallId: string) {
+		const call = awaiting[toolCallId];
+		if (!call) return;
+		delete awaiting[toolCallId];
+		runUi(toolCallId, call);
+	}
+
+	function dismissUi(toolCallId: string) {
+		if (!awaiting[toolCallId]) return;
+		delete awaiting[toolCallId];
+		finishUi(toolCallId, "dismissed", DECLINED);
+	}
+
+	function alwaysApplyUi(toolCallId: string, toolName: string) {
+		setApproval(toolName, "auto");
+		applyUi(toolCallId);
+	}
+
+	/* De AG-UI-events vertaald naar wat het paneel al kon tonen. */
+	const subscriber: AgentSubscriber = {
+		onTextMessageEndEvent: ({ textMessageBuffer }) => {
+			if (textMessageBuffer.trim()) {
+				events = [...events, { type: "ai", thinking: false, content: textMessageBuffer }];
+			}
+		},
+
+		onToolCallStartEvent: ({ event }) => {
+			toolNames[event.toolCallId] = event.toolCallName;
+		},
+
+		onToolCallEndEvent: ({ event, toolCallName, toolCallArgs }) => {
+			if (getUiTool(toolCallName)) {
+				handleUiCall(event.toolCallId, toolCallName, toolCallArgs);
+			} else {
+				events = [...events, { type: "ai", thinking: true, tool: toolCallName, content: toolCallArgs }];
+			}
+		},
+
+		onToolCallResultEvent: ({ event }) => {
+			const tool = toolNames[event.toolCallId] ?? null;
+			if (event.metadata?.error) {
+				events = [...events, { type: "tool", tool, error: String(event.content) }];
+				return;
+			}
+			let content: unknown = event.content;
+			if (typeof content === "string") {
+				try {
+					content = JSON.parse(content);
+				} catch {
+					/* een gewone tekst: laten zoals hij is */
+				}
+			}
+			events = [...events, { type: "tool", tool, content }];
+		},
+
+		onRunErrorEvent: ({ event }) => {
+			events = [...events, { type: "error", error: event.message }];
+		},
+
+		onRunFailed: ({ error }) => {
+			console.error("Agent-run mislukt:", error);
+			events = [...events, { type: "error", error: "Geen verbinding met de assistent." }];
+		}
+	};
 
 	async function ask() {
 		if (busy) {
@@ -143,44 +299,51 @@
 		try {
 		if (!sessionToken) await testSession();
 		console.log(`Chat API URL: `, $chatApiUrl);
-		console.log(`Reference layers: `, await webserviceRefs())
 
-		const response = await fetch(`${$chatApiUrl}/query/stream`, {
-			method: "POST",
-			headers: {
-                "Content-Type": "application/json",
-				"X-Session-Token": sessionToken
-			},
-			body: JSON.stringify({
-				question: asked,
-				language: requestLanguage($locale),
-				webservices_refs: await webserviceRefs()
-			})
-		})
-		
-		if (!response.body) return;
+		const refs = await webserviceRefs();
+		console.log(`Reference layers: `, refs);
 
-		const reader = response.body.getReader();
-		const decoder = new TextDecoder();
+		if (!agent) {
+			agent = new HttpAgent({ url: `${$chatApiUrl}/agent/run`, threadId: conversationId });
+		}
+		agent.headers = { "X-Session-Token": sessionToken };
 
-		while (true) {
-			const { value, done } = await reader.read();
-			if (done == true) {
-				break
-			}
-			buffer += decoder.decode(value, { stream: true });
+		/* Instructies waarop de gebruiker niet meer heeft gereageerd, vervallen; de
+		   backend vult zelf een "geen resultaat" in voor de agent. */
+		for (const toolCallId of Object.keys(awaiting)) {
+			patchUi(toolCallId, { status: "expired" });
+			delete awaiting[toolCallId];
+		}
 
-			const parts = buffer.split("\n\n");
+		/* Eerst wat er met eerdere instructies is gebeurd, dan de nieuwe vraag. */
+		for (const result of pendingResults) {
+			agent.addMessage({ id: newId(), role: "tool", toolCallId: result.toolCallId, content: result.content, error: result.error });
+		}
+		pendingResults = [];
+		agent.addMessage({ id: newId(), role: "user", content: asked });
 
-			console.log("buffer:", buffer.length);
+		/* De agent kent de lagen op de kaart alleen hieruit: `layers` zijn de
+		   webservices die hij kan bevragen, `map_layers` alles waar hij op kan werken,
+		   onder de namen die de tools accepteren. */
+		const current = get(map);
+		agent.state = {
+			layers: refs,
+			map_layers: labelLayers(current ? get(current.layers) : []).map(({ label, layer }) => ({
+				name: label,
+				type: layer.config.type,
+				properties: layerProperties(layer)
+			}))
+		};
 
-			/* Haal het laatste stukje weg en stop het in buffer voor volgende iteratie */
-			buffer = parts.pop() ?? ""
+		events = [...events, { type: "start", question: asked }];
 
-			for (const part of parts) {
-				if (!part.startsWith("data: ")) continue;
-				events = [...events, JSON.parse(part.slice(6))];
-			}
+		try {
+			await agent.runAgent(
+				{ tools: toAgUiTools(current), forwardedProps: { language: requestLanguage($locale) } },
+				subscriber
+			);
+		} catch {
+			/* al gemeld via onRunFailed */
 		}
 	} finally {
 		busy = false 
@@ -339,6 +502,17 @@ $: if (events && bodyEl) {
 
 			<div class="chat-panel__actions">
 				<button
+					on:click={() => (settingsOpen = !settingsOpen)}
+					class="chat-panel__action"
+					type="button"
+					aria-expanded={settingsOpen}
+					title="Instructies van de assistent"
+					aria-label="Instructies van de assistent"
+				>
+					<SettingsIcon size={20} />
+				</button>
+
+				<button
 					on:click={openExportDialog}
 					class="chat-panel__action"
 					type="button"
@@ -355,10 +529,24 @@ $: if (events && bodyEl) {
 			</div>
 		</header>
 
+		{#if settingsOpen}
+			<UiToolSettings />
+		{/if}
+
 		<div bind:this={bodyEl} class="chat-panel__body">
 			{#each events as event}
 				{#if event.type === "start"}
 					<div class="bubble bubble--user">{event.question}</div>
+
+				{:else if event.type === "ui"}
+					<UiToolStep
+						summary={event.summary}
+						status={event.status}
+						detail={event.detail}
+						on:apply={() => applyUi(event.toolCallId)}
+						on:dismiss={() => dismissUi(event.toolCallId)}
+						on:always={() => alwaysApplyUi(event.toolCallId, event.toolName)}
+					/>
 
 				{:else if event.type === "ai" && event.thinking}
 					<div class="step step--call">

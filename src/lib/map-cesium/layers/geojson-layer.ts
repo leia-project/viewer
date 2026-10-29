@@ -121,6 +121,11 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.clampToGround = this.config.settings.clampToGround ?? true;
 	}
 
+	/** De eigenschappen van de objecten, om op te kleuren (zie MapToolChat/ui-tools). */
+	public getPropertySummary(): ReadonlyArray<GeoJSONpropertySummary> {
+		return this.availableProperties;
+	}
+
 	private addListeners(): void {
 		this.unsubscribers.push(
 			this.style.subscribe((property: string) => {
