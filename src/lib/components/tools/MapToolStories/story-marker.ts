@@ -14,7 +14,12 @@ export type StoryHtmlAction = { type: "html" } & (
 	| { url: string; html?: never }
 );
 
-export type StoryMarkerAction = StoryBeforeAfterAction | StoryHtmlAction;
+export interface StoryImageAction {
+	type: "image";
+	images: Array<StoryMarkerImage>;
+}
+
+export type StoryMarkerAction = StoryBeforeAfterAction | StoryImageAction | StoryHtmlAction;
 
 export interface StoryMarker {
 	type: "marker";
@@ -23,6 +28,10 @@ export interface StoryMarker {
 	x: number;
 	y: number;
 	action: StoryMarkerAction;
+	/** Optional image that replaces the default map icon. */
+	symbolUrl?: string;
+	/** Maximum width and height in pixels for symbolUrl; defaults to 128. */
+	maxImageSize?: number;
 	/** Optional icon width/height in pixels; overrides the story's markerSize. */
 	markerSize?: number;
 }
@@ -37,6 +46,13 @@ export function parseMarkerSize(value: unknown, context: unknown): number | unde
 	if (value === undefined) return undefined;
 	if (typeof value === "number" && Number.isFinite(value) && value > 0) return value;
 	console.warn("Story markerSize ignored: must be a positive number of pixels", context);
+	return undefined;
+}
+
+export function parseMaxImageSize(value: unknown, context: unknown): number | undefined {
+	if (value === undefined) return undefined;
+	if (typeof value === "number" && Number.isFinite(value) && value > 0) return value;
+	console.warn("Story marker maxImageSize ignored: must be a positive number of pixels", context);
 	return undefined;
 }
 
@@ -70,6 +86,13 @@ function parseAction(value: unknown): StoryMarkerAction | undefined {
 		const before = parseImage(value.before);
 		const after = parseImage(value.after);
 		return before && after ? { type: "beforeAfter", before, after } : undefined;
+	}
+	if (value.type === "image") {
+		if (!Array.isArray(value.images) || value.images.length === 0) return undefined;
+		const images = value.images.map(parseImage);
+		return images.every((image): image is StoryMarkerImage => image !== undefined)
+			? { type: "image", images }
+			: undefined;
 	}
 	if (value.type === "html") {
 		if (isNonEmptyString(value.html) && value.url === undefined) {
@@ -119,10 +142,13 @@ export function parseStoryMarkers(raw: unknown): Array<StoryMarker> {
 		const action = parseAction(entry.action);
 		if (!action) {
 			console.warn(
-				`Story marker "${id}" skipped: use a beforeAfter action with two valid image urls, or an html action with either html or a valid url.`,
+				`Story marker "${id}" skipped: use a beforeAfter action with two valid image urls, an image action with one or more valid image urls, or an html action with either html or a valid url.`,
 				entry
 			);
 			continue;
+		}
+		if (entry.symbolUrl !== undefined && !isNonEmptyString(entry.symbolUrl)) {
+			console.warn(`Story marker "${id}" symbolUrl ignored: must be a non-empty string.`, entry);
 		}
 		ids.add(id);
 		markers.push({
@@ -132,6 +158,8 @@ export function parseStoryMarkers(raw: unknown): Array<StoryMarker> {
 			x: entry.x,
 			y: entry.y,
 			action,
+			symbolUrl: isNonEmptyString(entry.symbolUrl) ? entry.symbolUrl.trim() : undefined,
+			maxImageSize: parseMaxImageSize(entry.maxImageSize, entry),
 			markerSize: parseMarkerSize(entry.markerSize, entry)
 		});
 	}
