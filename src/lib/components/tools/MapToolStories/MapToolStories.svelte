@@ -20,7 +20,14 @@
 	import StoryView from "./StoryView.svelte";
 	import { selectedStory, showStoryMarkers } from "./story-handler";
 	import { StoryMarkerCollection } from "./story-marker-collection";
-	import { DEFAULT_MARKER_SIZE, isNonEmptyString, isSafeStoryUrl, parseMarkerSize, parseStoryMarkers } from "./story-marker";
+	import {
+		DEFAULT_MARKER_SIZE,
+		isNonEmptyString,
+		isSafeStoryUrl,
+		parseMarkerSize,
+		parseMaxImageSize,
+		parseStoryMarkers
+	} from "./story-marker";
 	import ToggleView from "../MapToolProjects/components/ToggleView.svelte";
 
 	export let id: string;
@@ -125,7 +132,7 @@
 					y,
 					type,
 					symbolUrl: isNonEmptyString(entry.symbolUrl) ? entry.symbolUrl.trim() : undefined,
-					maxImageSize: entry.maxImageSize,
+					maxImageSize: parseMaxImageSize(entry.maxImageSize, entry),
 					markerSize,
 					onlyInStep
 				});
@@ -136,6 +143,9 @@
 				}
 				markers.push({ x, y, type, text: entry.text, openStoryStep, onlyInStep });
 			} else if (type === "image") {
+				if (entry.symbolUrl !== undefined && !isNonEmptyString(entry.symbolUrl)) {
+					console.warn("Story marker symbolUrl ignored: must be a non-empty string", entry);
+				}
 				const urls = (Array.isArray(entry.url) ? entry.url : [entry.url])
 					.filter(isNonEmptyString)
 					.map((url: string) => url.trim())
@@ -149,6 +159,8 @@
 					y,
 					type,
 					url: urls,
+					symbolUrl: isNonEmptyString(entry.symbolUrl) ? entry.symbolUrl.trim() : undefined,
+					maxImageSize: parseMaxImageSize(entry.maxImageSize, entry),
 					text: isNonEmptyString(entry.text) ? entry.text : undefined,
 					openStoryStep,
 					markerSize,
