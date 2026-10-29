@@ -7,9 +7,12 @@ import type { LayerConfig } from "$lib/map-core/layer-config";
 import { NAP_OFFSET_M } from "./depth-scale";
 
 /** Whether a layer should respond to the subsurface exaggeration slider, driven
- * by an explicit `settings.subsurface` flag */
+ * by `settings.subsurface`. Voxel layers and BRO tilesets take part by default,
+ * other 3D Tiles layers opt in */
 export function appliesSubsurfaceExaggeration(config: LayerConfig): boolean {
-	return (config.settings?.subsurface ?? "false") === "true";
+	const settings = config.settings ?? {};
+	const fallback = config.type === "3dtiles-voxel" || settings.bro === "true" ? "true" : "false";
+	return (settings.subsurface ?? fallback) === "true";
 }
 
 /** Derived store that is true while at least one subsurface-exaggeration layer
