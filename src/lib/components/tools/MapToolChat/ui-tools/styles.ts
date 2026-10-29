@@ -1,4 +1,4 @@
-import type { DataDrivenStyle } from "$lib/components/map-cesium/module/providers/mvt-style";
+import type { DataDrivenStyle } from "$lib/map-cesium/providers/mvt-style";
 
 /* Kleuren voor het kleuren van een laag op een eigenschap. De assistent noemt alleen de
    eigenschap en het soort indeling; de kleuren kiest de viewer, zodat het model nooit

@@ -4,8 +4,8 @@
 	import LayerControl from "../../MapToolLayerManager/MapToolLayerControl.svelte";
 	import { GAIA_GROUP_ID, GAIA_GROUP_TITLE } from "./gaia-layers";
 
-	import type { Layer } from "$lib/components/map-core/layer";
-	import type { LayerLibrary } from "$lib/components/map-core/layer-library";
+	import type { Layer } from "$lib/map-core/layer";
+	import type { LayerLibrary } from "$lib/map-core/layer-library";
 
 	export let library: LayerLibrary;
 	/* The layers on the map: a dataset that is added is shown with the full layer controls. */

@@ -5,7 +5,7 @@
 	/* Carbon button */
 	import QuestionAnswering from "carbon-icons-svelte/lib/QuestionAnswering.svelte";
 
-	import { MapToolMenuOption } from "../../MapToolMenu/MapToolMenuOption";
+	import { MapToolMenuOption } from "../MapToolMenuOption";
 
 	import { toggleChat, chatApiUrl } from "./chat-store";
 	import { addGaiaLayers } from "./GaiaLayers/gaia-layers";

@@ -1,9 +1,9 @@
 import { get } from "svelte/store";
 
-import { GeoJsonLayer } from "$lib/components/map-cesium/module/layers/geojson-layer";
-import { MvtLayer } from "$lib/components/map-cesium/module/layers/mvt-layer";
+import { GeoJsonLayer } from "$lib/map-cesium/layers/geojson-layer";
+import { MvtLayer } from "$lib/map-cesium/layers/mvt-layer";
 
-import type { Layer } from "$lib/components/map-core/layer";
+import type { Layer } from "$lib/map-core/layer";
 
 /* Een id die ook werkt als de pagina niet via https/localhost wordt geladen
    (crypto.randomUUID bestaat alleen in een secure context). */

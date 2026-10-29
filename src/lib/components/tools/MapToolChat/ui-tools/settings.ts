@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 
-import { appStorage } from "$lib/components/localization/app-storage";
+import { appStorage } from "$lib/i18n/app-storage";
 
 import type { ApprovalMode } from "./types";
 

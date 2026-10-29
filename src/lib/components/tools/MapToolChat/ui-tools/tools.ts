@@ -1,16 +1,16 @@
 import { get } from "svelte/store";
 
-import { LayerConfig } from "$lib/components/map-core/layer-config";
-import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
+import { LayerConfig } from "$lib/map-core/layer-config";
+import { LayerConfigGroup } from "$lib/map-core/layer-config-group";
 
 import { findLayer, isStylable, labelLayers, layerProperties, describeLegend, newId } from "./layers";
 import { categoricalFromValues, describeStyle, graduatedFromBreaks } from "./styles";
 import { fetchClasses, fetchTileInfo } from "./tiles-api";
 import { datasetLayerConfig } from "../GaiaLayers/gaia-layers";
 
-import type { Map } from "$lib/components/map-cesium/module/map";
-import type { GeoJsonLayer } from "$lib/components/map-cesium/module/layers/geojson-layer";
-import { MvtLayer } from "$lib/components/map-cesium/module/layers/mvt-layer";
+import type { Map } from "$lib/map-cesium/map";
+import type { GeoJsonLayer } from "$lib/map-cesium/layers/geojson-layer";
+import { MvtLayer } from "$lib/map-cesium/layers/mvt-layer";
 import type { LabelledLayer } from "./layers";
 import type { UiTool, UiToolContext } from "./types";
 

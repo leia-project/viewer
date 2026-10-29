@@ -1,4 +1,4 @@
-import type { MvtProperty } from "$lib/components/map-cesium/module/layers/mvt-layer";
+import type { MvtProperty } from "$lib/map-cesium/layers/mvt-layer";
 
 /* De tile-endpoints van de API waar de assistent mee praat (zie ApiContext). De tiles zelf
    haalt Cesium op; hier staat al het andere. */

@@ -1,12 +1,12 @@
 import { get } from "svelte/store";
 
-import { LayerConfig } from "$lib/components/map-core/layer-config";
-import { LayerConfigGroup } from "$lib/components/map-core/layer-config-group";
+import { LayerConfig } from "$lib/map-core/layer-config";
+import { LayerConfigGroup } from "$lib/map-core/layer-config-group";
 
 import { fetchTileAccess, fetchTileInfo, authHeaders, type ApiContext, type TileInfo } from "../ui-tools/tiles-api";
 import { getUserKey } from "../user-key";
 
-import type { LayerLibrary } from "$lib/components/map-core/layer-library";
+import type { LayerLibrary } from "$lib/map-core/layer-library";
 
 /* De datasets van Gaia als lagen in de laagbibliotheek: een groep met één laag per dataset
    van de ingelogde gebruiker, elk als vector tiles (MVT), zodat ook grote datasets snel zijn

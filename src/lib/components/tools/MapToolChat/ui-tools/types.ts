@@ -1,4 +1,4 @@
-import type { Map } from "$lib/components/map-cesium/module/map";
+import type { Map } from "$lib/map-cesium/map";
 import type { LabelledLayer } from "./layers";
 
 /* Instructies van de agent aan deze viewer ("voeg deze laag toe"). Ze worden bij

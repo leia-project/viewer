@@ -14,12 +14,12 @@
 	import type { AgentSubscriber } from "@ag-ui/client";
 
 	import type { Writable } from "svelte/store";
-	import type { Map } from "$lib/components/map-cesium/module/map";
+	import type { Map } from "$lib/map-cesium/map";
 
 	import { isChatOpen, closeChat, chatApiUrl } from "./chat-store";
 	import { exportConversation } from "./conversation-export";
 	import { authHeaders, getUserKey } from "./user-key";
-	import { getWfsAttributeNames } from "$lib/components/map-cesium/module/providers/wfs-attributes";
+	import { getWfsAttributeNames } from "$lib/map-cesium/providers/wfs-attributes";
 	import { getUiTool, toAgUiTools } from "./ui-tools/tools";
 	import { labelLayers, layerProperties, newId } from "./ui-tools/layers";
 	import { uiToolApproval, setApproval } from "./ui-tools/settings";
@@ -28,25 +28,23 @@
 	import type { UiTool } from "./ui-tools/types";
 
 	import { marked } from "marked";
-	import  DOMPurify from "dompurify";
+	import DOMPurify from "dompurify";
 
-	import { derived, get } from "svelte/store"
+	import { derived, get } from "svelte/store";
 	import { tick } from "svelte";
 
 	export let map: Writable<Map | undefined>;
 
 	function renderMarkdown(text: string): string {
 		const rawHtml = marked.parse(text, { async: false });
-		return DOMPurify.sanitize(
-			rawHtml
-		)
+		return DOMPurify.sanitize(rawHtml);
 	}
 
 	/* De sleutel van de ingelogde gebruiker; leeg tot de eerste vraag (of Gaia-laag) erom vraagt. */
 	let userKey = "";
 
 	async function signIn() {
-		userKey = await getUserKey($chatApiUrl!)
+		userKey = await getUserKey($chatApiUrl!);
 	}
 
 	// Checkt of de agent al aan het denken is... //
@@ -101,16 +99,14 @@
 	}
 
 	/* Create list of objects for counting input and output tokens */
-	let runUsage: { 
-		inputTokens?: number; 
-		outputTokens?: number; 
-		totalTokens?: number 
+	let runUsage: {
+		inputTokens?: number;
+		outputTokens?: number;
+		totalTokens?: number;
 	}[] = [];
 
 	/* Update sum of tokens when runUsage changes */
-	$: totalTokens = runUsage.reduce(
-		(sum, entry) => sum + (entry.totalTokens ?? 0),
-	0);
+	$: totalTokens = runUsage.reduce((sum, entry) => sum + (entry.totalTokens ?? 0), 0);
 
 	/* Een teller die in een paneelkop past: 17.893 wordt "17,9K". De locale
 	   bepaalt zowel het decimaalteken als de afkorting ("mln." i.p.v. "M"). */
@@ -122,19 +118,19 @@
 	// De prompt van de gebruiker //
 	let question = "";
 
-	// Model en provider 
+	// Model en provider
 	let modelName: string | null = null;
 	let providerName: string | null = null;
 
 	async function fetchConfig() {
-		const response = await fetch(`${$chatApiUrl}/config`)
-		const data = await response.json()
+		const response = await fetch(`${$chatApiUrl}/config`);
+		const data = await response.json();
 
 		modelName = data.llm_model;
 		providerName = data.llm_provider;
 	}
 
-	$: if ($chatApiUrl) fetchConfig()
+	$: if ($chatApiUrl) fetchConfig();
 
 	const PROVIDER_LABELS: Record<string, string> = {
 		openrouter: "OpenRouter",
@@ -143,7 +139,7 @@
 	};
 
 	function providerLabel(provider: string | null): string {
-		return provider ? PROVIDER_LABELS[provider] ?? provider : "";
+		return provider ? (PROVIDER_LABELS[provider] ?? provider) : "";
 	}
 
 	/* De backend raadt de taal niet zelf (dat kost tokens en ging vaak mis),
@@ -187,7 +183,9 @@
 	const DECLINED = "The user declined this instruction.";
 
 	function patchUi(toolCallId: string, patch: Record<string, unknown>) {
-		events = events.map((e) => (e.type === "ui" && e.toolCallId === toolCallId ? { ...e, ...patch } : e));
+		events = events.map((e) =>
+			e.type === "ui" && e.toolCallId === toolCallId ? { ...e, ...patch } : e
+		);
 	}
 
 	function finishUi(toolCallId: string, status: string, detail: string, error?: string) {
@@ -224,7 +222,10 @@
 		} catch (error) {
 			/* De agent hoort waarom en kan het bij de volgende vraag opnieuw proberen. */
 			const detail = error instanceof Error ? error.message : String(error);
-			events = [...events, { type: "ui", toolCallId, toolName, summary: toolName, status: "failed", detail }];
+			events = [
+				...events,
+				{ type: "ui", toolCallId, toolName, summary: toolName, status: "failed", detail }
+			];
 			pendingResults.push({ toolCallId, content: detail, error: detail });
 			return;
 		}
@@ -233,7 +234,13 @@
 		const call: UiCall = { tool, args };
 		events = [
 			...events,
-			{ type: "ui", toolCallId, toolName, summary: tool.describe(args), status: mode === "auto" ? "running" : "awaiting" }
+			{
+				type: "ui",
+				toolCallId,
+				toolName,
+				summary: tool.describe(args),
+				status: mode === "auto" ? "running" : "awaiting"
+			}
 		];
 		if (mode === "auto") {
 			runUi(toolCallId, call);
@@ -276,7 +283,10 @@
 			if (getUiTool(toolCallName)) {
 				handleUiCall(event.toolCallId, toolCallName, toolCallArgs);
 			} else {
-				events = [...events, { type: "ai", thinking: true, tool: toolCallName, content: toolCallArgs }];
+				events = [
+					...events,
+					{ type: "ai", thinking: true, tool: toolCallName, content: toolCallArgs }
+				];
 			}
 		},
 
@@ -316,7 +326,7 @@
 
 	async function ask() {
 		if (busy) {
-			return
+			return;
 		}
 
 		/* Aan de slag! */
@@ -329,193 +339,198 @@
 		question = "";
 
 		try {
-		if (!userKey) await signIn();
-		console.log(`Chat API URL: `, $chatApiUrl);
+			if (!userKey) await signIn();
+			console.log(`Chat API URL: `, $chatApiUrl);
 
-		const refs = await webserviceRefs();
-		console.log(`Reference layers: `, refs);
+			const refs = await webserviceRefs();
+			console.log(`Reference layers: `, refs);
 
-		if (!agent) {
-			agent = new HttpAgent({ url: `${$chatApiUrl}/agent/run`, threadId: conversationId });
-		}
-		agent.headers = authHeaders(userKey);
+			if (!agent) {
+				agent = new HttpAgent({ url: `${$chatApiUrl}/agent/run`, threadId: conversationId });
+			}
+			agent.headers = authHeaders(userKey);
 
-		/* Instructies waarop de gebruiker niet meer heeft gereageerd, vervallen; de
+			/* Instructies waarop de gebruiker niet meer heeft gereageerd, vervallen; de
 		   backend vult zelf een "geen resultaat" in voor de agent. */
-		for (const toolCallId of Object.keys(awaiting)) {
-			patchUi(toolCallId, { status: "expired" });
-			delete awaiting[toolCallId];
-		}
+			for (const toolCallId of Object.keys(awaiting)) {
+				patchUi(toolCallId, { status: "expired" });
+				delete awaiting[toolCallId];
+			}
 
-		/* Eerst wat er met eerdere instructies is gebeurd, dan de nieuwe vraag. */
-		for (const result of pendingResults) {
-			agent.addMessage({ id: newId(), role: "tool", toolCallId: result.toolCallId, content: result.content, error: result.error });
-		}
-		pendingResults = [];
-		agent.addMessage({ id: newId(), role: "user", content: asked });
+			/* Eerst wat er met eerdere instructies is gebeurd, dan de nieuwe vraag. */
+			for (const result of pendingResults) {
+				agent.addMessage({
+					id: newId(),
+					role: "tool",
+					toolCallId: result.toolCallId,
+					content: result.content,
+					error: result.error
+				});
+			}
+			pendingResults = [];
+			agent.addMessage({ id: newId(), role: "user", content: asked });
 
-		/* De agent kent de lagen op de kaart alleen hieruit: `layers` zijn de
+			/* De agent kent de lagen op de kaart alleen hieruit: `layers` zijn de
 		   webservices die hij kan bevragen, `map_layers` alles waar hij op kan werken,
 		   onder de namen die de tools accepteren. */
-		const current = get(map);
-		agent.state = {
-			layers: refs,
-			map_layers: labelLayers(current ? get(current.layers) : []).map(({ label, layer }) => ({
-				name: label,
-				type: layer.config.type,
-				properties: layerProperties(layer)
-			}))
-		};
+			const current = get(map);
+			agent.state = {
+				layers: refs,
+				map_layers: labelLayers(current ? get(current.layers) : []).map(({ label, layer }) => ({
+					name: label,
+					type: layer.config.type,
+					properties: layerProperties(layer)
+				}))
+			};
 
-		events = [...events, { type: "start", question: asked }];
+			events = [...events, { type: "start", question: asked }];
 
-		try {
-			await agent.runAgent(
-				{ tools: toAgUiTools(current), forwardedProps: { language: requestLanguage($locale) } },
-				subscriber
-			);
-		} catch {
-			/* al gemeld via onRunFailed */
+			try {
+				await agent.runAgent(
+					{ tools: toAgUiTools(current), forwardedProps: { language: requestLanguage($locale) } },
+					subscriber
+				);
+			} catch {
+				/* al gemeld via onRunFailed */
+			}
+		} finally {
+			busy = false;
 		}
-	} finally {
-		busy = false 
 	}
-}
 
-/* Stuur ook een bericht met Ctrl+Enter */
-/* Enter verstuurt, Ctrl/Cmd+Enter en Shift+Enter maken een nieuwe regel.
+	/* Stuur ook een bericht met Ctrl+Enter */
+	/* Enter verstuurt, Ctrl/Cmd+Enter en Shift+Enter maken een nieuwe regel.
    Shift+Enter doet de browser zelf; Ctrl+Enter doet in een textarea niets,
    dus die regel zetten we hieronder met de hand op de cursorpositie. */
-function handleKeydown(event: KeyboardEvent) {
-	if (event.key !== "Enter") return;
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key !== "Enter") return;
 
-	if (event.shiftKey) return;
+		if (event.shiftKey) return;
 
-	if (event.ctrlKey || event.metaKey) {
-		event.preventDefault();
-		insertNewline(event.currentTarget as HTMLTextAreaElement);
-		return;
-	}
-
-	/* Zonder dit zet de browser alsnog een regeleinde in het veld. */
-	event.preventDefault();
-	ask();
-}
-
-async function insertNewline(el: HTMLTextAreaElement) {
-	const start = el.selectionStart;
-	const end = el.selectionEnd;
-
-	question = question.slice(0, start) + "\n" + question.slice(end);
-
-	/* `tick` wacht tot Svelte de nieuwe waarde in de DOM heeft gezet; pas
-	   daarna kun je de cursor achter het ingevoegde teken zetten. */
-	await tick();
-	el.setSelectionRange(start + 1, start + 1);
-	autoGrow({ currentTarget: el } as unknown as Event);
-}
-
-/* Een textarea groeit niet vanzelf mee. Hoogte eerst op auto, zodat
-   scrollHeight de echte inhoud meet, daarna afgetopt op 7.5rem. */
-function autoGrow(event: Event) {
-	const el = event.currentTarget as HTMLTextAreaElement;
-	el.style.height = "auto";
-	el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
-}
-
-const MAX_ROWS = 15;
-
-function argsPreview(content: unknown): string {
-	if (typeof content === "string") return content;
-	if (content && typeof content === "object") {
-		const values = Object.values(content as Record<string, unknown>);
-		if (values.length === 1 && typeof values[0] === "string") return values[0];
-		return JSON.stringify(content, null, 2);
-	}
-	return "";
-}
-
-function artifactRows(content: any): Record<string, unknown>[] {
-	if (!content || typeof content !== "object") return [];
-	if (Array.isArray(content.rows)) return content.rows;
-	if (Array.isArray(content.features)) return content.features.map((f: any) => f.properties ?? {});
-	if (Array.isArray(content.results)) return content.results;
-	return [];
-}
-
-function artifactColumns(rows: Record<string, unknown>[]): string[] {
-	const columns = new Set<string>();
-	for (const row of rows) {
-		for (const key of Object.keys(row)) columns.add(key);
-	}
-	return [...columns];
-}
-
-function artifactCaption(content: any, rowCount: number): string {
-	const source = content?.queried_table ?? content?.type_name ?? content?.query ?? null;
-	const count = content?.feature_count ?? rowCount;
-	return source ? `${count} resultaten · ${source}` : `${count} resultaten`;
-}
-
-function formatCell(value: unknown): string {
-	if (value === null || value === undefined) return "–";
-	if (typeof value === "object") return JSON.stringify(value);
-	return String(value);
-}
-
-/* Vertaalt Leia's lagen naar WebserviceLayerRef (backend/app/main.py:36). */
-async function webserviceRefs() {
-	if (!$map) return [];
-
-	const layers = get($map.layers);
-
-	const refs = layers
-		.filter((layer) => ["wfs", "wms"].includes(layer.config.type))
-		.map((layer) => ({
-			"service_endpoint": layer.config.settings.url,
-			/* WMS-lagen hebben geen 'options' */
-			"layer_name": 
-				layer.config.type === "wms" ? 
-				layer.config.settings.featureName :
-				layer.config.settings.options?.featureType ?? layer.config.settings.featureType,
-			"layer_label": layer.config.title,
-			"service_type": layer.config.type,
-			"service_version": 
-				layer.config.type === "wms" ? 	
-				layer.config.settings.version :
-				layer.config.settings.options?.version ?? layer.config.settings.version
-		}));
-
-	return await Promise.all(refs.map(
-		async(ref) => {
-
-		// WMS heeft geen DescribeFeatureType, dus sla over
-		if (ref.service_type == "wms") return ref
-
-		if (ref.service_type == "wfs") {
-			return {
-				...ref,
-				attribute_names: await getWfsAttributeNames(
-				ref.service_endpoint, // bijv. https://service.pdok.nl/kadaster/brk-bestuurlijke-gebieden/wfs/v1_0?request=GetCapabilities&service=WFS
-				ref.layer_name, // bijv. bestuurlijkegebieden:Gemeentegebied
-				ref.service_version // bijv. undefined
-			)
-			}
+		if (event.ctrlKey || event.metaKey) {
+			event.preventDefault();
+			insertNewline(event.currentTarget as HTMLTextAreaElement);
+			return;
 		}
+
+		/* Zonder dit zet de browser alsnog een regeleinde in het veld. */
+		event.preventDefault();
+		ask();
 	}
-	))
-}
 
-/* Zorg dat het chatvenster meebeweegt */
-let bodyEl: HTMLElement;
+	async function insertNewline(el: HTMLTextAreaElement) {
+		const start = el.selectionStart;
+		const end = el.selectionEnd;
 
-$: if (events && bodyEl) {
-	bodyEl.scrollTop = bodyEl.scrollHeight;
-}
+		question = question.slice(0, start) + "\n" + question.slice(end);
+
+		/* `tick` wacht tot Svelte de nieuwe waarde in de DOM heeft gezet; pas
+	   daarna kun je de cursor achter het ingevoegde teken zetten. */
+		await tick();
+		el.setSelectionRange(start + 1, start + 1);
+		autoGrow({ currentTarget: el } as unknown as Event);
+	}
+
+	/* Een textarea groeit niet vanzelf mee. Hoogte eerst op auto, zodat
+   scrollHeight de echte inhoud meet, daarna afgetopt op 7.5rem. */
+	function autoGrow(event: Event) {
+		const el = event.currentTarget as HTMLTextAreaElement;
+		el.style.height = "auto";
+		el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+	}
+
+	const MAX_ROWS = 15;
+
+	function argsPreview(content: unknown): string {
+		if (typeof content === "string") return content;
+		if (content && typeof content === "object") {
+			const values = Object.values(content as Record<string, unknown>);
+			if (values.length === 1 && typeof values[0] === "string") return values[0];
+			return JSON.stringify(content, null, 2);
+		}
+		return "";
+	}
+
+	function artifactRows(content: any): Record<string, unknown>[] {
+		if (!content || typeof content !== "object") return [];
+		if (Array.isArray(content.rows)) return content.rows;
+		if (Array.isArray(content.features))
+			return content.features.map((f: any) => f.properties ?? {});
+		if (Array.isArray(content.results)) return content.results;
+		return [];
+	}
+
+	function artifactColumns(rows: Record<string, unknown>[]): string[] {
+		const columns = new Set<string>();
+		for (const row of rows) {
+			for (const key of Object.keys(row)) columns.add(key);
+		}
+		return [...columns];
+	}
+
+	function artifactCaption(content: any, rowCount: number): string {
+		const source = content?.queried_table ?? content?.type_name ?? content?.query ?? null;
+		const count = content?.feature_count ?? rowCount;
+		return source ? `${count} resultaten · ${source}` : `${count} resultaten`;
+	}
+
+	function formatCell(value: unknown): string {
+		if (value === null || value === undefined) return "–";
+		if (typeof value === "object") return JSON.stringify(value);
+		return String(value);
+	}
+
+	/* Vertaalt Leia's lagen naar WebserviceLayerRef (backend/app/main.py:36). */
+	async function webserviceRefs() {
+		if (!$map) return [];
+
+		const layers = get($map.layers);
+
+		const refs = layers
+			.filter((layer) => ["wfs", "wms"].includes(layer.config.type))
+			.map((layer) => ({
+				service_endpoint: layer.config.settings.url,
+				/* WMS-lagen hebben geen 'options' */
+				layer_name:
+					layer.config.type === "wms"
+						? layer.config.settings.featureName
+						: (layer.config.settings.options?.featureType ?? layer.config.settings.featureType),
+				layer_label: layer.config.title,
+				service_type: layer.config.type,
+				service_version:
+					layer.config.type === "wms"
+						? layer.config.settings.version
+						: (layer.config.settings.options?.version ?? layer.config.settings.version)
+			}));
+
+		return await Promise.all(
+			refs.map(async (ref) => {
+				// WMS heeft geen DescribeFeatureType, dus sla over
+				if (ref.service_type == "wms") return ref;
+
+				if (ref.service_type == "wfs") {
+					return {
+						...ref,
+						attribute_names: await getWfsAttributeNames(
+							ref.service_endpoint, // bijv. https://service.pdok.nl/kadaster/brk-bestuurlijke-gebieden/wfs/v1_0?request=GetCapabilities&service=WFS
+							ref.layer_name, // bijv. bestuurlijkegebieden:Gemeentegebied
+							ref.service_version // bijv. undefined
+						)
+					};
+				}
+			})
+		);
+	}
+
+	/* Zorg dat het chatvenster meebeweegt */
+	let bodyEl: HTMLElement;
+
+	$: if (events && bodyEl) {
+		bodyEl.scrollTop = bodyEl.scrollHeight;
+	}
 </script>
 
 {#if $isChatOpen}
-
 	<div class="chat-panel">
 		<header class="chat-panel__header">
 			<div class="chat-panel__title">
@@ -530,7 +545,10 @@ $: if (events && bodyEl) {
 						</span>
 					{/if}
 					{#if totalTokens > 0}
-						<span class="chat-panel__model chat-panel__tokens" title="{totalTokens.toLocaleString('nl-NL')} tokens in dit gesprek">
+						<span
+							class="chat-panel__model chat-panel__tokens"
+							title="{totalTokens.toLocaleString('nl-NL')} tokens in dit gesprek"
+						>
 							<Currency size={16} />
 							{compactTokens.format(totalTokens)}
 						</span>
@@ -561,7 +579,12 @@ $: if (events && bodyEl) {
 					<Download size={20} />
 				</button>
 
-				<button on:click={closeChat} class="chat-panel__action" type="button" aria-label="Close chat">
+				<button
+					on:click={closeChat}
+					class="chat-panel__action"
+					type="button"
+					aria-label="Close chat"
+				>
 					<Close size={20} />
 				</button>
 			</div>
@@ -575,7 +598,6 @@ $: if (events && bodyEl) {
 			{#each events as event}
 				{#if event.type === "start"}
 					<div class="bubble bubble--user">{event.question}</div>
-
 				{:else if event.type === "ui"}
 					<UiToolStep
 						summary={event.summary}
@@ -585,7 +607,6 @@ $: if (events && bodyEl) {
 						on:dismiss={() => dismissUi(event.toolCallId)}
 						on:always={() => alwaysApplyUi(event.toolCallId, event.toolName)}
 					/>
-
 				{:else if event.type === "ai" && event.thinking}
 					<div class="step step--call">
 						<span class="step__icon"><Gears size={16} /></span>
@@ -594,10 +615,8 @@ $: if (events && bodyEl) {
 							<pre class="step__code">{argsPreview(event.content)}</pre>
 						</div>
 					</div>
-
 				{:else if event.type === "ai"}
 					<div class="bubble bubble--ai">{@html renderMarkdown(event.content)}</div>
-
 				{:else if event.type === "tool" && event.error}
 					<div class="step step--error">
 						<span class="step__icon"><ErrorFilled size={16} /></span>
@@ -606,7 +625,6 @@ $: if (events && bodyEl) {
 							<span class="step__error">{event.error}</span>
 						</div>
 					</div>
-
 				{:else if event.type === "tool"}
 					{@const rows = artifactRows(event.content)}
 					{@const columns = artifactColumns(rows)}
@@ -640,7 +658,6 @@ $: if (events && bodyEl) {
 							{/if}
 						{/if}
 					</div>
-
 				{:else if event.type === "error"}
 					<div class="step step--error">
 						<span class="step__icon"><ErrorFilled size={16} /></span>

@@ -37,8 +37,8 @@
 	import MapToolFlooding from "./tools/MapToolFlooding/MapToolFlooding.svelte";
 	import MapToolZonalStatistics from "./tools/MapToolZonalStatistics/MapToolZonalStatistics.svelte";
 
-	import MapToolChat from "./ui/components/MapTools/MapToolChat/MapToolChat.svelte";
-	import ChatPanel from "./ui/components/MapTools/MapToolChat/ChatPanel.svelte";
+	import MapToolChat from "./tools/MapToolChat/MapToolChat.svelte";
+	import ChatPanel from "./tools/MapToolChat/ChatPanel.svelte";
 
 	const settings = writable<any>({});
 	const enabledTools = writable<Array<string>>(new Array<string>());

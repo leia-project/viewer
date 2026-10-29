@@ -6,7 +6,7 @@ import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
 import { MvtProviderCesium, type MvtAccess } from "../providers/mvt-provider";
 
 import type { DataDrivenStyle } from "../providers/mvt-style";
-import type { LayerConfig } from "$lib/components/map-core/layer-config";
+import type { LayerConfig } from "$lib/map-core/layer-config";
 import type { Map } from "../map";
 
 export interface MvtProperty {
