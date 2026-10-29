@@ -8,3 +8,12 @@ node_modules
 !.env.example
 .vercel
 .output
+
+# BRO geodata: shared as a zip in the PR, served from virtueel.zeeland.nl in production
+static/bro_bhrgt_zeeland_3dtiles/
+static/bro_bhrgt_zeeland_locaties.geojson
+static/bro_cpt_zeeland_3dtiles/
+static/bro_cpt_zeeland_locaties.geojson
+static/bro-bhr-gt-tiles.zip
+static/bro.config.json
+static/bro_data.zip
