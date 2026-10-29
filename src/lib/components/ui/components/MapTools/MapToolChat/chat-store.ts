@@ -2,6 +2,8 @@ import { writable } from "svelte/store";
 
 export const isChatOpen = writable(false)
 
+export const chatApiUrl = writable<string | undefined>(undefined);
+
 export function openChat(): void {
 	isChatOpen.set(true)
 }

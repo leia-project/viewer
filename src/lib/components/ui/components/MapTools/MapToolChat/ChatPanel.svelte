@@ -6,8 +6,6 @@
 	import { _ } from "svelte-i18n";
 
 	import { isChatOpen, closeChat } from "./chat-store";
-
-	export let LLMModelName: string | null = null;
 </script>
 
 {#if $isChatOpen}
@@ -18,9 +16,6 @@
 			<Chat size={20} />
 			<span>
 				{$_("tools.chat.label")}
-				{#if LLMModelName}
-					<span class="chat-panel__model">({LLMModelName})</span>
-				{/if}
 			</span>
 		</div>
 

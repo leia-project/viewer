@@ -37,6 +37,9 @@
 	import MapToolFlooding from "./tools/MapToolFlooding/MapToolFlooding.svelte";
 	import MapToolZonalStatistics from "./tools/MapToolZonalStatistics/MapToolZonalStatistics.svelte";
 
+	import MapToolChat from "./ui/components/MapTools/MapToolChat/MapToolChat.svelte";
+	import ChatPanel from "./ui/components/MapTools/MapToolChat/ChatPanel.svelte";
+
 	const settings = writable<any>({});
 	const enabledTools = writable<Array<string>>(new Array<string>());
 	const base = process.env.APP_URL;
@@ -268,6 +271,10 @@
 					/>
 				{/if}
 
+				{#if $enabledTools.includes("chat")}
+					<MapToolChat id="chat" label={`tools.chat.label`} />
+				{/if}
+
 				{#if $enabledTools.includes("help")}
 					<MapToolHelp id="help" label={`tools.help.label`} />
 				{/if}
@@ -290,6 +297,10 @@
 						<MapControls map={$map} />
 					{:else}
 						<POVMapControls map={$map} />
+					{/if}
+
+					{#if $enabledTools.includes("chat")}
+						<ChatPanel />
 					{/if}
 				</div>
 			</div>
