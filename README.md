@@ -1223,6 +1223,15 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 ||chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
 ||chapterGroups|Groups the chapter ids refer to|object|
 ||markers|**Optional**: Story-level content markers, independent of chapter steps. Each has `type: "marker"` and a `beforeAfter` or `html` action; see below|array|
+||markerSize|**Optional**: Width and height in pixels of all marker icons in this story (chapter, image and content markers). Defaults to `52`. A single marker can override it with its own `markerSize`|number|
+||focusOnMarkers|**Optional**: When `true` (default), steps with `markerCoordinates` centre the camera on those markers, and clicking a marker centres on that marker. Set to `false` to always fly to the step's configured `camera` instead. A step can override this with its own `focusOnMarkers`|boolean|
+
+Besides `title`, `html`, `camera` and `layers`, each step supports these optional settings:
+
+|value|description|default|type|
+|-|-|-|-|
+|focusOnMarkers|Overrides the story's `focusOnMarkers` for this step: `false` flies to this step's `camera` (also when its marker is clicked), `true` centres on its markers|story setting|boolean|
+|showMarkers|Ids of story-level content markers (`markers[].id`) shown in this step. A content marker listed in any step's `showMarkers` is **only** shown in those steps; content markers not listed anywhere stay visible in every step|-|array[string]|
 
 Each layer within a step's `layers` array supports these settings:
 
@@ -1236,7 +1245,7 @@ Each layer within a step's `layers` array supports these settings:
 
 ##### Story-level content markers
 
-Define these in `settings.stories[].markers`, alongside `chapters`, not inside a step. They appear as camera icons while their story is open in the Stories tool and remain available across all its steps. Activating one opens the existing centred gallery overlay without changing the active step, scrolling the story or moving the camera. The story marker toggle hides them and closes their open overlay; changing/closing the story also closes it. They do not add markers or controls to the story selection overview.
+Define these in `settings.stories[].markers`, alongside `chapters`, not inside a step. They appear as camera icons while their story is open in the Stories tool and remain available across all its steps, unless a step lists them in its `showMarkers` (then they only appear in those steps). Activating one opens the existing centred gallery overlay without changing the active step, scrolling the story or moving the camera. The story marker toggle hides them and closes their open overlay; changing/closing the story also closes it. They do not add markers or controls to the story selection overview.
 
 |value|description|type|
 |-|-|-|
@@ -1245,6 +1254,7 @@ Define these in `settings.stories[].markers`, alongside `chapters`, not inside a
 |title|**Required**: marker hover text and overlay title|string|
 |x / y|**Required**: longitude (`-180..180`) and latitude (`-90..90`)|number|
 |action|**Required**: `beforeAfter` or `html` content, described below|object|
+|markerSize|**Optional**: icon width and height in pixels; overrides the story's `markerSize`|number|
 
 The built-in `beforeAfter` action needs no HTML or extra package. It overlays two images and starts the draggable divider at 50%; mouse, touch and the native range input's keyboard controls are supported. Both images use the same display frame; use equally sized/aligned images for an accurate comparison. A failed image displays an error placeholder instead of a broken comparison.
 
@@ -1271,7 +1281,7 @@ The overlay closes using its close button, Escape or its backdrop, and keeps key
 
 Invalid markers (including duplicate ids, unknown actions, out-of-range coordinates and unsafe URLs) are skipped with a console warning; other markers and stories remain available. The example configuration includes a working comparison with fictional demo illustrations and an interactive HTML marker; replace these with your own photos/content.
 
-Opening a story first applies the panel width and resizes Cesium, then frames that story's markers in the centre of the **remaining map area**. The configured step camera height/view angle provide a minimum viewing distance, so closely spaced markers do not cause an extreme zoom-in. Opening through a step-navigation marker focuses that marker instead. Step buttons, arrows, chapter navigation and scrolling also centre the active step's `markerCoordinates`, using the step's camera height/view angle and the available terrain height. Independent story-level content markers are not used as step targets. Steps without `markerCoordinates` keep their configured camera destination, and `staticCamera: true` continues to suppress automatic camera movement.
+Opening a story first applies the panel width and resizes Cesium, then frames that story's markers in the centre of the **remaining map area**. The configured step camera height/view angle provide a minimum viewing distance, so closely spaced markers do not cause an extreme zoom-in. Opening through a step-navigation marker focuses that marker instead. Step buttons, arrows, chapter navigation and scrolling also centre the active step's `markerCoordinates`, using the step's camera height/view angle and the available terrain height. Independent story-level content markers are not used as step targets. Steps without `markerCoordinates` keep their configured camera destination, and `staticCamera: true` continues to suppress automatic camera movement. Set `focusOnMarkers: false` on the story or a step to fly to the configured step `camera` instead of centring on the markers, for example when a marker is deliberately placed next to the area the step should show.
 
 ##### Step-navigation and legacy image markers
 
@@ -1294,6 +1304,8 @@ For `text` and `image` markers, `openStoryStep` defaults to `false`. When set to
 |url|**Mandatory when type is `image`**: image url, or array of image urls for gallery mode|string or array[string]|
 |symbolUrl|**Optional for type `chapter`**: url of an image that replaces the default circle with story icon. if the image cannot be loaded the default icon is used and a warning is logged to the console|string|
 |maxImageSize|**Optional for type `chapter` with `symbolUrl`**: maximum width and height of the symbol in pixels (aspect ratio is kept, images are never scaled up), standard value is 128|number|
+|markerSize|**Optional for type `chapter` or `image`**: icon width and height in pixels; overrides the story's `markerSize`. A loaded `symbolUrl` image uses `maxImageSize` instead|number|
+|onlyInStep|**Optional**: when `true` the marker is only shown while its own step is active (not in the story overview or other steps). Defaults to `false`|boolean|
 
 ##### Runnable story examples
 
