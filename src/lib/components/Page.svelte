@@ -36,9 +36,7 @@
 	import MapToolConfigSwitcher from "./tools/MapToolConfigSwitcher/MapToolConfigSwitcher.svelte";
 	import MapToolFlooding from "./tools/MapToolFlooding/MapToolFlooding.svelte";
 	import MapToolZonalStatistics from "./tools/MapToolZonalStatistics/MapToolZonalStatistics.svelte";
-
 	import MapToolChat from "./tools/MapToolChat/MapToolChat.svelte";
-	import ChatPanel from "./tools/MapToolChat/ChatPanel.svelte";
 
 	const settings = writable<any>({});
 	const enabledTools = writable<Array<string>>(new Array<string>());
@@ -297,10 +295,6 @@
 						<MapControls map={$map} />
 					{:else}
 						<POVMapControls map={$map} />
-					{/if}
-
-					{#if $enabledTools.includes("chat")}
-						<ChatPanel {map} />
 					{/if}
 				</div>
 			</div>

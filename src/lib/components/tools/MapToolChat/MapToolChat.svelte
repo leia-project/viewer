@@ -1,17 +1,18 @@
 <script lang="ts">
 	/* Imports */
-	import { getContext } from "svelte";
+	import { getContext, onDestroy } from "svelte";
 
 	/* Carbon button */
 	import QuestionAnswering from "carbon-icons-svelte/lib/QuestionAnswering.svelte";
 
 	import { MapToolMenuOption } from "../MapToolMenuOption";
 
+	import ChatPanel from "./ChatPanel.svelte";
 	import { toggleChat, chatApiUrl } from "./chat-store";
 	import { addGaiaLayers } from "./GaiaLayers/gaia-layers";
 	import { _ } from "svelte-i18n";
 
-	const { registerTool } = getContext<any>("mapTools");
+	const { registerTool, getMapContainer, map } = getContext<any>("mapTools");
 
 	export let id: string;
 	export let label: string;
@@ -21,11 +22,6 @@
 
 	registerTool(tool);
 
-	$: label = label ?? $_("tools.chat.label");
-	$: {
-		tool.label.set(label);
-	}
-
 	/* Pass the tggleChat function */
 	tool.onToolButtonClick = toggleChat;
 
@@ -34,6 +30,11 @@
 	tool.settings.subscribe((settings) => {
 		chatApiUrl.set(settings?.apiUrl);
 	});
+
+	/* The panel floats over the map, so it is mounted in the map container
+       instead of in the tool menu. */
+	const panel = new ChatPanel({ target: getMapContainer(), props: { map } });
+	onDestroy(() => panel.$destroy());
 
 	/* The datasets of the same API as the chat, as layers of this map. */
 	let gaiaLayersFor: string | undefined;

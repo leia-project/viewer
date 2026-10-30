@@ -13,7 +13,6 @@
 	import { HttpAgent } from "@ag-ui/client";
 	import type { AgentSubscriber } from "@ag-ui/client";
 
-	import type { Writable } from "svelte/store";
 	import type { Map } from "$lib/map-cesium/map";
 
 	import { isChatOpen, closeChat, chatApiUrl } from "./chat-store";
@@ -30,10 +29,10 @@
 	import { marked } from "marked";
 	import DOMPurify from "dompurify";
 
-	import { derived, get } from "svelte/store";
+	import { get } from "svelte/store";
 	import { tick } from "svelte";
 
-	export let map: Writable<Map | undefined>;
+	export let map: Map | undefined;
 
 	function renderMarkdown(text: string): string {
 		const rawHtml = marked.parse(text, { async: false });
@@ -197,7 +196,7 @@
 		patchUi(toolCallId, { status: "running" });
 		execution = execution.then(async () => {
 			try {
-				const current = get(map);
+				const current = map;
 				if (!current) throw new Error("De kaart is niet beschikbaar.");
 				if (!$chatApiUrl) throw new Error("De backend-URL is niet bekend.");
 				finishUi(
@@ -373,7 +372,7 @@
 			/* De agent kent de lagen op de kaart alleen hieruit: `layers` zijn de
 		   webservices die hij kan bevragen, `map_layers` alles waar hij op kan werken,
 		   onder de namen die de tools accepteren. */
-			const current = get(map);
+			const current = map;
 			agent.state = {
 				layers: refs,
 				map_layers: labelLayers(current ? get(current.layers) : []).map(({ label, layer }) => ({
@@ -482,9 +481,9 @@
 
 	/* Vertaalt Leia's lagen naar WebserviceLayerRef (backend/app/main.py:36). */
 	async function webserviceRefs() {
-		if (!$map) return [];
+		if (!map) return [];
 
-		const layers = get($map.layers);
+		const layers = get(map.layers);
 
 		const refs = layers
 			.filter((layer) => ["wfs", "wms"].includes(layer.config.type))
