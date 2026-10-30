@@ -76,6 +76,7 @@ Base configuration for the viewer such as start position, UI colors.
 |startPosition|Startposition of the camera|[startPosition](#startposition)|
 |startCameraMode3D|Choose to start the camera in 2D or 3D mode|boolean|
 |startToolOpen|Choose the id of the map tool you want the viewer to start with already opened. Current support: `layermanager`, `stories`|string|
+|accessibility|Accessibility options for the viewer|[accessibility](#accessibility)|
 |colors|Colors to use in de app, for more info check Carbon Design|[colors](#colors)|
 |title|The title shown in the top bar of the viewer|string|
 |subTitle|Subtitle shown in the top bar after the title|string|
@@ -113,6 +114,23 @@ The start position of the camera. Since we are using a 3D viewer we need more th
     "heading": 344.23744,
     "pitch": -44.5522,
     "duration": 0
+}
+```
+
+#### accessibility
+Accessibility options. Currently used to enable trackpad mode: an extra button next to the zoom/home buttons that expands a set of camera controls (height up/down, tilt up/down, rotate left/right).
+
+|value|description|type|
+|-|-|-|
+|trackpadMode|Show the trackpad camera controls button on the map|boolean|
+|trackpadStepAngle|Degrees the camera tilts/rotates per button click (default 5)|number|
+|trackpadStepHeightFactor|Fraction of the current camera height the camera moves up/down per button click (default 0.1)|number|
+
+```json
+"accessibility": {
+    "trackpadMode": true,
+    "trackpadStepAngle": 5,
+    "trackpadStepHeightFactor": 0.1
 }
 ```
 
@@ -1048,16 +1066,28 @@ Tool for storymapping. Create and show multiple stories in the viewer. Each stor
 |-|-|-|-|
 |alias||**Optional**: Different name for the tool showing in the viewer|string|
 |position||**Optional**: Change the default position of the tool in the top left toolbar. Max value must be equal to the number of enabled tools|integer|
-|showOnMap||**Optional**: Show story markers on the map initially. The visibility can also be changed with the Stories tool toggle, which is available both in the story overview and at the bottom of an opened story. Defaults to `true`|boolean|
+|showOnMap||**Optional**: Show story markers on the map initially. Defaults to `true`. The overview toggle remains available as before; a toggle inside an opened story requires that story's `showMarkerToggle` option|boolean|
 |stories|name|The name of the story|string|
 ||description|A short description to describe the story|string|
 ||width|The width of the story menu|string|
+||maxWidth|**Optional**: Maximum width of the story menu, as a CSS length (for example `"50rem"` or `"800px"`). Keeps the text readable on wide screens: the menu is as wide as `width`, but never wider than `maxWidth`. Without this option the width is not limited|string|
 ||forceCameraMode|Forces the camera into a fixed mode while the story is open and prevents users from switching camera mode. Accepts `"2D"` or `"3D"`. On opening the story the camera switches to the given mode if needed; on closing it reverts to the previous mode if it was changed|string|
 ||staticCamera|Keeps camera location the same after drawing and between steps|boolean|
+||showMarkerToggle|**Optional**: Show the marker visibility toggle in this story's footer when the story has markers. Defaults to `false`; markers no longer automatically add this button. This only controls the button, not marker visibility or the story overview footer|boolean|
 ||requestPolygonArea|Adds a polygon drawing tool that requests data in each story step from a WMS layer if a WCS layer with an identical name exists. Define whether the tool is enabled and what API should be used (if enabled)|object|
-||baseLayerId|ID of a base layer that can be toggled on or off and can be seen in each story step|string|
+||baseLayerId|ID of a base layer copied into the story and available in each step. Set this when steps do not provide a background layer: opening a story hides the previously visible map layers|string|
 ||chapters|Structure of storysteps within chapters. Each chapter has a chapter id and a list of steps. See the example below|object|
 ||chapterGroups|Groups the chapter ids refer to|object|
+||markers|**Optional**: Story-level content markers, independent of chapter steps. Each has `type: "marker"` and a `beforeAfter`, `image` or `html` action; see below|array|
+||markerSize|**Optional**: Width and height in pixels of all marker icons in this story (chapter, image and content markers). Defaults to `52`. A single marker can override it with its own `markerSize`|number|
+||focusOnMarkers|**Optional**: When `true` (default), steps with `markerCoordinates` centre the camera on those markers, and clicking a marker centres on that marker. Set to `false` to always fly to the step's configured `camera` instead. A step can override this with its own `focusOnMarkers`|boolean|
+
+Besides `title`, `html`, `camera` and `layers`, each step supports these optional settings:
+
+|value|description|default|type|
+|-|-|-|-|
+|focusOnMarkers|Overrides the story's `focusOnMarkers` for this step: `false` flies to this step's `camera` (also when its marker is clicked), `true` centres on its markers|story setting|boolean|
+|showMarkers|Ids of story-level content markers (`markers[].id`) shown in this step. A content marker listed in any step's `showMarkers` is **only** shown in those steps; content markers not listed anywhere stay visible in every step|-|array[string]|
 
 Each layer within a step's `layers` array supports these settings:
 
@@ -1067,14 +1097,110 @@ Each layer within a step's `layers` array supports these settings:
 |opacity|Initial opacity percentage of the layer|100|number|
 |style|Style/theme to apply to the layer|-|string|
 |showOpacitySlider|Whether the transparency slider is shown for this layer in the story step|true|boolean|
+|opacitySliderGroup|**Optional**: Layers in the same step with this group name share one slider. The trimmed group name is its label. All members must have the same initial `opacity` between 0 and 100|-|string|
 
-Each story step can also define `markerCoordinates`. The marker label shows the story, chapter, and step name. Clicking a marker opens the story directly on its step. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story.
+##### Story-level content markers
+
+Define these in `settings.stories[].markers`, alongside `chapters`, not inside a step. They appear as camera icons by default while their story is open in the Stories tool and remain available across all its steps, unless a step lists them in its `showMarkers` (then they only appear in those steps). Set `symbolUrl` to replace the default icon with a custom image. Activating one opens the existing centred gallery overlay without changing the active step, scrolling the story or moving the camera. The story marker toggle hides them and closes their open overlay; changing/closing the story also closes it. They do not add markers or controls to the story selection overview.
+
+|value|description|type|
+|-|-|-|
+|type|**Required**: `"marker"` identifies a story-level content marker|string|
+|id|**Required**: non-empty identifier, unique within the story|string|
+|title|**Required**: marker hover text and overlay title|string|
+|x / y|**Required**: longitude (`-180..180`) and latitude (`-90..90`)|number|
+|action|**Required**: `beforeAfter`, `image` or `html` content, described below|object|
+|symbolUrl|**Optional**: image url that replaces the default camera icon; if loading fails, the default icon is used and a warning is logged|string|
+|maxImageSize|**Optional with `symbolUrl`**: maximum width and height in pixels (aspect ratio is kept, images are never scaled up). Defaults to 128|number|
+|markerSize|**Optional**: icon width and height in pixels; overrides the story's `markerSize`|number|
+
+The built-in `beforeAfter` action needs no HTML or extra package. It overlays two images and starts the draggable divider at 50%; mouse, touch and the native range input's keyboard controls are supported. Both images use the same display frame; use equally sized/aligned images for an accurate comparison. A failed image displays an error placeholder instead of a broken comparison.
+
+```json
+{
+	"type": "marker",
+	"id": "road-comparison",
+	"title": "Before and after",
+	"x": 4.896,
+	"y": 52.375,
+	"action": {
+		"type": "beforeAfter",
+		"before": { "url": "images/story-comparison-before.svg", "label": "Before" },
+		"after": { "url": "images/story-comparison-after.svg", "label": "After" }
+	}
+}
+```
+
+`before.url` and `after.url` are required HTTP(S) or relative image URLs. Their optional `label` fields default to the localized Before/After labels.
+
+For one or more ordinary photos, use the `image` action. The images use the same `{ "url", "label" }` objects as `beforeAfter`; the marker `title` is shown above the photo and each optional `label` as a caption below it. Multiple images get previous/next arrows (and arrow-key navigation). Like every story-level marker, list its `id` in the `showMarkers` of each step where it should appear to reuse it across several steps.
+
+```json
+{
+	"type": "marker",
+	"id": "photos",
+	"title": "Photos of the square",
+	"x": 4.899,
+	"y": 52.373,
+	"action": {
+		"type": "image",
+		"images": [
+			{ "url": "images/photo-1.jpg", "label": "Summer" },
+			{ "url": "images/photo-2.jpg" }
+		]
+	}
+}
+```
+
+For custom content, use `action: { "type": "html", "html": "<!doctype html>..." }` with inline HTML/JavaScript, or `action: { "type": "html", "url": "story-content/widget.html" }` to embed a page. Specify **exactly one** of `html` and `url`. Content is displayed inside the same overlay in an iframe with `sandbox="allow-scripts"`: JavaScript can manipulate its own document, but cannot access the viewer's DOM, cookies or storage. URL content must permit iframe embedding, and its resource requests are subject to the sandbox's opaque-origin/CORS restrictions. No `eval` or script injection into the viewer is used.
+
+The overlay closes using its close button, Escape or its backdrop, and keeps keyboard focus inside while open. Keyboard events do not cross iframe boundaries: inline HTML automatically gets an Escape-to-close bridge; an external page can request closing with `parent.postMessage("story-marker:close", "*")` (for example from its own Escape handler). The viewer accepts this message **only from the currently embedded frame**; other windows cannot close the overlay through this hook.
+
+Invalid markers (including duplicate ids, unknown actions, out-of-range coordinates and unsafe URLs) are skipped with a console warning; other markers and stories remain available. The example configuration includes a working comparison with fictional demo illustrations and an interactive HTML marker; replace these with your own photos/content.
+
+Opening a story first applies the panel width and resizes Cesium, then frames that story's markers in the centre of the **remaining map area**. The configured step camera height/view angle provide a minimum viewing distance, so closely spaced markers do not cause an extreme zoom-in. Opening through a step-navigation marker focuses that marker instead. Step buttons, arrows, chapter navigation and scrolling also centre the active step's `markerCoordinates`, using the step's camera height/view angle and the available terrain height. Independent story-level content markers are not used as step targets. Steps without `markerCoordinates` keep their configured camera destination, and `staticCamera: true` continues to suppress automatic camera movement. Set `focusOnMarkers: false` on the story or a step to fly to the configured step `camera` instead of centring on the markers, for example when a marker is deliberately placed next to the area the step should show.
+
+##### Step-navigation and legacy image markers
+
+Each story step can also define `markerCoordinates`. Use `x` for longitude and `y` for latitude. A step can have one coordinate object or a list of coordinate objects. While a story is open only that story's markers are shown, so they can be used to jump between its steps; hide them with the toggle at the bottom of the story. These existing markers remain supported. Each has a `type`, defaulting to `chapter` when omitted:
+
+- **`chapter`** (default): shows the book icon. The marker label shows the story, chapter, and step name; clicking it opens the story directly on its step.
+- **`text`**: shows the given `text` in a speech bubble on the map instead of an icon. `text` is mandatory for this type. Set `openStoryStep: true` to make the bubble a clickable, keyboard-accessible button that opens its story step.
+- **`image`**: shows a camera icon; clicking it opens the image(s) from `url` in gallery mode. `url` is mandatory for this type and can be a single string or an array of strings — with multiple images the gallery shows arrow controls to navigate between them. Only `http(s)` and relative urls are used.
+
+For `text` and `image` markers, `openStoryStep` defaults to `false`. When set to `true`, activating the marker opens the story on the step containing that marker. For image markers this replaces the gallery action; it does not open both the gallery and the story step. Chapter markers always open their step.
 
 |value|description|type|
 |-|-|-|
 |markerCoordinates|**Optional**: Location or locations of markers for this story step|object or array[object]|
+|type|**Optional**: `chapter` (default), `text`, or `image`|string|
 |x|Longitude of the story marker|number|
 |y|Latitude of the story marker|number|
+|text|**Mandatory when type is `text`**: text shown in the speech bubble. **Optional for type `image`**: tooltip shown when hovering the marker|string|
+|openStoryStep|**Optional for type `text` or `image`**: opens the containing story step when activated instead of leaving text passive or opening the image gallery. Defaults to `false`|boolean|
+|url|**Mandatory when type is `image`**: image url, or array of image urls for gallery mode|string or array[string]|
+|symbolUrl|**Optional for type `chapter` or `image`**, and story-level `type: "marker"`: url of an image that replaces the default map icon. If it cannot be loaded, the default icon is used and a warning is logged to the console|string|
+|maxImageSize|**Optional with `symbolUrl`**: maximum width and height of the symbol in pixels (aspect ratio is kept, images are never scaled up), standard value is 128|number|
+|markerSize|**Optional for type `chapter` or `image`, and story-level `type: "marker"`**: icon width and height in pixels; overrides the story's `markerSize`. A loaded `symbolUrl` image uses `maxImageSize` instead|number|
+|onlyInStep|**Optional**: when `true` the marker is only shown while its own step is active (not in the story overview or other steps). Defaults to `false`|boolean|
+
+##### Runnable story examples
+
+[static/example.config.json](static/example.config.json) includes three stories with instructions in their steps:
+
+|Story|Examples|
+|-|-|
+|Amsterdam|Book markers, clickable and passive text bubbles, image-to-step navigation, a two-image gallery, independent before/after and inline/URL HTML markers, the marker toggle, and a panel capped with `maxWidth`|
+|Kaartlagen en schuifregelaars|Two local GeoJSON layers, separate and grouped sliders, a hidden-control group member that still follows the shared slider, slider/footer state preserved between steps, forced 2D mode, and a capped flexible panel|
+|Vast camerabeeld|`staticCamera: true`, different layer sets without an automatic camera flight, and hidden opacity controls|
+
+The [project area](static/story-examples/area.geojson), [green strips](static/story-examples/green.geojson), and comparison illustrations are **fictional demonstration data**, not real projects or proposals. The two demo layers are off by default. The layer-control stories use terrain `Uit` so their flat local geometry does not depend on a terrain service; closing a story restores the previous layer state and terrain.
+
+For the fixed-camera example, first open the slider story or position the map yourself: a static-camera story intentionally preserves the current view, even when opening it. It does not disable manual panning or zooming.
+
+The URL-based HTML marker loads [marker-widget.html](static/story-examples/marker-widget.html), a self-contained page with an interactive green-space slider. It needs no external assets, works inside the sandbox, and demonstrates the close-message hook for both its button and Escape. The inline HTML marker is a separate counter example. Keep the two HTML forms separate: an action uses either `html` or `url`, never both.
+
+The following larger configuration illustrates the individual settings for adapting these stories to your own data:
 
 ```json
 
@@ -1092,6 +1218,7 @@ Each story step can also define `markerCoordinates`. The marker label shows the 
 				"width": "600px",
 				"forceCameraMode": "2D",
 				"staticCamera": false,
+				"showMarkerToggle": true,
 				"requestPolygonArea": {
 					"enabled": false,
 					"statisticsApi": "https://virtueel.dev.zeeland.nl/ko_api/analyze"
@@ -1107,8 +1234,23 @@ Each story step can also define `markerCoordinates`. The marker label shows the 
 								"globeOpacity": 100,
 								"terrain": "PDOK Terrain",
 								"markerCoordinates": [{
+									"type": "chapter",
 									"x": 5.23907,
 									"y": 52.20004
+								},
+								{
+									"type": "text",
+									"text": "This is example text",
+									"openStoryStep": true,
+									"x": 5.23950,
+									"y": 52.20050
+								},
+								{
+									"type": "image",
+									"url": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
+									"openStoryStep": true,
+									"x": 5.23860,
+									"y": 52.19960
 								}],
 								"camera": {
 									"x": 5.23907,
@@ -1121,7 +1263,13 @@ Each story step can also define `markerCoordinates`. The marker label shows the 
 								"layers": [
 									{
 										"id": "002",
-										"opacity": 50
+										"opacity": 50,
+										"opacitySliderGroup": "Climate layers"
+									},
+									{
+										"id": "003",
+										"opacity": 50,
+										"opacitySliderGroup": "Climate layers"
 									},
 									{
 										"id": "19747667-ddb2-4162-99f6-a37d5aaa15ea",
@@ -1177,15 +1325,15 @@ Tool to calculate and visualize car isochrones (travel-time areas) around an eco
 
 #### zonalStatistics
 
-Generic tool to inspect statistics per zone (e.g. per postcode area). The user clicks one or more zone geometries on the map and a floating table appears with one row per data layer added to the table and one or more configurable columns per selected zone. What the map shows and what the table shows are independent: in the tool panel each configured data layer gets a card with a **radio button** that makes it the layer whose values are painted on the zones (so it is always clear which layer you are looking at), while its data is added to the table with the **+** button on the same card (which turns into a red trash-can button to remove the row again). Removing and re-adding a layer immediately updates the rows for the already selected zones; a newly added row briefly flashes blue so it is easy to spot. All layers in the tool are drawn with **one shared colour scheme**: the `classMapping` on the `zoneLayerId` layer (keyed on that layer's `style` attribute) is applied to every configured data layer, so the same value always gets the same colour instead of each GeoJSON layer picking random colours. Because the data layers are attribute joins on the zone code, they all share the zone layer's geometry: the zones are drawn once and only recoloured when another layer is selected, and the data layers themselves are never drawn as map layers at all — only their attributes and colours are read — so adding more layers to the tool does not slow the map down or grow its memory use. The opacity slider on a layer's card sets the fill transparency while that layer is selected. The tool opens with the first configured data layer shown on the map and as the table's first row; when the table has no layers it shows a hint instead of rows and exports are disabled. Data layers are only downloaded when they are actually used: on viewer start just the zone layer is loaded, and each other layer is fetched (one at a time) the first time it is selected on the map or added to the table, with a spinner on its panel card while that happens. The zone boundaries are outlined in black for as long as the tool is open, whichever layer is selected; the zones in the table get a thicker yellow outline and the zone currently focused in the table a thicker blue one. Closing the tool empties the table and restores the zone layer to the visibility it had before the tool was opened. Each column reads an attribute from the row-layer's feature, so the tool can show categorical labels (colour-styled), numeric statistics, or any mix. Hovering a zone highlights it on the map; selected zones are tinted (the zone currently focused in the table gets the strongest tint), a live count of the selected zones is shown, and export progress is indicated while a PNG, JPEG, PDF or CSV is generated. Each selected zone's table column header has a zoom button that flies the camera to frame that zone. The table can be exported as PNG, JPEG, PDF or CSV; the `tooltipAttribute` description text is included in every export (a description column in the PDF and CSV, and rendered inline in the PNG/JPEG). The PNG/JPEG exports use a dedicated A4-portrait-width sheet where each selected zone is a separate table stacked vertically (rather than the wide side-by-side on-screen table), so the image fits on A4 pages. In the tool panel (left menu) each configured data layer gets a compact card with the radio button and the add/remove-from-table button, plus an opacity slider behind a chevron. The tool ships no built-in colours or branding — everything is config-driven.
+Generic tool to inspect statistics per zone (e.g. per postcode area). The user clicks one or more zone geometries on the map and a floating table appears with one row per data layer added to the table and one or more configurable columns per selected zone. What the map shows and what the table shows are independent: in the tool panel each configured data layer gets a card with a **radio button** that makes it the layer whose values are painted on the zones (so it is always clear which layer you are looking at), while its data is added to the table with the **+** button on the same card (which turns into a red trash-can button to remove the row again). Removing and re-adding a layer immediately updates the rows for the already selected zones; a newly added row briefly flashes blue so it is easy to spot. All layers in the tool are drawn with **one shared colour scheme**: the `classMapping` on the `zoneLayerId` layer (keyed on that layer's `style` attribute) is applied to every configured data layer, so the same value always gets the same colour instead of each GeoJSON layer picking random colours. Because the data layers are attribute joins on the zone code, they all share the zone layer's geometry: the zones are drawn once and only recoloured when another layer is selected, and the data layers themselves are never drawn as map layers at all — only their attributes and colours are read — so adding more layers to the tool does not slow the map down or grow its memory use. The opacity slider on a layer's card sets the fill transparency while that layer is selected. The tool opens with the first configured data layer shown on the map and as the table's first row; when the table has no layers it shows a hint instead of rows and exports are disabled. Data layers are only downloaded when they are actually used: on viewer start just the zone layer is loaded, and each other layer is fetched (one at a time) the first time it is selected on the map or added to the table, with a spinner on its panel card while that happens. The zone boundaries are outlined in black for as long as the tool is open, whichever layer is selected; the zones in the table get a thicker yellow outline and the zone currently focused in the table a thicker blue one. Opening the tool switches off every visible layer in the layer manager except the background layers and the zone layer, so nothing is drawn over the tool's zones; closing the tool empties the table, switches those layers back on and restores the zone layer to the visibility it had before the tool was opened. Each column reads an attribute from the row-layer's feature, so the tool can show categorical labels (colour-styled), numeric statistics, or any mix. Hovering a zone highlights it on the map; selected zones are tinted (the zone currently focused in the table gets the strongest tint), a live count of the selected zones is shown, and export progress is indicated while a PNG, JPEG, PDF or CSV is generated. Each selected zone's table column header has a zoom button that flies the camera to frame that zone. The table can be exported as PNG, JPEG, PDF or CSV; the `tooltipAttribute` description text is included in every export (a description column in the PDF and CSV, and rendered inline in the PNG/JPEG). The PNG/JPEG exports use a dedicated A4-portrait-width sheet where each selected zone is a separate table stacked vertically (rather than the wide side-by-side on-screen table), so the image fits on A4 pages. In the tool panel (left menu) each configured data layer gets a compact card with the radio button and the add/remove-from-table button, plus an opacity slider behind a chevron. The tool ships no built-in colours or branding — everything is config-driven.
 
 |value|description|type|
 |-|-|-|
 |zoneLayerId|Id of the layer holding the clickable zone geometries. This is the only layer of the tool that is actually drawn: it is switched on while the tool is open and every data layer's values are painted onto it. Its `settings.classMapping` (keyed on its `settings.style` attribute) is applied to every data layer, so all layers in the tool share one colour scheme|string|
 |zoneCodeAttribute|Attribute on a zone feature that holds its code (e.g. a postcode). Defaults to `postcode`. Because the data layers are separate datasets joined on this code, codes are matched ignoring case and whitespace (`"4331 ab"` and `"4331AB"` are the same zone); values from `classMapping` are matched ignoring case too|string|
-|layers|Data layers selectable in the panel; each can be added to the table as a row. Each entry is `{ id, title?, columns? }`; `title` defaults to the layer's config title, and `columns` overrides the source attribute names this layer reads for one or more columns (see below). The first entry is shown on the map and added to the table when the tool opens. Data layers are attribute joins on `zoneCodeAttribute` and are drawn on the `zoneLayerId` geometry, so a zone the layer has no feature for is left blank. They are never added to the map as layers themselves: only the `zoneLayerId` layer is loaded on viewer start, and each data layer's GeoJSON is downloaded one at a time — the first time it is selected or added to the table — to read its attributes and colours|array|
+|layers|Data layers selectable in the panel; each can be added to the table as a row. Each entry is `{ id, title?, groupId?, url?, metadataUrl?, opacity?, columns? }`. A data layer is an **attribute join** on `zoneCodeAttribute` and is drawn on the `zoneLayerId` geometry, so it does **not** need a layer of its own in `layers`: `id` is just a stable key, `title` is the card/row label, `groupId` groups the panel's cards (matching a `groups` entry), `url` is the GeoJSON the attributes are read from (defaults to the zone layer's dataset), `metadataUrl` adds a metadata link to the card, `opacity` (0-100, defaults to 80) is the fill opacity of this layer on the zone geometry, and `columns` overrides the source attribute names this layer reads for one or more columns (see below). When a layer with the same `id` *does* exist in `layers`, its title, group, url, metadata and opacity are used as fallbacks for whatever the entry omits (note that the opacity is then the *same* store as the map layer's, so the card's slider also moves that layer's opacity in the layer manager — set the entry's own `opacity` to keep them separate). The first entry is shown on the map and added to the table when the tool opens. A zone the layer has no feature for is left blank. Only the `zoneLayerId` layer is loaded on viewer start; each data layer's GeoJSON is read one at a time — the first time it is selected or added to the table — and when it shares the zone layer's dataset nothing is downloaded at all|array|
 |columns|Columns rendered per selected zone. Each entry is `{ key?, attribute, label?, hideInTable?, hideInImageExport?, decimals?, tooltipAttribute?, styled? }`. `attribute` is the *default* source attribute name and `key` is the stable id a layer's `columns` override refers to (defaults to `attribute`); `label` defaults to `attribute`; `hideInTable` hides the column in the interactive table; `hideInImageExport` hides the column in the image export; `decimals` (integer 0-20) rounds numeric values of that column to a fixed number of decimals in the table and in every export (omit it to show the raw value); `tooltipAttribute` adds a hover description (and a description column in the PDF and CSV exports, rendered inline in image exports); `styled: true` colours the cell using `valueStyles`|array|
-|valueStyles|Optional value-to-colour map for styled columns. Each entry is `{ value, color, label? }`. Drives styled cell backgrounds, the legend and PDF cell fills (PDF fills require HEX colours; other CSS colours render plain in the PDF). The text colour is derived automatically (black or white, whichever contrasts best with `color`)|array|
+|valueStyles|Optional value-to-colour map for styled columns. Each entry is `{ value, color, label? }`. Drives styled cell backgrounds, the legend and PDF cell fills (PDF fills require HEX colours; other CSS colours render plain in the PDF). The text colour is derived automatically (black or white, whichever contrasts best with `color`). It also backs the map: a value the zone layer's `classMapping` does not cover is coloured from here. Use the value `null` for zones/cells without a value — that one entry colours both the nodata cells in the table and the nodata zones on the map (the zone layer's `classMapping` may define `"null"` instead)|array|
 |exportTitle|Optional title used for exports. Defaults to the tool title/alias|string|
 |exportFileName|Optional file-name prefix for exports. Defaults to the tool title/alias|string|
 |pdfFooterText|Optional footer text drawn on exported PDFs|string|
@@ -1213,15 +1361,27 @@ Generic tool to inspect statistics per zone (e.g. per postcode area). The user c
 			{ "value": "B", "color": "#bbdb44" },
 			{ "value": "C", "color": "#f7e379" },
 			{ "value": "D", "color": "#f2a134" },
-			{ "value": "E", "color": "#e51f1f" }
+			{ "value": "E", "color": "#e51f1f" },
+			{ "value": "null", "label": "Geen data", "color": "#d6d4d4" }
 		],
 		"layers": [
-			{ "id": "999a" },
-			{ "id": "999b", "columns": { "ambitie": { "attribute": "label_ca", "tooltipAttribute": "category_ca" } } }
+			{ "id": "heat", "title": "Heat", "groupId": "climate" },
+			{ "id": "drought", "title": "Drought", "groupId": "climate", "columns": { "ambitie": { "attribute": "label_ca", "tooltipAttribute": "category_ca" } } }
 		]
 	}
 }
 ```
+
+### Keeping the layer manager light
+
+Because a data layer is only an attribute join, it does not have to be a GeoJSON layer in the viewer's
+`layers`. A configuration that offers the same dataset under a dozen themes should therefore define
+**one** GeoJSON layer as `zoneLayerId` (the geometry the tool paints on) and publish the themes to the
+layer manager as server-rendered `wms` layers with a per-theme `settings.styles`. The tool's
+`settings.layers` entries then carry their own `title`/`groupId` and read their attributes from the zone
+layer's dataset. That keeps a single vector download in the session no matter how many themes are
+offered, instead of one multi-megabyte GeoJSON (and a full copy of its geometry) per theme the user
+switches on. See `static/example.config.json` for a worked example.
 
 ### Matching differently named source columns
 

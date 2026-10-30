@@ -10,10 +10,11 @@
 
 	export let story: Story;
 	export let marker: Cesium.Entity;
-	export let stepNumber: number;
+	export let stepNumber: number | undefined = undefined;
 	export let chapterTitle: string;
 	export let stepTitle: string;
 	export let collection: StoryMarkerCollection;
+	export let text: string | undefined = undefined;
 
 	let left = 0;
 	let top = 0;
@@ -76,6 +77,11 @@
 	on:mouseenter={onMouseEnter}
 	 on:mouseleave={() => opacity = get(collection.hoveredStory) === story ? 100 : 0}
 >
+	{#if text}
+	<div class="hoverbox-header hoverbox-text">
+		<div class="hoverbox-title">{text}</div>
+	</div>
+	{:else}
 	<div class="hoverbox-header">
 		<div>
 			<div class="hoverbox-title">{story.name}</div>
@@ -88,10 +94,11 @@
 				icon={Launch}
 				tooltipPosition="top"
 				size="small"
-				on:click={() => collection.dispatch("story-selected", { story, stepNumber })}
+				on:click={() => collection.dispatch("story-selected", { story, stepNumber, marker })}
 			/>
 		</div>
 	</div>
+	{/if}
 </div>
 
 <style>
@@ -112,6 +119,10 @@
 		align-items: center;
 		padding-left: 8px;
 		border-bottom: 1px solid var(--cds-color-ui-03);
+	}
+
+	.hoverbox-text {
+		padding: 8px;
 	}
 
 	.hoverbox-title {

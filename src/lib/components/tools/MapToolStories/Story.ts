@@ -2,10 +2,30 @@ import { StoryStep } from "./StoryStep";
 import { StoryChapter } from "./StoryChapter";
 import { StoryLayer } from "./StoryLayer";
 import type * as Cesium from "cesium";
+import { DEFAULT_MARKER_SIZE, type StoryMarker } from "./story-marker";
+
+export interface StoryFocusRequest {
+    marker?: Cesium.Entity;
+}
 
 export interface StoryMarkerCoordinates {
     x: number;
     y: number;
+    /** Defaults to "chapter" when omitted. */
+    type?: "chapter" | "text" | "image";
+    /** Mandatory when type is "text": the speech bubble text. Optional for "image": hover tooltip. */
+    text?: string;
+    openStoryStep?: boolean;
+    /** Mandatory when type is "image": one or more image urls shown in gallery mode. */
+    url?: string | Array<string>;
+    /** Optional for billboard markers: image url that replaces the default marker icon. */
+    symbolUrl?: string;
+    /** Optional with symbolUrl: max width/height in pixels of the symbol. Defaults to 128. */
+    maxImageSize?: number;
+    /** Optional icon width/height in pixels; overrides the story's markerSize. */
+    markerSize?: number;
+    /** When true the marker is only shown while its own step is active. */
+    onlyInStep?: boolean;
 }
 
 export class Story {
@@ -13,12 +33,22 @@ export class Story {
     public description: string;
     public storyChapters: Array<StoryChapter>;
     public width: string | undefined;
+    public maxWidth: string | undefined;
     public forceCameraMode: "2D" | "3D" | undefined;
     public staticCamera: boolean | undefined;
     public requestPolygonArea: boolean | undefined;
     public statisticsApi: string | undefined;
     public markers: Array<Cesium.Entity> = [];
     public hasMarkers: boolean;
+    public hasStepMarkers: boolean;
+    public showMarkerToggle: boolean;
+    public markerDefinitions: Array<StoryMarker>;
+    /** Default icon width/height in pixels for all markers of this story. */
+    public markerSize: number = DEFAULT_MARKER_SIZE;
+    /** Default for steps without their own focusOnMarkers: centre the camera on the step markers. */
+    public focusOnMarkers: boolean = true;
+    /** Ids of story-level markers referenced by a step's showMarkers; these only show in those steps. */
+    public stepBoundMarkerIds: Set<string> = new Set();
     
     constructor(name: string, 
                 description: string, 
@@ -28,16 +58,23 @@ export class Story {
                 staticCamera: boolean | undefined,
                 requestPolygonArea: boolean | undefined,
                 statisticsApi: string | undefined,
-                hasMarkers: boolean = false) {
+                hasMarkers: boolean = false,
+                markerDefinitions: Array<StoryMarker> = [],
+                maxWidth: string | undefined = undefined,
+                showMarkerToggle: boolean = false) {
         this.name = name;
         this.description = description;
         this.storyChapters = storyChapters;
         this.width = width;
+        this.maxWidth = maxWidth;
         this.forceCameraMode = forceCameraMode;
         this.staticCamera = staticCamera;
         this.requestPolygonArea = requestPolygonArea;
         this.statisticsApi = statisticsApi;
-        this.hasMarkers = hasMarkers;
+        this.hasStepMarkers = hasMarkers;
+        this.showMarkerToggle = showMarkerToggle;
+        this.markerDefinitions = markerDefinitions;
+        this.hasMarkers = hasMarkers || markerDefinitions.length > 0;
     }
 
     getStoryLayers(): Array<StoryLayer> {

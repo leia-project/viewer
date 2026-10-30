@@ -67,7 +67,15 @@
                 "buttonsHome": "Reset the view to the start position",
                 "buttonsCompass": "Reset the heading to North",
                 "buttonsZoomIn": "Zoom in",
-                "buttonsZoomOut": "Zoom out"
+                "buttonsZoomOut": "Zoom out",
+                "buttonsTrackpadShow": "Show camera controls",
+                "buttonsTrackpadHide": "Hide camera controls",
+                "buttonsHeightUp": "Move the camera up",
+                "buttonsHeightDown": "Move the camera down",
+                "buttonsPitchUp": "Tilt the camera up",
+                "buttonsPitchDown": "Tilt the camera down",
+                "buttonsRotateLeft": "Rotate the camera left",
+                "buttonsRotateRight": "Rotate the camera right"
             },
             "library": {
                 "headingLibraryOpen": "Open Layer Library",
@@ -91,7 +99,7 @@
                 "headingOpenStories": "Opening {title}",
                 "openStories": "Open the tool by clicking the ''{title}'' button on the left side. Select a story from the list to start the tour.",
                 "headingStoryNavigation": "Navigation",
-                "storyNavigation": "Use the chapter (top row) and page buttons (bottom row) to move through the story, or simply scroll down in the menu. You can go back to the overview at any time by clicking the 'Back to overview' button.",
+                "storyNavigation": "Use the chapter (top row) and page buttons (bottom row) to move through the story, or simply scroll down in the menu. The collapsible layer controls stay at the bottom and automatically show the active step's sliders. A shared slider changes all layers linked to it. You can go back to the overview at any time by clicking the 'Back to overview' button.",
                 "headingStoryDrawArea": "Drawing a Project Area",
                 "storyDrawArea": "Some stories require you to draw a project area on the map. This area will be used to generate a a distribution of classes within the drawn polygon. To draw a project area, click the 'Draw Project Area' button and then click on the map to create a polygon. Right-click on the map or click 'Finish Drawing' to finish drawing.",
                 "headingStoryUploadArea": "Uploading a Project Area",
@@ -240,7 +248,19 @@
         },
         "backgroundControls": {
             "opacity": "Globe Opacity",
-            "terrain": "Terrain"
+            "terrain": "Terrain",
+            "subsurfaceExaggeration": "Subsurface exaggeration"
+        },
+        "voxel": {
+            "property": "Property",
+            "legend": "Legend",
+            "slicing": "Slicing",
+            "westEast": "West–East",
+            "southNorth": "South–North",
+            "bottomTop": "Bottom–Top",
+            "resetSlicing": "Reset slicing",
+            "slicePlane": "Drag slice plane",
+            "terrainHint": "Turn on terrain to see the voxels at the correct height relative to the ground"
         },
         "bookmarks": {
             "label": "Bookmarks",
@@ -315,6 +335,7 @@
             "custom": "Custom",
             "animate": "Animate",
             "fxaa": "FXAA",
+            "fxaaDisabledByVoxel": "Disabled while a voxel layer is shown",
             "fog": "Fog",
             "groundAtmosphere": "Ground Atmosphere",
             "dynamicRange": "HDR",
@@ -361,7 +382,17 @@
             "downloadPDF": "Generate and download PDF",
             "showOnMap": "Show stories on map",
             "showStoryOnMap": "Show story on map",
-            "open": "Open story"
+            "layerControls": "Layers in this step",
+            "invalidOpacitySliderGroup": "Story \"{story}\" could not be loaded: step \"{step}\" has an invalid slider group \"{group}\". Use a non-empty group name and the same opacity between 0 and 100 for every member.",
+            "open": "Open story",
+            "galleryNext": "Next image",
+            "galleryPrevious": "Previous image",
+            "galleryTitle": "Story images and content",
+            "comparisonBefore": "Before",
+            "comparisonAfter": "After",
+            "comparisonSlider": "Compare before and after images",
+            "comparisonPosition": "{before}: {beforeValue}%, {after}: {afterValue}%",
+            "galleryImageUnavailable": "Image could not be loaded"
         },
         "animation": {
             "speed": "Speed",

@@ -65,7 +65,15 @@
                 "buttonsHome": "Réinitialiser la vue à la position de départ",
                 "buttonsCompass": "Réinitialiser le cap vers le nord",
                 "buttonsZoomIn": "Zoom avant",
-                "buttonsZoomOut": "Zoom arrière"
+                "buttonsZoomOut": "Zoom arrière",
+                "buttonsTrackpadShow": "Afficher les commandes de caméra",
+                "buttonsTrackpadHide": "Masquer les commandes de caméra",
+                "buttonsHeightUp": "Monter la caméra",
+                "buttonsHeightDown": "Descendre la caméra",
+                "buttonsPitchUp": "Incliner la caméra vers le haut",
+                "buttonsPitchDown": "Incliner la caméra vers le bas",
+                "buttonsRotateLeft": "Tourner la caméra vers la gauche",
+                "buttonsRotateRight": "Tourner la caméra vers la droite"
             },
             "library": {
                 "headingLibraryOpen": "Ouvrir Bibliothèque de Calques",
@@ -89,7 +97,7 @@
                 "headingOpenStories": "Ouvrir {title}",
                 "openStories": "Ouvrez l'outil en cliquant sur le bouton ''{title}'' sur le côté gauche. Sélectionnez une histoire dans la liste pour démarrer la visite.",
                 "headingStoryNavigation": "Navigation",
-                "storyNavigation": "Utilisez les boutons de chapitre et de page pour naviguer dans l'histoire, ou faites défiler vers le bas dans le menu pour passer à la page suivante. Vous pouvez fermer l'histoire à tout moment en cliquant sur le bouton 'Retour à l'aperçu'.",
+                "storyNavigation": "Utilisez les boutons de chapitre et de page pour naviguer dans l'histoire, ou faites défiler vers le bas dans le menu pour passer à la page suivante. Les commandes de couches repliables restent en bas et affichent automatiquement les curseurs de l'étape active. Un curseur partagé modifie toutes les couches qui lui sont associées. Vous pouvez fermer l'histoire à tout moment en cliquant sur le bouton 'Retour à l'aperçu'.",
                 "headingStoryDrawArea": "Dessiner une zone de projet",
                 "storyDrawArea": "Certaines histoires nécessitent que vous dessiniez une zone de projet sur la carte. Cette zone sera utilisée pour générer une répartition des classes à l'intérieur du polygone dessiné. Pour dessiner une zone de projet, cliquez sur le bouton 'Dessiner la zone de projet', puis cliquez sur la carte pour créer un polygone. Cliquez avec le bouton droit de la souris sur la carte ou cliquez sur 'Terminer le dessin' pour terminer le dessin.",
                 "headingStoryUploadArea": "Télécharger une zone de projet",
@@ -238,7 +246,19 @@
         },
         "backgroundControls": {
             "opacity": "Opacité du Globe",
-            "terrain": "Terrain"
+            "terrain": "Terrain",
+            "subsurfaceExaggeration": "Exagération du sous-sol"
+        },
+        "voxel": {
+            "property": "Propriété",
+            "legend": "Légende",
+            "slicing": "Découpage",
+            "westEast": "Ouest–Est",
+            "southNorth": "Sud–Nord",
+            "bottomTop": "Bas–Haut",
+            "resetSlicing": "Réinitialiser le découpage",
+            "slicePlane": "Faites glisser le plan de coupe",
+            "terrainHint": "Activez le terrain pour voir les voxels à la bonne hauteur par rapport au sol"
         },
         "bookmarks": {
             "label": "Signets",
@@ -313,6 +333,7 @@
             "custom": "Personnalisée",
             "animate": "Animer",
             "fxaa": "FXAA",
+            "fxaaDisabledByVoxel": "Désactivé tant qu'une couche de voxels est affichée",
             "fog": "Brouillard",
             "groundAtmosphere": "Atmosphère Terrestre",
             "dynamicRange": "HDR",
@@ -358,7 +379,17 @@
             "downloadPDF": "Générer et télécharger le PDF",
             "showOnMap": "Afficher les histoires sur la carte",
             "showStoryOnMap": "Afficher l'histoire sur la carte",
-            "open": "Ouvrir l'histoire"
+            "layerControls": "Couches de cette étape",
+            "invalidOpacitySliderGroup": "L'histoire \"{story}\" n'a pas pu être chargée : l'étape \"{step}\" contient un groupe de curseur non valide \"{group}\". Utilisez un nom de groupe non vide et la même opacité entre 0 et 100 pour chaque membre.",
+            "open": "Ouvrir l'histoire",
+            "galleryNext": "Image suivante",
+            "galleryPrevious": "Image précédente",
+            "galleryTitle": "Images et contenu de l'histoire",
+            "comparisonBefore": "Avant",
+            "comparisonAfter": "Après",
+            "comparisonSlider": "Comparer les images avant et après",
+            "comparisonPosition": "{before}: {beforeValue}%, {after}: {afterValue}%",
+            "galleryImageUnavailable": "Impossible de charger l'image"
         },
         "animation": {
             "speed": "Vitesse",
@@ -442,6 +473,4 @@
             "invalidPolygon": "Le polygone ne peut pas se croiser lui-même !"
         }
     }
-
-
 }

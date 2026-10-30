@@ -2,13 +2,17 @@
 	import { getContext, onDestroy } from "svelte";
 	import { _ } from "svelte-i18n";
 	import { Book } from "carbon-icons-svelte";
+	import * as Cesium from "cesium";
 	import { page } from "$app/stores";
 
 	import { CameraLocation } from "$lib/map-core/camera-location";
 	import type { Map } from "$lib/map-cesium/map";
+	import { Notification } from "$lib/map-core/notifications/notification";
+	import { NotificationType } from "$lib/map-core/notifications/notification-type";
+	import { notifications } from "$lib/map-core/notifications/notifications";
 	import { MapToolMenuOption } from "../MapToolMenuOption";
-	import { Story } from "./Story";
-	import { StoryStep } from "./StoryStep";
+	import { Story, type StoryFocusRequest, type StoryMarkerCoordinates } from "./Story";
+	import { StoryOpacitySliderConfigError, StoryStep } from "./StoryStep";
 	import { StoryLayer } from "./StoryLayer";
 	import { StoryChapter } from "./StoryChapter";
 	import type { LegendOptions } from "./LegendOptions";
@@ -16,6 +20,14 @@
 	import StoryView from "./StoryView.svelte";
 	import { selectedStory, showStoryMarkers } from "./story-handler";
 	import { StoryMarkerCollection } from "./story-marker-collection";
+	import {
+		DEFAULT_MARKER_SIZE,
+		isNonEmptyString,
+		isSafeStoryUrl,
+		parseMarkerSize,
+		parseMaxImageSize,
+		parseStoryMarkers
+	} from "./story-marker";
 	import ToggleView from "../MapToolProjects/components/ToggleView.svelte";
 
 	export let id: string;
@@ -29,6 +41,7 @@
 	const selectedStoryStore = selectedStory;
 	let markerCollection: StoryMarkerCollection;
 	let stepNumber: number;
+	let focusRequest: StoryFocusRequest = {};
 	let baseLayerId: string | undefined;
 	const layerLegends: Array<LegendOptions> = [];
 	const layers = cesiumMap.layers;
@@ -37,13 +50,23 @@
 	registerTool(tool);
 	markerCollection = new StoryMarkerCollection(cesiumMap, Book, selectedTool);
 
+	// Width of the tool panel for a story. Without maxWidth this is simply the configured width;
+	// with maxWidth the panel never grows beyond it, e.g. width "calc(80vw - 49px)" and maxWidth "50rem".
+	function getToolWidth(story: Story | undefined): string {
+		if (!story) return "";
+		if (!story.maxWidth) return story.width ?? "";
+		return `min(${story.width || "21rem"}, ${story.maxWidth})`;
+	}
+
 	$: {
-		tool.width.set($selectedStoryStore?.width ?? "");
+		tool.width.set(getToolWidth($selectedStoryStore));
 	}
 
 	selectedTool.subscribe((selected: MapToolMenuOption) => {
 		if (tool === selected && $selectedStoryStore) {
-			tool.width.set($selectedStoryStore.width ?? "");
+			tool.width.set(getToolWidth($selectedStoryStore));
+		} else if (tool !== selected) {
+			focusRequest = {};
 		}
 	});
 
@@ -85,6 +108,96 @@
 		}
 	}
 
+	function parseMarkerCoordinates(raw: unknown): Array<StoryMarkerCoordinates> {
+		const entries: Array<any> = Array.isArray(raw) ? raw : raw ? [raw] : [];
+		const markers = new Array<StoryMarkerCoordinates>();
+
+		for (const entry of entries) {
+			const { x, y } = entry ?? {};
+			if (!Number.isFinite(x) || !Number.isFinite(y)) {
+				console.warn("Story marker skipped: x and y must be numbers", entry);
+				continue;
+			}
+
+			const type = entry.type ?? "chapter";
+			const openStoryStep = entry.openStoryStep === true;
+			const onlyInStep = entry.onlyInStep === true;
+			const markerSize = parseMarkerSize(entry.markerSize, entry);
+			if (type === "chapter") {
+				if (entry.symbolUrl !== undefined && !isNonEmptyString(entry.symbolUrl)) {
+					console.warn("Story marker symbolUrl ignored: must be a non-empty string", entry);
+				}
+				markers.push({
+					x,
+					y,
+					type,
+					symbolUrl: isNonEmptyString(entry.symbolUrl) ? entry.symbolUrl.trim() : undefined,
+					maxImageSize: parseMaxImageSize(entry.maxImageSize, entry),
+					markerSize,
+					onlyInStep
+				});
+			} else if (type === "text") {
+				if (!isNonEmptyString(entry.text)) {
+					console.warn("Story marker skipped: type 'text' requires a non-empty text", entry);
+					continue;
+				}
+				markers.push({ x, y, type, text: entry.text, openStoryStep, onlyInStep });
+			} else if (type === "image") {
+				if (entry.symbolUrl !== undefined && !isNonEmptyString(entry.symbolUrl)) {
+					console.warn("Story marker symbolUrl ignored: must be a non-empty string", entry);
+				}
+				const urls = (Array.isArray(entry.url) ? entry.url : [entry.url])
+					.filter(isNonEmptyString)
+					.map((url: string) => url.trim())
+					.filter(isSafeStoryUrl);
+				if (urls.length === 0) {
+					console.warn("Story marker skipped: type 'image' requires at least one valid http(s) or relative url", entry);
+					continue;
+				}
+				markers.push({
+					x,
+					y,
+					type,
+					url: urls,
+					symbolUrl: isNonEmptyString(entry.symbolUrl) ? entry.symbolUrl.trim() : undefined,
+					maxImageSize: parseMaxImageSize(entry.maxImageSize, entry),
+					text: isNonEmptyString(entry.text) ? entry.text : undefined,
+					openStoryStep,
+					markerSize,
+					onlyInStep
+				});
+			} else {
+				console.warn("Story marker skipped: unknown type", entry);
+			}
+		}
+
+		return markers;
+	}
+
+	function parseFocusOnMarkers(value: unknown, context: unknown): boolean | undefined {
+		if (value === undefined || typeof value === "boolean") return value;
+		console.warn("Story focusOnMarkers ignored: must be true or false", context);
+		return undefined;
+	}
+
+	function parseShowMarkers(raw: unknown, markerIds: Set<string>, stepTitle: string): Array<string> {
+		if (raw === undefined) return [];
+		if (!Array.isArray(raw)) {
+			console.warn(`Story step "${stepTitle}": showMarkers must be an array of marker ids`, raw);
+			return [];
+		}
+		const ids = new Array<string>();
+		for (const value of raw) {
+			const id = isNonEmptyString(value) ? value.trim() : undefined;
+			if (!id || !markerIds.has(id)) {
+				console.warn(`Story step "${stepTitle}": showMarkers entry is not the id of a story marker`, value);
+				continue;
+			}
+			ids.push(id);
+		}
+		return ids;
+	}
+
 	function loadStoriesFromSettings(settings: any) {
 		showStoryMarkers.set(settings.showOnMap ?? true);
 		const configStories = settings.stories;
@@ -94,70 +207,105 @@
 			// Load all stories
 			for (let i = 0; i < configStories.length; i++) {
 				const story = configStories[i];
-				const storyName: string = story.name;
-				const storyDescription: string = story.description;
-				const storyWidth: string = story.width;
-				const storyForceCameraMode: "2D" | "3D" | undefined = story.forceCameraMode ?? undefined;
-				const storyStaticCamera: boolean = story.staticCamera ?? false;
-				const storyRequestPolygonAreaConfig = story.requestPolygonArea ?? false;
-				const storyRequestPolygonArea: boolean = typeof storyRequestPolygonAreaConfig === "object"
-					? storyRequestPolygonAreaConfig.enabled ?? false
-					: storyRequestPolygonAreaConfig;
-				const storyStatisticsApi: string | undefined = typeof storyRequestPolygonAreaConfig === "object"
-					? storyRequestPolygonAreaConfig.statisticsApi ?? undefined
-					: undefined;
-				const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
-				let storyHasMarkers = false;
-				baseLayerId = story.baseLayerId ?? undefined;
+				const legendStart = layerLegends.length;
+				try {
+					const storyName: string = story.name;
+					const storyDescription: string = story.description;
+					const storyWidth: string = story.width;
+					const storyMaxWidth: string | undefined = story.maxWidth;
+					const storyShowMarkerToggle = story.showMarkerToggle === true;
+					const storyForceCameraMode: "2D" | "3D" | undefined = story.forceCameraMode ?? undefined;
+					const storyStaticCamera: boolean = story.staticCamera ?? false;
+					const storyRequestPolygonAreaConfig = story.requestPolygonArea ?? false;
+					const storyRequestPolygonArea: boolean = typeof storyRequestPolygonAreaConfig === "object"
+						? storyRequestPolygonAreaConfig.enabled ?? false
+						: storyRequestPolygonAreaConfig;
+					const storyStatisticsApi: string | undefined = typeof storyRequestPolygonAreaConfig === "object"
+						? storyRequestPolygonAreaConfig.statisticsApi ?? undefined
+						: undefined;
+					const storyChapters: Array<StoryChapter> = new Array<StoryChapter>();
+					const storyMarkers = parseStoryMarkers(story.markers);
+					const storyMarkerIds = new Set(storyMarkers.map((marker) => marker.id));
+					const stepBoundMarkerIds = new Set<string>();
+					let storyHasMarkers = false;
 
-				// Load all chapter groups
-				const chapterGroups = story.chapterGroups;
+					// Load all chapter groups
+					const chapterGroups = story.chapterGroups;
 
-				// Load all chapters
-				for (let j = 0; j < story.chapters.length; j++) {
-					const chapter = story.chapters[j];
-					const chapterGroup = chapterGroups.find((chapterGroup: any) => chapter.id === chapterGroup.id);
-					const chapterTitle: string = chapterGroup.title;
-					const chapterButtonText: string = chapterGroup.buttonText;
-					const storySteps = new Array<StoryStep>();
-					
-					// Load all chapter steps
-					for (let k = 0; k < chapter.steps.length; k++) {
-						const step = chapter.steps[k];
-						const markerCoordinates = step.markerCoordinates;
-						if (Array.isArray(markerCoordinates) ? markerCoordinates.length > 0 : markerCoordinates) {
-							storyHasMarkers = true;
-						}
-						const cl = new CameraLocation(
-							step.camera["x"],
-							step.camera["y"],
-							step.camera["z"],
-							step.camera["heading"],
-							step.camera["pitch"],
-							step.camera["duration"]
-						);
+					// Load all chapters
+					for (let j = 0; j < story.chapters.length; j++) {
+						const chapter = story.chapters[j];
+						const chapterGroup = chapterGroups.find((chapterGroup: any) => chapter.id === chapterGroup.id);
+						const chapterTitle: string = chapterGroup.title;
+						const chapterButtonText: string = chapterGroup.buttonText;
+						const storySteps = new Array<StoryStep>();
 
-						// Load all story layers
-						const storyLayers = new Array<StoryLayer>();
-						for (let l = 0; l < step.layers.length; l++) {
-							const opacity = step.layers[l].opacity ?? 100;
-							const showOpacitySlider = step.layers[l].showOpacitySlider ?? true;
-							const {url, featureName} = getUrlAndFeatureNameForLayer(step.layers[l].id);
-							storyLayers.push(
-								new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName, showOpacitySlider)
-							);
-							const layerLegendInfo = {
-								generalLegendText: step.layers[l].generalLegendText,
-								legendOptions: step.layers[l].legendOptions
+						// Load all chapter steps
+						for (let k = 0; k < chapter.steps.length; k++) {
+							const step = chapter.steps[k];
+							const markerCoordinates = parseMarkerCoordinates(step.markerCoordinates);
+							if (markerCoordinates.length > 0) {
+								storyHasMarkers = true;
 							}
-							layerLegends.push(layerLegendInfo);
+							const cl = new CameraLocation(
+								step.camera["x"],
+								step.camera["y"],
+								step.camera["z"],
+								step.camera["heading"],
+								step.camera["pitch"],
+								step.camera["duration"]
+							);
+
+							// Load all story layers
+							const storyLayers = new Array<StoryLayer>();
+							for (let l = 0; l < step.layers.length; l++) {
+								const opacity = step.layers[l].opacity ?? 100;
+								const showOpacitySlider = step.layers[l].showOpacitySlider ?? true;
+								const {url, featureName} = getUrlAndFeatureNameForLayer(step.layers[l].id);
+								storyLayers.push(
+									new StoryLayer(step.layers[l].id, opacity, step.layers[l].style, url, featureName, showOpacitySlider, step.layers[l].opacitySliderGroup)
+								);
+								const layerLegendInfo = {
+									generalLegendText: step.layers[l].generalLegendText,
+									legendOptions: step.layers[l].legendOptions
+								}
+								layerLegends.push(layerLegendInfo);
+							}
+							const globeOpacity = step.globeOpacity ?? 100;
+							const storyStep = new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent, markerCoordinates);
+							storyStep.focusOnMarkers = parseFocusOnMarkers(step.focusOnMarkers, step.title);
+							storyStep.showMarkers = parseShowMarkers(step.showMarkers, storyMarkerIds, step.title);
+							storyStep.showMarkers.forEach((id) => stepBoundMarkerIds.add(id));
+							storySteps.push(storyStep);
 						}
-						const globeOpacity = step.globeOpacity ?? 100;
-						storySteps.push(new StoryStep(step.title, step.html, cl, storyLayers, globeOpacity, step.terrain, step.customComponent, step.markerCoordinates));
+						storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
 					}
-					storyChapters.push(new StoryChapter(chapter.id, chapterTitle, chapterButtonText, storySteps));
+					baseLayerId = story.baseLayerId ?? undefined;
+					const loadedStory = new Story(
+						storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode,
+						storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers,
+						storyMarkers, storyMaxWidth, storyShowMarkerToggle
+					);
+					loadedStory.markerSize = parseMarkerSize(story.markerSize, story.name) ?? DEFAULT_MARKER_SIZE;
+					loadedStory.focusOnMarkers = parseFocusOnMarkers(story.focusOnMarkers, story.name) ?? true;
+					loadedStory.stepBoundMarkerIds = stepBoundMarkerIds;
+					loadedStories.push(loadedStory);
+				} catch (error) {
+					if (!(error instanceof StoryOpacitySliderConfigError)) throw error;
+					layerLegends.splice(legendStart);
+					const notification = new Notification(
+						NotificationType.ERROR,
+						$_("general.notifications.error"),
+						$_("tools.stories.invalidOpacitySliderGroup", {
+							values: { story: story.name, step: error.stepTitle, group: error.group }
+						}),
+						15000,
+						true,
+						true
+					);
+					notification.error = error;
+					notifications.send(notification);
 				}
-				loadedStories.push(new Story(storyName, storyDescription, storyChapters, storyWidth, storyForceCameraMode, storyStaticCamera, storyRequestPolygonArea, storyStatisticsApi, storyHasMarkers));
 			}
 		}
 		stories = loadedStories;
@@ -166,13 +314,15 @@
 
 	function activateStory(story: Story) {
 		stepNumber = 1;
-		selectedStoryStore.set(story);
+		focusRequest = {};
+		if ($selectedStoryStore !== story) selectedStoryStore.set(story);
 		$selectedTool = tool;
 	}
 
-	function activateStoryStep(story: Story, selectedStepNumber: number) {
+	function activateStoryStep(story: Story, selectedStepNumber: number, marker?: Cesium.Entity) {
 		stepNumber = selectedStepNumber;
-		selectedStoryStore.set(story);
+		focusRequest = { marker };
+		if ($selectedStoryStore !== story) selectedStoryStore.set(story);
 		$selectedTool = tool;
 	}
 
@@ -181,15 +331,15 @@
 		tool.width.set("");
 	}
 
-	function closeModule(e: any) {
-		stepNumber = e.detail.n;
+	function closeModule(e: CustomEvent<{ n: number; story: Story }>) {
+		if (e.detail.story === $selectedStoryStore) stepNumber = e.detail.n;
 	}
 
 	markerCollection.on("story-selected", (value: unknown) => {
 		if (value instanceof Story) {
 			activateStory(value);
 		} else if (value && typeof value === "object" && "story" in value && "stepNumber" in value && value.story instanceof Story && typeof value.stepNumber === "number") {
-			activateStoryStep(value.story, value.stepNumber as number);
+			activateStoryStep(value.story, value.stepNumber, "marker" in value && value.marker instanceof Cesium.Entity ? value.marker : undefined);
 		}
 	});
 
@@ -202,6 +352,7 @@
 {#if $selectedTool === tool}
 	<div class="wrapper story-selector">
 		{#if $selectedStoryStore}
+			{#key $selectedStoryStore}
 			<StoryView
 				map={cesiumMap}
 				story={$selectedStoryStore}
@@ -209,6 +360,7 @@
 				textBack={$_("tools.stories.back")}
 				{layerLegends}
 				{baseLayerId}
+				{focusRequest}
 				on:closeStory={() => {
 					closeStory();
 				}}
@@ -216,6 +368,7 @@
 					closeModule(e);
 				}}
 			/>
+			{/key}
 		{:else}
 			{#each stories as story}
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -240,7 +393,7 @@
 			{/each}
 		{/if}
 	</div>
-	{#if !$selectedStoryStore && stories.some((story) => story.hasMarkers)}
+	{#if !$selectedStoryStore && stories.some((story) => story.hasStepMarkers)}
 		<div class="bottom-container">
 			<ToggleView bind:show={$showStoryMarkers} text={$_("tools.stories.showOnMap")} />
 		</div>

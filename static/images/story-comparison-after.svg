@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540">
+  <title>Demo road after redevelopment</title>
+  <rect width="960" height="540" fill="#e5eedc"/>
+  <path d="M0 440Q260 350 460 410T960 380V540H0Z" fill="#8ecfe0"/>
+  <g fill="#b9cba4">
+    <rect x="30" y="40" width="200" height="100"/>
+    <rect x="640" y="40" width="290" height="100"/>
+    <rect x="660" y="350" width="250" height="55"/>
+  </g>
+  <g fill="#e1bf98" stroke="#967357" stroke-width="4">
+    <rect x="65" y="65" width="80" height="60"/>
+    <rect x="690" y="65" width="80" height="60"/>
+    <rect x="800" y="65" width="80" height="60"/>
+  </g>
+  <path d="M0 225H960" stroke="#646b70" stroke-width="90"/>
+  <path d="M0 225H960" stroke="#ffffff" stroke-width="4" stroke-dasharray="30 24"/>
+  <path d="M0 187H960M0 263H960" stroke="#ffffff" stroke-width="3" fill="none"/>
+  <path d="M0 312H960" stroke="#bf7369" stroke-width="28"/>
+  <path d="M0 312H960" stroke="#ffffff" stroke-width="2" stroke-dasharray="14 14"/>
+  <g fill="#287a45">
+    <circle cx="90" cy="155" r="20"/><circle cx="190" cy="155" r="20"/>
+    <circle cx="350" cy="155" r="20"/><circle cx="510" cy="155" r="20"/>
+    <circle cx="670" cy="155" r="20"/><circle cx="830" cy="155" r="20"/>
+    <circle cx="90" cy="360" r="20"/><circle cx="250" cy="360" r="20"/>
+    <circle cx="410" cy="360" r="20"/><circle cx="570" cy="360" r="20"/>
+  </g>
+  <g fill="#0f62fe">
+    <rect x="230" y="193" width="68" height="22" rx="6"/>
+    <rect x="520" y="238" width="68" height="22" rx="6"/>
+  </g>
+  <rect x="24" y="465" width="370" height="50" rx="8" fill="#ffffff"/>
+  <text x="44" y="498" font-family="sans-serif" font-size="24" fill="#161616">DEMO - after redevelopment</text>
+</svg>

@@ -67,7 +67,15 @@
                 "buttonsHome": "Reset het aanzicht naar de startpositie",
                 "buttonsCompass": "Reset de camera naar het noorden",
                 "buttonsZoomIn": "Zoom in",
-                "buttonsZoomOut": "Zoom out"
+                "buttonsZoomOut": "Zoom out",
+                "buttonsTrackpadShow": "Camerabediening tonen",
+                "buttonsTrackpadHide": "Camerabediening verbergen",
+                "buttonsHeightUp": "Camera omhoog verplaatsen",
+                "buttonsHeightDown": "Camera omlaag verplaatsen",
+                "buttonsPitchUp": "Camera omhoog kantelen",
+                "buttonsPitchDown": "Camera omlaag kantelen",
+                "buttonsRotateLeft": "Camera naar links draaien",
+                "buttonsRotateRight": "Camera naar rechts draaien"
             },
             "library": {
                 "headingLibraryOpen": "Open de bibliotheek",
@@ -91,7 +99,7 @@
                 "headingOpenStories": "{title} openen",
                 "openStories": "Open de tool door op de knop ''{title}'' aan de linkerkant te klikken. Selecteer een verhaal uit de lijst om de rondleiding te starten.",
                 "headingStoryNavigation": "Navigeren",
-                "storyNavigation": "Gebruik de hoofdstuk- (bovenste rij) en paginaknoppen (onderste rij) om door het verhaal te navigeren, of scroll naar beneden in het menu om door te gaan naar de volgende pagina. U kunt op elk moment het verhaal sluiten door op de knop 'Terug naar overzicht' te klikken.",
+                "storyNavigation": "Gebruik de hoofdstuk- (bovenste rij) en paginaknoppen (onderste rij) om door het verhaal te navigeren, of scroll naar beneden in het menu om door te gaan naar de volgende pagina. De inklapbare laagbediening blijft onderaan staan en toont automatisch de sliders van de actieve stap. Een gedeelde slider past alle eraan gekoppelde lagen aan. U kunt op elk moment het verhaal sluiten door op de knop 'Terug naar overzicht' te klikken.",
                 "headingStoryDrawArea": "Een projectgebied tekenen",
                 "storyDrawArea": "Sommige verhalen vereisen dat u een projectgebied op de kaart tekent. Dit gebied wordt gebruikt om een verdeling van klassen binnen het getekende polygon te genereren. Om een projectgebied te tekenen, klikt u op de knop 'Projectgebied Tekenen' en klikt u vervolgens op de kaart om punten neer te zetten en zo een polygon te creëren. Klik met de rechtermuisknop op de kaart of klik op 'Voltooi Projectgebied' om het tekenen te voltooien.",
                 "headingStoryUploadArea": "Een projectgebied uploaden",
@@ -247,7 +255,19 @@
         },
         "backgroundControls": {
             "opacity": "Wereld Transparantie",
-            "terrain": "Terrein"
+            "terrain": "Terrein",
+            "subsurfaceExaggeration": "Overdrijving ondergrond"
+        },
+        "voxel": {
+            "property": "Eigenschap",
+            "legend": "Legenda",
+            "slicing": "Doorsneden",
+            "westEast": "West–Oost",
+            "southNorth": "Zuid–Noord",
+            "bottomTop": "Onder–Boven",
+            "resetSlicing": "Doorsneden resetten",
+            "slicePlane": "Sleep snijvlak",
+            "terrainHint": "Zet terrein aan om de voxels op de juiste hoogte te zien t.o.v. maaiveld"
         },
         "bookmarks": {
             "label": "Bladwijzers",
@@ -322,6 +342,7 @@
             "custom": "Aangepast",
             "animate": "Animeer",
             "fxaa": "FXAA",
+            "fxaaDisabledByVoxel": "Uitgeschakeld zolang een voxellaag wordt getoond",
             "fog": "Mist",
             "groundAtmosphere": "Grond Atmosfeer",
             "dynamicRange": "HDR",
@@ -368,7 +389,17 @@
             "downloadPDF": "Genereer en download PDF",
             "showOnMap": "Toon verhalen op kaart",
             "showStoryOnMap": "Toon verhaal op de kaart",
-            "open": "Verhaal openen"
+            "layerControls": "Lagen van deze stap",
+            "invalidOpacitySliderGroup": "Verhaal \"{story}\" kon niet worden geladen: stap \"{step}\" heeft een ongeldige slidergroep \"{group}\". Gebruik een niet-lege groepsnaam en voor alle leden dezelfde opacity tussen 0 en 100.",
+            "open": "Verhaal openen",
+            "galleryNext": "Volgende afbeelding",
+            "galleryPrevious": "Vorige afbeelding",
+            "galleryTitle": "Verhaalafbeeldingen en inhoud",
+            "comparisonBefore": "Voor",
+            "comparisonAfter": "Na",
+            "comparisonSlider": "Vergelijk de afbeeldingen voor en na",
+            "comparisonPosition": "{before}: {beforeValue}%, {after}: {afterValue}%",
+            "galleryImageUnavailable": "Afbeelding kon niet worden geladen"
         },
         "animation": {
             "speed": "Snelheid",
