@@ -252,6 +252,7 @@
         "voxel": {
             "property": "Propriété",
             "legend": "Légende",
+            "shading": "Ombrage des faces",
             "slicing": "Découpage",
             "westEast": "Ouest–Est",
             "southNorth": "Sud–Nord",

@@ -254,6 +254,7 @@
         "voxel": {
             "property": "Property",
             "legend": "Legend",
+            "shading": "Face shading",
             "slicing": "Slicing",
             "westEast": "West–East",
             "southNorth": "South–North",

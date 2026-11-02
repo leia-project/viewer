@@ -261,6 +261,7 @@
         "voxel": {
             "property": "Eigenschap",
             "legend": "Legenda",
+            "shading": "Vlakbelichting",
             "slicing": "Doorsneden",
             "westEast": "West–Oost",
             "southNorth": "Zuid–Noord",

@@ -1,24 +1,23 @@
-import { writable, type Writable, get, type Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
-import { CesiumLayer } from "./cesium-layer";
-import { CustomLayerControl } from "$lib/map-core/custom-layer-control";
-import type { LayerConfig } from "$lib/map-core/layer-config";
-import { notifications } from "$lib/map-core/notifications/notifications";
-import { Notification } from "$lib/map-core/notifications/notification";
-import { NotificationType } from "$lib/map-core/notifications/notification-type";
-import type { Map as CesiumMap } from "../map";
-import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
-import {
-	fetchLegend,
-	resolveProperties,
-	type ResolvedVoxelProperty,
-	type VoxelPropertyConfig
-} from "./voxel-legend";
-import { DepthScale, NAP_OFFSET_M } from "../depth-scale";
-import { VoxelClipSlider } from "./voxel-clip-slider";
-
+import { get, type Unsubscriber, type Writable, writable } from "svelte/store";
 import LayerControlVoxel from "$lib/components/layer-controls/LayerControlVoxel/LayerControlVoxel.svelte";
 import LayerControlVoxelClip from "$lib/components/layer-controls/LayerControlVoxelClip/LayerControlVoxelClip.svelte";
+import { CustomLayerControl } from "$lib/map-core/custom-layer-control";
+import type { LayerConfig } from "$lib/map-core/layer-config";
+import { Notification } from "$lib/map-core/notifications/notification";
+import { NotificationType } from "$lib/map-core/notifications/notification-type";
+import { notifications } from "$lib/map-core/notifications/notifications";
+import { DepthScale, NAP_OFFSET_M } from "../depth-scale";
+import type { Map as CesiumMap } from "../map";
+import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
+import { CesiumLayer } from "./cesium-layer";
+import { VoxelClipSlider } from "./voxel-clip-slider";
+import {
+    fetchLegend,
+    type ResolvedVoxelProperty,
+    resolveProperties,
+    type VoxelPropertyConfig
+} from "./voxel-legend";
 
 export type VoxelLayerSettings = {
 	url: string;
@@ -27,17 +26,24 @@ export type VoxelLayerSettings = {
 	properties: Array<VoxelPropertyConfig>;
 	/** The height that the subsurface exaggeration stretches away from. */
 	exaggerationPivot?: number;
+	/** Per-face shading so the relief of the voxel surface is visible. */
+	shading?: boolean;
 };
 
 export type ClipRange = { x: [number, number]; y: [number, number]; z: [number, number] };
 
 const DEFAULT_CLIP_RANGE: ClipRange = { x: [0, 1], y: [0, 1], z: [0, 1] };
 
+/** Brightness of a face that is turned fully away from the light */
+const SHADE_AMBIENT = 0.55;
+
 export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	public selectedProperty: Writable<string>;
 	public resolvedProperties: Writable<Array<ResolvedVoxelProperty>>;
 	public hiddenValues: Writable<Map<string, Set<number>>>;
 	public clipping: Writable<ClipRange>;
+	/** Per-face Lambert shading on/off. Bridged to the u_shading uniform. */
+	public shading: Writable<boolean>;
 	public clipSlider: VoxelClipSlider | null = null;
 	private bounds: { min: Cesium.Cartesian3; max: Cesium.Cartesian3 } | null = null;
 	private depthScale: DepthScale | null = null;
@@ -59,8 +65,13 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		this.resolvedProperties = writable<Array<ResolvedVoxelProperty>>([]);
 		this.hiddenValues = writable(new Map());
 		this.clipping = writable({ ...DEFAULT_CLIP_RANGE });
+		this.shading = writable(settings.shading ?? true);
 		this.createLayer();
 		this.selectedProperty.subscribe(() => this.rebuildShader());
+		this.shading.subscribe((on) => {
+			this.source?.customShader?.setUniform("u_shading", on ? 1.0 : 0.0);
+			this.map.refresh();
+		});
 	}
 
 	public toggleHidden(propName: string, value: number): void {
@@ -350,12 +361,12 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			.map((category) => {
 				const [r, g, b] = category.color;
 
-				return `if (v == ${category.value}) { material.diffuse = vec3(${(r / 255).toFixed(4)}, ${(g / 255).toFixed(4)}, ${(b / 255).toFixed(4)}); return; }`;
+				return `if (v == ${category.value}) { base = vec3(${(r / 255).toFixed(4)}, ${(g / 255).toFixed(4)}, ${(b / 255).toFixed(4)}); }`;
 			})
-			.join("\n\t\t\t\t\t");
+			.join(" else\n\t\t\t\t\t");
 
 		// Cesium normalises UINT8 metadata to [0,1] in the shader; multiply back to recover the integer.
-		return new Cesium.CustomShader({
+		const shader = new Cesium.CustomShader({
 			uniforms: {
 				u_alpha: {
 					type: Cesium.UniformType.FLOAT,
@@ -366,6 +377,11 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				u_hiddenMask: {
 					type: Cesium.UniformType.INT,
 					value: packHiddenMask(get(this.hiddenValues).get(property.name))
+				},
+				// 1.0 = per-face shading on, 0.0 = flat legend colours
+				u_shading: {
+					type: Cesium.UniformType.FLOAT,
+					value: get(this.shading) ? 1.0 : 0.0
 				}
 			},
 			// 255.0 is the max UINT8 value, +0.5 for rounding to nearest int when flooring in GLSL
@@ -379,11 +395,22 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 					if (v < 31 && (u_hiddenMask & (1 << v)) != 0) {
 						material.alpha = 0.0; return;
 					}
+					vec3 base = vec3(0.5, 0.5, 0.5); // grey default for unknown values
 					${branches}
-					material.diffuse = vec3(0.5, 0.5, 0.5); // grey default for unknown values, could be made configurable
+
+					// Per-face shading. Cesium applies no lighting to voxels, so every face
+					// has the same colour and the relief/depth of the volume is invisible.
+					// Cesiums normalEC gives which side of the cell the view ray came in through
+					// The light sits just above and to the left of the camera and moves along.
+					vec3 lightDirEC = normalize(vec3(-0.3, 0.6, 1.0));
+					float lambert = max(dot(fsInput.attributes.normalEC, lightDirEC), 0.0);
+					float lit = ${SHADE_AMBIENT.toFixed(2)} + ${(1 - SHADE_AMBIENT).toFixed(2)} * lambert;
+					material.diffuse = base * mix(1.0, lit, u_shading);
 				}
 			`
 		});
+
+		return shader;
 	}
 }
 
