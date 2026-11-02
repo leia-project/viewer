@@ -292,7 +292,7 @@ Layer definition
 |value|description|type|
 |-|-|-|
 |id|Unique layer id|string|
-|type|Layer type, supported layer types:<br /> ```basiskaart```, ```wms```, ```wmts```, ```tms```, ```vectortiles```, ```3dtiles```, ```geojson```, ```modelanimation```, ```custom```|string|
+|type|Layer type, supported layer types:<br /> ```basiskaart```, ```wms```, ```wmts```, ```arcgis```, ```tms```, ```vectortiles```, ```3dtiles```, ```geojson```, ```wfs```, ```ogc-features```, ```flood```, ```modelanimation```, ```custom```|string|
 |title|Layer title|string|
 |groupId|Id of the group where this layer belongs to or empty string, will be placed under uncategorized in library|string|
 |description|Simple text field in which a layer description can be provided|string|
@@ -399,10 +399,24 @@ LayerSettings
 ]
 ```
 
-#### LayerSettings for type 3dtiles
+#### LayerSettings for type arcgis
 
 |value|description|default|type|
 |-|-|-|-|
+|url|URL of the ArcGIS MapServer; the legend is fetched from `{url}/legend?f=pjson`||string|
+|layers|Id of the MapServer layer to show; also selects the legend entry||string|
+
+```json
+{
+	"id": "arcgis-1",
+	"type": "arcgis",
+	"title": "ArcGIS layer",
+	"settings": {
+		"url": "https://example.com/arcgis/rest/services/MyService/MapServer",
+		"layers": "0"
+	}
+}
+```
 |url|URL to tileset.json for the 3D Tiles layer||string|
 |shadows|If shadows casting & receiving is enabled or disabled|true|boolean|
 |tilesetHeight|3D tiles layer height (z position) can be changed, supply the change in meters here|0|number|
@@ -584,6 +598,79 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 				"slider_step": 1
 			}
 		}
+	}
+}
+```
+
+#### LayerSettings for type wfs
+
+|value|description|default|type|
+|-|-|-|-|
+|url|Base URL of the WFS service||string|
+|options.featureType|Feature type (typeName) to request|""|string|
+|options.version|WFS version|1.1.0|string|
+|options.heightStartLoading|Camera height in meters below which features are loaded|1100|number|
+|options.tileWidth|Tile width used for loading features|512|number|
+|options.cacheBuster|Interval used to force refreshing loaded tiles|5000|number|
+|options.allowPicking|Allow clicking features for the feature info popup|true|boolean|
+
+```json
+{
+	"id": "wfs-1",
+	"type": "wfs",
+	"title": "WFS layer",
+	"settings": {
+		"url": "https://example.com/wfs",
+		"options": {
+			"featureType": "namespace:featuretype"
+		}
+	}
+}
+```
+
+#### LayerSettings for type ogc-features
+
+|value|description|default|type|
+|-|-|-|-|
+|url|Base URL of the OGC API Features service||string|
+|parameters|Extra query parameters added to each items request||object (string values)|
+|options.collectionId|Id of the collection to show|""|string|
+|options.heightStartLoading|Camera height in meters below which features are loaded|1100|number|
+|options.tileWidth|Tile width used for loading features|512|number|
+|options.cacheBuster|Interval used to force refreshing loaded tiles|5000|number|
+|options.allowPicking|Allow clicking features for the feature info popup|true|boolean|
+|options.style|Color styling: per condition a `property` and `stops` (`value`, `color`); also shown in the layer manager||Array<{ property: string, stops: Array<{ value: number, color: string }> }>|
+
+```json
+{
+	"id": "ogc-1",
+	"type": "ogc-features",
+	"title": "OGC Features layer",
+	"settings": {
+		"url": "https://example.com/ogcapi",
+		"options": {
+			"collectionId": "buildings",
+			"style": []
+		}
+	}
+}
+```
+
+#### LayerSettings for type flood
+
+|value|description|default|type|
+|-|-|-|-|
+|url|URL of the dynamic water level service||string|
+|resolution|Grid spacing in meters of the water surface||number|
+
+```json
+{
+	"id": "flood-1",
+	"type": "flood",
+	"title": "Flood layer",
+	"settings": {
+		"url": "https://example.com/flood",
+		"resolution": 5
 	}
 }
 ```
