@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as the base image (last node LTS version running on Alpine)
-FROM node:24.4.1-alpine
+FROM node:24.22.1-alpine
 
 # Set the working directory in the Docker container
 WORKDIR /app
