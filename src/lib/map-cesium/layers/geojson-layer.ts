@@ -8,6 +8,7 @@ import type { Map } from "../map";
 import { CesiumLayer } from "./cesium-layer";
 import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
 import LayerControlGeoJson from "$lib/components/layer-controls/LayerControlGeoJSON/LayerControlGeoJSON.svelte";
+import { convertBillboardsToPoints } from "./geojson-points";
 
 interface GeoJSON {
 	type: string;
@@ -51,6 +52,10 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public loaded: Promise<void> | undefined = undefined;
 	private layerControl!: CustomLayerControl;
 	private availableProperties: Array<GeoJSONpropertySummary> = [];
+	/** Reactive mirror of availableProperties, published once the (async) load
+	 * finishes scanning. Control ui binds to this so the style options appear then,
+	 * rather than capturing an empty list when the control mounts. */
+	public availablePropertiesStore: Writable<Array<GeoJSONpropertySummary>> = writable([]);
 	private hatchConditions: { [key: string]: string | number | Array<string | number> };
 	private boundingSphere: Cesium.BoundingSphere | undefined;
 
@@ -119,6 +124,12 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.extrusionSliderLabel = this.config.settings.tools?.extrude?.slider_label ?? undefined;
 
 		this.clampToGround = this.config.settings.clampToGround ?? true;
+
+		if (this.config.settings.style?.pointColor) {
+			this.defaultColorPoint = Cesium.Color.fromCssColorString(
+				this.config.settings.style.pointColor
+			);
+		}
 	}
 
 	private addListeners(): void {
@@ -157,6 +168,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.removeControl();
 		this.unsubscribers.forEach((unsub) => unsub());
 		this.availableProperties = [];
+		this.availablePropertiesStore.set([]);
 		this.source.entities.removeAll();
 		this.outlines?.entities.removeAll();
 		this.map.viewer.dataSources.remove(this.source, true);
@@ -204,20 +216,61 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 
 		// workaround for outlines, which Cesium does not render correctly
 		if (this.config.settings.style?.stroke) {
-			if (this.config.settings.style?.strokeWidth)
-				this.outlineWidth = this.config.settings.style.stroke ?? this.defaultLineWidth;
-			if (this.config.settings.style?.stroke)
+			if (this.config.settings.style?.strokeWidth) {
+				this.outlineWidth = this.config.settings.style.strokeWidth ?? this.defaultLineWidth;
+			}
+			if (this.config.settings.style?.stroke) {
 				this.outlineColor = Cesium.Color.fromCssColorString(this.config.settings.style.stroke);
+			}
 			this.addOutlines();
 		}
+
+		this.convertPoints();
+	}
+
+	/**
+	 * With `style.pointSize`, point features become circles in the layer's point colour
+	 * and outline. `clampToTerrain` pins them to the terrain provider only, so they stay
+	 * on the ground next to 3D Tiles layers; otherwise `clampToGround` applies.
+	 */
+	private convertPoints(): void {
+		const style = this.config.settings.style;
+		if (typeof style !== "object" || style.pointSize == null) {
+			return;
+		}
+
+		const getHeightReference = () => {
+			if (this.config.settings.clampToTerrain) {
+				return Cesium.HeightReference.CLAMP_TO_TERRAIN;
+			}
+			if (this.clampToGround) {
+				return Cesium.HeightReference.CLAMP_TO_GROUND;
+			}
+			return Cesium.HeightReference.NONE;
+		};
+
+		convertBillboardsToPoints(this.source, {
+			pixelSize: style.pointSize,
+			color: this.defaultColorPoint.withAlpha(this.alpha),
+			outlineColor: this.outlineColor.withAlpha(this.alpha),
+			outlineWidth: style.stroke ? this.outlineWidth : 0,
+			heightReference: getHeightReference()
+		});
 	}
 
 	private setAvailableProperties(): void {
+		// When settings.styleableProperties is set, only those properties are offered
+		// in the styling dropdown (in the given order). Otherwise every property is
+		// listed, sorted alphabetically. Curating this avoids meaningless options like
+		// bro_id and raw date strings that would explode into hundreds of categories.
+		const allowed: Array<string> | undefined = this.config.settings.styleableProperties;
+
 		const entities = this.source.entities.values;
 		for (let i = 0; i < entities.length; i++) {
 			const entity = entities[i];
 			const properties = entity.properties?.getValue(this.map.viewer.clock.currentTime);
 			for (const property in properties) {
+				if (allowed && !allowed.includes(property)) continue;
 				const propertyValue = properties[property];
 				const propertyType = typeof propertyValue;
 				const idx = this.availableProperties.findIndex((p) => p.propertyName === property);
@@ -229,15 +282,24 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				}
 			}
 		}
-		// Sort everything alphabetically:
 		this.availableProperties.forEach((p) => p.propertyValues?.sort());
-		this.availableProperties.sort((a, b) => {
-			let x = a.propertyName.toLowerCase();
-			let y = b.propertyName.toLowerCase();
-			if (x < y) return -1;
-			if (x > y) return 1;
-			return 0;
-		});
+		if (allowed) {
+			// Preserve the curated config order.
+			this.availableProperties.sort(
+				(a, b) => allowed.indexOf(a.propertyName) - allowed.indexOf(b.propertyName)
+			);
+		} else {
+			// Sort everything alphabetically:
+			this.availableProperties.sort((a, b) => {
+				let x = a.propertyName.toLowerCase();
+				let y = b.propertyName.toLowerCase();
+				if (x < y) return -1;
+				if (x > y) return 1;
+				return 0;
+			});
+		}
+
+		this.availablePropertiesStore.set([...this.availableProperties]);
 	}
 
 	private addNumberProperty(property: string, propertyValue: number, idx: number): void {
@@ -272,8 +334,9 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				propertyType: "string"
 			});
 		} else {
-			if (!this.availableProperties[idx].propertyValues?.includes(propertyValue))
+			if (!this.availableProperties[idx].propertyValues?.includes(propertyValue)) {
 				this.availableProperties[idx].propertyValues?.push(propertyValue);
+			}
 		}
 	}
 
@@ -316,16 +379,31 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.forceRandomColors = false;
 	}
 
+	/**
+	 * Render now and again after the next frame: clamped points pick up a restyle
+	 * a frame late, so with requestRenderMode a single render leaves stale colours
+	 * until the camera moves.
+	 */
+	private refreshAfterRestyle(): void {
+		this.map.refresh();
+		const scene = this.map.viewer.scene;
+		const unlisten = scene.postRender.addEventListener(() => {
+			unlisten();
+			this.map.refresh();
+		});
+	}
+
 	private setDefaultStyle(): void {
 		const entities = this.source.entities.values;
 		for (let i = 0; i < entities.length; i++) {
 			const entity = entities[i];
-			if (entity.point)
-				entity.point.color = new Cesium.ColorMaterialProperty(
+			if (entity.point) {
+				entity.point.color = new Cesium.ConstantProperty(
 					this.defaultColorPoint.withAlpha(this.alpha)
 				);
-			else if (entity.polyline) entity.polyline.material = this.defaultColorLine;
-			else if (entity.polygon) {
+			} else if (entity.polyline) {
+				entity.polyline.material = this.defaultColorLine;
+			} else if (entity.polygon) {
 				const colorProp = entity.properties?.fill
 					? new Cesium.ColorMaterialProperty(
 							Cesium.Color.fromCssColorString(entity.properties?.fill.getValue()).withAlpha(
@@ -336,7 +414,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				this.setPolygonMaterial(entity, colorProp);
 			}
 		}
-		this.map.refresh();
+		this.refreshAfterRestyle();
 	}
 
 	private setCustomStyle(): void {
@@ -344,11 +422,12 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		for (let i = 0; i < entities.length; i++) {
 			const entity = entities[i];
 			if (entity.point)
-				entity.point.color = new Cesium.ColorMaterialProperty(
+				entity.point.color = new Cesium.ConstantProperty(
 					this.defaultColorPoint.withAlpha(this.alpha)
 				);
-			else if (entity.polyline) entity.polyline.material = this.defaultColorLine;
-			else if (entity.polygon) {
+			else if (entity.polyline) {
+				entity.polyline.material = this.defaultColorLine;
+			} else if (entity.polygon) {
 				const colorProp = this.config.settings.style?.fill
 					? new Cesium.ColorMaterialProperty(
 							Cesium.Color.fromCssColorString(this.config.settings.style.fill).withAlpha(this.alpha)
@@ -357,7 +436,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				this.setPolygonMaterial(entity, colorProp);
 			}
 		}
-		this.map.refresh();
+		this.refreshAfterRestyle();
 	}
 
 	private setPolygonMaterial(
@@ -410,11 +489,15 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				styledColor = new Cesium.ColorMaterialProperty(color.withAlpha(this.alpha));
 			}
 			const newColor = styledColor ?? this.colorUnselected;
-			if (entity.point) entity.point.color = newColor;
-			else if (entity.polyline) entity.polyline.material = newColor;
-			else if (entity.polygon) this.setPolygonMaterial(entity, newColor);
+			if (entity.point) {
+				entity.point.color = newColor.color;
+			} else if (entity.polyline) {
+				entity.polyline.material = newColor;
+			} else if (entity.polygon) {
+				this.setPolygonMaterial(entity, newColor);
+			}
 		}
-		this.map.refresh();
+		this.refreshAfterRestyle();
 	}
 
 	private makeNumberLegend(min: number, max: number, steps: number = 10): void {
@@ -440,10 +523,17 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	private setStringStyle(property: GeoJSONpropertySummary): GeoJSONlegend | undefined {
 		// Make legend
 		if (!property.propertyValues) return;
+		// Fixed palette per value from settings.styleColors[propertyName]; values not in
+		// the map fall back to a (darkened) random colour so the map never breaks.
+		const colorMap: Record<string, string> | undefined =
+			this.config.settings.styleColors?.[property.propertyName];
 		const legend: GeoJSONlegend = [];
 		for (let i = 0; i < property.propertyValues.length; i++) {
-			const color = this.getStringStyleColor(property.propertyName, property.propertyValues[i]);
-			legend.push({ color: color.toCssColorString(), label: property.propertyValues[i] });
+			const value = property.propertyValues[i];
+			const cssColor = colorMap?.[value]
+				? colorMap[value]
+				: this.getStringStyleColor(property.propertyName, value).toCssColorString();
+			legend.push({ color: cssColor, label: value });
 			if (i > this.maxLengthLegend - 2) break;
 		}
 		// Color entities according to legend
@@ -463,13 +553,13 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 				}
 			}
 			const newColor = styledColor ?? this.colorUnselected;
-			if (entity.point) entity.point.color = newColor;
+			if (entity.point) entity.point.color = newColor.color;
 			else if (entity.polyline) entity.polyline.material = newColor;
 			else if (entity.polygon) this.setPolygonMaterial(entity, newColor);
 		}
 		// Update
 		this.legend.set(legend);
-		this.map.refresh();
+		this.refreshAfterRestyle();
 	}
 
 	private getStringStyleColor(propertyName: string, value: string): Cesium.Color {
@@ -534,8 +624,16 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	}
 
 	private updateOutlineOpacity(): void {
-		if (!this.outlines) return;
-		const newColor = new Cesium.ColorMaterialProperty(this.outlineColor.withAlpha(this.alpha));
+		const outlineColor = this.outlineColor.withAlpha(this.alpha);
+		for (const entity of this.source.entities.values) {
+			if (entity.point) {
+				entity.point.outlineColor = new Cesium.ConstantProperty(outlineColor);
+			}
+		}
+		if (!this.outlines) {
+			return;
+		}
+		const newColor = new Cesium.ColorMaterialProperty(outlineColor);
 		const entities = this.outlines.entities.values;
 		for (let i = 0; i < entities.length; i++) {
 			const entity = entities[i];
@@ -548,8 +646,9 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		this.layerControl.component = LayerControlGeoJson;
 		this.layerControl.props = {
 			layer: this,
-			properties: this.availableProperties,
-			defaultStyle: get(this.style) === "custom" ? "custom" : "default"
+			properties: this.availablePropertiesStore,
+			defaultStyle: get(this.style) === "custom" ? "custom" : "default",
+			propertyLabels: this.config.settings.propertyLabels ?? {}
 		};
 		this.addCustomControl(this.layerControl);
 	}

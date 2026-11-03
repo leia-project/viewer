@@ -9,6 +9,7 @@
 	export let labelText = "";
 	export let unit = "";
 	export let ticks: number[] | undefined = undefined;
+	export let disabled = false;
 
 	$: scale = scaleLog().domain([min, max]).range([0, 100]);
 	$: tickValues = ticks ?? defaultTicks(min, max);
@@ -46,10 +47,11 @@
 	}
 </script>
 
-<div class="log-slider">
+<div class="log-slider" class:disabled>
 	<Slider
 		hideTextInput
 		{labelText}
+		{disabled}
 		min={0}
 		max={100}
 		minLabel=" "
@@ -99,6 +101,10 @@
 		font-size: 0.75rem;
 		line-height: 1.5;
 		color: var(--cds-text-02, #525252);
+	}
+
+	.log-slider.disabled .tick {
+		color: var(--cds-disabled-02, #c6c6c6);
 	}
 
 	.tick::before {

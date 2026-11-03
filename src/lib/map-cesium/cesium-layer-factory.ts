@@ -5,6 +5,8 @@ import type { Map } from "./map";
 
 import { WmtsLayer } from "./layers/wmts-layer";
 import { ThreedeeLayer } from "./layers/threedee-layer";
+import { SubsurfaceThreedeeLayer } from "./layers/subsurface-threedee-layer";
+import { appliesSubsurfaceExaggeration } from "./subsurface-exaggeration";
 import { WmsLayer } from "./layers/wms-layer";
 import { BasiskaartLayer } from "./layers/basiskaart-layer";
 import { WellsLayer } from "./layers/wells/wells-layer";
@@ -67,7 +69,7 @@ export class CesiumLayerFactory {
 	private createCustom(map: Map, layerConfig: LayerConfig): CesiumLayer<unknown> | undefined{;
 		const wells = layerConfig.settings["wells"] ?? "false"
 		const i3s = layerConfig.settings["i3s"] ?? "false"
-	
+
 		if(wells === "true") {
 			return this.createWellsLayer(map, layerConfig);
 		}
@@ -80,6 +82,9 @@ export class CesiumLayerFactory {
 	}
 
 	private create3DTiles(map: Map, layerConfig: LayerConfig): CesiumLayer<Cesium3DTileset> {
+		if (appliesSubsurfaceExaggeration(layerConfig)) {
+			return new SubsurfaceThreedeeLayer(map, layerConfig);
+		}
 		return new ThreedeeLayer(map, layerConfig);
 	}
 

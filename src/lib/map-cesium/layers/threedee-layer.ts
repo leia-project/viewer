@@ -153,7 +153,11 @@ export class ThreedeeLayer extends PrimitiveLayer {
 		}
 
 		this.applyStyles();
+		this.onTilesetLoaded(tileset);
 	}
+
+	/** Hook for subclasses to configure the tileset once it has finished loading. */
+	protected onTilesetLoaded(_tileset: Cesium.Cesium3DTileset): void {}
 
 	private applyStyles(): void {
 		if (this.isPointCloud) {

@@ -3,13 +3,9 @@ import * as Cesium from "cesium";
 import { Get3dLayers } from "./utils/map-utils";
 import type { Map } from "./map";
 
-/** Layer types that are affected by the subsurface exaggeration slider.
- * The slider is hidden when the config contains none of these */
-export const SUBSURFACE_EXAGGERATION_LAYER_TYPES = new Set(["3dtiles-voxel"]);
-
 export class MapOptions {
 	private map: Map;
-	
+
 	public dateTime: Writable<number> = writable<number>(1720602000 * 1000); // 10-07-2024 11:00:00
 	public shadows: Writable<boolean> = writable<boolean>(false);
 	public fxaa: Writable<boolean> = writable<boolean>(true);
@@ -34,6 +30,8 @@ export class MapOptions {
 	public showLoadingWidget: Writable<boolean> = writable<boolean>(true);
 	public enableDragDropFiles: Writable<boolean> = writable<boolean>(true);
 	public globeOpacity: Writable<number> = writable<number>(100);
+	public verticalExaggeration: Writable<number> = writable<number>(1);
+	public showVerticalExaggerationSlider: Writable<boolean> = writable<boolean>(false);
 	public subsurfaceExaggeration: Writable<number> = writable<number>(1);
 	public inspector: Writable<boolean> = writable<boolean>(false);
 	public proMode: Writable<boolean> = writable<boolean>(false);
@@ -99,6 +97,9 @@ export class MapOptions {
 		this.subscribe<number>(this.globeOpacity, (v) => {
 			this.setGlobeOpacity(v);
 		});
+		this.subscribe<number>(this.verticalExaggeration, (v) => {
+			this.map.viewer.scene.verticalExaggeration = v;
+		});
 		this.subscribe<boolean>(this.pointCloudAttenuation, (v) => {
 			this.setPointCloudSetting("attenuation", v);
 		});
@@ -160,6 +161,8 @@ export class MapOptions {
 		this.trySet(this.pointCloudEDLRadius, config.pointCloudEDLRadius);
 		this.trySet(this.proMode, config.proMode);
 		this.trySet(this.globeOpacity, config.globeOpacity);
+		this.trySet(this.verticalExaggeration, config.verticalExaggeration);
+		this.trySet(this.showVerticalExaggerationSlider, config.showVerticalExaggerationSlider);
 		this.trySet(this.subsurfaceExaggeration, config.subsurfaceExaggeration);
 		this.trySet(this.enableCollisionDetection, config.enableCollisionDetection);
 		this.loadTerrainProvider(config.terrainProviders);
@@ -218,7 +221,7 @@ export class MapOptions {
 		const currentProviders = get(this.terrainProviders);
 		if (currentProviders.length > 0) {
 			// If use3DMode is false, start with the terrain turned off
-			const provider = !get(this.use3DMode) 
+			const provider = !get(this.use3DMode)
 				? currentProviders.find(p => p.title.toLowerCase() === 'uit') || currentProviders[0]
 				: currentProviders[0];
 			this.selectedTerrainProvider.set(provider);
