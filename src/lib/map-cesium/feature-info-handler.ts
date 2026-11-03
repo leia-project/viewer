@@ -3,6 +3,7 @@ import * as Cesium from "cesium";
 import { FeatureInfo } from "$lib/map-core/feature-info/feature-info";
 import { FeatureInfoRequestOptions } from "$lib/map-core/feature-info/feature-info-request-options";
 import { FeatureInfoRecord } from "$lib/map-core/feature-info/feature-info-record";
+import { escapeHtml } from "$lib/app/sanitize";
 import { get } from "svelte/store";
 
 
@@ -143,7 +144,7 @@ export class FeatureInfoHandler {
                 records.push(
                     new FeatureInfoRecord(
                         propertyNames[i],
-                        `<a class="link" href="${parts[0]}" target="_blank">${parts[1]}</a>`
+                        `<a class="link" href="${escapeHtml(parts[0])}" target="_blank">${escapeHtml(parts[1] ?? "")}</a>`
                     )
                 );
             } else {

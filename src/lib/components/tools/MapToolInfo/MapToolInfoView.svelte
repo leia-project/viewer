@@ -3,6 +3,7 @@
 	import { _ } from "svelte-i18n";
 	import { Modal } from "carbon-components-svelte";
 	import { Attribution } from "./attribution";
+	import { sanitizeHtml } from "$lib/app/sanitize";
 
 	export let txtViewerTitle: string | undefined;
 	export let txtViewerDescription: string | undefined;
@@ -176,6 +177,13 @@
 			"bubkoo",
 			"https://github.com/bubkoo/html-to-image",
 			"MIT"
+		),
+		new Attribution(
+			"DOMPurify",
+			"Used to sanitize HTML from configs and remote data before it is displayed.",
+			"Cure53",
+			"https://github.com/cure53/DOMPurify",
+			"Apache-2.0"
 		)
 	);
 
@@ -213,7 +221,7 @@
 	{#if txtViewerTitle}
 		<div class="viewer-text">
 			<h4>{txtViewerTitle}</h4>
-			<p>{@html txtViewerDescription}</p>
+			<p>{@html sanitizeHtml(txtViewerDescription)}</p>
 		</div>
 	{/if}
 

@@ -49,6 +49,7 @@
 		"cookie": "^0.7.0",
 		"d3-delaunay": "^6.0.4",
 		"d3-scale": "^4.0.2",
+		"dompurify": "^3.4.17",
 		"dotenv": "^17.2.1",
 		"echarts": "^6.1.0",
 		"fast-xml-parser": "^5.7.0",

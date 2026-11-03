@@ -14,7 +14,7 @@ COPY . /app/
 RUN npm install
 
 # Build the static version
-RUN npm run build --adapter=static
+RUN NODE_OPTIONS=--max-old-space-size=4096 npm run build --adapter=static
 
 # Serve the static files with a lightweight server (like serve)
 RUN npm install -g serve
