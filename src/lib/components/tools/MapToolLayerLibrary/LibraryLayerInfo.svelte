@@ -9,6 +9,7 @@
     import { NotificationType } from "$lib/map-core/notifications/notification-type";
     import { notifications } from "$lib/map-core/notifications/notifications";
     import { Metadata } from "./metadata";
+    import { escapeHtml } from "$lib/app/sanitize";
 
     export let layerConfig: Writable<LayerConfig>;
     export let path: string = "";
@@ -113,8 +114,8 @@
 
     function urlify(text: string): string {
         var urlRegex = /(https?:\/\/[^\s]+)/g;
-        return text.replace(urlRegex, function (url) {
-            return '<a href="' + url + '"target="_blank">' + url + "</a>";
+        return escapeHtml(text).replace(urlRegex, function (url) {
+            return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + "</a>";
         });
     }
 

@@ -11,6 +11,7 @@
     import { ComposedRow } from "./composed-row";
     import { ComposedFeatureInfoResult } from "./composed-feature-info-result";
     import Button from "$lib/components/theme/Button/Button.svelte";
+    import { safeHttpUrl, sanitizeHtml } from "$lib/app/sanitize";
 
     export let map: MapCore;
     export let featureInfoResults: FeatureInfoResults = map.featureInfo;
@@ -95,9 +96,13 @@
         });
         if (!fieldConfig) return;
 
-        handler = fieldConfig.handler.toLowerCase();
+        const handlerType = fieldConfig.handler.toLowerCase();
+        const data = handlerType === "image" || handlerType === "pdf" ? safeHttpUrl(value) : value;
+        if (data === undefined) return;
+
+        handler = handlerType;
         handlerModalTitle = field.charAt(0).toUpperCase() + field.slice(1);
-        handlerData = value;
+        handlerData = data;
         handlerOpen = true;
     }
 
@@ -204,13 +209,13 @@
                                                 {$_("tools.featureInfo.open")}
                                             </div>
                                         </div>
-                                    {:else if cell.value?.toString().startsWith("href") && cell.value.length > 8}
+                                    {:else if cell.value?.toString().startsWith("href") && safeHttpUrl(cell.value.substring(5))}
                                         <div class="row">
-                                            <a href="{cell.value.substring(5)}" class="open-handler" on:click={(e) => (e.target instanceof HTMLAnchorElement) ? window.open(e.target.href, '_blank') : ""} role="button" tabindex="0">{$_("tools.featureInfo.link")}</a>
+                                            <a href="{safeHttpUrl(cell.value.substring(5))}" class="open-handler" on:click={(e) => (e.target instanceof HTMLAnchorElement) ? window.open(e.target.href, '_blank') : ""} role="button" tabindex="0">{$_("tools.featureInfo.link")}</a>
                                         </div>
                                     {:else}
                                         <div class="row">
-                                            {@html cell.value}
+                                            {@html sanitizeHtml(cell.value)}
                                         </div>
                                     {/if}
                                 </svelte:fragment>

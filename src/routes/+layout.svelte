@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import { setupLocalization, selectedLanguage } from '$lib/i18n/localization';
 	import { ConfigSettings } from '$lib/app/config-settings';
+	import { getRequestedConfigUrl } from '$lib/app/config-url';
 
 	import './app.css';	
 
@@ -37,11 +38,11 @@
 	};
 
 	onMount(async () => {
-		let configUrl = new URLSearchParams(window.location.search).get("config");
+		let configUrl = getRequestedConfigUrl();
 		// Look for name in URL that corresponds to a config name
 		if (!configUrl) {
 			if ($page.params.config) {
-				const response = await fetch(process.env.CONFIG_SERVER_URL + `/overview?mode=dt&q=${$page.params.config}`);
+				const response = await fetch(process.env.CONFIG_SERVER_URL + `/overview?mode=dt&q=${encodeURIComponent($page.params.config)}`);
 				if (response.ok) {
 					const responseJson = await response.json();
 					configUrl = responseJson[0].url;

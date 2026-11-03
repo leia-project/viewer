@@ -43,8 +43,8 @@ Behavior comes from a JSON config, **not hardcoded**. New layer/tool capabilitie
 
 Config loading (static build) supports two ways:
 
-1. `?url=http://host/some_config.json` — load config from URL.
-2. A `config.json` placed at the build root (ignored when `?url` is supplied).
+1. `?config=http://host/some_config.json` — load config from URL. Only accepted when its origin is the viewer's own, that of `CONFIG_URL`/`CONFIG_SERVER_URL`, or listed in the comma-separated build-time env `CONFIG_ALLOWED_ORIGINS` (`isAllowedConfigUrl()` / `getRequestedConfigUrl()` in `src/lib/app/config-url.ts`, used by both route layouts); otherwise it is ignored with a `console.warn`. A config injects HTML into the viewer, so do not loosen this.
+2. A `config.json` placed at the build root (ignored when `?config` is supplied).
 
 Top-level config shape:
 
@@ -126,6 +126,7 @@ Refer to `static/example.config.json` for concrete, copy-pasteable examples of e
 - **State:** Svelte `writable` stores; the `Map` is a singleton store on `app` (`src/lib/app/app.ts`). Persist a store with `register(store, key)` in `src/lib/app/stores/app-storage.ts` (syncs to `localStorage`).
 - **i18n:** `svelte-i18n` with `$_('key.path')`. When adding a key, add it to **all three** files in `src/lib/i18n/json/`: `en.json`, `nl.json`, `fr.json`. `document.documentElement.lang` is kept in sync inside `selectedLanguage.subscribe` in `src/lib/i18n/localization.ts`. Messages are ICU MessageFormat: a `'` directly before a `{` starts a **quoted literal**, so `'{title}'` renders as the raw text `{title}` instead of interpolating — write `''{title}''` (a doubled apostrophe is one literal `'`). A lone apostrophe elsewhere (`l'outil`) is fine.
 - **Styling:** SCSS + Carbon tokens (`var(--cds-*)`). Global rules (scrollbars, focus-visible outline, `prefers-reduced-motion`) live in `src/lib/styles/tosti.scss` (imported via `CarbonTheme.svelte`); do not add per-component scrollbar overrides.
+- **Untrusted HTML:** every `{@html}` that renders config or remote data (story `html`/`generalLegendText`, help `customDescription`, info `description`, feature-info values) must go through `sanitizeHtml()` from `src/lib/app/sanitize.ts` (DOMPurify; allows `iframe` and `target`, forces `rel="noopener noreferrer"` on `_blank` links). Build HTML strings from data with `escapeHtml()` (e.g. `urlify()` in `LibraryLayerInfo.svelte`, 3D Tiles `url:` links), and validate data-supplied `href`/`src`/`data` URLs with `safeHttpUrl()`. Only translated i18n strings and locally generated markup may skip this. Sandboxed story marker iframes (`StoryImageGallery.svelte`) are the deliberate exception.
 - **Accessibility:** Prefer a real `<button>` over a clickable div for anything interactive (the `use:clickable` action this file used to reference does not exist in this branch); where a div-button is unavoidable, add `role="button"`, `tabindex`, a key handler and a `<!-- svelte-ignore a11y-click-events-have-key-events -->` comment. The skip link in `Page.svelte` targets `#main-content`.
 
 ## Pitfalls (verified, hard-won)
