@@ -83,7 +83,7 @@
 		class:dragging={dragStart}
 		role="separator"
 		aria-orientation="horizontal"
-		aria-label="Grootte van de chat aanpassen"
+		aria-label={$_("tools.chat.resize")}
 		tabindex="0"
 		on:pointerdown={startResize}
 		on:pointermove={resize}

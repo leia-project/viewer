@@ -2,7 +2,9 @@
 	import { Accordion, Checkbox } from "carbon-components-svelte";
 
 	import LayerControl from "../../MapToolLayerManager/MapToolLayerControl.svelte";
-	import { GAIA_GROUP_ID, GAIA_GROUP_TITLE } from "./gaia-layers";
+	import { _ } from "svelte-i18n";
+
+	import { GAIA_GROUP_ID } from "./gaia-layers";
 
 	import type { Layer } from "$lib/map-core/layer";
 	import type { LayerLibrary } from "$lib/map-core/layer-library";
@@ -22,7 +24,7 @@
 </script>
 
 <div class="chat-ai-layers">
-	<div class="bx--label gaia-label">{GAIA_GROUP_TITLE}</div>
+	<div class="bx--label gaia-label">{$_("tools.chat.gaiaLayers")}</div>
 	<Accordion class="layer-group-accordion">
 		{#if group && $configs && $configs.length > 0}
 			{#each $configs as config (config.id)}

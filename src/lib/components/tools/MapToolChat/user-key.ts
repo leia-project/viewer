@@ -3,6 +3,9 @@
    gebruiker maar één keer hoeft in te loggen. Een sleutel verloopt niet, dus hij blijft in
    localStorage staan tot de API hem weigert. */
 
+import { _ } from "svelte-i18n";
+import { get } from "svelte/store";
+
 const STORAGE_KEY = "gaia.userKey";
 
 export const authHeaders = (userKey: string) => ({ Authorization: `Bearer ${userKey}` });
@@ -36,9 +39,9 @@ async function signIn(apiUrl: string): Promise<string> {
 	if (stored && (await isAccepted(apiUrl, stored))) return stored;
 	storeKey(null);
 
-	const entered = window.prompt("Vul je sleutel in om in te loggen (bijvoorbeeld user1):")?.trim();
-	if (!entered) throw new Error("Niet ingelogd: er is geen sleutel ingevuld.");
-	if (!(await isAccepted(apiUrl, entered))) throw new Error("Deze sleutel is niet bekend.");
+	const entered = window.prompt(get(_)("tools.chat.signInPrompt"))?.trim();
+	if (!entered) throw new Error(get(_)("tools.chat.errors.notSignedIn"));
+	if (!(await isAccepted(apiUrl, entered))) throw new Error(get(_)("tools.chat.errors.unknownKey"));
 
 	storeKey(entered);
 	return entered;

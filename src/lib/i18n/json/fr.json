@@ -33,7 +33,51 @@
             "search": "Rechercher emplacement"
         },
         "chat": {
-            "label": "Chat"
+            "label": "Chat",
+            "title": "Agent IA",
+            "modelVia": "{model} via {provider}",
+            "ollamaLocal": "Ollama (local)",
+            "tokens": "{count} jetons dans cette conversation",
+            "settings": "Instructions de l'assistant",
+            "settingsHint": "Cochez ce que l'assistant peut faire sans demander d'abord.",
+            "uiTools": {
+                "add_layer": "Ajouter des couches",
+                "fly_to": "Déplacer la carte vers une couche",
+                "set_layer_visibility": "Afficher ou masquer des couches",
+                "color_layer_by_property": "Colorer des couches selon une propriété",
+                "remove_layer": "Supprimer des couches"
+            },
+            "export": "Exporter la conversation en JSON",
+            "exportReason": "Pourquoi exportez-vous ceci ?",
+            "exportConfirm": "Exporter",
+            "cancel": "Annuler",
+            "placeholder": "Posez une question",
+            "send": "Envoyer la question",
+            "thinking": "Réflexion en cours",
+            "resize": "Redimensionner le chat",
+            "gaiaLayers": "Couches IA",
+            "results": "{count, plural, one {# résultat} other {# résultats}}",
+            "noResults": "Aucun résultat.",
+            "moreRows": "+ {count} de plus",
+            "actions": {
+                "apply": "Exécuter",
+                "dismiss": "Ignorer",
+                "always": "Toujours exécuter automatiquement"
+            },
+            "status": {
+                "running": "En cours…",
+                "applied": "Exécuté",
+                "dismissed": "Ignoré",
+                "failed": "Échec",
+                "expired": "Plus d'actualité"
+            },
+            "signInPrompt": "Saisissez votre clé pour vous connecter (par exemple user1) :",
+            "errors": {
+                "noConnection": "Pas de connexion avec l'assistant.",
+                "noApiUrl": "L'URL du backend est inconnue.",
+                "notSignedIn": "Non connecté : aucune clé saisie.",
+                "unknownKey": "Cette clé est inconnue."
+            }
         },
         "info": {
             "label": "Information",

@@ -13,10 +13,12 @@ export function artifactRows(content: any): Row[] {
 /* Alle kolommen die in minstens één rij voorkomen, in volgorde van opduiken. */
 export const artifactColumns = (rows: Row[]) => [...new Set(rows.flatMap((row) => Object.keys(row)))];
 
-export function artifactCaption(content: any, rowCount: number): string {
-	const source = content?.queried_table ?? content?.type_name ?? content?.query;
-	const count = content?.feature_count ?? rowCount;
-	return source ? `${count} resultaten · ${source}` : `${count} resultaten`;
+/* Hoeveel resultaten er waren (de backend telt soms meer dan hij meestuurt) en waarvandaan. */
+export function artifactSummary(content: any, rowCount: number): { count: number; source?: string } {
+	return {
+		count: content?.feature_count ?? rowCount,
+		source: content?.queried_table ?? content?.type_name ?? content?.query
+	};
 }
 
 export function formatCell(value: unknown): string {

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { tick } from "svelte";
+	import { _ } from "svelte-i18n";
 
 	import type { Map } from "$lib/map-cesium/map";
 
@@ -65,7 +66,7 @@
 		{/each}
 
 		{#if $busy}
-			<div class="thinking" aria-label="Bezig met nadenken">
+			<div class="thinking" aria-label={$_("tools.chat.thinking")}>
 				<span></span><span></span><span></span>
 			</div>
 		{/if}

@@ -33,7 +33,51 @@
             "search": "Zoek Locatie"
         },
         "chat": {
-            "label": "Chat"
+            "label": "Chat",
+            "title": "AI-agent",
+            "modelVia": "{model} via {provider}",
+            "ollamaLocal": "Ollama (lokaal)",
+            "tokens": "{count} tokens in dit gesprek",
+            "settings": "Instellingen van de agent",
+            "settingsHint": "Vink aan wat de agent mag doen zonder eerst te vragen.",
+            "uiTools": {
+                "add_layer": "Lagen toevoegen",
+                "fly_to": "De kaart naar een laag verplaatsen",
+                "set_layer_visibility": "Lagen tonen of verbergen",
+                "color_layer_by_property": "Lagen kleuren op basis van een eigenschap",
+                "remove_layer": "Lagen verwijderen"
+            },
+            "export": "Exporteer gesprek als JSON",
+            "exportReason": "Waarom exporteer je dit?",
+            "exportConfirm": "Exporteren",
+            "cancel": "Annuleren",
+            "placeholder": "Stel een vraag",
+            "send": "Verstuur vraag",
+            "thinking": "Bezig met nadenken",
+            "resize": "Grootte van de chat aanpassen",
+            "gaiaLayers": "AI lagen",
+            "results": "{count, plural, one {# resultaat} other {# resultaten}}",
+            "noResults": "Geen resultaten.",
+            "moreRows": "+ {count} meer",
+            "actions": {
+                "apply": "Uitvoeren",
+                "dismiss": "Negeren",
+                "always": "Altijd automatisch uitvoeren"
+            },
+            "status": {
+                "running": "Bezig…",
+                "applied": "Uitgevoerd",
+                "dismissed": "Genegeerd",
+                "failed": "Mislukt",
+                "expired": "Niet meer van toepassing"
+            },
+            "signInPrompt": "Vul je sleutel in om in te loggen (bijvoorbeeld user1):",
+            "errors": {
+                "noConnection": "Geen verbinding met de assistent.",
+                "noApiUrl": "De backend-URL is niet bekend.",
+                "notSignedIn": "Niet ingelogd: er is geen sleutel ingevuld.",
+                "unknownKey": "Deze sleutel is niet bekend."
+            }
         },
         "info": {
             "label": "Informatie",

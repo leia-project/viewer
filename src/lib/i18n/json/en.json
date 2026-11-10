@@ -33,7 +33,51 @@
             "search": "Search Location"
         },
         "chat": {
-            "label": "Chat"
+            "label": "Chat",
+            "title": "AI agent",
+            "modelVia": "{model} via {provider}",
+            "ollamaLocal": "Ollama (local)",
+            "tokens": "{count} tokens in this conversation",
+            "settings": "Assistant instructions",
+            "settingsHint": "Check what the assistant may do without asking first.",
+            "uiTools": {
+                "add_layer": "Add layers",
+                "fly_to": "Move the map to a layer",
+                "set_layer_visibility": "Show or hide layers",
+                "color_layer_by_property": "Colour layers by a property",
+                "remove_layer": "Remove layers"
+            },
+            "export": "Export conversation as JSON",
+            "exportReason": "Why are you exporting this?",
+            "exportConfirm": "Export",
+            "cancel": "Cancel",
+            "placeholder": "Ask a question",
+            "send": "Send question",
+            "thinking": "Thinking",
+            "resize": "Resize the chat",
+            "gaiaLayers": "AI layers",
+            "results": "{count, plural, one {# result} other {# results}}",
+            "noResults": "No results.",
+            "moreRows": "+ {count} more",
+            "actions": {
+                "apply": "Apply",
+                "dismiss": "Ignore",
+                "always": "Always apply automatically"
+            },
+            "status": {
+                "running": "Working…",
+                "applied": "Applied",
+                "dismissed": "Ignored",
+                "failed": "Failed",
+                "expired": "No longer applicable"
+            },
+            "signInPrompt": "Enter your key to sign in (for example user1):",
+            "errors": {
+                "noConnection": "No connection to the assistant.",
+                "noApiUrl": "The backend URL is unknown.",
+                "notSignedIn": "Not signed in: no key was entered.",
+                "unknownKey": "This key is not known."
+            }
         },
         "info": {
             "label": "Information",

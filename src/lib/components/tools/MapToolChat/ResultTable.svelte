@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { artifactCaption, artifactColumns, artifactRows, formatCell } from "./artifact";
+	import { _ } from "svelte-i18n";
+
+	import { artifactColumns, artifactRows, artifactSummary, formatCell } from "./artifact";
 
 	/* Het resultaat van een backend-tool als tabel, met een bijschrift erboven. */
 	export let content: unknown;
@@ -8,11 +10,15 @@
 
 	$: rows = artifactRows(content);
 	$: columns = artifactColumns(rows);
+	$: summary = artifactSummary(content, rows.length);
 </script>
 
-<span class="result__caption">{artifactCaption(content, rows.length)}</span>
+<span class="result__caption">
+	{$_("tools.chat.results", { values: { count: summary.count } })}{#if summary.source}
+		&middot; {summary.source}{/if}
+</span>
 {#if rows.length === 0}
-	<span class="result__empty">Geen resultaten.</span>
+	<span class="result__empty">{$_("tools.chat.noResults")}</span>
 {:else}
 	<div class="result__scroll">
 		<table class="data-table">
@@ -31,7 +37,9 @@
 		</table>
 	</div>
 	{#if rows.length > MAX_ROWS}
-		<span class="result__caption">+ {rows.length - MAX_ROWS} meer</span>
+		<span class="result__caption">
+			{$_("tools.chat.moreRows", { values: { count: rows.length - MAX_ROWS } })}
+		</span>
 	{/if}
 {/if}
 

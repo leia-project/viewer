@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
+	import { _ } from "svelte-i18n";
 
 	/* Eén instructie van de assistent aan de viewer (bijv. "voeg deze laag toe"):
 	   wat hij wil doen, en óf de keuze van de gebruiker, óf hoe het is afgelopen. */
@@ -9,13 +10,6 @@
 
 	const dispatch = createEventDispatcher<{ apply: void; dismiss: void; always: void }>();
 
-	const STATUS_LABELS = {
-		running: "Bezig…",
-		applied: "Uitgevoerd",
-		dismissed: "Genegeerd",
-		failed: "Mislukt",
-		expired: "Niet meer van toepassing"
-	};
 </script>
 
 <div class="ui-step" class:ui-step--failed={status === "failed"} class:ui-step--applied={status === "applied"}>
@@ -24,16 +18,16 @@
 	{#if status === "awaiting"}
 		<div class="ui-step__actions">
 			<button class="ui-step__button ui-step__button--primary" type="button" on:click={() => dispatch("apply")}>
-				Uitvoeren
+				{$_("tools.chat.actions.apply")}
 			</button>
-			<button class="ui-step__button" type="button" on:click={() => dispatch("dismiss")}>Negeren</button>
+			<button class="ui-step__button" type="button" on:click={() => dispatch("dismiss")}>{$_("tools.chat.actions.dismiss")}</button>
 			<button class="ui-step__link" type="button" on:click={() => dispatch("always")}>
-				Altijd automatisch uitvoeren
+				{$_("tools.chat.actions.always")}
 			</button>
 		</div>
 	{:else}
 		<span class="ui-step__status">
-			{STATUS_LABELS[status]}{#if status === "failed" && detail}: {detail}{/if}
+			{$_(`tools.chat.status.${status}`)}{#if status === "failed" && detail}: {detail}{/if}
 		</span>
 	{/if}
 </div>

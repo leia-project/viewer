@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
+	import { _ } from "svelte-i18n";
 
 	/* Vraagt waarom je het gesprek exporteert. Die reden komt in het bestand, zodat een
 	   map met exports vanzelf een lijst met klachten wordt. */
@@ -20,7 +21,7 @@
 
 <div class="export-dialog">
 	<div class="export-dialog__box">
-		<label class="export-dialog__label" for="export-reason">Waarom exporteer je dit?</label>
+		<label class="export-dialog__label" for="export-reason">{$_("tools.chat.exportReason")}</label>
 		<textarea
 			id="export-reason"
 			class="export-dialog__input"
@@ -31,10 +32,10 @@
 		></textarea>
 		<div class="export-dialog__actions">
 			<button class="export-dialog__button" type="button" on:click={() => dispatch("cancel")}>
-				Annuleren
+				{$_("tools.chat.cancel")}
 			</button>
 			<button class="export-dialog__button export-dialog__button--primary" type="button" on:click={confirm}>
-				Exporteren
+				{$_("tools.chat.exportConfirm")}
 			</button>
 		</div>
 	</div>

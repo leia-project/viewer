@@ -4,6 +4,8 @@
 	import SettingsIcon from "carbon-icons-svelte/lib/Settings.svelte";
 	import { createEventDispatcher } from "svelte";
 
+	import { _, locale } from "svelte-i18n";
+
 	import { chatApiUrl } from "./chat-store";
 
 	/* Kop van het chatpaneel: welk model antwoordt, wat het gesprek tot nu toe kostte,
@@ -25,16 +27,18 @@
 		providerName = data.llm_provider;
 	}
 
-	const PROVIDER_LABELS: Record<string, string> = {
+	/* Alleen Ollama heeft een vertaling nodig: "(lokaal)". */
+	$: PROVIDER_LABELS = {
 		openrouter: "OpenRouter",
-		ollama: "Ollama (lokaal)",
+		ollama: $_("tools.chat.ollamaLocal"),
 		anthropic: "Anthropic"
-	};
+	} as Record<string, string>;
 
 	$: providerLabel = providerName ? (PROVIDER_LABELS[providerName] ?? providerName) : "";
 
-	/* Past in de kop: 17.893 wordt "17,9K". */
-	const compactTokens = new Intl.NumberFormat("nl-NL", {
+	/* Past in de kop: 17.893 wordt "17,9K". De taal bepaalt het decimaalteken en de
+	   afkorting ("mln." i.p.v. "M"). */
+	$: compactTokens = new Intl.NumberFormat($locale ?? undefined, {
 		notation: "compact",
 		maximumFractionDigits: 1
 	});
@@ -42,15 +46,17 @@
 
 <header class="chat-header">
 	<div class="chat-header__heading">
-		<span>AI Agent</span>
+		<span>{$_("tools.chat.title")}</span>
 		{#if modelName}
 			<span class="chat-header__meta">
-				<span>{modelName} via {providerLabel}</span>
+				<span>{$_("tools.chat.modelVia", { values: { model: modelName, provider: providerLabel } })}</span>
 				{#if totalTokens > 0}
 					&middot;
 					<span
 						class="chat-header__tokens"
-						title="{totalTokens.toLocaleString('nl-NL')} tokens in dit gesprek"
+						title={$_("tools.chat.tokens", {
+							values: { count: totalTokens.toLocaleString($locale ?? undefined) }
+						})}
 					>
 						<Currency size={16} />
 						{compactTokens.format(totalTokens)}
@@ -65,8 +71,8 @@
 			class="chat-header__action"
 			type="button"
 			aria-expanded={settingsOpen}
-			title="Instructies van de assistent"
-			aria-label="Instructies van de assistent"
+			title={$_("tools.chat.settings")}
+			aria-label={$_("tools.chat.settings")}
 			on:click={() => (settingsOpen = !settingsOpen)}
 		>
 			<SettingsIcon size={20} />
@@ -75,8 +81,8 @@
 			class="chat-header__action"
 			type="button"
 			disabled={exportDisabled}
-			title="Exporteer gesprek als JSON"
-			aria-label="Exporteer gesprek als JSON"
+			title={$_("tools.chat.export")}
+			aria-label={$_("tools.chat.export")}
 			on:click={() => dispatch("export")}
 		>
 			<Download size={20} />
@@ -136,6 +142,7 @@
 		background: transparent;
 		color: inherit;
 		cursor: pointer;
+		border-radius: 4px;
 	}
 
 	.chat-header__action:hover:not(:disabled) {

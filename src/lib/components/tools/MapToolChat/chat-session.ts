@@ -1,6 +1,6 @@
 import { tick } from "svelte";
 import { get, writable, type Readable } from "svelte/store";
-import { locale } from "svelte-i18n";
+import { _, locale } from "svelte-i18n";
 import { HttpAgent, type AgentSubscriber } from "@ag-ui/client";
 
 import type { Map } from "$lib/map-cesium/map";
@@ -174,7 +174,7 @@ export function createChatSession(getMap: () => Map | undefined): ChatSession {
 
 		onRunFailed: ({ error }) => {
 			console.error("Agent-run mislukt:", error);
-			push({ type: "error", error: "Geen verbinding met de assistent." });
+			push({ type: "error", error: get(_)("tools.chat.errors.noConnection") });
 		}
 	};
 
@@ -184,7 +184,7 @@ export function createChatSession(getMap: () => Map | undefined): ChatSession {
 
 		try {
 			const apiUrl = get(chatApiUrl);
-			if (!apiUrl) throw new Error("De backend-URL is niet bekend.");
+			if (!apiUrl) throw new Error(get(_)("tools.chat.errors.noApiUrl"));
 			if (!get(userKey)) userKey.set(await getUserKey(apiUrl));
 			const map = getMap();
 			const refs = await webserviceRefs(map);

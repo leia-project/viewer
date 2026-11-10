@@ -1,6 +1,7 @@
 <script lang="ts">
 	import SendAltFilled from "carbon-icons-svelte/lib/SendAltFilled.svelte";
 	import { createEventDispatcher, tick } from "svelte";
+	import { _ } from "svelte-i18n";
 
 	/* Het invoerveld met verstuurknop. Meldt een vraag met `submit` en leegt zichzelf. */
 	export let disabled = false;
@@ -57,12 +58,12 @@
 		class="chat-input__field"
 		bind:this={inputEl}
 		bind:value={question}
-		placeholder="Stel een vraag"
+		placeholder={$_("tools.chat.placeholder")}
 		{disabled}
 		rows="1"
 		on:keydown={handleKeydown}
 	></textarea>
-	<button class="chat-input__send" type="button" {disabled} aria-label="Verstuur vraag" on:click={submit}>
+	<button class="chat-input__send" type="button" {disabled} aria-label={$_("tools.chat.send")} on:click={submit}>
 		<SendAltFilled size={20} />
 	</button>
 </div>
