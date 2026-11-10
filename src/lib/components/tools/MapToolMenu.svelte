@@ -217,6 +217,7 @@
         box-sizing: border-box;
         background-color: var(--cds-ui-02);
         z-index: 10;
+        border-right: 1px solid var(--cds-ui-03);
     }
 
     .menu-toggle:hover :global(.tool-icon) {

@@ -155,7 +155,7 @@
 	}
 
 	.resize-handle:focus-visible {
-		outline: 2px solid var(--cds-focus, #0f62fe);
+		outline: 2px solid var(--cds-interactive-01, #0f62fe);
 		outline-offset: -2px;
 	}
 
