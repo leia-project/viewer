@@ -1,6 +1,4 @@
 <script lang="ts">
-	import Bot from "carbon-icons-svelte/lib/Bot.svelte";
-	import Close from "carbon-icons-svelte/lib/Close.svelte";
 	import Currency from "carbon-icons-svelte/lib/Currency.svelte";
 	import Download from "carbon-icons-svelte/lib/Download.svelte";
 	import ErrorFilled from "carbon-icons-svelte/lib/ErrorFilled.svelte";
@@ -15,7 +13,7 @@
 
 	import type { Map } from "$lib/map-cesium/map";
 
-	import { isChatOpen, closeChat, chatApiUrl } from "./chat-store";
+	import { chatApiUrl } from "./chat-store";
 	import { exportConversation } from "./conversation-export";
 	import { authHeaders, getUserKey } from "./user-key";
 	import { getWfsAttributeNames } from "$lib/map-cesium/providers/wfs-attributes";
@@ -529,234 +527,206 @@
 	}
 </script>
 
-{#if $isChatOpen}
-	<div class="chat-panel">
-		<header class="chat-panel__header">
-			<div class="chat-panel__title">
-				<Bot size={20} />
-				<div class="chat-panel__heading">
-					<span>
-						{$_("tools.chat.label")}
-					</span>
-					{#if modelName}
-						<span class="chat-panel__model">
-							{modelName} via {providerLabel(providerName)}
-						</span>
-					{/if}
+<div class="chat-panel">
+	<header class="chat-panel__header">
+		<div class="chat-panel__heading">
+			<span> AI Agent </span>
+			{#if modelName}
+				<span class="chat-panel__model-tokens">
+					<span
+						>{modelName} via
+						{providerLabel(providerName)}{providerLabel(providerName)}</span
+					>
+					&middot;
 					{#if totalTokens > 0}
 						<span
-							class="chat-panel__model chat-panel__tokens"
+							class="chat-panel__tokens"
 							title="{totalTokens.toLocaleString('nl-NL')} tokens in dit gesprek"
 						>
 							<Currency size={16} />
 							{compactTokens.format(totalTokens)}
 						</span>
 					{/if}
-				</div>
-			</div>
-
-			<div class="chat-panel__actions">
-				<button
-					on:click={() => (settingsOpen = !settingsOpen)}
-					class="chat-panel__action"
-					type="button"
-					aria-expanded={settingsOpen}
-					title="Instructies van de assistent"
-					aria-label="Instructies van de assistent"
-				>
-					<SettingsIcon size={20} />
-				</button>
-
-				<button
-					on:click={openExportDialog}
-					class="chat-panel__action"
-					type="button"
-					disabled={exporting || !userKey}
-					title="Exporteer gesprek als JSON"
-					aria-label="Exporteer gesprek als JSON"
-				>
-					<Download size={20} />
-				</button>
-
-				<button
-					on:click={closeChat}
-					class="chat-panel__action"
-					type="button"
-					aria-label="Close chat"
-				>
-					<Close size={20} />
-				</button>
-			</div>
-		</header>
-
-		{#if settingsOpen}
-			<UiToolSettings />
-		{/if}
-
-		<div bind:this={bodyEl} class="chat-panel__body">
-			{#each events as event}
-				{#if event.type === "start"}
-					<div class="bubble bubble--user">{event.question}</div>
-				{:else if event.type === "ui"}
-					<UiToolStep
-						summary={event.summary}
-						status={event.status}
-						detail={event.detail}
-						on:apply={() => applyUi(event.toolCallId)}
-						on:dismiss={() => dismissUi(event.toolCallId)}
-						on:always={() => alwaysApplyUi(event.toolCallId, event.toolName)}
-					/>
-				{:else if event.type === "ai" && event.thinking}
-					<div class="step step--call">
-						<span class="step__icon"><Gears size={16} /></span>
-						<div class="step__main">
-							<span class="step__label">{event.tool}</span>
-							<pre class="step__code">{argsPreview(event.content)}</pre>
-						</div>
-					</div>
-				{:else if event.type === "ai"}
-					<div class="bubble bubble--ai">{@html renderMarkdown(event.content)}</div>
-				{:else if event.type === "tool" && event.error}
-					<div class="step step--error">
-						<span class="step__icon"><ErrorFilled size={16} /></span>
-						<div class="step__main">
-							<span class="step__label">{event.tool}</span>
-							<span class="step__error">{event.error}</span>
-						</div>
-					</div>
-				{:else if event.type === "tool"}
-					{@const rows = artifactRows(event.content)}
-					{@const columns = artifactColumns(rows)}
-					<div class="step step--result">
-						<span class="step__caption">{artifactCaption(event.content, rows.length)}</span>
-						{#if rows.length === 0}
-							<span class="step__empty">Geen resultaten.</span>
-						{:else}
-							<div class="step__scroll">
-								<table class="data-table">
-									<thead>
-										<tr>
-											{#each columns as column}
-												<th>{column}</th>
-											{/each}
-										</tr>
-									</thead>
-									<tbody>
-										{#each rows.slice(0, MAX_ROWS) as row}
-											<tr>
-												{#each columns as column}
-													<td>{formatCell(row[column])}</td>
-												{/each}
-											</tr>
-										{/each}
-									</tbody>
-								</table>
-							</div>
-							{#if rows.length > MAX_ROWS}
-								<span class="step__caption">+ {rows.length - MAX_ROWS} meer</span>
-							{/if}
-						{/if}
-					</div>
-				{:else if event.type === "error"}
-					<div class="step step--error">
-						<span class="step__icon"><ErrorFilled size={16} /></span>
-						<span class="step__error">{event.error}</span>
-					</div>
-				{/if}
-			{/each}
-
-			{#if busy}
-				<div class="bubble bubble--ai bubble--thinking" aria-label="Bezig met nadenken">
-					<span></span><span></span><span></span>
-				</div>
+				</span>
 			{/if}
 		</div>
 
-		<div class="chat-panel__footer">
-			<textarea
-				class="chat-panel__input"
-				bind:value={question}
-				placeholder="Stel een vraag"
-				disabled={busy}
-				rows="1"
-				on:keydown={handleKeydown}
-				on:input={autoGrow}
-			></textarea>
+		<div class="chat-panel__actions">
 			<button
-				class="chat-panel__send"
-				on:click={ask}
+				on:click={() => (settingsOpen = !settingsOpen)}
+				class="chat-panel__action"
 				type="button"
-				disabled={busy}
-				aria-label="Verstuur vraag"
+				aria-expanded={settingsOpen}
+				title="Instructies van de assistent"
+				aria-label="Instructies van de assistent"
 			>
-				<SendAltFilled size={20} />
+				<SettingsIcon size={20} />
+			</button>
+
+			<button
+				on:click={openExportDialog}
+				class="chat-panel__action"
+				type="button"
+				disabled={exporting || !userKey}
+				title="Exporteer gesprek als JSON"
+				aria-label="Exporteer gesprek als JSON"
+			>
+				<Download size={20} />
 			</button>
 		</div>
+	</header>
 
-		{#if exportDialogOpen}
-			<div class="export-dialog">
-				<div class="export-dialog__box">
-					<label class="export-dialog__label" for="export-reason">Waarom exporteer je dit?</label>
-					<textarea
-						id="export-reason"
-						class="export-dialog__input"
-						bind:value={exportReason}
-						use:focusOnMount
-						on:keydown={handleExportKeydown}
-						rows="3"
-					></textarea>
-					<div class="export-dialog__actions">
-						<button class="export-dialog__button" type="button" on:click={cancelExport}>
-							Annuleren
-						</button>
-						<button
-							class="export-dialog__button export-dialog__button--primary"
-							type="button"
-							on:click={handleExport}
-						>
-							Exporteren
-						</button>
+	{#if settingsOpen}
+		<UiToolSettings />
+	{/if}
+
+	<div bind:this={bodyEl} class="chat-panel__body">
+		{#each events as event}
+			{#if event.type === "start"}
+				<div class="bubble bubble--user">{event.question}</div>
+			{:else if event.type === "ui"}
+				<UiToolStep
+					summary={event.summary}
+					status={event.status}
+					detail={event.detail}
+					on:apply={() => applyUi(event.toolCallId)}
+					on:dismiss={() => dismissUi(event.toolCallId)}
+					on:always={() => alwaysApplyUi(event.toolCallId, event.toolName)}
+				/>
+			{:else if event.type === "ai" && event.thinking}
+				<div class="step step--call">
+					<span class="step__icon"><Gears size={16} /></span>
+					<div class="step__main">
+						<span class="step__label">{event.tool}</span>
+						<pre class="step__code">{argsPreview(event.content)}</pre>
 					</div>
 				</div>
+			{:else if event.type === "ai"}
+				<div class="bubble bubble--ai">{@html renderMarkdown(event.content)}</div>
+			{:else if event.type === "tool" && event.error}
+				<div class="step step--error">
+					<span class="step__icon"><ErrorFilled size={16} /></span>
+					<div class="step__main">
+						<span class="step__label">{event.tool}</span>
+						<span class="step__error">{event.error}</span>
+					</div>
+				</div>
+			{:else if event.type === "tool"}
+				{@const rows = artifactRows(event.content)}
+				{@const columns = artifactColumns(rows)}
+				<div class="step step--result">
+					<span class="step__caption">{artifactCaption(event.content, rows.length)}</span>
+					{#if rows.length === 0}
+						<span class="step__empty">Geen resultaten.</span>
+					{:else}
+						<div class="step__scroll">
+							<table class="data-table">
+								<thead>
+									<tr>
+										{#each columns as column}
+											<th>{column}</th>
+										{/each}
+									</tr>
+								</thead>
+								<tbody>
+									{#each rows.slice(0, MAX_ROWS) as row}
+										<tr>
+											{#each columns as column}
+												<td>{formatCell(row[column])}</td>
+											{/each}
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
+						{#if rows.length > MAX_ROWS}
+							<span class="step__caption">+ {rows.length - MAX_ROWS} meer</span>
+						{/if}
+					{/if}
+				</div>
+			{:else if event.type === "error"}
+				<div class="step step--error">
+					<span class="step__icon"><ErrorFilled size={16} /></span>
+					<span class="step__error">{event.error}</span>
+				</div>
+			{/if}
+		{/each}
+
+		{#if busy}
+			<div class="bubble bubble--ai bubble--thinking" aria-label="Bezig met nadenken">
+				<span></span><span></span><span></span>
 			</div>
 		{/if}
 	</div>
-{/if}
+
+	<div class="chat-panel__footer">
+		<textarea
+			class="chat-panel__input"
+			bind:value={question}
+			placeholder="Stel een vraag"
+			disabled={busy}
+			rows="1"
+			on:keydown={handleKeydown}
+			on:input={autoGrow}
+		></textarea>
+		<button
+			class="chat-panel__send"
+			on:click={ask}
+			type="button"
+			disabled={busy}
+			aria-label="Verstuur vraag"
+		>
+			<SendAltFilled size={20} />
+		</button>
+	</div>
+
+	{#if exportDialogOpen}
+		<div class="export-dialog">
+			<div class="export-dialog__box">
+				<label class="export-dialog__label" for="export-reason">Waarom exporteer je dit?</label>
+				<textarea
+					id="export-reason"
+					class="export-dialog__input"
+					bind:value={exportReason}
+					use:focusOnMount
+					on:keydown={handleExportKeydown}
+					rows="3"
+				></textarea>
+				<div class="export-dialog__actions">
+					<button class="export-dialog__button" type="button" on:click={cancelExport}>
+						Annuleren
+					</button>
+					<button
+						class="export-dialog__button export-dialog__button--primary"
+						type="button"
+						on:click={handleExport}
+					>
+						Exporteren
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
+</div>
 
 <style>
 	.chat-panel {
-		position: absolute;
-		/* Clears the MapControls row (3rem) and the chat toggle (6rem) stacked
-		   above it, so opening the chat never covers the button that opened it. */
-		bottom: calc(3rem + 6rem + var(--cds-spacing-05) * 3);
-		right: var(--cds-spacing-05);
-		width: 24rem;
-		height: 31.25rem;
+		position: relative;
+		/* MapToolChat sizes the container; the panel fills it. */
+		height: 100%;
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
 		background: var(--cds-ui-01, #f4f4f4);
-		border: 1px solid var(--cds-ui-03, #e0e0e0);
-		box-shadow: 0 2px 12px rgb(0 0 0 / 25%);
-		z-index: 10;
 	}
 
 	.chat-panel__header {
 		display: flex;
+		gap: 0.7rem;
 		align-items: center;
 		justify-content: space-between;
 		padding: 0.75rem 1rem;
-		background: var(--cds-interactive-01, #0f62fe);
-		color: var(--cds-text-04, #ffffff);
-	}
-
-	.chat-panel__title {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		/* Zonder dit weigert een flex-item te krimpen onder zijn inhoud, en duwt
-		   een lange modelnaam de sluitknop het paneel uit. */
-		min-width: 0;
+		border-bottom: 1px solid var(--cds-ui-03, #e0e0e0);
 	}
 
 	/* Titel en modelregel onder elkaar, zodat ze samen één flex-item vormen. */
@@ -767,15 +737,18 @@
 		min-width: 0;
 	}
 
-	.chat-panel__model {
+	.chat-panel__model-tokens {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
 		opacity: 0.7;
-		font-size: 0.75rem;
+		font-size: 0.7rem;
 		overflow-wrap: anywhere;
 	}
 
-	/* Icoon en getal op één regel, met het icoon op tekstgrootte uitgelijnd. */
 	.chat-panel__tokens {
 		display: flex;
+		font-size: 0, px;
 		align-items: center;
 		gap: 0.25rem;
 	}
@@ -798,7 +771,7 @@
 	}
 
 	.chat-panel__action:hover:not(:disabled) {
-		background: rgb(255 255 255 / 15%);
+		background: var(--cds-ui-03, #e0e0e0);
 	}
 
 	.chat-panel__action:disabled {

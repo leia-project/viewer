@@ -13,7 +13,7 @@ import type { LayerLibrary } from "$lib/map-core/layer-library";
    en op eigenschap te kleuren. */
 
 export const GAIA_GROUP_ID = "gaia-datasets";
-export const GAIA_GROUP_TITLE = "Gaia lagen";
+export const GAIA_GROUP_TITLE = "AI lagen";
 
 interface DatasetSummary {
 	id: string;
