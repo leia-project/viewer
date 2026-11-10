@@ -9,6 +9,14 @@ import type { LabelledLayer } from "./layers";
 
 export type ApprovalMode = "auto" | "ask";
 
+/* Waar een instructie mee werkt: de kaart, en de API voor wat de browser niet zelf
+   kan weten (tiles bevatten alleen wat in beeld is). */
+export interface UiToolContext {
+	map: Map;
+	apiUrl: string;
+	sessionToken: string;
+}
+
 export interface UiTool<Args = unknown> {
 	name: string;
 	/* De agent leest dit: zeg wanneer de tool past en wat elk argument betekent. */
@@ -26,5 +34,5 @@ export interface UiTool<Args = unknown> {
 	/* De zin voor de goedkeuringskaart. */
 	describe: (args: Args) => string;
 	/* Voert de wijziging uit. Geeft terug wat de agent te horen krijgt; gooit bij mislukken. */
-	execute: (args: Args, map: Map) => Promise<string>;
+	execute: (args: Args, context: UiToolContext) => Promise<string>;
 }

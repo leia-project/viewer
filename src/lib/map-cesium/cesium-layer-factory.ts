@@ -19,6 +19,7 @@ import { IconLayer } from "./layers/icon-layer";
 import { WfsLayer } from "./layers/wfs-layer";
 import { OgcFeaturesLayer } from "./layers/ogc-features-layer";
 import { VoxelLayer } from "./layers/voxel-layer";
+import { MvtLayer } from "./layers/mvt-layer";
 
 export class CesiumLayerFactory {
 	public convert(map: Map, config: LayerConfig): CesiumLayer<unknown> | undefined {
@@ -43,6 +44,8 @@ export class CesiumLayerFactory {
 				return this.createGeoJsonLayer(map, config);
 			case "geojson":
 				return this.createGeoJsonLayer(map, config);
+			case "mvt":
+				return new MvtLayer(map, config);
 			case "ogc-features":
 				return this.createOgcFeaturesLayer(map, config);
 			/* Shapefile support built in via shapefile NPM module and GeoJSON layer, but not enabled
