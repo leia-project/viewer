@@ -13,11 +13,21 @@
 	import { isChatOpen, closeChat, chatApiUrl } from "./chat-store";
 	import { getWfsAttributeNames } from "$lib/components/map-cesium/module/providers/wfs-attributes";
 
+	import { marked } from "marked";
+	import  DOMPurify from "dompurify";
+
 	import { get } from "svelte/store"
 	import { Config } from "$lib/components/map-core/config/config";
 	import { identity } from "@observablehq/plot";
 
 	export let map: Writable<Map | undefined>;
+
+	function renderMarkdown(text: string): string {
+		const rawHtml = marked.parse(text, { async: false });
+		return DOMPurify.sanitize(
+			rawHtml
+		)
+	}
 
 	let sessionToken = ""; /* Leeg voor nu */
 
@@ -220,7 +230,7 @@ $: if (events && bodyEl) {
 					</div>
 
 				{:else if event.type === "ai"}
-					<div class="bubble bubble--ai">{event.content}</div>
+					<div class="bubble bubble--ai">{@html renderMarkdown(event.content)}</div>
 
 				{:else if event.type === "tool" && event.error}
 					<div class="step step--error">
