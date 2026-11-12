@@ -434,8 +434,28 @@
                             },
                             {
                                 "type": "marker",
+                                "id": "fotos",
+                                "title": "Demo: foto's met titel",
+                                "x": 4.899,
+                                "y": 52.373,
+                                "action": {
+                                    "type": "image",
+                                    "images": [
+                                        {
+                                            "url": "images/story-comparison-before.svg"
+                                        },
+                                        {
+                                            "url": "images/story-comparison-afger.svg"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "marker",
                                 "id": "interactieve-inhoud",
                                 "title": "HTML/JavaScript-demo",
+                                "symbolUrl": "images/pov_man.png",
+                                "maxImageSize": 15,
                                 "x": 4.904,
                                 "y": 52.376,
                                 "action": {
@@ -459,7 +479,7 @@
                                         "title": "Centraal Station",
                                         "html": "<h2>Centraal Station</h2><p>De voor/na-marker verschijnt alleen in deze stap. De interactieve HTML-marker verschijnt alleen in de volgende stap. Op de kaart staat ook een eigen chapter-icoon.</p><p>Deze stap centreert op de storymarkers; de volgende stap gebruikt expliciet de ingestelde camera.</p>",
                                         "focusOnMarkers": true,
-                                        "showMarkers": ["beeldvergelijking"],
+                                        "showMarkers": ["beeldvergelijking", "fotos"],
                                         "markerCoordinates": [
                                             {
                                                 "type": "text",
@@ -472,9 +492,9 @@
                                                 "type": "chapter",
                                                 "x": 4.9003,
                                                 "y": 52.378,
-                                                "symbolUrl": "images/leia_logo.png",
-                                                "maxImageSize": 40,
-                                                "markerSize": 40
+                                                "symbolUrl": "images/pov_man.png",
+                                                "maxImageSize": 10,
+                                                "markerSize": 4
                                             }
                                         ],
                                         "camera": {
@@ -489,9 +509,9 @@
                                     },
                                     {
                                         "title": "Dam",
-                                        "html": "<h2>Dam</h2><p>Deze step gebruikt focusOnMarkers=false. De camera vliegt dus naar de x/y/z uit de camera-instelling, ook als u via een marker naar deze stap navigeert.</p>",
+                                        "html": "<h2>Dam</h2><p>Deze step gebruikt focusOnMarkers=false en dezelfde camera-instelling als Centraal Station.</p>",
                                         "focusOnMarkers": false,
-                                        "showMarkers": ["interactieve-inhoud"],
+                                        "showMarkers": ["interactieve-inhoud", "fotos"],
                                         "markerCoordinates": {
                                             "type": "image",
                                             "url": "images/leia_logo.png",
@@ -502,8 +522,8 @@
                                             "y": 52.3731
                                         },
                                         "camera": {
-                                            "x": 4.8922,
-                                            "y": 52.3731,
+                                            "x": 4.8970,
+                                            "y": 52.3682,
                                             "z": 1500,
                                             "heading": 0,
                                             "pitch": -60,

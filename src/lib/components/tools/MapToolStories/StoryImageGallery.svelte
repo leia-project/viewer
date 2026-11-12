@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from "svelte";
 	import { _ } from "svelte-i18n";
 	import { ChevronLeft, ChevronRight, Close, Image } from "carbon-icons-svelte";
-	import type { StoryMarkerAction } from "./story-marker";
+	import type { StoryMarkerAction, StoryMarkerImage } from "./story-marker";
 	import StoryImageComparison from "./StoryImageComparison.svelte";
 
 	export let images: Array<string> = [];
@@ -20,6 +20,11 @@
 		"/script>";
 	$: htmlDocument =
 		action?.type === "html" && action.html !== undefined ? action.html + closeBridge : undefined;
+	$: galleryImages =
+		action?.type === "image"
+			? action.images
+			: images.map((url): StoryMarkerImage => ({ url }));
+	$: browsable = (!action || action.type === "image") && galleryImages.length > 1;
 
 	onMount(() => dialog.showModal());
 	onDestroy(() => dialog?.close());
@@ -30,16 +35,16 @@
 	}
 
 	function next(): void {
-		index = (index + 1) % images.length;
+		index = (index + 1) % galleryImages.length;
 	}
 
 	function previous(): void {
-		index = (index - 1 + images.length) % images.length;
+		index = (index - 1 + galleryImages.length) % galleryImages.length;
 	}
 
 	function onKeydown(event: KeyboardEvent): void {
 		event.stopPropagation();
-		if (action || images.length < 2) return;
+		if (!browsable) return;
 		if (event.key === "ArrowRight") {
 			event.preventDefault();
 			next();
@@ -105,7 +110,7 @@
 				sandbox="allow-scripts"
 			/>
 		{:else}
-			{#if images.length > 1}
+			{#if browsable}
 				<button
 					class="gallery-nav gallery-nav-left"
 					aria-label={$_("tools.stories.galleryPrevious")}
@@ -114,7 +119,7 @@
 					<ChevronLeft size={32} />
 				</button>
 			{/if}
-			{#each images as image, i}
+			{#each galleryImages as image, i}
 				{#if failed.has(i)}
 					<div class="gallery-placeholder" class:gallery-image-active={i === index}>
 						<Image size={32} />
@@ -122,15 +127,18 @@
 					</div>
 				{:else}
 					<img
-						src={image}
-						alt=""
+						src={image.url}
+						alt={image.label ?? ""}
 						class="gallery-image"
 						class:gallery-image-active={i === index}
 						on:error={() => onImageError(i)}
 					/>
 				{/if}
+				{#if image.label && i === index}
+					<p class="gallery-caption">{image.label}</p>
+				{/if}
 			{/each}
-			{#if images.length > 1}
+			{#if browsable}
 				<button
 					class="gallery-nav gallery-nav-right"
 					aria-label={$_("tools.stories.galleryNext")}
@@ -186,6 +194,13 @@
 		font-size: 1rem;
 		line-height: 1.4;
 		overflow-wrap: anywhere;
+	}
+
+	.gallery-caption {
+		max-width: 90vw;
+		font-size: 0.875rem;
+		color: #c6c6c6;
+		text-align: center;
 	}
 
 	.gallery-html {

@@ -72,7 +72,10 @@ export class StoryMarkerCollection extends Dispatcher {
 		for (const story of stories) {
 			story.markers = [];
 			for (const definition of story.markerDefinitions) {
-				this.createMarker(story, definition, cameraMarker);
+				const marker = this.createMarker(story, definition, cameraMarker);
+				if (definition.symbolUrl) {
+					this.applyCustomSymbol(marker, definition.symbolUrl, definition.maxImageSize);
+				}
 			}
 
 			let stepNumber = 0;
@@ -87,7 +90,7 @@ export class StoryMarkerCollection extends Dispatcher {
 						this.markerOwnerStep.set(marker, step);
 						this.markerLabelMap.set(marker, { chapterTitle: chapter.title, stepTitle: step.title });
 
-						if (type === "chapter" && coordinates.symbolUrl) {
+						if (coordinates.symbolUrl) {
 							this.applyCustomSymbol(marker, coordinates.symbolUrl, coordinates.maxImageSize);
 						}
 
