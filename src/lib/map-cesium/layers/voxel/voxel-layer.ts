@@ -1,21 +1,21 @@
 import { writable, type Writable, get, type Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
-import { CesiumLayer } from "./cesium-layer";
+import { CesiumLayer } from "../cesium-layer";
 import { CustomLayerControl } from "$lib/map-core/custom-layer-control";
 import type { LayerConfig } from "$lib/map-core/layer-config";
 import { notifications } from "$lib/map-core/notifications/notifications";
 import { Notification } from "$lib/map-core/notifications/notification";
 import { NotificationType } from "$lib/map-core/notifications/notification-type";
-import type { Map as CesiumMap } from "../map";
-import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
+import type { Map as CesiumMap } from "../../map";
+import { getCameraPositionFromBoundingSphere } from "../../utils/layer-utils";
 import {
 	fetchLegend,
 	resolveProperties,
 	type ResolvedVoxelProperty,
 	type VoxelPropertyConfig
 } from "./voxel-legend";
-import { DepthScale, NAP_OFFSET_M } from "../depth-scale";
-import { appliesSubsurfaceExaggeration, subsurfaceExaggerationPivot } from "../subsurface-exaggeration";
+import { DepthScale, NAP_OFFSET_M } from "../../depth-scale";
+import { appliesSubsurfaceExaggeration, subsurfaceExaggerationPivot } from "../../subsurface-exaggeration";
 import { VoxelClipSlider } from "./voxel-clip-slider";
 
 import LayerControlVoxel from "$lib/components/layer-controls/LayerControlVoxel/LayerControlVoxel.svelte";

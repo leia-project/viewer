@@ -8,7 +8,7 @@
 	} from "carbon-components-svelte";
 	import { _ } from "svelte-i18n";
 	import RangeSlider from "./RangeSlider.svelte";
-	import type { VoxelLayer } from "$lib/map-cesium/layers/voxel-layer";
+	import type { VoxelLayer } from "$lib/map-cesium/layers/voxel/voxel-layer";
 
 	export let layer: VoxelLayer;
 
