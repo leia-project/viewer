@@ -9,10 +9,10 @@ import { NotificationType } from "$lib/map-core/notifications/notification-type"
 import type { Map as CesiumMap } from "../../map";
 import { getCameraPositionFromBoundingSphere } from "../../utils/layer-utils";
 import {
-	fetchVoxelMetadata,
 	resolveProperties,
 	type ResolvedVoxelProperty,
-	type VoxelPropertyConfig
+	type VoxelPropertyConfig,
+	voxelSchema
 } from "./voxel-legend";
 import { DepthScale, NAP_OFFSET_M } from "../../depth-scale";
 import { appliesSubsurfaceExaggeration, subsurfaceExaggerationPivot } from "../../subsurface-exaggeration";
@@ -257,16 +257,13 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 
 	private async createLayer(): Promise<void> {
 		try {
-			const [metadata, provider] = await Promise.all([
-				fetchVoxelMetadata(this.settings.url),
-				Cesium.Cesium3DTilesVoxelProvider.fromUrl(this.settings.url)
-			]);
+			const provider = await Cesium.Cesium3DTilesVoxelProvider.fromUrl(this.settings.url);
 
 			if (!get(this.config.added)) {
 				return; // layer was removed while loading
 			}
 
-			this.resolvedProperties.set(resolveProperties(this.settings.properties, metadata));
+			this.resolvedProperties.set(resolveProperties(this.settings.properties, voxelSchema(provider), provider.className));
 
 			const primitive = new Cesium.VoxelPrimitive({ provider });
 

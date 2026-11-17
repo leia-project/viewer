@@ -636,7 +636,7 @@ Voxel data is often below ground (e.g. GeoTOP), but doesn't have to be: a voxel 
 
 The layer needs a terrain provider: without terrain the globe surface sits on the ellipsoid, roughly 44 m below NAP, so the voxels appear to float above it.
 
-The legend comes from the tileset's [metadata schema](https://docs.ogc.org/cs/22-025r4/22-025r4.html#metadata-enum) (`schema` or `schemaUri` in tileset.json). Each property points at an enum, either as `"type": "ENUM"` with `enumType` or, because CesiumJS cannot render ENUM voxel properties, as a `SCALAR` `UINT8` property with `extras.enumType`. Each enum value is a class index with its `description` (or else its `name`) as label and an RGB color (0-255) in `extras.color`. The property's `noData` index is rendered fully transparent. Class indices without an enum value render grey, properties without an enum render entirely grey. Hiding a class from the layer control works for indices 0-30:
+The legend comes from the tileset's [metadata schema](https://docs.ogc.org/cs/22-025r4/22-025r4.html#metadata-enum) (`schema` or `schemaUri` in tileset.json). Each property is a `SCALAR` `UINT8` that points at its enum with `extras.enumType`. As of now (2026), CesiumJS cannot render voxel properties of `"type": "ENUM"`. Each enum value is a class index with its `description` (or else its `name`) as label and an RGB color (0-255) in `extras.color`. The property's `noData` index is rendered fully transparent. Class indices without an enum value render grey, properties without an enum render entirely grey. Hiding a class from the layer control works for indices 0-30:
 
 ```json
 {
