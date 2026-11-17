@@ -71,7 +71,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		this.resolvedProperties = writable<Array<ResolvedVoxelProperty>>([]);
 		this.hiddenValues = writable(new Map());
 		this.clipping = writable({ ...DEFAULT_CLIP_RANGE });
-		this.shading = writable(settings.shading ?? true);
+		this.shading = writable(settings.shading ?? false);
 		this.createLayer();
 		this.selectedProperty.subscribe(() => this.rebuildShader());
 		this.shading.subscribe((on) => {

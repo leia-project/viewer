@@ -1,11 +1,5 @@
 <script lang="ts">
-	import {
-		RadioButtonGroup,
-		RadioButton,
-		Button,
-		InlineNotification,
-		Toggle
-	} from "carbon-components-svelte";
+	import { RadioButtonGroup, RadioButton, Button, InlineNotification, Toggle } from "carbon-components-svelte";
 	import { _ } from "svelte-i18n";
 	import RangeSlider from "./RangeSlider.svelte";
 	import type { VoxelLayer } from "$lib/map-cesium/layers/voxel/voxel-layer";
@@ -17,6 +11,7 @@
 	$: hiddenValues = layer.hiddenValues;
 	$: clipping = layer.clipping;
 	$: shading = layer.shading;
+	$: showShadingToggle = layer.config.settings?.shading !== undefined;
 	$: terrainProvider = layer.map.options.selectedTerrainProvider;
 	// Without terrain the globe surface sits on the ellipsoid, ~44 m below NAP,
 	// so the voxels appear to float above it.
@@ -75,15 +70,17 @@
 			</div>
 		{/if}
 
-		<div class="shading">
-			<div class="label-01 label">{$_("tools.voxel.shading")}</div>
-			<Toggle
-				bind:toggled={$shading}
-				hideLabel={true}
-				labelA={$_("general.off")}
-				labelB={$_("general.on")}
-			/>
-		</div>
+		{#if showShadingToggle}
+			<div class="shading">
+				<div class="label-01 label">{$_("tools.voxel.shading")}</div>
+				<Toggle
+					bind:toggled={$shading}
+					hideLabel={true}
+					labelA={$_("general.off")}
+					labelB={$_("general.on")}
+				/>
+			</div>
+		{/if}
 
 		<div class="slicing">
 			<div class="label-01 label">{$_("tools.voxel.slicing")}</div>

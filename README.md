@@ -623,6 +623,8 @@ Boreholes (BHR-GT) and cone penetration tests (CPT) from the Dutch [Basisregistr
 
 Renders a [3D Tiles voxel tileset](https://github.com/CesiumGS/3d-tiles/tree/main/extensions/3DTILES_content_voxels) with categorical properties (e.g. lithology, stratigraphy). The layer control lets the user switch property, hide individual categories and clip the volume along its x, y and z extent. Only categorical properties are supported: each property value is an 8-bit integer class index (0-255) that the legend maps to a label and a color.
 
+Voxel data is often below ground (e.g. GeoTOP), but doesn't have to be: a voxel layer is treated as subsurface by default, set `"subsurface": false` for above-ground data. The subsurface display assumes the Netherlands: depths are shown relative to NAP, and the exaggeration pivot defaults to roughly NAP 0 m.
+
 |value|description|default|type|
 |-|-|-|-|
 |url|URL to tileset.json of the voxel tileset||string|
@@ -631,6 +633,9 @@ Renders a [3D Tiles voxel tileset](https://github.com/CesiumGS/3d-tiles/tree/mai
 |legendDataUrl|URL to a legend JSON (format below) with the label and color per class index of each property. Class indices without a legend entry render grey, properties without an entry render entirely grey||string|
 |subsurface|Whether the dataset is below the surface, so it follows the subsurface exaggeration slider and shows a NAP depth scale. Set to `false` for above-surface voxel data, see [Subsurface layers](#subsurface-layers)|true|boolean|
 |exaggerationPivot|Ellipsoidal height in meters the subsurface exaggeration stretches away from, see [Subsurface layers](#subsurface-layers)|44 (roughly NAP 0 m)|number|
+|shading|Per-face shading so the relief of the voxel surface is visible. Setting it (`true` or `false`) shows a shading toggle in the layer control, with this value as its initial state. Omit it to hide the toggle and render without shading||boolean|
+
+The layer needs a terrain provider: without terrain the globe surface sits on the ellipsoid, roughly 44 m below NAP, so the voxels appear to float above it.
 
 The legend JSON maps, per property name, each class index to a label and an RGB color (0-255). An optional `nodata` index is rendered fully transparent. Hiding a class from the layer control works for indices 0-30:
 
