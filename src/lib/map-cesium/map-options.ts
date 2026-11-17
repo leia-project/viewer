@@ -35,7 +35,7 @@ export class MapOptions {
 	public subsurfaceExaggeration: Writable<number> = writable<number>(1);
 	public inspector: Writable<boolean> = writable<boolean>(false);
 	public voxelInspector: Writable<boolean> = writable<boolean>(false);
-	private voxelInspectorContainer: HTMLElement | undefined;
+	private stopFollowingVoxels: (() => void) | undefined;
 	public proMode: Writable<boolean> = writable<boolean>(false);
 	public terrainProviders: Writable<Array<{ title: string, url: string, vertexNormals: boolean }>> = writable<Array<{ title: string, url: string, vertexNormals: boolean }>>(new Array<{ title: string, url: string, vertexNormals: boolean}>());
 	public selectedTerrainProvider: Writable<{ title: string, url: string, vertexNormals: boolean }> = writable<{ title: string, url: string, vertexNormals: boolean }>(undefined);
@@ -258,37 +258,52 @@ export class MapOptions {
 	}
 
 	private switchVoxelInspector(enable: boolean): void {
-		if (enable && !this.voxelInspectorContainer) {
-			const viewer = this.map.viewer;
-			viewer.extend(Cesium.viewerVoxelInspectorMixin);
-			this.voxelInspectorContainer =
-				viewer.container.querySelector<HTMLElement>(".cesium-viewer-voxelInspectorContainer") ?? undefined;
+		const { primitives } = this.map.viewer.scene;
 
-			// Voxel layers add/remove their primitive on show/hide, so follow along
-			viewer.scene.primitives.primitiveAdded.addEventListener(() => this.attachVoxelInspector());
-			viewer.scene.primitives.primitiveRemoved.addEventListener(() => this.attachVoxelInspector());
-		}
+		this.stopFollowingVoxels?.();
+		this.stopFollowingVoxels = undefined;
 
-		if (this.voxelInspectorContainer) {
-			this.voxelInspectorContainer.style.display = enable ? "" : "none";
-		}
 		if (enable) {
+			if (!this.voxelInspectorWidget) {
+				this.map.viewer.extend(Cesium.viewerVoxelInspectorMixin);
+			}
+
+			// Voxel layers are added and removed while the inspector is open, so follow along
+			const removeAdded = primitives.primitiveAdded.addEventListener(() => this.attachVoxelInspector());
+			const removeRemoved = primitives.primitiveRemoved.addEventListener(() => this.attachVoxelInspector());
+			this.stopFollowingVoxels = () => {
+				removeAdded();
+				removeRemoved();
+			};
 			this.attachVoxelInspector();
 		}
+
+		const container = this.voxelInspectorWidget?.container;
+
+		if (container instanceof HTMLElement) {
+			container.style.display = enable ? "" : "none";
+		}
+	}
+
+	private get voxelInspectorWidget(): Cesium.VoxelInspector | undefined {
+		return (this.map.viewer as Cesium.Viewer & { voxelInspector?: Cesium.VoxelInspector }).voxelInspector;
 	}
 
 	// Unlike the 3D Tiles inspector, the voxel inspector can't pick a dataset so point
 	// it at the most recently added voxel primitive.
 	private attachVoxelInspector(): void {
 		const { primitives } = this.map.viewer.scene;
+		// removeAll() raises primitiveRemoved before the destroyed primitives leave the collection
 		const latest = Array.from({ length: primitives.length }, (_, i) => primitives.get(i)).findLast(
-			(primitive) => primitive instanceof Cesium.VoxelPrimitive
+			(primitive) => primitive instanceof Cesium.VoxelPrimitive && !primitive.isDestroyed()
 		);
 
-		if (latest) {
-			// The mixin adds voxelInspector, but Cesium's Viewer type doesn't declare it
-			const viewer = this.map.viewer as Cesium.Viewer & { voxelInspector: Cesium.VoxelInspector };
-			viewer.voxelInspector.viewModel.voxelPrimitive = latest;
+		const viewModel = this.voxelInspectorWidget?.viewModel;
+
+		// Setting it writes the inspector's values back into the primitive, so only on a change.
+		// Undefined drops the inspector's listener on a removed primitive.
+		if (viewModel && viewModel.voxelPrimitive !== latest) {
+			viewModel.voxelPrimitive = latest;
 		}
 	}
 

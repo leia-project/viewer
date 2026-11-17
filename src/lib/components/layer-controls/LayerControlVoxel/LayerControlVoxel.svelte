@@ -75,6 +75,7 @@
 				<div class="label-01 label">{$_("tools.voxel.shading")}</div>
 				<Toggle
 					bind:toggled={$shading}
+					labelText={$_("tools.voxel.shading")}
 					hideLabel={true}
 					labelA={$_("general.off")}
 					labelB={$_("general.on")}
