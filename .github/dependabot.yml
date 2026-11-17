@@ -7,3 +7,10 @@ updates:
       interval: "weekly"
       day: "sunday"
     target-branch: "development" # branch to create pull requests for
+
+  - package-ecosystem: "docker"
+    directory: "/" # location of Dockerfile
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+    target-branch: "development"

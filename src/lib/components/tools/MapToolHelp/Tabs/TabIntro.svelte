@@ -3,6 +3,7 @@
 	import { DocumentPdf } from "carbon-icons-svelte";
 	import Button from "$lib/components/theme/Button/Button.svelte";
     import type { IDownloadButton } from "../download-button";
+    import { sanitizeHtml } from "$lib/app/sanitize";
     
     export let customIntroText: string | undefined;
     export let downloadButton: IDownloadButton | undefined;
@@ -14,7 +15,7 @@
 
 
 <div class="body-02">
-    {@html introText}
+    {@html sanitizeHtml(introText)}
     <br />
 </div>
 

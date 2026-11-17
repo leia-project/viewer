@@ -29,6 +29,7 @@
 	import StoryOpacitySlider from "./StoryOpacitySlider.svelte";
 	import StoryChartDownloadButton from "./StoryChart/StoryChartDownloadButton.svelte";
 	import { activeStoryStep, showStoryMarkers } from "./story-handler";
+	import { sanitizeHtml } from "$lib/app/sanitize";
 	import ToggleView from "../MapToolProjects/components/ToggleView.svelte";
 
 
@@ -782,7 +783,7 @@ async function downloadPDF() {
 					{step.title}
 				</div>
 				<div>
-					{@html step.html}
+					{@html sanitizeHtml(step.html)}
 				</div>
 				<!-- {#each step.layers ?? [] as layer}
 					Layer {layer.id}: {layer.featureName}
@@ -799,7 +800,7 @@ async function downloadPDF() {
 							<br><br><br>
 							{#if layerLegends[index].generalLegendText}
 								<div class="legendary-text mb">
-									{@html layerLegends[index].generalLegendText}
+									{@html sanitizeHtml(layerLegends[index].generalLegendText)}
 								</div>
 							{/if}
 							<ul>

@@ -62,8 +62,8 @@ Output of the static build can be found in the ./build directory.
 
 With the static build there are 2 ways to load a configuration.
 
-1) Start the viewer with `?url=http://host.com/some_config.json`, the viewer will try to load the configuration from URL
-2) Place a file named config.json in the root directory of the build. When ?url is supplied the local file will not be used.
+1) Start the viewer with `?config=http://host.com/some_config.json`, the viewer will try to load the configuration from URL
+2) Place a file named config.json in the root directory of the build. When ?config is supplied the local file will not be used.
 
 An example config is stored in `./static/example.config.json`.
 

@@ -205,13 +205,13 @@
                                                 {$_("tools.featureInfo.open")}
                                             </div>
                                         </div>
-                                    {:else if cell.value?.toString().startsWith("href") && cell.value.length > 8}
+                                    {:else if cell.value?.toString().startsWith("href") && safeHttpUrl(cell.value.substring(5))}
                                         <div class="row">
-                                            <a href="{cell.value.substring(5)}" class="open-handler" on:click={(e) => (e.target instanceof HTMLAnchorElement) ? window.open(e.target.href, '_blank') : ""} role="button" tabindex="0">{$_("tools.featureInfo.link")}</a>
+                                            <a href="{safeHttpUrl(cell.value.substring(5))}" class="open-handler" on:click={(e) => (e.target instanceof HTMLAnchorElement) ? window.open(e.target.href, '_blank') : ""} role="button" tabindex="0">{$_("tools.featureInfo.link")}</a>
                                         </div>
                                     {:else}
                                         <div class="row">
-                                            {@html cell.value}
+                                            {@html sanitizeHtml(cell.value)}
                                         </div>
                                     {/if}
                                 </svelte:fragment>
