@@ -60,6 +60,7 @@
 	$: pointCloudEDLStrength = map.options.pointCloudEDLStrength;
 
 	$: inspector = map.options.inspector;
+	$: voxelInspector = map.options.voxelInspector;
 	$: showMouseCoordinates = map.options.showMouseCoordinates;
 	$: showCameraPosition = map.options.showCameraPosition;
 
@@ -262,6 +263,7 @@
 		<AccordionItem title={$_("tools.cesium.debug")}>
 			<Checkbox labelText={$_("tools.cesium.FPSCounter")} bind:checked={$fpsCounter} />
 			<Checkbox labelText={$_("tools.cesium.inspector")} bind:checked={$inspector} />
+			<Checkbox labelText={$_("tools.cesium.voxelInspector")} bind:checked={$voxelInspector} />
 			<Checkbox labelText={$_("tools.cesium.coordinates")} bind:checked={$showMouseCoordinates} />
 			<Checkbox labelText={$_("tools.cesium.cameraPosition")} bind:checked={$showCameraPosition} />
 			<Checkbox labelText={$_("tools.cesium.dragAndDropFiles")} bind:checked={$enableDragDropFiles} />

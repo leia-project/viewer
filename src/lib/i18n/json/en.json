@@ -362,6 +362,7 @@
             "skyAtmosphere": "Sky Atmosphere",
             "FPSCounter": "FPS Counter",
             "inspector": "Tile Inspector",
+            "voxelInspector": "Voxel Inspector",
             "coordinates": "Coordinates",
             "cameraPosition": "Camera Position",
             "dragAndDropFiles": "Drag and Drop Files",

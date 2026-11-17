@@ -360,6 +360,7 @@
             "skyAtmosphere": "Sky Atmosphere",
             "FPSCounter": "Compteur FPS",
             "inspector": "Inspecteur de Carreaux",
+            "voxelInspector": "Inspecteur de Voxels",
             "coordinates": "Coordonnés",
             "cameraPosition": "Position de da Caméra",
             "dragAndDropFiles": "Glisser-Déposer des Fichiers",

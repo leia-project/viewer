@@ -34,6 +34,8 @@ export class MapOptions {
 	public showVerticalExaggerationSlider: Writable<boolean> = writable<boolean>(false);
 	public subsurfaceExaggeration: Writable<number> = writable<number>(1);
 	public inspector: Writable<boolean> = writable<boolean>(false);
+	public voxelInspector: Writable<boolean> = writable<boolean>(false);
+	private voxelInspectorContainer: HTMLElement | undefined;
 	public proMode: Writable<boolean> = writable<boolean>(false);
 	public terrainProviders: Writable<Array<{ title: string, url: string, vertexNormals: boolean }>> = writable<Array<{ title: string, url: string, vertexNormals: boolean }>>(new Array<{ title: string, url: string, vertexNormals: boolean}>());
 	public selectedTerrainProvider: Writable<{ title: string, url: string, vertexNormals: boolean }> = writable<{ title: string, url: string, vertexNormals: boolean }>(undefined);
@@ -123,6 +125,9 @@ export class MapOptions {
 		});
 		this.subscribe<boolean>(this.inspector, (v) => {
 			this.switchTileInspector(v);
+		});
+		this.subscribe<boolean>(this.voxelInspector, (v) => {
+			this.switchVoxelInspector(v);
 		});
 		this.subscribe<boolean>(this.enableCollisionDetection, (v) => {
 			this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = v;
@@ -249,6 +254,41 @@ export class MapOptions {
 			if (this.map.viewer.cesium3DTilesInspector) {
 				this.map.viewer.cesium3DTilesInspector.destroy();
 			}
+		}
+	}
+
+	private switchVoxelInspector(enable: boolean): void {
+		if (enable && !this.voxelInspectorContainer) {
+			const viewer = this.map.viewer;
+			viewer.extend(Cesium.viewerVoxelInspectorMixin);
+			this.voxelInspectorContainer =
+				viewer.container.querySelector<HTMLElement>(".cesium-viewer-voxelInspectorContainer") ?? undefined;
+
+			// Voxel layers add/remove their primitive on show/hide, so follow along
+			viewer.scene.primitives.primitiveAdded.addEventListener(() => this.attachVoxelInspector());
+			viewer.scene.primitives.primitiveRemoved.addEventListener(() => this.attachVoxelInspector());
+		}
+
+		if (this.voxelInspectorContainer) {
+			this.voxelInspectorContainer.style.display = enable ? "" : "none";
+		}
+		if (enable) {
+			this.attachVoxelInspector();
+		}
+	}
+
+	// Unlike the 3D Tiles inspector, the voxel inspector can't pick a dataset so point
+	// it at the most recently added voxel primitive.
+	private attachVoxelInspector(): void {
+		const { primitives } = this.map.viewer.scene;
+		const latest = Array.from({ length: primitives.length }, (_, i) => primitives.get(i)).findLast(
+			(primitive) => primitive instanceof Cesium.VoxelPrimitive
+		);
+
+		if (latest) {
+			// The mixin adds voxelInspector, but Cesium's Viewer type doesn't declare it
+			const viewer = this.map.viewer as Cesium.Viewer & { voxelInspector: Cesium.VoxelInspector };
+			viewer.voxelInspector.viewModel.voxelPrimitive = latest;
 		}
 	}
 

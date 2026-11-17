@@ -369,6 +369,7 @@
             "skyAtmosphere": "Lucht Atmosfeer",
             "FPSCounter": "FPS Teller",
             "inspector": "Tegel Inspecteur",
+            "voxelInspector": "Voxel Inspecteur",
             "coordinates": "Coördinaten",
             "cameraPosition": "Camera Positie",
             "dragAndDropFiles": "Bestanden Inslepen",
