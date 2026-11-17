@@ -247,6 +247,7 @@
         "backgroundControls": {
             "opacity": "Opacité du Globe",
             "terrain": "Terrain",
+            "verticalExaggeration": "Exagération verticale",
             "subsurfaceExaggeration": "Exagération du sous-sol"
         },
         "voxel": {
@@ -297,6 +298,19 @@
             "noData": "Pas de données, appuyez sur un objet pour plus d'informations",
             "attribute": "Attribut",
             "value": "Valeur",
+            "yes": "Oui",
+            "no": "Non",
+            "bro": {
+                "graphTab": "Graphique",
+                "dataTab": "Données",
+                "graphType": "Type de graphique",
+                "layers": "Couches",
+                "loading": "Récupération des données BRO...",
+                "loadError": "Échec de la récupération des données BRO",
+                "graphError": "Échec de la récupération du graphique BRO",
+                "retry": "Réessayer",
+                "broloket": "Voir dans BROloket"
+            },
             "link": "Lien",
             "open": "Ouvrir",
             "noPdfViewer": "Aucune visionneuse PDF en ligne installée"

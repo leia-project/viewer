@@ -15,6 +15,7 @@ import {
 	type VoxelPropertyConfig
 } from "./voxel-legend";
 import { DepthScale, NAP_OFFSET_M } from "../depth-scale";
+import { appliesSubsurfaceExaggeration, subsurfaceExaggerationPivot } from "../subsurface-exaggeration";
 import { VoxelClipSlider } from "./voxel-clip-slider";
 
 import LayerControlVoxel from "$lib/components/layer-controls/LayerControlVoxel/LayerControlVoxel.svelte";
@@ -43,6 +44,9 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	private depthScale: DepthScale | null = null;
 	private unsubscribers: Array<Unsubscriber> = [];
 	private pivotZ: number = NAP_OFFSET_M;
+	/** Whether this voxel dataset sits below the surface and so follows the
+	 * subsurface exaggeration slider. Above-surface voxels stay at true scale. */
+	private isSubsurface: boolean = false;
 
 	constructor(map: CesiumMap, config: LayerConfig) {
 		super(map, config);
@@ -54,7 +58,8 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			throw new Error(`VoxelLayer "${config.title}": no properties configured`);
 		}
 
-		this.pivotZ = settings.exaggerationPivot ?? NAP_OFFSET_M;
+		this.pivotZ = subsurfaceExaggerationPivot(config);
+		this.isSubsurface = appliesSubsurfaceExaggeration(config);
 		this.selectedProperty = writable(initial);
 		this.resolvedProperties = writable<Array<ResolvedVoxelProperty>>([]);
 		this.hiddenValues = writable(new Map());
@@ -153,18 +158,20 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		this.applyClipping();
 	}
 
+	/** Subsurface exaggeration factor for this layer: 1 (no stretch) unless the
+	 * layer is flagged subsurface, so an above-surface voxel ignores the slider. */
+	private get exaggeration(): number {
+		return this.isSubsurface ? get(this.map.options.subsurfaceExaggeration) : 1;
+	}
+
 	/** Maps a real provider height into the exaggerated shape space (pivot = surface datum). */
 	public stretchZ(z: number): number {
-		const k = get(this.map.options.subsurfaceExaggeration);
-
-		return this.pivotZ + k * (z - this.pivotZ);
+		return this.pivotZ + this.exaggeration * (z - this.pivotZ);
 	}
 
 	/** Inverse of {@link stretchZ}: exaggerated shape-space height back to real height. */
 	public unstretchZ(z: number): number {
-		const k = get(this.map.options.subsurfaceExaggeration);
-
-		return this.pivotZ + (z - this.pivotZ) / k;
+		return this.pivotZ + (z - this.pivotZ) / this.exaggeration;
 	}
 
 	private get settings(): VoxelLayerSettings {
@@ -273,16 +280,24 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				const east = maxBounds.x; // lon
 				const nsMiddle = (minBounds.y + maxBounds.y) / 2; // lat
 
-				this.depthScale = new DepthScale(
-					this.map,
-					east,
-					nsMiddle,
-					maxBounds.z,
-					minBounds.z,
-					this.pivotZ
-				);
-				this.depthScale.addToScene();
-				this.depthScale.setVisible(get(this.visible));
+				// The NAP depth scale and the exaggeration subscription belong to
+				// subsurface voxels only; an above-surface voxel stays at true scale.
+				if (this.isSubsurface) {
+					this.depthScale = new DepthScale(
+						this.map,
+						east,
+						nsMiddle,
+						maxBounds.z,
+						minBounds.z,
+						{ pivotZ: this.pivotZ }
+					);
+					this.depthScale.addToScene();
+					this.depthScale.setVisible(get(this.visible));
+
+					this.unsubscribers.push(
+						this.map.options.subsurfaceExaggeration.subscribe(() => this.applyExaggeration())
+					);
+				}
 
 				this.clipSlider = new VoxelClipSlider(this, this.map, this.bounds);
 				const clipControl = new CustomLayerControl();
@@ -291,8 +306,6 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				this.addCustomControl(clipControl);
 
 				this.unsubscribers.push(
-					this.map.options.subsurfaceExaggeration.subscribe(() => this.applyExaggeration()),
-
 					// Keep the depth scale on the volume's visible east face when clipped
 					// E-W, and at its N-S midpoint until a N-S clip crosses it, then on
 					// crossing face so the scale stays on the visible volume

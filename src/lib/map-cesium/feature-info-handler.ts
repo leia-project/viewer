@@ -10,6 +10,8 @@ import { get } from "svelte/store";
 export class FeatureInfoHandler {
     public readonly selectedProperty: string = "cesium_selected";
     public selected3DTileFeature : Cesium.Cesium3DTileFeature | undefined;
+    /** World position of the last 3D Tiles pick, for tools that anchor to it (e.g. borehole depth scale). */
+    public selectedFeaturePosition : Cesium.Cartesian3 | undefined;
 
     private selected: Cesium.Entity | undefined;
     private scratchColor!: Cesium.MaterialProperty;
@@ -40,6 +42,13 @@ export class FeatureInfoHandler {
             info = this.pick3D(picked);
         }
 
+        if (this.selected3DTileFeature) {
+            const scene = this.map.viewer.scene;
+            this.selectedFeaturePosition = scene.pickPositionSupported
+                ? scene.pickPosition(location)
+                : undefined;
+        }
+
         // Nothing found, request imagery layers
         if (info === undefined && Cesium.defined(this.map.viewer.scene.globe)) {
             info = await this.pickImageryLayers(location);
@@ -62,7 +71,8 @@ export class FeatureInfoHandler {
     private resetSelected3DTileFeature(): void {
         if(this.selected3DTileFeature) {
             this.selected3DTileFeature.setProperty(this.selectedProperty, "false");
-            this.selected3DTileFeature = undefined;            
+            this.selected3DTileFeature = undefined;
+            this.selectedFeaturePosition = undefined;
             this.map.refresh();
         }
     }
@@ -111,8 +121,10 @@ export class FeatureInfoHandler {
         if (entity.properties) {
             const props = entity.properties;
             const propNames = props.propertyNames;
+
+            const values = props.getValue(this.map.viewer.clock.currentTime);
             for (let x = 0; x < propNames.length; x++) {
-                records.push(new FeatureInfoRecord(propNames[x], props[propNames[x]]));
+                records.push(new FeatureInfoRecord(propNames[x], values[propNames[x]]));
             }
             return new FeatureInfo(entity.name ?? "", records); // TODO: Figure out if config ID can be retrieved
         } else {

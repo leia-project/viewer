@@ -292,7 +292,7 @@ Layer definition
 |value|description|type|
 |-|-|-|
 |id|Unique layer id|string|
-|type|Layer type, supported layer types:<br /> ```basiskaart```, ```wms```, ```wmts```, ```tms```, ```vectortiles```, ```3dtiles```, ```geojson```, ```modelanimation```, ```custom```|string|
+|type|Layer type, supported layer types:<br /> ```basiskaart```, ```wms```, ```wmts```, ```tms```, ```vectortiles```, ```3dtiles```, ```3dtiles-voxel```, ```geojson```, ```modelanimation```, ```custom```|string|
 |title|Layer title|string|
 |groupId|Id of the group where this layer belongs to or empty string, will be placed under uncategorized in library|string|
 |description|Simple text field in which a layer description can be provided|string|
@@ -411,6 +411,9 @@ LayerSettings
 |style|A cesium 3D Tiles style object as defined in [the documentation](https://cesium.com/learn/cesiumjs/ref-doc/Cesium3DTileStyle.html). For pointclouds, this is where you set the `pointSize` attribute. ||Object|
 |themes|List of type theme, themes can be used to style features in 3D Tiles||Array<[Theme](#themes-for-3d-tiles)>|
 |filter|Filter to apply to the 3D Tiles layer.||[3D Tiles Filter](#filtering-3d-tiles)|
+|subsurface|Mark the tileset as a subsurface dataset so it follows the subsurface exaggeration slider, see [Subsurface layers](#subsurface-layers)|false|boolean|
+|exaggerationPivot|Ellipsoidal height in meters the subsurface exaggeration stretches away from, see [Subsurface layers](#subsurface-layers)|44 (roughly NAP 0 m)|number|
+|depthScale|Metadata property names for the click depth scale of a subsurface tileset, see [Column depth scale](#column-depth-scale)|`{ "id": "bro_id", "top": "top_nap", "bottom": "bottom_nap" }`|object|
 
 ```json
 {
@@ -509,14 +512,160 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 }
 ```
 
+##### Subsurface layers
+
+Datasets below ground level (voxel models, boreholes, CPTs) are usually only a few tens of meters deep, which is hard to read at true scale. The *subsurface exaggeration* slider in the layer manager's background controls stretches such layers vertically away from a pivot height, leaving the terrain untouched. This slider is only shown when the config contains at least one subsurface layer, and stays disabled until one of them is visible.
+
+A layer takes part in subsurface exaggeration when its settings contain `"subsurface": true`. The default differs per type:
+
+- `3dtiles-voxel` is subsurface by default. Set `"subsurface": false` for above-surface voxel data, which then renders at true scale, without the NAP depth scale, and ignores the subsurface slider.
+- `3dtiles` is a regular tileset by default. With the flag it is rendered unlit, without shadows, and stretched by a custom shader. Clicking a feature draws a [column depth scale](#column-depth-scale) when the tileset carries interval metadata.
+
+The pivot is set per layer with `exaggerationPivot`, an ellipsoidal height in meters. It defaults to 44 m, roughly NAP 0 m in the Netherlands (the geoid separation varies by a few meters across the country; the column depth scale corrects for this per column). Give every subsurface layer the same pivot, otherwise equal depths no longer line up across layers. The initial factor can be set with `subsurfaceExaggeration` in the [cesium tool settings](#cesium).
+
+```json
+{
+	"id": "geotop-voxel",
+	"type": "3dtiles-voxel",
+	"title": "GeoTOP (voxels)",
+	"defaultAddToManager": true,
+	"transparent": true,
+	"settings": {
+		"url": "https://example.com/geotop/tileset.json",
+		"subsurface": true,
+		"legendDataUrl": "https://example.com/geotop/legend.json",
+		"defaultProperty": "lithology",
+		"properties": [
+			{ "name": "lithology", "label": "Lithoclass" },
+			{ "name": "stratigraphy", "label": "Stratigraphy" }
+		]
+	}
+}
+```
+
+##### Column depth scale
+
+A subsurface 3D Tiles layer whose features are intervals of vertical columns (boreholes, cone penetration tests) gets a NAP depth scale when the user clicks an interval. This is a 3D Tiles feature only: the `custom` layer with `wells: "true"` draws monitoring wells as entities and is not affected. The scale spans the whole column: the highest top and lowest base of all intervals sharing the clicked feature's id, read from the tileset metadata. It stretches with the subsurface exaggeration slider like the column itself.
+
+Requirements on the tileset:
+- Every interval must be its own pickable feature with an id, a top and a base in meters NAP, for example via `EXT_structural_metadata` or a batch table. The geometry itself is free: instanced cylinders, separate meshes or batched meshes with a feature ID attribute all work.
+- All intervals of one column must be in the same tile, since the scale aggregates them from the clicked tile.
+- The property names are set with `settings.depthScale`. The defaults are those of the BRO tilesets (`bro_id`, `top_nap`, `bottom_nap`); a tileset without the id property never shows a scale.
+
+```json
+"settings": {
+	"url": "https://example.com/soundings/tileset.json",
+	"subsurface": true,
+	"depthScale": { "id": "sounding_id", "top": "top_m", "bottom": "base_m" }
+}
+```
+
+##### Example: BRO boreholes and CPTs
+
+Boreholes (BHR-GT) and cone penetration tests (CPT) from the Dutch [Basisregistratie Ondergrond (BRO)](https://basisregistratieondergrond.nl/) are shown as two layers per dataset: a GeoJSON point layer with the locations and a subsurface 3D Tiles layer with the stacked intervals. No special layer type is needed:
+
+- The locations layer draws its points as circles via `style.pointSize`, clamps them to the terrain with `clampToTerrain` so they stay on the ground next to the 3D columns, and uses `styleableProperties` with `propertyLabels` to offer a curated, labelled set of properties in the styling dropdown and `styleColors` for a fixed palette per property, so the same category gets the same colour across the borehole and CPT layers.
+- The 3D layer sets `subsurface` and uses themes for a colour per `lithology`; the BRO default `depthScale` keys apply.
+- To open the official BRO data and graphs from the attribute table, add a `bro` handler to the [featureInfo tool](#featureinfo) for the `bro_id` field.
+
+```json
+[
+	{
+		"id": "bro-bhr-gt-2d",
+		"type": "geojson",
+		"title": "BRO boreholes (locations)",
+		"defaultAddToManager": true,
+		"defaultOn": true,
+		"settings": {
+			"url": "https://example.com/bro/bhrgt_locations.geojson",
+			"clampToGround": true,
+			"clampToTerrain": true,
+			"style": { "pointSize": 8, "pointColor": "#1a73e8", "stroke": "#ffffff", "strokeWidth": 1 },
+			"styleableProperties": ["accountable_party", "quality_regime"],
+			"propertyLabels": { "accountable_party": "Bronhouder", "quality_regime": "Kwaliteitsregime" },
+			"styleColors": {
+				"quality_regime": { "IMBRO": "#24a148", "IMBRO/A": "#ff832b" }
+			}
+		}
+	},
+	{
+		"id": "bro-bhr-gt-3d",
+		"type": "3dtiles",
+		"title": "BRO boreholes (3D)",
+		"defaultAddToManager": true,
+		"defaultOn": false,
+		"settings": {
+			"url": "https://example.com/bro/bhrgt_3dtiles/tileset.json",
+			"subsurface": true,
+			"defaultTheme": "Lithology",
+			"themes": [
+				{
+					"title": "Lithology",
+					"legend": [
+						{ "color": "#994c3a", "label": "Peat" },
+						{ "color": "#009608", "label": "Clay" },
+						{ "color": "#fefe08", "label": "Sand" }
+					],
+					"conditions": [
+						["${lithology} === 'veen'", "color('#994c3a')"],
+						["${lithology} === 'klei'", "color('#009608')"],
+						["${lithology} === 'zand'", "color('#fefe08')"],
+						["true", "color('#ff00ff')"]
+					]
+				}
+			]
+		}
+	}
+]
+```
+
+#### LayerSettings for type 3dtiles-voxel
+
+Renders a [3D Tiles voxel tileset](https://github.com/CesiumGS/3d-tiles/tree/main/extensions/3DTILES_content_voxels) with categorical properties (e.g. lithology, stratigraphy). The layer control lets the user switch property, hide individual categories and clip the volume along its x, y and z extent. Only categorical properties are supported: each property value is an 8-bit integer class index (0-255) that the legend maps to a label and a color.
+
+|value|description|default|type|
+|-|-|-|-|
+|url|URL to tileset.json of the voxel tileset||string|
+|properties|Properties of the voxel data the user can switch between, as `{ "name": string, "label"?: string }`. `name` is the property name in the tileset, `label` the name shown in the layer control. At least one is required||Array<object>|
+|defaultProperty|Name of the property shown when the layer is added|First in `properties`|string|
+|legendDataUrl|URL to a legend JSON (format below) with the label and color per class index of each property. Class indices without a legend entry render grey, properties without an entry render entirely grey||string|
+|subsurface|Whether the dataset is below the surface, so it follows the subsurface exaggeration slider and shows a NAP depth scale. Set to `false` for above-surface voxel data, see [Subsurface layers](#subsurface-layers)|true|boolean|
+|exaggerationPivot|Ellipsoidal height in meters the subsurface exaggeration stretches away from, see [Subsurface layers](#subsurface-layers)|44 (roughly NAP 0 m)|number|
+
+The legend JSON maps, per property name, each class index to a label and an RGB color (0-255). An optional `nodata` index is rendered fully transparent. Hiding a class from the layer control works for indices 0-30:
+
+```json
+{
+	"lithology": {
+		"nodata": 255,
+		"values": [
+			{ "index": 0, "label": "Anthropogenic", "color": [128, 128, 128] },
+			{ "index": 1, "label": "Peat", "color": [120, 60, 20] },
+			{ "index": 2, "label": "Clay", "color": [0, 128, 0] }
+		]
+	},
+	"stratigraphy": {
+		"values": [
+			{ "index": 1, "label": "Naaldwijk Formation", "color": [255, 210, 0] }
+		]
+	}
+}
+```
+
+See [Subsurface layers](#subsurface-layers) for a full layer example.
+
 #### LayerSettings for type GeoJSON
 
 |value|description|default|type|
 |-|-|-|-|
 |url|URL to the GeoJSON file||string|
 |clampToGround|Choose to clamp the layer to the terrain|true|boolean|
-|style|If it is a string, it points to the property of the GeoJSON to base the styling on. If it is an object, it can contain a `stroke` (HEX-string), `strokeWidth` (number) and `fill` (HEX-string).||string or object|
+|style|If it is a string, it points to the property of the GeoJSON to base the styling on. If it is an object, it can contain a `stroke` (HEX-string), `strokeWidth` (number) and `fill` (HEX-string). With `pointSize` (pixels) and optionally `pointColor` (HEX-string), point features are drawn as circles instead of map pins, outlined with `stroke`/`strokeWidth` and always drawn on top.||string or object|
 |classMapping|Optional value-to-color map for class-based styling of the `style` attribute. Keys are attribute values, values are HEX colors. The layer manager's color randomizer overrides these with random colors on demand.||object|
+|styleColors|Fixed colors per property value, as a nested map `{ propertyName: { value: HEX } }`, for any property offered in the styling dropdown. This is the per-property counterpart of `classMapping`, which colors only the property named in `style`; where both cover a value, `styleColors` wins. Values not listed get a random color. Use the same map on related layers so a category keeps its color across them.||object|
+|styleableProperties|Whitelist of property names offered in the styling dropdown, in the given order. When omitted, every string/number property is listed alphabetically. Use it to hide noisy properties (ids, raw dates) that would otherwise explode into hundreds of categories.||array|
+|propertyLabels|Human-readable labels for the styling dropdown, as `{ propertyName: label }`. Falls back to the raw property name when a property is absent.||object|
+|clampToTerrain|Clamp circle points (see `style.pointSize`) to the terrain provider only, instead of to the ground (terrain + 3D Tiles). Keeps markers on the surface next to 3D Tiles layers|false|boolean|
 |tools|Selection of GeoJSON tools available in the layer manager||tool|
 
 ##### GeoJSON tools
@@ -720,11 +869,14 @@ Layer manager to show the layers that are added to the map. From this tool a use
 
 Tool to show a feature info popup when a user clicks on the map. In the fields part of the settings it is possible to define a handler for a field returned from a layer. In the below JSON example the Feature Info box will make the value of a field/attribute with the name 'image', 'document' and 'plot' clickable. When the value is clicked the value is handled by a handler. In this case, when a user clicks the value of the image field a zoomable image will pop up in the viewer, when the value of a document field is clicked, a pdf will open, and when the value of a plot field is clicked, a timeseries chart will open. 
 <br />
-Currently supported handlers: ```image```, ```pdf``` and ```chart```. 
+Currently supported handlers: ```image```, ```pdf```, ```chart``` and ```bro```. 
 <br />
 For ```image``` and ```pdf```, the handler expects the value to be an URL. 
 <br />
 For ```chart```, the handler expects an array of objects (data points) in the format ```[{x: datestring, y: value}, {x: datestring, y: value}, ...]``` where the ```y``` key can be a custom name.
+<br />
+For ```bro```, the handler expects a BRO object id (e.g. `BHR000000123456` or `CPT000000012345`), typically the `bro_id` field of a [BRO layer](#example-bro-boreholes-and-cpts). It fetches the object from the public BRO REST API and shows the official BRO graph and the decoded data in a popup.
+The popup also links to the object in the [BROloket](https://www.broloket.nl/ondergrondgegevens).
 
 ```json
 {
@@ -742,6 +894,10 @@ For ```chart```, the handler expects an array of objects (data points) in the fo
 			{
 				"field": "plot",
 				"handler": "chart"
+			},
+			{
+				"field": "bro_id",
+				"handler": "bro"
 			}
 		]
 	}
@@ -830,6 +986,9 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |pointCloudEDLStrength|Eye dome lighting strength (apparent contrast)|1|number|
 |pointCloudEDLRadius|Thickness of contours from eye dome lighting|1|number|
 |globeOpacity|Opacity percentage of the globe|100|number|
+|verticalExaggeration|Vertical exaggeration of the whole scene (terrain and all 3D layers), see [Cesium's `Scene.verticalExaggeration`](https://cesium.com/learn/cesiumjs/ref-doc/Scene.html#verticalExaggeration)|1|number|
+|showVerticalExaggerationSlider|Show a slider for `verticalExaggeration` in the layer manager's background controls. Useful when subsurface objects sit on raised ground (e.g. boreholes on a dike crest) and should rise with the terrain|false|boolean|
+|subsurfaceExaggeration|Initial vertical exaggeration of [subsurface layers](#subsurface-layers), away from each layer's `exaggerationPivot`. The slider only appears when the config contains a subsurface layer|1|number|
 |enableCollisionDetection|Prevent the camera from moving below the terrain/surface. Set to `true` to prevent going subsurface|false|boolean|
 |terrainProviders|Array of terrain providers, first in list is activated by default, leave out URL to create empty provider (see example below)|-|Terrain Provider|
 

@@ -11,7 +11,7 @@
     import { ComposedRow } from "./composed-row";
     import { ComposedFeatureInfoResult } from "./composed-feature-info-result";
     import Button from "$lib/components/theme/Button/Button.svelte";
-    import { safeHttpUrl, sanitizeHtml } from "$lib/app/sanitize";
+    import BroDetail from "./BroDetail/BroDetail.svelte";
 
     export let map: MapCore;
     export let featureInfoResults: FeatureInfoResults = map.featureInfo;
@@ -96,13 +96,9 @@
         });
         if (!fieldConfig) return;
 
-        const handlerType = fieldConfig.handler.toLowerCase();
-        const data = handlerType === "image" || handlerType === "pdf" ? safeHttpUrl(value) : value;
-        if (data === undefined) return;
-
-        handler = handlerType;
-        handlerModalTitle = field.charAt(0).toUpperCase() + field.slice(1);
-        handlerData = data;
+        handler = fieldConfig.handler.toLowerCase();
+        handlerModalTitle = handler === "bro" ? value : field.charAt(0).toUpperCase() + field.slice(1);
+        handlerData = value;
         handlerOpen = true;
     }
 
@@ -274,6 +270,10 @@
                         <div>{$_("tools.featureInfo.noPdfViewer")}</div>
                     </object>
                 </div>
+            {/if}
+
+            {#if handler === "bro"}
+                <BroDetail broId={handlerData} />
             {/if}
 
             {#if handler === "chart"}
