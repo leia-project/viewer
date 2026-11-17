@@ -533,7 +533,6 @@ The pivot is set per layer with `exaggerationPivot`, an ellipsoidal height in me
 	"settings": {
 		"url": "https://example.com/geotop/tileset.json",
 		"subsurface": true,
-		"legendDataUrl": "https://example.com/geotop/legend.json",
 		"defaultProperty": "lithology",
 		"properties": [
 			{ "name": "lithology", "label": "Lithoclass" },
@@ -621,7 +620,7 @@ Boreholes (BHR-GT) and cone penetration tests (CPT) from the Dutch [Basisregistr
 
 #### LayerSettings for type 3dtiles-voxel
 
-Renders a [3D Tiles voxel tileset](https://github.com/CesiumGS/3d-tiles/tree/main/extensions/3DTILES_content_voxels) with categorical properties (e.g. lithology, stratigraphy). The layer control lets the user switch property, hide individual categories and clip the volume along its x, y and z extent. Only categorical properties are supported: each property value is an 8-bit integer class index (0-255) that the legend maps to a label and a color.
+Renders a [3D Tiles voxel tileset](https://github.com/CesiumGS/3d-tiles/tree/main/extensions/3DTILES_content_voxels) with categorical properties (e.g. lithology, stratigraphy). The layer control lets the user switch property, hide individual categories and clip the volume along its x, y and z extent. Only categorical properties are supported: each property value is an 8-bit integer class index (0-255) that the legend maps to a label and a color, read from the tileset's metadata schema.
 
 Voxel data is often below ground (e.g. GeoTOP), but doesn't have to be: a voxel layer is treated as subsurface by default, set `"subsurface": false` for above-ground data. The subsurface display assumes the Netherlands: depths are shown relative to NAP, and the exaggeration pivot defaults to roughly NAP 0 m.
 
@@ -630,29 +629,38 @@ Voxel data is often below ground (e.g. GeoTOP), but doesn't have to be: a voxel 
 |url|URL to tileset.json of the voxel tileset||string|
 |properties|Properties of the voxel data the user can switch between, as `{ "name": string, "label"?: string }`. `name` is the property name in the tileset, `label` the name shown in the layer control. At least one is required||Array<object>|
 |defaultProperty|Name of the property shown when the layer is added|First in `properties`|string|
-|legendDataUrl|URL to a legend JSON (format below) with the label and color per class index of each property. Class indices without a legend entry render grey, properties without an entry render entirely grey||string|
 |subsurface|Whether the dataset is below the surface, so it follows the subsurface exaggeration slider and shows a NAP depth scale. Set to `false` for above-surface voxel data, see [Subsurface layers](#subsurface-layers)|true|boolean|
 |exaggerationPivot|Ellipsoidal height in meters the subsurface exaggeration stretches away from, see [Subsurface layers](#subsurface-layers)|44 (roughly NAP 0 m)|number|
+|screenSpaceError|Pixels of error before a tile is refined into its children. Higher draws coarser levels and renders faster. No effect on a tileset with a single tile|4 (Cesium default)|number|
 |shading|Per-face shading so the relief of the voxel surface is visible. Setting it (`true` or `false`) shows a shading toggle in the layer control, with this value as its initial state. Omit it to hide the toggle and render without shading||boolean|
 
 The layer needs a terrain provider: without terrain the globe surface sits on the ellipsoid, roughly 44 m below NAP, so the voxels appear to float above it.
 
-The legend JSON maps, per property name, each class index to a label and an RGB color (0-255). An optional `nodata` index is rendered fully transparent. Hiding a class from the layer control works for indices 0-30:
+The legend comes from the tileset's [metadata schema](https://docs.ogc.org/cs/22-025r4/22-025r4.html#metadata-enum) (`schema` or `schemaUri` in tileset.json). Each property points at an enum, either as `"type": "ENUM"` with `enumType` or, because CesiumJS cannot render ENUM voxel properties, as a `SCALAR` `UINT8` property with `extras.enumType`. Each enum value is a class index with its `description` (or else its `name`) as label and an RGB color (0-255) in `extras.color`. The property's `noData` index is rendered fully transparent. Class indices without an enum value render grey, properties without an enum render entirely grey. Hiding a class from the layer control works for indices 0-30:
 
 ```json
 {
-	"lithology": {
-		"nodata": 255,
-		"values": [
-			{ "index": 0, "label": "Anthropogenic", "color": [128, 128, 128] },
-			{ "index": 1, "label": "Peat", "color": [120, 60, 20] },
-			{ "index": 2, "label": "Clay", "color": [0, 128, 0] }
-		]
+	"id": "voxel",
+	"enums": {
+		"lithology": {
+			"valueType": "UINT8",
+			"values": [
+				{ "value": 0, "name": "a", "description": "antropogeen", "extras": { "color": [200, 200, 200] } },
+				{ "value": 1, "name": "v", "description": "organisch materiaal (veen)", "extras": { "color": [157, 78, 64] } }
+			]
+		}
 	},
-	"stratigraphy": {
-		"values": [
-			{ "index": 1, "label": "Naaldwijk Formation", "color": [255, 210, 0] }
-		]
+	"classes": {
+		"voxel": {
+			"properties": {
+				"lithology": {
+					"type": "SCALAR",
+					"componentType": "UINT8",
+					"noData": 255,
+					"extras": { "enumType": "lithology" }
+				}
+			}
+		}
 	}
 }
 ```

@@ -9,7 +9,7 @@ import { NotificationType } from "$lib/map-core/notifications/notification-type"
 import type { Map as CesiumMap } from "../../map";
 import { getCameraPositionFromBoundingSphere } from "../../utils/layer-utils";
 import {
-	fetchLegend,
+	fetchVoxelMetadata,
 	resolveProperties,
 	type ResolvedVoxelProperty,
 	type VoxelPropertyConfig
@@ -23,13 +23,15 @@ import LayerControlVoxelClip from "$lib/components/layer-controls/LayerControlVo
 
 export type VoxelLayerSettings = {
 	url: string;
-	legendDataUrl?: string;
 	defaultProperty?: string;
 	properties: Array<VoxelPropertyConfig>;
 	/** The height that the subsurface exaggeration stretches away from. */
 	exaggerationPivot?: number;
 	/** Per-face shading so the relief of the voxel surface is visible. */
 	shading?: boolean;
+	/** Pixels of error before a tile is refined into its children; higher
+	 * draws coarser levels. No effect on a single-tile dataset. */
+	screenSpaceError?: number;
 };
 
 export type ClipRange = { x: [number, number]; y: [number, number]; z: [number, number] };
@@ -255,8 +257,8 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 
 	private async createLayer(): Promise<void> {
 		try {
-			const [legend, provider] = await Promise.all([
-				fetchLegend(this.settings.legendDataUrl),
+			const [metadata, provider] = await Promise.all([
+				fetchVoxelMetadata(this.settings.url),
 				Cesium.Cesium3DTilesVoxelProvider.fromUrl(this.settings.url)
 			]);
 
@@ -264,12 +266,16 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				return; // layer was removed while loading
 			}
 
-			this.resolvedProperties.set(resolveProperties(this.settings.properties, legend));
+			this.resolvedProperties.set(resolveProperties(this.settings.properties, metadata));
 
 			const primitive = new Cesium.VoxelPrimitive({ provider });
 
 			primitive.nearestSampling = true;
 			primitive.depthTest = true;
+
+			if (this.settings.screenSpaceError !== undefined) {
+				primitive.screenSpaceError = this.settings.screenSpaceError;
+			}
 
 			this.source = primitive;
 
