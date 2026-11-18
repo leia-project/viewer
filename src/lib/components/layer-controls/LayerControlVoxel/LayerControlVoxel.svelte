@@ -11,7 +11,6 @@
 	$: hiddenValues = layer.hiddenValues;
 	$: clipping = layer.clipping;
 	$: shading = layer.shading;
-	$: showShadingToggle = layer.config.settings?.shading !== undefined;
 	$: terrainProvider = layer.map.options.selectedTerrainProvider;
 	// Without terrain the globe surface sits on the ellipsoid, ~44 m below NAP,
 	// so the voxels appear to float above it.
@@ -70,7 +69,7 @@
 			</div>
 		{/if}
 
-		{#if showShadingToggle}
+		{#if layer.shadingToggleable}
 			<div class="shading">
 				<div class="label-01 label">{$_("tools.voxel.shading")}</div>
 				<Toggle

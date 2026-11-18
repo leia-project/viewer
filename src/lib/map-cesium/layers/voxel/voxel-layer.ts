@@ -48,6 +48,8 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	public clipping: Writable<ClipRange>;
 	/** Per-face Lambert shading on/off. Bridged to the u_shading uniform. */
 	public shading: Writable<boolean>;
+	/** Whether the layer control offers a shading toggle: only when the config sets `shading`. */
+	public readonly shadingToggleable: boolean;
 	public clipSlider: VoxelClipSlider | null = null;
 	private bounds: { min: Cesium.Cartesian3; max: Cesium.Cartesian3 } | null = null;
 	private depthScale: DepthScale | null = null;
@@ -74,6 +76,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		this.hiddenValues = writable(new Map());
 		this.clipping = writable({ ...DEFAULT_CLIP_RANGE });
 		this.shading = writable(settings.shading ?? false);
+		this.shadingToggleable = settings.shading !== undefined;
 		this.createLayer();
 		this.selectedProperty.subscribe(() => this.rebuildShader());
 		this.shading.subscribe((on) => {
