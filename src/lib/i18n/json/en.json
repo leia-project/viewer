@@ -228,6 +228,11 @@
             "delete": "Delete",
             "colorRandomizer": "Color randomizer",
             "allOther": "All other",
+            "styleDefault": "Default",
+            "fillColor": "Fill",
+            "strokeColor": "Outline",
+            "strokeWidth": "Line width",
+            "pointRadius": "Point size",
             "legendProperties": {
                 "flood_depth": "Flood Depth"
             }

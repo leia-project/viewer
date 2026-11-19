@@ -226,6 +226,11 @@
             "delete": "Supprimer",
             "colorRandomizer": "Couleur aléatoire",
             "allOther": "Tous les autres",
+            "styleDefault": "Par défaut",
+            "fillColor": "Remplissage",
+            "strokeColor": "Contour",
+            "strokeWidth": "Épaisseur de ligne",
+            "pointRadius": "Taille des points",
             "legendProperties": {
                 "flood_depth": "Profondeur d'inondation"
             }

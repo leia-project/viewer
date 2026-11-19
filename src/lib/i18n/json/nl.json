@@ -235,6 +235,11 @@
             "delete": "Verwijderen",
             "colorRandomizer": "Kleur randomiseren",
             "allOther": "Alle overige",
+            "styleDefault": "Standaard",
+            "fillColor": "Vulling",
+            "strokeColor": "Omlijning",
+            "strokeWidth": "Lijndikte",
+            "pointRadius": "Puntgrootte",
             "legendProperties": {
                 "flood_depth": "Waterdiepte"
             }
