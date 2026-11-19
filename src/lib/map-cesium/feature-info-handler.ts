@@ -3,6 +3,7 @@ import * as Cesium from "cesium";
 import { FeatureInfo } from "$lib/map-core/feature-info/feature-info";
 import { FeatureInfoRequestOptions } from "$lib/map-core/feature-info/feature-info-request-options";
 import { FeatureInfoRecord } from "$lib/map-core/feature-info/feature-info-record";
+import { MvtLayer } from "./layers/mvt-layer";
 import { get } from "svelte/store";
 
 
@@ -20,6 +21,7 @@ export class FeatureInfoHandler {
         this.map.featureInfo.results.subscribe(results => {
             if(!results || results.length === 0) {
                 this.resetSelected3DTileFeature();
+                this.clearMvtSelections();
             }
         })
     }
@@ -27,6 +29,7 @@ export class FeatureInfoHandler {
     public async queryFeatureInfo(options: FeatureInfoRequestOptions): Promise<FeatureInfo[]> {
         this.resetSelected3DTileFeature();
         this.resetSelectedEntity();
+        this.clearMvtSelections();
 
         const fiList = new Array<FeatureInfo>()
 
@@ -49,6 +52,14 @@ export class FeatureInfoHandler {
         }
 
         return fiList;
+    }
+
+    /* An MVT layer draws its highlight itself (as a separate imagery layer): here it is only
+       cleared and, after a click, told which feature was picked (see imageryFeaturesToFeatureInfo). */
+    private clearMvtSelections(): void {
+        for (const layer of get(this.map.layers)) {
+            if (layer instanceof MvtLayer) layer.clearSelection();
+        }
     }
 
     private highlight3DTileFeature(feature: Cesium.Cesium3DTileFeature): void {   
@@ -204,6 +215,7 @@ export class FeatureInfoHandler {
 
         const selectedLayer = this.map.getLayerById(configId);
         if (selectedLayer?.config.disablePopup) return undefined;
+        if (selectedLayer instanceof MvtLayer) selectedLayer.select(feature);
 
         return new FeatureInfo(title ? title : "-", records);
     }

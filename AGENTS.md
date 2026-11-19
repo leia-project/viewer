@@ -33,7 +33,7 @@ Data flow: **JSON config → `LayerConfig` → `CesiumLayerFactory` → `CesiumL
 
 Concrete Cesium layers in `src/lib/map-cesium/layers/`:
 
-- **Imagery:** `WmsLayer`, `WmtsLayer`, `BasiskaartLayer`, `ArcGISLayer`, `VectorTilesLayer`.
+- **Imagery:** `WmsLayer`, `WmtsLayer`, `BasiskaartLayer`, `ArcGISLayer`, `VectorTilesLayer`, `MvtLayer`.
 - **Vector / custom:** `GeoJsonLayer`, `WfsLayer`, `OgcFeaturesLayer`, `IconLayer`, `DroppedGLBLayer`.
 - **3D / primitive:** `ThreedeeLayer` (3D Tiles), `I3sLayer`, `ModelAnimation`, `FloodLayer`.
 
@@ -88,10 +88,11 @@ Hierarchical grouping for the layer library; root parent first. Fields: `id` (un
 
 Common layer fields: `id`, `type`, `title`, `groupId`, `description`, `imageUrl`, `legendEnabled`, `legendUrl`, `isBackground` (only one active at a time), `defaultAddToManager`, `defaultOn`, `attribution`, `metadata` (array of `{key,value}`), `transparent`, `disablePopup`, `opacity` (0 opaque … 100 transparent), `cameraPosition`, `settings`.
 
-Supported `type` values: `basiskaart`, `wms`, `wmts`, `tms`, `vectortiles`, `3dtiles`, `geojson`, `modelanimation`, `custom` (plus the other classes listed under Architecture). `settings` differs per type — examples:
+Supported `type` values: `basiskaart`, `wms`, `wmts`, `tms`, `vectortiles`, `3dtiles`, `geojson`, `mvt`, `modelanimation`, `custom` (plus the other classes listed under Architecture). `settings` differs per type — examples:
 
 - **wms:** `url`, `featureName`, `contenttype` (default `image/png`); optional `tools.styleSwitcher.enabled` to pull styles + dynamic legend from GetCapabilities.
 - **wmts:** `url`, `featureName`, `contentType`, `matrixids[]`, `tileMatrixSetID` (default `EPSG:3857`), `tileWidth`/`tileHeigth` (256), `maximumLevel`.
+- **mvt:** `url` (XYZ template with `{z}/{x}/{y}`; Web Mercator grid only, the provider hardcodes `WebMercatorTilingScheme`), `extent` (degrees), `maxZoom`, `detail`, `geometryType`, `style`, `properties`; programmatic only: `classes` and `headers` (functions). `MvtLayer` + `providers/mvt-imagery-provider.ts` decode the tiles with OpenLayers (`ol`) and rasterize them onto canvases that Cesium drapes as an imagery layer; `providers/mvt-style.ts` turns a `LayerStyle`/`DataDrivenStyle` into an OpenLayers `StyleFunction`. A drawn tile cannot be restyled, so a style change (debounced) **replaces** the Cesium `ImageryLayer` at the same stack index, and the selection highlight is a second provider on top; all providers of one layer share the decoded-tile `featureCache`, so restyling never refetches. Picking is done by `pickFeatures` against the decoded geometry (points > lines > polygons); `FeatureInfoHandler` calls `MvtLayer.select`/`clearSelection`.
 - **3dtiles:** `url` (tileset.json), `shadows`, `tilesetHeight`, `enableHeightControl`, `defaultTheme`, `style` (Cesium3DTileStyle; `pointSize` for point clouds), `themes[]`, `filter`.
 - **stories:** `settings.stories[].chapters[].steps[].markerCoordinates` defines one or more map marker locations for that step. Each marker has a `type` (default `chapter`): `chapter` opens the story at its step (book icon); `text` shows the mandatory `text` in a speech bubble instead of an icon; `image` shows a camera icon (optional `text` is shown as a hover tooltip via `StoryHoverBox`) and opens the mandatory `url` (string or array of strings) in a gallery modal with prev/next arrows when there are multiple images. Implemented in `MapToolStories/story-marker-collection.ts` (`StoryMarkerTextBubble.svelte` / `StoryImageGallery.svelte` for the non-chapter types).
 - **Custom story marker symbols:** Billboard markers (`chapter`, `image`, and story-level `type: "marker"`) accept `symbolUrl` and optional `maxImageSize` (default 128 px), applied by `StoryMarkerCollection.applyCustomSymbol()` while preserving each marker's click action. `parseMarkerCoordinates()` and `parseStoryMarkers()` must copy these fields; text markers remain speech bubbles and do not have a billboard icon.
