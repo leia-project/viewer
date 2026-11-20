@@ -8,15 +8,17 @@ const MIN_TICK_STEP_M = 1;
 /**
  * Heights to label from `top` down to `bottom` (datum metres): the ends, and
  * round ticks in between kept half a step clear of them so labels don't
- * collide. More ticks fill in as `exaggeration` grows.
+ * collide. Datum 0, the reference, only needs MIN_TICK_STEP_M clear. More
+ * ticks fill in as `exaggeration` grows.
  */
 export function depthTicks(top: number, bottom: number, exaggeration: number): Array<number> {
 	const count = tickCount(top - bottom, exaggeration);
 	const clearance = tickStep(bottom, top, count) / 2;
 	// From top to bottom, d3 returns them in the order of its arguments
-	const interior = ticks(top, bottom, count).filter(
-		(tick) => top - tick >= clearance && tick - bottom >= clearance
-	);
+	const interior = ticks(top, bottom, count).filter((tick) => {
+		const gap = tick === 0 ? MIN_TICK_STEP_M : clearance;
+		return top - tick >= gap && tick - bottom >= gap;
+	});
 
 	return [top, ...interior, bottom];
 }
