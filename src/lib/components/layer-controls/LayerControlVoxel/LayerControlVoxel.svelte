@@ -12,8 +12,8 @@
 	$: clipping = layer.clipping;
 	$: shading = layer.shading;
 	$: terrainProvider = layer.map.options.selectedTerrainProvider;
-	// Without terrain the globe surface sits on the ellipsoid, ~44 m below NAP,
-	// so the voxels appear to float above it.
+	// Without terrain the globe is the ellipsoid, often tens of metres off the
+	// vertical datum, so the voxels appear to float
 	$: noTerrain = !$terrainProvider?.url;
 	$: activeProp = $properties.find((p) => p.name === $selected);
 	$: hiddenForProp = $hiddenValues.get($selected) ?? new Set();

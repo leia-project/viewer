@@ -1,7 +1,13 @@
-import { type Writable, writable, get } from "svelte/store";
+import { type Readable, type Writable, derived, writable, get } from "svelte/store";
 import * as Cesium from "cesium";
 import { Get3dLayers } from "./utils/map-utils";
 import type { Map } from "./map";
+import {
+	DEFAULT_VERTICAL_DATUM,
+	type ExaggerationFactors,
+	parseVerticalDatum,
+	type VerticalDatum
+} from "./subsurface-exaggeration";
 
 export class MapOptions {
 	private map: Map;
@@ -33,6 +39,17 @@ export class MapOptions {
 	public verticalExaggeration: Writable<number> = writable<number>(1);
 	public showVerticalExaggerationSlider: Writable<boolean> = writable<boolean>(false);
 	public subsurfaceExaggeration: Writable<number> = writable<number>(1);
+	/** Depth labels read in it, its 0 is the subsurface exaggeration pivot */
+	public verticalDatum: Writable<VerticalDatum> = writable<VerticalDatum>(DEFAULT_VERTICAL_DATUM);
+	/** Both exaggerations and their pivot, so placing heights takes one subscription */
+	public exaggeration: Readable<ExaggerationFactors> = derived(
+		[this.subsurfaceExaggeration, this.verticalExaggeration, this.verticalDatum],
+		([subsurface, scene, datum]) => ({
+			subsurface: subsurface || 1,
+			scene: scene || 1,
+			pivot: datum.offset
+		})
+	);
 	public inspector: Writable<boolean> = writable<boolean>(false);
 	public voxelInspector: Writable<boolean> = writable<boolean>(false);
 	private stopFollowingVoxels: (() => void) | undefined;
@@ -169,6 +186,7 @@ export class MapOptions {
 		this.trySet(this.verticalExaggeration, config.verticalExaggeration);
 		this.trySet(this.showVerticalExaggerationSlider, config.showVerticalExaggerationSlider);
 		this.trySet(this.subsurfaceExaggeration, config.subsurfaceExaggeration);
+		this.verticalDatum.set(parseVerticalDatum(config.verticalDatum));
 		this.trySet(this.enableCollisionDetection, config.enableCollisionDetection);
 		this.loadTerrainProvider(config.terrainProviders);
 	}

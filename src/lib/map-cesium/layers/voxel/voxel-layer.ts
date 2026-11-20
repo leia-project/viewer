@@ -14,8 +14,14 @@ import {
 	type VoxelPropertyConfig,
 	voxelSchema
 } from "./voxel-legend";
-import { DepthScale, NAP_OFFSET_M } from "../../depth-scale";
-import { appliesSubsurfaceExaggeration, subsurfaceExaggerationPivot } from "../../subsurface-exaggeration";
+import { DepthScale } from "../../depth-scale";
+import {
+	type ExaggerationFactors,
+	appliesSubsurfaceExaggeration,
+	fromRenderedHeight,
+	toRenderedHeight,
+	toSubsurfaceHeight
+} from "../../subsurface-exaggeration";
 import { VoxelClipSlider } from "./voxel-clip-slider";
 
 import LayerControlVoxel from "$lib/components/layer-controls/LayerControlVoxel/LayerControlVoxel.svelte";
@@ -25,8 +31,6 @@ export type VoxelLayerSettings = {
 	url: string;
 	defaultProperty?: string;
 	properties: Array<VoxelPropertyConfig>;
-	/** The height that the subsurface exaggeration stretches away from. */
-	exaggerationPivot?: number;
 	/** Per-face shading so the relief of the voxel surface is visible. */
 	shading?: boolean;
 	/** Pixels of error before a tile is refined into its children; higher
@@ -54,7 +58,6 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	private bounds: { min: Cesium.Cartesian3; max: Cesium.Cartesian3 } | null = null;
 	private depthScale: DepthScale | null = null;
 	private unsubscribers: Array<Unsubscriber> = [];
-	private pivotZ: number = NAP_OFFSET_M;
 	/** Whether this voxel dataset sits below the surface and so follows the
 	 * subsurface exaggeration slider. Above-surface voxels stay at true scale. */
 	private isSubsurface: boolean = false;
@@ -69,7 +72,6 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			throw new Error(`VoxelLayer "${config.title}": no properties configured`);
 		}
 
-		this.pivotZ = subsurfaceExaggerationPivot(config);
 		this.isSubsurface = appliesSubsurfaceExaggeration(config);
 		this.selectedProperty = writable(initial);
 		this.resolvedProperties = writable<Array<ResolvedVoxelProperty>>([]);
@@ -78,11 +80,13 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		this.shading = writable(settings.shading ?? false);
 		this.shadingToggleable = settings.shading !== undefined;
 		this.createLayer();
-		this.selectedProperty.subscribe(() => this.rebuildShader());
-		this.shading.subscribe((on) => {
-			this.source?.customShader?.setUniform("u_shading", on ? 1.0 : 0.0);
-			this.map.refresh();
-		});
+		this.unsubscribers.push(
+			this.selectedProperty.subscribe(() => this.rebuildShader()),
+			this.shading.subscribe((on) => {
+				this.source?.customShader?.setUniform("u_shading", on ? 1.0 : 0.0);
+				this.map.refresh();
+			})
+		);
 	}
 
 	public toggleHidden(propName: string, value: number): void {
@@ -158,10 +162,8 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	}
 
 	/**
-	 * Subsurface exaggeration, from the surface datum so voxels near the surface stick to terrain
-	 * while the terrain itself is untouched. Inspired by Cesium's internal scene wide verticalExaggeration, but that is a scene-wide setting and we want to exaggerate only the voxels.
-	 * scene-wide verticalExaggeration applies to a VoxelPrimitive: stretching
-	 * the shape's z bounds (the data fills the shape, so it stretches with them).
+	 * Stretches the shape's z bounds about datum 0; the data fills the shape so it
+	 * follows. Cesium adds the scene-wide exaggeration itself.
 	 */
 	private applyExaggeration(): void {
 		if (!this.source || !this.bounds) {
@@ -175,20 +177,26 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		this.applyClipping();
 	}
 
-	/** Subsurface exaggeration factor for this layer: 1 (no stretch) unless the
-	 * layer is flagged subsurface, so an above-surface voxel ignores the slider. */
-	private get exaggeration(): number {
-		return this.isSubsurface ? get(this.map.options.subsurfaceExaggeration) : 1;
+	/** No subsurface stretch unless the layer is flagged subsurface */
+	private get factors(): ExaggerationFactors {
+		const factors = get(this.map.options.exaggeration);
+
+		return this.isSubsurface ? factors : { ...factors, subsurface: 1 };
 	}
 
-	/** Maps a real provider height into the exaggerated shape space (pivot = surface datum). */
-	public stretchZ(z: number): number {
-		return this.pivotZ + this.exaggeration * (z - this.pivotZ);
+	/** Provider height to shape space (subsurface stretch only) */
+	private stretchZ(z: number): number {
+		return toSubsurfaceHeight(z, this.factors);
 	}
 
-	/** Inverse of {@link stretchZ}: exaggerated shape-space height back to real height. */
-	public unstretchZ(z: number): number {
-		return this.pivotZ + (z - this.pivotZ) / this.exaggeration;
+	/** Provider height to rendered height, with this layer's factors */
+	public toRenderedHeight(z: number): number {
+		return toRenderedHeight(z, this.factors);
+	}
+
+	/** Inverse of {@link toRenderedHeight} */
+	public fromRenderedHeight(rendered: number): number {
+		return fromRenderedHeight(rendered, this.factors);
 	}
 
 	private get settings(): VoxelLayerSettings {
@@ -298,22 +306,22 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				const east = maxBounds.x; // lon
 				const nsMiddle = (minBounds.y + maxBounds.y) / 2; // lat
 
-				// The NAP depth scale and the exaggeration subscription belong to
-				// subsurface voxels only; an above-surface voxel stays at true scale.
+				// Above-surface voxels get no depth scale and no stretch
 				if (this.isSubsurface) {
+					// Provider bounds are ellipsoidal, the scale takes datum heights
+					const { offset } = get(this.map.options.verticalDatum);
 					this.depthScale = new DepthScale(
 						this.map,
 						east,
 						nsMiddle,
-						maxBounds.z,
-						minBounds.z,
-						{ pivotZ: this.pivotZ }
+						maxBounds.z - offset,
+						minBounds.z - offset
 					);
 					this.depthScale.addToScene();
 					this.depthScale.setVisible(get(this.visible));
 
 					this.unsubscribers.push(
-						this.map.options.subsurfaceExaggeration.subscribe(() => this.applyExaggeration())
+						this.map.options.exaggeration.subscribe(() => this.applyExaggeration())
 					);
 				}
 

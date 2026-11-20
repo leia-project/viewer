@@ -1,13 +1,14 @@
 import * as Cesium from "cesium";
-import { get, type Unsubscriber } from "svelte/store";
+import { type Readable, type Unsubscriber, derived } from "svelte/store";
 
-import { DepthScale, NAP_OFFSET_M } from "./depth-scale";
+import { DepthScale } from "./depth-scale";
 import type { Map } from "./map";
 import type { LayerConfig } from "$lib/map-core/layer-config";
 
-interface NapExtent {
-	topNap: number;
-	bottomNap: number;
+/** Column top and bottom in datum metres */
+interface ColumnExtent {
+	top: number;
+	bottom: number;
 }
 
 /** Metadata property names a tileset of vertical columns (boreholes, CPTs,
@@ -15,9 +16,9 @@ interface NapExtent {
 export interface DepthScaleKeys {
 	/** Groups the intervals of one column */
 	id: string;
-	/** Interval top, metres NAP */
+	/** Interval top, metres in the map's vertical datum */
 	top: string;
-	/** Interval base, metres NAP */
+	/** Interval base, metres in the map's vertical datum */
 	bottom: string;
 }
 
@@ -34,27 +35,21 @@ export function depthScaleKeys(config: LayerConfig): DepthScaleKeys {
 }
 
 /**
- * Draws a DepthScale in NAP along the selected column of a subsurface 3D Tiles
- * layer (borehole, CPT, ...) and clears when unselected.
+ * Draws a DepthScale along the selected column of a subsurface 3D Tiles layer
+ * (borehole, CPT, ...) while the layer is visible.
  *
- * Every interval is a feature carrying the `keys` metadata
- * - the full column span (NAP) is the highest top / lowest base across all
- *   intervals sharing the clicked feature's id, aggregated straight from the
- *   tileset metadata (cached per id);
- * - lon/lat and the geoid separation come from the pick point on the column.
- * Tilesets without the id property simply never show a scale.
+ * The column spans the highest top to the lowest base of the intervals sharing
+ * the clicked feature's id, at the pick point. Tilesets without the id property
+ * never show a scale.
  */
 export class TilesetDepthScaleController {
 	private depthScale: DepthScale | undefined;
 	private unsub: Unsubscriber | undefined;
-	private napCache: Record<string, NapExtent> = {};
 
 	constructor(
 		private map: Map,
 		private getSource: () => Cesium.Cesium3DTileset | undefined,
-		private isVisible: () => boolean = () => true,
-		/** Ellipsoidal height the companion tileset stretches away from. */
-		private pivot: number = NAP_OFFSET_M,
+		private visible: Readable<boolean>,
 		private keys: DepthScaleKeys = DEFAULT_DEPTH_SCALE_KEYS
 	) {}
 
@@ -62,7 +57,11 @@ export class TilesetDepthScaleController {
 		if (this.unsub) {
 			return;
 		}
-		this.unsub = this.map.featureInfo.results.subscribe(() => this.sync());
+		// Hiding the layer keeps the feature selected, so follow visibility too.
+		// Pass the tuple on: a derived boolean would skip clicks while visible stays true
+		this.unsub = derived([this.map.featureInfo.results, this.visible], (values) => values).subscribe(
+			([, visible]) => this.sync(visible)
+		);
 	}
 
 	public stop(): void {
@@ -71,9 +70,9 @@ export class TilesetDepthScaleController {
 		this.clear();
 	}
 
-	private sync(): void {
+	private sync(visible: boolean): void {
 		this.clear();
-		if (!this.isVisible()) {
+		if (!visible) {
 			return;
 		}
 
@@ -100,8 +99,8 @@ export class TilesetDepthScaleController {
 			return;
 		}
 
-		const nap = this.napExtent(uid, content);
-		if (!nap) {
+		const extent = this.columnExtent(uid, content);
+		if (!extent) {
 			return;
 		}
 
@@ -110,49 +109,21 @@ export class TilesetDepthScaleController {
 			return;
 		}
 
-		// The pick is in exaggerated scene space. undo the scene-wide vertical
-		// exaggeration and then the subsurface pivot stretch to recover the
-		// true ellipsoidal hit height.
-		const vertExag = get(this.map.options.verticalExaggeration) || 1;
-		const subExag = get(this.map.options.subsurfaceExaggeration) || 1;
-		const ellipsoidalHit =
-			this.pivot + (cartoPosition.height / vertExag - this.pivot) / subExag;
-
-		// Geoid separation is constant down a borehole, so estimate it once from
-		// the clicked interval's NAP midpoint: ellipsoidal = NAP + separation.
-		const napAtHit =
-			(toNumber(feature.getProperty(this.keys.top)) + toNumber(feature.getProperty(this.keys.bottom))) / 2;
-
-		const geoidSeparation = ellipsoidalHit - napAtHit;
-
-		// The tileset stretches from this.pivot (see subsurface-exaggeration.ts)
-		// and is scene-exaggerated as 3D Tiles; labels read exact NAP via the
-		// column's geoid separation.
 		this.depthScale = new DepthScale(
 			this.map,
 			cartoPosition.longitude,
 			cartoPosition.latitude,
-			nap.topNap + geoidSeparation,
-			nap.bottomNap + geoidSeparation,
-			{
-				pivotZ: this.pivot,
-				labelDatum: geoidSeparation,
-				applyVerticalExaggeration: true,
-				showLine: false
-			}
+			extent.top,
+			extent.bottom,
+			{ showLine: false }
 		);
 		this.depthScale.addToScene();
 	}
 
-	/** Highest top / lowest base (NAP) across every interval of the column. */
-	private napExtent(uid: string, content: Cesium.Cesium3DTileContent): NapExtent | undefined {
-		const cached = this.napCache[uid];
-		if (cached) {
-			return cached;
-		}
-
-		let topNap = -Infinity;
-		let bottomNap = Infinity;
+	/** Highest top / lowest base across the column's intervals */
+	private columnExtent(uid: string, content: Cesium.Cesium3DTileContent): ColumnExtent | undefined {
+		let top = -Infinity;
+		let bottom = Infinity;
 
 		for (let i = 0; i < content.featuresLength; i++) {
 			const f = content.getFeature(i);
@@ -161,26 +132,23 @@ export class TilesetDepthScaleController {
 				continue;
 			}
 
-			const top = toNumber(f.getProperty(this.keys.top));
-			const bottom = toNumber(f.getProperty(this.keys.bottom));
+			const intervalTop = toNumber(f.getProperty(this.keys.top));
+			const intervalBottom = toNumber(f.getProperty(this.keys.bottom));
 
-			if (Number.isFinite(top)) {
-				topNap = Math.max(topNap, top);
+			if (Number.isFinite(intervalTop)) {
+				top = Math.max(top, intervalTop);
 			}
 
-			if (Number.isFinite(bottom)) {
-				bottomNap = Math.min(bottomNap, bottom);
+			if (Number.isFinite(intervalBottom)) {
+				bottom = Math.min(bottom, intervalBottom);
 			}
 		}
 
-		if (!Number.isFinite(topNap) || !Number.isFinite(bottomNap)) {
+		if (!Number.isFinite(top) || !Number.isFinite(bottom)) {
 			return undefined;
 		}
 
-		const extent: NapExtent = { topNap, bottomNap };
-		this.napCache[uid] = extent;
-
-		return extent;
+		return { top, bottom };
 	}
 
 	private clear(): void {
