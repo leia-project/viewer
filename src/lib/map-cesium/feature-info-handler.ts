@@ -60,7 +60,7 @@ export class FeatureInfoHandler {
         return fiList;
     }
 
-    private highlight3DTileFeature(feature: Cesium.Cesium3DTileFeature): void {   
+    private highlight3DTileFeature(feature: Cesium.Cesium3DTileFeature): void {
         this.selected3DTileFeature = feature;
         this.selected3DTileFeature.setProperty(this.selectedProperty, "true");
         
@@ -107,7 +107,7 @@ export class FeatureInfoHandler {
             return undefined;
         }
 
-        if (picked instanceof Cesium.Cesium3DTileFeature) {     
+        if (picked instanceof Cesium.Cesium3DTileFeature) {
             this.highlight3DTileFeature(picked);
             return this.cesium3dTileFeatureToFeatureInfo(picked);
         }
@@ -139,7 +139,7 @@ export class FeatureInfoHandler {
         for (let i = 0; i < length; ++i) {
             const propertyName = propertyNames[i];
             let property = feature.getProperty(propertyName);
-            if (!property) {
+            if (property === undefined || property === null || property === "") {
                 property = "empty";
             }
 

@@ -262,6 +262,7 @@
         "voxel": {
             "property": "Eigenschap",
             "legend": "Legenda",
+            "shading": "Vlakbelichting",
             "slicing": "Doorsneden",
             "westEast": "West–Oost",
             "southNorth": "Zuid–Noord",
@@ -368,6 +369,7 @@
             "skyAtmosphere": "Lucht Atmosfeer",
             "FPSCounter": "FPS Teller",
             "inspector": "Tegel Inspecteur",
+            "voxelInspector": "Voxel Inspecteur",
             "coordinates": "Coördinaten",
             "cameraPosition": "Camera Positie",
             "dragAndDropFiles": "Bestanden Inslepen",

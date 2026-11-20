@@ -1,22 +1,109 @@
-import { type Readable, get, derived } from "svelte/store";
+import { type Readable, derived } from "svelte/store";
 import * as Cesium from "cesium";
 
 import type { Map } from "./map";
 import type { Layer } from "$lib/map-core/layer";
 import type { LayerConfig } from "$lib/map-core/layer-config";
-import { NAP_OFFSET_M } from "./depth-scale";
+
+/** Vertical reference heights are given in: its label name and the ellipsoidal
+ * height of its 0 (the project area's geoid separation). */
+export interface VerticalDatum {
+	name: string;
+	offset: number;
+}
+
+/** NAP, for configs without `verticalDatum` */
+export const DEFAULT_VERTICAL_DATUM: VerticalDatum = { name: "NAP", offset: 44.335 };
+
+/**
+ * `verticalDatum` from config over DEFAULT_VERTICAL_DATUM. Missing or invalid
+ * fields keep the default (invalid ones warn), so a bad offset can't NaN every
+ * height. The offset may use a decimal comma, e.g. "43,5".
+ */
+export function parseVerticalDatum(value: unknown): VerticalDatum {
+	if (value === undefined) {
+		return DEFAULT_VERTICAL_DATUM;
+	}
+
+	if (typeof value !== "object" || value === null) {
+		console.warn("verticalDatum: expected { name, offset }, using the default", value);
+		return DEFAULT_VERTICAL_DATUM;
+	}
+
+	const { name, offset } = value as { name?: unknown; offset?: unknown };
+	const datum = { ...DEFAULT_VERTICAL_DATUM };
+
+	if (name !== undefined) {
+		if (typeof name === "string" && name.trim() !== "") {
+			datum.name = name.trim();
+		} else {
+			console.warn("verticalDatum: name must be a non-empty string, using the default", name);
+		}
+	}
+
+	if (offset === undefined && datum.name !== DEFAULT_VERTICAL_DATUM.name) {
+		console.warn(
+			`verticalDatum: no offset for "${datum.name}", using the ${DEFAULT_VERTICAL_DATUM.name} offset of ${DEFAULT_VERTICAL_DATUM.offset} m`
+		);
+	}
+
+	if (offset !== undefined) {
+		const parsed = typeof offset === "string" ? Number(offset.replace(",", ".")) : offset;
+
+		if (typeof parsed === "number" && Number.isFinite(parsed)) {
+			datum.offset = parsed;
+		} else {
+			console.warn("verticalDatum: offset must be a finite number, using the default", offset);
+		}
+	}
+
+	return datum;
+}
+
+/** Height Cesium's scene-wide vertical exaggeration stretches away from
+ * (scene.verticalExaggerationRelativeHeight), which we leave at Cesium's default. */
+const SCENE_EXAGGERATION_PIVOT = 0;
+
+/** The stretch behind both exaggerations: heights move away from `pivot` by
+ * `factor`. SUBSURFACE_EXAGGERATION_VS is its GLSL twin. */
+function exaggerateHeight(height: number, pivot: number, factor: number): number {
+	return pivot + factor * (height - pivot);
+}
+
+/** Inverse of {@link exaggerateHeight} */
+function unexaggerateHeight(height: number, pivot: number, factor: number): number {
+	return pivot + (height - pivot) / factor;
+}
+
+export interface ExaggerationFactors {
+	subsurface: number;
+	scene: number;
+	/** Ellipsoidal height of datum 0, the subsurface stretch's pivot */
+	pivot: number;
+}
+
+/** True ellipsoidal height to subsurface-stretched height, before the scene-wide exaggeration */
+export function toSubsurfaceHeight(
+	height: number,
+	{ subsurface, pivot }: Pick<ExaggerationFactors, "subsurface" | "pivot">
+): number {
+	return exaggerateHeight(height, pivot, subsurface);
+}
+
+/** True ellipsoidal height to rendered height: subsurface stretch, then the scene-wide one */
+export function toRenderedHeight(height: number, factors: ExaggerationFactors): number {
+	return exaggerateHeight(toSubsurfaceHeight(height, factors), SCENE_EXAGGERATION_PIVOT, factors.scene);
+}
+
+/** Inverse of {@link toRenderedHeight} */
+export function fromRenderedHeight(rendered: number, { subsurface, scene, pivot }: ExaggerationFactors): number {
+	return unexaggerateHeight(unexaggerateHeight(rendered, SCENE_EXAGGERATION_PIVOT, scene), pivot, subsurface);
+}
 
 /** Whether a layer should respond to the subsurface exaggeration slider, driven
  * by `settings.subsurface`. Voxel layers default to subsurface for now, 3D Tiles layers opt in */
 export function appliesSubsurfaceExaggeration(config: LayerConfig): boolean {
 	return config.settings?.subsurface ?? config.type === "3dtiles-voxel";
-}
-
-/** Ellipsoidal height (m) the subsurface exaggeration stretches away from, from
- * `settings.exaggerationPivot`; defaults to NAP ~0 m.
- * Used by voxel and BRO layers so equal NAP depths keep rendering at equal heights */
-export function subsurfaceExaggerationPivot(config: LayerConfig): number {
-	return config.settings?.exaggerationPivot ?? NAP_OFFSET_M;
 }
 
 /** Derived store that is true while at least one subsurface-exaggeration layer
@@ -100,49 +187,32 @@ void vertexMain(VertexInput vsInput, inout czm_modelVertexOutput vsOutput) {
 `;
 
 /**
- * Makes a tileset follow map.options.subsurfaceExaggeration: an affine stretch
- * away from `pivot` (default NAP 0 m, see subsurfaceExaggerationPivot),
- * identical to the voxel layer's, so equal NAP depths render at equal heights
- * across all subsurface layers while the terrain is untouched. Columns on terrain above NAP 0 rise proportionally
- * above the surface by design.
+ * Makes a tileset follow map.options.exaggeration: the same stretch about datum 0
+ * as the voxels, so equal depths line up across subsurface layers.
  *
- * Also renders the tileset unlit and without shadows: subsurface datasets are
- * categorical soil colours, and lighting would distort them (stretching also
- * skews normals). The lighting model has to live on the same CustomShader as
- * the stretch, since a tileset holds a single custom shader.
+ * Also renders it unlit and without shadows, since lighting distorts categorical
+ * soil colours (and stretching skews normals). That has to live on the same
+ * CustomShader, as a tileset holds only one.
  *
- * Returns a dispose function that stops following the exaggeration stores.
+ * Returns a dispose function.
  */
-export function applySubsurfaceExaggeration(
-	map: Map,
-	tileset: Cesium.Cesium3DTileset,
-	pivot: number = NAP_OFFSET_M
-): () => void {
+export function applySubsurfaceExaggeration(map: Map, tileset: Cesium.Cesium3DTileset): () => void {
 	tileset.shadows = Cesium.ShadowMode.DISABLED;
 
 	const shader = new Cesium.CustomShader({
 		lightingModel: Cesium.LightingModel.UNLIT,
 		uniforms: {
 			u_exaggeration: { type: Cesium.UniformType.FLOAT, value: 1 },
-			u_pivot: { type: Cesium.UniformType.FLOAT, value: pivot }
+			u_pivot: { type: Cesium.UniformType.FLOAT, value: 0 }
 		},
 		vertexShaderText: SUBSURFACE_EXAGGERATION_VS
 	});
 	tileset.customShader = shader;
 
-	const apply = () => {
-		const subExag = get(map.options.subsurfaceExaggeration) || 1;
-		const vertExag = get(map.options.verticalExaggeration) || 1;
-		shader.setUniform("u_exaggeration", subExag);
-		// The scene VE stage has already scaled heights when this shader runs.
-		shader.setUniform("u_pivot", pivot * vertExag);
+	return map.options.exaggeration.subscribe((factors) => {
+		shader.setUniform("u_exaggeration", factors.subsurface);
+		// The scene stage already scaled heights, so pass the pivot at its rendered height
+		shader.setUniform("u_pivot", toRenderedHeight(factors.pivot, factors));
 		map.refresh();
-	};
-
-	const unsubscribers = [
-		map.options.subsurfaceExaggeration.subscribe(apply),
-		map.options.verticalExaggeration.subscribe(apply)
-	];
-
-	return () => unsubscribers.forEach((unsub) => unsub());
+	});
 }

@@ -1,7 +1,13 @@
-import { type Writable, writable, get } from "svelte/store";
+import { type Readable, type Writable, derived, writable, get } from "svelte/store";
 import * as Cesium from "cesium";
 import { Get3dLayers } from "./utils/map-utils";
 import type { Map } from "./map";
+import {
+	DEFAULT_VERTICAL_DATUM,
+	type ExaggerationFactors,
+	parseVerticalDatum,
+	type VerticalDatum
+} from "./subsurface-exaggeration";
 
 export class MapOptions {
 	private map: Map;
@@ -33,7 +39,20 @@ export class MapOptions {
 	public verticalExaggeration: Writable<number> = writable<number>(1);
 	public showVerticalExaggerationSlider: Writable<boolean> = writable<boolean>(false);
 	public subsurfaceExaggeration: Writable<number> = writable<number>(1);
+	/** Depth labels read in it, its 0 is the subsurface exaggeration pivot */
+	public verticalDatum: Writable<VerticalDatum> = writable<VerticalDatum>(DEFAULT_VERTICAL_DATUM);
+	/** Both exaggerations and their pivot, so placing heights takes one subscription */
+	public exaggeration: Readable<ExaggerationFactors> = derived(
+		[this.subsurfaceExaggeration, this.verticalExaggeration, this.verticalDatum],
+		([subsurface, scene, datum]) => ({
+			subsurface: subsurface || 1,
+			scene: scene || 1,
+			pivot: datum.offset
+		})
+	);
 	public inspector: Writable<boolean> = writable<boolean>(false);
+	public voxelInspector: Writable<boolean> = writable<boolean>(false);
+	private stopFollowingVoxels: (() => void) | undefined;
 	public proMode: Writable<boolean> = writable<boolean>(false);
 	public terrainProviders: Writable<Array<{ title: string, url: string, vertexNormals: boolean }>> = writable<Array<{ title: string, url: string, vertexNormals: boolean }>>(new Array<{ title: string, url: string, vertexNormals: boolean}>());
 	public selectedTerrainProvider: Writable<{ title: string, url: string, vertexNormals: boolean }> = writable<{ title: string, url: string, vertexNormals: boolean }>(undefined);
@@ -124,6 +143,9 @@ export class MapOptions {
 		this.subscribe<boolean>(this.inspector, (v) => {
 			this.switchTileInspector(v);
 		});
+		this.subscribe<boolean>(this.voxelInspector, (v) => {
+			this.switchVoxelInspector(v);
+		});
 		this.subscribe<boolean>(this.enableCollisionDetection, (v) => {
 			this.map.viewer.scene.screenSpaceCameraController.enableCollisionDetection = v;
 		});
@@ -164,6 +186,7 @@ export class MapOptions {
 		this.trySet(this.verticalExaggeration, config.verticalExaggeration);
 		this.trySet(this.showVerticalExaggerationSlider, config.showVerticalExaggerationSlider);
 		this.trySet(this.subsurfaceExaggeration, config.subsurfaceExaggeration);
+		this.verticalDatum.set(parseVerticalDatum(config.verticalDatum));
 		this.trySet(this.enableCollisionDetection, config.enableCollisionDetection);
 		this.loadTerrainProvider(config.terrainProviders);
 	}
@@ -249,6 +272,56 @@ export class MapOptions {
 			if (this.map.viewer.cesium3DTilesInspector) {
 				this.map.viewer.cesium3DTilesInspector.destroy();
 			}
+		}
+	}
+
+	private switchVoxelInspector(enable: boolean): void {
+		const { primitives } = this.map.viewer.scene;
+
+		this.stopFollowingVoxels?.();
+		this.stopFollowingVoxels = undefined;
+
+		if (enable) {
+			if (!this.voxelInspectorWidget) {
+				this.map.viewer.extend(Cesium.viewerVoxelInspectorMixin);
+			}
+
+			// Voxel layers are added and removed while the inspector is open, so follow along
+			const removeAdded = primitives.primitiveAdded.addEventListener(() => this.attachVoxelInspector());
+			const removeRemoved = primitives.primitiveRemoved.addEventListener(() => this.attachVoxelInspector());
+			this.stopFollowingVoxels = () => {
+				removeAdded();
+				removeRemoved();
+			};
+			this.attachVoxelInspector();
+		}
+
+		const container = this.voxelInspectorWidget?.container;
+
+		if (container instanceof HTMLElement) {
+			container.style.display = enable ? "" : "none";
+		}
+	}
+
+	private get voxelInspectorWidget(): Cesium.VoxelInspector | undefined {
+		return (this.map.viewer as Cesium.Viewer & { voxelInspector?: Cesium.VoxelInspector }).voxelInspector;
+	}
+
+	// Unlike the 3D Tiles inspector, the voxel inspector can't pick a dataset so point
+	// it at the most recently added voxel primitive.
+	private attachVoxelInspector(): void {
+		const { primitives } = this.map.viewer.scene;
+		// removeAll() raises primitiveRemoved before the destroyed primitives leave the collection
+		const latest = Array.from({ length: primitives.length }, (_, i) => primitives.get(i)).findLast(
+			(primitive) => primitive instanceof Cesium.VoxelPrimitive && !primitive.isDestroyed()
+		);
+
+		const viewModel = this.voxelInspectorWidget?.viewModel;
+
+		// Setting it writes the inspector's values back into the primitive, so only on a change.
+		// Undefined drops the inspector's listener on a removed primitive.
+		if (viewModel && viewModel.voxelPrimitive !== latest) {
+			viewModel.voxelPrimitive = latest;
 		}
 	}
 

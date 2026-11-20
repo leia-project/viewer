@@ -18,9 +18,8 @@ function clamp({ value, min = 0, max = 1 }: { value: number; min?: number; max?:
  * `clipping` store via {@link VoxelLayer.setClip}("z", …), so plane and
  * sliders stay in sync.
  *
- * The clip window stays in normalised units which survive exaggeration
- * changes. Heights are only mapped through the subsurface exaggeration when
- * positioning the plane entity and reading the drag
+ * The clip window is normalised, so it survives exaggeration changes; only
+ * placing the plane and reading the drag go through the exaggerations.
  */
 export class VoxelClipSlider {
 	public layer: VoxelLayer;
@@ -131,7 +130,7 @@ export class VoxelClipSlider {
 	}
 
 	private displayHeight(): number {
-		return this.layer.stretchZ(this.currentHeight());
+		return this.layer.toRenderedHeight(this.currentHeight());
 	}
 
 	private makePlaneEntity(): void {
@@ -206,7 +205,7 @@ export class VoxelClipSlider {
 				return;
 			}
 
-			const realHeight = this.layer.unstretchZ(displayHeight);
+			const realHeight = this.layer.fromRenderedHeight(displayHeight);
 			const span = this.bounds.max.z - this.bounds.min.z;
 
 			const normalizedHeight = (realHeight - this.bounds.min.z) / span;

@@ -255,6 +255,7 @@
         "voxel": {
             "property": "Property",
             "legend": "Legend",
+            "shading": "Face shading",
             "slicing": "Slicing",
             "westEast": "West–East",
             "southNorth": "South–North",
@@ -361,6 +362,7 @@
             "skyAtmosphere": "Sky Atmosphere",
             "FPSCounter": "FPS Counter",
             "inspector": "Tile Inspector",
+            "voxelInspector": "Voxel Inspector",
             "coordinates": "Coordinates",
             "cameraPosition": "Camera Position",
             "dragAndDropFiles": "Drag and Drop Files",

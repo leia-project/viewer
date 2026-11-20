@@ -1,26 +1,17 @@
 import * as Cesium from "cesium";
 import { get, type Unsubscriber } from "svelte/store";
+import { depthTicks } from "./depth-ticks";
 import type { Map } from "./map";
+import { toRenderedHeight, type VerticalDatum } from "./subsurface-exaggeration";
 
-/**
- * Approximate ellipsoidal height of NAP 0 in Zeeland which we take as the datum the subsurface
- * exaggeration stretches away from.
- * This is shared by all subsurface layers (voxels, boreholes, CPT')
- * so equal NAP depths render at equal heights.
- * Columns on terrain above NAP 0 rise proportionally above the (unstretched) terrain
- * by design
- */
-export const NAP_OFFSET_M = 44;
+function formatDatumHeight(z: number, datum: VerticalDatum): string {
+	const rounded = Math.round(z * 10) / 10; // round to decimeters
+	const sign = rounded > 0 ? "+" : "";
+
+	return `${sign}${rounded}m ${datum.name}`;
+}
 
 export interface DepthScaleOptions {
-	/** Datum the subsurface exaggeration stretches away from. Pass the
-	 * layer's pivot so the scale stretches like the layer. Defaults to NAP ~0 m. */
-	pivotZ?: number;
-	/** Ellipsoidal height whose label reads 0m NAP. Defaults to pivotZ; pass the
-	 * column's geoid separation for exact NAP labels. */
-	labelDatum?: number;
-	/** Additionally scale rendered heights by the scene-wide vertical exaggeration. */
-	applyVerticalExaggeration?: boolean;
 	/** Draw the vertical line spanning the scale. */
 	showLine?: boolean;
 }
@@ -29,35 +20,26 @@ export class DepthScale {
 	private polylines: Cesium.PolylineCollection;
 	private labels: Cesium.LabelCollection;
 	private unsubscribers: Array<Unsubscriber>;
-	private pivotZ: number;
-	private labelDatum: number;
-	private applyVerticalExaggeration: boolean;
 	private showLine: boolean;
 
 	/**
-	 * @param topM    highest interval top, true (ellipsoidal) metres
-	 * @param bottomM lowest interval base, true (ellipsoidal) metres
+	 * @param top    highest interval top, metres in the map's vertical datum
+	 * @param bottom lowest interval base, metres in the map's vertical datum
 	 */
 	constructor(
 		private map: Map,
 		private lon: number,
 		private lat: number,
-		private topM: number,
-		private bottomM: number,
+		private top: number,
+		private bottom: number,
 		options: DepthScaleOptions = {}
 	) {
-		this.pivotZ = options.pivotZ ?? NAP_OFFSET_M;
-		this.labelDatum = options.labelDatum ?? this.pivotZ;
-		this.applyVerticalExaggeration = options.applyVerticalExaggeration ?? false;
 		this.showLine = options.showLine ?? true;
 
 		this.polylines = new Cesium.PolylineCollection();
 		this.labels = new Cesium.LabelCollection();
-		// Force initial build of depth scale and subscribe to subsurface ex. changes
-		this.unsubscribers = [map.options.subsurfaceExaggeration.subscribe(() => this.rebuild())];
-		if (this.applyVerticalExaggeration) {
-			this.unsubscribers.push(map.options.verticalExaggeration.subscribe(() => this.rebuild()));
-		}
+		// Builds now and on every exaggeration change
+		this.unsubscribers = [map.options.exaggeration.subscribe(() => this.rebuild())];
 	}
 
 	public setPosition(lon: number, lat: number): void {
@@ -70,36 +52,18 @@ export class DepthScale {
 		this.rebuild();
 	}
 
-	/**
-	 * True height to rendered height: the subsurface exaggeration stretches
-	 * away from the pivot datum (same formula as {@link VoxelLayer.stretchZ},
-	 * so pass the layer's pivot), matching what happens to the voxels. Labels
-	 * keep true depths at stretched positions.
-	 */
-	private displayHeight(ellipsoidal: number): number {
-		const k = get(this.map.options.subsurfaceExaggeration);
-		const stretched = this.pivotZ + k * (ellipsoidal - this.pivotZ);
-
-		return this.applyVerticalExaggeration
-			? stretched * (get(this.map.options.verticalExaggeration) || 1)
-			: stretched;
-	}
-
-	/** Total stretch applied to the column, used to pick a fitting tick interval. */
-	private effectiveExaggeration(): number {
-		const subExag = get(this.map.options.subsurfaceExaggeration);
-
-		return this.applyVerticalExaggeration
-			? subExag * (get(this.map.options.verticalExaggeration) || 1)
-			: subExag;
-	}
-
 	private build(): void {
+		// Labels show datum heights, placed where the layer renders them
+		const factors = get(this.map.options.exaggeration);
+		const datum = get(this.map.options.verticalDatum);
+
+		const displayHeight = (height: number) => toRenderedHeight(height + datum.offset, factors);
+
 		if (this.showLine) {
 			this.polylines.add({
 				positions: [
-					Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.displayHeight(this.topM)),
-					Cesium.Cartesian3.fromRadians(this.lon, this.lat, this.displayHeight(this.bottomM))
+					Cesium.Cartesian3.fromRadians(this.lon, this.lat, displayHeight(this.top)),
+					Cesium.Cartesian3.fromRadians(this.lon, this.lat, displayHeight(this.bottom))
 				],
 				width: 2,
 				material: Cesium.Material.fromType(Cesium.Material.ColorType, {
@@ -108,21 +72,12 @@ export class DepthScale {
 			});
 		}
 
-		const topNap = this.topM - this.labelDatum;
-		const bottomNap = this.bottomM - this.labelDatum;
-		const step = tickIntervalForVe(this.effectiveExaggeration());
-		const firstTickNap = Math.floor(topNap / step) * step;
+		const ticks = depthTicks(this.top, this.bottom, factors.subsurface * factors.scene);
 
-		for (let nap = firstTickNap; nap >= bottomNap; nap -= step) {
-			const ellipsoidal = nap + this.labelDatum;
-
+		for (const tick of ticks) {
 			this.labels.add({
-				position: Cesium.Cartesian3.fromRadians(
-					this.lon,
-					this.lat,
-					this.displayHeight(ellipsoidal)
-				),
-				text: `— ${formatNap(nap)}`,
+				position: Cesium.Cartesian3.fromRadians(this.lon, this.lat, displayHeight(tick)),
+				text: `— ${formatDatumHeight(tick, datum)}`,
 				font: "14px sans-serif",
 				fillColor: Cesium.Color.WHITE,
 				outlineColor: Cesium.Color.BLACK,
@@ -174,28 +129,4 @@ export class DepthScale {
 		this.labels.show = visible;
 		this.map.refresh();
 	}
-}
-
-function formatNap(z: number) {
-	const sign = z > 0 ? "+" : "";
-
-	return `${sign}${z}m NAP`;
-}
-
-/** Returns the tick interval in meters for a given vertical exaggeration
- * to prevent squishing the labels at low level of vertical exaggeration
- * and to prevent too sparse labels at high vertical exaggeration.
- */
-function tickIntervalForVe(vertExag: number): number {
-	if (vertExag >= 80) {
-		return 10;
-	}
-	if (vertExag >= 40) {
-		return 15;
-	}
-	if (vertExag >= 15) {
-		return 20;
-	}
-
-	return 40;
 }
