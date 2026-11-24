@@ -623,6 +623,10 @@ Renders a [3D Tiles voxel tileset](https://github.com/CesiumGS/3d-tiles/tree/mai
 
 Voxel data is often below ground (e.g. GeoTOP), but doesn't have to be: a voxel layer is treated as subsurface by default, set `"subsurface": false` for above-ground data. Depths are shown in the configured [vertical datum](#subsurface-layers), whose 0 is also the exaggeration pivot.
 
+Under *Slicing*, the West–East and South–North sliders read as a percentage of the volume's extent, the Bottom–Top slider in heights of the vertical datum (e.g. `-50.2m NAP – +39.8m NAP`), with the dataset's full extent below the track. Drag a slider's band to move the whole window. *Drag slice plane* adds a horizontal plane at the top cut that can be dragged up and down in the scene, labelled with its height in the datum. It is linked to the Bottom–Top slider and can be hidden or reset from the layer control.
+
+While a voxel layer is visible, FXAA is switched off regardless of the `fxaa` setting, as it slows voxel rendering down considerably. The `fxaa` setting applies again once no voxel layer is visible.
+
 |value|description|default|type|
 |-|-|-|-|
 |url|URL to tileset.json of the voxel tileset||string|
@@ -980,7 +984,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |showMouseCoordinates|Debug window in viewer to show coordinates for mouse position|false|boolean|
 |showCameraPosition|Debug window to show the current camera position, updates on move|false|boolean|
 |showLoadingWidget|Show a small bar on the bottom of the viewer showing the loading progress of layers|false|boolean|
-|fxaa|FXAA enabled|true|Boolean|
+|fxaa|FXAA enabled. Switched off while a [voxel layer](#layersettings-for-type-3dtiles-voxel) is visible|true|Boolean|
 |msaa|MSAA samples|1|number|
 |lighting|Enable lighting the globe with the scene's light source|true|boolean|
 |animate|Enable when displaying animated models else animations only update when the viewer refreshes it's view such as when panning/zooming|false|boolean|
@@ -1000,7 +1004,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |verticalExaggeration|Vertical exaggeration of the whole scene (terrain and all 3D layers), see [Cesium's `Scene.verticalExaggeration`](https://cesium.com/learn/cesiumjs/ref-doc/Scene.html#verticalExaggeration)|1|number|
 |showVerticalExaggerationSlider|Show a slider for `verticalExaggeration` in the layer manager's background controls. Useful when subsurface objects sit on raised ground (e.g. boreholes on a dike crest) and should rise with the terrain|false|boolean|
 |subsurfaceExaggeration|Initial vertical exaggeration of [subsurface layers](#subsurface-layers), away from 0 of `verticalDatum`. The slider only appears when the config contains a subsurface layer|1|number|
-|verticalDatum|Vertical reference of the project as `{ "name": string, "offset": number }`. `name` is shown in depth labels (e.g. `-2.5m NAP`), `offset` is the ellipsoidal height in meters of the datum's 0, i.e. the geoid separation of the project area. Its 0 is also the pivot of the subsurface exaggeration, see [Subsurface layers](#subsurface-layers). A missing or invalid field falls back to the default's value, with a console warning when invalid|`{ "name": "NAP", "offset": 44 }`|object|
+|verticalDatum|Vertical reference of the project as `{ "name": string, "offset": number }`. `name` is shown in depth labels (e.g. `-2.5m NAP`), `offset` is the ellipsoidal height in meters of the datum's 0, i.e. the geoid separation of the project area. Its 0 is also the pivot of the subsurface exaggeration, see [Subsurface layers](#subsurface-layers). A missing or invalid field falls back to the default's value, with a console warning when invalid|`{ "name": "NAP", "offset": 44.335 }`|object|
 |enableCollisionDetection|Prevent the camera from moving below the terrain/surface. Set to `true` to prevent going subsurface|false|boolean|
 |terrainProviders|Array of terrain providers, first in list is activated by default, leave out URL to create empty provider (see example below)|-|Terrain Provider|
 
