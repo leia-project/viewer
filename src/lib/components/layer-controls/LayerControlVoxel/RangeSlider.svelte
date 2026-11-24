@@ -114,8 +114,6 @@
 	</div>
 
 	<div class="range-row">
-		<span class="end-label">{format(min)}</span>
-
 		<div class="track" bind:this={track} on:pointerdown={onTrackDown}>
 			<div class="rail" />
 
@@ -153,7 +151,11 @@
 				on:pointerdown|stopPropagation={(event) => startDrag(event, "band")}
 			/>
 		</div>
+	</div>
 
+	<!-- below the track so long labels (e.g. "-50.2m NAP") don't shorten it -->
+	<div class="range-ends">
+		<span class="end-label">{format(min)}</span>
 		<span class="end-label">{format(max)}</span>
 	</div>
 </div>
@@ -193,12 +195,17 @@
 		gap: var(--cds-spacing-05);
 	}
 
+	.range-ends {
+		display: flex;
+		justify-content: space-between;
+		gap: var(--cds-spacing-03);
+	}
+
 	.end-label {
-		flex-shrink: 0;
-		font-family: var(--cds-code-02-font-family);
-		font-size: var(--cds-code-02-font-size);
-		letter-spacing: var(--cds-code-02-letter-spacing);
-		color: var(--cds-text-01);
+		font-family: var(--cds-code-01-font-family);
+		font-size: var(--cds-code-01-font-size);
+		letter-spacing: var(--cds-code-01-letter-spacing);
+		color: var(--cds-text-02);
 		white-space: nowrap;
 	}
 
