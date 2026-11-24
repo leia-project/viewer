@@ -18,6 +18,7 @@ import { DepthScale } from "../../depth-scale";
 import {
 	type ExaggerationFactors,
 	appliesSubsurfaceExaggeration,
+	formatDatumHeight,
 	fromRenderedHeight,
 	toRenderedHeight,
 	toSubsurfaceHeight
@@ -199,6 +200,34 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		return fromRenderedHeight(rendered, this.factors);
 	}
 
+	/** Unexaggerated provider height at normalised z position `t`, null until the bounds are loaded */
+	private heightAt(t: number): number | null {
+		if (!this.bounds) {
+			return null;
+		}
+
+		const { min, max } = this.bounds;
+
+		return min.z + t * (max.z - min.z);
+	}
+
+	/**
+	 * Height at normalised z position `t` relative to the vertical datum, e.g.
+	 * "-12.5m NAP"; null until the bounds are loaded. Provider heights are
+	 * ellipsoidal, the datum offset is the ellipsoidal height of its 0.
+	 */
+	public datumLabelAt(t: number): string | null {
+		const height = this.heightAt(t);
+
+		if (height === null) {
+			return null;
+		}
+
+		const datum = get(this.map.options.verticalDatum);
+
+		return formatDatumHeight(height - datum.offset, datum);
+	}
+
 	private get settings(): VoxelLayerSettings {
 		return this.config.settings as VoxelLayerSettings;
 	}
@@ -287,6 +316,12 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 
 			this.source = primitive;
 
+			const { minBounds, maxBounds } = provider;
+			const bounds = minBounds && maxBounds ? { min: minBounds, max: maxBounds } : null;
+
+			// Before the controls are added, so the z slider can show heights from the start
+			this.bounds = bounds;
+
 			const control = new CustomLayerControl();
 			control.component = LayerControlVoxel;
 			control.props = { layer: this };
@@ -298,11 +333,8 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				this.config.cameraPosition = getCameraPositionFromBoundingSphere(primitive.boundingSphere);
 			}
 
-			const { minBounds, maxBounds } = provider;
-
-			if (minBounds && maxBounds) {
-				this.bounds = { min: minBounds, max: maxBounds };
-
+			if (bounds) {
+				const { min: minBounds, max: maxBounds } = bounds;
 				const east = maxBounds.x; // lon
 				const nsMiddle = (minBounds.y + maxBounds.y) / 2; // lat
 
@@ -325,7 +357,7 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 					);
 				}
 
-				this.clipSlider = new VoxelClipSlider(this, this.map, this.bounds);
+				this.clipSlider = new VoxelClipSlider(this, this.map, bounds);
 				const clipControl = new CustomLayerControl();
 				clipControl.component = LayerControlVoxelClip;
 				clipControl.props = { clipSlider: this.clipSlider };

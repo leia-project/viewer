@@ -2,14 +2,7 @@ import * as Cesium from "cesium";
 import { get, type Unsubscriber } from "svelte/store";
 import { depthTicks } from "./depth-ticks";
 import type { Map } from "./map";
-import { toRenderedHeight, type VerticalDatum } from "./subsurface-exaggeration";
-
-function formatDatumHeight(z: number, datum: VerticalDatum): string {
-	const rounded = Math.round(z * 10) / 10; // round to decimeters
-	const sign = rounded > 0 ? "+" : "";
-
-	return `${sign}${rounded}m ${datum.name}`;
-}
+import { formatDatumHeight, toRenderedHeight } from "./subsurface-exaggeration";
 
 export interface DepthScaleOptions {
 	/** Draw the vertical line spanning the scale. */

@@ -14,7 +14,7 @@ function clamp({ value, min = 0, max = 1 }: { value: number; min?: number; max?:
  *
  * VoxelPrimitive supports ClippingPlaneCollection but we clip through
  * min/maxClippingBounds instead. The range sliders in the layer controls
- * already use a normalised clip window. The drag writes into the same 
+ * already use a normalised clip window. The drag writes into the same
  * `clipping` store via {@link VoxelLayer.setClip}("z", …), so plane and
  * sliders stay in sync.
  *
@@ -159,6 +159,22 @@ export class VoxelClipSlider {
 				}),
 				outline: true,
 				outlineColor: Cesium.Color.BLACK
+			},
+
+			label: {
+				text: new Cesium.CallbackProperty(
+					() => this.layer.datumLabelAt(get(this.layer.clipping).z[1]) ?? "",
+					false
+				),
+				font: "14px sans-serif",
+				fillColor: Cesium.Color.WHITE,
+				outlineColor: Cesium.Color.BLACK,
+				outlineWidth: 2,
+				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+				verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+				pixelOffset: new Cesium.Cartesian2(0, -4),
+				// Keep it readable when the camera looks at the plane from inside the volume
+				disableDepthTestDistance: Number.POSITIVE_INFINITY
 			}
 		});
 		this.entity.show = get(this.showPlane);
@@ -238,7 +254,7 @@ export class VoxelClipSlider {
 
 		const cameraDirection = this.map.viewer.scene.camera.directionWC;
 		const dotUp = Cesium.Cartesian3.dot(cameraDirection, this.up);
-		
+
 		const normal = Cesium.Cartesian3.subtract(
 			cameraDirection,
 			Cesium.Cartesian3.multiplyByScalar(this.up, dotUp, new Cesium.Cartesian3()),

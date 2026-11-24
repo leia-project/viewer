@@ -114,7 +114,7 @@
 	</div>
 
 	<div class="range-row">
-		<span class="end-label">0</span>
+		<span class="end-label">{format(min)}</span>
 
 		<div class="track" bind:this={track} on:pointerdown={onTrackDown}>
 			<div class="rail" />
@@ -146,10 +146,15 @@
 			/>
 
 			<!-- after the thumbs so `.thumb:focus ~ .band` can highlight it -->
-			<div class="band" style="left: {minPercent}%; width: {maxPercent - minPercent}%;" />
+			<div
+				class="band"
+				class:dragging={dragging === "band"}
+				style="left: {minPercent}%; width: {maxPercent - minPercent}%;"
+				on:pointerdown|stopPropagation={(event) => startDrag(event, "band")}
+			/>
 		</div>
 
-		<span class="end-label">100</span>
+		<span class="end-label">{format(max)}</span>
 	</div>
 </div>
 
@@ -232,9 +237,25 @@
 		top: 50%;
 		height: var(--cds-spacing-01);
 		background: var(--cds-ui-05);
-		pointer-events: none;
+		cursor: grab;
 		transform: translate(0, -50%);
 		transition: background 110ms cubic-bezier(0.2, 0, 0.38, 0.9);
+	}
+
+	/* increase hit area of band to make it grabable */
+	.band::before {
+		content: "";
+		position: absolute;
+		top: 50%;
+		left: 0;
+		width: 100%;
+		height: var(--cds-spacing-06);
+		transform: translate(0, -50%);
+	}
+
+	.band.dragging {
+		cursor: grabbing;
+		background-color: var(--cds-interactive-04);
 	}
 
 	.thumb {

@@ -12,7 +12,7 @@
 	$: clipping = layer.clipping;
 	$: shading = layer.shading;
 	$: terrainProvider = layer.map.options.selectedTerrainProvider;
-	// Without terrain the globe is the ellipsoid, often tens of metres off the
+	// Without terrain the globe is the ellipsoid, which for NL is ~44m off the
 	// vertical datum, so the voxels appear to float
 	$: noTerrain = !$terrainProvider?.url;
 	$: activeProp = $properties.find((p) => p.name === $selected);
@@ -26,6 +26,8 @@
 		$clipping.z[1] < 1;
 
 	const asPercent = (v: number) => `${Math.round(v * 100)}%`;
+
+	const asDatumHeight = (t: number) => layer.datumLabelAt(t) ?? asPercent(t);
 </script>
 
 {#if layer && $properties.length}
@@ -102,7 +104,7 @@
 			<RangeSlider
 				label={$_("tools.voxel.bottomTop")}
 				value={$clipping.z}
-				format={asPercent}
+				format={asDatumHeight}
 				on:change={(e) => layer.setClip("z", e.detail)}
 			/>
 

@@ -60,6 +60,14 @@ export function parseVerticalDatum(value: unknown): VerticalDatum {
 	return datum;
 }
 
+/** A height relative to the datum as a label, eg "-12.5m NAP" */
+export function formatDatumHeight(z: number, datum: VerticalDatum): string {
+	const rounded = Math.round(z * 10) / 10; // round to decimeters
+	const sign = rounded > 0 ? "+" : "";
+
+	return `${sign}${rounded}m ${datum.name}`;
+}
+
 /** Height Cesium's scene-wide vertical exaggeration stretches away from
  * (scene.verticalExaggerationRelativeHeight), which we leave at Cesium's default. */
 const SCENE_EXAGGERATION_PIVOT = 0;
