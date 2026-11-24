@@ -52,6 +52,20 @@
 			"BSD-2-Clause"
 		),
 		new Attribution(
+			"OpenLayers",
+			"Used to decode and draw vector tiles (MVT layers).",
+			"OpenLayers Contributors",
+			"https://github.com/openlayers/openlayers",
+			"BSD-2-Clause"
+		),
+		new Attribution(
+			"ol-mapbox-style",
+			"Used to apply Mapbox / MapLibre styles to vector tiles (MVT layers).",
+			"OpenLayers Contributors",
+			"https://github.com/openlayers/ol-mapbox-style",
+			"BSD-2-Clause"
+		),
+		new Attribution(
 			"carbon-components-svelte",
 			"Design System and components used in our application",
 			"carbon-components-svelte Contributors",

@@ -2,37 +2,33 @@ import * as Cesium from "cesium";
 import MVT from "ol/format/MVT.js";
 import { toContext } from "ol/render.js";
 import RenderFeature from "ol/render/Feature.js";
-
-import type { StyleFunction } from "ol/style/Style.js";
+import Style, { type StyleFunction } from "ol/style/Style.js";
 
 /* Vector tiles (MVT) as a Cesium imagery layer. Cesium has no usable MVT support
-   (MVTDataProvider is experimental and does not draw points on the terrain), so the tiles are
-   decoded here, drawn onto a canvas with OpenLayers' render functions, and handed to Cesium as
-   a regular image. This is what ol-cesium does (olcs/MVTImageryProvider), but without
-   OpenLayers' map and without ol-cesium itself.
+   (MVTDataProvider is experimental and does not drape points on the terrain), so the tiles are
+   decoded with OpenLayers, drawn onto a canvas with OpenLayers' render functions, and handed to
+   Cesium as a regular image.
 
-   - Tiles of 512 px: features are drawn in 256 units (so line widths match a 256 px tile),
-     but on a 2x canvas, so sharper.
-   - An image is fixed once drawn: a different style means a new provider. That is why the
-     style is an argument, and the decoded tiles can be shared (`featureCache`), so a new
-     provider (other style, highlight) does not download anything again.
-   - Selection goes through Cesium itself: `pickFeatures` is called with the tile under the
-     click, and finds the features at that spot in the decoded geometry. */
+   - An image is fixed once drawn: a different style means a new provider. Providers of the
+     same layer share their decoded tiles (`cache`), so a new provider fetches nothing again.
+   - Clicking goes through Cesium: it calls `pickFeatures` with the tile under the click, which
+     looks the features up in the decoded geometry. */
 
-const TILE_UNITS = 256; // drawing units per tile
-const PIXEL_RATIO = 2; // pixels per unit: 512 px per tile
-const TILE_SIZE = TILE_UNITS * PIXEL_RATIO;
+const TILE_UNITS = 256; // drawing units per tile, so line widths match a 256 px tile
+const PIXEL_RATIO = 2; // drawn at 512 px, so the tiles stay sharp
 const MVT_EXTENT = 4096; // coordinates in an MVT tile run from 0 to 4096
-const HIT_TOLERANCE_PX = 6; // this close to a line or point counts as a click on it
-const MAX_LEVEL = 18;
+const HIT_TOLERANCE = 3; // in drawing units: this close to a line or point counts as a hit
+const CACHE_SIZE = 300; // decoded tiles kept per layer
 
-/* A distinct property name for the tile layer name, so a property called "layer" is not
-   overwritten by it (that is OpenLayers' default name). */
-const LAYER_PROPERTY = "_layer";
+/* The feature property that holds the name of the tile layer. This is OpenLayers' default, and
+   where a Mapbox style (see mvt-gl-style) looks for it. */
+const LAYER_PROPERTY = "mvt:layer";
 const format = new MVT({ featureClass: RenderFeature, layerName: LAYER_PROPERTY });
 
-/* What counts as "the same feature" when selecting: the feature id in the tile, otherwise
-   its properties. */
+/* Decoded tiles by "z/x/y". */
+export type TileCache = Map<string, RenderFeature[]>;
+
+/* What counts as "the same feature" for the highlight: its id, otherwise its properties. */
 export function featureKey(feature: {
 	getId(): string | number | undefined;
 	getProperties(): object;
@@ -41,84 +37,35 @@ export function featureKey(feature: {
 	return id !== undefined ? String(id) : JSON.stringify(feature.getProperties());
 }
 
-/* A small LRU cache (the oldest entry is dropped), for the decoded tiles. */
-export class LruCache<T> {
-	private entries = new Map<string, T>();
-	constructor(private readonly size: number) {}
-
-	get(key: string): T | undefined {
-		const value = this.entries.get(key);
-		if (value !== undefined) {
-			this.entries.delete(key);
-			this.entries.set(key, value);
-		}
-		return value;
-	}
-
-	set(key: string, value: T): void {
-		this.entries.delete(key);
-		this.entries.set(key, value);
-		if (this.entries.size > this.size) this.entries.delete(this.entries.keys().next().value!);
-	}
-
-	delete(key: string): void {
-		this.entries.delete(key);
-	}
-}
-
-export type FeatureCache = LruCache<Promise<RenderFeature[]>>;
-
 export interface MvtImageryProviderOptions {
-	/* URL template with {z}, {x} and {y}. */
-	url: string;
-	/* Headers for each tile request (e.g. an API key). A function, so such a key does not have
-	   to be in the visible layer settings. */
-	headers?: () => Record<string, string>;
-	/* How a feature is drawn; `undefined` = not drawn (and therefore not selectable either). */
-	style: StyleFunction;
-	/* Decoded tiles, to share with other providers of the same source. */
-	featureCache?: FeatureCache;
-	/* [west, south, east, north] in degrees: no tiles are requested outside it. */
-	extent?: [number, number, number, number];
-	/* Deepest level at which tiles are requested; beyond it Cesium stretches the image. */
-	maximumLevel?: number;
-	/* Reports a tile that could not be loaded or drawn; the tile then stays empty. */
-	onError?: (error: Error) => void;
-	/* Can features be selected? Not for the highlight layer: it sits on top. */
-	pickable?: boolean;
-	/* How many levels deeper than the rest of the globe this layer picks its tiles (default 1).
-	   Cesium picks the level of an imagery layer per terrain tile, based on the `tileWidth`
-	   the provider reports; each step halves that reported width, so Cesium picks one level
-	   deeper. Tiles are still drawn at 512 px. Terrain, other imagery layers and 3D tiles are
-	   not affected. Each step costs about 4x as many tiles. */
-	detail?: number;
+	url: string; // URL template with {z}, {x} and {y}
+	headers?: () => Record<string, string>; // for each tile request, e.g. an API key
+	style: StyleFunction; // returns nothing for a feature that should not be drawn
+	cache: TileCache;
+	extent?: [number, number, number, number]; // [west, south, east, north] in degrees
+	maximumLevel?: number; // deeper than this, Cesium stretches the tiles of this level
+	minimumDataLevel?: number; // shallower than this the service has no data: nothing is requested
+	pickable: boolean; // false for the highlight layer, which sits on top of the layer itself
+	onError: (error: unknown) => void;
 }
 
 export class MvtImageryProvider {
-	/* What Cesium expects from an imagery provider. */
+	/* What Cesium expects from an imagery provider. The canvas is 512 px, but Cesium is told
+	   256: it picks the tile level from this width, so it picks one level finer, which keeps
+	   lines and labels sharp. */
 	readonly tilingScheme = new Cesium.WebMercatorTilingScheme();
 	readonly rectangle: Cesium.Rectangle;
-	/* What Cesium takes the tile width to be (see `detail`); the canvas is always TILE_SIZE. */
-	readonly tileWidth: number;
-	readonly tileHeight: number;
+	readonly tileWidth = TILE_UNITS;
+	readonly tileHeight = TILE_UNITS;
 	readonly minimumLevel = 0;
 	readonly maximumLevel: number;
 	readonly hasAlphaChannel = true;
 	readonly errorEvent = new Cesium.Event();
-	readonly credit = undefined;
-	readonly proxy = undefined;
-	readonly tileDiscardPolicy = undefined;
 
-	private readonly options: MvtImageryProviderOptions;
-	private readonly featureCache: FeatureCache;
 	private emptyTile: HTMLCanvasElement | undefined;
 
-	constructor(options: MvtImageryProviderOptions) {
-		this.options = options;
-		this.featureCache = options.featureCache ?? new LruCache(300);
-		this.maximumLevel = options.maximumLevel ?? MAX_LEVEL;
-		const detail = Math.max(0, Math.min(3, Math.round(options.detail ?? 1)));
-		this.tileWidth = this.tileHeight = TILE_SIZE / 2 ** detail;
+	constructor(private readonly options: MvtImageryProviderOptions) {
+		this.maximumLevel = options.maximumLevel ?? 18;
 		this.rectangle = options.extent
 			? Cesium.Rectangle.fromDegrees(...options.extent)
 			: this.tilingScheme.rectangle;
@@ -128,17 +75,28 @@ export class MvtImageryProvider {
 		return [];
 	}
 
-	requestImage(x: number, y: number, level: number): Promise<HTMLCanvasElement> {
-		return this.tileFeatures(level, x, y).then(
-			(features) => this.rasterize(features),
+	/* `request` comes from Cesium, which uses it to limit the number of requests per server
+	   (shared with e.g. terrain from the same server) and to cancel requests for tiles that are
+	   no longer needed. Returning undefined means "too many requests, ask again later". */
+	requestImage(
+		x: number,
+		y: number,
+		level: number,
+		request?: Cesium.Request
+	): Promise<HTMLCanvasElement> | undefined {
+		if (level < (this.options.minimumDataLevel ?? 0)) return Promise.resolve(this.empty());
+		return this.tileFeatures(level, x, y, request)?.then(
+			(features) => this.draw(features, level),
 			(error) => {
-				this.options.onError?.(error instanceof Error ? error : new Error(String(error)));
+				/* Rejecting a cancelled request makes Cesium ask again when it needs the tile. */
+				if (request?.state === Cesium.RequestState.CANCELLED) throw error;
+				this.options.onError(error);
 				return this.empty();
 			}
 		);
 	}
 
-	/* Cesium calls this with the tile (x, y, level) under the click and the position in it. */
+	/* Cesium calls this on a click, with the tile under it and the position (in radians). */
 	pickFeatures(
 		x: number,
 		y: number,
@@ -146,56 +104,80 @@ export class MvtImageryProvider {
 		longitude: number,
 		latitude: number
 	): Promise<Cesium.ImageryLayerFeatureInfo[]> | undefined {
-		if (this.options.pickable === false) return undefined;
-		return this.tileFeatures(level, x, y).then(
-			(features) => {
-				const [px, py] = this.tileCoordinates(x, y, level, longitude, latitude);
-				return pickAt(features, px, py, HIT_TOLERANCE_PX / PIXEL_RATIO, this.options.style).map(
+		if (!this.options.pickable || level < (this.options.minimumDataLevel ?? 0)) return undefined;
+		const [px, py] = this.tileCoordinates(x, y, level, longitude, latitude);
+		return this.tileFeatures(level, x, y)?.then(
+			(features) =>
+				pickAt(features, px, py, (feature) => this.options.style(feature, resolution(level))).map(
 					toFeatureInfo
-				);
-			},
+				),
 			() => []
 		);
 	}
 
-	/* The decoded features of a tile, from the cache or the server. A failed tile does not stay
-	   in the cache: it is retried the next time. */
-	private tileFeatures(z: number, x: number, y: number): Promise<RenderFeature[]> {
+	/* The decoded features of a tile, from the cache or the server. */
+	private tileFeatures(
+		z: number,
+		x: number,
+		y: number,
+		request?: Cesium.Request
+	): Promise<RenderFeature[]> | undefined {
 		const key = `${z}/${x}/${y}`;
-		let promise = this.featureCache.get(key);
-		if (!promise) {
-			promise = this.load(z, x, y);
-			this.featureCache.set(key, promise);
-			promise.catch(() => this.featureCache.delete(key));
-		}
-		return promise;
-	}
+		const cached = this.options.cache.get(key);
+		if (cached) return Promise.resolve(cached);
 
-	private async load(z: number, x: number, y: number): Promise<RenderFeature[]> {
 		const url = this.options.url
 			.replace("{z}", String(z))
 			.replace("{x}", String(x))
 			.replace("{y}", String(y));
-		const response = await fetch(url, { headers: this.options.headers?.() });
-		/* A tile without features is not an error: 204, or 404 with some services. */
-		if (response.status === 204 || response.status === 404) return [];
-		if (!response.ok) throw new Error(`Fetching tile ${z}/${x}/${y} failed: ${response.status}`);
-		return decode(await response.arrayBuffer());
+		const response = new Cesium.Resource({
+			url,
+			headers: this.options.headers?.(),
+			request
+		}).fetchArrayBuffer();
+		if (!response) return undefined;
+
+		return response
+			.then(
+				/* An empty tile may come back as 204 (no buffer) or 404. */
+				(buffer) => (buffer ? decode(buffer) : []),
+				(error) => {
+					if (error?.statusCode === 404) return [];
+					throw error;
+				}
+			)
+			.then((features) => {
+				const cache = this.options.cache;
+				cache.set(key, features);
+				if (cache.size > CACHE_SIZE) cache.delete(cache.keys().next().value!);
+				return features;
+			});
 	}
 
-	private rasterize(features: RenderFeature[]): HTMLCanvasElement {
+	private draw(features: RenderFeature[], level: number): HTMLCanvasElement {
 		const canvas = document.createElement("canvas");
 		const context = toContext(canvas.getContext("2d")!, {
 			size: [TILE_UNITS, TILE_UNITS],
 			pixelRatio: PIXEL_RATIO
 		});
+
+		/* First style all features, then draw in zIndex order: a Mapbox style uses it for its
+		   layer order (all fills, then all outlines, then labels). */
+		const draws: { style: Style; geometry: RenderFeature }[] = [];
 		for (const feature of features) {
-			const styles = this.options.style(feature, 1);
+			const styles = this.options.style(feature, resolution(level));
 			if (!styles) continue;
 			for (const style of Array.isArray(styles) ? styles : [styles]) {
-				context.setStyle(style);
-				context.drawGeometry(feature);
+				/* A style may draw at a geometry of its own, e.g. a label at a point of a polygon. */
+				const geometry = style.getGeometryFunction()(feature) as RenderFeature | undefined;
+				if (geometry) draws.push({ style: copy(style), geometry });
 			}
+		}
+		draws.sort((a, b) => (a.style.getZIndex() ?? 0) - (b.style.getZIndex() ?? 0));
+
+		for (const { style, geometry } of draws) {
+			context.setStyle(style);
+			context.drawGeometry(geometry);
 		}
 		return canvas;
 	}
@@ -203,13 +185,12 @@ export class MvtImageryProvider {
 	private empty(): HTMLCanvasElement {
 		if (!this.emptyTile) {
 			this.emptyTile = document.createElement("canvas");
-			this.emptyTile.width = TILE_SIZE;
-			this.emptyTile.height = TILE_SIZE;
+			this.emptyTile.width = this.emptyTile.height = TILE_UNITS * PIXEL_RATIO;
 		}
 		return this.emptyTile;
 	}
 
-	/* The position (longitude and latitude, in radians) as drawing units within the tile. */
+	/* A position (in radians) as drawing units within a tile. */
 	private tileCoordinates(
 		x: number,
 		y: number,
@@ -228,42 +209,95 @@ export class MvtImageryProvider {
 	}
 }
 
+/* The map resolution of a tile level, as style functions expect it. That of a 512 px tile, so
+   the zoom a Mapbox style derives from it equals the tile level. */
+function resolution(level: number): number {
+	return 78271.51696402048 / 2 ** level;
+}
+
+/* A copy of a style. Style functions may reuse their Style objects for the next feature
+   (ol-mapbox-style does: it sets new colours on the same Fill and Stroke), while the drawing
+   only starts after all features have been styled. The image (icon, circle) is not copied:
+   those are not changed afterwards. */
+function copy(style: Style): Style {
+	return new Style({
+		fill: style.getFill()?.clone(),
+		stroke: style.getStroke()?.clone(),
+		text: style.getText()?.clone(),
+		image: style.getImage() ?? undefined,
+		zIndex: style.getZIndex()
+	});
+}
+
 function decode(buffer: ArrayBuffer): RenderFeature[] {
 	if (buffer.byteLength === 0) return [];
 	const features = format.readFeatures(buffer) as RenderFeature[];
-	/* Coordinates arrive in tile units (0..4096); drawing is done in 256. */
-	const scale = TILE_UNITS / MVT_EXTENT;
+	/* From tile coordinates (0-4096) to drawing units (0-256). */
 	for (const feature of features) {
 		const coordinates = feature.getFlatCoordinates();
-		for (let i = 0; i < coordinates.length; i++) coordinates[i] *= scale;
+		for (let i = 0; i < coordinates.length; i++) coordinates[i] *= TILE_UNITS / MVT_EXTENT;
 	}
 	return features;
 }
 
-/* --- Which features are at a position? ------------------------------------------------
-   To Cesium a tile is just an image, so the features under the cursor have to come from the
-   decoded geometry. Points and lines go before polygons, otherwise the polygon under a road
-   always wins and thin lines cannot be selected. */
+/* --- Which features are at a position? ---------------------------------------------------- */
 
-const RANK = { point: 0, line: 1, polygon: 2 } as const;
-
-function rankOf(type: string): number {
-	return type.endsWith("Point")
-		? RANK.point
-		: type.endsWith("LineString")
-			? RANK.line
-			: RANK.polygon;
+/* The drawn features (`isDrawn`) near a position, best match first: points, then lines (the
+   nearest first), then polygons (the topmost first). Otherwise the polygon under a road would
+   always win, and thin lines could not be clicked at all. */
+function pickAt(
+	features: RenderFeature[],
+	px: number,
+	py: number,
+	isDrawn: (feature: RenderFeature) => unknown
+): RenderFeature[] {
+	const rank = (feature: RenderFeature) => {
+		const type = feature.getType();
+		return type.endsWith("Point") ? 0 : type.endsWith("LineString") ? 1 : 2;
+	};
+	return features
+		.map((feature, order) => ({
+			feature,
+			order,
+			rank: rank(feature),
+			distance: distanceTo(feature, px, py)
+		}))
+		.filter((hit) => hit.distance <= HIT_TOLERANCE && isDrawn(hit.feature))
+		.sort((a, b) => a.rank - b.rank || (a.rank === 2 ? b.order - a.order : a.distance - b.distance))
+		.map((hit) => hit.feature);
 }
 
-/* The parts (lines, rings) of a geometry as [start, end) in the flat coordinate list. */
-function parts(coordinates: ArrayLike<number>, ends: number[] | null): [number, number][] {
-	const result: [number, number][] = [];
+/* The distance from a position to a feature: 0 inside a polygon, otherwise the distance to the
+   nearest point, line segment or polygon edge. */
+function distanceTo(feature: RenderFeature, px: number, py: number): number {
+	const c = feature.getFlatCoordinates();
+	if (feature.getType().endsWith("Point")) {
+		let min = Infinity;
+		for (let i = 0; i < c.length; i += 2) min = Math.min(min, Math.hypot(px - c[i], py - c[i + 1]));
+		return min;
+	}
+
+	let min = Infinity;
+	let inside = false;
 	let start = 0;
-	for (const end of ends?.length ? ends : [coordinates.length]) {
-		result.push([start, end]);
+	/* `ends`: where each line or ring ends in the flat coordinate list. */
+	const ends = feature.getEnds() as number[] | null;
+	for (const end of ends?.length ? ends : [c.length]) {
+		for (let i = start; i + 3 < end; i += 2) {
+			min = Math.min(min, distanceToSegment(px, py, c[i], c[i + 1], c[i + 2], c[i + 3]));
+		}
+		if (feature.getType() === "Polygon") {
+			/* Even-odd rule over all rings, which takes care of holes. */
+			for (let i = start, j = end - 2; i < end; j = i, i += 2) {
+				const crosses = c[i + 1] > py !== c[j + 1] > py;
+				if (crosses && px < ((c[j] - c[i]) * (py - c[i + 1])) / (c[j + 1] - c[i + 1]) + c[i]) {
+					inside = !inside;
+				}
+			}
+		}
 		start = end;
 	}
-	return result;
+	return inside ? 0 : min;
 }
 
 function distanceToSegment(
@@ -284,73 +318,20 @@ function distanceToSegment(
 	return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
 }
 
-/* How far a position is from a feature: 0 inside a polygon, otherwise the distance to the
-   nearest point, line segment or polygon edge. */
-export function distanceTo(feature: RenderFeature, px: number, py: number): number {
-	const type = feature.getType();
-	const c = feature.getFlatCoordinates();
-
-	if (type.endsWith("Point")) {
-		let min = Infinity;
-		for (let i = 0; i + 1 < c.length; i += 2)
-			min = Math.min(min, Math.hypot(px - c[i], py - c[i + 1]));
-		return min;
-	}
-
-	let min = Infinity;
-	let inside = false;
-	for (const [start, end] of parts(c, feature.getEnds() as number[] | null)) {
-		for (let i = start; i + 3 < end; i += 2) {
-			min = Math.min(min, distanceToSegment(px, py, c[i], c[i + 1], c[i + 2], c[i + 3]));
-		}
-		if (type === "Polygon") {
-			/* Even-odd over all rings: holes and separate parts of a multipolygon are handled automatically. */
-			for (let i = start, j = end - 2; i < end; j = i, i += 2) {
-				if (
-					c[i + 1] > py !== c[j + 1] > py &&
-					px < ((c[j] - c[i]) * (py - c[i + 1])) / (c[j + 1] - c[i + 1]) + c[i]
-				) {
-					inside = !inside;
-				}
-			}
-		}
-	}
-	return inside ? 0 : min;
-}
-
-/* The features within `tolerance` units of a position that are also drawn (`style` returns
-   something), best first: points, then lines (nearest first), then polygons (topmost first). */
-export function pickAt(
-	features: RenderFeature[],
-	px: number,
-	py: number,
-	tolerance: number,
-	style: StyleFunction
-): RenderFeature[] {
-	const hits: { feature: RenderFeature; rank: number; distance: number; order: number }[] = [];
-	features.forEach((feature, order) => {
-		const distance = distanceTo(feature, px, py);
-		if (distance <= tolerance && style(feature, 1)) {
-			hits.push({ feature, rank: rankOf(feature.getType()), distance, order });
-		}
-	});
-	/* For polygons the last one drawn wins, because it is on top. */
-	hits.sort(
-		(a, b) =>
-			a.rank - b.rank || (a.rank === RANK.polygon ? b.order - a.order : a.distance - b.distance)
-	);
-	return hits.map((hit) => hit.feature);
-}
-
-/* A found feature as Cesium and the viewer's feature info expect it. `data.key` is what
+/* A feature as Cesium and the viewer's feature info expect it. `data.key` is what
    MvtLayer.select needs for the highlight. */
 function toFeatureInfo(feature: RenderFeature): Cesium.ImageryLayerFeatureInfo {
-	const { [LAYER_PROPERTY]: _tileLayer, ...properties } = feature.getProperties();
+	/* Leave out what OpenLayers and ol-mapbox-style add to the properties. */
+	const {
+		[LAYER_PROPERTY]: _layer,
+		"mapbox-layer": _styleLayer,
+		...properties
+	} = feature.getProperties();
 	const id = feature.getId();
 	const info = new Cesium.ImageryLayerFeatureInfo();
 	/* `properties` is missing from Cesium's typings, but the viewer's feature info reads it. */
 	(info as unknown as { properties: object }).properties = {
-		...(id !== undefined ? { id } : {}),
+		...(id !== undefined && { id }),
 		...properties
 	};
 	info.name = String(properties["name"] ?? id ?? "");

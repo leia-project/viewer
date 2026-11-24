@@ -203,6 +203,10 @@
             "capabilitiesError": "Kon geen lagen ophalen van deze service. Voer de laagnaam handmatig in.",
             "layers": "Lagen",
             "arcgisLayersPlaceholder": "Komma-gescheiden lijst van ArcGIS-kaartlagen",
+            "maxZoom": "Maximaal zoomniveau",
+            "maxZoomPlaceholder": "Optioneel, standaard 18",
+            "styleUrl": "Stijl-URL (Mapbox / MapLibre)",
+            "styleUrlHelper": "Optioneel: een style.json met sprite en labels. Vervangt de kleurinstellingen.",
             "modelUrl": "Model-URL",
             "timeKey": "Tijdsleutel",
             "orientationKey": "Oriëntatiesleutel"

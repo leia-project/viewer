@@ -32,9 +32,7 @@ export interface DataDrivenStyle {
 	fallbackColor: string; // for features without a (usable) value, and for rules: when no rule matches
 }
 
-/* One class with its own condition: "> 20", ">= 20", "< 5", "= 3", "between 5 and 20" (bounds
-   inclusive). A colour can never end up with the wrong class this way, which could happen with
-   separate lists of breaks and colours. */
+/* One class with its own condition, e.g. "> 20" or "between 5 and 20" (bounds inclusive). */
 export interface ColorRule {
 	op: ">" | ">=" | "<" | "<=" | "=" | "between";
 	value: number;
@@ -43,36 +41,7 @@ export interface ColorRule {
 	label: string; // the condition, for the legend
 }
 
-const NUMBER = "(-?\\d+(?:[.,]\\d+)?)";
-const COMPARISON = new RegExp(`^(>=|<=|=>|=<|==|>|<|=)\\s*${NUMBER}$`);
-const BETWEEN = new RegExp(
-	`^(?:between|tussen|entre)\\s+${NUMBER}\\s+(?:and|en|et)\\s+${NUMBER}$`,
-	"i"
-);
-const toNumber = (text: string) => Number(text.replace(",", "."));
-
-/* A condition as text to a rule; throws with an explanation if it cannot be parsed. */
-export function parseCondition(condition: string, color: string): ColorRule {
-	const text = condition.trim().replace(/\s+/g, " ");
-	const between = BETWEEN.exec(text);
-	if (between) {
-		const [low, high] = [toNumber(between[1]), toNumber(between[2])].sort((a, b) => a - b);
-		return { op: "between", value: low, to: high, color, label: `${low} – ${high}` };
-	}
-	const comparison = COMPARISON.exec(text);
-	if (!comparison) {
-		throw new Error(
-			`The condition "${condition}" cannot be parsed. Use for example "> 20", ">= 20", "< 5", "= 3" or "between 5 and 20".`
-		);
-	}
-	const op =
-		({ "=>": ">=", "=<": "<=", "==": "=" } as Record<string, ColorRule["op"]>)[comparison[1]] ??
-		(comparison[1] as ColorRule["op"]);
-	const value = toNumber(comparison[2]);
-	return { op, value, color, label: `${op === ">=" ? "≥" : op === "<=" ? "≤" : op} ${value}` };
-}
-
-export function ruleMatches(rule: ColorRule, n: number): boolean {
+function ruleMatches(rule: ColorRule, n: number): boolean {
 	switch (rule.op) {
 		case ">":
 			return n > rule.value;
@@ -112,10 +81,7 @@ export function nextLayerStyle(): LayerStyle {
 /* The colour of a feature when colouring by property. Categorical values are compared as text,
    a feature without a (usable) value gets the fallback colour, and a graduated class starts at
    its lower bound. */
-export function dataDrivenColor(
-	style: DataDrivenStyle,
-	properties: Record<string, unknown>
-): string {
+function dataDrivenColor(style: DataDrivenStyle, properties: Record<string, unknown>): string {
 	const value = properties[style.property];
 	const blank = value === undefined || value === null || value === "";
 
