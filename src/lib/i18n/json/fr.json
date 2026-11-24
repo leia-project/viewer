@@ -194,6 +194,10 @@
             "capabilitiesError": "Impossible de récupérer les couches de ce service. Saisissez le nom de la couche manuellement.",
             "layers": "Couches",
             "arcgisLayersPlaceholder": "Liste de couches de carte ArcGIS séparées par des virgules",
+            "maxZoom": "Niveau de zoom maximal",
+            "maxZoomPlaceholder": "Facultatif, 18 par défaut",
+            "styleUrl": "URL du style (Mapbox / MapLibre)",
+            "styleUrlHelper": "Facultatif : un style.json avec sprite et étiquettes. Remplace les réglages de couleur.",
             "modelUrl": "URL du modèle",
             "timeKey": "Clé de temps",
             "orientationKey": "Clé d'orientation"
@@ -226,6 +230,11 @@
             "delete": "Supprimer",
             "colorRandomizer": "Couleur aléatoire",
             "allOther": "Tous les autres",
+            "styleDefault": "Par défaut",
+            "fillColor": "Remplissage",
+            "strokeColor": "Contour",
+            "strokeWidth": "Épaisseur de ligne",
+            "pointRadius": "Taille des points",
             "legendProperties": {
                 "flood_depth": "Profondeur d'inondation"
             }

@@ -196,6 +196,10 @@
             "capabilitiesError": "Could not retrieve layers from this service. Enter the layer name manually.",
             "layers": "Layers",
             "arcgisLayersPlaceholder": "Comma-separated list of ArcGIS map layers",
+            "maxZoom": "Maximum zoom level",
+            "maxZoomPlaceholder": "Optional, default 18",
+            "styleUrl": "Style URL (Mapbox / MapLibre)",
+            "styleUrlHelper": "Optional: a style.json with sprite and labels. Replaces the colour settings.",
             "modelUrl": "Model URL",
             "timeKey": "Time key",
             "orientationKey": "Orientation key"
@@ -228,6 +232,11 @@
             "delete": "Delete",
             "colorRandomizer": "Color randomizer",
             "allOther": "All other",
+            "styleDefault": "Default",
+            "fillColor": "Fill",
+            "strokeColor": "Outline",
+            "strokeWidth": "Line width",
+            "pointRadius": "Point size",
             "legendProperties": {
                 "flood_depth": "Flood Depth"
             }

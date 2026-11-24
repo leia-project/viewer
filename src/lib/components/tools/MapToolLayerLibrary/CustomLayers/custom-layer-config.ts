@@ -5,6 +5,25 @@ import { buildGetCapabilitiesUrl } from "./capabilities";
 import { v4 as uuid } from '@lukeed/uuid';
 
 
+/** Empty (use the layer default) or a whole zoom level between 0 and 24. */
+function isValidMaxZoom(value: unknown): boolean {
+	if (value === undefined || value === null || value === "") return true;
+	const zoom = Number(value);
+	return Number.isInteger(zoom) && zoom >= 0 && zoom <= 24;
+}
+
+
+/** Empty, or an http(s) URL. */
+export function isOptionalHttpUrl(value: unknown): boolean {
+	if (value === undefined || value === null || String(value).trim() === "") return true;
+	try {
+		return ["https:", "http:"].includes(new URL(String(value)).protocol);
+	} catch {
+		return false;
+	}
+}
+
+
 export class CustomLayerConfigTracker extends Dispatcher {
 	
 	public layerConfig: LayerConfig;
@@ -93,14 +112,16 @@ export class CustomLayerConfigTracker extends Dispatcher {
 	}
 
 	private validateType(type: string): boolean {
-		return ["3dtiles", "wms", "wmts", "geojson", "modelanimation", "arcgis"].includes(type);
+		return ["3dtiles", "wms", "wmts", "geojson", "modelanimation", "arcgis", "mvt"].includes(type);
 	}
 
 	private validateSettings(settings: any = this.layerConfig.settings): boolean {
 		if (["wms", "wmts"].includes(this.layerConfig.type) && !settings["featureName"]) return false;
 		if (["wms", "wmts"].includes(this.layerConfig.type) && !String(settings["contenttype"] ?? "").trim()) return false;
 		if (this.layerConfig.type === "modelanimation" && (!settings["modelUrl"] || !settings["timeKey"])) return false;
-		else return true;
+		if (this.layerConfig.type === "mvt" && !isValidMaxZoom(settings["maxZoom"])) return false;
+		if (this.layerConfig.type === "mvt" && !isOptionalHttpUrl(settings["styleUrl"])) return false;
+		return true;
 	}
 
 	private validateUrl(settings: any = this.layerConfig.settings): boolean {
@@ -116,6 +137,8 @@ export class CustomLayerConfigTracker extends Dispatcher {
 			//if (this.layerConfig.type === "wmts" && !href.includes("wmts")) return false;
 			if (this.layerConfig.type === "geojson" && !pathname.endsWith(".geojson")) return false;
 			if (this.layerConfig.type === "modelanimation" && !pathname.endsWith(".geojson")) return false;
+			// Checked on the raw string: URL() percent-encodes the braces of the template.
+			if (this.layerConfig.type === "mvt" && !["{z}", "{x}", "{y}"].every((p) => settings.url.includes(p))) return false;
 			return true; 
 		} catch {
 			return false;
@@ -142,13 +165,17 @@ export class CustomLayerConfigTracker extends Dispatcher {
 		if (!url || !get(this.validUrl)) return false;
 		if (this.layerConfig.type === "wms") url = buildGetCapabilitiesUrl(url, "wms");
 		if (this.layerConfig.type === "wmts") url = buildGetCapabilitiesUrl(url, "wmts");
+		// An MVT URL is a template: request the top-level tile. Empty tiles may come back as
+		// 204 or 404, so any HTTP response (i.e. reachable, with CORS allowed) counts.
+		const isMvt = this.layerConfig.type === "mvt";
+		if (isMvt) url = url.replace("{z}", "0").replace("{x}", "0").replace("{y}", "0");
 
 		const controller = new AbortController();
 		const timeout = setTimeout(() => controller.abort(), 1000); // if no response after 1000ms, then consider the request as failed
 
 		return fetch(url, { signal: controller.signal }).then((response) => {
 			clearTimeout(timeout)
-			return (response.status === 200)
+			return isMvt ? response.status < 500 : response.status === 200;
 		}).catch(() => {
 			clearTimeout(timeout)
 			return false;

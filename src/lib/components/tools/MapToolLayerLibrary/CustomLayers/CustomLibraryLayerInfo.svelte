@@ -1,12 +1,12 @@
 <script lang="ts">
     import { createEventDispatcher, onDestroy } from "svelte";
     import { _ } from "svelte-i18n";
-    import { Checkbox, Dropdown, TextInput, Button, ComboBox } from "carbon-components-svelte";
+    import { Checkbox, Dropdown, TextInput, NumberInput, Button, ComboBox } from "carbon-components-svelte";
     import { Add, Subtract, TrashCan } from "carbon-icons-svelte";
     import { fetchCapabilitiesLayers, pickPreferredFormat, type CapabilitiesLayer } from "./capabilities";
 
 	import Divider from "$lib/components/theme/Divider/Divider.svelte";
-    import type { CustomLayerConfigTracker } from "./custom-layer-config";
+    import { isOptionalHttpUrl, type CustomLayerConfigTracker } from "./custom-layer-config";
 
     export let custom: CustomLayerConfigTracker;
 
@@ -132,7 +132,8 @@
                         { id: "wmts", text: "WMTS" },
                         { id: "geojson", text: "GeoJSON" },
                         { id: "modelanimation", text: "Animated model from GeoJSON" },
-                        { id: "arcgis", text: "ArcGIS Map Service" }
+                        { id: "arcgis", text: "ArcGIS Map Service" },
+                        { id: "mvt", text: "Vector tiles (MVT)" }
                     ]}
                     on:select={(e) => type.set(e.detail.selectedId)}
                     invalid={!$typeValidation}
@@ -143,7 +144,7 @@
                 <div class="input-field">
                     <div class="input-field-label">{$_("tools.layerLibrary.url")}</div>
                     <TextInput
-                        placeholder={$_("https://")}
+                        placeholder={$type === "mvt" ? "https://example.com/tiles/{z}/{x}/{y}.pbf" : $_("https://")}
                         bind:value={$settings.url}
                         invalid={!$urlValidation}
                         invalidText={$_("tools.layerLibrary.invalidUrlText")}
@@ -227,6 +228,31 @@
                     <TextInput
                         placeholder={$_("tools.layerLibrary.arcgisLayersPlaceholder")}
                         bind:value={$settings.layers}
+                    />
+                </div>
+            {/if}
+
+            {#if $type === "mvt"}
+                <div class="input-field">
+                    <div class="input-field-label">{$_("tools.layerLibrary.styleUrl")}</div>
+                    <TextInput
+                        placeholder="https://example.com/style.json"
+                        helperText={$_("tools.layerLibrary.styleUrlHelper")}
+                        bind:value={$settings.styleUrl}
+                        invalid={!isOptionalHttpUrl($settings.styleUrl)}
+                        invalidText={$_("tools.layerLibrary.invalidUrlText")}
+                    />
+                </div>
+                <div class="input-field">
+                    <div class="input-field-label">{$_("tools.layerLibrary.maxZoom")}</div>
+                    <NumberInput
+                        hideLabel
+                        allowEmpty
+                        min={0}
+                        max={24}
+                        step={1}
+                        placeholder={$_("tools.layerLibrary.maxZoomPlaceholder")}
+                        bind:value={$settings.maxZoom}
                     />
                 </div>
             {/if}

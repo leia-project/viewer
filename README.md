@@ -292,7 +292,7 @@ Layer definition
 |value|description|type|
 |-|-|-|
 |id|Unique layer id|string|
-|type|Layer type, supported layer types:<br /> ```basiskaart```, ```wms```, ```wmts```, ```tms```, ```vectortiles```, ```3dtiles```, ```geojson```, ```modelanimation```, ```custom```|string|
+|type|Layer type, supported layer types:<br /> ```basiskaart```, ```wms```, ```wmts```, ```tms```, ```vectortiles```, ```3dtiles```, ```geojson```, ```mvt```, ```modelanimation```, ```custom```|string|
 |title|Layer title|string|
 |groupId|Id of the group where this layer belongs to or empty string, will be placed under uncategorized in library|string|
 |description|Simple text field in which a layer description can be provided|string|
@@ -588,6 +588,43 @@ It is possible to filter 3D tiles based on properties of a feature. The value of
 }
 ```
 
+
+#### LayerSettings for type mvt
+
+Mapbox Vector Tiles (MVT / `.pbf`) from an XYZ tile service. The tiles are decoded and drawn in the browser with [OpenLayers](https://openlayers.org/) and shown as an imagery layer draped on the terrain, so points, lines and polygons all follow the terrain. Features are clickable (feature info) and the clicked feature is highlighted.
+
+The layer is drawn either with a Mapbox / MapLibre style (`styleUrl`, including its icons and labels), or with a built-in style. For the built-in style, the layer manager offers controls for fill and outline colour, line width, point size and, when `properties` are configured together with a `classes` function, colouring by property.
+
+|value|description|default|type|
+|-|-|-|-|
+|url|URL template of the tiles, with `{z}`, `{x}` and `{y}`. The tiles must use the Web Mercator grid (EPSG:3857, `WebMercatorQuad` in OGC API Tiles)||string|
+|extent|`[west, south, east, north]` in degrees. No tiles are requested outside it, and it is used for "zoom to layer". An extent in another CRS is ignored with a warning||array|
+|minZoom|Shallowest zoom level at which the service has tiles; zoomed out further, nothing is requested|from `styleUrl`, otherwise 0|number|
+|maxZoom|Deepest zoom level at which tiles are requested; beyond it the last level is stretched|from `styleUrl`, otherwise 18|number|
+|styleUrl|URL of a Mapbox / MapLibre style (`style.json`), applied with [ol-mapbox-style](https://github.com/openlayers/ol-mapbox-style). Uses the layers of the style's first vector source, and that source's `minzoom` / `maxzoom`. Replaces the built-in style and its controls||string|
+|geometryType|Built-in style only. Geometry type of the features (e.g. `Point`, `MultiPolygon`). Decides whether the point size control is shown, and whether the outline controls apply to points or to lines and polygons||string|
+|style|Built-in style only. Overrides of the default style: `fillColor`, `fillOpacity`, `strokeColor`, `strokeWidth`, `strokeOpacity`, `pointRadius`, `pointStrokeColor`, `pointStrokeWidth`. Without it, each new layer gets the next colour pair from a small palette||object|
+|properties|Properties that can be used for colouring, as `[{ "name": "...", "kind": "number" \| "text" }]`||array|
+|classes|Programmatic only: `(property, kind) => Promise<DataDrivenStyle>` that returns the colour classes for a property over the whole dataset (a tile only holds the features in view). Required for colouring by property||function|
+|headers|Programmatic only: `() => Record<string, string>` with headers for each tile request, e.g. an API key that should not be visible in the layer settings||function|
+
+Only the Web Mercator tile grid (EPSG:3857, `WebMercatorQuad`) is supported, which is what almost every XYZ vector tile service uses. Tiles in another grid, such as `WorldCRS84Quad` or a national grid like `NetherlandsRDNewQuad` (EPSG:28992), end up in the wrong place: use the service's Web Mercator variant instead. Cesium drapes the Web Mercator tiles onto the WGS84 globe like any other Web Mercator imagery.
+
+A tile without features may be answered with an empty body, `204` or `404`.
+
+```json
+{
+	"id": "bgt-mvt",
+	"type": "mvt",
+	"title": "BGT (vector tiles)",
+	"defaultAddToManager": true,
+	"settings": {
+		"url": "https://api.pdok.nl/kadaster/bgt/ogc/v1/tiles/WebMercatorQuad/{z}/{y}/{x}?f=mvt",
+		"extent": [3.3, 51.2, 4.3, 51.8],
+		"styleUrl": "https://api.pdok.nl/kadaster/bgt/ogc/v1/styles/bgt_standaardvisualisatie__webmercatorquad?f=mapbox"
+	}
+}
+```
 
 #### LayerSettings for type modelanimation
 
