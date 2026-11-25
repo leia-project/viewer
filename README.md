@@ -412,7 +412,6 @@ LayerSettings
 |themes|List of type theme, themes can be used to style features in 3D Tiles||Array<[Theme](#themes-for-3d-tiles)>|
 |filter|Filter to apply to the 3D Tiles layer.||[3D Tiles Filter](#filtering-3d-tiles)|
 |subsurface|Mark the tileset as a subsurface dataset so it follows the subsurface exaggeration slider, see [Subsurface layers](#subsurface-layers)|false|boolean|
-|exaggerationPivot|Ellipsoidal height in meters the subsurface exaggeration stretches away from, see [Subsurface layers](#subsurface-layers)|44 (roughly NAP 0 m)|number|
 |depthScale|Metadata property names for the click depth scale of a subsurface tileset, see [Column depth scale](#column-depth-scale)|`{ "id": "bro_id", "top": "top_nap", "bottom": "bottom_nap" }`|object|
 
 ```json
@@ -518,10 +517,10 @@ Datasets below ground level (voxel models, boreholes, CPTs) are usually only a f
 
 A layer takes part in subsurface exaggeration when its settings contain `"subsurface": true`. The default differs per type:
 
-- `3dtiles-voxel` is subsurface by default. Set `"subsurface": false` for above-surface voxel data, which then renders at true scale, without the NAP depth scale, and ignores the subsurface slider.
+- `3dtiles-voxel` is subsurface by default. Set `"subsurface": false` for above-surface voxel data, which then renders at true scale, without a depth scale, and ignores the subsurface slider.
 - `3dtiles` is a regular tileset by default. With the flag it is rendered unlit, without shadows, and stretched by a custom shader. Clicking a feature draws a [column depth scale](#column-depth-scale) when the tileset carries interval metadata.
 
-The pivot is set per layer with `exaggerationPivot`, an ellipsoidal height in meters. It defaults to 44 m, roughly NAP 0 m in the Netherlands (the geoid separation varies by a few meters across the country; the column depth scale corrects for this per column). Give every subsurface layer the same pivot, otherwise equal depths no longer line up across layers. The initial factor can be set with `subsurfaceExaggeration` in the [cesium tool settings](#cesium).
+All subsurface layers stretch away from the same pivot: 0 of the project's vertical datum, set with `verticalDatum` in the [cesium tool settings](#cesium). Sharing one pivot keeps equal depths at equal heights across layers. The datum's `offset` is the ellipsoidal height of its 0, i.e. the geoid separation of the project area, and depth labels read in its `name`. Set it for your project area: the pivot and all depth scales depend on it, and the offset should match how the datasets' heights were converted from the datum. One offset per project is accurate as long as the geoid separation barely varies across the project area. The scene-wide `verticalExaggeration` applies on top of the subsurface exaggeration, and depth scales and the voxel slice plane follow both. The initial factor can be set with `subsurfaceExaggeration` in the [cesium tool settings](#cesium).
 
 ```json
 {
@@ -533,7 +532,6 @@ The pivot is set per layer with `exaggerationPivot`, an ellipsoidal height in me
 	"settings": {
 		"url": "https://example.com/geotop/tileset.json",
 		"subsurface": true,
-		"legendDataUrl": "https://example.com/geotop/legend.json",
 		"defaultProperty": "lithology",
 		"properties": [
 			{ "name": "lithology", "label": "Lithoclass" },
@@ -545,10 +543,10 @@ The pivot is set per layer with `exaggerationPivot`, an ellipsoidal height in me
 
 ##### Column depth scale
 
-A subsurface 3D Tiles layer whose features are intervals of vertical columns (boreholes, cone penetration tests) gets a NAP depth scale when the user clicks an interval. This is a 3D Tiles feature only: the `custom` layer with `wells: "true"` draws monitoring wells as entities and is not affected. The scale spans the whole column: the highest top and lowest base of all intervals sharing the clicked feature's id, read from the tileset metadata. It stretches with the subsurface exaggeration slider like the column itself.
+A subsurface 3D Tiles layer whose features are intervals of vertical columns (boreholes, cone penetration tests) gets a depth scale in the configured vertical datum when the user clicks an interval. This is a 3D Tiles feature only: the `custom` layer with `wells: "true"` draws monitoring wells as entities and is not affected. The scale spans the whole column: the highest top and lowest base of all intervals sharing the clicked feature's id, read from the tileset metadata. It stretches with the subsurface exaggeration slider like the column itself.
 
 Requirements on the tileset:
-- Every interval must be its own pickable feature with an id, a top and a base in meters NAP, for example via `EXT_structural_metadata` or a batch table. The geometry itself is free: instanced cylinders, separate meshes or batched meshes with a feature ID attribute all work.
+- Every interval must be its own pickable feature with an id, a top and a base in meters of the configured vertical datum, for example via `EXT_structural_metadata` or a batch table. The geometry itself is free: instanced cylinders, separate meshes or batched meshes with a feature ID attribute all work.
 - All intervals of one column must be in the same tile, since the scale aggregates them from the clicked tile.
 - The property names are set with `settings.depthScale`. The defaults are those of the BRO tilesets (`bro_id`, `top_nap`, `bottom_nap`); a tileset without the id property never shows a scale.
 
@@ -621,33 +619,50 @@ Boreholes (BHR-GT) and cone penetration tests (CPT) from the Dutch [Basisregistr
 
 #### LayerSettings for type 3dtiles-voxel
 
-Renders a [3D Tiles voxel tileset](https://github.com/CesiumGS/3d-tiles/tree/main/extensions/3DTILES_content_voxels) with categorical properties (e.g. lithology, stratigraphy). The layer control lets the user switch property, hide individual categories and clip the volume along its x, y and z extent. Only categorical properties are supported: each property value is an 8-bit integer class index (0-255) that the legend maps to a label and a color.
+Renders a [3D Tiles voxel tileset](https://github.com/CesiumGS/3d-tiles/tree/main/extensions/3DTILES_content_voxels) with categorical properties (e.g. lithology, stratigraphy). The layer control lets the user switch property, hide individual categories and clip the volume along its x, y and z extent. Only categorical properties are supported: each property value is an 8-bit integer class index (0-255) that the legend maps to a label and a color, read from the tileset's metadata schema.
+
+Voxel data is often below ground (e.g. GeoTOP), but doesn't have to be: a voxel layer is treated as subsurface by default, set `"subsurface": false` for above-ground data. Depths are shown in the configured [vertical datum](#subsurface-layers), whose 0 is also the exaggeration pivot.
+
+Under *Slicing*, the West–East and South–North sliders read as a percentage of the volume's extent, the Bottom–Top slider in heights of the vertical datum (e.g. `-50.2m NAP – +39.8m NAP`), with the dataset's full extent below the track. Drag a slider's band to move the whole window. *Drag slice plane* adds a horizontal plane at the top cut that can be dragged up and down in the scene, labelled with its height in the datum. It is linked to the Bottom–Top slider and can be hidden or reset from the layer control.
+
+While a voxel layer is visible, FXAA is switched off regardless of the `fxaa` setting, as it slows voxel rendering down considerably. The `fxaa` setting applies again once no voxel layer is visible.
 
 |value|description|default|type|
 |-|-|-|-|
 |url|URL to tileset.json of the voxel tileset||string|
 |properties|Properties of the voxel data the user can switch between, as `{ "name": string, "label"?: string }`. `name` is the property name in the tileset, `label` the name shown in the layer control. At least one is required||Array<object>|
 |defaultProperty|Name of the property shown when the layer is added|First in `properties`|string|
-|legendDataUrl|URL to a legend JSON (format below) with the label and color per class index of each property. Class indices without a legend entry render grey, properties without an entry render entirely grey||string|
-|subsurface|Whether the dataset is below the surface, so it follows the subsurface exaggeration slider and shows a NAP depth scale. Set to `false` for above-surface voxel data, see [Subsurface layers](#subsurface-layers)|true|boolean|
-|exaggerationPivot|Ellipsoidal height in meters the subsurface exaggeration stretches away from, see [Subsurface layers](#subsurface-layers)|44 (roughly NAP 0 m)|number|
+|subsurface|Whether the dataset is below the surface, so it follows the subsurface exaggeration slider and shows a depth scale. Set to `false` for above-surface voxel data, see [Subsurface layers](#subsurface-layers)|true|boolean|
+|screenSpaceError|Pixels of error before a tile is refined into its children. Higher draws coarser levels and renders faster. No effect on a tileset with a single tile|4 (Cesium default)|number|
+|shading|Per-face shading so the relief of the voxel surface is visible. Setting it (`true` or `false`) shows a shading toggle in the layer control, with this value as its initial state. Omit it to hide the toggle and render without shading||boolean|
 
-The legend JSON maps, per property name, each class index to a label and an RGB color (0-255). An optional `nodata` index is rendered fully transparent. Hiding a class from the layer control works for indices 0-30:
+The layer needs a terrain provider: without terrain the globe surface sits on the ellipsoid, which can be tens of meters below the vertical datum, so the voxels appear to float above it.
+
+The legend comes from the tileset's [metadata schema](https://docs.ogc.org/cs/22-025r4/22-025r4.html#metadata-enum) (`schema` or `schemaUri` in tileset.json). Each property is a `SCALAR` `UINT8` that points at its enum with `extras.enumType`. As of now (2026), CesiumJS cannot render voxel properties of `"type": "ENUM"`. Each enum value is a class index with its `description` (or else its `name`) as label and an RGB color (0-255) in `extras.color`. The property's `noData` index is rendered fully transparent. Class indices without an enum value render grey, properties without an enum render entirely grey. Hiding a class from the layer control works for indices 0-30:
 
 ```json
 {
-	"lithology": {
-		"nodata": 255,
-		"values": [
-			{ "index": 0, "label": "Anthropogenic", "color": [128, 128, 128] },
-			{ "index": 1, "label": "Peat", "color": [120, 60, 20] },
-			{ "index": 2, "label": "Clay", "color": [0, 128, 0] }
-		]
+	"id": "voxel",
+	"enums": {
+		"lithology": {
+			"valueType": "UINT8",
+			"values": [
+				{ "value": 0, "name": "a", "description": "antropogeen", "extras": { "color": [200, 200, 200] } },
+				{ "value": 1, "name": "v", "description": "organisch materiaal (veen)", "extras": { "color": [157, 78, 64] } }
+			]
+		}
 	},
-	"stratigraphy": {
-		"values": [
-			{ "index": 1, "label": "Naaldwijk Formation", "color": [255, 210, 0] }
-		]
+	"classes": {
+		"voxel": {
+			"properties": {
+				"lithology": {
+					"type": "SCALAR",
+					"componentType": "UINT8",
+					"noData": 255,
+					"extras": { "enumType": "lithology" }
+				}
+			}
+		}
 	}
 }
 ```
@@ -969,7 +984,7 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |showMouseCoordinates|Debug window in viewer to show coordinates for mouse position|false|boolean|
 |showCameraPosition|Debug window to show the current camera position, updates on move|false|boolean|
 |showLoadingWidget|Show a small bar on the bottom of the viewer showing the loading progress of layers|false|boolean|
-|fxaa|FXAA enabled|true|Boolean|
+|fxaa|FXAA enabled. Switched off while a [voxel layer](#layersettings-for-type-3dtiles-voxel) is visible|true|Boolean|
 |msaa|MSAA samples|1|number|
 |lighting|Enable lighting the globe with the scene's light source|true|boolean|
 |animate|Enable when displaying animated models else animations only update when the viewer refreshes it's view such as when panning/zooming|false|boolean|
@@ -988,7 +1003,8 @@ Tool where the user can change settings of the Cesium viewer. Settings can be us
 |globeOpacity|Opacity percentage of the globe|100|number|
 |verticalExaggeration|Vertical exaggeration of the whole scene (terrain and all 3D layers), see [Cesium's `Scene.verticalExaggeration`](https://cesium.com/learn/cesiumjs/ref-doc/Scene.html#verticalExaggeration)|1|number|
 |showVerticalExaggerationSlider|Show a slider for `verticalExaggeration` in the layer manager's background controls. Useful when subsurface objects sit on raised ground (e.g. boreholes on a dike crest) and should rise with the terrain|false|boolean|
-|subsurfaceExaggeration|Initial vertical exaggeration of [subsurface layers](#subsurface-layers), away from each layer's `exaggerationPivot`. The slider only appears when the config contains a subsurface layer|1|number|
+|subsurfaceExaggeration|Initial vertical exaggeration of [subsurface layers](#subsurface-layers), away from 0 of `verticalDatum`. The slider only appears when the config contains a subsurface layer|1|number|
+|verticalDatum|Vertical reference of the project as `{ "name": string, "offset": number }`. `name` is shown in depth labels (e.g. `-2.5m NAP`), `offset` is the ellipsoidal height in meters of the datum's 0, i.e. the geoid separation of the project area. Its 0 is also the pivot of the subsurface exaggeration, see [Subsurface layers](#subsurface-layers). A missing or invalid field falls back to the default's value, with a console warning when invalid|`{ "name": "NAP", "offset": 44.335 }`|object|
 |enableCollisionDetection|Prevent the camera from moving below the terrain/surface. Set to `true` to prevent going subsurface|false|boolean|
 |terrainProviders|Array of terrain providers, first in list is activated by default, leave out URL to create empty provider (see example below)|-|Terrain Provider|
 

@@ -14,13 +14,12 @@ function clamp({ value, min = 0, max = 1 }: { value: number; min?: number; max?:
  *
  * VoxelPrimitive supports ClippingPlaneCollection but we clip through
  * min/maxClippingBounds instead. The range sliders in the layer controls
- * already use a normalised clip window. The drag writes into the same 
+ * already use a normalised clip window. The drag writes into the same
  * `clipping` store via {@link VoxelLayer.setClip}("z", …), so plane and
  * sliders stay in sync.
  *
- * The clip window stays in normalised units which survive exaggeration
- * changes. Heights are only mapped through the subsurface exaggeration when
- * positioning the plane entity and reading the drag
+ * The clip window is normalised, so it survives exaggeration changes; only
+ * placing the plane and reading the drag go through the exaggerations.
  */
 export class VoxelClipSlider {
 	public layer: VoxelLayer;
@@ -131,7 +130,7 @@ export class VoxelClipSlider {
 	}
 
 	private displayHeight(): number {
-		return this.layer.stretchZ(this.currentHeight());
+		return this.layer.toRenderedHeight(this.currentHeight());
 	}
 
 	private makePlaneEntity(): void {
@@ -160,6 +159,22 @@ export class VoxelClipSlider {
 				}),
 				outline: true,
 				outlineColor: Cesium.Color.BLACK
+			},
+
+			label: {
+				text: new Cesium.CallbackProperty(
+					() => this.layer.datumLabelAt(get(this.layer.clipping).z[1]) ?? "",
+					false
+				),
+				font: "14px sans-serif",
+				fillColor: Cesium.Color.WHITE,
+				outlineColor: Cesium.Color.BLACK,
+				outlineWidth: 2,
+				style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+				verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+				pixelOffset: new Cesium.Cartesian2(0, -4),
+				// Keep it readable when the camera looks at the plane from inside the volume
+				disableDepthTestDistance: Number.POSITIVE_INFINITY
 			}
 		});
 		this.entity.show = get(this.showPlane);
@@ -206,7 +221,7 @@ export class VoxelClipSlider {
 				return;
 			}
 
-			const realHeight = this.layer.unstretchZ(displayHeight);
+			const realHeight = this.layer.fromRenderedHeight(displayHeight);
 			const span = this.bounds.max.z - this.bounds.min.z;
 
 			const normalizedHeight = (realHeight - this.bounds.min.z) / span;
@@ -239,7 +254,7 @@ export class VoxelClipSlider {
 
 		const cameraDirection = this.map.viewer.scene.camera.directionWC;
 		const dotUp = Cesium.Cartesian3.dot(cameraDirection, this.up);
-		
+
 		const normal = Cesium.Cartesian3.subtract(
 			cameraDirection,
 			Cesium.Cartesian3.multiplyByScalar(this.up, dotUp, new Cesium.Cartesian3()),

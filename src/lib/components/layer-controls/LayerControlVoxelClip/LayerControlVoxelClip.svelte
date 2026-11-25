@@ -2,7 +2,7 @@
 	import { Toggle, Button } from "carbon-components-svelte";
 	import { Reset, ViewFilled, ViewOffFilled } from "carbon-icons-svelte";
 	import { _ } from "svelte-i18n";
-	import type { VoxelClipSlider } from "$lib/map-cesium/layers/voxel-clip-slider";
+	import type { VoxelClipSlider } from "$lib/map-cesium/layers/voxel/voxel-clip-slider";
 
 	export let clipSlider: VoxelClipSlider;
 

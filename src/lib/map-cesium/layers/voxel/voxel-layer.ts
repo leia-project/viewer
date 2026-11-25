@@ -1,21 +1,28 @@
 import { writable, type Writable, get, type Unsubscriber } from "svelte/store";
 import * as Cesium from "cesium";
-import { CesiumLayer } from "./cesium-layer";
+import { CesiumLayer } from "../cesium-layer";
 import { CustomLayerControl } from "$lib/map-core/custom-layer-control";
 import type { LayerConfig } from "$lib/map-core/layer-config";
 import { notifications } from "$lib/map-core/notifications/notifications";
 import { Notification } from "$lib/map-core/notifications/notification";
 import { NotificationType } from "$lib/map-core/notifications/notification-type";
-import type { Map as CesiumMap } from "../map";
-import { getCameraPositionFromBoundingSphere } from "../utils/layer-utils";
+import type { Map as CesiumMap } from "../../map";
+import { getCameraPositionFromBoundingSphere } from "../../utils/layer-utils";
 import {
-	fetchLegend,
 	resolveProperties,
 	type ResolvedVoxelProperty,
-	type VoxelPropertyConfig
+	type VoxelPropertyConfig,
+	voxelSchema
 } from "./voxel-legend";
-import { DepthScale, NAP_OFFSET_M } from "../depth-scale";
-import { appliesSubsurfaceExaggeration, subsurfaceExaggerationPivot } from "../subsurface-exaggeration";
+import { DepthScale } from "../../depth-scale";
+import {
+	type ExaggerationFactors,
+	appliesSubsurfaceExaggeration,
+	formatDatumHeight,
+	fromRenderedHeight,
+	toRenderedHeight,
+	toSubsurfaceHeight
+} from "../../subsurface-exaggeration";
 import { VoxelClipSlider } from "./voxel-clip-slider";
 
 import LayerControlVoxel from "$lib/components/layer-controls/LayerControlVoxel/LayerControlVoxel.svelte";
@@ -23,27 +30,35 @@ import LayerControlVoxelClip from "$lib/components/layer-controls/LayerControlVo
 
 export type VoxelLayerSettings = {
 	url: string;
-	legendDataUrl?: string;
 	defaultProperty?: string;
 	properties: Array<VoxelPropertyConfig>;
-	/** The height that the subsurface exaggeration stretches away from. */
-	exaggerationPivot?: number;
+	/** Per-face shading so the relief of the voxel surface is visible. */
+	shading?: boolean;
+	/** Pixels of error before a tile is refined into its children; higher
+	 * draws coarser levels. No effect on a single-tile dataset. */
+	screenSpaceError?: number;
 };
 
 export type ClipRange = { x: [number, number]; y: [number, number]; z: [number, number] };
 
 const DEFAULT_CLIP_RANGE: ClipRange = { x: [0, 1], y: [0, 1], z: [0, 1] };
 
+/** Brightness of a face that is turned fully away from the light */
+const SHADE_AMBIENT = 0.55;
+
 export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	public selectedProperty: Writable<string>;
 	public resolvedProperties: Writable<Array<ResolvedVoxelProperty>>;
 	public hiddenValues: Writable<Map<string, Set<number>>>;
 	public clipping: Writable<ClipRange>;
+	/** Per-face Lambert shading on/off. Bridged to the u_shading uniform. */
+	public shading: Writable<boolean>;
+	/** Whether the layer control offers a shading toggle: only when the config sets `shading`. */
+	public readonly shadingToggleable: boolean;
 	public clipSlider: VoxelClipSlider | null = null;
 	private bounds: { min: Cesium.Cartesian3; max: Cesium.Cartesian3 } | null = null;
 	private depthScale: DepthScale | null = null;
 	private unsubscribers: Array<Unsubscriber> = [];
-	private pivotZ: number = NAP_OFFSET_M;
 	/** Whether this voxel dataset sits below the surface and so follows the
 	 * subsurface exaggeration slider. Above-surface voxels stay at true scale. */
 	private isSubsurface: boolean = false;
@@ -58,14 +73,21 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			throw new Error(`VoxelLayer "${config.title}": no properties configured`);
 		}
 
-		this.pivotZ = subsurfaceExaggerationPivot(config);
 		this.isSubsurface = appliesSubsurfaceExaggeration(config);
 		this.selectedProperty = writable(initial);
 		this.resolvedProperties = writable<Array<ResolvedVoxelProperty>>([]);
 		this.hiddenValues = writable(new Map());
 		this.clipping = writable({ ...DEFAULT_CLIP_RANGE });
+		this.shading = writable(settings.shading ?? false);
+		this.shadingToggleable = settings.shading !== undefined;
 		this.createLayer();
-		this.selectedProperty.subscribe(() => this.rebuildShader());
+		this.unsubscribers.push(
+			this.selectedProperty.subscribe(() => this.rebuildShader()),
+			this.shading.subscribe((on) => {
+				this.source?.customShader?.setUniform("u_shading", on ? 1.0 : 0.0);
+				this.map.refresh();
+			})
+		);
 	}
 
 	public toggleHidden(propName: string, value: number): void {
@@ -141,10 +163,8 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 	}
 
 	/**
-	 * Subsurface exaggeration, from the surface datum so voxels near the surface stick to terrain
-	 * while the terrain itself is untouched. Inspired by Cesium's internal scene wide verticalExaggeration, but that is a scene-wide setting and we want to exaggerate only the voxels.
-	 * scene-wide verticalExaggeration applies to a VoxelPrimitive: stretching
-	 * the shape's z bounds (the data fills the shape, so it stretches with them).
+	 * Stretches the shape's z bounds about datum 0; the data fills the shape so it
+	 * follows. Cesium adds the scene-wide exaggeration itself.
 	 */
 	private applyExaggeration(): void {
 		if (!this.source || !this.bounds) {
@@ -158,20 +178,54 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 		this.applyClipping();
 	}
 
-	/** Subsurface exaggeration factor for this layer: 1 (no stretch) unless the
-	 * layer is flagged subsurface, so an above-surface voxel ignores the slider. */
-	private get exaggeration(): number {
-		return this.isSubsurface ? get(this.map.options.subsurfaceExaggeration) : 1;
+	/** No subsurface stretch unless the layer is flagged subsurface */
+	private get factors(): ExaggerationFactors {
+		const factors = get(this.map.options.exaggeration);
+
+		return this.isSubsurface ? factors : { ...factors, subsurface: 1 };
 	}
 
-	/** Maps a real provider height into the exaggerated shape space (pivot = surface datum). */
-	public stretchZ(z: number): number {
-		return this.pivotZ + this.exaggeration * (z - this.pivotZ);
+	/** Provider height to shape space (subsurface stretch only) */
+	private stretchZ(z: number): number {
+		return toSubsurfaceHeight(z, this.factors);
 	}
 
-	/** Inverse of {@link stretchZ}: exaggerated shape-space height back to real height. */
-	public unstretchZ(z: number): number {
-		return this.pivotZ + (z - this.pivotZ) / this.exaggeration;
+	/** Provider height to rendered height, with this layer's factors */
+	public toRenderedHeight(z: number): number {
+		return toRenderedHeight(z, this.factors);
+	}
+
+	/** Inverse of {@link toRenderedHeight} */
+	public fromRenderedHeight(rendered: number): number {
+		return fromRenderedHeight(rendered, this.factors);
+	}
+
+	/** Unexaggerated provider height at normalised z position `t`, null until the bounds are loaded */
+	private heightAt(t: number): number | null {
+		if (!this.bounds) {
+			return null;
+		}
+
+		const { min, max } = this.bounds;
+
+		return min.z + t * (max.z - min.z);
+	}
+
+	/**
+	 * Height at normalised z position `t` relative to the vertical datum, e.g.
+	 * "-12.5m NAP"; null until the bounds are loaded. Provider heights are
+	 * ellipsoidal, the datum offset is the ellipsoidal height of its 0.
+	 */
+	public datumLabelAt(t: number): string | null {
+		const height = this.heightAt(t);
+
+		if (height === null) {
+			return null;
+		}
+
+		const datum = get(this.map.options.verticalDatum);
+
+		return formatDatumHeight(height - datum.offset, datum);
 	}
 
 	private get settings(): VoxelLayerSettings {
@@ -243,23 +297,30 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 
 	private async createLayer(): Promise<void> {
 		try {
-			const [legend, provider] = await Promise.all([
-				fetchLegend(this.settings.legendDataUrl),
-				Cesium.Cesium3DTilesVoxelProvider.fromUrl(this.settings.url)
-			]);
+			const provider = await Cesium.Cesium3DTilesVoxelProvider.fromUrl(this.settings.url);
 
 			if (!get(this.config.added)) {
 				return; // layer was removed while loading
 			}
 
-			this.resolvedProperties.set(resolveProperties(this.settings.properties, legend));
+			this.resolvedProperties.set(resolveProperties(this.settings.properties, voxelSchema(provider), provider.className));
 
 			const primitive = new Cesium.VoxelPrimitive({ provider });
 
 			primitive.nearestSampling = true;
 			primitive.depthTest = true;
 
+			if (this.settings.screenSpaceError !== undefined) {
+				primitive.screenSpaceError = this.settings.screenSpaceError;
+			}
+
 			this.source = primitive;
+
+			const { minBounds, maxBounds } = provider;
+			const bounds = minBounds && maxBounds ? { min: minBounds, max: maxBounds } : null;
+
+			// Before the controls are added, so the z slider can show heights from the start
+			this.bounds = bounds;
 
 			const control = new CustomLayerControl();
 			control.component = LayerControlVoxel;
@@ -272,34 +333,31 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				this.config.cameraPosition = getCameraPositionFromBoundingSphere(primitive.boundingSphere);
 			}
 
-			const { minBounds, maxBounds } = provider;
-
-			if (minBounds && maxBounds) {
-				this.bounds = { min: minBounds, max: maxBounds };
-
+			if (bounds) {
+				const { min: minBounds, max: maxBounds } = bounds;
 				const east = maxBounds.x; // lon
 				const nsMiddle = (minBounds.y + maxBounds.y) / 2; // lat
 
-				// The NAP depth scale and the exaggeration subscription belong to
-				// subsurface voxels only; an above-surface voxel stays at true scale.
+				// Above-surface voxels get no depth scale and no stretch
 				if (this.isSubsurface) {
+					// Provider bounds are ellipsoidal, the scale takes datum heights
+					const { offset } = get(this.map.options.verticalDatum);
 					this.depthScale = new DepthScale(
 						this.map,
 						east,
 						nsMiddle,
-						maxBounds.z,
-						minBounds.z,
-						{ pivotZ: this.pivotZ }
+						maxBounds.z - offset,
+						minBounds.z - offset
 					);
 					this.depthScale.addToScene();
 					this.depthScale.setVisible(get(this.visible));
 
 					this.unsubscribers.push(
-						this.map.options.subsurfaceExaggeration.subscribe(() => this.applyExaggeration())
+						this.map.options.exaggeration.subscribe(() => this.applyExaggeration())
 					);
 				}
 
-				this.clipSlider = new VoxelClipSlider(this, this.map, this.bounds);
+				this.clipSlider = new VoxelClipSlider(this, this.map, bounds);
 				const clipControl = new CustomLayerControl();
 				clipControl.component = LayerControlVoxelClip;
 				clipControl.props = { clipSlider: this.clipSlider };
@@ -363,12 +421,12 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 			.map((category) => {
 				const [r, g, b] = category.color;
 
-				return `if (v == ${category.value}) { material.diffuse = vec3(${(r / 255).toFixed(4)}, ${(g / 255).toFixed(4)}, ${(b / 255).toFixed(4)}); return; }`;
+				return `if (v == ${category.value}) { base = vec3(${(r / 255).toFixed(4)}, ${(g / 255).toFixed(4)}, ${(b / 255).toFixed(4)}); }`;
 			})
-			.join("\n\t\t\t\t\t");
+			.join(" else\n\t\t\t\t\t");
 
 		// Cesium normalises UINT8 metadata to [0,1] in the shader; multiply back to recover the integer.
-		return new Cesium.CustomShader({
+		const shader = new Cesium.CustomShader({
 			uniforms: {
 				u_alpha: {
 					type: Cesium.UniformType.FLOAT,
@@ -379,6 +437,11 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 				u_hiddenMask: {
 					type: Cesium.UniformType.INT,
 					value: packHiddenMask(get(this.hiddenValues).get(property.name))
+				},
+				// 1.0 = per-face shading on, 0.0 = flat legend colours
+				u_shading: {
+					type: Cesium.UniformType.FLOAT,
+					value: get(this.shading) ? 1.0 : 0.0
 				}
 			},
 			// 255.0 is the max UINT8 value, +0.5 for rounding to nearest int when flooring in GLSL
@@ -392,11 +455,22 @@ export class VoxelLayer extends CesiumLayer<Cesium.VoxelPrimitive> {
 					if (v < 31 && (u_hiddenMask & (1 << v)) != 0) {
 						material.alpha = 0.0; return;
 					}
+					vec3 base = vec3(0.5, 0.5, 0.5); // grey default for unknown values
 					${branches}
-					material.diffuse = vec3(0.5, 0.5, 0.5); // grey default for unknown values, could be made configurable
+
+					// Per-face shading. Cesium applies no lighting to voxels, so every face
+					// has the same colour and the relief/depth of the volume is invisible.
+					// Cesiums normalEC gives which side of the cell the view ray came in through
+					// The light sits just above and to the left of the camera and moves along.
+					vec3 lightDirEC = normalize(vec3(-0.3, 0.6, 1.0));
+					float lambert = max(dot(fsInput.attributes.normalEC, lightDirEC), 0.0);
+					float lit = ${SHADE_AMBIENT.toFixed(2)} + ${(1 - SHADE_AMBIENT).toFixed(2)} * lambert;
+					material.diffuse = base * mix(1.0, lit, u_shading);
 				}
 			`
 		});
+
+		return shader;
 	}
 }
 

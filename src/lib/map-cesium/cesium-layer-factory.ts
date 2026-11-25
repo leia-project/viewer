@@ -20,7 +20,7 @@ import { FloodLayer } from "./layers/flood-layer";
 import { IconLayer } from "./layers/icon-layer";
 import { WfsLayer } from "./layers/wfs-layer";
 import { OgcFeaturesLayer } from "./layers/ogc-features-layer";
-import { VoxelLayer } from "./layers/voxel-layer";
+import { VoxelLayer } from "./layers/voxel/voxel-layer";
 
 export class CesiumLayerFactory {
 	public convert(map: Map, config: LayerConfig): CesiumLayer<unknown> | undefined {
