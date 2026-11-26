@@ -43,11 +43,18 @@
 	const hoveredRegion: Writable<Region | undefined> = writable(undefined);
 
 	let rainfallLayerController: RainfallLayerController | undefined;
+
+	hoveredRegion.subscribe((region) => {
+		rainfallLayerController?.geoJsonLayer.hoveredFeature.set(region);
+	});
 	
 	tool.settings.subscribe(async(settings?: RainfallToolSettings) => {
 		if (settings) {
 			rainfallLayerController = new RainfallLayerController(map, settings, activeRegion, selectedScenario);
-			const regionCollection = await fetch('https://virtueel.zeeland.nl/tiles_other/brs/regions_wgs84.geojson').then(res => res.json());
+			const regionsUrl = settings.regionsUrl
+				? new URL(settings.regionsUrl, `${location.origin}${base}/`).toString()
+				: 'https://virtueel.zeeland.nl/tiles_other/brs/regions_wgs84.geojson';
+			const regionCollection = await fetch(regionsUrl).then(res => res.json());
 			regions = regionCollection.features;
 			rainfallLayerController.addRegions(regions);
 			setSearchResults();

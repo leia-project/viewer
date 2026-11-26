@@ -89,6 +89,15 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	public activeFeature: Writable<any | undefined> = writable(undefined);
 	private clickedEntity: Cesium.Entity | undefined;
 	private featureItems: Array<{ entity: Cesium.Entity; feature: any }> = [];
+	private entityFeatureLookup: WeakMap<Cesium.Entity, any> = new WeakMap();
+	private highlightedMaterials: WeakMap<Cesium.Entity, Cesium.MaterialProperty> = new WeakMap();
+	private highlightedOutlineColors: WeakMap<Cesium.Entity, Cesium.Property | undefined> = new WeakMap();
+	// Set when features are loaded through loadFeatures(); highlight colors are then driven by callback properties
+	private useHighlightMaterials: boolean = false;
+	private currentHovered: any | undefined;
+	private currentActive: any | undefined;
+	private pendingMouseMove: any | undefined;
+	private mouseMoveFrame: number | undefined;
 
 	private _features: Array<any> = [];
 
@@ -148,6 +157,8 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 
 		this.addOutlines()
 		this.buildFeatureItems();
+		this.useHighlightMaterials = true;
+		this.applyHighlightMaterials();
 		this.loaded = Promise.resolve();
 		if (!this.config.cameraPosition) this.setDefaultCameraPosition();
 		this.source.show = true;
@@ -162,6 +173,7 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	
 	private buildFeatureItems(): void {
 		this.featureItems = [];
+		this.entityFeatureLookup = new WeakMap();
 		const entities = this.source.entities.values;
 		let entityIndex = 0;
 		for (const feature of this._features) {
@@ -171,9 +183,32 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 					entity: entities[entityIndex],
 					feature: feature
 				});
+				this.entityFeatureLookup.set(entities[entityIndex], feature);
 				entityIndex++;
 			}
 		}
+	}
+
+	/**
+	 * Gives every polygon a color driven by a CallbackProperty. A non-constant color is pushed to the
+	 * GPU as a per-instance attribute, whereas assigning a new material forces Cesium to re-tessellate
+	 * the (ground clamped) polygon, which makes hover/selection highlighting slow for large polygons.
+	 */
+	private applyHighlightMaterials(): void {
+		const baseColor = this.rainfallPolygonColor.getValue(Cesium.JulianDate.now()).color as Cesium.Color;
+		for (const item of this.featureItems) {
+			if (!item.entity.polygon) continue;
+			const feature = item.feature;
+			const scratch = new Cesium.Color();
+			const colorCallback = new Cesium.CallbackProperty(() => {
+				const isHoveredOrActive = feature === this.currentHovered || feature === this.currentActive;
+				return isHoveredOrActive
+					? Cesium.Color.clone(Cesium.Color.TRANSPARENT, scratch)
+					: baseColor.withAlpha(baseColor.alpha * this.alpha, scratch);
+			}, false);
+			item.entity.polygon.material = new Cesium.ColorMaterialProperty(colorCallback);
+		}
+		this.map.refresh();
 	}
 
 	private getEntityCountForFeature(feature: any): number {
@@ -201,15 +236,21 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 		if (!picked?.id) return undefined;
 		const entity = picked.id as Cesium.Entity;
 		if (!this.source.entities.contains(entity)) return undefined;
-		const item = this.featureItems.find(i => i.entity === entity);
-		if (!item) return undefined;
-		return { feature: item.feature, entity: entity };
+		const feature = this.entityFeatureLookup.get(entity);
+		if (!feature) return undefined;
+		return { feature: feature, entity: entity };
 	}
 
+	// scene.pick renders an offscreen pick pass, so only pick once per animation frame
 	private moveHandle = (m: any) => {
-		const feature = this.getFeatureFromMouseLocation(m);
-		if (feature !== get(this.hoveredFeature)) this.hoveredFeature.set(feature);
-		this.map.container.style.cursor = feature ? "pointer" : "default";
+		this.pendingMouseMove = m;
+		if (this.mouseMoveFrame !== undefined) return;
+		this.mouseMoveFrame = requestAnimationFrame(() => {
+			this.mouseMoveFrame = undefined;
+			const feature = this.getFeatureFromMouseLocation(this.pendingMouseMove);
+			if (feature !== get(this.hoveredFeature)) this.hoveredFeature.set(feature);
+			this.map.container.style.cursor = feature ? "pointer" : "default";
+		});
 	}
 
 	private leftClickHandle = (m: any) => {
@@ -228,28 +269,24 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	private removeMouseEvents(): void {
 		this.map.off("mouseLeftClick", this.leftClickHandle);
 		this.map.off("mouseMove", this.moveHandle);
+		if (this.mouseMoveFrame !== undefined) cancelAnimationFrame(this.mouseMoveFrame);
+		this.mouseMoveFrame = undefined;
 	}
 
 	private addListeners(): void {
 		this.unsubscribers.forEach((unsubscriber) => unsubscriber());
 		this.unsubscribers.push(
 			this.hoveredFeature.subscribe((feature) => {
-				const active = get(this.activeFeature);
-				for (const item of this.featureItems) {
-					if (!item.entity.polygon) 
-						continue;
-					const isHoveredOrActive = (feature !== undefined && item.feature === feature) || (active !== undefined && item.feature === active);
-					if (isHoveredOrActive) {
-						item.entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
-						item.entity.polygon.outlineColor = this.polygonOutlineColor;
-					} 
-					else {
-						item.entity.polygon.material = this.rainfallPolygonColor;
-					}
+				this.currentHovered = feature;
+				if (this.useHighlightMaterials) {
+					this.map.refresh();
+					return;
 				}
-				this.map.refresh();
+				this.updatePolygonHighlights();
 			}),
 			this.activeFeature.subscribe((feature) => {
+				this.currentActive = feature;
+				if (!this.useHighlightMaterials) this.updatePolygonHighlights();
 				this.map.refresh();
 				if (feature) {
 					const entities = this.featureItems.filter(i => i.feature === feature).map(i => i.entity);
@@ -413,23 +450,36 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 	}
 
 	public setStyle(property: string): void {
+		if (this.useHighlightMaterials) {
+			this.map.refresh();
+			return;
+		}
+		this.restorePolygonHighlights();
 		this.defaultColorPolygon = new Cesium.ColorMaterialProperty(this.defaultColorPolygon.getValue(this.map.viewer.clock.currentTime).color.withAlpha(this.alpha));
 		if (property === "default") {
 			this.setDefaultStyle(); 
 			this.legend.set([]);
+			this.updatePolygonHighlights();
 			return;
 		}
 		if (property === "custom") {
 			this.setCustomStyle();
 			this.legend.set([]);
+			this.updatePolygonHighlights();
 			return;
 		}
 		const prop = this.availableProperties.find(p => p.propertyName === property);
-		if (!prop) return;
+		if (!prop) {
+			this.updatePolygonHighlights();
+			return;
+		}
 		if (prop.propertyType === "number") {
 			const min = prop.range?.min;
 			const max = prop.range?.max;
-			if (!min || !max) return;
+			if (!min || !max) {
+				this.updatePolygonHighlights();
+				return;
+			}
 			this.setNumberStyle(prop, min, max);
 			this.makeNumberLegend(min, max, 10);
 			this.styleType.set("number");
@@ -437,6 +487,51 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			this.setStringStyle(prop);
 			this.styleType.set("string");
 		}
+		this.updatePolygonHighlights();
+	}
+
+	private restorePolygonHighlights(): void {
+		for (const item of this.featureItems) {
+			const polygon = item.entity.polygon;
+			if (!polygon) continue;
+
+			if (this.highlightedMaterials.has(item.entity)) {
+				polygon.material = this.highlightedMaterials.get(item.entity)!;
+				this.highlightedMaterials.delete(item.entity);
+			}
+			if (this.highlightedOutlineColors.has(item.entity)) {
+				polygon.outlineColor = this.highlightedOutlineColors.get(item.entity);
+				this.highlightedOutlineColors.delete(item.entity);
+			}
+		}
+	}
+
+	private updatePolygonHighlights(): void {
+		const active = get(this.activeFeature);
+		for (const item of this.featureItems) {
+			const polygon = item.entity.polygon;
+			if (!polygon) continue;
+
+			const isHoveredOrActive = item.feature === this.currentHovered || item.feature === active;
+			if (isHoveredOrActive) {
+				if (!this.highlightedMaterials.has(item.entity)) {
+					this.highlightedMaterials.set(item.entity, polygon.material);
+					this.highlightedOutlineColors.set(item.entity, polygon.outlineColor);
+				}
+				polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
+				polygon.outlineColor = this.polygonOutlineColor;
+			} else {
+				if (this.highlightedMaterials.has(item.entity)) {
+					polygon.material = this.highlightedMaterials.get(item.entity)!;
+					this.highlightedMaterials.delete(item.entity);
+				}
+				if (this.highlightedOutlineColors.has(item.entity)) {
+					polygon.outlineColor = this.highlightedOutlineColors.get(item.entity);
+					this.highlightedOutlineColors.delete(item.entity);
+				}
+			}
+		}
+		this.map.refresh();
 	}
 
 	private setDefaultStyle(): void {
@@ -704,12 +799,12 @@ export class GeoJsonLayer extends CesiumLayer<Cesium.GeoJsonDataSource> {
 			const boundingSphere = Cesium.BoundingSphere.fromPoints(allPositions);
 			const range = boundingSphere.radius * 2.5;
 			this.map.viewer.camera.flyToBoundingSphere(boundingSphere, {
-				duration: 1,
+				duration: 0.5,
 				offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), range)
 			});
 		} else {
 			this.map.viewer.flyTo(allEntities[0], {
-				duration: 1,
+				duration: 0.5,
 				offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-60), 0)
 			});
 		}

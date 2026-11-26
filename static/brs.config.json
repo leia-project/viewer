@@ -300,7 +300,8 @@
             "id": "rainStress",
             "enabled": true,
             "settings": {
-                "scenariosBaseUrl": "https://virtueel.zeeland.nl/tiles_other/bovenregionale_stresstest/"
+                "regionsUrl": "regions_wgs84.geojson",
+                "scenariosBaseUrl": "http://localhost:8000/"
             }
         },
         {

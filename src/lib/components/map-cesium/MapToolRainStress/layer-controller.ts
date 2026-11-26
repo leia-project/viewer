@@ -10,7 +10,7 @@ import type { OgcStyleCondition } from "../module/providers/ogc-features-provide
  
 export interface RainfallToolSettings {
     scenariosBaseUrl: string;
-    regionsUrl: string;
+    regionsUrl?: string;
     roadsUrl: string;
     floodedRoadsUrl: string;
     floodedRoadsStyle: Array<OgcStyleCondition>;

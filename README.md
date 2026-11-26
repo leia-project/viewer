@@ -67,6 +67,32 @@ With the static build there are 2 ways to load a configuration.
 
 An example config is stored in `./static/example.config.json`.
 
+### Local rainfall scenarios
+
+The `rainStress` tool loads scenarios from `settings.scenariosBaseUrl`, which must
+end with `/`. For local data, set it to `http://localhost:8000/` in the active
+configuration and serve the directory containing the `uurbeelden_200mm` and
+`uurbeelden_300mm` folders with a CORS-enabled HTTP server.
+
+The expected structure is:
+
+```text
+uurbeelden_200mm/
+  Schouwen-Duiveland_200/
+    layer.json
+    ... terrain and flood images referenced by layer.json
+uurbeelden_300mm/
+  Schouwen-Duiveland_300/
+    layer.json
+    ... terrain and flood images referenced by layer.json
+```
+
+Folder names must match the region's `naam` and the selected rainfall amount.
+Start the server from the parent directory, not from inside `uurbeelden_200mm`.
+For example, if `pythonserver.py` is in `uurbeelden_200mm`, run
+`python .\uurbeelden_200mm\pythonserver.py` from that parent directory.
+Reload the viewer after changing the configuration.
+
 ### Viewer configuration ("viewer: {}")
 
 Base configuration for the viewer such as start position, UI colors.
