@@ -455,6 +455,8 @@
             "enterApiKey": "Voer GeodanMaps API-sleutel in...",
             "calculate": "Bereken autoreistijdafstanden",
             "calculating": "Berekenen...",
+            "loadingData": "Plandata laden...",
+            "calculationFailed": "De berekening is mislukt, zie het logboek voor meer informatie",
             "totalPopulation": "Aantal nieuwe inwoners",
             "legendTitle": "Druk op de woningmarkt",
             "settlementPercentage": "Vestigingspercentage"

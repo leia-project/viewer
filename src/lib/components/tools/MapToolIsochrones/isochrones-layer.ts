@@ -1,8 +1,11 @@
 import { get, writable, type Writable } from "svelte/store";
+import { _ } from "svelte-i18n";
 import * as Cesium from "cesium";
-import * as turf from "@turf/turf";
 import type { Map } from "$lib/map-cesium/map";
 import type { GeoJsonLayer } from "$lib/map-cesium/layers/geojson-layer";
+import { notifications } from "$lib/map-core/notifications/notifications";
+import { Notification } from "$lib/map-core/notifications/notification";
+import { NotificationType } from "$lib/map-core/notifications/notification-type";
 
 
 type IsochroneProps = {
@@ -20,6 +23,91 @@ export type Isochrone = {
     entity: Cesium.Entity,
     props: IsochroneProps
 };
+
+
+// Outer ring of an isochrone in lon/lat, with its bounding box for a cheap pre-test.
+type IsoRing = {
+    ring: Array<[number, number]>,
+    minX: number,
+    minY: number,
+    maxX: number,
+    maxY: number
+};
+
+// One centroid (lon/lat) and attribute value per plan feature, in parallel arrays.
+type FeatureIndex = {
+    count: number,
+    lon: Float64Array,
+    lat: Float64Array,
+    value: Float64Array
+};
+
+
+function toIsoRing(ring: Array<[number, number]>): IsoRing {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const [x, y] of ring) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+    }
+    return { ring, minX, minY, maxX, maxY };
+}
+
+
+function isPointInIsoRing(x: number, y: number, iso: IsoRing): boolean {
+    if (x < iso.minX || x > iso.maxX || y < iso.minY || y > iso.maxY) return false;
+    // Ray casting
+    const ring = iso.ring;
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const [xi, yi] = ring[i];
+        const [xj, yj] = ring[j];
+        if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+            inside = !inside;
+        }
+    }
+    return inside;
+}
+
+
+// Bounding-box centre of a GeoJSON geometry (any type), or undefined when it has no coordinates.
+function geometryCenter(geometry: any): [number, number] | undefined {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    const visit = (coords: any): void => {
+        if (typeof coords[0] === "number") {
+            if (coords[0] < minX) minX = coords[0];
+            if (coords[0] > maxX) maxX = coords[0];
+            if (coords[1] < minY) minY = coords[1];
+            if (coords[1] > maxY) maxY = coords[1];
+        } else {
+            for (const child of coords) visit(child);
+        }
+    };
+    if (geometry?.coordinates) visit(geometry.coordinates);
+    return minX === Infinity ? undefined : [(minX + maxX) / 2, (minY + maxY) / 2];
+}
+
+
+function buildFeatureIndex(features: Array<any> | undefined, attribute: string): FeatureIndex {
+    const list = Array.isArray(features) ? features : [];
+    const lon = new Float64Array(list.length);
+    const lat = new Float64Array(list.length);
+    const value = new Float64Array(list.length);
+    let count = 0;
+    for (const feature of list) {
+        const amount = Number(feature?.properties?.[attribute]);
+        // Features without a value cannot contribute to the accounted population.
+        if (!Number.isFinite(amount) || amount === 0) continue;
+        const center = geometryCenter(feature.geometry);
+        if (!center) continue;
+        lon[count] = center[0];
+        lat[count] = center[1];
+        value[count] = amount;
+        count++;
+    }
+    return { count, lon, lat, value };
+}
 
 
 export class IsochronesLayer {
@@ -42,11 +130,15 @@ export class IsochronesLayer {
     ];
     private conversionFactor: number = 0.041; // TODO DEBUG REVER TO 2.1 - Estimated factor to convert data attribute value to population
     private dataSource: Cesium.CustomDataSource;
+    private prepared: Promise<void> | undefined;
+    private featureIndex: FeatureIndex | undefined;
+    private isoRings: Array<IsoRing> = [];
 
     public pointEntity: Cesium.Entity | undefined;
     public coordinates: Writable<{ x: number, y: number } | undefined> = writable(undefined);
     public handler: Writable<Cesium.ScreenSpaceEventHandler | undefined> = writable(undefined);
-    public dataLoading: Writable<boolean> = writable(false);
+    public dataLoading: Writable<boolean> = writable(false); // The whole calculation: isochrones + plan data
+    public dataPreparing: Writable<boolean> = writable(false); // Only the plan data download
     public isochrones: Writable<Array<Isochrone>> = writable([]);
     public startWeights: Array<number>; // Inside to outside, should total 1
     public parts: number; // Number of isochrones to generate
@@ -64,7 +156,6 @@ export class IsochronesLayer {
 
         this.dataSource = new Cesium.CustomDataSource();
         this.map.viewer.dataSources.add(this.dataSource);
-        this.dataLayer?.ensureLoaded();
 
         this.isochrones.subscribe(isos => {
             this.redistributeWeights(isos);
@@ -101,88 +192,96 @@ export class IsochronesLayer {
     }
 
 
+    /**
+     * Fetch the plan data and reduce it to a compact index (one centroid + one value per feature).
+     * Only the attribute and the centroid are needed, so the layer is deliberately not materialised
+     * as Cesium entities: that kept a full copy of every polygon alive for no reason. This downloads
+     * the whole plan dataset, so it is deferred to the first activation of the tool (or the first
+     * calculation) instead of running on `configLoaded`. Latched, so every entry point can await it;
+     * a failed load is not latched, so the next call retries.
+     */
+    public prepare(): Promise<void> {
+        if (!this.prepared) {
+            this.prepared = this.loadFeatureIndex().catch((error) => {
+                this.prepared = undefined;
+                throw error;
+            });
+        }
+        return this.prepared;
+    }
+
+
+    private async loadFeatureIndex(): Promise<void> {
+        const url = this.dataLayer?.config.settings?.url;
+        if (typeof url !== "string" || url === "") {
+            throw new Error("The accounted population growth layer has no settings.url to read");
+        }
+        this.dataPreparing.set(true);
+        try {
+            const start = performance.now();
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const geojson = await response.json();
+            this.featureIndex = buildFeatureIndex(geojson?.features, this.dataAttribute);
+            console.debug(`isochrones: ${this.featureIndex.count} features indexed in ${Math.round(performance.now() - start)} ms`);
+        } finally {
+            this.dataPreparing.set(false);
+        }
+    }
+
+
+    /** Fetch the isochrones and the plan data in parallel, then assign the accounted population. */
+    public async calculate(): Promise<void> {
+        this.dataLoading.set(true);
+        try {
+            await Promise.all([this.entityToIsochrones(), this.prepare()]);
+            this.addDataValuesToIsochrones();
+        } catch (error) {
+            console.error("isochrones: calculation failed", error);
+            const notification = new Notification(
+                NotificationType.ERROR,
+                get(_)("general.notifications.error"),
+                get(_)("tools.isochrones.calculationFailed"),
+                5000,
+                true,
+                true
+            );
+            notification.error = error instanceof Error ? error : new Error(String(error));
+            notifications.send(notification);
+        } finally {
+            this.dataLoading.set(false);
+        }
+    }
+
+
     public addDataValuesToIsochrones(): void {
-        const dataSource = this.dataLayer.source;
-        const entities = dataSource.entities.values;
-        // console.log("Entities in data source: ", entities);
-        entities.forEach(entity => {
-            if (entity.polygon && entity.properties) {
-                // console.log(`Processing entity ${entity.id} with properties: `, entity.properties);
+        const start = performance.now();
+        const index = this.featureIndex;
+        if (!index || this.isoRings.length === 0) {
+            console.warn("No isochrones or plan data available to assign accounted population");
+            return;
+        }
 
-                const isos = get(this.isochrones);
-                if (!isos || isos.length === 0) {
-                    console.warn("No isochrones available to check for centroid inclusion");
-                    return;
-                }
-
-                for (let i = 0; i < isos.length; i++) {
-                    const iso = isos[i];
-                    let accounted = 0;
-
-                    if (iso.entity.polygon) {
-                        const hierarchy = entity.polygon.hierarchy?.getValue(Cesium.JulianDate.now());
-                        const centroid = Cesium.BoundingSphere.fromPoints(hierarchy.positions).center;
-                        const turfCoord = turf.point([centroid.x, centroid.y]);
-                        const isoPolygon = iso.entity.polygon.hierarchy?.getValue(Cesium.JulianDate.now()).positions.map((pos: Cesium.Cartesian3) => [pos.x, pos.y]);
-                        const turfIsoPolygon = turf.polygon([isoPolygon]);
-
-                        // let turfIsoPolygonWithHoles = turfIsoPolygon;
-                        // if (i > 0) {
-                        //     const previousIso = isos[i - 1];
-                        //     if (previousIso.entity.polygon) {
-                        //         const previousIsoPolygon = previousIso.entity.polygon.hierarchy?.getValue(Cesium.JulianDate.now()).positions.map((pos: Cesium.Cartesian3) => [pos.x, pos.y]);
-                        //         const turfPreviousIsoPolygon = turf.polygon([previousIsoPolygon]);
-                        //         turfIsoPolygonWithHoles = turf.mask(turfPreviousIsoPolygon, turfIsoPolygon);
-                        //     }
-                        // }
-
-                        const isInsideIso = turf.booleanPointInPolygon(turfCoord, turfIsoPolygon);
-
-                        // Add data attribute value to isochrone properties if centroid is within isochrone polygon
-                        if (isInsideIso) {
-                            // console.log(`Centroid of entity ${entity.id} is inside isochrone ${iso.props.index}`);
-
-                            // Calculate population that is accounted for with existing building plans
-                            if (entity.properties?.[this.dataAttribute]) {
-                                accounted = Math.round(entity.properties[this.dataAttribute] * this.conversionFactor);
-                                // console.log(`Accounted value for entity ${entity.id} is ${accounted}`);
-                            }
-                            else {
-                                console.warn(`Data attribute ${this.dataAttribute} not found in entity properties`);
-                            }
-
-                            // DEBUG: add each centroid as entity to the map
-                            // this.map.viewer.entities.add({
-                            //     position: centroid,
-                            //     point: {
-                            //         pixelSize: 4,
-                            //         color: Cesium.Color.BLUE,
-                            //         disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                            //         heightReference: Cesium.HeightReference.CLAMP_TO_TERRAIN
-                            //     },
-                            // });
-                            // this.map.refresh();
-
-                            // Update accountedPopulation and the entity properties
-                            iso.props.accountedPopulation += accounted;
-
-                            if (iso.entity.properties) {
-                                iso.entity.properties.accountedPopulation = iso.props.accountedPopulation;
-                            }
-
-                            break; // Stop checking other isochrones since it can only be in one
-
-                        }
-                    }
+        // Each feature counts for the innermost isochrone containing its centroid (the isochrones are nested).
+        const accountedPerIso = new Array<number>(this.isoRings.length).fill(0);
+        for (let i = 0; i < index.count; i++) {
+            const lon = index.lon[i];
+            const lat = index.lat[i];
+            for (let j = 0; j < this.isoRings.length; j++) {
+                if (isPointInIsoRing(lon, lat, this.isoRings[j])) {
+                    accountedPerIso[j] += Math.round(index.value[i] * this.conversionFactor);
+                    break;
                 }
             }
-        });
+        }
 
         this.isochrones.update(isos => {
-            return isos.map(iso => {
-                const unaccountedPopulation = iso.props.population - iso.props.accountedPopulation;
+            return isos.map((iso, i) => {
+                const accountedPopulation = accountedPerIso[i] ?? 0;
+                const unaccountedPopulation = iso.props.population - accountedPopulation;
 
                 if (iso.entity.properties) {
+                    iso.entity.properties.accountedPopulation = accountedPopulation;
                     iso.entity.properties.unaccountedPopulation = unaccountedPopulation;
                 }
 
@@ -190,11 +289,13 @@ export class IsochronesLayer {
                     ...iso,
                     props: {
                         ...iso.props,
+                        accountedPopulation: accountedPopulation,
                         unaccountedPopulation: unaccountedPopulation
                     }
                 };
             });
         });
+        console.debug(`isochrones: ${index.count} features assigned in ${Math.round(performance.now() - start)} ms`);
     }
 
 
@@ -355,6 +456,7 @@ export class IsochronesLayer {
 
 
     public removeIsochrones(): void {
+        this.isoRings = [];
         const isos = get(this.isochrones);
         if (isos.length > 0) {
             isos.forEach(iso => {
@@ -483,7 +585,6 @@ export class IsochronesLayer {
         this.destroyHandler(); // Stop drawing
 
         try {
-            this.dataLoading.set(true);
             const response = await fetch(this.apiUrl, {
                 method: "POST",
                 headers: {
@@ -505,6 +606,7 @@ export class IsochronesLayer {
                 const startWeights = [0.5, 0.3, 0.2]; // Example weights for 3 isochrones
                 const totalPop = get(this.totalPopulation);
                 const newIsochrones: Array<Isochrone> = [];
+                const newRings: Array<IsoRing> = [];
                 let hole: Cesium.PolygonHierarchy[] | undefined = undefined;
                 let hierarchy: Cesium.PolygonHierarchy;
                 
@@ -516,6 +618,7 @@ export class IsochronesLayer {
                     const weight = startWeights[index];
                     const population = Math.round(weight * totalPop);
                     const accountedPopulation = 0;
+                    newRings.push(toIsoRing(feature.geometry.coordinates[0]));
                     const coordinates = feature.geometry.coordinates[0].map((coord: any) => {
                         return Cesium.Cartesian3.fromDegrees(coord[0], coord[1]);
                     });
@@ -563,6 +666,7 @@ export class IsochronesLayer {
                     };
                     newIsochrones.push(isochrone);
                 });
+                this.isoRings = newRings;
                 this.isochrones.set(newIsochrones);
                 this.map.refresh();
             }
@@ -571,9 +675,7 @@ export class IsochronesLayer {
             }
         } catch (error) {
             console.error("Failed to send request:", error);
-        }
-        finally {
-            this.dataLoading.set(false);
+            throw error;
         }
     }
 

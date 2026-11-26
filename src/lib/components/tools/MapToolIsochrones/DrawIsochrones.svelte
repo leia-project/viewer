@@ -11,6 +11,8 @@
 
     onMount(() => {
         isochronesLayer.show();
+        // Start downloading the plan data while the user is still picking a location.
+        void isochronesLayer.prepare().catch(() => undefined); // Retried (and reported) on calculate
     });
 
 
@@ -21,6 +23,7 @@
 
     const coordinates = isochronesLayer.coordinates;
     const dataLoading = isochronesLayer.dataLoading;
+    const dataPreparing = isochronesLayer.dataPreparing;
     const handler = isochronesLayer.handler;
 
 </script>
@@ -45,12 +48,7 @@
         <Button
             kind="tertiary"
             disabled={!$coordinates || $dataLoading}
-            on:click={async () => {
-                await isochronesLayer.entityToIsochrones();
-                // Wait for polygon entities array to be populated
-                await isochronesLayer.dataLayer.ensureLoaded();
-                isochronesLayer.addDataValuesToIsochrones();
-            }}
+            on:click={() => isochronesLayer.calculate()}
         >
             {#if $dataLoading}
                 <InlineLoading description={$_('tools.isochrones.calculating')} />
@@ -59,6 +57,12 @@
             {/if}
         </Button>
     </div>
+
+    {#if $dataPreparing && !$dataLoading}
+        <div class="component">
+            <InlineLoading description={$_('tools.isochrones.loadingData')} />
+        </div>
+    {/if}
 </div>
 
 

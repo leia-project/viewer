@@ -1481,7 +1481,7 @@ Tool to calculate and visualize car isochrones (travel-time areas) around an eco
 |value|description|type|
 |-|-|-|
 |apiUrl|OpenRouteService isochrones endpoint URL|string|
-|accountedPopulationGrowthLayerId|Layer id used to retrieve accounted population growth data|string|
+|accountedPopulationGrowthLayerId|Layer id used to retrieve accounted population growth data. The layer must be a GeoJSON layer with a `settings.url`: the tool downloads that document itself (once, when the tool is first opened) and only reads the attribute and each feature's centre point, so the layer does not need to be visible or loaded on the map|string|
 |accountedPopulationGrowthAttribute|Attribute name in the configured layer that contains the accounted population growth value|string|
 
 ```json

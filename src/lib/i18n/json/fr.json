@@ -445,6 +445,8 @@
             "enterApiKey": "Entrez la clé API GeodanMaps ici...",
             "calculate": "Calculer les isochrones",
             "calculating": "Calcul en cours...",
+            "loadingData": "Chargement des données du plan...",
+            "calculationFailed": "Le calcul a échoué, consultez le journal pour plus d'informations",
             "totalPopulation": "Total de nouveaux résidents",
             "legendTitle": "Légende",
             "settlementPercentages": "Répartition des établissements"
