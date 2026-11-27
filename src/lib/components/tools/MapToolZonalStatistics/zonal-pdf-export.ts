@@ -174,24 +174,23 @@ function buildPdfColumns(
 
 function drawPdfTableHeader(doc: jsPDF, x: number, y: number, columns: Array<PdfColumn>): number {
 	const headerLineHeight = 4;
-	const headerHeight =
-		Math.max(
-			...columns.map((col) =>
-				Math.max(1, doc.splitTextToSize(col.header, Math.max(1, col.width - 3)).length)
-			)
-		) *
-			headerLineHeight +
-		2;
 
+	// Wrap with the same font the header is drawn in; measuring with whatever font state was
+	// left behind (e.g. normal 9pt after a page break) under-sizes the header row.
 	doc.setFont("helvetica", "bold");
 	doc.setFontSize(9);
+	const wrapped: Array<Array<string>> = columns.map((col) =>
+		doc.splitTextToSize(col.header, Math.max(1, col.width - 3))
+	);
+	const headerHeight =
+		Math.max(...wrapped.map((lines) => Math.max(1, lines.length))) * headerLineHeight + 2;
 
 	let cursorX = x;
-	for (const col of columns) {
+	columns.forEach((col, i) => {
 		doc.rect(cursorX, y, col.width, headerHeight);
-		doc.text(doc.splitTextToSize(col.header, Math.max(1, col.width - 3)), cursorX + 1.5, y + 4);
+		doc.text(wrapped[i], cursorX + 1.5, y + 4);
 		cursorX += col.width;
-	}
+	});
 
 	doc.setFont("helvetica", "normal");
 	return y + headerHeight;

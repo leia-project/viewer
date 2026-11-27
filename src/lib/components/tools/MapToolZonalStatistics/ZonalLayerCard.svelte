@@ -21,6 +21,7 @@
 	$: selected = $selectedLayerId === layerId;
 	$: inTable = $tableLayers.some((dl) => dl.layerId === layerId);
 	$: busy = $loadingLayerIds.has(layerId);
+	$: expandLabel = expanded ? $_("tools.menu.collapse") : $_("tools.menu.expand");
 </script>
 
 <div class="layer-card" class:is-selected={selected}>
@@ -46,17 +47,19 @@
 					/>
 				</div>
 			{/if}
-			<button
-				class="icon-btn expand-btn"
-				class:open={expanded}
-				type="button"
-				on:click={() => (expanded = !expanded)}
-				aria-expanded={expanded}
-				aria-label={expanded ? $_("tools.menu.collapse") : $_("tools.menu.expand")}
-				title={expanded ? $_("tools.menu.collapse") : $_("tools.menu.expand")}
-			>
-				<ChevronDown size={16} />
-			</button>
+			{#if !layer.displayOnly}
+				<button
+					class="icon-btn expand-btn"
+					class:open={expanded}
+					type="button"
+					on:click={() => (expanded = !expanded)}
+					aria-expanded={expanded}
+					aria-label={expandLabel}
+					title={expandLabel}
+				>
+					<ChevronDown size={16} />
+				</button>
+			{/if}
 		</div>
 
 		{#if expanded}
@@ -74,25 +77,40 @@
 		{/if}
 	</div>
 
-	<button
-		class="icon-btn table-btn"
-		class:danger={inTable}
-		type="button"
-		on:click={() =>
-			inTable ? controller.removeTableLayer(layerId) : controller.addTableLayer(layerId)}
-		aria-label={inTable
-			? $_("tools.zonalStatistics.removeFromTable")
-			: $_("tools.zonalStatistics.addToTable")}
-		title={inTable
-			? $_("tools.zonalStatistics.removeFromTable")
-			: $_("tools.zonalStatistics.addToTable")}
-	>
-		{#if inTable}
-			<TrashCan size={16} />
-		{:else}
-			<Add size={16} />
-		{/if}
-	</button>
+	{#if layer.displayOnly}
+		<!-- No table row, so the fold-out arrow takes the +/trash button's place. -->
+		<button
+			class="icon-btn expand-btn side-btn"
+			class:open={expanded}
+			type="button"
+			on:click={() => (expanded = !expanded)}
+			aria-expanded={expanded}
+			aria-label={expandLabel}
+			title={expandLabel}
+		>
+			<ChevronDown size={16} />
+		</button>
+	{:else}
+		<button
+			class="icon-btn table-btn side-btn"
+			class:danger={inTable}
+			type="button"
+			on:click={() =>
+				inTable ? controller.removeTableLayer(layerId) : controller.addTableLayer(layerId)}
+			aria-label={inTable
+				? $_("tools.zonalStatistics.removeFromTable")
+				: $_("tools.zonalStatistics.addToTable")}
+			title={inTable
+				? $_("tools.zonalStatistics.removeFromTable")
+				: $_("tools.zonalStatistics.addToTable")}
+		>
+			{#if inTable}
+				<TrashCan size={16} />
+			{:else}
+				<Add size={16} />
+			{/if}
+		</button>
+	{/if}
 </div>
 
 <style>
@@ -218,10 +236,13 @@
 	}
 
 	/* Sits outside the card box; the vertical margin centres it against the 2.5rem card head row. */
-	.table-btn {
+	.side-btn {
 		flex-shrink: 0;
 		height: 1.5rem;
 		margin: 0.5rem 0;
+	}
+
+	.table-btn {
 		color: var(--cds-link-primary, #0f62fe);
 	}
 

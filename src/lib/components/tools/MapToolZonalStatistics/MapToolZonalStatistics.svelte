@@ -88,7 +88,8 @@
 		}
 
 		// The zone layer carries the geometry every data layer is painted onto, so it stays on while
-		// the tool is open. The data layers are attribute joins and are never switched on.
+		// the tool is open. The data layers are attribute joins and are never switched on; a
+		// display-only (e.g. WMS) layer is switched on by the controller while it is selected.
 		const zoneLayer = map.getLayerById(zoneLayerId);
 		if (!zoneLayer) {
 			console.warn(`zonalStatistics: zone layer '${zoneLayerId}' not found while activating`);
