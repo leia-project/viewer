@@ -59,6 +59,11 @@ export interface ResolvedDataLayer {
 	metadataUrl: string | undefined;
 	/** Opacity (0…100) of this layer's colours on the shared zone geometry. */
 	opacity: Writable<number>;
+	/**
+	 * True when the id is a non-GeoJSON map layer (e.g. WMS): selecting it shows that layer with its
+	 * own style instead of colouring the zones, and it has no attributes, so no table row.
+	 */
+	displayOnly: boolean;
 }
 
 export interface GroupedDataLayers {
@@ -132,6 +137,14 @@ export class ZonalStatisticsController {
 	// state, so hiding thousands of polygons costs two allocations instead of two per entity.
 	private static readonly HIDDEN = new Cesium.ConstantProperty(false);
 	private static readonly SHOWN = new Cesium.ConstantProperty(true);
+	// Fill colours while a display-only layer is selected. The base alpha must stay above 0: Cesium's
+	// pick pass discards alpha-0 fragments, which would make the zones unclickable.
+	private static readonly DISPLAY_BASE = Cesium.Color.WHITE.withAlpha(1 / 255);
+	private static readonly DISPLAY_HOVER = Cesium.Color.WHITE.withAlpha(0.3);
+	private static readonly DISPLAY_SELECTED = Cesium.Color.YELLOW.withAlpha(0.3);
+	private static readonly DISPLAY_ACTIVE = Cesium.Color.DEEPSKYBLUE.withAlpha(0.45);
+	/** Map layer types shown as-is (server-side style) instead of having their attributes joined. */
+	private static readonly DISPLAY_LAYER_TYPES = new Set(["wms", "wmts"]);
 
 	private readonly map: CesiumMap;
 	public readonly settings: ZonalStatisticsSettings;
@@ -188,6 +201,14 @@ export class ZonalStatisticsController {
 	private readonly trackedLayers: Array<TrackedLayer> = [];
 	/** Id of the layer the shared fill primitive currently takes its colours from. */
 	private colorLayerId: string | undefined;
+	/** The display-only map layer the tool switched on for the current selection, if any. */
+	private shownDisplayLayerId: string | undefined;
+	/** Whether the tool added that layer to the map itself (and so removes it again). */
+	private displayLayerAddedByTool = false;
+	/** That layer's opacity before the tool applied its card's opacity, restored on hide. */
+	private displayLayerOpacityBefore: number | undefined;
+	/** Ids of the display-only layers; checked per zone on every repaint, hence a set. */
+	private readonly displayOnlyIds: Set<string> = new Set();
 	/** Work waiting for the shared fill primitive to finish its asynchronous geometry creation. */
 	private readonly fillReadyCallbacks: Array<() => void> = [];
 	/** Removes the postRender listener driving `fillReadyCallbacks`. */
@@ -323,21 +344,101 @@ export class ZonalStatisticsController {
 			// A data layer is an attribute join on the zone geometry, so it needs no map layer of its
 			// own; a layer with the same id only serves as a fallback for what the entry omits.
 			const layer = this.map.getLayerById(cfg.id);
+			// The library also knows layers that are not (or no longer) in the layer manager.
+			const layerConfig = layer?.config ?? this.map.layerLibrary.findLayer(cfg.id);
+			const displayOnly = ZonalStatisticsController.DISPLAY_LAYER_TYPES.has(
+				String(layerConfig?.type)
+			);
+			if (displayOnly) this.displayOnlyIds.add(cfg.id);
+			// A display layer's own opacity store is recreated whenever it is re-added, so the card
+			// keeps its own value, which `showDisplayLayer` applies while the tool shows the layer.
+			const opacity = displayOnly
+				? writable(cfg.opacity ?? (layerConfig?.opacity || 100))
+				: cfg.opacity !== undefined
+					? writable(cfg.opacity)
+					: (layer?.opacity ?? writable(DEFAULT_LAYER_OPACITY));
 			this.dataLayers.push({
 				layerId: cfg.id,
-				title: cfg.title ?? layer?.config.title ?? cfg.id,
-				groupId: cfg.groupId ?? layer?.config.groupId,
+				title: cfg.title ?? layerConfig?.title ?? cfg.id,
+				groupId: cfg.groupId ?? layerConfig?.groupId,
 				url: cfg.url ?? layer?.config.settings?.url ?? zoneUrl,
-				metadataUrl: cfg.metadataUrl ?? layer?.config.metadataLink ?? layer?.config.metadataUrl,
-				// The entry's own opacity wins; a map layer with the same id only fills the gap.
-				opacity:
-					cfg.opacity !== undefined
-						? writable(cfg.opacity)
-						: (layer?.opacity ?? writable(DEFAULT_LAYER_OPACITY))
+				metadataUrl:
+					cfg.metadataUrl ?? layerConfig?.metadataLink ?? layerConfig?.metadataUrl,
+				opacity,
+				displayOnly
 			});
+			if (displayOnly) {
+				this.unsubscribers.push(
+					opacity.subscribe((value) => {
+						if (this.shownDisplayLayerId === cfg.id)
+							this.map.getLayerById(cfg.id)?.opacity.set(value);
+					})
+				);
+			}
 		}
 		this.resolvedDataLayers.set([...this.dataLayers]);
 		this.rebuildGroupedDataLayers();
+		this.unsubscribers.push(
+			this.selectedLayerId.subscribe(() => this.syncDisplayLayer()),
+			this.active.subscribe(() => this.syncDisplayLayer())
+		);
+	}
+
+	private isDisplayOnly(layerId: string | undefined): boolean {
+		return layerId !== undefined && this.displayOnlyIds.has(layerId);
+	}
+
+	/**
+	 * Show the display-only layer the fill is currently "coloured" by. Following the fill rather
+	 * than the radio keeps the layer on until a newly selected layer is drawn (or for good, when
+	 * that one fails to load), instead of leaving bare outlines. Nothing is shown without a
+	 * selection: on open the tool first hides every layer, on close it restores them afterwards.
+	 */
+	private syncDisplayLayer(): void {
+		const shown =
+			get(this.active) && get(this.selectedLayerId) !== undefined
+				? this.resolveColorLayerId()
+				: undefined;
+		const wanted = this.isDisplayOnly(shown) ? shown : undefined;
+		if (wanted === this.shownDisplayLayerId) return;
+		this.hideDisplayLayer();
+		if (wanted) this.showDisplayLayer(wanted);
+	}
+
+	private showDisplayLayer(layerId: string): void {
+		let layer = this.map.getLayerById(layerId);
+		if (!layer) {
+			// Not in the layer manager (never added, or removed there): add it while it is shown.
+			this.map.layerLibrary.findLayer(layerId)?.added.set(true);
+			layer = this.map.getLayerById(layerId);
+			this.displayLayerAddedByTool = layer !== undefined;
+		}
+		if (!layer) {
+			console.warn(`zonalStatistics: display layer '${layerId}' not found`);
+			return;
+		}
+		this.shownDisplayLayerId = layerId;
+		this.displayLayerOpacityBefore = get(layer.opacity);
+		const opacity = this.dataLayers.find((dl) => dl.layerId === layerId)?.opacity;
+		if (opacity) layer.opacity.set(get(opacity));
+		layer.visible.set(true);
+	}
+
+	/** Undo `showDisplayLayer`: hide it, restore its opacity and remove it if the tool added it. */
+	private hideDisplayLayer(): void {
+		const layerId = this.shownDisplayLayerId;
+		if (!layerId) return;
+		this.shownDisplayLayerId = undefined;
+		const layer = this.map.getLayerById(layerId);
+		if (layer) {
+			layer.visible.set(false);
+			if (this.displayLayerOpacityBefore !== undefined) {
+				layer.opacity.set(this.displayLayerOpacityBefore);
+			}
+			if (this.displayLayerAddedByTool) layer.config.added.set(false);
+		}
+		this.displayLayerAddedByTool = false;
+		this.displayLayerOpacityBefore = undefined;
 	}
 
 	/**
@@ -407,7 +508,7 @@ export class ZonalStatisticsController {
 		const running = this.layerLoads.get(layerId);
 		if (running !== undefined) return running;
 		const dl = this.dataLayers.find((l) => l.layerId === layerId);
-		if (!dl) return Promise.resolve();
+		if (!dl || dl.displayOnly) return Promise.resolve();
 		// The zone layer carries the geometry and is loaded + indexed by `prepare()`.
 		if (layerId === this.settings.zoneLayerId) return this.prepare();
 
@@ -499,11 +600,11 @@ export class ZonalStatisticsController {
 		this.syncFillSource();
 	}
 
-	/** Add a data layer's row to the table (no-op when it is already there). */
+	/** Add a data layer's row to the table (no-op when it is already there or display-only). */
 	public addTableLayer(layerId: string): void {
 		if (this.isTableLayer(layerId)) return;
 		const dl = this.dataLayers.find((l) => l.layerId === layerId);
-		if (!dl) return;
+		if (!dl || dl.displayOnly) return;
 		this.tableLayers.set([...get(this.tableLayers), dl]);
 		void this.ensureLayerReady(layerId);
 	}
@@ -519,7 +620,7 @@ export class ZonalStatisticsController {
 		const current = get(this.tableLayers);
 		const currentIds = new Set(current.map((dl) => dl.layerId));
 		const added = this.dataLayers.filter(
-			(dl) => wanted.has(dl.layerId) && !currentIds.has(dl.layerId)
+			(dl) => wanted.has(dl.layerId) && !currentIds.has(dl.layerId) && !dl.displayOnly
 		);
 		if (added.length === 0) return;
 		this.tableLayers.set([...current, ...added]);
@@ -534,8 +635,9 @@ export class ZonalStatisticsController {
 
 	/** Give every resolved data layer a row in the table, in config order. */
 	public addAllTableLayers(): void {
-		this.tableLayers.set([...this.dataLayers]);
-		for (const dl of this.dataLayers) void this.ensureLayerReady(dl.layerId);
+		const rows = this.dataLayers.filter((dl) => !dl.displayOnly);
+		this.tableLayers.set(rows);
+		for (const dl of rows) void this.ensureLayerReady(dl.layerId);
 	}
 
 	/** Whether a data layer currently has a row in the table. */
@@ -695,9 +797,12 @@ export class ZonalStatisticsController {
 			this.map.refresh();
 		}
 		const next = this.resolveColorLayerId();
-		if (next === this.colorLayerId) return;
-		this.colorLayerId = next;
-		this.refreshBaseColors();
+		if (next !== this.colorLayerId) {
+			this.colorLayerId = next;
+			this.refreshBaseColors();
+		}
+		// The display layer follows the fill, so it is only switched once the new colours are drawn.
+		this.syncDisplayLayer();
 	}
 
 	/**
@@ -706,6 +811,8 @@ export class ZonalStatisticsController {
 	 */
 	private resolveColorLayerId(): string | undefined {
 		const selected = get(this.selectedLayerId);
+		// A display-only layer needs no colours, so it takes over right away.
+		if (this.isDisplayOnly(selected)) return selected;
 		// An indexed-but-empty colour map would repaint every zone transparent, leaving bare outlines.
 		if (selected && (this.colorIndex.get(selected)?.size ?? 0) > 0) return selected;
 		return this.colorLayerId ?? this.settings.zoneLayerId;
@@ -734,6 +841,7 @@ export class ZonalStatisticsController {
 	 */
 	private baseColorFor(code: string): Cesium.Color {
 		const layerId = this.colorLayerId;
+		if (this.isDisplayOnly(layerId)) return ZonalStatisticsController.DISPLAY_BASE;
 		const rgb = layerId ? this.colorIndex.get(layerId)?.get(code) : undefined;
 		return rgb ? rgb.withAlpha(this.colorLayerAlpha()) : Cesium.Color.TRANSPARENT;
 	}
@@ -1240,6 +1348,13 @@ export class ZonalStatisticsController {
 	 * hue stays visible in every state.
 	 */
 	private stateColor(code: string, base: Cesium.Color): Cesium.Color {
+		// Over a display-only layer the base is invisible, so tinting it would show nothing.
+		if (this.isDisplayOnly(this.colorLayerId)) {
+			if (code === this.activeCode) return ZonalStatisticsController.DISPLAY_ACTIVE;
+			if (this.isSelected(code)) return ZonalStatisticsController.DISPLAY_SELECTED;
+			if (code === this.hoveredCode) return ZonalStatisticsController.DISPLAY_HOVER;
+			return base;
+		}
 		let result: Cesium.Color;
 		if (code === this.activeCode) {
 			result = Cesium.Color.lerp(
@@ -1559,6 +1674,7 @@ export class ZonalStatisticsController {
 			this.zoneFill = undefined;
 		}
 		if (this.zoneLayer) this.restoreEntityFills(this.zoneLayer);
+		this.hideDisplayLayer();
 		this.trackedLayers.length = 0;
 		this.colorLayerId = undefined;
 		this.colorIndex.clear();

@@ -29,6 +29,7 @@
 			expanded: boolean;
 			panelId?: string;
 			inTableCount: number;
+				tableable: number;
 			allInTable: boolean;
 			hasSelectedChild: boolean;
 		}
@@ -36,13 +37,15 @@
 
 	// One placeholder card per configured layer that has not resolved yet.
 	$: pendingCount = $loading ? Math.max(0, settings.layers.length - $resolvedDataLayers.length) : 0;
-	$: allInTable =
-		$resolvedDataLayers.length > 0 && $tableLayers.length === $resolvedDataLayers.length;
+	// Display-only (e.g. WMS) layers have no table row, so they are left out of every table count.
+	$: tableableCount = $resolvedDataLayers.filter((layer) => !layer.displayOnly).length;
+	$: allInTable = tableableCount > 0 && $tableLayers.length === tableableCount;
 	$: tableLayerIds = new Set($tableLayers.map((layer) => layer.layerId));
 	$: renderGroups = $groupedDataLayers.map((group) => {
 		const groupId = group.groupId;
 		const expanded = groupId ? !collapsedGroupIds.has(groupId) : true;
 		const hasSelectedChild = group.layers.some((layer) => layer.layerId === $selectedLayerId);
+		const tableable = group.layers.filter((layer) => !layer.displayOnly).length;
 		const inTableCount = group.layers.reduce(
 			(count, layer) => (tableLayerIds.has(layer.layerId) ? count + 1 : count),
 			0
@@ -52,7 +55,8 @@
 			expanded,
 			panelId: groupId ? groupPanelId(groupId) : undefined,
 			inTableCount,
-			allInTable: group.layers.length > 0 && inTableCount === group.layers.length,
+			tableable,
+			allInTable: tableable > 0 && inTableCount === tableable,
 			hasSelectedChild
 		};
 	});
@@ -94,7 +98,7 @@
 		<div class="table-header">
 			<span class="table-title bx--label">{$_("tools.zonalStatistics.tableSection")}</span>
 			<span class="table-count">
-				<Tag size="sm">{$tableLayers.length}/{$resolvedDataLayers.length}</Tag>
+				<Tag size="sm">{$tableLayers.length}/{tableableCount}</Tag>
 			</span>
 			<div class="table-header-actions">
 				<button
@@ -140,28 +144,30 @@
 								</span>
 								<span class="group-title">{group.title}</span>
 							</button>
-							<div
-								class="group-menu"
-								title={$_("tools.zonalStatistics.groupInTable", {
-									values: { count: group.inTableCount, total: group.layers.length }
-								})}
-							>
-								<OverflowMenu size="sm" flipped>
-									<div slot="menu">
-										<Tag size="sm">{group.inTableCount}/{group.layers.length}</Tag>
-									</div>
-									<OverflowMenuItem
-										text={$_("tools.zonalStatistics.addAllToTable")}
-										disabled={group.allInTable}
-										on:click={() => setGroupTable(group, true)}
-									/>
-									<OverflowMenuItem
-										text={$_("tools.zonalStatistics.removeAllFromTable")}
-										disabled={group.inTableCount === 0}
-										on:click={() => setGroupTable(group, false)}
-									/>
-								</OverflowMenu>
-							</div>
+							{#if group.tableable > 0}
+								<div
+									class="group-menu"
+									title={$_("tools.zonalStatistics.groupInTable", {
+										values: { count: group.inTableCount, total: group.tableable }
+									})}
+								>
+									<OverflowMenu size="sm" flipped>
+										<div slot="menu">
+											<Tag size="sm">{group.inTableCount}/{group.tableable}</Tag>
+										</div>
+										<OverflowMenuItem
+											text={$_("tools.zonalStatistics.addAllToTable")}
+											disabled={group.allInTable}
+											on:click={() => setGroupTable(group, true)}
+										/>
+										<OverflowMenuItem
+											text={$_("tools.zonalStatistics.removeAllFromTable")}
+											disabled={group.inTableCount === 0}
+											on:click={() => setGroupTable(group, false)}
+										/>
+									</OverflowMenu>
+								</div>
+							{/if}
 						</div>
 						{#if group.expanded}
 							<div class="group-cards" id={group.panelId}>
